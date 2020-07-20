@@ -1,5 +1,3 @@
-cd $::env(RESULTS_DIR)/magic
-
 lef read $::env(TECH_LEF)
 #load $::env(magic_result_file_tag).mag
 if {  [info exist ::env(EXTRA_LEFS)] } {
@@ -21,9 +19,6 @@ select top cell
 drc check
 set drcresult [drc listall why]
 
-puts stdout "\[INFO\]: Saving mag view with DRC errors([pwd]/$::env(DESIGN_NAME).drc.mag)"
-save $::env(DESIGN_NAME).drc.mag
-puts stdout "\[INFO\]: Saved"
 
 set count 0
 puts $fout "$cell_name"
@@ -54,5 +49,9 @@ puts stdout "\[INFO\]: Should be divided by 3 or 4"
 puts stdout "\[INFO\]: DRC Checking DONE ([pwd]/$::env(DESIGN_NAME).drc)"
 flush stdout
 
-cd $::env(OPENLANE_ROOT)
+puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_result_file_tag).drc.mag)"
+# WARNING: changes the name of the cell; keep as last step
+save $::env(magic_result_file_tag).drc.mag
+puts stdout "\[INFO\]: Saved"
+
 exit 0

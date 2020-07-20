@@ -1,5 +1,3 @@
-cd $::env(RESULTS_DIR)/magic
-
 drc off
 
 lef read $::env(TECH_LEF)
@@ -53,26 +51,24 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 }
 
 select top cell
-# cellname rename $::env(magic_result_file_tag) $::env(DESIGN_NAME)
-
-puts "\[INFO\]: Saving With BBox Values: [box values]"
-save $::env(DESIGN_NAME).mag
 
 # Write gds
 if { $::env(MAGIC_GENERATE_GDS) } {
 	cif *hier write disable
 	#gds write $::env(DESIGN_NAME).gds
-	gds write $::env(DESIGN_NAME).gds
+	gds write $::env(magic_result_file_tag).gds
 	puts "\[INFO\]: GDS Write Complete"
 }
 
 if { $::env(MAGIC_GENERATE_LEF) } {
-	lef write $::env(DESIGN_NAME).lef -hide
+	lef write $::env(magic_result_file_tag).lef -hide
 	# lef write $::env(DESIGN_NAME).full.lef
 	puts "\[INFO\]: LEF Write Complete"
 }
 
-puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
+puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
+# WARNING: changes the name of the cell; keep as last step
+save $::env(magic_result_file_tag).mag
 
-cd $::env(OPENLANE_ROOT)
+puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
 exit 0

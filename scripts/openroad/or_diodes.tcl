@@ -73,6 +73,8 @@ puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
 set_placement_padding -global -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement
-check_placement -verbose
+if { [check_placement -verbose] } {
+	exit 1
+}
 write_def $::env(SAVE_DEF)
 write_verilog $::env(yosys_result_file_tag)_diodes.v

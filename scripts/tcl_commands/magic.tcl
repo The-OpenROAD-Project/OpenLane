@@ -1,9 +1,9 @@
 proc run_magic {args} {
-	puts "\[INFO\]: Running Magic..."
+	puts_info "Running Magic..."
 # |----------------------------------------------------|
 # |----------------   6. TAPE-OUT ---------------------|
 # |----------------------------------------------------|
-	puts "\[INFO\]: Streaming out GDS II..."
+	puts_info "Streaming out GDS II..."
 	set ::env(CURRENT_STAGE) finishing
 
 	set magicrc $::env(TMP_DIR)/magic_gen.magicrc
@@ -35,7 +35,7 @@ proc run_magic {args} {
 
 
 proc run_magic_drc {args} {
-	puts "\[INFO\]: Running Magic DRC..."
+	puts_info "Running Magic DRC..."
 	set magicrc $::env(TMP_DIR)/magic_drc.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 	# the following MAGTYPE has to be maglef for the purpose of DRC checking
