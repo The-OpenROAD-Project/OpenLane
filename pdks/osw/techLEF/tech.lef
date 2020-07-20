@@ -1,0 +1,425 @@
+#-------------------------------------------------------
+# SkyWater
+#-------------------------------------------------------
+# Technology LEF file for
+# Process: S8 130nm / 180nm hybrid
+# Metal stack option: s8phirs_10r
+# Standard cell libraries: high density (scs8hd, scs8hdll)
+# Reference: S8_TDR_2018-03-30.pdf
+# Date: March 20, 2019
+#------------------------------------------------------
+
+VERSION 5.7 ;
+BUSBITCHARS "[]" ;
+DIVIDERCHAR "/" ;
+
+UNITS
+  TIME NANOSECONDS 1 ;
+  CAPACITANCE PICOFARADS 1 ;
+  RESISTANCE OHMS 1 ;
+  DATABASE MICRONS 1000 ;
+END UNITS
+
+MANUFACTURINGGRID 0.005 ;
+CLEARANCEMEASURE EUCLIDEAN ;
+
+SITE unitehd
+    SYMMETRY Y  ;
+    CLASS CORE  ;
+    SIZE  0.460 BY 3.400 ;
+END unitehd
+
+LAYER li1
+    TYPE ROUTING ;
+    DIRECTION VERTICAL ;
+
+    PITCH 0.46 ;
+    OFFSET 0.23 ;
+
+    WIDTH    0.170 ;                    # LI 1
+    # SPACING  0.170 ;                    # LI 2
+  SPACINGTABLE
+    PARALLELRUNLENGTH 0
+    WIDTH 0 0.170000 ;
+    AREA 0.0561 ;                       # LI 6
+    THICKNESS 0.10 ; 
+
+    RESISTANCE RPERSQ 12.8 ;
+END li1
+
+LAYER mcon
+  TYPE CUT ;
+  WIDTH   0.17 ;		# Mcon 1
+  SPACING 0.17 ;		# Mcon 2
+  ENCLOSURE BELOW 0.0 0.0 ;	# Mcon 4
+  ENCLOSURE ABOVE 0.030 0.060 ; # Met1 4 / Met1 5
+END mcon
+
+LAYER met1
+    TYPE ROUTING ;
+    DIRECTION HORIZONTAL ;
+
+    PITCH 0.34 ;
+    OFFSET 0.17 ;
+
+    WIDTH    0.140 ;                    # Met1 1
+    #SPACING  0.140 ;                    # Met1 2
+    #SPACING  0.280 RANGE 3.001 100 ;	# Met1 3b
+    SPACINGTABLE
+	  PARALLELRUNLENGTH 0.000
+	    WIDTH 0.000 0.140000
+	    WIDTH 3.000000 0.280000
+	    ;
+    AREA 0.083 ;                        # Met1 6
+    THICKNESS 0.36 ; 
+
+    ANTENNAMODEL OXIDE1 ;
+    ANTENNACUMAREARATIO 2200 ;
+    ANTENNAAREARATIO 400 ;
+    ANTENNADIFFAREARATIO 400 ;
+    
+    MAXIMUMDENSITY 70.0 ;
+    DENSITYCHECKWINDOW 700.0 700.0 ;
+    DENSITYCHECKSTEP 70.0 ;
+
+    RESISTANCE RPERSQ 0.125 ;
+END met1
+
+LAYER via1
+  TYPE CUT ;
+  WIDTH   0.15 ;		# Via 1a
+  SPACING 0.17  ;		# Via 2
+  ENCLOSURE BELOW 0.055 0.085 ; # Via 4a / Via 5a
+  ENCLOSURE ABOVE 0.055 0.085 ; # Met2 4 / Met2 5
+END via1
+
+LAYER met2
+    TYPE ROUTING ;
+    DIRECTION VERTICAL ;
+
+    PITCH  0.46 ;
+    OFFSET 0.23 ;
+
+    WIDTH    0.140 ;                    # Met2 1
+    #SPACING  0.140 ;                    # Met2 2
+    #SPACING  0.280 RANGE 3.001 100 ;	# Met2 3b
+    SPACINGTABLE
+	  PARALLELRUNLENGTH 0.000
+	    WIDTH 0.000 0.140000
+	    WIDTH 3.000000 0.28000 ;
+    AREA 0.0676 ;                       # Met2 6
+    THICKNESS 0.36 ; 
+
+    ANTENNAMODEL OXIDE1 ;
+    ANTENNACUMAREARATIO 2200 ;
+    ANTENNAAREARATIO 400 ;
+    ANTENNADIFFAREARATIO 400 ;
+    
+    MAXIMUMDENSITY 70.0 ;
+    DENSITYCHECKWINDOW 700.0 700.0 ;
+    DENSITYCHECKSTEP 70.0 ;
+    RESISTANCE RPERSQ 0.125 ;
+END met2
+
+LAYER via2
+  TYPE CUT ;
+  WIDTH   0.20 ;		# Via2 1
+  SPACING 0.20 ;		# Via2 2
+  ENCLOSURE BELOW 0.040 0.085 ;	# Via2 4
+  ENCLOSURE ABOVE 0.065 0.065 ;	# Met3 4
+
+END via2
+
+LAYER met3
+    TYPE ROUTING ;
+    DIRECTION HORIZONTAL ;
+
+    PITCH  0.68 ;
+    OFFSET 0.34 ;
+
+    WIDTH    0.300 ;            # Met3 1
+    #SPACING  0.300 ;		# Met3 2
+    SPACINGTABLE
+	    PARALLELRUNLENGTH 0
+	    WIDTH 0 0.30000 ;
+    AREA     0.240 ;            # Met3 6
+    THICKNESS 0.845 ;
+
+    ANTENNAMODEL OXIDE1 ;
+    ANTENNACUMAREARATIO 2200 ;
+    ANTENNAAREARATIO 400 ;
+    ANTENNADIFFAREARATIO 400 ;
+    
+    MAXIMUMDENSITY 70.0 ;
+    DENSITYCHECKWINDOW 700.0 700.0 ;
+    DENSITYCHECKSTEP 70.0 ;
+    RESISTANCE RPERSQ 0.047 ;
+END met3
+
+LAYER via3
+  TYPE CUT ;
+
+  WIDTH   0.20 ;		# Via3 1
+  SPACING 0.20 ;		# Via3 2
+  ENCLOSURE BELOW 0.060 0.090 ;	# Via3 4 / Via3 5
+  ENCLOSURE ABOVE 0.065 0.065 ;	# Met4 3
+END via3
+
+LAYER met4
+    TYPE ROUTING ;
+    DIRECTION VERTICAL ;
+
+    PITCH  0.92 ;
+    OFFSET 0.46 ;
+
+    WIDTH    0.300 ;            # Met4 1
+    #SPACING  0.300 ;		# Met4 2
+    
+    SPACINGTABLE
+	    PARALLELRUNLENGTH 0
+	    WIDTH 0 0.30000 ;
+    AREA     0.240 ;            # Met4 4a
+
+    THICKNESS 0.845 ;
+
+    ANTENNAMODEL OXIDE1 ;
+    ANTENNACUMAREARATIO 2200 ;
+    ANTENNAAREARATIO 400 ;
+    ANTENNADIFFAREARATIO 400 ;
+    
+    MAXIMUMDENSITY 70.0 ;
+    DENSITYCHECKWINDOW 700.0 700.0 ;
+    DENSITYCHECKSTEP 70.0 ;
+    RESISTANCE RPERSQ 0.047 ;
+END met4
+
+LAYER via4
+  TYPE CUT ;
+
+  WIDTH   0.80 ;		# Via4 1
+  SPACING 0.80 ;		# Via4 2
+  ENCLOSURE BELOW 0.190 0.190 ;	# Via4 4
+  ENCLOSURE ABOVE 0.310 0.310 ;	# Met5 3
+
+END via4
+
+LAYER met5
+    TYPE ROUTING ;
+    DIRECTION HORIZONTAL ;
+
+    PITCH  3.4 ;
+    OFFSET 1.7 ; 
+
+    WIDTH    1.600 ;       # Met5 1
+    #SPACING  1.600 ;       # Met5 2
+    SPACINGTABLE
+	    PARALLELRUNLENGTH 0
+	    WIDTH 0 1.600 ;
+    AREA     4.000 ;       # Met5 4
+
+    THICKNESS 1.26 ;
+
+    ANTENNAMODEL OXIDE1 ;
+    ANTENNACUMAREARATIO 2200 ;
+    ANTENNAAREARATIO 400 ;
+    ANTENNADIFFAREARATIO 400 ;
+    
+    RESISTANCE RPERSQ 0.0285 ;
+END met5
+
+LAYER PR_bndry
+TYPE MASTERSLICE ;
+END PR_bndry
+
+#---------------------------------
+# Via Definitions
+#---------------------------------
+
+#---------------------------------
+# MCON
+#---------------------------------
+
+ VIA MCON_HH   DEFAULT
+ LAYER mcon ;
+ RECT -0.085 -0.085 0.085 0.085 ;
+ LAYER li1 ;
+ RECT -0.165 -0.085 0.165 0.085 ;
+ LAYER met1 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ END MCON_HH
+ 
+ VIA MCON_HV   DEFAULT
+ LAYER mcon ;
+ RECT -0.085 -0.085 0.085 0.085 ;
+ LAYER li1 ;
+ RECT -0.165 -0.085 0.165 0.085 ;
+ LAYER met1 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ END MCON_HV
+ 
+ VIA MCON_VH   DEFAULT
+ LAYER mcon ;
+ RECT -0.085 -0.085 0.085 0.085 ;
+ LAYER li1 ;
+ RECT -0.085 -0.165 -0.085 0.165 ;
+ LAYER met1 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ END MCON_VH
+ 
+ VIA MCON_VV   DEFAULT
+ LAYER mcon ;
+ RECT -0.085 -0.085 0.085 0.085 ;
+ LAYER li1 ;
+ RECT -0.085 -0.165 -0.085 0.165 ;
+ LAYER met1 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ END MCON_VV
+
+VIARULE MCON_GEN GENERATE
+ LAYER li1 ;
+ ENCLOSURE 0.000 0.080 ;
+ LAYER met1 ;
+ ENCLOSURE 0.030 0.060 ;
+ LAYER mcon ;
+ RECT -0.085 -0.085 0.085 0.085 ;
+ SPACING 0.360 BY 0.360 ;
+END MCON_GEN
+
+#---------------------------------
+# VIA1
+#---------------------------------
+
+ VIA VIA1_HH   DEFAULT
+ LAYER via1 ;
+ RECT -0.075 -0.075 0.075 0.075 ;
+ LAYER met1 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ LAYER met2 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ END VIA1_HH  
+ 
+ VIA VIA1_HV   DEFAULT
+ LAYER via1 ;
+ RECT -0.075 -0.075 0.075 0.075 ;
+ LAYER met1 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ LAYER met2 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ END VIA1_HV  
+ 
+ VIA VIA1_VH   DEFAULT
+ LAYER via1 ;
+ RECT -0.075 -0.075 0.075 0.075 ;
+ LAYER met1 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ LAYER met2 ;
+ RECT -0.16 -0.13 0.16 0.13 ;
+ END VIA1_VH  
+ 
+ VIA VIA1_VV   DEFAULT
+ LAYER via1 ;
+ RECT -0.075 -0.075 0.075 0.075 ;
+ LAYER met1 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ LAYER met2 ;
+ RECT -0.13 -0.16 0.13 0.16 ;
+ END VIA1_VV  
+ 
+VIARULE VIA1_GEN GENERATE
+ LAYER met1 ;
+ ENCLOSURE 0.055 0.085 ;
+ LAYER met2 ;
+ ENCLOSURE 0.055 0.085 ;
+ LAYER via1 ;
+ RECT -0.075 -0.075 0.075 0.075 ;
+ SPACING 0.320 BY 0.320 ;
+END VIA1_GEN
+
+#---------------------------------
+# VIA2
+#---------------------------------
+
+ VIA VIA2_H   DEFAULT
+ LAYER via2 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ LAYER met2 ;
+ RECT -0.185 -0.14 0.185 0.14 ;
+ LAYER met3 ;
+ RECT -0.165 -0.165 0.165 0.165 ;
+ END VIA2_H  
+ 
+ VIA VIA2_V   DEFAULT
+ LAYER via2 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ LAYER met2 ;
+ RECT -0.14 -0.185 0.14 0.185 ;
+ LAYER met3 ;
+ RECT -0.165 -0.165 0.165 0.165 ;
+ END VIA2_V  
+ 
+VIARULE VIA2_GEN GENERATE
+ LAYER met2 ;
+ ENCLOSURE 0.040 0.085 ;
+ LAYER met3 ;
+ ENCLOSURE 0.065 0.065 ;
+ LAYER via2 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ SPACING 0.40 BY 0.40 ;
+END VIA2_GEN
+
+#---------------------------------
+# VIA3
+#---------------------------------
+
+ VIA VIA3_H   DEFAULT
+ LAYER via3 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ LAYER met3 ;
+ RECT -0.19 -0.16 0.19 0.16 ;
+ LAYER met4 ;
+ RECT -0.165 -0.165 0.165 0.165 ;
+ END VIA3_H  
+ 
+ VIA VIA3_V   DEFAULT
+ LAYER via3 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ LAYER met3 ;
+ RECT -0.16 -0.19 0.16 0.19 ;
+ LAYER met4 ;
+ RECT -0.165 -0.165 0.165 0.165 ;
+ END VIA3_V  
+ 
+VIARULE VIA3_GEN GENERATE
+ LAYER met3 ;
+ ENCLOSURE 0.06 0.09 ;
+ LAYER met4 ;
+ ENCLOSURE 0.065 0.065 ;
+ LAYER via3 ;
+ RECT -0.1 -0.1 0.1 0.1 ;
+ SPACING 0.40 BY 0.40 ;
+END VIA3_GEN
+
+#---------------------------------
+# VIA4
+#---------------------------------
+
+ VIA VIA4_O   DEFAULT
+ LAYER via4 ;
+ RECT -0.4 -0.4 0.4 0.4 ;
+ LAYER met4 ;
+ RECT -0.59 -0.59 0.59 0.59 ;
+ LAYER met5 ;
+ RECT -0.71 -0.71 0.71 0.71 ;
+ END VIA4_O  
+ 
+VIARULE VIA4_GEN GENERATE
+ LAYER met4 ;
+ ENCLOSURE 0.190 0.190 ;
+ LAYER met5 ;
+ ENCLOSURE 0.310 0.310 ;
+ LAYER via4 ;
+ RECT -0.4 -0.4 0.4 0.4 ;
+ SPACING 1.60 BY 1.60 ;
+END VIA4_GEN
+
+END LIBRARY

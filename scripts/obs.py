@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+# takes a lef file and a y position => obstructs everything above
+import re
+import os
+import sys
+
+ARGV = sys.argv
+if len(ARGV) < 5:
+    print("Usage " + ARGV[0] + " llx lly urx ury")
+    sys.exit(-1)
+LLX = float(ARGV[1])
+LLY = float(ARGV[2])
+URX = float(ARGV[3])
+URY = float(ARGV[4])
+LAYER_LIST = ["li1", "met1", "met2", "met3", "met4", "met5"]
+
+def print_obs_section():
+    for layer in LAYERS:
+        print("     LAYER %s ;" %(layer))
+        print("       RECT %f %f %s %s ;" % (LLX, LLY, URX, URY))
+
+obs_section = False
+for line in sys.stdin:
+    if line.isspace():
+        continue
+
+    if line.find("MACRO") != -1:
+        LAYERS = {layer:False for layer in LAYER_LIST}
+
+    if line.find("OBS") != -1:
+        obs_section = True
+    elif obs_section and line.find("END") != -1:
+        obs_section = False
+        for layer in LAYERS:  # draw remaining obs on layers that didn't appear
+            if not LAYERS[layer]:
+                print("     LAYER %s ;" % (layer))
+                print("       RECT %.3f %.3f %.3f %.3f ;" %
+                      (LLX, LLY, URX, URY))
+
+    print(line, end='')
+    if obs_section and line.find("LAYER") != -1:
+        line = line.split()
+        LAYERS[line[1]] = True
+        print("       RECT %.3f %.3f %.3f %.3f ;" %
+              (LLX, LLY, URX, URY))

@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# takes a lef file and a y position => trims all RECT statements above the
+# threshold
+import re
+import os
+import sys
+
+ARGV = sys.argv
+if len(ARGV) < 2:
+    print("Usage " + ARGV[0] + " threshold_y_pos")
+    sys.exit(-1)
+MAX_Y = float(ARGV[1])
+LAYERS = ["li1", "met1", "met2", "met3", "met4", "met5"]
+RECT_REGEX = r"^\s*RECT\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+;$"
+
+def is_0_area(llx, lly, urx, ury):
+    return (llx == urx) or (lly == ury)
+
+def rectify(llx, lly, urx, ury):
+    if lly > MAX_Y:
+        return (None, None, None, None)
+    ury = min(MAX_Y, ury)
+    return (llx, lly, urx, ury)
+
+layer = ""
+for line in sys.stdin:
+    if line.isspace():
+        continue
+    rect_match = re.search(RECT_REGEX, line)
+    if rect_match:
+        llx, lly, urx, ury = rect_match.group(1), rect_match.group(2), rect_match.group(3), rect_match.group(4)
+        llx, lly, urx, ury = rectify(float(llx), float(lly), float(urx), float(ury))
+        if llx is not None and not is_0_area(llx, lly, urx, ury):
+            print(layer + line[:line.find('R')] + "RECT %.3f %.3f %.3f %.3f ;" % (llx, lly, urx, ury))
+            if layer != "": # LAYER printed, clear it
+                layer = ""
+    else:
+        if line.find("LAYER") != -1: # print it only if there're RECTs
+            layer = line
+        else:
+            print(line, end='')

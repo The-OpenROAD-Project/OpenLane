@@ -1,0 +1,62 @@
+#DOCKER_BUILD_OPTS ?= --rm --no-cache
+DOCKER_BUILD_OPTS ?= --rm 
+#ROOT = sudo
+
+#TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
+TOOLS = replace ioplacer opendp route fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
+
+TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
+TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
+TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
+# ==============================================================================
+# Build Tools
+# ==============================================================================
+build-all: $(TOOL_BUILD_TARGETS)
+
+$(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
+	mkdir -p logs/docker
+	export DOCKER_BUILDKIT=1; ${ROOT} docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
+
+# ==============================================================================
+# Export Tools
+# ==============================================================================
+.PHONY: $(TOOL_EXPORT_TARGETS)
+$(TOOL_EXPORT_TARGETS_PHONY): export-% : tar/%.tar.gz 
+$(TOOL_EXPORT_TARGETS_REAL): tar/%.tar.gz :
+	mkdir -p tar
+	id=$$(${ROOT} docker create $*) ; \
+	  ${ROOT} docker cp $$id:\build.tar.gz tar/$*.tar.gz ; \
+	  ${ROOT} docker rm -v $$id
+
+.PHONY: export-all
+export-all: tar/openroad_tools.tar.gz
+tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
+	for tarFile in $(foreach tool,$(TOOLS),tar/$(tool).tar.gz); do \
+	  tar -xzf $$tarFile ; \
+	done
+	chmod -R +x ./build/bin
+	find ./build/ -name "*.tcl" -exec chmod +x {} \;
+	cd tar && tar -czf openroad_tools.tar.gz ../build
+
+tar/openLANE_flow.tar.gz: 
+	find ../ -name '*.tcl' -exec chmod +x {} \;
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+
+
+.PHONY: merge
+merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
+	mkdir -p logs/docker/tar
+	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc1 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+
+.PHONY: clean_merge
+clean_merge:
+ifneq (,$(wildcard ./tar/openroad_tools.tar.gz))
+ifneq (,$(wildcard ./tar/openLANE_flow.tar.gz))
+		rm ./tar/openLANE_flow.tar.gz
+		rm ./tar/openroad_tools.tar.gz
+endif
+endif
+
+clean_export: 
+	rm -rf export/*.tar.gz
+
