@@ -5,7 +5,7 @@ OpenLane provides `run_designs.py`, a script that can do multiple runs in a para
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
 ```
-python3 run_designs.py --designs spm xtea des aes256 raven_soc --tag test --threads 3
+python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 
 ## Usage
