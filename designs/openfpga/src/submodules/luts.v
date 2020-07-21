@@ -33,56 +33,56 @@ wire [0:0] out;
 //----- END Registered ports -----
 
 
-wire [0:0] scs8hd_buf_2_0_X;
-wire [0:0] scs8hd_buf_2_1_X;
-wire [0:0] scs8hd_buf_2_2_X;
-wire [0:0] scs8hd_buf_2_3_X;
-wire [0:0] scs8hd_inv_1_0_Y;
-wire [0:0] scs8hd_inv_1_1_Y;
-wire [0:0] scs8hd_inv_1_2_Y;
-wire [0:0] scs8hd_inv_1_3_Y;
+wire [0:0] sky130_fd_sc_hd__buf_2_0_X;
+wire [0:0] sky130_fd_sc_hd__buf_2_1_X;
+wire [0:0] sky130_fd_sc_hd__buf_2_2_X;
+wire [0:0] sky130_fd_sc_hd__buf_2_3_X;
+wire [0:0] sky130_fd_sc_hd__inv_1_0_Y;
+wire [0:0] sky130_fd_sc_hd__inv_1_1_Y;
+wire [0:0] sky130_fd_sc_hd__inv_1_2_Y;
+wire [0:0] sky130_fd_sc_hd__inv_1_3_Y;
 
 // ----- BEGIN Local short connections -----
 // ----- END Local short connections -----
 // ----- BEGIN Local output short connections -----
 // ----- END Local output short connections -----
 
-	scs8hd_inv_1 scs8hd_inv_1_0_ (
+	sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_1_0_ (
 		.A(in[0]),
-		.Y(scs8hd_inv_1_0_Y[0]));
+		.Y(sky130_fd_sc_hd__inv_1_0_Y[0]));
 
-	scs8hd_inv_1 scs8hd_inv_1_1_ (
+	sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_1_1_ (
 		.A(in[1]),
-		.Y(scs8hd_inv_1_1_Y[0]));
+		.Y(sky130_fd_sc_hd__inv_1_1_Y[0]));
 
-	scs8hd_inv_1 scs8hd_inv_1_2_ (
+	sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_1_2_ (
 		.A(in[2]),
-		.Y(scs8hd_inv_1_2_Y[0]));
+		.Y(sky130_fd_sc_hd__inv_1_2_Y[0]));
 
-	scs8hd_inv_1 scs8hd_inv_1_3_ (
+	sky130_fd_sc_hd__inv_1 sky130_fd_sc_hd__inv_1_3_ (
 		.A(in[3]),
-		.Y(scs8hd_inv_1_3_Y[0]));
+		.Y(sky130_fd_sc_hd__inv_1_3_Y[0]));
 
-	scs8hd_buf_2 scs8hd_buf_2_0_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_0_ (
 		.A(in[0]),
-		.X(scs8hd_buf_2_0_X[0]));
+		.X(sky130_fd_sc_hd__buf_2_0_X[0]));
 
-	scs8hd_buf_2 scs8hd_buf_2_1_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_1_ (
 		.A(in[1]),
-		.X(scs8hd_buf_2_1_X[0]));
+		.X(sky130_fd_sc_hd__buf_2_1_X[0]));
 
-	scs8hd_buf_2 scs8hd_buf_2_2_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_2_ (
 		.A(in[2]),
-		.X(scs8hd_buf_2_2_X[0]));
+		.X(sky130_fd_sc_hd__buf_2_2_X[0]));
 
-	scs8hd_buf_2 scs8hd_buf_2_3_ (
+	sky130_fd_sc_hd__buf_2 sky130_fd_sc_hd__buf_2_3_ (
 		.A(in[3]),
-		.X(scs8hd_buf_2_3_X[0]));
+		.X(sky130_fd_sc_hd__buf_2_3_X[0]));
 
 	unfrac_lut4_mux unfrac_lut4_mux_0_ (
 		.in(sram[0:15]),
-		.sram({scs8hd_buf_2_0_X[0], scs8hd_buf_2_1_X[0], scs8hd_buf_2_2_X[0], scs8hd_buf_2_3_X[0]}),
-		.sram_inv({scs8hd_inv_1_0_Y[0], scs8hd_inv_1_1_Y[0], scs8hd_inv_1_2_Y[0], scs8hd_inv_1_3_Y[0]}),
+		.sram({sky130_fd_sc_hd__buf_2_0_X[0], sky130_fd_sc_hd__buf_2_1_X[0], sky130_fd_sc_hd__buf_2_2_X[0], sky130_fd_sc_hd__buf_2_3_X[0]}),
+		.sram_inv({sky130_fd_sc_hd__inv_1_0_Y[0], sky130_fd_sc_hd__inv_1_1_Y[0], sky130_fd_sc_hd__inv_1_2_Y[0], sky130_fd_sc_hd__inv_1_3_Y[0]}),
 		.out(out[0]));
 
 endmodule

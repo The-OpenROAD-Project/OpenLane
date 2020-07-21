@@ -56,7 +56,7 @@ wire [0:15] unfrac_lut4_0_sram_inv;
 		.sram_inv(unfrac_lut4_0_sram_inv[0:15]),
 		.out(lut4_out[0]));
 
-	unfrac_lut4_scs8hd_dfrbp_1_mem unfrac_lut4_scs8hd_dfrbp_1_mem (
+	unfrac_lut4_sky130_fd_sc_hd__dfrbp_1_mem unfrac_lut4_sky130_fd_sc_hd__dfrbp_1_mem (
 		.pReset(pReset[0]),
 		.prog_clk(prog_clk[0]),
 		.ccff_head(ccff_head[0]),
@@ -181,7 +181,7 @@ wire [0:0] ff_phy_clk;
 // ----- BEGIN Local output short connections -----
 // ----- END Local output short connections -----
 
-	scs8hd_dfrtp_1 scs8hd_dfrtp_1_0_ (
+	sky130_fd_sc_hd__dfrtp_1 sky130_fd_sc_hd__dfrtp_1_0_ (
 		.RESETB(reset[0]),
 		.CLK(clk[0]),
 		.D(ff_phy_D[0]),

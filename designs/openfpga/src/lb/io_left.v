@@ -59,7 +59,7 @@ wire [0:0] mem_outb;
 		.en(iopad_0_en[0]),
 		.inpad(iopad_inpad[0]));
 
-	iopad_scs8hd_dfrbp_1_mem iopad_scs8hd_dfrbp_1_mem (
+	iopad_sky130_fd_sc_hd__dfrbp_1_mem iopad_sky130_fd_sc_hd__dfrbp_1_mem (
 		.pReset(pReset[0]),
 		.prog_clk(prog_clk[0]),
 		.ccff_head(ccff_head[0]),
