@@ -478,7 +478,7 @@ For more information on design configurations, how to update them, and the need 
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
-[21]: ./logs/columns_defintions.md
+[21]: ./regression_results/columns_defintions.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./pdks/README.md
 

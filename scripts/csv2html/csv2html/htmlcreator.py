@@ -27,9 +27,8 @@ template = env.get_template('main.html')
 
 
 def create_output_html(file_name):
-    colms = ['design','config','runtime','DIEAREA_mm^2','cell_count','tritonRoute_violations',
-            'Short_violations',	'Magic_violations', 'antenna_violations', 'wns', 'CLOCK_PERIOD',
-            'FP_CORE_UTIL']
+    colms = ['design','config','runtime','DIEAREA_mm^2','OpenDP_Util','cell_count','tritonRoute_violations',
+            'Short_violations',	'Magic_violations', 'antenna_violations', 'wns', 'CLOCK_PERIOD']
 
     allData = pd.read_csv(file_name.csv_input) 
     dataFrame =  pd.DataFrame(data=allData)
