@@ -20,7 +20,7 @@ The script can be used in two ways
     python3 run_designs.py --designs spm xtea PPU APU
     ```
 
-    You can run the defualt test set consisting of 62 designs through running the following command along with any of the flags:
+    You can run the defualt test set consisting of 60 designs through running the following command along with any of the flags:
     
     ```bash
     python3 run_design.py --defaultTestSet

@@ -1,6 +1,13 @@
 read_liberty $::env(LIB_SYNTH_COMPLETE)
-read_lef $::env(MERGED_LEF_UNPADDED)
-read_def $::env(CURRENT_DEF)
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
 
 #set_wire_rc -layer metal3
 estimate_parasitics -placement

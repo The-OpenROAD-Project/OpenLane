@@ -1,6 +1,15 @@
-read_lef $::env(MERGED_LEF_UNPADDED)
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
 read_lib $::env(LIB_SYNTH_COMPLETE)
-read_def $::env(CURRENT_DEF)
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
 read_verilog $::env(yosys_result_file_tag).v
 read_sdc $::env(SCRIPTS_DIR)/base.sdc
 
