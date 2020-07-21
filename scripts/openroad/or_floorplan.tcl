@@ -1,5 +1,10 @@
 read_liberty $::env(LIB_SYNTH)
-read_lef $::env(MERGED_LEF)
+
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
 read_verilog $::env(yosys_result_file_tag).v
 link_design $::env(DESIGN_NAME)
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]

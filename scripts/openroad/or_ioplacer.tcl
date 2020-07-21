@@ -3,8 +3,16 @@ if { [file exists $::env(TMP_DIR)/top_level.lef] } {
 	ioPlacer::set_num_slots 2
 }
 
-read_lef $::env(MERGED_LEF)
-read_def $::env(CURRENT_DEF)
+
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+	exit 1
+}
 
 ioPlacer::set_hor_metal_layer [expr $::env(FP_IO_HMETAL) + 1]
 ioPlacer::set_ver_metal_layer [expr $::env(FP_IO_VMETAL) + 1]

@@ -1,6 +1,14 @@
-read_lef $::env(MERGED_LEF_UNPADDED)
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+} 
+
 read_liberty $::env(LIB_SYNTH)
-read_def $::env(CURRENT_DEF)
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}  
 
 set glb_cfg_file [open $::env(TMP_DIR)/glb.cfg w]
     puts $glb_cfg_file \

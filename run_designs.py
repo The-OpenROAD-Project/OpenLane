@@ -52,7 +52,7 @@ args = parser.parse_args()
 regression = args.regression
 tag = args.tag
 if args.defaultTestSet:
-        designs = ['cmul7p8', 'add1p', 'spm', 'striVe_spi', 'usb', 'cic_decimator', 'zipdiv', 'cpu6502', 'int_to_double', 'usb_cdc_core', 'ceil', 'divider_dshift', 'r8051', 'wbqspiflash', 'dwtden', 'APU', 'double_le', 'tv80', 'rc_sinc', 'single_multiplier', 'double_divider', 'double_max', 'GTEFastDiv', 'md5', 'CPU', 'serv_top', 'xtea', 'sub86', 'cordic', 'ocs_blitter', 'zuc_core', 'PPU', 'usbf_device', 'y_huff', 'sha3', 'picorv32a', 'des', 'fp_multiplier', 'double_multiplier', 'sha512', 'chacha', 'aes_core', 'ldpcenc', 'aes', 'ibex_core', 'double_sqrt', 'ArrayMultiplier', 'iir5sfix', 'salsa20', 'ica', 'rc6_core', 'TEA', 'genericfir', 'point_add', 'striVe_soc', 'des3', 'point_scalar_mult', 'aes128', 'aes192', 'jpeg_encoder', 'pca', 'aes256']
+        designs = ['cmul7p8', 'add1p', 'spm', 'striVe_spi', 'usb', 'zipdiv', 'cpu6502', 'int_to_double', 'usb_cdc_core', 'ceil', 'divider_dshift', 'r8051', 'wbqspiflash', 'dwtden', 'APU', 'double_le', 'tv80', 'rc_sinc', 'single_multiplier', 'double_divider', 'double_max', 'GTEFastDiv', 'md5', 'CPU', 'serv_top', 'xtea', 'sub86', 'cordic', 'ocs_blitter', 'zuc_core', 'PPU', 'usbf_device', 'y_huff', 'sha3', 'picorv32a', 'des', 'fp_multiplier', 'double_multiplier', 'sha512', 'chacha', 'aes_core', 'ldpcenc', 'aes', 'ibex_core', 'double_sqrt', 'ArrayMultiplier', 'iir5sfix', 'salsa20', 'ica', 'rc6_core', 'TEA', 'genericfir', 'point_add', 'striVe_soc', 'des3', 'point_scalar_mult', 'aes128', 'aes192', 'jpeg_encoder', 'pca', 'aes256']
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
 num_workers = args.threads
