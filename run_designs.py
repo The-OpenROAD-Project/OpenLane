@@ -52,7 +52,7 @@ args = parser.parse_args()
 regression = args.regression
 tag = args.tag
 if args.defaultTestSet:
-        designs = ['aes256', 'pca', 'jpeg_encoder', 'aes192', 'aes128', 'point_scalar_mult', 'des3', 'striVe_soc', 'point_add', 'genericfir', 'TEA', 'rc6_core', 'ica', 'salsa20', 'iir5sfix', 'ArrayMultiplier', 'double_sqrt', 'ibex_core', 'aes', 'ldpcenc', 'aes_core', 'chacha', 'sha512', 'double_multiplier', 'fp_multiplier', 'des', 'picorv32a', 'sha3', 'y_huff', 'usbf_device', 'PPU', 'zuc_core', 'ocs_blitter', 'cordic', 'sub86', 'xtea', 'serv_top', 'CPU', 'md5', 'GTEFastDiv', 'double_max', 'double_divider', 'single_multiplier', 'rc_sinc', 'tv80', 'double_le', 'APU', 'dwtden', 'wbqspiflash', 'r8051', 'divider_dshift', 'ceil', 'usb_cdc_core', 'int_to_double', 'cpu6502', 'zipdiv', 'cic_decimator', 'usb', 'striVe_spi', 'spm', 'add1p', 'cmul7p8']
+        designs = ['cmul7p8', 'add1p', 'spm', 'striVe_spi', 'usb', 'cic_decimator', 'zipdiv', 'cpu6502', 'int_to_double', 'usb_cdc_core', 'ceil', 'divider_dshift', 'r8051', 'wbqspiflash', 'dwtden', 'APU', 'double_le', 'tv80', 'rc_sinc', 'single_multiplier', 'double_divider', 'double_max', 'GTEFastDiv', 'md5', 'CPU', 'serv_top', 'xtea', 'sub86', 'cordic', 'ocs_blitter', 'zuc_core', 'PPU', 'usbf_device', 'y_huff', 'sha3', 'picorv32a', 'des', 'fp_multiplier', 'double_multiplier', 'sha512', 'chacha', 'aes_core', 'ldpcenc', 'aes', 'ibex_core', 'double_sqrt', 'ArrayMultiplier', 'iir5sfix', 'salsa20', 'ica', 'rc6_core', 'TEA', 'genericfir', 'point_add', 'striVe_soc', 'des3', 'point_scalar_mult', 'aes128', 'aes192', 'jpeg_encoder', 'pca', 'aes256']
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
 num_workers = args.threads
@@ -90,7 +90,7 @@ if args.configuration_parameters is not None:
                         print ("Could not open/read file:", args.configuration_parameters)
                         sys.exit()
 
-report_file_name = "./logs/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+report_file_name = "./regression_results/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
 handler1 = logging.FileHandler("{report_file_name}.log".format(report_file_name=report_file_name), 'w')

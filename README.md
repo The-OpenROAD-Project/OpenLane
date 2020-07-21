@@ -292,7 +292,7 @@ OpenLane flow consists of several stages. Each stage may consist of multiple sub
     3. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
 4. **CTS**
     1. `TritonCTS` - Synthesizes the clock distribution network (the clock tree)
-5. **Routing** *
+5. **Routing** 
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `TritonRoute` - Performs detailed routing
 6. **GDSII Generation**
@@ -453,7 +453,7 @@ Also, it can be used for testing the flow by running the flow against several de
 python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 
-For more information on how to run this script, refer to this [file](./Regression_Exploration.md)
+For more information on how to run this script, refer to this [file](./regression_results/README.md)
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
  
@@ -478,7 +478,7 @@ For more information on design configurations, how to update them, and the need 
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
-[21]: ./logs/README.md
+[21]: ./logs/columns_defintions.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./pdks/README.md
 

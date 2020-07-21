@@ -43,7 +43,7 @@ The script can be used in two ways
     SYNTH_MAX_FANOUT=(5)
 
     extra="
-    set ::env(PDK_VARIANT) efs8hd
+    set ::env(PDK_VARIANT) sky130_fd_sc_hd
     "
     ```
     In addition, `extra` is appended to every configuration file generated. So it is used to add some configurations specific to this regression run. The file could also contain non-white-space-separated expressions of one or more configuration variables or alternatively this could be specified in the extra section:
@@ -53,7 +53,7 @@ The script can be used in two ways
    
     extra="
     set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
-    set ::env(PDK_VARIANT) efs8hd
+    set ::env(PDK_VARIANT) sky130_fd_sc_hd
     "
     ```
     It's important to note that the used configuration in the expression should be assigned a value or a range of values preceeding to its use in the file.
@@ -62,11 +62,11 @@ The script can be used in two ways
 
 ## Output
 - In addition to files produced inside `designs/<design>/runs/config_<tag>_<number>` for each run on a design, three files are produced:
-    1. `logs/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
-    2. `logs/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
-    3. `logs/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
-    4. `logs/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
-    5. `logs/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
+    1. `regression_results/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
+    2. `regression_results/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
+    3. `regression_results/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
+    4. `regression_results/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
+    5. `regression_results/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
     
 ## Command line arguments
 <table>
@@ -111,7 +111,7 @@ The script can be used in two ways
             <code>--tag | -t &lt;name&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Appends a tag to the log files in <code>logs/</code> and the generated configuration files when passing <code>--regression</code> <br> Default value: <code>regression</code>
+            Appends a tag to the log files in <code>regression_results/</code> and the generated configuration files when passing <code>--regression</code> <br> Default value: <code>regression</code>
         </td>
     </tr>
     <tr>
@@ -187,4 +187,4 @@ The script can be used in two ways
     </tr>
 </table>
 
-[21]: ./logs/README.md
+[21]: ./columns_defintions.md
