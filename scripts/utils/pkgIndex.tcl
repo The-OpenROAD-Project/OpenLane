@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded openlane_utils 0.9 [list source [file join $dir deflef_utils.tcl]]\n[list source [file join $dir utils.tcl]]
+package ifneeded openlane_utils 0.9 [list source [file join $dir deflef_utils.tcl]]\n[list source [file join $dir utils.tcl]]\n[list source [file join $dir fake_display_buffer.tcl]]
