@@ -23,9 +23,15 @@ proc detailed_routing {args} {
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-		try_catch TritonRoute \
-			$::env(tritonRoute_tmp_file_tag).param \
-			|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		if {$::env(ROUTING_STRATEGY) == 14} {
+			try_catch TritonRoute14 \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		} else {
+			try_catch TritonRoute \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		}
 	} else {
 		exec echo "SKIPPED!" >> $::env(tritonRoute_log_file_tag).log
 	}
@@ -78,7 +84,7 @@ proc ins_fill_cells_or {args} {
 
 proc run_routing {args} {
 	puts_info "Routing..."
-	use_original_lefs
+	
 # |----------------------------------------------------|
 # |----------------   5. ROUTING ----------------------|
 # |----------------------------------------------------|
@@ -88,6 +94,7 @@ proc run_routing {args} {
 			ins_diode_cells
 		}
 	}
+	use_original_lefs
 	# insert fill_cells
 	ins_fill_cells_or
 	# fastroute global 6_routing

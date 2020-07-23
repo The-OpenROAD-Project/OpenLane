@@ -89,7 +89,7 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.15`)|
 | `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
-| `ROUTING_STRATEGY` | Specifies the optimization mode to be used in TritonRoute. Values range from 0 to 3 <br> (Default: `0`) |
+| `ROUTING_STRATEGY` | Specifies the optimization mode to be used in TritonRoute. Values range from 0 to 3. If set to 14 TritonRoute14 will be used. <br> (Default: `0`) |
 
 ### Magic
 | Variable      | Description                                                   |
