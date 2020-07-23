@@ -84,6 +84,7 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd 
         cd ..
+        cd ..
     ```
     - To setup other variants:
         - replace sky130_fd_sc_hd with any of the following list:
@@ -450,8 +451,14 @@ As explained [here](#adding-a-design) that each design has multiple configuratio
 OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). 
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
-```
+
+```bash
 python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
+```
+**Default Test Set**: You can also run the flow against the default test set consisting of around 60 designs of different sizes and attributes by just running the following command:
+
+```bash 
+python3 run_designs.py --defaultTestSet --tag test --htmlExtract
 ```
 
 For more information on how to run this script, refer to this [file](./regression_results/README.md)

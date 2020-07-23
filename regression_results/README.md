@@ -89,10 +89,10 @@ The script can be used in two ways
     <tr>
         </tr>
         <td align="center">
-            <code>--defaultTestSet | -dts </code> <br> (Optional)
+            <code>--defaultTestSet | -dts </code> <br> (Boolean)
         </td>
         <td align="justify">
-            Ignores the design flag, and runs the default design test set consisting of 62 default designs.
+            Ignores the design flag, and runs the default design test set consisting of 62 default designs. <br> Default: <code> False</code>
         </td>
     </tr>
     <tr>
