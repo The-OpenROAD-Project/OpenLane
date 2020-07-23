@@ -17,6 +17,10 @@ args = parser.parse_args()
 report_file = args.input
 output_file = args.output
 
+violations_idx = 0
+wire_length_idx = 0
+via_idx = 0
+
 def get_header(report_file):
     f = open(report_file, "r")
     header = f.readline()
@@ -45,12 +49,10 @@ def build_dictionary(report_file):
 
 def get_best_violation(results_vector):
     print(results_vector)
-    violations_idx = 7
+
     # change violations to int
     for i in range(len(results_vector)):
         row = results_vector[i]
-        print(row)
-        print(row[violations_idx])
         row[violations_idx] = int(row[violations_idx])
         results_vector[i] = row
 
@@ -63,8 +65,7 @@ def get_best_violation(results_vector):
         if (abs(violation - best_violation) < 5):
             close_subset.append(result)
 
-    wire_length_idx = 15
-    via_idx = 16
+
     for i in range(len(close_subset)):
         row = close_subset[i]
         wirelength = row[wire_length_idx]
@@ -97,8 +98,21 @@ def save_top_results(results_dictionary, output_file, header):
 
     out.close()
 
+def findIdx(header, column):
+
+    for idx in range(len(header)):
+        if header[idx] == column:
+            return int(idx)
+    return -1
+
 results_dictionary = build_dictionary(report_file)
 header = get_header(report_file)
+
+headerSplit = header.strip().split(',')
+violations_idx = findIdx(headerSplit, 'tritonRoute_violations')-1
+wire_length_idx = findIdx(headerSplit, 'wire_length')-1
+via_idx = findIdx(headerSplit, 'vias')-1
+
 best_results = get_best_results(results_dictionary)
 save_top_results(best_results, output_file, header)
 
