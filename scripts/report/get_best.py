@@ -72,9 +72,10 @@ def get_best_violation(results_vector):
     close_subset = [sorted_violations[0]]
     for result in sorted_violations[1:]:
         violation = int(result[violations_idx])
-        if (abs(violation - best_violation) < 5):
+        if (abs(violation - best_violation) < 5) and best_violation != 0:
             close_subset.append(result)
-
+        elif violation == 0:
+            close_subset.append(result)
 
     for i in range(len(close_subset)):
         row = close_subset[i]
