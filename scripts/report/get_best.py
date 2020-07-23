@@ -21,6 +21,7 @@ violations_idx = 0
 wire_length_idx = 0
 via_idx = 0
 runtime_idx= 0
+design_idx=0
 
 def get_header(report_file):
     f = open(report_file, "r")
@@ -39,11 +40,11 @@ def build_dictionary(report_file):
         if (len(config) < len(header.split(','))):
             continue
 
-        key = config[0]
+        key = config[design_idx]
         if (key in dictionary):
-            dictionary[config[0]].append(config[1:])
+            dictionary[key].append(config[design_idx+1:])
         else:
-            dictionary[config[0]] = [config[1:]]
+            dictionary[key] = [config[design_idx+1:]]
 
     return dictionary
 
@@ -114,14 +115,17 @@ def findIdx(header, column):
             return int(idx)
     return -1
 
-results_dictionary = build_dictionary(report_file)
 header = get_header(report_file)
 
 headerSplit = header.strip().split(',')
-violations_idx = findIdx(headerSplit, 'tritonRoute_violations')-1
-wire_length_idx = findIdx(headerSplit, 'wire_length')-1
-via_idx = findIdx(headerSplit, 'vias')-1
-runtime_idx = findIdx(headerSplit, 'runtime')-1
+design_idx = findIdx(headerSplit, 'design')
+
+results_dictionary = build_dictionary(report_file)
+
+violations_idx = findIdx(headerSplit, 'tritonRoute_violations')-(design_idx+1)
+wire_length_idx = findIdx(headerSplit, 'wire_length')-(design_idx+1)
+via_idx = findIdx(headerSplit, 'vias')-(design_idx+1)
+runtime_idx = findIdx(headerSplit, 'runtime')-(design_idx+1)
 
 best_results = get_best_results(results_dictionary)
 save_top_results(best_results, output_file, header)
