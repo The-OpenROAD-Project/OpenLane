@@ -163,8 +163,9 @@ To run the script to update configurations for a (PDK,PDK_VARIANT) pair after an
 ```bash
     python3 ./scripts/updateDesignsConfigs.py --pdk PDK --pdkVariant PDK_VARIANT -log SW_exploration_best.csv
 ```
+**Note:** This script ignores failing designs.
 
-Check [this](../Regression_Exploration.md) for more details on the log files.
+Check [this](../regression_results/README.md) for more details on the log files.
 
 The following is the list of flags used with the script:
 <table>
@@ -213,12 +214,12 @@ The following is the list of flags used with the script:
       <tr>
         </tr>
         <td align="center">
-            <code>--log | -l &lt;log file&gt;</code> <br> (Required)
+            <code>--best_results | -b &lt;csv file&gt;</code> <br> (Required)
         </td>
         <td align="justify">
-            This is the log file containing the best run for each design in a specific exploration. The log file will be used to determine the name of the configuration file to update from.
-            The log file provided must lie under root/logs/ and should contain one occurance of each design.
-            To tolerate custom log files, the script only exctracts the name of the design and its corresponding configuration from the file. If there were more than one occurance of the same design, the last occurance will override others. 
+            This is the csv file containing the best run for each design in a specific exploration. The log file will be used to determine the name of the configuration file to update from.
+            The csv file provided must lie under root/regression_results/ and should contain one occurance of each design.
+            To tolerate custom csv files, the script only exctracts the name of the design and its corresponding configuration from the file. If there were more than one occurance of the same design, the last occurance will override others. 
         </td>
     </tr>
       <tr>

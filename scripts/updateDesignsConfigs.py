@@ -17,7 +17,7 @@ parser.add_argument('--pdkVariant', '-pv', action='store', required=True,
 parser.add_argument('--designs', '-d', nargs='+', default=[],
                 help="designs to update ")
 
-parser.add_argument('--log', '-l', action='store', required=True,
+parser.add_argument('--best_results', '-b', action='store', required=True,
                 help="name of the log file from which to extract the name of the best configs")
 
 parser.add_argument('--clean', '-cl', action='store_true', default=False,
@@ -29,10 +29,10 @@ root = args.root
 pdk = args.pdk
 pdkVariant = args.pdkVariant
 designs = list(dict.fromkeys(args.designs))
-log = args.log
+best_results = args.best_results
 clean = args.clean
 
-logFileOpener = open(root+"/logs/"+log, 'r')
+logFileOpener = open(root+'/regression_results/'+best_results, 'r')
 logFileData = logFileOpener.read().split("\n")
 logFileOpener.close()
 
@@ -40,26 +40,38 @@ logFileOpener.close()
 headerInfo = logFileData[0].split(",")
 configIdx = 0
 designIdx = 0
+runtimeIdx = 0
 for i in range(len(headerInfo)):
     if headerInfo[i] == "config":
         configIdx = i
         continue
     if headerInfo[i] == "design":
         designIdx = i
+        continue
+    if headerInfo[i] == "runtime":
+        runtimeIdx = i
 
 designConfigDict = dict()
+designFailDict = dict()
 
 logFileData = logFileData[1:]
+
 print(logFileData)
+
 for line in logFileData:
     if line != "":
         splitLine = line.split(",")
         designConfigDict[str(splitLine[designIdx])] = str(splitLine[configIdx])
+        designFailDict[str(splitLine[designIdx])] = str(splitLine[runtimeIdx])
 
 if len(designs) == 0:
     designs = [key for key in designConfigDict]
 
 for design in designs:
+    if designFailDict[design] == '-1':
+        print(design)
+        continue
+
     configFileToUpdate = str(root)+"designs/"+str(design)+"/"+str(pdk)+"_"+str(pdkVariant)+"_config.tcl"
     configFileBest = str(root)+"designs/"+str(design)+"/"+str(designConfigDict[design])+".tcl"
     

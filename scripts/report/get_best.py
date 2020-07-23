@@ -53,8 +53,8 @@ def get_best_violation(results_vector):
     print(results_vector)
     remover = 0
     n = len(results_vector)
-    while(remover != n-1):
-        if type(results_vector[remover][runtime_idx]) != type(int):
+    while(remover != n and n != 1):
+        if results_vector[remover][runtime_idx] == '-1':
             results_vector.pop(remover)
             remover-=1
             n = len(results_vector)    
