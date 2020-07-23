@@ -93,8 +93,9 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
             - sky130_fd_sc_hdll
 
 - Setup the configurations and tech files:
-    - To perform physical verification you need to use the magic tool. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks):
+    - To perform physical verification you need to use the magic tool. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks). Clone the repository inside the pdks directory alongside the skywater-pdk:
     ```bash
+        cd pdks
         git clone https://github.com/efabless/open_pdks.git
         cd open_pdks
         git checkout c2fec9fe64146000236dd807165b80b6a8b82b89
