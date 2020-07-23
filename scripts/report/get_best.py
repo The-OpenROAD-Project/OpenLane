@@ -117,7 +117,7 @@ def findIdx(header, column):
 
 header = get_header(report_file)
 
-headerSplit = header.strip().split(',')
+headerSplit = header.split(',')
 design_idx = findIdx(headerSplit, 'design')
 
 results_dictionary = build_dictionary(report_file)
@@ -128,5 +128,6 @@ via_idx = findIdx(headerSplit, 'vias')-(design_idx+1)
 runtime_idx = findIdx(headerSplit, 'runtime')-(design_idx+1)
 
 best_results = get_best_results(results_dictionary)
-save_top_results(best_results, output_file, header)
+ 
+save_top_results(best_results, output_file, ",".join(headerSplit[design_idx:]))
 
