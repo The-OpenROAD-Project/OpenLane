@@ -20,6 +20,7 @@ output_file = args.output
 violations_idx = 0
 wire_length_idx = 0
 via_idx = 0
+runtime_idx= 0
 
 def get_header(report_file):
     f = open(report_file, "r")
@@ -49,7 +50,15 @@ def build_dictionary(report_file):
 
 def get_best_violation(results_vector):
     print(results_vector)
-
+    remover = 0
+    n = len(results_vector)
+    while(remover != n-1):
+        if type(results_vector[remover][runtime_idx]) != type(int):
+            results_vector.pop(remover)
+            remover-=1
+            n = len(results_vector)    
+        remover+=1
+    
     # change violations to int
     for i in range(len(results_vector)):
         row = results_vector[i]
@@ -112,6 +121,7 @@ headerSplit = header.strip().split(',')
 violations_idx = findIdx(headerSplit, 'tritonRoute_violations')-1
 wire_length_idx = findIdx(headerSplit, 'wire_length')-1
 via_idx = findIdx(headerSplit, 'vias')-1
+runtime_idx = findIdx(headerSplit, 'runtime')-1
 
 best_results = get_best_results(results_dictionary)
 save_top_results(best_results, output_file, header)
