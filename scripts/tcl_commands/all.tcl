@@ -625,14 +625,18 @@ proc widen_site_width {args} {
 
 proc use_widened_lefs {args} {
 
-	set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
-	set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
-
+	if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
+		set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
+		set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
+	}
 }
 
 proc use_original_lefs {args} {
-	set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
-	set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
+	
+	if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
+		set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
+		set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
+	}
 }
 
 
