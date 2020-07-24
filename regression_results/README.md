@@ -12,7 +12,7 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against the default test set (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
+You can view the results of the run against the [default test set](../designs/defaultTestSet.list) (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
 
 - [sky130_fd_sc_hd](./benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
 - [sky130_fd_sc_hs](./benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)

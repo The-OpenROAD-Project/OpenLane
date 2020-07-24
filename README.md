@@ -453,11 +453,19 @@ Also, it can be used for testing the flow by running the flow against several de
 ```bash
 python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
-**Default Test Set**: You can also run the flow against the default test set consisting of around 60 designs of different sizes and attributes by just running the following command:
+**Default Test Set**: You can also run the flow against the [default test set](./designs/defaultTestSet.list) consisting of around 60 designs of different sizes and attributes by just running the following command:
 
 ```bash 
 python3 run_designs.py --defaultTestSet --tag test --htmlExtract
 ```
+
+You can find the results of using each variant on the defaultTestSet here:
+
+- [sky130_fd_sc_hd](./regression_results/benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
+- [sky130_fd_sc_hs](./regression_results/benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
+- [sky130_fd_sc_ms](./regression_results/benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
+- [sky130_fd_sc_ls](./regression_results/benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
+- [sky130_fd_sc_hdll](./regression_results/benchmark_results/)
 
 For more information on how to run this script, refer to this [file](./regression_results/README.md)
 
@@ -482,7 +490,7 @@ For more information on design configurations, how to update them, and the need 
 [16]: https://github.com/The-OpenROAD-Project/pdn/
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
-[19]: https://github.com/The-OpenROAD-Project/
+[19]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./regression_results/columns_defintions.md
 [22]: https://github.com/RTimothyEdwards/netgen
