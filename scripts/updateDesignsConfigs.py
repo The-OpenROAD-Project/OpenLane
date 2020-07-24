@@ -56,8 +56,6 @@ designFailDict = dict()
 
 logFileData = logFileData[1:]
 
-print(logFileData)
-
 for line in logFileData:
     if line != "":
         splitLine = line.split(",")
@@ -69,8 +67,10 @@ if len(designs) == 0:
 
 for design in designs:
     if designFailDict[design] == '-1':
-        print(design)
+        print("Skipping " + design + " ...")
         continue
+    
+    print("Updating "+ design + " config...")
 
     configFileToUpdate = str(root)+"designs/"+str(design)+"/"+str(pdk)+"_"+str(pdkVariant)+"_config.tcl"
     configFileBest = str(root)+"designs/"+str(design)+"/"+str(designConfigDict[design])+".tcl"
