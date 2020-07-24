@@ -1,5 +1,8 @@
 # Regression & Exploration
 
+
+
+
 ## Overview
 OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). For examples, check the [Usage](#usage) section. 
 
@@ -7,10 +10,29 @@ Also, it can be used for testing the flow by running the flow against several de
 ```
 python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
+## Default Test Set Results:
+
+You can view the results of the run against the default test set (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
+
+- [sky130_fd_sc_hd](./benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
+- [sky130_fd_sc_hs](./benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
+- [sky130_fd_sc_ms](./benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
+- [sky130_fd_sc_ls](./benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
+- [sky130_fd_sc_hdll](./benchmark_results/)
+
+**Note**: `-1` under `runtime` implies that the run had failed.
+
+To replicate these sheets, run the following command inside the docker after setting the proper variant name in [../configuration/general.tcl](../configuration/general.tcl):
+
+```bash
+    python3 run_design.py --defaultTestSet --htmlExtract
+```
+
+You can control the run by adding more of the flags in this [section](#command-line-arguments)
 
 ## Usage
 
-- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [logs README][21] for more details on the reported configuration parameters.
+- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [columns_defintions.md][21] for more details on the reported configuration parameters.
 
 The script can be used in two ways
 
@@ -28,35 +50,64 @@ The script can be used in two ways
 
 2. An exploration run that generates configuration files of all possible combinations of the passed regression file and runs them on the provided designs.
     
-    ```
+    ```bash
     python3 run_designs.py --designs spm xtea --regression ./scripts/config/regression.config
     ```
-    These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
-    ```
-    GLB_RT_ADJUSTMENT=(0.1 0.15)
-    FP_CORE_UTIL=(40 50)
-    PL_TARGET_DENSITY=(0.4)
-    SYNTH_STRATEGY=(1 3)
-    FP_PDN_VPITCH=(153.6)
-    FP_PDN_HPITCH=(153.18)
-    FP_ASPECT_RATIO=(1)
-    SYNTH_MAX_FANOUT=(5)
 
-    extra="
-    set ::env(PDK_VARIANT) sky130_fd_sc_hd
-    "
-    ```
-    In addition, `extra` is appended to every configuration file generated. So it is used to add some configurations specific to this regression run. The file could also contain non-white-space-separated expressions of one or more configuration variables or alternatively this could be specified in the extra section:
-    ```
-    FP_CORE_UTIL=(40 50)
-    PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1 0.4)
-   
-    extra="
-    set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
-    set ::env(PDK_VARIANT) sky130_fd_sc_hd
-    "
-    ```
+    These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
+    
+    - Basic Regression Script:
+        ```
+        GLB_RT_ADJUSTMENT=(0.1 0.15)
+        FP_CORE_UTIL=(40 50)
+        PL_TARGET_DENSITY=(0.4)
+        SYNTH_STRATEGY=(1 3)
+        FP_PDN_VPITCH=(153.6)
+        FP_PDN_HPITCH=(153.18)
+        FP_ASPECT_RATIO=(1)
+        SYNTH_MAX_FANOUT=(5)
+
+        extra="
+        "
+        ```
+    
+    - Complex Expressions:
+
+        In addition, `extra` is appended to every configuration file generated. So it is used to add some configurations specific to this regression run. The file could also contain non-white-space-separated expressions of one or more configuration variables or alternatively this could be specified in the extra section:
+        
+        ```
+        FP_CORE_UTIL=(40 50)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1 0.4)
+    
+        extra="
+        set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
+        "
+        ```
+
+    - Varaint Section:
+
+        You can use the variant section to specify information that you would like to be sourced before sourcing variant specific information:
+
+        ```
+        FP_CORE_UTIL=(40 50)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1 0.4)
+    
+        extra="
+        set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
+        "
+        
+        variant="
+        set ::env(PDK_VARIANT) sky130_fd_sc_hd
+        set ::env(SYNTH_STRATEGY) 1
+        "
+        ```
+        In the example above, SYNTH_STRATEGY and PDK_VARIANT will be set before sourcing the pdk_variant specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+
+        This can also be used to control the used PDK and its variant, since it is set before sourcing the variant specific configurations, so this will override the variant set in general.tcl and allow for more control on different variants under the same design.
+
+
     It's important to note that the used configuration in the expression should be assigned a value or a range of values preceeding to its use in the file.
+
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
 
