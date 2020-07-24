@@ -38,10 +38,11 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 	find ./build/ -name "*.tcl" -exec chmod +x {} \;
 	cd tar && tar -czf openroad_tools.tar.gz ../build
 
-tar/openLANE_flow.tar.gz: 
+tar/openLANE_flow.tar.gz: FORCE
 	find ../ -name '*.tcl' -exec chmod +x {} \;
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
+FORCE:
 
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
