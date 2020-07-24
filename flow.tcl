@@ -22,8 +22,7 @@ proc run_non_interactive_mode {args} {
 	run_synthesis
 	run_floorplan
 	run_placement
-	#run_cts
-	run_cts_or
+	run_cts
 	gen_pdn
 	run_routing
 

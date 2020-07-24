@@ -52,7 +52,7 @@ proc simple_cts {args} {
 }
 
 
-proc run_cts_or {args} {
+proc run_cts {args} {
 		puts "\[INFO\]: Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start

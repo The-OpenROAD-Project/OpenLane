@@ -94,7 +94,7 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
             - sky130_fd_sc_hdll
 
 - Setup the configurations and tech files:
-    - To perform physical verification you need to use the magic tool. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks). Clone the repository inside the pdks directory alongside the skywater-pdk:
+    - Physical verification is performed using magic and netgen. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks), which creates the required structure, cell views, and magic/netgen setup files. Clone the repository inside the `pdks` directory alongside the `skywater-pdk`:
     ```bash
         cd pdks
         git clone https://github.com/efabless/open_pdks.git
@@ -439,8 +439,6 @@ The above commands can also be written in a file and passed to `flow.tcl`:
 ```
 
 **Note 1:** Currently, configuration variables have higher priority over the above commands so if `RUN_MAGIC` is 0, command `run_magic` will have no effect. 
-
-**Note 2:** Currently, all these commands must be run in sequence and none should be omitted.
 
 # Regression And Design Configurations Exploration
 
