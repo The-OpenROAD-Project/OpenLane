@@ -144,7 +144,7 @@ After building the docker image, issue the following command to open the docker 
 
 This will mount the docker with the root folder being ```./openLANE_flow``` containing inside it the working directory specified, as well as the pdks directory in which you installed the pdks as a sub-directory
 
-Then, you can test the flow using one of the provided designs (spm: Serial-Parallel Adder) by running:
+Then, you can test the flow using one of the provided designs (spm: Serial-Parallel Multiplier) by running:
 
 ```bash
 ./flow.tcl -design spm
@@ -308,8 +308,8 @@ OpenLane uses the following tools:
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7] 
 - Placement: [RePLace][9] (Global), [Resizer][15] (Optimizations), and [OpenDP][10] (Detailed)
-- Clock Tree Synthesis: [OpenROAD/TritonCTS][11]
-- Fill Insertion: [OpenROAD/filler_placement][19]
+- Clock Tree Synthesis: [TritonCTS][11]
+- Fill Insertion: [filler_placement][19]
 - Routing: [FastRoute][12] (Global) and [TritonRoute][13] (Detailed)
 - GDSII Streaming out: [Magic][14]
 - DRC Checks: [Magic][14]
