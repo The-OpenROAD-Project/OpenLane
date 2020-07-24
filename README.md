@@ -99,7 +99,7 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
         cd pdks
         git clone https://github.com/efabless/open_pdks.git
         cd open_pdks
-        git checkout c2fec9fe64146000236dd807165b80b6a8b82b89
+        git checkout a85f6bb203c21b735c437a80e58a4a7988d71dc8
         make
         make install-local
         cd ..
