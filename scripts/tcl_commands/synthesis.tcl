@@ -15,7 +15,7 @@ proc run_yosys {args} {
 		-l $::env(yosys_log_file_tag).log \
 		|& tee $::env(TERMINAL_OUTPUT)
 
-	set_netlist $::env(yosys_result_file_tag).v
+	set_netlist $::env(yosys_result_file_tag).v -lec
 
 	try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log

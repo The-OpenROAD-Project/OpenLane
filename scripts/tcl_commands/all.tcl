@@ -21,6 +21,15 @@ proc set_netlist {netlist args} {
 
 	set replace [string map {/ \\/} $::env(PREV_NETLIST)]
 	exec sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+
+	if { [info exists flags_map(-lec)] && [file exists $::env(PREV_NETLIST)] } {
+	  puts_info "Running LEC: $::env(PREV_NETLIST) Vs. $::env(CURRENT_NETLIST)"
+	  if { [catch {logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)}] } {
+	    puts_err "$::env(PREV_NETLIST) is not logically equivalent to $::env(CURRENT_NETLIST)"
+	    return -code error
+	  }
+	  puts_info "$::env(PREV_NETLIST) and $::env(CURRENT_NETLIST) are proven equivalent"
+	}
 }
 
 proc set_def {def} {

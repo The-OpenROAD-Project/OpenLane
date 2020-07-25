@@ -6,6 +6,10 @@ set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
 set sclib $::env(LIB_SYNTH)
 
+set well_tap_cell "$::env(FP_WELLTAP_CELL)"
+set decap_cell_wildcard "$::env(DECAP_CELL)*"
+set fill_cell_wildcard "$::env(FILL_CELL)*"
+
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {
 		puts "Defining $define"
@@ -13,25 +17,39 @@ if { [info exists ::env(SYNTH_DEFINES) ] } {
 	}
 }
 
+# LHS
+read_verilog $::env(LEC_LHS_NETLIST)
+rmports
+hierarchy -generate $well_tap_cell
+hierarchy -generate $decap_cell_wildcard
+hierarchy -generate $fill_cell_wildcard
+splitnets -ports;;
+hierarchy -auto-top
+stat
+renames -top gold
+design -stash gold
 
-read_verilog $::env(LEC_LHS_NETLIST); splitnets -ports;;; hierarchy -auto-top; renames -top gold; design -stash gold; 
+# RHS
+read_verilog $::env(LEC_RHS_NETLIST)
+rmports
+hierarchy -generate $well_tap_cell
+hierarchy -generate $decap_cell_wildcard
+hierarchy -generate $fill_cell_wildcard
+splitnets -ports;;
+hierarchy -auto-top
+stat
+renames -top gate
+design -stash gate
 
-read_verilog $::env(LEC_RHS_NETLIST); splitnets -ports;;; hierarchy -auto-top; renames -top gate; design -stash gate; 
+read_liberty -ignore_miss_func $::env(LIB_SYNTH_COMPLETE)
 
-read_liberty -lib  $::env(LIB_SYNTH_COMPLETE)
-
-design -copy-from gold -as gold gold; design -copy-from gate -as gate gate; 
+design -copy-from gold -as gold gold
+design -copy-from gate -as gate gate
 
 equiv_make gold gate equiv
-hierarchy -generate \\scs8hd_tapvpwrvgnd_1
-prep -flatten -top equiv;
-equiv_simple -seq 10 -v; equiv_status;
-
-
-# miter -equiv -make_assert -make_outputs -ignore_gold_x  ${vtop}_lhs ${vtop}_rhs miter
-
-# write_verilog $::env(yosys_tmp_file_tag).miter.h
-
-# flatten miter
-
-# sat -seq 10 -prove-asserts -set-init-undef -show-inputs -show-outputs -enable_undef -ignore_unknown_cells miter 
+hierarchy -generate $well_tap_cell
+hierarchy -generate $decap_cell_wildcard
+hierarchy -generate $fill_cell_wildcard
+prep -flatten -top equiv
+equiv_simple -seq 10 -v
+equiv_status -assert

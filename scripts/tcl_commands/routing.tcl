@@ -102,7 +102,7 @@ proc run_routing {args} {
 
 	# for LVS
 	write_verilog $::env(yosys_result_file_tag)_preroute.v
-	set_netlist $::env(yosys_result_file_tag)_preroute.v
+	set_netlist $::env(yosys_result_file_tag)_preroute.v -lec
 
 	global_routing_or
 	# li1_hack_end
@@ -158,7 +158,7 @@ proc ins_diode_cells {args} {
 	}
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
-	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	set_netlist $::env(yosys_result_file_tag)_diodes.v -lec
 }
 
 
