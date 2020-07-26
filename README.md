@@ -423,5 +423,4 @@ For more information on design configurations, how to update them, and the need 
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./logs/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
-[24]: ./pdks/README.md
-
+[24]: ./doc/PDK_STRUCTURE.md
