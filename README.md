@@ -27,7 +27,7 @@
 
 # Overview
 
-OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
+OpenLane is an automated RTL to GDSII flow based on several components including OpenRoad, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
 
 
 
@@ -84,7 +84,6 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd 
         cd ..
-        cd ..
     ```
     - To setup other variants:
         - replace sky130_fd_sc_hd with any of the following list:
@@ -94,12 +93,11 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
             - sky130_fd_sc_hdll
 
 - Setup the configurations and tech files:
-    - Physical verification is performed using magic and netgen. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks), which creates the required structure, cell views, and magic/netgen setup files. Clone the repository inside the `pdks` directory alongside the `skywater-pdk`:
+    - To perform physical verification you need to use the magic tool. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks):
     ```bash
-        cd pdks
         git clone https://github.com/efabless/open_pdks.git
         cd open_pdks
-        git checkout a85f6bb203c21b735c437a80e58a4a7988d71dc8
+        git checkout c2fec9fe64146000236dd807165b80b6a8b82b89
         make
         make install-local
         cd ..
@@ -144,10 +142,10 @@ After building the docker image, issue the following command to open the docker 
 
 This will mount the docker with the root folder being ```./openLANE_flow``` containing inside it the working directory specified, as well as the pdks directory in which you installed the pdks as a sub-directory
 
-Then, you can test the flow using one of the provided designs (spm: Serial-Parallel Multiplier) by running:
+Then, you can test the flow using one of the provided designs xtea by running:
 
 ```bash
-./flow.tcl -design spm
+./flow.tcl -design xtea
 ```
 
 To start a batch run (multiple designs at the same time), check this [section](#regression-and-design-configurations-exploration).
@@ -181,7 +179,7 @@ The following are arguments that can be passed to `flow.tcl`
             <code>-config &lt;name&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the design's configuration file for while running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config config2.tcl</code> <br> By default <code>config.tcl</code> is used.
+            Specifies the design's configuration file for while running the flow. <br> For example, to run the flow using <code>designs/xtea/config2.tcl</code> <br> Use run <code>./flow.tcl -design xtea -config config2.tcl</code> <br> By default <code>config.tcl</code> is used.
         </td>
     </tr>
     <tr>
@@ -294,7 +292,7 @@ OpenLane flow consists of several stages. Each stage may consist of multiple sub
     3. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
 4. **CTS**
     1. `TritonCTS` - Synthesizes the clock distribution network (the clock tree)
-5. **Routing** 
+5. **Routing** *
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `TritonRoute` - Performs detailed routing
 6. **GDSII Generation**
@@ -308,8 +306,8 @@ OpenLane uses the following tools:
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7] 
 - Placement: [RePLace][9] (Global), [Resizer][15] (Optimizations), and [OpenDP][10] (Detailed)
-- Clock Tree Synthesis: [TritonCTS][11]
-- Fill Insertion: [filler_placement][19]
+- Clock Tree Synthesis: [OpenROAD/TritonCTS][11]
+- Fill Insertion: [OpenROAD/filler_placement][19]
 - Routing: [FastRoute][12] (Global) and [TritonRoute][13] (Detailed)
 - GDSII Streaming out: [Magic][14]
 - DRC Checks: [Magic][14]
@@ -332,7 +330,7 @@ A run folder contains:
 The resulting directory tree is as follows:
 
 ```
-designs/spm
+designs/<design_name>
 ├── config.tcl
 ├── runs
 │   ├── <tag>
@@ -440,6 +438,8 @@ The above commands can also be written in a file and passed to `flow.tcl`:
 
 **Note 1:** Currently, configuration variables have higher priority over the above commands so if `RUN_MAGIC` is 0, command `run_magic` will have no effect. 
 
+**Note 2:** Currently, all these commands must be run in sequence and none should be omitted.
+
 # Regression And Design Configurations Exploration
 
 As mentioned earlier, everytime a new design or a new (PDK,PDK_VARIANT) pair is added, or any update happens in the flow tools, a re-configuration for the designs is needed. The reconfiguration is methodical and so an exploration script was developed to aid the designer in reconfiguring his designs if needed.
@@ -448,26 +448,12 @@ As explained [here](#adding-a-design) that each design has multiple configuratio
 ## Overview
 OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). 
 
-Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
-
-```bash
-python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
+Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: xtea using its default configuration files `config.tcl.` :
 ```
-**Default Test Set**: You can also run the flow against the [default test set](./designs/defaultTestSet.list) consisting of around 60 designs of different sizes and attributes by just running the following command:
-
-```bash 
-python3 run_designs.py --defaultTestSet --tag test --htmlExtract
+python3 run_designs.py --designs xtea md5 aes256 --tag test --threads 3
 ```
 
-You can find the results of using each variant on the defaultTestSet here:
-
-- [sky130_fd_sc_hd](./regression_results/benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
-- [sky130_fd_sc_hs](./regression_results/benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
-- [sky130_fd_sc_ms](./regression_results/benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
-- [sky130_fd_sc_ls](./regression_results/benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
-- [sky130_fd_sc_hdll](./regression_results/benchmark_results/)
-
-For more information on how to run this script, refer to this [file](./regression_results/README.md)
+For more information on how to run this script, refer to this [file](./Regression_Exploration.md)
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
  
@@ -490,9 +476,9 @@ For more information on design configurations, how to update them, and the need 
 [16]: https://github.com/The-OpenROAD-Project/pdn/
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
-[19]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
+[19]: https://github.com/The-OpenROAD-Project/
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
-[21]: ./regression_results/columns_defintions.md
+[21]: ./logs/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./pdks/README.md
 
