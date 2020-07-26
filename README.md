@@ -142,10 +142,10 @@ After building the docker image, issue the following command to open the docker 
 
 This will mount the docker with the root folder being ```./openLANE_flow``` containing inside it the working directory specified, as well as the pdks directory in which you installed the pdks as a sub-directory
 
-Then, you can test the flow using one of the provided designs (spm: Serial-Parallel Adder) by running:
+Then, you can test the flow using one of the provided designs xtea by running:
 
 ```bash
-./flow.tcl -design spm
+./flow.tcl -design xtea
 ```
 
 To start a batch run (multiple designs at the same time), check this [section](#regression-and-design-configurations-exploration).
@@ -450,7 +450,7 @@ OpenLane provides `run_designs.py`, a script that can do multiple runs in a para
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
 ```
-python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
+python3 run_designs.py --designs xtea md5 aes256 --tag test --threads 3
 ```
 
 For more information on how to run this script, refer to this [file](./Regression_Exploration.md)

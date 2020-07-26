@@ -46,7 +46,7 @@ tar/openLANE_flow.tar.gz:
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
-	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc1 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+	docker build $(DOCKER_BUILD_OPTS) -t openlane:clean_license -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
