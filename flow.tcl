@@ -1,4 +1,4 @@
-#!/usr/bin/tclsh8.5
+#!/usr/bin/tclsh
 
 # Copyright (c) Efabless Corporation. All rights reserved.
 # See LICENSE file in the project root for full license information.
