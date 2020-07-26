@@ -126,7 +126,7 @@ proc gen_pdn {args} {
 	puts "\[INFO\]: Generating PDN..."
 	TIMER::timer_start
 	if {![info exists ::env(PDN_CFG)]} {
-		set ::env(PDN_CFG) $::env(OPENLANE_ROOT)/pdks/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
+		set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
 	}
 
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/new_pdn.tcl \
