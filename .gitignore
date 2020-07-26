@@ -1,0 +1,8 @@
+*.swp
+*.vvp
+*.vcd
+*.raw
+__pycache__
+**/.DS_Store
+**/.Trashes/
+
