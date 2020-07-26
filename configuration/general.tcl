@@ -15,7 +15,6 @@
 # default pdk
 set ::env(PDK) "sky130A"
 set ::env(PDK_VARIANT) "sky130_fd_sc_hd"
-set ::env(PDK_ROOT) $::env(OPENLANE_ROOT)/pdks/
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
