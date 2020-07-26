@@ -1,0 +1,10 @@
+{
+	"DESIGN_NAME" : "spm",
+	"VERILOG_FILES" : "./designs/spm/src/spm.v",
+	"CLOCK_PERIOD" : 10.000,
+	"CLOCK_PORT" : "clk",
+	"CLOCK_NET" : "clk",
+	"SYNTH_MAX_FANOUT" : 6,
+	"FP_CORE_UTIL" : 65,
+	"PL_TARGET_DENSITY" : 0.70
+}
