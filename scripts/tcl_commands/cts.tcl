@@ -64,7 +64,7 @@ proc simple_cts {args} {
 }
 
 
-proc run_cts_or {args} {
+proc run_cts {args} {
 		puts "\[INFO\]: Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
@@ -80,6 +80,9 @@ proc run_cts_or {args} {
 
 		set_def $::env(SAVE_DEF)
 		set_netlist $::env(yosys_result_file_tag)_cts.v
+		if { $::env(LEC_ENABLE) } {
+			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+		}
 }
 
 package provide openlane 0.9

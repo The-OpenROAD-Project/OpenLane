@@ -60,7 +60,7 @@ close $fout
 
 puts stdout "\[INFO\]: COUNT: $count"
 puts stdout "\[INFO\]: Should be divided by 3 or 4"
-puts stdout "\[INFO\]: DRC Checking DONE ([pwd]/$::env(DESIGN_NAME).drc)"
+puts stdout "\[INFO\]: DRC Checking DONE ($::env(magic_log_file_tag).drc)"
 flush stdout
 
 puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_result_file_tag).drc.mag)"

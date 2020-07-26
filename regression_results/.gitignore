@@ -1,0 +1,5 @@
+*.rpt
+*.log
+*.csv
+*.html
+!benchmark_results/*.html

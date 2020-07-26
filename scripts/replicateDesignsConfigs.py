@@ -60,9 +60,9 @@ if len(designs) == 0:
     for i in designs:
         if os.path.isdir(root+'/designs/'+i) == False:
             designs.remove(i)
-print(designs)
 
 for design in designs:
+    print("Replicating "+ design + " config...")
     configFileTo = str(root)+"designs/"+str(design)+"/"+str(pdkTo)+"_"+str(pdkVariantTo)+"_config.tcl"
     configFileFrom = str(root)+"designs/"+str(design)+"/"+str(pdkFrom)+"_"+str(pdkVariantFrom)+"_config.tcl"
     if(path.exists(configFileFrom)):

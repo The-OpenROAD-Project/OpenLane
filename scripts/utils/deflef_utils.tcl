@@ -76,13 +76,31 @@ proc add_lefs {args} {
   set flags {}
   parse_key_args "add_lefs" args arg_values $options flags_map $flags
   puts_info "Merging $arg_values(-src)"
-  try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
-  try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED).new
 
 
-  try_catch mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
-  try_catch mv $::env(MERGED_LEF_UNPADDED).new $::env(MERGED_LEF_UNPADDED)
+  if { $::env(WIDEN_SITE) == 1 && $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
 
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED).new
+
+    try_catch mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
+    try_catch mv $::env(MERGED_LEF_UNPADDED).new $::env(MERGED_LEF_UNPADDED)
+
+  } else {
+    # The original lef
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_ORIGINAL) {*}$arg_values(-src) -o $::env(MERGED_LEF_ORIGINAL).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED_ORIGINAL) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED_ORIGINAL).new
+
+    try_catch mv $::env(MERGED_LEF_ORIGINAL).new $::env(MERGED_LEF_ORIGINAL)
+    try_catch mv $::env(MERGED_LEF_UNPADDED_ORIGINAL).new $::env(MERGED_LEF_UNPADDED_ORIGINAL)
+
+    # The modified lef
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_WIDENED) {*}$arg_values(-src) -o $::env(MERGED_LEF_WIDENED).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED_WIDENED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED_WIDENED).new
+
+    try_catch mv $::env(MERGED_LEF_WIDENED).new $::env(MERGED_LEF_WIDENED)
+    try_catch mv $::env(MERGED_LEF_UNPADDED_WIDENED).new $::env(MERGED_LEF_UNPADDED_WIDENED)
+  }
 }
 
 proc merge_components {args} {

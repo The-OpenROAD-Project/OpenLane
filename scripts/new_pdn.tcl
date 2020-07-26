@@ -12,9 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-read_lef $::env(MERGED_LEF_UNPADDED)
-read_def $::env(CURRENT_DEF)
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
 
-pdngen $::env(PDN_CFG) -verbose
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+
+if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
 
 write_def $::env(pdn_tmp_file_tag).def

@@ -37,9 +37,15 @@ proc detailed_routing {args} {
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-		try_catch TritonRoute \
-			$::env(tritonRoute_tmp_file_tag).param \
-			|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		if {$::env(ROUTING_STRATEGY) == 14} {
+			try_catch TritonRoute14 \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		} else {
+			try_catch TritonRoute \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		}
 	} else {
 		exec echo "SKIPPED!" >> $::env(tritonRoute_log_file_tag).log
 	}
@@ -92,6 +98,7 @@ proc ins_fill_cells_or {args} {
 
 proc run_routing {args} {
 	puts_info "Routing..."
+	
 # |----------------------------------------------------|
 # |----------------   5. ROUTING ----------------------|
 # |----------------------------------------------------|
@@ -101,6 +108,7 @@ proc run_routing {args} {
 			ins_diode_cells
 		}
 	}
+	use_original_lefs
 	# insert fill_cells
 	ins_fill_cells_or
 	# fastroute global 6_routing
@@ -109,6 +117,10 @@ proc run_routing {args} {
 	# for LVS
 	write_verilog $::env(yosys_result_file_tag)_preroute.v
 	set_netlist $::env(yosys_result_file_tag)_preroute.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 
 	global_routing_or
 	# li1_hack_end
@@ -140,7 +152,7 @@ proc gen_pdn {args} {
 	puts "\[INFO\]: Generating PDN..."
 	TIMER::timer_start
 	if {![info exists ::env(PDN_CFG)]} {
-		set ::env(PDN_CFG) $::env(OPENLANE_ROOT)/pdks/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
+		set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
 	}
 
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/new_pdn.tcl \
@@ -165,6 +177,10 @@ proc ins_diode_cells {args} {
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
 	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 }
 
 

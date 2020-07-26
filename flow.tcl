@@ -33,8 +33,7 @@ proc run_non_interactive_mode {args} {
 	run_synthesis
 	run_floorplan
 	run_placement
-	#run_cts
-	run_cts_or
+	run_cts
 	gen_pdn
 	run_routing
 
@@ -140,8 +139,11 @@ puts_info {
 }
 if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env(OPENLANE_VERSION)]} {
     # if no tags yet
-    set ::env(OPENLANE_VERSION) [exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1]
+    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1} ::env(OPENLANE_VERSION)]} {
+	set ::env(OPENLANE_VERSION) "N/A"
+    }
 }
+
 puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if { [info exists flags_map(-interactive)] ||\

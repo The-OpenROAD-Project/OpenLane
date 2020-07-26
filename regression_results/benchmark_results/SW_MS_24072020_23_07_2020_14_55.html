@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href='https://fonts.googleapis.com/css?family=Rock+Salt' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href=/home/aagouhar/openlane_working_dir/openlane/scripts/csv2html/csv2html/static/style.css>
+    <title>OpenLane Table</title>
+    <style>
+        body {
+            font-family: 'helvetica neue', helvetica, arial, sans-serif;
+        }
+        table {
+            table-layout: auto;
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid purple;
+        }
+        tr th {
+            font-family: 'sans-serif', cursive;
+            background: rgba(0, 0, 0, .1);
+            padding: 10px;
+            text-align: center;
+            border: 1px solid black;
+        }
+        tr td{
+            width: 30%;
+            text-align: center;
+            line-height: 1.5;
+            padding: 5px 0;
+            border: 1px solid black;
+        }
+        tr:nth-last-of-type(odd) {
+            background: whitesmoke;
+        }
+        .row:hover {
+            background: lightblue;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div style="overflow-x:auto;"></div>
+        <table>
+            <tr>
+                
+                    <th scope="col"></th>
+                
+                    <th scope="col">design</th>
+                
+                    <th scope="col">config</th>
+                
+                    <th scope="col">runtime</th>
+                
+                    <th scope="col">DIEAREA_mm^2</th>
+                
+                    <th scope="col">OpenDP_Util</th>
+                
+                    <th scope="col">cell_count</th>
+                
+                    <th scope="col">tritonRoute_violations</th>
+                
+                    <th scope="col">Short_violations</th>
+                
+                    <th scope="col">Magic_violations</th>
+                
+                    <th scope="col">antenna_violations</th>
+                
+                    <th scope="col">wns</th>
+                
+                    <th scope="col">CLOCK_PERIOD</th>
+                
+            </tr>
+            
+                <tr class="row">
+                    
+                        <td>0</td>
+                    
+                        <td>cmul7p8</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1e-06</td>
+                    
+                        <td>45.7347</td>
+                    
+                        <td>97</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>1</td>
+                    
+                        <td>spm</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h6m6s</td>
+                    
+                        <td>0.020961</td>
+                    
+                        <td>66.7866</td>
+                    
+                        <td>308</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>2</td>
+                    
+                        <td>add1p</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h6m43s</td>
+                    
+                        <td>0.015196000000000001</td>
+                    
+                        <td>66.1662</td>
+                    
+                        <td>191</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>3</td>
+                    
+                        <td>striVe_spi</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h6m57s</td>
+                    
+                        <td>0.030744</td>
+                    
+                        <td>65.1547</td>
+                    
+                        <td>495</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>4</td>
+                    
+                        <td>usb</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h7m15s</td>
+                    
+                        <td>0.056826</td>
+                    
+                        <td>66.036</td>
+                    
+                        <td>901</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>5</td>
+                    
+                        <td>zipdiv</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h8m0s</td>
+                    
+                        <td>0.076396</td>
+                    
+                        <td>65.3349</td>
+                    
+                        <td>1393</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>6</td>
+                    
+                        <td>cpu6502</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h9m17s</td>
+                    
+                        <td>0.083754</td>
+                    
+                        <td>65.2545</td>
+                    
+                        <td>1529</td>
+                    
+                        <td>1</td>
+                    
+                        <td>1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>7</td>
+                    
+                        <td>usb_cdc_core</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h9m30s</td>
+                    
+                        <td>0.163152</td>
+                    
+                        <td>50.3871</td>
+                    
+                        <td>2353</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>8</td>
+                    
+                        <td>int_to_double</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h12m38s</td>
+                    
+                        <td>0.10851400000000001</td>
+                    
+                        <td>65.382</td>
+                    
+                        <td>1919</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>9</td>
+                    
+                        <td>GTEFastDiv</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1e-06</td>
+                    
+                        <td>65.2057</td>
+                    
+                        <td>5006</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-8.53</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>10</td>
+                    
+                        <td>APU</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h11m13s</td>
+                    
+                        <td>0.240036</td>
+                    
+                        <td>55.2202</td>
+                    
+                        <td>3961</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>11</td>
+                    
+                        <td>wbqspiflash</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h12m48s</td>
+                    
+                        <td>0.28137399999999996</td>
+                    
+                        <td>40.2344</td>
+                    
+                        <td>3425</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>12</td>
+                    
+                        <td>ceil</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h15m8s</td>
+                    
+                        <td>0.143964</td>
+                    
+                        <td>70.3938</td>
+                    
+                        <td>2692</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>13</td>
+                    
+                        <td>double_le</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h11m38s</td>
+                    
+                        <td>0.2376</td>
+                    
+                        <td>65.4062</td>
+                    
+                        <td>4427</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>14</td>
+                    
+                        <td>r8051</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h13m29s</td>
+                    
+                        <td>0.279256</td>
+                    
+                        <td>40.0588</td>
+                    
+                        <td>3395</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>15</td>
+                    
+                        <td>rc_sinc</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h12m30s</td>
+                    
+                        <td>0.276094</td>
+                    
+                        <td>50.1545</td>
+                    
+                        <td>3920</td>
+                    
+                        <td>1</td>
+                    
+                        <td>1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>16</td>
+                    
+                        <td>dwtden</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h19m59s</td>
+                    
+                        <td>0.2376</td>
+                    
+                        <td>70.5067</td>
+                    
+                        <td>4567</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>17</td>
+                    
+                        <td>single_multiplier</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h14m37s</td>
+                    
+                        <td>0.38001599999999996</td>
+                    
+                        <td>40.1176</td>
+                    
+                        <td>4415</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>18</td>
+                    
+                        <td>tv80</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h16m30s</td>
+                    
+                        <td>0.292084</td>
+                    
+                        <td>50.23</td>
+                    
+                        <td>4265</td>
+                    
+                        <td>2</td>
+                    
+                        <td>2</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>19</td>
+                    
+                        <td>double_max</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h14m17s</td>
+                    
+                        <td>0.400625</td>
+                    
+                        <td>50.1695</td>
+                    
+                        <td>5499</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>20</td>
+                    
+                        <td>xtea</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h11m13s</td>
+                    
+                        <td>0.1827</td>
+                    
+                        <td>50.3617</td>
+                    
+                        <td>2698</td>
+                    
+                        <td>3</td>
+                    
+                        <td>3</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>21</td>
+                    
+                        <td>double_divider</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h17m36s</td>
+                    
+                        <td>0.319734</td>
+                    
+                        <td>45.0904</td>
+                    
+                        <td>4210</td>
+                    
+                        <td>7</td>
+                    
+                        <td>6</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>22</td>
+                    
+                        <td>cordic</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h15m5s</td>
+                    
+                        <td>0.34981599999999996</td>
+                    
+                        <td>70.0922</td>
+                    
+                        <td>6891</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>23</td>
+                    
+                        <td>md5</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h17m26s</td>
+                    
+                        <td>0.5974649999999999</td>
+                    
+                        <td>40.1199</td>
+                    
+                        <td>6735</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>24</td>
+                    
+                        <td>CPU</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h16m49s</td>
+                    
+                        <td>0.768196</td>
+                    
+                        <td>30.0785</td>
+                    
+                        <td>7078</td>
+                    
+                        <td>2</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>25</td>
+                    
+                        <td>serv_top</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h18m46s</td>
+                    
+                        <td>0.5662</td>
+                    
+                        <td>50.1433</td>
+                    
+                        <td>8458</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>26</td>
+                    
+                        <td>sub86</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h23m58s</td>
+                    
+                        <td>1.123536</td>
+                    
+                        <td>20.0537</td>
+                    
+                        <td>7078</td>
+                    
+                        <td>10</td>
+                    
+                        <td>8</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>5.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>27</td>
+                    
+                        <td>ocs_blitter</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h30m39s</td>
+                    
+                        <td>0.6601</td>
+                    
+                        <td>50.1054</td>
+                    
+                        <td>10358</td>
+                    
+                        <td>15</td>
+                    
+                        <td>9</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>28</td>
+                    
+                        <td>PPU</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h29m48s</td>
+                    
+                        <td>1.7160360000000001</td>
+                    
+                        <td>30.0701</td>
+                    
+                        <td>15599</td>
+                    
+                        <td>9</td>
+                    
+                        <td>1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>29</td>
+                    
+                        <td>sha3</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h33m7s</td>
+                    
+                        <td>1.8009</td>
+                    
+                        <td>30.0342</td>
+                    
+                        <td>15688</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>30</td>
+                    
+                        <td>fp_multiplier</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h34m7s</td>
+                    
+                        <td>1.8076240000000001</td>
+                    
+                        <td>30.0236</td>
+                    
+                        <td>15967</td>
+                    
+                        <td>8</td>
+                    
+                        <td>1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>31</td>
+                    
+                        <td>picorv32a</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>0h34m31s</td>
+                    
+                        <td>1.780834</td>
+                    
+                        <td>30.0142</td>
+                    
+                        <td>16131</td>
+                    
+                        <td>10</td>
+                    
+                        <td>6</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>32</td>
+                    
+                        <td>zuc_core</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h12m2s</td>
+                    
+                        <td>0.890136</td>
+                    
+                        <td>40.1172</td>
+                    
+                        <td>11119</td>
+                    
+                        <td>3</td>
+                    
+                        <td>2</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-6.54</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>33</td>
+                    
+                        <td>ArrayMultiplier</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1e-06</td>
+                    
+                        <td>40.0097</td>
+                    
+                        <td>25332</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-25.78</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>34</td>
+                    
+                        <td>y_huff</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h6m45s</td>
+                    
+                        <td>0.9790540000000001</td>
+                    
+                        <td>50.1101</td>
+                    
+                        <td>14774</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>35</td>
+                    
+                        <td>des</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h15m12s</td>
+                    
+                        <td>0.9632860000000001</td>
+                    
+                        <td>70.0165</td>
+                    
+                        <td>21153</td>
+                    
+                        <td>2</td>
+                    
+                        <td>2</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>36</td>
+                    
+                        <td>double_multiplier</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h14m33s</td>
+                    
+                        <td>0.9225040000000001</td>
+                    
+                        <td>60.1862</td>
+                    
+                        <td>16220</td>
+                    
+                        <td>2</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>37</td>
+                    
+                        <td>aes_core</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h0m53s</td>
+                    
+                        <td>3.539986</td>
+                    
+                        <td>20.0152</td>
+                    
+                        <td>20905</td>
+                    
+                        <td>26</td>
+                    
+                        <td>9</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>38</td>
+                    
+                        <td>chacha</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h20m38s</td>
+                    
+                        <td>2.400894</td>
+                    
+                        <td>25.0416</td>
+                    
+                        <td>18311</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>39</td>
+                    
+                        <td>ibex_core</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h42m5s</td>
+                    
+                        <td>8.794134</td>
+                    
+                        <td>10.0013</td>
+                    
+                        <td>25177</td>
+                    
+                        <td>2</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-5.38</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>40</td>
+                    
+                        <td>ldpcenc</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h11m50s</td>
+                    
+                        <td>2.701036</td>
+                    
+                        <td>30.0576</td>
+                    
+                        <td>25618</td>
+                    
+                        <td>1</td>
+                    
+                        <td>1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>41</td>
+                    
+                        <td>aes</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h12m24s</td>
+                    
+                        <td>3.711346</td>
+                    
+                        <td>20.0341</td>
+                    
+                        <td>21097</td>
+                    
+                        <td>7</td>
+                    
+                        <td>4</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1.44</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>42</td>
+                    
+                        <td>iir5sfix</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h39m31s</td>
+                    
+                        <td>1.914016</td>
+                    
+                        <td>40.0899</td>
+                    
+                        <td>23006</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-0.04</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>43</td>
+                    
+                        <td>point_scalar_mult</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1e-06</td>
+                    
+                        <td>-1.0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>44</td>
+                    
+                        <td>sha512</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h35m51s</td>
+                    
+                        <td>4.2745</td>
+                    
+                        <td>20.0075</td>
+                    
+                        <td>24094</td>
+                    
+                        <td>7</td>
+                    
+                        <td>5</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-5.29</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>45</td>
+                    
+                        <td>des3</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1e-06</td>
+                    
+                        <td>20.0185</td>
+                    
+                        <td>67505</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>2.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>46</td>
+                    
+                        <td>double_sqrt</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h57m51s</td>
+                    
+                        <td>2.239456</td>
+                    
+                        <td>40.0652</td>
+                    
+                        <td>28442</td>
+                    
+                        <td>3</td>
+                    
+                        <td>2</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-178.83</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>47</td>
+                    
+                        <td>salsa20</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h47m9s</td>
+                    
+                        <td>2.74725</td>
+                    
+                        <td>30.0233</td>
+                    
+                        <td>25121</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>48</td>
+                    
+                        <td>genericfir</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h35m32s</td>
+                    
+                        <td>4.062183999999999</td>
+                    
+                        <td>40.0457</td>
+                    
+                        <td>49679</td>
+                    
+                        <td>7</td>
+                    
+                        <td>4</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>49</td>
+                    
+                        <td>rc6_core</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h33m14s</td>
+                    
+                        <td>5.538906</td>
+                    
+                        <td>20.0044</td>
+                    
+                        <td>35273</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-3.88</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>50</td>
+                    
+                        <td>ica</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h37m15s</td>
+                    
+                        <td>3.170124</td>
+                    
+                        <td>40.0219</td>
+                    
+                        <td>38109</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-6.38</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>51</td>
+                    
+                        <td>aes128</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h24m59s</td>
+                    
+                        <td>7.537714</td>
+                    
+                        <td>20.022000000000002</td>
+                    
+                        <td>42850</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>52</td>
+                    
+                        <td>point_add</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h1m36s</td>
+                    
+                        <td>4.175836</td>
+                    
+                        <td>40.0731</td>
+                    
+                        <td>53706</td>
+                    
+                        <td>27</td>
+                    
+                        <td>12</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>53</td>
+                    
+                        <td>aes256</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h33m26s</td>
+                    
+                        <td>6.357906</td>
+                    
+                        <td>35.0325</td>
+                    
+                        <td>61800</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>15.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>54</td>
+                    
+                        <td>TEA</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>3h37m38s</td>
+                    
+                        <td>5.985306</td>
+                    
+                        <td>20.0284</td>
+                    
+                        <td>42849</td>
+                    
+                        <td>51</td>
+                    
+                        <td>26</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-24.02</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>55</td>
+                    
+                        <td>pca</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>1h48m58s</td>
+                    
+                        <td>7.233353999999999</td>
+                    
+                        <td>30.0053</td>
+                    
+                        <td>64944</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-8.04</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>56</td>
+                    
+                        <td>aes192</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>2h19m0s</td>
+                    
+                        <td>5.887846</td>
+                    
+                        <td>30.008000000000003</td>
+                    
+                        <td>49556</td>
+                    
+                        <td>0</td>
+                    
+                        <td>0</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>57</td>
+                    
+                        <td>striVe_soc</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>3h22m4s</td>
+                    
+                        <td>5.468526</td>
+                    
+                        <td>40.036</td>
+                    
+                        <td>69066</td>
+                    
+                        <td>3</td>
+                    
+                        <td>2</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-10.26</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+                <tr class="row">
+                    
+                        <td>58</td>
+                    
+                        <td>jpeg_encoder</td>
+                    
+                        <td>config_SW_MS_24072020</td>
+                    
+                        <td>3h8m18s</td>
+                    
+                        <td>5.767146</td>
+                    
+                        <td>40.0314</td>
+                    
+                        <td>69769</td>
+                    
+                        <td>7</td>
+                    
+                        <td>3</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>-1</td>
+                    
+                        <td>0.0</td>
+                    
+                        <td>10.0</td>
+                    
+                </tr>
+            
+        </table>
+    </div>
+
+</body>
+</html>

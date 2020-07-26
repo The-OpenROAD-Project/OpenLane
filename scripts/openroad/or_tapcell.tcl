@@ -12,8 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-read_lef $::env(MERGED_LEF_UNPADDED)
-read_def $::env(CURRENT_DEF)
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
 
 tapcell\
     -halo_width_x 5\

@@ -1,8 +1,6 @@
 # Build Instructions
 
-##### Based on [openroad build instructions](https://github.com/The-OpenROAD-Project/alpha-release/tree/master/build) with addition of opendp, opensta and original yosys and some modifications to the dockerfiles and the makefile.
-
-The goal of these instructions is to build a single image that contains all the openroad tools used by openlane.
+The goal of these instructions is to build a single image that contains all the tools used by openlane.
 This is done through three stages.
 
 1. Building
@@ -56,7 +54,7 @@ make export-<tool>
 The following are the available tools:
 
 ```bash
-replace ioplacer opendp route fastroute opensta yosys tapcell magic resizer addspacers
+replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
 ```
 
 ### Rebuilding

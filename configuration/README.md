@@ -89,7 +89,7 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.15`)|
 | `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
-| `ROUTING_STRATEGY` | Specifies the optimization mode to be used in TritonRoute. Values range from 0 to 3 <br> (Default: `0`) |
+| `ROUTING_STRATEGY` | Specifies the optimization mode to be used in TritonRoute. Values range from 0 to 3. If set to 14 TritonRoute14 will be used. <br> (Default: `0`) |
 
 ### Magic
 | Variable      | Description                                                   |
@@ -116,6 +116,8 @@ These variables are optional that can be specified in the design configuration f
 | `RUN_RESIZER_OVERBUFFER` | Enables inserting buffers to reduce the number of long wires.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `FILL_INSERTION` | Enables fill cells insertion after cts (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. 0 = No diode insertion, 1 = Spray diodes, 2 = insert fake diodes and replace them with real diodes if needed <br> (Default: `1`) |
+| `WIDEN_SITE` | Specifies the new virtual width of the site to be used in all stages up to diode insertion, then switched back to the original site width. It can be either a factor or an absolute value controlled by `WIDEN_SITE_IS_FACTOR` <br> (Default: `1`) |
+| `WIDEN_SITE_IS_FACTOR` | Specifies Whether the given `WIDEN_SITE` should be treated as a factor or an absolute value. 0 = absolute, 1 = factor <br> (Default: `1`) |
 
 ### Checkers
 | Variable      | Description                                                   |
