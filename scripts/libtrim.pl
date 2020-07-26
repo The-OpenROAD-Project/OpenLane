@@ -9,6 +9,8 @@ use warnings;
 use strict;
 use feature "switch";
 
+no warnings 'experimental';
+
 open (LIB, $ARGV[0]) ;
 open (CELLS,'<', $ARGV[1]);
 my @cells = ();
