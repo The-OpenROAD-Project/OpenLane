@@ -32,8 +32,8 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 
 # Prerequisites
  
- - Docker (ensure docker daemon is running)
- - Magic VLSI Layout Tool (version >= 8.3.25)
+ - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
+ - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
