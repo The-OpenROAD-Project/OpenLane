@@ -1,8 +1,18 @@
-*.swp
-*.vvp
-*.vcd
-*.raw
-__pycache__
-**/.DS_Store
-**/.Trashes/
+# vim swaps
+**/*.swp
+tags
+.vim
 
+# Flow Artefacts
+dummy.guide
+lefRWarning.log
+run.param
+macrocell.list
+*.log
+./docker_build/build/
+./docker_build/logs/
+# Python cache
+**/__pycache__
+
+# Mac
+.DS_Store

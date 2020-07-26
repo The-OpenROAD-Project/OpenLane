@@ -116,7 +116,11 @@ proc run_routing {args} {
 
 	# for LVS
 	write_verilog $::env(yosys_result_file_tag)_preroute.v
-	set_netlist $::env(yosys_result_file_tag)_preroute.v -lec
+	set_netlist $::env(yosys_result_file_tag)_preroute.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 
 	global_routing_or
 	# li1_hack_end
@@ -148,7 +152,7 @@ proc gen_pdn {args} {
 	puts "\[INFO\]: Generating PDN..."
 	TIMER::timer_start
 	if {![info exists ::env(PDN_CFG)]} {
-		set ::env(PDN_CFG) $::env(OPENLANE_ROOT)/pdks/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
+		set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
 	}
 
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/new_pdn.tcl \
@@ -172,7 +176,11 @@ proc ins_diode_cells {args} {
 	}
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
-	set_netlist $::env(yosys_result_file_tag)_diodes.v -lec
+	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 }
 
 

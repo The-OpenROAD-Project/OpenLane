@@ -29,7 +29,10 @@ proc run_yosys {args} {
 		-l $::env(yosys_log_file_tag).log \
 		|& tee $::env(TERMINAL_OUTPUT)
 
-	set_netlist $::env(yosys_result_file_tag).v -lec
+	set_netlist $::env(yosys_result_file_tag).v
+	if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
 
 	try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log
@@ -93,10 +96,19 @@ proc logic_equiv_check {args} {
 	set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
 	set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
 
-	try_catch [get_yosys_bin] \
+	puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
+
+	if { [catch {exec [get_yosys_bin] \
 		-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
 		-l $::env(yosys_log_file_tag).equiv.log \
-		|& tee $::env(TERMINAL_OUTPUT)
+		|& tee $::env(TERMINAL_OUTPUT)}] } {
+
+		puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
+		return -code error
+	}
+
+	puts_info "$::env(PREV_NETLIST) and $::env(CURRENT_NETLIST) are proven equivalent"
+	return -code ok
 }
 
 package provide openlane 0.9
