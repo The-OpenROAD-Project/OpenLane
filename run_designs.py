@@ -56,16 +56,17 @@ parser.add_argument('--tarList', '-tar',  nargs='+', default=None,
                 help="tars the specified sub directories and deletes the whole directory leaving only the compressed version")
 
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
-                help="Runs the default test set to generate the regression sheet")
+                help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
 
 args = parser.parse_args()
 
 regression = args.regression
 tag = args.tag
 if args.defaultTestSet:
-        defaultTestSetFileOpener = open('./designs/defaultTestSet.list', 'r')
-        designs = defaultTestSetFileOpener.read().split()
-        defaultTestSetFileOpener.close()
+        designs= [x  for x in os.listdir('./designs/')]
+        for i in designs:
+                if os.path.isdir('./designs/'+i) == False:
+                        designs.remove(i)
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
 num_workers = args.threads
