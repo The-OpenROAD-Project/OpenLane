@@ -20,4 +20,9 @@ set ::env(GLB_RT_ADJUSTMENT) 0.1
 set ::env(FP_CORE_UTIL) 20
 set ::env(PL_TARGET_DENSITY) 0.10
 
+# Extra# Regression
+set ::env(SYNTH_MAX_FANOUT) 7
+
 # Extra
+set ::env(PDK_VARIANT) sky130_fd_sc_hd
+
