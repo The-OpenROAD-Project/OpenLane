@@ -9,20 +9,15 @@
 # Table of contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
-- [Getting Started - Directory Setup](#getting-started---directory-setup)
-- [Getting Started - OpenLANE Flow Setup](#getting-started---openlane-flow-setup)
-- [Getting Started - PDK Setup](#getting-started---pdk-setup)
-    - [Setting up skywater-pdk](#setting-up-skywater-pdk)
-    - [Setting up other PDKs](#setting-up-other-pdks)
-- [Getting Started - How to Run](#getting-started---how-to-run)
-    - [Running the flow](#running-the-flow)
+- [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
+- [Setting up OpenLANE](#setting-up-openlane)
+    - [Running OpenLANE](#running-openlane)
     - [Command line arguments](#command-line-arguments)
     - [Adding a design](#adding-a-design)
-- [The Flow](#the-flow)
-    - [Stages](#stages)
-    - [Flow output](#flow-output)
+- [OpenLANE Architecture](#openlane-architecture)
+    - [OpenLANE Design Stages](#openlane-design-stages)
+    - [OpenLANE Output](#openlane-output)
     - [Flow configuration](#flow-configuration)
-    - [Interactive Mode](#interactive-mode)
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 
 # Overview
@@ -232,7 +227,7 @@ This [file](./designs/README.md) also includes useful information about the desi
 
 ## OpenLANE Design Stages
 
-OpenLANE flow consists of several stages. By default all flow steps are run in sequence. Each stage may consist of multiple sub-stages. OpenLANE can also be run interactively which will be shown below.
+OpenLANE flow consists of several stages. By default all flow steps are run in sequence. Each stage may consist of multiple sub-stages. OpenLANE can also be run interactively as shown [here][25].
 
 1. **Synthesis**
     1. `yosys` - Performs RTL synthesis
@@ -346,43 +341,6 @@ designs/<design_name>
 A list of all available variables can be found [here][17].
 
 
-## Interactive Mode
-You may run the flow interactively by using the `-interactive` option:
-
-```
-./flow.tcl -interactive
-```
-
-A tcl shell will be opened where the openlane package is automatically sourced:
-```
-% package require openlane 0.9
-```
-
-Then, you should be able to run the following commands:
-
-0. Any tcl command.
-1. `prep -design <design> -tag <tag> -config <config> -init_design_config -overwrite` similar to the command line arguments, design is required and the rest is optional
-2. `run_synthesis` 
-3. `run_floorplan`
-4. `run_placement`
-5. `run_cts`
-6. `run_routing`
-7. `run_magic`
-8. `run_magic_spice_export`
-9. `run_magic_drc`
-10. `run_netgen`
-11. `run_magic_antenna_check`
-
-
-The above commands can also be written in a file and passed to `flow.tcl`:
-
-```
-./flow.tcl -interactive -file <file>
-```
-
-**Note 1:** Currently, configuration variables have higher priority over the above commands so if `RUN_MAGIC` is 0, command `run_magic` will have no effect. 
-
-**Note 2:** Currently, all these commands must be run in sequence and none should be omitted.
 
 # Regression And Design Configurations Exploration
 
@@ -422,6 +380,7 @@ For more information on design configurations, how to update them, and the need 
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
-[21]: ./logs/README.md
+[21]: ./regression_results/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./doc/PDK_STRUCTURE.md
+[25]: ./advanced_readme.md
