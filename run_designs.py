@@ -55,9 +55,6 @@ parser.add_argument('--delete', '-dl', action='store_true', default=False,
 parser.add_argument('--tarList', '-tar',  nargs='+', default=None,
                 help="tars the specified sub directories and deletes the whole directory leaving only the compressed version")
 
-parser.add_argument('--htmlExtract', '-html', action='store_true', default=False,
-                help="An option to extract an html summary of the final csv summary")
-
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
                 help="Runs the default test set to generate the regression sheet")
 
@@ -270,20 +267,6 @@ best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".
         output=report_file_name + "_best.csv"
         )
 subprocess.check_output(best_result_cmd.split())
-
-if args.htmlExtract:
-        log.info("Converting to html..")
-        csv2html_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
-                input=report_file_name + ".csv",
-                output=report_file_name + ".html"
-                )
-        subprocess.check_output(csv2html_result_cmd.split())
-
-        csv2besthtml_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
-                input=report_file_name + "_best.csv",
-                output=report_file_name + "_best.html"
-                )
-        subprocess.check_output(csv2besthtml_result_cmd.split())
 
 addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
 

@@ -116,9 +116,7 @@ The script can be used in two ways
     1. `regression_results/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
     2. `regression_results/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
     3. `regression_results/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
-    4. `regression_results/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
-    5. `regression_results/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
-    
+
 ## Command line arguments
 <table>
     <tr>
@@ -226,14 +224,6 @@ The script can be used in two ways
         <td align="justify">
             Specifies whether or not to delete the run directory after completion and reporting the results in the csv.
             If this flag is used with --tar, then the compressed files will not be deleted because they are placed outside of the run directory.
-        </td>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>--htmlExtract | -html</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics.
         </td>
     </tr>
 </table>
