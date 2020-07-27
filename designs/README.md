@@ -75,7 +75,7 @@ if { [file exists $filename] == 1} {
 This implies that if the (PDK)_(PDK_VARIANT)_config.tcl doesn't exist the flow would resume normally with only the global config.tcl.
 
 This structure allows for storing the best configurations for a given design on all different PDKs and their PDK_VARIANTs. The best configuration for a given design differ from one PDK and PDK_VARIANT to another.
-For this reason, upon installing a new PDK/PDK_VARIANT or a new design, an exploration should be run on different configuration parameters to reach the best configuration. The script that enables this is [here](#Regression). 
+For this reason, upon installing a new PDK/PDK_VARIANT or a new design, an exploration should be run on different configuration parameters to reach the best configuration. The script that enables this is [here][1]. 
 After running the exploration, you will find in the logs two .csv newly generated files: {tag}_{timestamp}.csv and {tag}_{timestamp}_best.csv. The configuration name reported in the _best.csv file contains the best added configurations to the current run of the given design using the specified PDK/PDK_VARIANT.
 
 Two scripts were created for this purpose:
@@ -164,7 +164,7 @@ To run the script to update configurations for a (PDK,PDK_VARIANT) pair after an
     python3 ./scripts/updateDesignsConfigs.py --pdk PDK --pdkVariant PDK_VARIANT -log SW_exploration_best.csv
 ```
 
-Check [this](../Regression_Exploration.md) for more details on the log files.
+Check [this][1] for more details on the log files.
 
 The following is the list of flags used with the script:
 <table>
@@ -234,5 +234,5 @@ The following is the list of flags used with the script:
 
 **Important Note:** *The updateDesignsConfigs script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the replicateDesignsConfigs copies the whole file.*
 
-
+[1]: ../regression_results/README.md
 [2]: ../configuration/README.md

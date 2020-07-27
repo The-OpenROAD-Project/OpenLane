@@ -258,8 +258,8 @@ OpenLANE integrated several key open source tools over the execution stages:
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7] 
 - Placement: [RePLace][9] (Global), [Resizer][15] (Optimizations), and [OpenDP][10] (Detailed)
-- Clock Tree Synthesis: [OpenROAD/TritonCTS][11]
-- Fill Insertion: [OpenROAD/filler_placement][19]
+- Clock Tree Synthesis: [TritonCTS][11]
+- Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] (Global) and [TritonRoute][13] (Detailed)
 - GDSII Streaming out: [Magic][14]
 - DRC Checks: [Magic][14]
@@ -323,7 +323,7 @@ designs/<design_name>
         ```
         $PDK_ROOT/$PDK/$PDK_VARIANT/config.tcl
         ```
-    - More on configuring a new PDK in this [section](#setting-up-a-pdk)
+    - More on configuring a new PDK in this [section](#setting-up-the-pdk-skywater-pdk)
 
 - Flow specific variables are related to the flow and are initialized with default values in:
 
@@ -355,7 +355,7 @@ Also, it can be used for testing the flow by running the flow against several de
 python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 ```
 
-For more information on how to run this script, refer to this [file](./Regression_Exploration.md)
+For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
  
@@ -366,15 +366,15 @@ For more information on design configurations, how to update them, and the need 
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/init_fp
 [6]: https://github.com/The-OpenROAD-Project/ioPlacer/
-[7]: https://github.com/The-OpenROAD-Project/tapcell
+[7]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/tapcell
 [8]: https://github.com/The-OpenROAD-Project/OpenSTA
 [9]: https://github.com/The-OpenROAD-Project/RePlAce
-[10]: https://github.com/The-OpenROAD-Project/OpenDP
+[10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
 [11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS 
 [12]: https://github.com/The-OpenROAD-Project/FastRoute/tree/openroad
 [13]: https://github.com/The-OpenROAD-Project/TritonRoute
 [14]: https://github.com/RTimothyEdwards/magic
-[15]: https://github.com/The-OpenROAD-Project/Resizer
+[15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/resizer
 [16]: https://github.com/The-OpenROAD-Project/pdn/
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c

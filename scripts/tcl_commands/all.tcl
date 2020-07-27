@@ -752,16 +752,4 @@ set options {{-defFile required} \
 
 }
 
-proc insert_into_file {args} {
-  set options {{-file required} \
-    {-insertion required} \
-    {-output required} \
-     \
-  }
-  set flags {}
-  parse_key_args "insert_into_file" args arg_values $options flags_map $flags
-
-	try_catch python3 $::env(SCRIPTS_DIR)/insert_into_file.py -f $arg_values(-file) -i $arg_values(-insertion) -o $arg_values(-output)
-}
-
 package provide openlane 0.9

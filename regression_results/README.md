@@ -12,7 +12,7 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against the [default test set](../designs/defaultTestSet.list) (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
+You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
 
 - [sky130_fd_sc_hd](./benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
 - [sky130_fd_sc_hs](./benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
@@ -42,7 +42,7 @@ The script can be used in two ways
     python3 run_designs.py --designs spm xtea PPU APU
     ```
 
-    You can run the defualt test set consisting of 60 designs through running the following command along with any of the flags:
+    You can run the defualt test set consisting of all designs under [./designs](../designs/) through running the following command along with any of the flags:
     
     ```bash
     python3 run_design.py --defaultTestSet
@@ -67,8 +67,6 @@ The script can be used in two ways
         FP_ASPECT_RATIO=(1)
         SYNTH_MAX_FANOUT=(5)
 
-        extra="
-        "
         ```
     
     - Complex Expressions:
