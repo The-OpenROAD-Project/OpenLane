@@ -1,5 +1,17 @@
-# Copyright (c) Efabless Corporation. All rights reserved.
-# See LICENSE file in the project root for full license information.
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 global script_path
 set script_path [ file dirname [ file normalize [ info script ] ] ]
 
@@ -52,22 +64,27 @@ proc simple_cts {args} {
 }
 
 
-proc run_cts_or {args} {
+proc run_cts {args} {
 		puts "\[INFO\]: Running TritonCTS..."
-		set ::env(CURRENT_STAGE) cts
-		TIMER::timer_start
 		if {$::env(CLOCK_TREE_SYNTH)} {
+			set ::env(CURRENT_STAGE) cts
+			TIMER::timer_start		
+			
 			set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
 			try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(cts_log_file_tag).log
+			
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
+
+			set_def $::env(SAVE_DEF)
+			set_netlist $::env(yosys_result_file_tag)_cts.v
+			if { $::env(LEC_ENABLE) } {
+				logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+			}
 		} else {
 			exec echo "SKIPPED!" >> $::env(cts_log_file_tag).log
-			try_catch cp $::env(opendp_result_file_tag).def $::env(cts_result_file_tag).def
 		}
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
 
-		set_def $::env(SAVE_DEF)
-		set_netlist $::env(yosys_result_file_tag)_cts.v
 }
 
 package provide openlane 0.9

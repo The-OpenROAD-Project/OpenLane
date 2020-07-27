@@ -1,5 +1,17 @@
-# Copyright (c) Efabless Corporation. All rights reserved.
-# See LICENSE file in the project root for full license information.
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 proc remove_pins {args} {
   set options {{-input required}}
@@ -64,13 +76,31 @@ proc add_lefs {args} {
   set flags {}
   parse_key_args "add_lefs" args arg_values $options flags_map $flags
   puts_info "Merging $arg_values(-src)"
-  try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
-  try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED).new
 
 
-  try_catch mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
-  try_catch mv $::env(MERGED_LEF_UNPADDED).new $::env(MERGED_LEF_UNPADDED)
+  if { $::env(WIDEN_SITE) == 1 && $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
 
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED).new
+
+    try_catch mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
+    try_catch mv $::env(MERGED_LEF_UNPADDED).new $::env(MERGED_LEF_UNPADDED)
+
+  } else {
+    # The original lef
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_ORIGINAL) {*}$arg_values(-src) -o $::env(MERGED_LEF_ORIGINAL).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED_ORIGINAL) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED_ORIGINAL).new
+
+    try_catch mv $::env(MERGED_LEF_ORIGINAL).new $::env(MERGED_LEF_ORIGINAL)
+    try_catch mv $::env(MERGED_LEF_UNPADDED_ORIGINAL).new $::env(MERGED_LEF_UNPADDED_ORIGINAL)
+
+    # The modified lef
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_WIDENED) {*}$arg_values(-src) -o $::env(MERGED_LEF_WIDENED).new
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED_WIDENED) {*}$arg_values(-src) -o $::env(MERGED_LEF_UNPADDED_WIDENED).new
+
+    try_catch mv $::env(MERGED_LEF_WIDENED).new $::env(MERGED_LEF_WIDENED)
+    try_catch mv $::env(MERGED_LEF_UNPADDED_WIDENED).new $::env(MERGED_LEF_UNPADDED_WIDENED)
+  }
 }
 
 proc merge_components {args} {

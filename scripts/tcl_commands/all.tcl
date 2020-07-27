@@ -1,5 +1,17 @@
-# Copyright (c) Efabless Corporation. All rights reserved.
-# See LICENSE file in the project root for full license information.
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 package require json
 package require openlane_utils
 
@@ -21,6 +33,10 @@ proc set_netlist {netlist args} {
 
 	set replace [string map {/ \\/} $::env(PREV_NETLIST)]
 	exec sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+
+	if { [info exists flags_map(-lec)] && [file exists $::env(PREV_NETLIST)] } {
+	  logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
 }
 
 proc set_def {def} {
@@ -47,9 +63,13 @@ proc prep_lefs {args} {
 		file delete $::env(CELLS_LEF).old $::env(CELLS_LEF_UNPADDED).old
 	}
 	set ::env(MERGED_LEF) $::env(CELLS_LEF)
-	widenSiteWidth
+	
 	try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF)
 	try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF_UNPADDED)
+
+	widen_site_width
+	use_widened_lefs
+	
 }
 
 proc trim_lib {args} {
@@ -421,6 +441,7 @@ proc prep {args} {
 	set_log ::env(RUN_SIMPLE_CTS) $::env(RUN_SIMPLE_CTS) $::env(GLB_CFG_FILE) 1
 	set_log ::env(RUN_ROUTING_DETAILED) $::env(RUN_ROUTING_DETAILED) $::env(GLB_CFG_FILE) 1
 	set_log ::env(CLOCK_TREE_SYNTH) $::env(CLOCK_TREE_SYNTH) $::env(GLB_CFG_FILE) 1
+	set_log ::env(LEC_ENABLE) $::env(LEC_ENABLE) $::env(GLB_CFG_FILE) 1
 	set_log ::env(FILL_INSERTION) $::env(FILL_INSERTION) $::env(GLB_CFG_FILE) 1
 	set_log ::env(DIODE_INSERTION_STRATEGY) $::env(DIODE_INSERTION_STRATEGY) $::env(GLB_CFG_FILE) 1
 
@@ -597,7 +618,11 @@ proc reorder_macro_pins {args} {
 	try_catch python3 $::env(SCRIPTS_DIR)/reorder_pins.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -m [lindex $args 1] -o $::env(CURRENT_DEF)
 }
 
-proc widenSiteWidth {args} {
+proc widen_site_width {args} {
+	
+	set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
+	set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)
+
 	if { $::env(WIDEN_SITE) == 1 && $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
 		set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(MERGED_LEF_UNPADDED)
 		set ::env(MERGED_LEF_WIDENED) $::env(MERGED_LEF)
@@ -614,6 +639,23 @@ proc widenSiteWidth {args} {
 		}
 	}
 }
+
+proc use_widened_lefs {args} {
+
+	if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
+		set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
+		set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
+	}
+}
+
+proc use_original_lefs {args} {
+	
+	if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
+		set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
+		set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
+	}
+}
+
 
 proc label_macro_pins {args} {
   puts_info "Labeling macro pins..."
@@ -710,5 +752,16 @@ set options {{-defFile required} \
 
 }
 
+proc insert_into_file {args} {
+  set options {{-file required} \
+    {-insertion required} \
+    {-output required} \
+     \
+  }
+  set flags {}
+  parse_key_args "insert_into_file" args arg_values $options flags_map $flags
+
+	try_catch python3 $::env(SCRIPTS_DIR)/insert_into_file.py -f $arg_values(-file) -i $arg_values(-insertion) -o $arg_values(-output)
+}
 
 package provide openlane 0.9

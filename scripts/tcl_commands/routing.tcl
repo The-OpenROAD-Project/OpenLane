@@ -1,3 +1,17 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 proc global_routing {args} {
 	TIMER::timer_start
 	try_catch envsubst < $::env(GLB_RT_SCRIPT) > $::env(fastroute_tmp_file_tag).tcl
@@ -23,9 +37,15 @@ proc detailed_routing {args} {
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-		try_catch TritonRoute \
-			$::env(tritonRoute_tmp_file_tag).param \
-			|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		if {$::env(ROUTING_STRATEGY) == 14} {
+			try_catch TritonRoute14 \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		} else {
+			try_catch TritonRoute \
+				$::env(tritonRoute_tmp_file_tag).param \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+		}
 	} else {
 		exec echo "SKIPPED!" >> $::env(tritonRoute_log_file_tag).log
 	}
@@ -78,6 +98,7 @@ proc ins_fill_cells_or {args} {
 
 proc run_routing {args} {
 	puts_info "Routing..."
+	
 # |----------------------------------------------------|
 # |----------------   5. ROUTING ----------------------|
 # |----------------------------------------------------|
@@ -87,6 +108,7 @@ proc run_routing {args} {
 			ins_diode_cells
 		}
 	}
+	use_original_lefs
 	# insert fill_cells
 	ins_fill_cells_or
 	# fastroute global 6_routing
@@ -95,6 +117,10 @@ proc run_routing {args} {
 	# for LVS
 	write_verilog $::env(yosys_result_file_tag)_preroute.v
 	set_netlist $::env(yosys_result_file_tag)_preroute.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 
 	global_routing_or
 	# li1_hack_end
@@ -151,6 +177,10 @@ proc ins_diode_cells {args} {
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
 	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
+
 }
 
 

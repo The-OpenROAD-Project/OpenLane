@@ -3,7 +3,7 @@ DOCKER_BUILD_OPTS ?= --rm
 #ROOT = sudo
 
 #TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
-TOOLS = replace ioplacer opendp route fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
+TOOLS = replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
@@ -38,15 +38,16 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 	find ./build/ -name "*.tcl" -exec chmod +x {} \;
 	cd tar && tar -czf openroad_tools.tar.gz ../build
 
-tar/openLANE_flow.tar.gz: 
+tar/openLANE_flow.tar.gz: FORCE
 	find ../ -name '*.tcl' -exec chmod +x {} \;
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
+FORCE:
 
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
-	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc1 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc2 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:

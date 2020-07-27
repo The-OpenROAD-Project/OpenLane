@@ -27,63 +27,29 @@
 
 # Overview
 
-OpenLane is an automated RTL to GDSII flow based on several components including OpenRoad, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
-
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
 
 
 # Prerequisites
  
- - Docker
+ - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
+ - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
 
-# Getting Started - Directory Setup
-To simplify the running process the following setup is suggested:
+For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
-```
-openlane_working_dir
-├── pdks
-├── openlane
-```
-
-So before you start run the following commands:
-```bash
-    mkdir openlane_working_dir
-    cd openlane_working_dir
-    mkdir pdks
-    mkdir openlane 
-```
-
-# Getting Started - OpenLANE Flow Setup
-
-Clone & build OpenLANE:
-
-```bash
-    git clone https://github.com/efabless/openlane --branch rc1
-    cd openlane/docker_build
-    make merge
-    cd ..
-    cd ..
-```
-
-For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow.
-
-# Getting Started - PDK Setup
-
-Before running the flow, you need to have at least one PDK set up on your machine under openlane_working_dir/pdks/. 
-
-## Setting up skywater-pdk
-
-In this section we will explain how to setup the [skywater-pdk](https://github.com/google/skywater-pdk) variants on openlane. However, the steps explained should give a good idea about how to setup other pdks.
+# Setting up the PDK: skywater-pdk
 
 - Clone and build one skywwater-pdk variant(s) inside the pdks directory:
     - To setup one variant only
+
     ```bash
-        cd pdks
-        git clone https://github.com/google/skywater-pdk.git
+        export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+        cd  $PDK_ROOT
+        git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
         git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd 
-        cd ..
     ```
     - To setup other variants:
         - replace sky130_fd_sc_hd with any of the following list:
@@ -92,66 +58,57 @@ In this section we will explain how to setup the [skywater-pdk](https://github.c
             - sky130_fd_sc_ls
             - sky130_fd_sc_hdll
 
-- Setup the configurations and tech files:
-    - To perform physical verification you need to use the magic tool. Therefore, you need to setup the pdk using [open-pdks](https://github.com/efabless/open_pdks):
+- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/efabless/open_pdks):
+    
     ```bash
-        git clone https://github.com/efabless/open_pdks.git
+        cd $PDK_ROOT
+	    git clone git@github.com:efabless/open_pdks.git -b rc2
         cd open_pdks
-        git checkout c2fec9fe64146000236dd807165b80b6a8b82b89
         make
         make install-local
-        cd ..
-        cd ..
     ```
 
-    **Note:** You may want to change the pdk installation directory or control other options explained [here](https://github.com/efabless/open_pdks/blob/master/sky130/README).
+ - To set the PDK_VARIANT (the default value is set to sky130_fd_sc_hd)
+    - Open [configuration/general.tcl](./configuration/general.tcl)
+    - set PDK_VARIANT to one of the following: 
 
-    **Note:** If you don't want to use open_pdks and want to create the setup manually (This will only allow you to run the flow up to a routed-def), make sure you provide what is expected [here][24].
-
- - Point to the (PDK,PDK_VARIANT) pair:
-    - Open [./openlane_working_dir/openlane/configuration/general.tcl](./configuration/general.tcl)
-    - set PDK to the name of the folder containing the pdk under PDK_ROOT. <br> Default: sky130A
-    - set PDK_VARIANT to the name of the library as it exists under libs.tech. <br> Default: sky130_fd_sc_hd
-
-Refer to [this][24] for more details on the structure.
-
-## Setting up other PDKs
-
- - Provide the setup expected [here][24].
- - To perform physical verification you need to use the magic tool setup.
- - Point to the (PDK,PDK_VARIANT) pair:
-    - Go into [./configuration/general.tcl](./configuration/general.tcl)
-    - set PDK to the name of the folder containing the pdk under PDK_ROOT.
-    - set PDK_VARIANT to the name of the library as it exists under libs.tech
+            - sky130_fd_sc_hs
+            - sky130_fd_sc_ms
+            - sky130_fd_sc_ls
+            - sky130_fd_sc_hdll
 
 Refer to [this][24] for more details on the structure.
 
 
-# Getting Started - How to Run
+# Setting up OpenLANE
 
-## Running the flow
+```bash
+    git clone git@github.com:efabless/openlane --branch rc2
+    cd openlane/docker_build
+    make merge
+    cd ..
+```
+## Running OpenLANE
 
-After building the docker image, issue the following command to open the docker container from the project root, to ensure that the output files persist after exiting the container:
+Issue the following command to open the docker container from path/to/openlane to ensure that the output files persist after exiting the container:
 
 
 ```bash
-    docker run -itv $(pwd)/openlane:/openLANE_flow -v $(pwd)/pdks/open_pdks/sky130/pdks:/openLANE_flow/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc1
+   docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc2
 ```
 
-**Note: this will mirror the openlane directory inside the container.**
+**Note: this will mount the openlane directory inside the container.**
 
-This will mount the docker with the root folder being ```./openLANE_flow``` containing inside it the working directory specified, as well as the pdks directory in which you installed the pdks as a sub-directory
 
-Then, you can test the flow using one of the provided designs (spm: Serial-Parallel Adder) by running:
+Use the following example to check the overall setup:
 
 ```bash
 ./flow.tcl -design spm
 ```
 
-To start a batch run (multiple designs at the same time), check this [section](#regression-and-design-configurations-exploration).
+To run OpenLANE on multiple designs at the same time, check this [section](#regression-and-design-configurations-exploration).
 
-More details on running different designs in the following sections.
-
+Having trouble running the flow? check [FAQs](https://github.com/efabless/openlane/wiki/FAQs)
 
 ## Command line arguments
 
@@ -263,7 +220,7 @@ To add a new design, follow the instructions provided [here](./designs/README.md
 
 This [file](./designs/README.md) also includes useful information about the design configuration files. It also includes useful utilities for exploring and updating design configurations for each (PDK,PDK_VARIANT) pair.
 
-# The Flow
+# OpenLANE Architecture
 
 <table>
   <tr>
@@ -273,9 +230,9 @@ This [file](./designs/README.md) also includes useful information about the desi
 </table>
 
 
-## Stages
+## OpenLANE Design Stages
 
-OpenLane flow consists of several stages. Each stage may consist of multiple sub-stages. OpenLane can run either interactively (the designer executes the flow steps one by one) or non-interactively (default; running all the flow steps one after another):
+OpenLANE flow consists of several stages. By default all flow steps are run in sequence. Each stage may consist of multiple sub-stages. OpenLANE can also be run interactively which will be shown below.
 
 1. **Synthesis**
     1. `yosys` - Performs RTL synthesis
@@ -296,12 +253,12 @@ OpenLane flow consists of several stages. Each stage may consist of multiple sub
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `TritonRoute` - Performs detailed routing
 6. **GDSII Generation**
-    1. `magic` - Streams out the final GDSII layout file from the routed def
+    1. `Magic` - Streams out the final GDSII layout file from the routed def
 7. **Checks**
-    1. `magic` - Performs DRC Checks & Antenna Checks
+    1. `Magic` - Performs DRC Checks & Antenna Checks
     2. `Netgen` - Performs LVS Checks
 
-OpenLane uses the following tools:
+OpenLANE integrated several key open source tools over the execution stages:
 - RTL Synthesis, Technology Mapping, and Formal Verification : [yosys + abc][4]
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7] 
@@ -314,23 +271,12 @@ OpenLane uses the following tools:
 - LVS check: [Netgen][22]
 - Antenna Checks: [Magic][14]
 
-## Flow output
+## OpenLANE Output
 
-After running a design, a directory called `runs` is created inside that design folder. Each run is placed under that directory.
-A run is either named after `-tag` or named with a timestamp of that run.
-A run folder contains:
-
-1. The run configuration
-2. Four directories. Inside each, there is a folder per stage of the flow
-    1. `logs` - Runtime log of each tool. Can be useful in case of a crash.
-    2. `reports` - Reports generated by some of the tools. (i.e. synthesis report, timing report, etc...)
-    3. `results` - Final files created by completing a stage. Can either be `.def` or `.v` or `.gds`.
-    4. `tmp` - Files created by substages.
-
-The resulting directory tree is as follows:
+All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output timestamp-marked foler containing the following file structure: 
 
 ```
-designs/spm
+designs/<design_name>
 ├── config.tcl
 ├── runs
 │   ├── <tag>
@@ -367,22 +313,20 @@ designs/spm
 
 ## Flow configuration
 
-OpenLane requires some environment variables to be defined. These variables are split into three main categories:
-
-1. PDK specific
+1. PDK / technology specific
 2. Flow specific
 3. Design specific
 
 - A PDK should define at least one variant for the PDK. A common configuration file for all PDK variants is located in:
 
     ```
-    ./pdks/<pdk>/common_config.tcl
+    $PDK_ROOT/$PDK/config.tcl
     ```
 
     - Sometimes the PDK comes with several Standard Cell Libraries or Metal Stacks. Each is considered as a PDK variant. A variant configuration file defines extra variables specific to the variant. It may also override variables in the common PDK configuration file which is located in:
 
         ```
-        ./pdks/<pdk>/<variant>/config.tcl
+        $PDK_ROOT/$PDK/$PDK_VARIANT/config.tcl
         ```
     - More on configuring a new PDK in this [section](#setting-up-a-pdk)
 
@@ -446,11 +390,11 @@ As mentioned earlier, everytime a new design or a new (PDK,PDK_VARIANT) pair is 
 As explained [here](#adding-a-design) that each design has multiple configuration files for each (PDK,PDK_VARIANT) pair.
 
 ## Overview
-OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). 
+OpenLANE provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). 
 
-Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
+Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
 ```
-python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
+python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 ```
 
 For more information on how to run this script, refer to this [file](./Regression_Exploration.md)
@@ -480,5 +424,4 @@ For more information on design configurations, how to update them, and the need 
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./logs/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
-[24]: ./pdks/README.md
-
+[24]: ./doc/PDK_STRUCTURE.md

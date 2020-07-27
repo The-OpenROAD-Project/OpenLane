@@ -1,3 +1,17 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import queue
 import sys
 import time
@@ -41,18 +55,18 @@ parser.add_argument('--delete', '-dl', action='store_true', default=False,
 parser.add_argument('--tarList', '-tar',  nargs='+', default=None,
                 help="tars the specified sub directories and deletes the whole directory leaving only the compressed version")
 
-parser.add_argument('--htmlExtract', '-html', action='store_true', default=False,
-                help="An option to extract an html summary of the final csv summary")
-
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
-                help="Runs the default test set to generate the regression sheet")
+                help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
 
 args = parser.parse_args()
 
 regression = args.regression
 tag = args.tag
 if args.defaultTestSet:
-        designs = ['aes256', 'pca', 'jpeg_encoder', 'aes192', 'aes128', 'point_scalar_mult', 'des3', 'striVe_soc', 'point_add', 'genericfir', 'TEA', 'rc6_core', 'ica', 'salsa20', 'iir5sfix', 'ArrayMultiplier', 'double_sqrt', 'ibex_core', 'aes', 'ldpcenc', 'aes_core', 'chacha', 'sha512', 'double_multiplier', 'fp_multiplier', 'des', 'picorv32a', 'sha3', 'y_huff', 'usbf_device', 'PPU', 'zuc_core', 'ocs_blitter', 'cordic', 'sub86', 'xtea', 'serv_top', 'CPU', 'md5', 'GTEFastDiv', 'double_max', 'double_divider', 'single_multiplier', 'rc_sinc', 'tv80', 'double_le', 'APU', 'dwtden', 'wbqspiflash', 'r8051', 'divider_dshift', 'ceil', 'usb_cdc_core', 'int_to_double', 'cpu6502', 'zipdiv', 'cic_decimator', 'usb', 'striVe_spi', 'spm', 'add1p', 'cmul7p8']
+        designs= [x  for x in os.listdir('./designs/')]
+        for i in designs:
+                if os.path.isdir('./designs/'+i) == False:
+                        designs.remove(i)
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
 num_workers = args.threads
@@ -90,7 +104,7 @@ if args.configuration_parameters is not None:
                         print ("Could not open/read file:", args.configuration_parameters)
                         sys.exit()
 
-report_file_name = "./logs/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+report_file_name = "./regression_results/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
 handler1 = logging.FileHandler("{report_file_name}.log".format(report_file_name=report_file_name), 'w')
@@ -254,20 +268,6 @@ best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".
         output=report_file_name + "_best.csv"
         )
 subprocess.check_output(best_result_cmd.split())
-
-if args.htmlExtract:
-        log.info("Converting to html..")
-        csv2html_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
-                input=report_file_name + ".csv",
-                output=report_file_name + ".html"
-                )
-        subprocess.check_output(csv2html_result_cmd.split())
-
-        csv2besthtml_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
-                input=report_file_name + "_best.csv",
-                output=report_file_name + "_best.html"
-                )
-        subprocess.check_output(csv2besthtml_result_cmd.split())
 
 addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
 

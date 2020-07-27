@@ -1,7 +1,19 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import sys
 import os
-# Copyright (c) Efabless Corporation. All rights reserved.
-# See LICENSE file in the project root for full license information.
 
 #for i in range(len(sys.argv)):
 
@@ -16,8 +28,9 @@ keysList = []
 
 extra =[]
 
-debugFileOpener = open("Debug_Generate_config.txt", "w+")
+variant = []
 
+debugFileOpener = open("Debug_Generate_config.txt", "a+")
 
 
 def readContent(regressionFile):
@@ -25,30 +38,34 @@ def readContent(regressionFile):
         tmpFile = open(regressionFile,"r")
         if tmpFile.mode == 'r':
             regressionFileContent = tmpFile.read().split("\n")
-            for i in range(len(regressionFileContent)):
+            i = 0
+            while i < len(regressionFileContent):
                 line = regressionFileContent[i]
                 if line == "":
+                    i+=1
                     continue
-                elif line[0:5] == "extra":
+                elif line.find("extra") != -1:
                     while regressionFileContent[i][0] != "\"":
+                        debugFileOpener.write("extra: " + regressionFileContent[i]+"\n")
+                        debugFileOpener.write("extra: " + str(i)+"\n")
                         i+=1
-                        if (regressionFileContent[i] != "\"") & (regressionFileContent[i] != ""):
+                        if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
                             extra.append(regressionFileContent[i])
-                    break
+                elif line.find("variant") != -1:
+                    while regressionFileContent[i][0] != "\"":
+                        debugFileOpener.write("variant: " + regressionFileContent[i]+"\n")
+                        debugFileOpener.write("variant: " + str(i)+"\n")
+                        i+=1
+                        if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
+                            variant.append(regressionFileContent[i])   
                 else:
+                    debugFileOpener.write("other: " + line+"\n")
+                    debugFileOpener.write("other: " + str(i)+"\n")
                     keysList.append(line.split("=")[0])
                     vals = line.split("=")[1]
                     vals = vals[1:-1]
                     valuesList.append(vals.split(" "))
-                    debugFileOpener.write(line.split("=")[0])
-                    debugFileOpener.write("\n")
-                    debugFileOpener.write(vals)
-                    debugFileOpener.write("\n")
-                    
-                    debugFileOpener.write("\n")
-                    debugFileOpener.write(valuesList[-1][0])
-                    debugFileOpener.write("\n")
-                    debugFileOpener.write("\n")
+                i+=1
     except  OSError:
         print ("Could not open/read file:", regressionFile)
         sys.exit()
@@ -63,13 +80,27 @@ def resolveExpression(valExpression,expressionKeeper):
         valExpression= valExpression.replace(i,expressionKeeper[i])
     return eval(valExpression)
 
+
+def insertVariant (configs):
+    if len(variant):
+        lines = configs.split("\n")
+        for idx in range(len(lines)):
+            if lines[idx].find("$::env(PDK)_$::env(PDK_VARIANT)_config.tcl") != -1:
+                for var in variant:
+                    lines.insert(idx,var)
+                    idx+=1
+                configs = "\n".join(lines)
+                return configs
+    else:
+        return configs
+
 def Generator(i,j, regression_config, expressionKeeper):
     if (i+1 == len(keysList)):
         outFileName = outputPrefix+str(idx[0])+".tcl"
         outFile = open(outFileName, "w")
         outFile.write("\n# Design\n")
         baseConfigFileRead = open(baseConfigFile,"r")
-        outFile.write(baseConfigFileRead.read())
+        outFile.write(insertVariant(baseConfigFileRead.read()))
         #os.system("$(cat "+baseConfigFile+">>"+outFileName+")")
         outFile.write("\n# Regression\n")
         outFile.write(regression_config+"set ::env("+keysList[i]+") "+valuesList[i][j]+"\n")

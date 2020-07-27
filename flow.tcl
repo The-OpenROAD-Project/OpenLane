@@ -1,7 +1,18 @@
 #!/usr/bin/tclsh
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# Copyright (c) Efabless Corporation. All rights reserved.
-# See LICENSE file in the project root for full license information.
 
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
 
@@ -22,8 +33,7 @@ proc run_non_interactive_mode {args} {
 	run_synthesis
 	run_floorplan
 	run_placement
-	#run_cts
-	run_cts_or
+	run_cts
 	gen_pdn
 	run_routing
 
@@ -129,8 +139,11 @@ puts_info {
 }
 if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env(OPENLANE_VERSION)]} {
     # if no tags yet
-    set ::env(OPENLANE_VERSION) [exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1]
+    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1} ::env(OPENLANE_VERSION)]} {
+	set ::env(OPENLANE_VERSION) "N/A"
+    }
 }
+
 puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if { [info exists flags_map(-interactive)] ||\

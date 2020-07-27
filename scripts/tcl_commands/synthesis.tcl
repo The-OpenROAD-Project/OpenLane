@@ -1,3 +1,17 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 proc get_yosys_bin {} {
 	set synth_bin yosys
 	if { [info exists ::env(SYNTH_BIN)] } {
@@ -16,6 +30,9 @@ proc run_yosys {args} {
 		|& tee $::env(TERMINAL_OUTPUT)
 
 	set_netlist $::env(yosys_result_file_tag).v
+	if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	}
 
 	try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log
@@ -79,10 +96,19 @@ proc logic_equiv_check {args} {
 	set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
 	set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
 
-	try_catch [get_yosys_bin] \
+	puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
+
+	if { [catch {exec [get_yosys_bin] \
 		-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
 		-l $::env(yosys_log_file_tag).equiv.log \
-		|& tee $::env(TERMINAL_OUTPUT)
+		|& tee $::env(TERMINAL_OUTPUT)}] } {
+
+		puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
+		return -code error
+	}
+
+	puts_info "$::env(PREV_NETLIST) and $::env(CURRENT_NETLIST) are proven equivalent"
+	return -code ok
 }
 
 package provide openlane 0.9
