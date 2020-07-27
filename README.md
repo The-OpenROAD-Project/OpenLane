@@ -44,7 +44,7 @@ For more details about the docker container and its process, the [following inst
 
     ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-	cd  $PDK_ROOT
+        cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
         git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120
@@ -62,7 +62,7 @@ For more details about the docker container and its process, the [following inst
     
     ```bash
         cd $PDK_ROOT
-	git clone git@github.com:efabless/open_pdks.git -b rc2
+	    git clone git@github.com:efabless/open_pdks.git -b rc2
         cd open_pdks
         make
         make install-local
@@ -108,6 +108,7 @@ Use the following example to check the overall setup:
 
 To run OpenLANE on multiple designs at the same time, check this [section](#regression-and-design-configurations-exploration).
 
+Having trouble running the flow? check [FAQs](https://github.com/efabless/openlane/wiki/FAQs)
 
 ## Command line arguments
 
