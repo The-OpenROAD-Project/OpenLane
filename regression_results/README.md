@@ -18,7 +18,7 @@ You can view the results of the run against some designs (more [here](#usage)) a
 - [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
 - [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
 - [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
-- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL_2207202.html)
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
