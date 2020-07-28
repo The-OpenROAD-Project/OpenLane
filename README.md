@@ -1,4 +1,4 @@
-      ___   ____   ___  ____   _       ____  ____     ___
+___   ____   ___  ____   _       ____  ____     ___
      /   \ |    \ /  _]|    \ | |     /    ||    \   /  _]
     |     ||  o  )  [_ |  _  || |    |  o  ||  _  | /  [_
     |  O  ||   _/    _]|  |  || |___ |     ||  |  ||    _]
@@ -7,6 +7,8 @@
      
 
 # Table of contents
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_shield)
+
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Getting Started - Directory Setup](#getting-started---directory-setup)
@@ -424,3 +426,7 @@ For more information on design configurations, how to update them, and the need 
 [21]: ./logs/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./doc/PDK_STRUCTURE.md
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_large)
