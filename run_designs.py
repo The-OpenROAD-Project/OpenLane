@@ -60,10 +60,9 @@ parser.add_argument('--htmlExtract', '-html', action='store_true', default=False
 
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
                 help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
-
-
 parser.add_argument('--excluded_designs', '-e', nargs='+', default=[],
                 help="designs to exclude from the run")
+                
 
 args = parser.parse_args()
 

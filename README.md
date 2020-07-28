@@ -9,6 +9,7 @@
 # Table of contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
+- [Quick Start](quick-start)
 - [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Running OpenLANE](#running-openlane)
@@ -32,6 +33,29 @@ Join the community on [slack](https://join.slack.com/t/skywater-pdk/shared_invit
  - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
+
+# Quick Start:
+
+You can start setting up the skywater-pdk and openlane by running:
+
+```bash
+    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    make
+    make test # This is to test that the flow and the pdk were properly installed
+```
+
+This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
+
+To run the regression test, which tests the flow against all available designs under [./designs/](./designs/), run the following command:
+
+```bash
+    make regression
+```
+After running the regression compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD_27072020_27_07_2020_19_33.html)
+
+**Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
+
+The following sections are to give you an understanding of what happens under the hood in the Makefile.
 
 # Setting up the PDK: skywater-pdk
 
