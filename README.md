@@ -24,6 +24,7 @@
 
 OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
 
+Join the community on [slack](https://join.slack.com/t/skywater-pdk/shared_invite/zt-fkl21w8j-qzxBK852XGR8EFMbRakTMw)!
 
 # Prerequisites
  
@@ -128,10 +129,18 @@ The following are arguments that can be passed to `flow.tcl`
     </tr>
     <tr>
         <td align="center">
-            <code>-config &lt;name&gt;</code> <br> (Optional)
+            <code>-config_file &lt;file&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the design's configuration file for while running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config config2.tcl</code> <br> By default <code>config.tcl</code> is used.
+            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design /spm -config_file /spm/config2.tcl</code> <br> By default <code>config.tcl</code> is used.
+        </td>
+    </tr>
+        <tr>
+        <td align="center">
+            <code>-config_tag &lt;name&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2.tcl</code> <br> By default <code>config.tcl</code> is used.
         </td>
     </tr>
     <tr>

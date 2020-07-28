@@ -17,6 +17,8 @@ designs/<design_name>
 ```
 In the configuration file, you should edit the required variables and the optional variables, if needed. Further information about the variables can be found [here][2]
 
+Also, the <design_name> could be  replaced by the <design_directory>, which will allow you to run any design on your machine.
+
 **Note: config.tcl is a global configuration for all PDKs. For more information about design configuration files please visit this [section](#configuration-files)**
 
 It is recommended to place the design's verilog files in a `src` directory inside the design's folder as following:
@@ -33,7 +35,6 @@ However, you can point to the src files while initializing the design and they w
 ```bash
 ./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
 ```
-
 
 Optionally, you can specify the configuration file name (without the extension) by using:
 
