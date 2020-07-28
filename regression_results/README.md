@@ -14,11 +14,11 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
 
-- [sky130_fd_sc_hd](./benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
-- [sky130_fd_sc_hs](./benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
-- [sky130_fd_sc_ms](./benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
-- [sky130_fd_sc_ls](./benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
-- [sky130_fd_sc_hdll](./benchmark_results/)
+- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
+- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
+- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
+- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/)
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
