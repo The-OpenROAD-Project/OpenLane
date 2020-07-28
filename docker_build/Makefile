@@ -3,7 +3,7 @@ DOCKER_BUILD_OPTS ?= --rm
 #ROOT = sudo
 
 #TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
-TOOLS = replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
+TOOLS = replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog openphysyn
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))

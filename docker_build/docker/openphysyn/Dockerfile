@@ -32,8 +32,8 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
 # Install epel repo
-RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-RUN yum install -y epel-release-latest-6.noarch.rpm
+#RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+#RUN yum install -y epel-release-latest-6.noarch.rpm
 
 
 # Install dev and runtime dependencies
@@ -41,32 +41,44 @@ RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel pcre-devel
 
 
 # Install SWIG
-RUN yum remove -y swig \
-    && wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
-    && tar xfz rel-4.0.1.tar.gz \
-    && rm -rf rel-4.0.1.tar.gz \
-    && cd swig-rel-4.0.1 \
-    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install \
-    && cd /tmp \
-    && rm -rf swig-rel-4.0.1
+RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.0.tar.gz && \
+    tar -xf swig-4.0.0.tar.gz && \
+    cd swig-4.0.0 && \
+    ./configure && \
+    make && \
+    make install
 
 # Install python dev
-RUN yum install -y https://centos6.iuscommunity.org/ius-release.rpm && \
-    yum update -y && \
-    yum install -y python36u python36u-libs python36u-devel python36u-pip
+#RUN yum install -y https://centos6.iuscommunity.org/ius-release.rpm && \
+#    yum update -y && \
+#    yum install -y python36u python36u-libs python36u-devel python36u-pip
 
 
-RUN yum install -y http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm
 RUN yum install -y git 
-RUN git clone --recursive https://github.com/The-OpenROAD-Project/OpenPhySyn \
-	&& cd OpenPhySyn 
+
+# download CUDD
+RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
+    tar -xvf cudd-3.0.0.tar.gz && \
+    cd cudd-3.0.0 && \
+    ./configure && \
+    make -j$(nproc) && \
+    make install
+    
+RUN git clone --recursive https://github.com/scale-lab/OpenPhySyn.git && \
+    cd OpenPhySyn && \
+    git checkout 6bb80c5f9312a302b7c29cf1a4ddb93ace47d122 
+    
 
 # Build
 WORKDIR OpenPhySyn
 RUN mkdir build && mkdir /build
 RUN cd build && cmake -DCMAKE_BUILD_TYPE=release \
-	-DCMAKE_INSTALL_PREFIX=/build/ .. && make -j4
+	-DCMAKE_INSTALL_PREFIX=/build/ .. 
+RUN make -j4 && Psn 
+RUN make -j4 test
 RUN mkdir /build/bin && cp build/Psn /build/bin/ && cp -r build/transforms /build/
+
+
 
 RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openphysyn.version
