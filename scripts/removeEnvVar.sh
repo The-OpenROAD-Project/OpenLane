@@ -17,4 +17,4 @@
 
 path=$1
 envVar=$2
-find ${path}/*/config.tcl | xargs grep "${envVar}" | cut -d ':' -f 1 | xargs sed -i -E "s/^.*${envVar}.*$//g"
+find ${path}/*/*_config.tcl | xargs grep "${envVar}" | cut -d ':' -f 1 | xargs sed -i -E "s/^.*${envVar}.*$//g"

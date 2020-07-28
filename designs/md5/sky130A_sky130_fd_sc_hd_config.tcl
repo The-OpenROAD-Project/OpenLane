@@ -16,5 +16,5 @@ set ::env(FP_CORE_UTIL) 30
 set ::env(PL_TARGET_DENSITY) 0.25
 
 # Extra
-set ::env(PDK_VARIANT) sky130_fd_sc_hd
+
 

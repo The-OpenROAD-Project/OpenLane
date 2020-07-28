@@ -51,5 +51,5 @@ set ::env(PL_TARGET_DENSITY) 0.15
 set ::env(SYNTH_MAX_FANOUT) 9
 
 # Extra
-set ::env(PDK_VARIANT) sky130_fd_sc_ls
+
 

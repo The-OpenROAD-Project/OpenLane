@@ -69,7 +69,7 @@ module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco
 
     // Derive negative-sense reset from the input positive-sense reset
 
-    scs8hd_inv_4 irb (
+    sky130_fd_sc_hd__inv_4 irb (
 	.A(reset),
 	.Y(resetb)
     );
@@ -78,7 +78,7 @@ module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco
     // with digital standard cells with inverted resets, so the
     // reset has to be inverted as well.
  
-    scs8hd_dfrbp_1 idiv2 (
+    sky130_fd_sc_hd__dfrbp_1 idiv2 (
 	.CLK(clockp[1]),
 	.D(clockd[0]),
 	.Q(nint[0]),
@@ -86,7 +86,7 @@ module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco
 	.RESETB(resetb)
     );
 
-    scs8hd_dfrbp_1 idiv4 (
+    sky130_fd_sc_hd__dfrbp_1 idiv4 (
 	.CLK(clockd[0]),
 	.D(clockd[1]),
 	.Q(nint[1]),
@@ -94,7 +94,7 @@ module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco
 	.RESETB(resetb)
     );
 
-    scs8hd_dfrbp_1 idiv8 (
+    sky130_fd_sc_hd__dfrbp_1 idiv8 (
 	.CLK(clockd[1]),
 	.D(clockd[2]),
 	.Q(nint[2]),
@@ -102,7 +102,7 @@ module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco
 	.RESETB(resetb)
     );
 
-    scs8hd_dfrbp_1 idiv16 (
+    sky130_fd_sc_hd__dfrbp_1 idiv16 (
 	.CLK(clockd[2]),
 	.D(clockd[3]),
 	.Q(nint[3]),
