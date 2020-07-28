@@ -1,0 +1,20 @@
+{% extends '_partial.html' %}
+
+{%block tables %}
+    <div style="overflow-x:auto;"></div>
+        <table>
+            <tr>
+                {% for head in headers %}
+                    <th scope="col">{{head}}</th>
+                {% endfor %}
+            </tr>
+            {% for row in rows %}
+                <tr class="row">
+                    {% for data in row %}
+                        <td>{{data}}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}
