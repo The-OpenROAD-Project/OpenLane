@@ -139,7 +139,16 @@ The script can be used in two ways
             <code>--defaultTestSet | -dts </code> <br> (Boolean)
         </td>
         <td align="justify">
-            Ignores the design flag, and runs the default design test set consisting of 62 default designs. <br> Default: <code> False</code>
+            Ignores the design flag, and runs the default design test set consisting of all designs under the [../designs/](../designs/) directory. <br> Default: <code> False</code>
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--excluded_designs | -e  design1 design2 design3 ...</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies the designs to exclude from the run. Useful with <code>&lt;--defaultTestSet&gt;</code>.
         </td>
     </tr>
     <tr>

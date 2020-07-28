@@ -35,7 +35,7 @@ For more details about the docker container and its process, the [following inst
 
 # Setting up the PDK: skywater-pdk
 
-- Clone and build one skywwater-pdk variant(s) inside the pdks directory:
+- Clone and build one skywater-pdk variant(s) inside the pdks directory:
     - To setup one variant only
 
     ```bash
@@ -104,7 +104,7 @@ Use the following example to check the overall setup:
 
 To run OpenLANE on multiple designs at the same time, check this [section](#regression-and-design-configurations-exploration).
 
-Having trouble running the flow? check [FAQs](https://github.com/efabless/openlane/wiki/FAQs)
+Having trouble running the flow? check [FAQs](https://github.com/efabless/openlane/wiki)
 
 ## Command line arguments
 

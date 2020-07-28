@@ -61,6 +61,10 @@ parser.add_argument('--htmlExtract', '-html', action='store_true', default=False
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
                 help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
 
+
+parser.add_argument('--excluded_designs', '-e', nargs='+', default=[],
+                help="designs to exclude from the run")
+
 args = parser.parse_args()
 
 regression = args.regression
@@ -72,6 +76,11 @@ if args.defaultTestSet:
                         designs.remove(i)
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
+
+excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
+
+designs = list(set(designs)-set(excluded_designs))
+
 num_workers = args.threads
 config = args.config_tag
 tarList = ['']
