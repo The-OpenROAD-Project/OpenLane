@@ -130,6 +130,9 @@ proc run_placement {args} {
 	if { $::env(RUN_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
+	
+	run_openPhySyn
+	
 	#try_catch replace < $::env(SCRIPTS_DIR)/replace_io.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
 	#try_catch Psn --verbose --file $::env(SCRIPTS_DIR)/psn.tcl |& tee /dev/tty $::env(psn_log_file_tag).log
 
@@ -152,6 +155,13 @@ proc run_placement {args} {
 proc repair_wire_length {args} {
         set ::env(SAVE_DEF) $::env(CURRENT_DEF)
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+		set_def $::env(SAVE_DEF)
+}
+
+proc run_openPhySyn {args} {
+    set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
+    try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
+	set_def $::env(SAVE_DEF)
 }
 
 package provide openlane 0.9

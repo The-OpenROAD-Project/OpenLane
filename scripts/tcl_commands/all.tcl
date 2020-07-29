@@ -300,6 +300,7 @@ proc prep {args} {
 		{replaceio placement/replace}
 		{psn placement/psn}
 		{opendp placement/opendp}
+		{openphysyn placement/openphysyn}
 		{addspacers routing/addspacers}
 		{fastroute routing/fastroute}
 		{tritonRoute routing/tritonRoute}
