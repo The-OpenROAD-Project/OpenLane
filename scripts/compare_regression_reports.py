@@ -16,10 +16,11 @@ import argparse
 import subprocess
 import csv
 import pandas as pd
+from collections import OrderedDict
+import xlsxwriter
 
 parser = argparse.ArgumentParser(
         description="update configuration of design(s) per given PDK")
-
 
 parser.add_argument('--benchmark', '-b', action='store', required=True,
                 help="The csv file from which to extract the benchmark results")
@@ -30,11 +31,14 @@ parser.add_argument('--regression_results', '-r', action='store', required=True,
 parser.add_argument('--output_report', '-o', action='store', required=True,
                 help="The file to print the final report in")
 
+parser.add_argument('--output_xlsx', '-x', action='store', required=True,
+                help="The csv file to print a merged csv file benchmark vs regression_script in")
 
 args = parser.parse_args()
 benchmark_file = args.benchmark
 regression_results_file = args.regression_results
 output_report_file = args.output_report
+output_xlsx_file = args.output_xlsx
 
 benchmark =dict()
 regression_results =dict()
@@ -52,9 +56,9 @@ missing_configs = []
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'PDK_VARIANT', 'CELL_PAD', 'ROUTING_STRATEGY']
 
-critical_statistics = ['cell_count', 'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations' ,'wire_length', 'vias']
+critical_statistics = ['DIEAREA_mm^2', 'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
 
-note_worthy_statistics = ['runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells',]
+note_worthy_statistics = ['runtime','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells',]
 
 def findIdx(header, label):
     for idx in range(len(header)):
@@ -63,7 +67,7 @@ def findIdx(header, label):
     else:
         return -1
 
-def parseCSV(csv_file):
+def parseCSV(csv_file, isBenchmark):
     map_out = dict()
     csvOpener = open(csv_file, 'r')
     csvData = csvOpener.read().split("\n")
@@ -82,6 +86,7 @@ def parseCSV(csv_file):
 
     if designNameIdx == -1:
         print("invalid report. No design names.")
+        exit(-1)
     for i in range(1, len(csvData)):
         if len(csvData[i]):
             entry = csvData[i].split(",")
@@ -90,8 +95,13 @@ def parseCSV(csv_file):
                 if idx != designNameIdx:
                     if designName not in map_out.keys():
                         map_out[designName] = dict()
-                    map_out[designName][headerInfo[idx]] = entry[idx]
+                        if isBenchmark:
+                            map_out[designName]["Status"] = "PASSED"
+                        else:
+                            map_out[designName]["Status"] = "----"
+                    map_out[designName][headerInfo[idx]] = str(entry[idx])
     return map_out
+
 
 def configurationMismatch(benchmark, regression_results):
     for design in benchmark.keys():
@@ -121,16 +131,18 @@ def criticalMistmatch(benchmark, regression_results):
         critical_mismatches.append("\nComparing Critical Statistics for: "+ design+"\n")
         if design not in regression_results:
             testFail = True
+            benchmark[design]["Status"] = "NOT FOUND"
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
 
         for stat in critical_statistics:
-            if benchmark[design][stat] >= regression_results[design][stat] or benchmark[design][stat] == "-1":
+            if float(benchmark[design][stat]) >= float(regression_results[design][stat]) or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
                 output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")       
             else:
                 testFail = True
+                benchmark[design]["Status"] = "FAIL"
                 critical_mismatches.append("\tStatistic "+ stat+" MISMATCH\n")
                 output_report_list.append("\tStatistic "+ stat+" MISMATCH\n")
                 critical_mismatches.append("\t\tDesign "+ design + " Statistic "+ stat+" BENCHMARK value: "+ benchmark[design][stat] +"\n")
@@ -146,7 +158,7 @@ def noteWorthyMismatch(benchmark, regression_results):
             continue
 
         for stat in note_worthy_statistics:
-            if benchmark[design][stat] >= regression_results[design][stat] or benchmark[design][stat] == "-1":
+            if benchmark[design][stat] == regression_results[design][stat] or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
                 output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")       
             else:
@@ -155,8 +167,12 @@ def noteWorthyMismatch(benchmark, regression_results):
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" USER value: "+ regression_results[design][stat] +"\n")
 
 
-benchmark = parseCSV(benchmark_file)
-regression_results = parseCSV(regression_results_file)
+
+
+
+benchmark = parseCSV(benchmark_file,1)
+regression_results = parseCSV(regression_results_file,0)
+
 
 configurationMismatch(benchmark,regression_results)
 criticalMistmatch(benchmark,regression_results)
@@ -188,3 +204,83 @@ report += "".join(output_report_list)
 outputReportOpener = open(output_report_file, 'w')
 outputReportOpener.write(report)
 outputReportOpener.close()
+
+
+
+# Open an Excel workbook
+workbook = xlsxwriter.Workbook(output_xlsx_file)
+
+# Set up a format
+fail_format = workbook.add_format(properties={'bold': True, 'font_color': 'red'})
+pass_format = workbook.add_format(properties={'bold': True, 'font_color': 'green'})
+diff_format = workbook.add_format(properties={'font_color': 'blue'})
+header_format = workbook.add_format(properties={'font_color': 'gray'})
+benchmark_format = workbook.add_format(properties={'bold': True, 'font_color': 'navy'})
+
+# Create a sheet
+worksheet = workbook.add_worksheet('diff')
+
+headerInfo = ['Owner','design', 'Status']
+headerInfo.extend(critical_statistics)
+headerInfo.extend(note_worthy_statistics)
+headerInfo.extend(base_configs)
+
+# Write the headers
+for col_num, header in enumerate(headerInfo):
+    worksheet.write(0,col_num, header,header_format)
+
+# Save the data from the OrderedDict into the excel sheet
+idx = 0
+while idx < len(benchmark):
+    worksheet.write(idx*2+1, 0, "Benchmark", benchmark_format)
+    worksheet.write(idx*2+2, 0, "User")
+
+    design = str(list(benchmark.keys())[idx])
+    if design not in regression_results:
+        for col_num, header in enumerate(headerInfo):
+            if header == 'Owner':
+                worksheet.write(idx*2+1, col_num, "Benchmark", benchmark_format)
+                worksheet.write(idx*2+2, col_num, "User")
+                continue
+            if header == 'design':
+                worksheet.write(idx*2+1, col_num, design)
+                worksheet.write(idx*2+2, col_num, design)
+                continue
+            worksheet.write(idx*2+1, col_num, benchmark[design][header])
+    else:
+        for col_num, header in enumerate(headerInfo):
+            if header == 'Owner':
+                worksheet.write(idx*2+1, col_num, "Benchmark", benchmark_format)
+                worksheet.write(idx*2+2, col_num, "User")
+                continue
+            if header == 'design':
+                worksheet.write(idx*2+1, col_num, design)
+                worksheet.write(idx*2+2, col_num, design)
+                continue
+            if header == 'Status':
+                if benchmark[design][header] == "PASSED":
+                    worksheet.write(idx*2+1, col_num, benchmark[design][header],pass_format)
+                    worksheet.write(idx*2+2, col_num, regression_results[design][header],pass_format)
+                else:
+                    worksheet.write(idx*2+1, col_num, benchmark[design][header],fail_format)
+                    worksheet.write(idx*2+2, col_num, regression_results[design][header],fail_format)
+                continue
+            if benchmark[design][header] != regression_results[design][header]:
+                if header in critical_statistics:
+                    if float(benchmark[design][header]) < float(regression_results[design][header]):
+                        worksheet.write(idx*2+1, col_num, benchmark[design][header],fail_format)
+                        worksheet.write(idx*2+2, col_num, regression_results[design][header],fail_format)
+                    else:
+                        worksheet.write(idx*2+1, col_num, benchmark[design][header],pass_format)
+                        worksheet.write(idx*2+2, col_num, regression_results[design][header],pass_format)    
+                else:
+                    worksheet.write(idx*2+1, col_num, benchmark[design][header],diff_format)
+                    worksheet.write(idx*2+2, col_num, regression_results[design][header],diff_format)
+            else:
+                worksheet.write(idx*2+1, col_num, benchmark[design][header])
+                worksheet.write(idx*2+2, col_num, regression_results[design][header])
+    idx+=1
+            
+
+# Close the workbook
+workbook.close()

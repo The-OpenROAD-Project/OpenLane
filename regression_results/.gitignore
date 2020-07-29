@@ -2,4 +2,4 @@
 *.log
 *.csv
 *.html
-!benchmark_results/*.html
+!benchmark_results/*
