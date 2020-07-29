@@ -9,7 +9,7 @@
 # Table of contents
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
-- [Quick Start](quick-start)
+- [Quick Start](#quick-start)
 - [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Running OpenLANE](#running-openlane)
@@ -51,7 +51,7 @@ To run the regression test, which tests the flow against all available designs u
 ```bash
     make regression
 ```
-After running the regression compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD_27072020_27_07_2020_19_33.html)
+After running the regression compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
