@@ -18,52 +18,56 @@ FROM centos:centos6 AS build
 # Install Development Environment
 RUN yum groupinstall -y "Development Tools"
 RUN yum install -y wget git
+
 RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-8 devtoolset-8-libatomic-devel
+    yum -y install devtoolset-8  \
+    devtoolset-8-libatomic-devel tcl-devel tcl tk libstdc++ tk-devel pcre-devel \
+    python36u python36u-libs python36u-devel python36u-pip && \
+    yum clean -y all && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
     CXX="/opt/rh/devtoolset-8/root/usr/bin/g++ -lrt" \
     PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
     LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
+
+
+
 # Install CMake
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
-    ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
-
-# Install epel repo
-#RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-#RUN yum install -y epel-release-latest-6.noarch.rpm
-
+    ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local && rm -rf cmake-3.14.0-Linux-x86_64.sh \
+    && yum clean -y all
 
 # Install dev and runtime dependencies
 RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel pcre-devel
 
+# Install epel repo
+RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum install -y epel-release-latest-7.noarch.rpm && rm -rf epel-release-latest-7.noarch.rpm  \
+    && yum clean -y all
+
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
 
 # Install SWIG
-RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.0.tar.gz && \
-    tar -xf swig-4.0.0.tar.gz && \
-    cd swig-4.0.0 && \
-    ./configure && \
-    make && \
-    make install
-
-# Install python dev
-#RUN yum install -y https://centos6.iuscommunity.org/ius-release.rpm && \
-#    yum update -y && \
-#    yum install -y python36u python36u-libs python36u-devel python36u-pip
+RUN yum remove -y swig \
+    && wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
+    && tar xfz rel-4.0.1.tar.gz \
+    && rm -rf rel-4.0.1.tar.gz \
+    && cd swig-rel-4.0.1 \
+    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install \
+    && cd .. \
+    && rm -rf swig-rel-4.0.1
 
 
-RUN yum install -y git 
-
-# download CUDD
-RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
-    tar -xvf cudd-3.0.0.tar.gz && \
-    cd cudd-3.0.0 && \
-    ./configure && \
-    make -j$(nproc) && \
-    make install
-    
+# Installing boost for build dependency
+RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.bz2 && \
+    tar -xf boost_1_68_0.tar.bz2 && \
+    cd boost_1_68_0 && \
+    ./bootstrap.sh -with-libraries=program_options,log,filesystem && \
+    ./b2 -j$(nproc) install
+ 
 RUN git clone --recursive https://github.com/scale-lab/OpenPhySyn.git && \
     cd OpenPhySyn && \
     git checkout 6bb80c5f9312a302b7c29cf1a4ddb93ace47d122 
@@ -72,11 +76,8 @@ RUN git clone --recursive https://github.com/scale-lab/OpenPhySyn.git && \
 # Build
 WORKDIR OpenPhySyn
 RUN mkdir build && mkdir /build
-RUN cd build && cmake -DCMAKE_BUILD_TYPE=release \
-	-DCMAKE_INSTALL_PREFIX=/build/ .. 
-RUN make -j4 && Psn 
-RUN make -j4 test
-RUN mkdir /build/bin && cp build/Psn /build/bin/ && cp -r build/transforms /build/
+RUN cd build && cmake .. -DCMAKE_BUILD_TYPE=release && make -j 4 && make install
+RUN mkdir /build/bin && cp build/Psn /build/bin/
 
 
 
