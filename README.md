@@ -49,9 +49,12 @@ This should produce a clean run for the spm. The final layout will be generated 
 To run the regression test, which tests the flow against all available designs under [./designs/](./designs/), run the following command:
 
 ```bash
-    make regression
+    make regression_test
 ```
-After running the regression compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
+
+After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
+
+You can also compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 

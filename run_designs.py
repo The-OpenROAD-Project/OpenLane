@@ -76,7 +76,7 @@ else:
 excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
 
 for excluded_design in excluded_designs:
-        if excluded_designs in designs:
+        if excluded_design in designs:
                 designs.remove(excluded_design)
 
 num_workers = args.threads
