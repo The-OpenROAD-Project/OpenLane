@@ -28,7 +28,7 @@ keysList = []
 
 extra =[]
 
-variant = []
+std_cell_library = []
 
 debugFileOpener = open("Debug_Generate_config.txt", "a+")
 
@@ -51,13 +51,13 @@ def readContent(regressionFile):
                         i+=1
                         if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
                             extra.append(regressionFileContent[i])
-                elif line.find("variant") != -1:
+                elif line.find("std_cell_library") != -1:
                     while regressionFileContent[i][0] != "\"":
-                        debugFileOpener.write("variant: " + regressionFileContent[i]+"\n")
-                        debugFileOpener.write("variant: " + str(i)+"\n")
+                        debugFileOpener.write("std_cell_library: " + regressionFileContent[i]+"\n")
+                        debugFileOpener.write("std_cell_library: " + str(i)+"\n")
                         i+=1
                         if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
-                            variant.append(regressionFileContent[i])   
+                            std_cell_library.append(regressionFileContent[i])
                 else:
                     debugFileOpener.write("other: " + line+"\n")
                     debugFileOpener.write("other: " + str(i)+"\n")
@@ -81,12 +81,12 @@ def resolveExpression(valExpression,expressionKeeper):
     return eval(valExpression)
 
 
-def insertVariant (configs):
-    if len(variant):
+def insertSCL(configs):
+    if len(std_cell_library):
         lines = configs.split("\n")
         for idx in range(len(lines)):
-            if lines[idx].find("$::env(PDK)_$::env(PDK_VARIANT)_config.tcl") != -1:
-                for var in variant:
+            if lines[idx].find("$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl") != -1:
+                for var in std_cell_library:
                     lines.insert(idx,var)
                     idx+=1
                 configs = "\n".join(lines)
@@ -100,7 +100,7 @@ def Generator(i,j, regression_config, expressionKeeper):
         outFile = open(outFileName, "w")
         outFile.write("\n# Design\n")
         baseConfigFileRead = open(baseConfigFile,"r")
-        outFile.write(insertVariant(baseConfigFileRead.read()))
+        outFile.write(insertSCL(baseConfigFileRead.read()))
         #os.system("$(cat "+baseConfigFile+">>"+outFileName+")")
         outFile.write("\n# Regression\n")
         outFile.write(regression_config+"set ::env("+keysList[i]+") "+valuesList[i][j]+"\n")

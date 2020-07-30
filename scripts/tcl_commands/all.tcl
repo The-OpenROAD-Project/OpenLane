@@ -74,9 +74,9 @@ proc prep_lefs {args} {
 
 proc trim_lib {args} {
 	set trimmed_lib $::env(TMP_DIR)/trimmed.lib
-	set pdk_variant_no_synth_cells $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(PDK_VARIANT)/no_synth.cells
-	if { [file exists $pdk_variant_no_synth_cells] } {
-		try_catch $::env(SCRIPTS_DIR)/libtrim.pl $::env(LIB_SYNTH) $pdk_variant_no_synth_cells > $trimmed_lib
+	set scl_no_synth_lib $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
+	if { [file exists $scl_no_synth_lib] } {
+		try_catch $::env(SCRIPTS_DIR)/libtrim.pl $::env(LIB_SYNTH) $scl_no_synth_lib > $trimmed_lib
 	} else {
 		file copy -force $::env(LIB_SYNTH) $trimmed_lib
 	}
@@ -200,16 +200,29 @@ proc prep {args} {
 	}
 	puts_info "Using design configuration at $::env(DESIGN_CONFIG)"
 
-
 	foreach config $::env(CONFIGS) {
 		source $config
 	}
 
 	source_config $::env(DESIGN_CONFIG)
+
+	# DEPRECATED PDK_VARIANT
+	if { [info exists ::env(PDK_VARIANT)] } {
+	  puts_warn "PDK_VARIANT is now deprecated; use STD_CELL_LIBRARY instead"
+
+	  if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+	    set ::env(STD_CELL_LIBRARY) $::env(PDK_VARIANT)
+	  }
+	  if { $::env(PDK_VARIANT) != $::env(STD_CELL_LIBRARY) } {
+	    puts_err "Conflicting values of PDK_VARIANT and STD_CELL_LIBRARY; please remove PDK_VARIANT from your design configurations"
+	    return -code error
+	  }
+	}
+
 	set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
-	set pdk_variant_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(PDK_VARIANT)/config.tcl
+	set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
 	source $pdk_config
-	source $pdk_variant_config
+	source $scl_config
 	source_config $::env(DESIGN_CONFIG)
 
 	if { [info exists arg_values(-run_path)] } {
@@ -354,7 +367,8 @@ proc prep {args} {
 	#General
 	exec echo "# General config" > $::env(GLB_CFG_FILE)
 	set_log ::env(PDK) $::env(PDK) $::env(GLB_CFG_FILE) 1
-	set_log ::env(PDK_VARIANT) $::env(PDK_VARIANT) $::env(GLB_CFG_FILE) 1
+	set_log ::env(STD_CELL_LIBRARY) $::env(STD_CELL_LIBRARY) $::env(GLB_CFG_FILE) 1
+	# set_log ::env(PDK_VARIANT) $::env(PDK_VARIANT) $::env(GLB_CFG_FILE) 1; # DEPRECATED
 	set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
 	set_log ::env(CELL_PAD) $::env(CELL_PAD) $::env(GLB_CFG_FILE) 1
 	set_log ::env(MERGED_LEF) $::env(MERGED_LEF) $::env(GLB_CFG_FILE) 1

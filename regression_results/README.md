@@ -12,7 +12,7 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
+You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through this sheets:
 
 - [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
 - [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HS.html)
@@ -22,7 +22,7 @@ You can view the results of the run against some designs (more [here](#usage)) a
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
-To replicate these sheets, run the following command inside the docker after setting the proper variant name in [../configuration/general.tcl](../configuration/general.tcl):
+To replicate these sheets, run the following command inside the docker after setting the proper standard cell library in [../configuration/general.tcl](../configuration/general.tcl):
 
 ```bash
     python3 run_design.py --defaultTestSet --htmlExtract
@@ -82,9 +82,9 @@ The script can be used in two ways
         "
         ```
 
-    - Varaint Section:
+    - SCL-specific section
 
-        You can use the variant section to specify information that you would like to be sourced before sourcing variant specific information:
+        You can use this section to specify information that you would like to be sourced before sourcing SCL-specific information:
 
         ```
         FP_CORE_UTIL=(40 50)
@@ -94,17 +94,17 @@ The script can be used in two ways
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
         "
         
-        variant="
-        set ::env(PDK_VARIANT) sky130_fd_sc_hd
+        std_cell_library="
+        set ::env(STD_CELL_LIBRARY) sky130_fd_sc_hd
         set ::env(SYNTH_STRATEGY) 1
         "
         ```
-        In the example above, SYNTH_STRATEGY and PDK_VARIANT will be set before sourcing the pdk_variant specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
 
-        This can also be used to control the used PDK and its variant, since it is set before sourcing the variant specific configurations, so this will override the variant set in general.tcl and allow for more control on different variants under the same design.
+        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
 
-    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceeding to its use in the file.
+    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding to its use in the file.
 
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*

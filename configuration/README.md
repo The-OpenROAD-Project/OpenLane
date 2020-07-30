@@ -103,9 +103,9 @@ These variables are optional that can be specified in the design configuration f
 ### Misc
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `PDK` | Specifies the process design kit (pdk). <br> (Default: `ef-skywater-s8/EFS8A` )|
-| `PDK_VARIANT` | Specifies the process design kit (pdk) variant. <br> (Default: `efs8hd` )|
-| `PDK_ROOT` | Specifies the folder path of the pdk. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one variant config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$PAD_VARIANT`. <br> See [this][3] pdk config file and  [this][4] variant config file as an example . <br> (Default: `$OPENLANE_ROOT/pdks/` )|
+| `PDK` | Specifies the process design kit (PDK). <br> (Default: `sky130A` )|
+| `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
+| `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$STD_CELL_LIBRARY`. <br> See [this][3] PDK config file and [this][4] standard cell library config file as an example . <br> (Default: `$OPENLANE_ROOT/pdks/` )|
 | `CELL_PAD` | Cell padding; increases the width of cells. <br> (Default: `2` microns -- 2 sites)|
 
 ### Flow control

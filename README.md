@@ -4,7 +4,7 @@
     |  O  ||   _/    _]|  |  || |___ |     ||  |  ||    _]
     |     ||  | |   [_ |  |  ||     ||  _  ||  |  ||   [_
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
-     
+
 
 # Table of contents
 - [Overview](#overview)
@@ -28,7 +28,7 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 Join the community on [slack](https://join.slack.com/t/skywater-pdk/shared_invite/zt-fkl21w8j-qzxBK852XGR8EFMbRakTMw)!
 
 # Prerequisites
- 
+
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
  - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
 
@@ -62,8 +62,8 @@ The following sections are to give you an understanding of what happens under th
 
 # Setting up the PDK: skywater-pdk
 
-- Clone and build one skywater-pdk variant(s) inside the pdks directory:
-    - To setup one variant only
+- Clone and build at least one skywater-pdk standard cell Library inside the pdks directory:
+    - To setup one standard cell library only
 
     ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
@@ -72,9 +72,9 @@ The following sections are to give you an understanding of what happens under th
         cd skywater-pdk
         git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120
         git submodule update --init libraries/sky130_fd_sc_hd/latest
-        make sky130_fd_sc_hd 
+        make sky130_fd_sc_hd
     ```
-    - To setup other variants:
+    - To setup other SCLs:
         - replace sky130_fd_sc_hd with any of the following list:
             - sky130_fd_sc_hs
             - sky130_fd_sc_ms
@@ -82,7 +82,7 @@ The following sections are to give you an understanding of what happens under th
             - sky130_fd_sc_hdll
 
 - Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/efabless/open_pdks):
-    
+
     ```bash
         cd $PDK_ROOT
 	    git clone git@github.com:efabless/open_pdks.git -b rc2
@@ -91,9 +91,9 @@ The following sections are to give you an understanding of what happens under th
         make install-local
     ```
 
- - To set the PDK_VARIANT (the default value is set to sky130_fd_sc_hd)
+ - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
-    - set PDK_VARIANT to one of the following: 
+    - set STD_CELL_LIBRARY to one of the following:
 
             - sky130_fd_sc_hs
             - sky130_fd_sc_ms
@@ -223,7 +223,7 @@ The following are arguments that can be passed to `flow.tcl`
         <td align="justify">
             Flag to overwirte an existing run with the same tag
         </td>
-    </tr>    
+    </tr>
     <tr>
         </tr>
         <td align="center">
@@ -239,7 +239,7 @@ The following are arguments that can be passed to `flow.tcl`
             <code>-file &lt;file_path&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Passes a script of interactive commands in interactive mode 
+            Passes a script of interactive commands in interactive mode
         </td>
     </tr>
 </table>
@@ -249,7 +249,7 @@ The following are arguments that can be passed to `flow.tcl`
 
 To add a new design, follow the instructions provided [here](./designs/README.md)
 
-This [file](./designs/README.md) also includes useful information about the design configuration files. It also includes useful utilities for exploring and updating design configurations for each (PDK,PDK_VARIANT) pair.
+This [file](./designs/README.md) also includes useful information about the design configuration files. It also includes useful utilities for exploring and updating design configurations for each (PDK,STD_CELL_LIBRARY) pair.
 
 # OpenLANE Architecture
 
@@ -292,7 +292,7 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
 OpenLANE integrated several key open source tools over the execution stages:
 - RTL Synthesis, Technology Mapping, and Formal Verification : [yosys + abc][4]
 - Static Timing Analysis: [OpenSTA][8]
-- Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7] 
+- Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7]
 - Placement: [RePLace][9] (Global), [Resizer][15] (Optimizations), and [OpenDP][10] (Detailed)
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
@@ -304,7 +304,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 
 ## OpenLANE Output
 
-All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output timestamp-marked foler containing the following file structure: 
+All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output timestamp-marked foler containing the following file structure:
 
 ```
 designs/<design_name>
@@ -348,16 +348,16 @@ designs/<design_name>
 2. Flow specific
 3. Design specific
 
-- A PDK should define at least one variant for the PDK. A common configuration file for all PDK variants is located in:
+- A PDK should define at least one standard cell library(SCL) for the PDK. A common configuration file for all SCLs is located in:
 
     ```
     $PDK_ROOT/$PDK/config.tcl
     ```
 
-    - Sometimes the PDK comes with several Standard Cell Libraries or Metal Stacks. Each is considered as a PDK variant. A variant configuration file defines extra variables specific to the variant. It may also override variables in the common PDK configuration file which is located in:
+    - Sometimes the PDK comes with several standard cell libraries. Each has an own configuration file that defines extra variables specific to the SCL. It may also override variables in the common PDK configuration file which is located in:
 
         ```
-        $PDK_ROOT/$PDK/$PDK_VARIANT/config.tcl
+        $PDK_ROOT/$PDK/$STD_CELL_LIBRARY/config.tcl
         ```
     - More on configuring a new PDK in this [section](#setting-up-the-pdk-skywater-pdk)
 
@@ -380,11 +380,11 @@ A list of all available variables can be found [here][17].
 
 # Regression And Design Configurations Exploration
 
-As mentioned earlier, everytime a new design or a new (PDK,PDK_VARIANT) pair is added, or any update happens in the flow tools, a re-configuration for the designs is needed. The reconfiguration is methodical and so an exploration script was developed to aid the designer in reconfiguring his designs if needed.
-As explained [here](#adding-a-design) that each design has multiple configuration files for each (PDK,PDK_VARIANT) pair.
+As mentioned earlier, everytime a new design or a new (PDK,STD_CELL_LIBRARY) pair is added, or any update happens in the flow tools, a re-configuration for the designs is needed. The reconfiguration is methodical and so an exploration script was developed to aid the designer in reconfiguring his designs if needed.
+As explained [here](#adding-a-design) that each design has multiple configuration files for each (PDK,STD_CELL_LIBRARY) pair.
 
 ## Overview
-OpenLANE provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). 
+OpenLANE provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s).
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
 ```
@@ -394,7 +394,7 @@ python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
- 
+
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
@@ -406,7 +406,7 @@ For more information on design configurations, how to update them, and the need 
 [8]: https://github.com/The-OpenROAD-Project/OpenSTA
 [9]: https://github.com/The-OpenROAD-Project/RePlAce
 [10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
-[11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS 
+[11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS
 [12]: https://github.com/The-OpenROAD-Project/FastRoute/tree/openroad
 [13]: https://github.com/The-OpenROAD-Project/TritonRoute
 [14]: https://github.com/RTimothyEdwards/magic

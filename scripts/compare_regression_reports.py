@@ -54,7 +54,7 @@ missing_configs = []
 
 
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
-                'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'PDK_VARIANT', 'CELL_PAD', 'ROUTING_STRATEGY']
+                'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'ROUTING_STRATEGY']
 
 critical_statistics = ['tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
 
@@ -73,7 +73,7 @@ def parseCSV(csv_file, isBenchmark):
     csvData = csvOpener.read().split("\n")
     headerInfo = csvData[0].split(",")
     designNameIdx = findIdx(headerInfo, "design")
-    
+
     remover = 0
     size = len(base_configs)
     while remover < size:
@@ -117,7 +117,7 @@ def configurationMismatch(benchmark, regression_results):
         for config in base_configs:
             if benchmark[design][config] == regression_results[design][config]:
                 output_report_list.append("\tConfiguration "+ config+" MATCH\n")
-                output_report_list.append("\t\tConfiguration "+ config+" value: "+ benchmark[design][config] +"\n")       
+                output_report_list.append("\t\tConfiguration "+ config+" value: "+ benchmark[design][config] +"\n")
             else:
                 configuration_mismatches.append("\tConfiguration "+ config+" MISMATCH\n")
                 output_report_list.append("\tConfiguration "+ config+" MISMATCH\n")
@@ -139,12 +139,12 @@ def criticalMistmatch(benchmark, regression_results):
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-        
+
         size_before = len(critical_mismatches)
         for stat in critical_statistics:
             if ((float(benchmark[design][stat]) >= float(regression_results[design][stat])) and (regression_results[design][stat] != "-1")) or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
-                output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")       
+                output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")
             else:
                 testFail = True
                 benchmark[design]["Status"] = "FAIL"
@@ -167,7 +167,7 @@ def noteWorthyMismatch(benchmark, regression_results):
         for stat in note_worthy_statistics:
             if benchmark[design][stat] == regression_results[design][stat] or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
-                output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")       
+                output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")
             else:
                 output_report_list.append("\tStatistic "+ stat+" MISMATCH\n")
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" BENCHMARK value: "+ benchmark[design][stat] +"\n")
@@ -202,7 +202,7 @@ if testFail:
 if testFail:
     report += "\n\nConfiguration Mismatches. These are expected to cause differences between the results:\n\n"
     report += "".join(configuration_mismatches)
-    
+
 report += "\nThis is the full generated report:\n"
 report += "".join(output_report_list)
 
@@ -211,7 +211,6 @@ report += "".join(output_report_list)
 outputReportOpener = open(output_report_file, 'w')
 outputReportOpener.write(report)
 outputReportOpener.close()
-
 
 
 # Open an Excel workbook
@@ -279,7 +278,7 @@ while idx < len(benchmark):
                         worksheet.write(idx*2+2, col_num, regression_results[design][header],fail_format)
                     else:
                         worksheet.write(idx*2+1, col_num, benchmark[design][header],pass_format)
-                        worksheet.write(idx*2+2, col_num, regression_results[design][header],pass_format)    
+                        worksheet.write(idx*2+2, col_num, regression_results[design][header],pass_format)
                 else:
                     worksheet.write(idx*2+1, col_num, benchmark[design][header],diff_format)
                     worksheet.write(idx*2+2, col_num, regression_results[design][header],diff_format)
@@ -287,7 +286,7 @@ while idx < len(benchmark):
                 worksheet.write(idx*2+1, col_num, benchmark[design][header])
                 worksheet.write(idx*2+2, col_num, regression_results[design][header])
     idx+=1
-            
+
 
 # Close the workbook
 workbook.close()
