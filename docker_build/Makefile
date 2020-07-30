@@ -21,8 +21,8 @@ $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 # Export Tools
 # ==============================================================================
 .PHONY: $(TOOL_EXPORT_TARGETS)
-$(TOOL_EXPORT_TARGETS_PHONY): export-% : tar/%.tar.gz 
-$(TOOL_EXPORT_TARGETS_REAL): tar/%.tar.gz :
+$(TOOL_EXPORT_TARGETS_PHONY): export-% :
+	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
 	id=$$(${ROOT} docker create $*) ; \
 	  ${ROOT} docker cp $$id:\build.tar.gz tar/$*.tar.gz ; \
