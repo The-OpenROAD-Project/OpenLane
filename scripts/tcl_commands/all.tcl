@@ -204,13 +204,15 @@ proc prep {args} {
 		source $config
 	}
 
+	# needs to be sourced first since it can choose to determine the PDK and SCL
 	source_config $::env(DESIGN_CONFIG)
+
 
 	# DEPRECATED PDK_VARIANT
 	if { [info exists ::env(PDK_VARIANT)] } {
 	  puts_warn "PDK_VARIANT is now deprecated; use STD_CELL_LIBRARY instead"
 
-	  if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+	  if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
 	    set ::env(STD_CELL_LIBRARY) $::env(PDK_VARIANT)
 	  }
 	  if { $::env(PDK_VARIANT) != $::env(STD_CELL_LIBRARY) } {
@@ -219,10 +221,36 @@ proc prep {args} {
 	  }
 	}
 
+	# Diagnostics
+	if { ! [info exists ::env(PDK_ROOT)] } {
+	  puts_err "PDK_ROOT is not specified. Please make sure you have it set."
+	  return -code error
+	} else {
+	  puts_info "PDKs root directory: $::env(PDK_ROOT)"
+	}
+
+	if { ! [info exists ::env(PDK)] } {
+	  puts_err "PDK is not specified."
+	  return -code error
+	} else {
+	  puts_info "PDK: $::env(PDK)"
+	}
+
+	if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
+	  puts_err "STD_CELL_LIBRARY is not specified."
+	  return -code error
+	} else {
+	  puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+	}
+
+
+	# source PDK and SCL specific configurations
 	set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
 	set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
 	source $pdk_config
 	source $scl_config
+
+	# needs to be resourced to make sure it overrides the above
 	source_config $::env(DESIGN_CONFIG)
 
 	if { [info exists arg_values(-run_path)] } {
