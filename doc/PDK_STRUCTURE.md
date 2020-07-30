@@ -55,8 +55,8 @@ This section defines the necessary variables to configure a standard cell librar
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `LIB_SYNTH` | Points to the lib file used during synthesis. |
-| `LIB_MAX` | Points to the lib file for max delay calculation during STA. |
-| `LIB_MIN` | Points to the lib file for min delay calculation during STA. |
+| `LIB_SLOWEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. |
+| `LIB_FASTEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. |
 | `LIB_TYPICAL` | Points to the lib file for typical delay calculation during STA. |
 | `FP_WELLTAP_CELL` | Defines the tapcell to be used in tapcell insertion. <br> If this is not defiend then tapcell insertion will be skipped but the flow will resume normally |
 | `FP_ENDCAP_CELL` | Defines the decapcell. Inserted during floorplanning at the sides of the design. |

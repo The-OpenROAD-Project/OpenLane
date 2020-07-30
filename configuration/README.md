@@ -20,8 +20,8 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `LIB_SYNTH` | The library used for synthesis by yosys. <br> (Default: `./pdks/ef-skywater-s8/EFS8A/libs.ref/liberty/efs8hd/efs8hd_tt_1.80v_25C.lib`)|
-| `SYNTH_DRIVING_CELL`  | The cell to drive the input ports. <br>(Default: `efs8hd_inv_8`)|
+| `LIB_SYNTH` | The library used for synthesis by yosys. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__tt_025C_1v80.lib`)|
+| `SYNTH_DRIVING_CELL`  | The cell to drive the input ports. <br>(Default: `sky130_fd_sc_hd__inv_8`)|
 | `SYNTH_DRIVING_CELL_PIN`  | The name of the SYNTH_DRIVING_CELL output pin. <br>(Default: `Y`)|
 | `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `17.65` ff)|
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `5` cells) |
@@ -31,12 +31,12 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_SIZING` | Enables abc cell sizing (instead of buffering) <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_READ_BLACKBOX_LIB` | A flag that enable reading the full(untrimmed) libretry file as a blackbox for synthesis. Please note that this is not used in technology mapping. This should only be used when trying to preserve gate instances in the rtl of the design.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_NO_FLAT` | A flag that disables flattening the heirachry during synthesis, only flattening it after synthesis, mapping and optimizations. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
-| `LIB_MIN` | Library used for min delay calculation during STA. <br> (Default:`./pdks/ef-skywater-s8/EFS8A/libs.ref/liberty/efs8hd/efs8hd_ss_1.60v_100C.lib`) |
-| `LIB_MAX`  | Library used for max delay calculation during STA. <br> (Default:`./pdks/ef-skywater-s8/EFS8A/libs.ref/liberty/efs8hd/efs8hd_ff_1.95v_-40C.lib`) |
+| `LIB_SLOWEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. <br> (Default:`$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib`) |
+| `LIB_FASTEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. <br> (Default:`$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ss_100C_1v60.lib`) |
 | `LIB_TYPICAL` | Library used for typical delay calculation during STA. <br> (Default`LIB_SYNTH`) |
 | `CLOCK_BUFFER_FANOUT` | Fanout of clock tree buffers. <br> (Default: `16`) |
-| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Default: `efs8hd_clkbuf_16`) |
-| `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Default: `efs8hd_clkbuf_4`) |
+| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Default: `sky130_fd_sc_hd__clkbuf_16`) |
+| `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Default: `sky130_fd_sc_hd__clkbuf_4`) |
 | `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Default: `A`) |
 | `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Default: `X`) |
 
@@ -49,7 +49,6 @@ These variables are optional that can be specified in the design configuration f
 |---------------|---------------------------------------------------------------|
 | `FP_CORE_UTIL`  | The core utilization percentage. <br> (Default: `50` percent)|
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
-| `FP_CORE_MARGIN`  | The length of the margin surrounding the core area. <br> (Default: `3.36` microns)|
 | `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `3`)|
 | `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `2`)|
 | `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. <br> (Default: `efs8hd_tap_1`)|
@@ -63,6 +62,10 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_HEXTEND`  |  Extends the horizontal io pins outside of the die by the specified units<br> (Default: `-1` Disabled) |
 | `FP_IO_VTHICKNESS_MULT`  | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth <br> (Default: `1`) |
 | `FP_IO_HTHICKNESS_MULT`  | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth <br> (Default: `1`) |
+| `BOTTOM_MARGIN_MULT`     | The core margin, in multiples of site heights, from the bottom boundary. <br> (Default: `4`) |
+| `TOP_MARGIN_MULT`        | The core margin, in multiples of site heights, from the top boundary. <br> (Default: `4`) |
+| `LEFT_MARGIN_MULT`       | The core margin, in multiples of site widths, from the left boundary.  <br> (Default: `12`) |
+| `RIGHT_MARGIN_MULT`      | The core margin, in multiples of site widths, from the right boundary.   <br> (Default: `12`) |
 
 ### Placement
 

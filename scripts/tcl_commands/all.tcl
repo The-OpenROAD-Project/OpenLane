@@ -209,20 +209,10 @@ proc prep {args} {
 
 
 	# DEPRECATED PDK_VARIANT
-	if { [info exists ::env(PDK_VARIANT)] } {
-	  puts_warn "PDK_VARIANT is now deprecated; use STD_CELL_LIBRARY instead"
-
-	  if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
-	    set ::env(STD_CELL_LIBRARY) $::env(PDK_VARIANT)
-	  }
-	  if { $::env(PDK_VARIANT) != $::env(STD_CELL_LIBRARY) } {
-	    puts_err "Conflicting values of PDK_VARIANT and STD_CELL_LIBRARY; please remove PDK_VARIANT from your design configurations"
-	    return -code error
-	  }
-	}
+	handle_deprecated_config PDK_VARIANT STD_CELL_LIBRARY
 
 	# Diagnostics
-	if { ! [info exists ::env(PDK_ROOT)] } {
+	if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
 	  puts_err "PDK_ROOT is not specified. Please make sure you have it set."
 	  return -code error
 	} else {
@@ -253,11 +243,16 @@ proc prep {args} {
 	# needs to be resourced to make sure it overrides the above
 	source_config $::env(DESIGN_CONFIG)
 
+	# DEPRECATED CONFIGS
+	handle_deprecated_config LIB_MIN LIB_FASTEST
+	handle_deprecated_config LIB_MAX LIB_SLOWEST
+
 	if { [info exists arg_values(-run_path)] } {
 		set run_path "[file normalize $arg_values(-run_path)]/$tag/"
 	} else {
 		set run_path $::env(DESIGN_DIR)/runs/$tag/
 	}
+
 
 	#
 	############################
@@ -419,8 +414,10 @@ proc prep {args} {
 	} else {
 		set_log ::env(SYNTH_MAX_TRAN) "\[\expr {0.1*$::env(CLOCK_PERIOD)}\]" $::env(GLB_CFG_FILE) 1
 	}
-	set_log ::env(LIB_MIN) $::env(LIB_MIN) $::env(GLB_CFG_FILE) 1
-	set_log ::env(LIB_MAX) $::env(LIB_MAX) $::env(GLB_CFG_FILE) 1
+	# set_log ::env(LIB_MIN) $::env(LIB_MIN) $::env(GLB_CFG_FILE) 1; # DEPRECATED
+	# set_log ::env(LIB_MAX) $::env(LIB_MAX) $::env(GLB_CFG_FILE) 1; # DEPRECATED
+	set_log ::env(LIB_FASTEST) $::env(LIB_FASTEST) $::env(GLB_CFG_FILE) 1
+	set_log ::env(LIB_SLOWEST) $::env(LIB_SLOWEST) $::env(GLB_CFG_FILE) 1
 	set_log ::env(LIB_TYPICAL) $::env(LIB_TYPICAL) $::env(GLB_CFG_FILE) 1
 	if { $::env(SYNTH_TOP_LEVEL) } {
 	set_log ::env(SYNTH_SCRIPT) "$::env(OPENLANE_ROOT)/scripts/synth_top.tcl" $::env(GLB_CFG_FILE) 0

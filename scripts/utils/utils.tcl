@@ -12,6 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# warn about deprecated configs and preserve backwards compatibility
+proc handle_deprecated_config {old new} {
+  if { [info exists ::env($old)] } {
+    puts_warn "$old is now deprecated; use $new instead"
+
+    if { ! [info exists ::env($new)] } {
+      set ::env($new) $::env($old)
+    }
+    if { $::env($new) != $::env($old) } {
+      puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
+      return -code error
+    }
+  }
+}
+
 # create an array out of a list
 
 proc add_to_env {my_array} {
