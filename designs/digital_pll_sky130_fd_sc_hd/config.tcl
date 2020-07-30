@@ -4,7 +4,7 @@
 set ::env(DESIGN_NAME) digital_pll
 
 # Change if needed
-set ::env(VERILOG_FILES) ./designs/digital_pll/src/digital_pll.v
+set ::env(VERILOG_FILES) ./designs/digital_pll_sky130_fd_sc_hd/src/digital_pll.v
 
 # Fill this
 set ::env(CLOCK_PERIOD) "100000"
