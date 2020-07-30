@@ -18,7 +18,7 @@ report_tns
 puts "Initial area: [expr round([design_area] * 10E12) ] um2"
 
 puts "OpenPhySyn timing repair:"
-repair_timing
+repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations -resize_disabled
 
 puts "=============== Final Reports ============="
 report_checks
