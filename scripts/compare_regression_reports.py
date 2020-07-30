@@ -56,9 +56,9 @@ missing_configs = []
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'PDK_VARIANT', 'CELL_PAD', 'ROUTING_STRATEGY']
 
-critical_statistics = ['DIEAREA_mm^2', 'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
+critical_statistics = ['tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
 
-note_worthy_statistics = ['runtime','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells',]
+note_worthy_statistics = ['runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 
 def findIdx(header, label):
     for idx in range(len(header)):
@@ -104,6 +104,7 @@ def parseCSV(csv_file, isBenchmark):
 
 
 def configurationMismatch(benchmark, regression_results):
+    global configuration_mismatches
     for design in benchmark.keys():
         output_report_list.append("\nComparing Configurations for: "+ design+"\n")
         configuration_mismatches.append("\nComparing Configurations for: "+ design+"\n")
@@ -112,6 +113,7 @@ def configurationMismatch(benchmark, regression_results):
             configuration_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
 
+        size_before = len(configuration_mismatches)
         for config in base_configs:
             if benchmark[design][config] == regression_results[design][config]:
                 output_report_list.append("\tConfiguration "+ config+" MATCH\n")
@@ -123,9 +125,11 @@ def configurationMismatch(benchmark, regression_results):
                 output_report_list.append("\t\tDesign "+ design + " Configuration "+ config+" BENCHMARK value: "+ benchmark[design][config] +"\n")
                 configuration_mismatches.append("\t\tDesign "+ design + " Configuration "+ config+" USER value: "+ regression_results[design][config] +"\n")
                 output_report_list.append("\t\tDesign "+ design + " Configuration "+ config+" USER value: "+ regression_results[design][config] +"\n")
-
+        if size_before == len(configuration_mismatches):
+            configuration_mismatches=configuration_mismatches[:-1]
 def criticalMistmatch(benchmark, regression_results):
     global testFail
+    global critical_mismatches
     for design in benchmark.keys():
         output_report_list.append("\nComparing Critical Statistics for: "+ design+"\n")
         critical_mismatches.append("\nComparing Critical Statistics for: "+ design+"\n")
@@ -135,9 +139,10 @@ def criticalMistmatch(benchmark, regression_results):
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-
+        
+        size_before = len(critical_mismatches)
         for stat in critical_statistics:
-            if float(benchmark[design][stat]) >= float(regression_results[design][stat]) or benchmark[design][stat] == "-1":
+            if ((float(benchmark[design][stat]) >= float(regression_results[design][stat])) and (regression_results[design][stat] != "-1")) or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
                 output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")       
             else:
@@ -149,6 +154,8 @@ def criticalMistmatch(benchmark, regression_results):
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" BENCHMARK value: "+ benchmark[design][stat] +"\n")
                 critical_mismatches.append("\t\tDesign "+ design + " Statistic "+ stat+" USER value: "+ regression_results[design][stat] +"\n")
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" USER value: "+ regression_results[design][stat] +"\n")
+        if len(critical_mismatches) == size_before:
+            critical_mismatches= critical_mismatches[:-1]
 
 def noteWorthyMismatch(benchmark, regression_results):
     for design in benchmark.keys():
@@ -267,7 +274,7 @@ while idx < len(benchmark):
                 continue
             if benchmark[design][header] != regression_results[design][header]:
                 if header in critical_statistics:
-                    if float(benchmark[design][header]) < float(regression_results[design][header]):
+                    if float(benchmark[design][header]) < float(regression_results[design][header]) or regression_results[design][header] == "-1":
                         worksheet.write(idx*2+1, col_num, benchmark[design][header],fail_format)
                         worksheet.write(idx*2+2, col_num, regression_results[design][header],fail_format)
                     else:

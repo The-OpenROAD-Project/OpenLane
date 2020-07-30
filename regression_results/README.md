@@ -111,9 +111,21 @@ The script can be used in two ways
 
 ## Output
 - In addition to files produced inside `designs/<design>/runs/config_<tag>_<number>` for each run on a design, three files are produced:
-    1. `regression_results/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
-    2. `regression_results/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
-    3. `regression_results/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
+    1. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
+    2. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
+    3. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
+
+- If the --htmlExtract flag is enabled, the following files will also be generated:
+
+    4. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
+    5. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
+
+- If a file is provided to the --benchmark flag, the following files will also be generated:
+
+    6. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_design_test_report.csv` An incrementaly generated list of all designs in this run compared to the benchmark results and whether they PASSED or FAILED the regression test.
+    7. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_written_report.rpt` A detailed report pointing out the differences between this run of the test set and the benchmark results. It divides them into three categories: Critical, Note-worthy, and Configurations.
+    8. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_final_report.xlsx` A design to design comparison between benchmark results and this run of the test set. It includes whether or not a design failed or passed the test and it highlights the differences.
+
 
 ## Command line arguments
 <table>
@@ -240,6 +252,15 @@ The script can be used in two ways
         </td>
         <td align="justify">
             Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--benchmark | -b &lt;file&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            If provided this run will be tested against (compared to) the given benchmark <code>&lt;file&gt;</code>. check the output section above for the details of the reported results.
         </td>
     </tr>
 </table>

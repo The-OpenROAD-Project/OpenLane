@@ -45,23 +45,20 @@ parser.add_argument('--configuration_parameters', '-cp', action='store', default
                 help="file containing configuration parameters to write in report, to report all possible configurations add: all ")
 parser.add_argument('--append_configurations', '-app', action='store_true', default=False,
                 help="append configuration parameters provided to the existing default printed configurations")
-
 parser.add_argument('--clean', '-cl', action='store_true', default=False,
                 help="cleans all intermediate files in runs")
-
 parser.add_argument('--delete', '-dl', action='store_true', default=False,
                 help="deletes the whole run directory upon completion leaving only the final_report.txt file")
-
 parser.add_argument('--tarList', '-tar',  nargs='+', default=None,
                 help="tars the specified sub directories and deletes the whole directory leaving only the compressed version")
-
 parser.add_argument('--htmlExtract', '-html', action='store_true', default=False,
                 help="An option to extract an html summary of the final csv summary")
-
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
                 help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
 parser.add_argument('--excluded_designs', '-e', nargs='+', default=[],
                 help="designs to exclude from the run")
+parser.add_argument('--benchmark', '-b', action='store', default=None,
+                help="benchmark report file to compare with")
                 
 
 args = parser.parse_args()
@@ -117,7 +114,11 @@ if args.configuration_parameters is not None:
                         print ("Could not open/read file:", args.configuration_parameters)
                         sys.exit()
 
-report_file_name = "./regression_results/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+store_dir =  "./regression_results/{tag}_{date}/".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+if os.path.exists(store_dir) == False:
+    os.mkdir(store_dir)
+
+report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
 handler1 = logging.FileHandler("{report_file_name}.log".format(report_file_name=report_file_name), 'w')
@@ -166,6 +167,19 @@ def run_design(designs_queue):
                         report_file.write("\n")
                         report_file.write(report)
                 
+
+                if args.benchmark is not None:
+                        log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
+                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design}".format(
+                                benchmark=args.benchmark,
+                                this_run=report_file_name + ".csv",
+                                output_report=report_file_name + "_design_test_report.csv",
+                                design=design
+                        )
+                        subprocess.check_output(design_benchmark_comp_cmd.split())
+
+
+
                 if args.clean:
                         log.info('{design} {tag} Cleaning tmp Directory..'.format(design=design, tag=tag))
                         moveUnPadded_cmd = "cp ./designs/{design}/runs/{tag}/tmp/merged_unpadded.lef ./designs/{design}/runs/{tag}/results/".format(
@@ -299,6 +313,17 @@ if args.htmlExtract:
 addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
 
 addCellPerMMSquaredOverCoreUtil(report_file_name + "_best.csv")
+
+
+if args.benchmark is not None:
+        log.info("Generating final benchmark results..")
+        full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
+                benchmark=args.benchmark,
+                this_run=report_file_name + ".csv",
+                output_report=report_file_name + "_benchmark_written_report.rpt",
+                output_xlsx=report_file_name + "_benchmark_final_report.xlsx"
+        )
+        subprocess.check_output(full_benchmark_comp_cmd.split())
 
 log.info("Done")
 

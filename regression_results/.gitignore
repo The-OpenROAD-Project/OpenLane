@@ -2,4 +2,8 @@
 *.log
 *.csv
 *.html
+/*/*.rpt
+/*/*.log
+/*/*.csv
+/*/*.html
 !benchmark_results/*

@@ -42,7 +42,7 @@ design = args.design
 
 output_report_list = []
 
-critical_statistics = ['DIEAREA_mm^2', 'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
+critical_statistics = ['tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' , 'Magic_violations', 'antenna_violations']
 
 def findIdx(header, label):
     for idx in range(len(header)):
@@ -70,9 +70,11 @@ def parseCSV(csv_file):
                 break
     return design_out
     
-def criticalMistmatch(benchmark, regression_results):
+def criticalMistmatch(benchmark, regression_result):
     for stat in critical_statistics:
-        if benchmark[stat] != regression_results[stat] and benchmark[stat] != "-1":
+        if ((float(benchmark[stat]) >= float(regression_result[stat])) and (regression_result[stat] != "-1")) or benchmark[stat] == "-1":
+            continue
+        else:
             return True
     return False
         
