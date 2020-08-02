@@ -391,7 +391,7 @@ Also, it can be used for testing the flow by running the flow against several de
 python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 ```
 
-For more information on how to run this script, refer to this [file][21]
+For more information on how to run this script, refer to this [file](./regression_results/README.md)
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
