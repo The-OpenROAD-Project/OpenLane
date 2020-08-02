@@ -46,7 +46,7 @@ ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
 
 COPY ./openroad_tools.tar.gz /
-COPY ./.tclshrc /root
+COPY ./.tclshrc /
 RUN tar -xzf openroad_tools.tar.gz && \
     rm -rf openroad_tools.tar.gz
 
@@ -60,3 +60,5 @@ RUN cd $OPENROAD/OpenDB_python/&& python3 setup.py install
 RUN rm -rf $OPENROAD/OpenDB_python
 
 WORKDIR /openLANE_flow
+
+ENTRYPOINT cp ./.tclshrc $HOME > /dev/null 2>&1; /bin/bash

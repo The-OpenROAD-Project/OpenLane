@@ -20,13 +20,12 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_non_interactive_mode {args} {
-	set args_copy $args
 	set options {\
 	    {-design required}\
 	    {-save_path optional}\
 	}
 	set flags {-save}
-	parse_key_args "run_non_interactive_mode" args_copy arg_values $options flags_map $flags
+	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
 	prep {*}$args
 
@@ -76,6 +75,16 @@ proc run_non_interactive_mode {args} {
 }
 
 proc run_interactive_mode {args} {
+	set options {\
+	    {-design optional}\
+	}
+	set flags {}
+	parse_key_args "run_interactive_mode" args arg_values $options flags_map $flags -no_consume
+
+	if { [info exists arg_values(-design)] } {
+	    prep {*}$args
+	}
+
 	set ::env(TCLLIBPATH) $::auto_path
 	exec tclsh >&@stdout
 }
@@ -125,8 +134,7 @@ set options {\
 
 set flags {-interactive -it -drc}
 
-set argv_copy $argv
-parse_key_args "flow.tcl" argv arg_values $options flags_map $flags
+parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 puts_info {
       ___   ____   ___  ____   _       ____  ____     ___
@@ -148,13 +156,15 @@ puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if { [info exists flags_map(-interactive)] ||\
     [info exists flags_map(-it)] } {
+	puts_info "Running interactively"
 	if { [info exists arg_values(-file)] } {
 		run_file [file normalize $arg_values(-file)]
 	} else {
-		run_interactive_mode "$argv_copy"
+		run_interactive_mode {*}$argv
 	}
 } elseif { [info exists flags_map(-drc)] } {
-	run_magic_drc_batch {*}$argv_copy
+	run_magic_drc_batch {*}$argv
 } else {
-	run_non_interactive_mode {*}$argv_copy
+	puts_info "Running non-interactively"
+	run_non_interactive_mode {*}$argv
 }
