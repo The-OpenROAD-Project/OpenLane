@@ -14,6 +14,8 @@
 
 OPENLANE_DIR=$(shell pwd)
 THREADS=5
+STD_CELL_LIBRARY=sky130_fd_sc_hd
+
 
 .DEFAULT_GOAL := all
 
@@ -23,25 +25,36 @@ all: pdk openlane
 
 pdk: skywater-pdk open_pdks
 
-skywater-pdk: check-env
+skywater-pdk: clone-skywater-pdk skywater-library
+
+clone-skywater-pdk: check-env 
 	cd  $(PDK_ROOT) && \
 		git clone https://github.com/google/skywater-pdk.git && \
 		cd skywater-pdk && \
-		git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480 && \
-		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
-		make sky130_fd_sc_hd 
+		git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
 
-open_pdks: check-env 
+
+skywater-library: check-env 
+	cd  $(PDK_ROOT)/skywater-pdk && \
+		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
+		make $(STD_CELL_LIBRARY) 
+
+open_pdks: clone-open_pdks install-open_pdks
+
+clone-open_pdks: check-env
 	cd $(PDK_ROOT) && \
-		git clone https://github.com/RTimothyEdwards/open_pdks.git && \
-		cd open_pdks && \
-		git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472 && \
-		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
-		make && \
-		make install-local 
+                git clone https://github.com/RTimothyEdwards/open_pdks.git && \
+                cd open_pdks && \
+                git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
+
+install-open_pdks: check-env
+	cd $(PDK_ROOT)/open_pdks && \
+                ./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
+                make && \
+                make install-local 
 
 
-openlane: check-env
+openlane:
 	cd $(OPENLANE_DIR) && \
 		cd docker_build && \
 		make merge && \
@@ -69,5 +82,6 @@ check-env:
 ifndef PDK_ROOT
 	$(error PDK_ROOT is undefined, please export it before running make)
 endif
+
 
 
