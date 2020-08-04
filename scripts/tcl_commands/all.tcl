@@ -25,14 +25,16 @@ proc set_netlist {netlist args} {
 
 	parse_key_args "set_netlist" args arg_values $options flags_map $flags
 
+	puts_info "Changing netlist from $::env(CURRENT_NETLIST) $netlist"
+
 	set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
 	set ::env(CURRENT_NETLIST) $netlist
 
 	set replace [string map {/ \\/} $::env(CURRENT_NETLIST)]
-	exec sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+	try_catch sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
 	set replace [string map {/ \\/} $::env(PREV_NETLIST)]
-	exec sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+	try_catch sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
 	if { [info exists flags_map(-lec)] && [file exists $::env(PREV_NETLIST)] } {
 	  logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -735,10 +737,13 @@ proc write_verilog {filename} {
   set ::env(SAVE_NETLIST) $filename
 
   try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
+
+  yosys_rewrite_verilog $filename
 }
 
 proc add_macro_obs {args} {
- set options {{-defFile required} \
+ set options {\
+    {-defFile required} \
     {-lefFile required} \
     {-obstruction required} \
     {-placementX optional} \
@@ -747,8 +752,7 @@ proc add_macro_obs {args} {
     {-sizeHeight required} \
     {-fixed required} \
     {-dbunit optional} \
-	{-layerNames required} \
-     \
+    {-layerNames required} \
   }
   set flags {}
   parse_key_args "add_macro_obs" args arg_values $options flags_map $flags

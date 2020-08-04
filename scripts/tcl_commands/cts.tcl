@@ -77,6 +77,7 @@ proc run_cts {args} {
 			exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
 
 			set_def $::env(SAVE_DEF)
+			write_verilog $::env(yosys_result_file_tag)_cts.v
 			set_netlist $::env(yosys_result_file_tag)_cts.v
 			if { $::env(LEC_ENABLE) } {
 				logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

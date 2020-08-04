@@ -170,12 +170,14 @@ proc ins_diode_cells {args} {
 
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_diodes.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/diodes.log
 
+
 	
 	if { $::env(CHECK_DIODE_PLACEMENT) == 1 } {
 		check_diode_placement
 	}
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
+	write_verilog $::env(yosys_result_file_tag)_diodes.v
 	set_netlist $::env(yosys_result_file_tag)_diodes.v
 	if { $::env(LEC_ENABLE) } {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

@@ -91,4 +91,3 @@ if { [check_placement -verbose] } {
 	exit 1
 }
 write_def $::env(SAVE_DEF)
-write_verilog $::env(yosys_result_file_tag)_diodes.v

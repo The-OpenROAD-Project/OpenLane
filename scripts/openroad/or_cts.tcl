@@ -36,4 +36,3 @@ clock_tree_synthesis\
     -root_buf $::env(CTS_ROOT_BUFFER)
 
 write_def $::env(SAVE_DEF)
-write_verilog $::env(yosys_result_file_tag)_cts.v
