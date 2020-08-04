@@ -23,9 +23,9 @@
 
 # Overview
 
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
-Join the community on [slack](https://join.slack.com/t/skywater-pdk/shared_invite/zt-fkl21w8j-qzxBK852XGR8EFMbRakTMw)!
+Join the community on [slack](https://invite.skywater.tools)!
 
 # Prerequisites
 
@@ -95,7 +95,7 @@ The following sections are to give you an understanding of what happens under th
         make install-local
     ```
 
-**Note**: You can use different directorys for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
+**Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
 
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
@@ -407,7 +407,7 @@ Also, it can be used for testing the flow by running the flow against several de
 python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 ```
 
-For more information on how to run this script, refer to this [file](./regression_results/README.md)
+For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
