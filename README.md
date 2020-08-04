@@ -23,9 +23,9 @@
 
 # Overview
 
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabricaiton.
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
-Join the community on [slack](https://join.slack.com/t/skywater-pdk/shared_invite/zt-fkl21w8j-qzxBK852XGR8EFMbRakTMw)!
+Join the community on [slack](https://invite.skywater.tools)!
 
 # Prerequisites
 
@@ -43,6 +43,8 @@ You can start setting up the skywater-pdk and openlane by running:
     make
     make test # This is to test that the flow and the pdk were properly installed
 ```
+
+**Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
@@ -70,7 +72,7 @@ The following sections are to give you an understanding of what happens under th
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120
+        git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd
     ```
@@ -81,15 +83,19 @@ The following sections are to give you an understanding of what happens under th
             - sky130_fd_sc_ls
             - sky130_fd_sc_hdll
 
-- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/efabless/open_pdks):
+- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
 
     ```bash
         cd $PDK_ROOT
-	    git clone git@github.com:efabless/open_pdks.git -b rc2
+	    git clone git@github.com:efabless/open_pdks.git
         cd open_pdks
+        git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
+        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-local-path=$PDK_ROOT
         make
         make install-local
     ```
+
+**Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
 
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
@@ -117,7 +123,7 @@ Issue the following command to open the docker container from path/to/openlane t
 
 
 ```bash
-   docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc2
+   docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
 ```
 
 **Note: this will mount the openlane directory inside the container.**
@@ -342,6 +348,16 @@ designs/<design_name>
 │   │       └── synthesis
 ```
 
+To delete all generated runs under all designs:
+- inside the docker:
+    ```bash
+        ./clean_runs.tcl
+    ```
+- outside the docker:
+    ```bash
+        make clean_runs
+    ```
+
 ## Flow configuration
 
 1. PDK / technology specific
@@ -391,7 +407,7 @@ Also, it can be used for testing the flow by running the flow against several de
 python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
 ```
 
-For more information on how to run this script, refer to this [file](./regression_results/README.md)
+For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 

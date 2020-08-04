@@ -14,27 +14,44 @@
 
 OPENLANE_DIR=$(shell pwd)
 THREADS=5
+STD_CELL_LIBRARY=sky130_fd_sc_hd
+
 
 .DEFAULT_GOAL := all
+
+.PHONY: all
 
 all: pdk openlane
 
 pdk: skywater-pdk open_pdks
 
-skywater-pdk:
+skywater-pdk: clone-skywater-pdk skywater-library
+
+clone-skywater-pdk: check-env 
 	cd  $(PDK_ROOT) && \
 		git clone https://github.com/google/skywater-pdk.git && \
 		cd skywater-pdk && \
-		git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120 && \
-		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
-		make sky130_fd_sc_hd 
+		git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
 
-open_pdks: 
+
+skywater-library: check-env 
+	cd  $(PDK_ROOT)/skywater-pdk && \
+		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
+		make $(STD_CELL_LIBRARY) 
+
+open_pdks: clone-open_pdks install-open_pdks
+
+clone-open_pdks: check-env
 	cd $(PDK_ROOT) && \
-		git clone https://github.com/efabless/open_pdks.git && \
-		cd open_pdks && \
-		make && \
-		make install-local 
+                git clone https://github.com/RTimothyEdwards/open_pdks.git && \
+                cd open_pdks && \
+                git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
+
+install-open_pdks: check-env
+	cd $(PDK_ROOT)/open_pdks && \
+                ./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
+                make && \
+                make install-local 
 
 
 openlane:
@@ -43,19 +60,28 @@ openlane:
 		make merge && \
 		cd ..
 
-regression:
+regression: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "python3 run_designs.py -dts -dl -html -t TEST -th $(THREADS)"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "python3 run_designs.py -dts -dl -html -t TEST -th $(THREADS)"
 
-regression_test:
+regression_test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "python3 run_designs.py -dts -dl -html -t TEST -b regression_results/benchmarks/SW_HD.csv -th $(THREADS)"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "python3 run_designs.py -dts -dl -html -t TEST -b regression_results/benchmarks/SW_HD.csv -th $(THREADS)"
 
-test:
+test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
 
 clean_runs: 
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) openlane:rc2 bash -c "./clean_runs.tcl"
+		docker run -it -v $(shell pwd):/openLANE_flow openlane:rc3 bash -c "./clean_runs.tcl"
+
+
+
+check-env:
+ifndef PDK_ROOT
+	$(error PDK_ROOT is undefined, please export it before running make)
+endif
+
+
 
