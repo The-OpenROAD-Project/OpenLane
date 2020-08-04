@@ -17,7 +17,7 @@ THREADS=5
 
 .DEFAULT_GOAL := all
 
-.PHONY: pdk openlane
+.PHONY: all
 
 all: pdk openlane
 
@@ -27,14 +27,16 @@ skywater-pdk: check-env
 	cd  $(PDK_ROOT) && \
 		git clone https://github.com/google/skywater-pdk.git && \
 		cd skywater-pdk && \
-		git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120 && \
+		git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480 && \
 		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
 		make sky130_fd_sc_hd 
 
 open_pdks: check-env 
 	cd $(PDK_ROOT) && \
-		git clone https://github.com/efabless/open_pdks.git && \
+		git clone https://github.com/RTimothyEdwards/open_pdks.git && \
 		cd open_pdks && \
+		git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472 && \
+		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
 		make && \
 		make install-local 
 
@@ -67,4 +69,5 @@ check-env:
 ifndef PDK_ROOT
 	$(error PDK_ROOT is undefined, please export it before running make)
 endif
+
 
