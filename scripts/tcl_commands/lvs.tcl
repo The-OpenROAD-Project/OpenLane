@@ -34,27 +34,39 @@ proc verilog_to_verilogPower {args} {
 		$in |& tee $out
 }
 
-proc run_netgen {args} {
+# "layout": a spice netlist
+# "schematic": a verilog netlist
+proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(CURRENT_NETLIST)"}} {
 	puts_info "Running LVS..."
 
-	set spice_in $::env(magic_result_file_tag).spice
-	set module_name $::env(DESIGN_NAME)
-	set verilog_in $::env(lvs_result_file_tag).v
+	set layout [subst $layout]
+	set schematic [subst $schematic]
+
 	set setup_file $::env(NETGEN_SETUP_FILE)
+	set module_name $::env(DESIGN_NAME)
 	set output $::env(lvs_result_file_tag).log
 
-	puts_info "$spice_in against $::env(CURRENT_NETLIST)"
+	puts_info "$layout against $schematic"
 	 
-	verilog_to_verilogPower -input $::env(CURRENT_NETLIST) -output $verilog_in -lef $::env(MERGED_LEF) \
-		-power $::env(VDD_PIN) -ground $::env(GND_PIN)
+	if { $::env(LVS_INSERT_POWER_PINS) } {
+		verilog_to_verilogPower -input $schematic -output $::env(lvs_result_file_tag).v -lef $::env(MERGED_LEF) \
+			-power $::env(VDD_PIN) -ground $::env(GND_PIN)
+
+		set schematic $::env(lvs_result_file_tag).v
+	}
+
 	try_catch netgen -batch lvs \
-		"$spice_in $module_name" \
-		"$verilog_in $module_name" \
+		"$layout $module_name" \
+		"$schematic $module_name" \
 		$setup_file \
 		$output \
 		-json |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_log_file_tag).log
+
 	exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).json \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.log
 }
 
+proc run_netgen {args} {
+	handle_deprecated_command run_netgen run_lvs {*}$args
+}
 package provide openlane 0.9
