@@ -27,6 +27,11 @@ proc handle_deprecated_config {old new} {
   }
 }
 
+proc handle_deprecated_command {old new args} {
+  puts_warn "$old is now deprecated; use $new instead"
+  eval {$new {*}$args}
+}
+
 # create an array out of a list
 
 proc add_to_env {my_array} {
