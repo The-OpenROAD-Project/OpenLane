@@ -49,19 +49,19 @@ openlane: check-env
 
 regression: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "python3 run_designs.py -dts -dl -html -t TEST -th $(THREADS)"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "python3 run_designs.py -dts -dl -html -t TEST -th $(THREADS)"
 
 regression_test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "python3 run_designs.py -dts -dl -html -t TEST -b regression_results/benchmarks/SW_HD.csv -th $(THREADS)"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "python3 run_designs.py -dts -dl -html -t TEST -b regression_results/benchmarks/SW_HD.csv -th $(THREADS)"
 
 test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc2 bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
+		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
 
 clean_runs: 
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(shell pwd):/openLANE_flow openlane:rc2 bash -c "./clean_runs.tcl"
+		docker run -it -v $(shell pwd):/openLANE_flow openlane:rc3 bash -c "./clean_runs.tcl"
 
 
 
