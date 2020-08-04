@@ -44,6 +44,8 @@ You can start setting up the skywater-pdk and openlane by running:
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
+**Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
+
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
 To run the regression test, which tests the flow against all available designs under [./designs/](./designs/), run the following command:
@@ -70,7 +72,7 @@ The following sections are to give you an understanding of what happens under th
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 4e5e318e0cc578090e1ae7d6f2cb1ec99f363120
+        git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd
     ```
@@ -81,15 +83,18 @@ The following sections are to give you an understanding of what happens under th
             - sky130_fd_sc_ls
             - sky130_fd_sc_hdll
 
-- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/efabless/open_pdks):
+- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
 
     ```bash
         cd $PDK_ROOT
-	    git clone git@github.com:efabless/open_pdks.git -b rc2
+	    git clone git@github.com:efabless/open_pdks.git -b rc3
         cd open_pdks
+        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-local-path=$PDK_ROOT
         make
         make install-local
     ```
+
+**Note**: You can use different directorys for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
 
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
@@ -117,7 +122,7 @@ Issue the following command to open the docker container from path/to/openlane t
 
 
 ```bash
-   docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc2
+   docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
 ```
 
 **Note: this will mount the openlane directory inside the container.**
@@ -341,6 +346,16 @@ designs/<design_name>
 │   │       ├── routing
 │   │       └── synthesis
 ```
+
+To delete all generated runs under all designs:
+- inside the docker:
+    ```bash
+        ./clean_runs.tcl
+    ```
+- outside the docker:
+    ```bash
+        make clean_runs
+    ```
 
 ## Flow configuration
 
