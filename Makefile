@@ -13,7 +13,7 @@
 # limitations under the License.
 
 OPENLANE_DIR=$(shell pwd)
-THREADS=5
+THREADS=8
 STD_CELL_LIBRARY=sky130_fd_sc_hd
 
 
