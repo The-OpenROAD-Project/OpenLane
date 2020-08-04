@@ -48,15 +48,15 @@ You can start setting up the skywater-pdk and openlane by running:
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
-To run the regression test, which tests the flow against all available designs under [./designs/](./designs/), run the following command:
+To run the regression test, which tests the flow against all available designs under [./designs/](./designs/) vs the the benchmark results, run the following command:
 
 ```bash
     make regression_test
 ```
 
-After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
+Your results will be compared with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html).
 
-You can also compare your results with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
+After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
@@ -112,14 +112,14 @@ Refer to [this][24] for more details on the structure.
 # Setting up OpenLANE
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc2
+    git clone git@github.com:efabless/openlane --branch rc3
     cd openlane/docker_build
     make merge
     cd ..
 ```
 ## Running OpenLANE
 
-Issue the following command to open the docker container from path/to/openlane to ensure that the output files persist after exiting the container:
+Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 
 ```bash

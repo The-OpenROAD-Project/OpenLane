@@ -36,5 +36,6 @@ The above commands can also be written in a file and passed to `flow.tcl`:
 
 **Note 2:** Currently, all these commands must be run in sequence and none should be omitted.
 
+**Note 3:** You can pass the -design, -tag, etc.. flags to ```./flow.tcl -interactive``` directly without the need of entering the interactive mode and then executing the prep command.
 
 **We will be adding more about the procs and the options that could be used inside the interactive mode soon**
