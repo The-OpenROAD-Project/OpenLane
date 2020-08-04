@@ -87,8 +87,9 @@ The following sections are to give you an understanding of what happens under th
 
     ```bash
         cd $PDK_ROOT
-	    git clone git@github.com:efabless/open_pdks.git -b rc3
+	    git clone git@github.com:efabless/open_pdks.git
         cd open_pdks
+        git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-local-path=$PDK_ROOT
         make
         make install-local
