@@ -39,3 +39,9 @@ set ::env(CLOCK_PERIOD) "10.000"
 set ::env(FP_CORE_UTIL) 30
 set ::env(PL_TARGET_DENSITY) 0.20
 set ::env(GLB_RT_ADJUSTMENT) 0.1
+# Regression
+set ::env(FP_CORE_UTIL) 20
+set ::env(PL_TARGET_DENSITY) 0.15
+
+# Extra
+

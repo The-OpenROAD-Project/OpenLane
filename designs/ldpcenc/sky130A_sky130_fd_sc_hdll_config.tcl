@@ -25,3 +25,9 @@ set ::env(PL_TARGET_DENSITY) 0.25
 # Extra
 
 
+# Regression
+set ::env(SYNTH_MAX_FANOUT) 8
+set ::env(ROUTING_STRATEGY) 1
+
+# Extra
+
