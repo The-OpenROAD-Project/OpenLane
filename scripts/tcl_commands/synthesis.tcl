@@ -109,7 +109,7 @@ proc yosys_rewrite_verilog {filename} {
 	set ::env(SAVE_NETLIST) $filename
 	try_catch [get_yosys_bin] \
 		-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
-		-l $::env(yosys_log_file_tag).log \
+		-l $::env(yosys_log_file_tag)_rewrite_verilog.log \
 		|& tee $::env(TERMINAL_OUTPUT)
 }
 
