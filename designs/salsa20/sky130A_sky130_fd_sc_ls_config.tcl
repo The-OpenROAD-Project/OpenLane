@@ -16,3 +16,9 @@ set ::env(PL_TARGET_DENSITY) 0.35
 # Extra
 
 
+# Regression
+set ::env(FP_CORE_UTIL) 10
+set ::env(PL_TARGET_DENSITY) 0.15
+
+# Extra
+
