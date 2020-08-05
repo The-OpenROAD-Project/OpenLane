@@ -141,7 +141,7 @@ declare -a metrics=(
 metrics_vals=()
 for metric in "${metrics[@]}"; do
         val=$(grep " \+${metric}[^0-9]\+ \+[0-9]\+" $yosys_log | tail -1 | sed -r 's/.*[^0-9]([0-9]+)$/\1/')
-        if ! [[ $val ]]; then val=-1; fi
+        if ! [[ $val ]]; then val=0; fi
         metrics_vals+=("$val")
 done
 
