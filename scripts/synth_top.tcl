@@ -48,8 +48,6 @@ setattr -set keep 1
 #synth -top $vtop
 tee -o "$::env(yosys_report_file_tag)_synth.stat" stat
 
-# take a snapshot of the database
-write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_tmp_file_tag).v"
 
 #debug opt_clean -purge
 #setundef -zero

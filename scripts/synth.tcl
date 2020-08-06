@@ -157,8 +157,6 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 
 hierarchy -check -top $vtop
 
-# take a snapshot of the database
-write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_tmp_file_tag).v"
 
 if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop
