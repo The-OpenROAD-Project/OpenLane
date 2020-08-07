@@ -46,7 +46,7 @@ proc run_non_interactive_mode {args} {
 	run_magic
 
 	run_magic_drc
-	run_netgen
+	run_lvs
 	run_magic_antenna_check; # to verify the above and get a final report
 
 
