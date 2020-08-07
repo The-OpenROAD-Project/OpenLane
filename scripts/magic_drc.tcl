@@ -30,6 +30,8 @@ puts stdout "\[INFO\]: Loading $cell_name\n"
 flush stdout
 load $cell_name
 select top cell
+drc euclidean on
+drc style drc(full)
 drc check
 set drcresult [drc listall why]
 
