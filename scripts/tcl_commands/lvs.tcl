@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# WORKS ON VERILOG FILES
 proc verilog_to_verilogPower {args} {
 	set options {{-input required} \
 			{-output required} \
@@ -34,6 +35,37 @@ proc verilog_to_verilogPower {args} {
 		$in |& tee $out
 }
 
+# WORKS ON DEF FILES
+proc write_powered_verilog {args} {
+	set options {\
+		{-def optional}\
+		{-output_def optional}\
+		{-output_verilog optional}\
+		{-lef optional}\
+		{-power optional}\
+		{-ground optional}\
+	}
+	set flags {}
+	parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
+	set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+	set_if_unset arg_values(-output_def) $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).powered.def
+	set_if_unset arg_values(-output_verilog) $::env(lvs_result_file_tag).powered.v
+	set_if_unset arg_values(-power) $::env(VDD_PIN)
+	set_if_unset arg_values(-ground) $::env(GND_PIN)
+	set_if_unset arg_values(-lef) $::env(MERGED_LEF)
+
+
+	try_catch python3 $::env(SCRIPTS_DIR)/write_powered_def.py \
+		-d $arg_values(-def) \
+		-l $arg_values(-lef) \
+		-v $arg_values(-power) \
+		-g $arg_values(-ground) \
+		-o $arg_values(-output_def) \
+		|& $::env(TERMINAL_OUTPUT) tee $::env(LOG_DIR)/lvs/connect_power_pins_explicitly.log
+
+	write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)
+}
+
 # "layout": a spice netlist
 # "schematic": a verilog netlist
 proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(CURRENT_NETLIST)"}} {
@@ -48,12 +80,12 @@ proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(
 
 	puts_info "$layout against $schematic"
 	 
-	if { $::env(LVS_INSERT_POWER_PINS) } {
-		verilog_to_verilogPower -input $schematic -output $::env(lvs_result_file_tag).v -lef $::env(MERGED_LEF) \
-			-power $::env(VDD_PIN) -ground $::env(GND_PIN)
+	# if { $::env(LVS_INSERT_POWER_PINS) } {
+	# 	verilog_to_verilogPower -input $schematic -output $::env(lvs_result_file_tag).v -lef $::env(MERGED_LEF) \
+	# 		-power $::env(VDD_PIN) -ground $::env(GND_PIN)
 
-		set schematic $::env(lvs_result_file_tag).v
-	}
+	# 	set schematic $::env(lvs_result_file_tag).v
+	# }
 
 	try_catch netgen -batch lvs \
 		"$layout $module_name" \

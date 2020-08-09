@@ -40,6 +40,8 @@ if { $::env(FP_IO_MODE) == 1 } {
 } else {
 	ioPlacer::set_random_mode 0
 }
+
+ioPlacer::set_min_distance 1
 ioPlacer::set_hor_length $::env(FP_IO_HLENGTH)
 ioPlacer::set_ver_length $::env(FP_IO_VLENGTH)
 ioPlacer::set_hor_length_extend $::env(FP_IO_VEXTEND)

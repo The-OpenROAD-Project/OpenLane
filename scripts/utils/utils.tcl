@@ -32,6 +32,13 @@ proc handle_deprecated_command {old new args} {
   eval {$new {*}$args}
 }
 
+proc set_if_unset {var default_value} {
+  upvar $var x
+  if {! [info exists x] } {
+    set x $default_value
+  }
+}
+
 # create an array out of a list
 
 proc add_to_env {my_array} {
