@@ -19,7 +19,7 @@ branches:
     - develop
     - master
     - develop-*
-    
+
 services:
     - docker
 
@@ -34,11 +34,16 @@ jobs:
       env: TEST_SET=fastestTestSet
     - name: "Typical Test Set"
       env: TEST_SET=typicalTestSet
+  allow_failures:
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
-    
+    - name: "Timeout Test Set"
+      env: TEST_SET=timoutTestSet
+    - name: "Failing Designs Test Set"
+      env: TEST_SET=failingTestSet
+
 install:
   - sh travisCI/travisBuild.sh
 
-script: 
+script:
   - bash travisCI/travisTest.sh $TEST_SET  

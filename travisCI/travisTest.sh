@@ -21,7 +21,9 @@ echo $RUN_ROOT
 docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3  bash -c "python3 run_designs.py -d $(cat $RUN_ROOT/travisCI/$test_set) -t TEST_$test_set -th 20 -b regression_results/benchmark_results/SW_HD.csv -p 30"
 
 FILE=$RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*_design_test_report.csv
-cat $RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*.csv
+echo "Full report:"
+cat $RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*_best.csv
+echo "Fail/Pass report:"
 echo "design,status"
 cat $FILE
 val=$(grep "FAILED" $FILE | wc -l)
