@@ -14,14 +14,14 @@ set ::env(GLB_RT_ADJUSTMENT) 0.2
 set ::env(FILL_INSERTION) 1 
 
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+
 
 
 # Regression
 set ::env(SYNTH_MAX_FANOUT) 10
 
 # Regression
-set ::env(ROUTING_STRATEGY) 3
+
 
 # Extra
 

@@ -26,7 +26,7 @@ set ::env(SYNTH_MAX_FANOUT) 5
 
 
 # Regression
-set ::env(ROUTING_STRATEGY) 14
+
 
 # Extra
 # Regression

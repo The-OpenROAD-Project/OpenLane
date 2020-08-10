@@ -9,7 +9,7 @@ set ::env(SYNTH_MAX_FANOUT) 6
 
 
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+
 
 # Regression
 set ::env(FP_CORE_UTIL) 65

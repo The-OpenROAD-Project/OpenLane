@@ -1,5 +1,5 @@
 # Regression
-set ::env(ROUTING_STRATEGY) 1
+
 set ::env(SYNTH_STRATEGY) 2
 set ::env(SYNTH_MAX_FANOUT) 6
 set ::env(CLOCK_PERIOD) "10.000"

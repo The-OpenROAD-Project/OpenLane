@@ -3,10 +3,10 @@ set ::env(SYNTH_STRAT) 2
 set ::env(FP_CORE_UTIL) 35
 set ::env(PL_TARGET_DENSITY) 0.2
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+
 
 # Regression
-set ::env(ROUTING_STRATEGY) 3
+
 
 # Extra
 

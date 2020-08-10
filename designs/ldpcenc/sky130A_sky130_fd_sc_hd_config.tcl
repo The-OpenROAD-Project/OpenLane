@@ -1,5 +1,5 @@
 
-set ::env(ROUTING_STRATEGY) 2
+
 # Regression
 set ::env(FP_CORE_UTIL) 55
 set ::env(PL_TARGET_DENSITY) 0.60

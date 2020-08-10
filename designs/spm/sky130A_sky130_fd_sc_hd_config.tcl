@@ -1,5 +1,5 @@
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+
 
 set ::env(CLOCK_PERIOD) "10"
 set ::env(FP_CORE_UTIL) 60

@@ -1,5 +1,5 @@
 
-set ::env(ROUTING_STRATEGY) 2
+
 # Regression
 set ::env(FP_CORE_UTIL) 55
 set ::env(PL_TARGET_DENSITY) 0.60
@@ -27,7 +27,7 @@ set ::env(PL_TARGET_DENSITY) 0.25
 
 # Regression
 set ::env(SYNTH_MAX_FANOUT) 8
-set ::env(ROUTING_STRATEGY) 1
+
 
 # Extra
 

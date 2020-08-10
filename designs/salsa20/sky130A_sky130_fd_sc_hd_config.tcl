@@ -3,7 +3,7 @@ set ::env(FP_CORE_UTIL) 40
 set ::env(PL_TARGET_DENSITY) 0.4
 
 #Routing
-set ::env(ROUTING_STRATEGY) 1
+
 
 set ::env(CLOCK_PERIOD) "10"
 set ::env(FP_CORE_UTIL) 55

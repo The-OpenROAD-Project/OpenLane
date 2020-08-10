@@ -10,7 +10,7 @@ set ::env(FP_CORE_UTIL) 4
 
 # Extra# Regression
 set ::env(SYNTH_MAX_FANOUT) 8
-set ::env(ROUTING_STRATEGY) 14
+
 
 # Extra
 
