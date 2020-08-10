@@ -121,6 +121,15 @@ proc run_routing {args} {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 	}
 
+	if { $::env(LVS_INSERT_POWER_PINS) } {
+		write_powered_verilog
+		set_netlist $::env(lvs_result_file_tag).powered.v
+	}
+
+	# Unmatched ports would be detected. Need another way to check this.
+	# if { $::env(LEC_ENABLE) } {
+	# 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+	# }
 
 	global_routing_or
 	# li1_hack_end

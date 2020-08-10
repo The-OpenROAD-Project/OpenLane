@@ -733,8 +733,18 @@ proc label_macro_pins {args} {
 }
 
 
-proc write_verilog {filename} {
+proc write_verilog {filename args} {
   set ::env(SAVE_NETLIST) $filename
+
+  set options {\
+    {-def optional}\
+  }
+  set flags {}
+  parse_key_args "write_verilog" args arg_values $options flags_map $flags
+
+  set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+
+  set ::env(INPUT_DEF) $arg_values(-def)
 
   try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
 

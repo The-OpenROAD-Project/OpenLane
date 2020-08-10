@@ -20,20 +20,18 @@ proc run_magic {args} {
 	puts_info "Streaming out GDS II..."
 	set ::env(CURRENT_STAGE) finishing
 
-	set magicrc $::env(TMP_DIR)/magic_gen.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 	# the following MAGTYPE better be mag for clean GDS generation
 	# use load -dereference to ignore it later if needed
 	set ::env(MAGTYPE) mag
-	set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/$::env(MAGTYPE)"
-	exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
-	exec magic \
+	try_catch magic \
 	  -noconsole \
 	  -dnull \
-	  -rcfile $magicrc \
+	  -rcfile $::env(MAGIC_MAGICRC) \
 	  $::env(SCRIPTS_DIR)/magic.tcl \
 	  </dev/null \
 	  |& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
+  	file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 	# fix off-grid points
 	# if { [file exists $::env(magic_result_file_tag).lef] } {
 	# 	try_catch python3 $::env(SCRIPTS_DIR)/lef_enforce_manufacturing_grid.py 0.005 < $::env(magic_result_file_tag).lef > $::env(magic_result_file_tag).discrete.lef
@@ -43,26 +41,24 @@ proc run_magic {args} {
 #		set PDKPATH $::env(PDK_ROOT)/$::env(PDK)/
 #		set tech $PDKPATH/libs.tech/magic/current/EFS8A.tech
 #		cd $::env(TMP_DIR)
-#		exec /ef/apps/bin/magicGdrc -T $tech $::env(magic_result_file_tag).gds $::env(DESIGN_NAME) \
+#		try_catch /ef/apps/bin/magicGdrc -T $tech $::env(magic_result_file_tag).gds $::env(DESIGN_NAME) \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc
 }
 
 
 proc run_magic_drc {args} {
 	puts_info "Running Magic DRC..."
-	set magicrc $::env(TMP_DIR)/magic_drc.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 	# the following MAGTYPE has to be maglef for the purpose of DRC checking
 	set ::env(MAGTYPE) maglef
-	set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/$::env(MAGTYPE)"
-	exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
-	exec magic \
+	try_catch magic \
 	  -noconsole \
 	  -dnull \
-	  -rcfile $magicrc \
+	  -rcfile $::env(MAGIC_MAGICRC) \
 	  $::env(SCRIPTS_DIR)/magic_drc.tcl \
 	  </dev/null \
 	  |& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
+  	file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 }
 
 
@@ -91,21 +87,17 @@ feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
 	set magic_export_file [open $magic_export w]
 		puts $magic_export_file $commands
 	close $magic_export_file
-	set magicrc $::env(TMP_DIR)/tmp.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
 	# the following MAGTYPE has to be maglef for the purpose of LVS
 	# otherwise underlying device circuits would be considered
 	set ::env(MAGTYPE) maglef
-	set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/$::env(MAGTYPE)"
-	exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
 	try_catch magic \
 		-noconsole \
 		-dnull \
-		-rcfile $magicrc \
+		-rcfile $::env(MAGIC_MAGICRC) \
 		$magic_export \
 		</dev/null \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_spice.log
-
 }
 
 proc export_magic_view {args} {
@@ -130,14 +122,11 @@ puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 	set stream [open $script_dir w]
 		puts $stream $commands
 	close $stream
-	set magicrc $::env(TMP_DIR)/tmp.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
-	set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/maglef"
-	exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
 	try_catch magic \
 		-noconsole \
 		-dnull \
-		-rcfile $magicrc \
+		-rcfile $::env(MAGIC_MAGICRC) \
 		$script_dir \
 		</dev/null \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_save_mag.log
@@ -168,22 +157,19 @@ if { ! \[file exists \$::env(DESIGN_NAME).ext\] } {
 	feedback save $::env(magic_log_file_tag)_ext2spice.antenna.feedback.txt
 }
 antennacheck debug
-antennacheck 
+antennacheck
 "
 	set magic_export_file [open $magic_export w]
 		puts $magic_export_file $commands
 	close $magic_export_file
-	set magicrc $::env(TMP_DIR)/magic_antenna.magicrc
 	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
 	# the following MAGTYPE has to be mag; antennacheck needs to know
 	# about the underlying devices, layers, etc.
 	set ::env(MAGTYPE) mag
-	set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/$::env(MAGTYPE)"
-	exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
 	try_catch magic \
 		-noconsole \
 		-dnull \
-		-rcfile $magicrc \
+		-rcfile $::env(MAGIC_MAGICRC) \
 		$magic_export \
 		</dev/null \
 		|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_antenna.log
