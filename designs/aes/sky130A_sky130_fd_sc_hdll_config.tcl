@@ -9,7 +9,7 @@ set ::env(FP_ASPECT_RATIO)   1
 set ::env(GLB_RT_ADJUSTMENT) 0.1 
 
 #Routing
-set ::env(ROUTING_STRATEGY) 1
+set ::env(ROUTING_STRATEGY) 14
 
 
 

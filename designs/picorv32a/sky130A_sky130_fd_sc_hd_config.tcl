@@ -3,7 +3,7 @@ set ::env(GLB_RT_ADJUSTMENT) 0.1
 set ::env(SYNTH_STRATEGY) 2
 
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+set ::env(ROUTING_STRATEGY) 14
 # Regression
 set ::env(FP_CORE_UTIL) 50
 set ::env(PL_TARGET_DENSITY) 0.60

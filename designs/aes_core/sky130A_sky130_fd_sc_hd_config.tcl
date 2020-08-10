@@ -15,7 +15,7 @@ set ::env(FILL_INSERTION) 1
 
 
 #Routing
-set ::env(ROUTING_STRATEGY) 0
+set ::env(ROUTING_STRATEGY) 14
 
 # Regression
 set ::env(FP_CORE_UTIL) 50
