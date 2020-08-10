@@ -32,7 +32,7 @@ antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
 # Extracting info from Yosys
-cell_count=$(cat ${yosys_rprt} | grep "cells" | sed -r 's/.*[^0-9]//') 
+cell_count=$(cat ${yosys_rprt} | grep "cells" | tail -1 | sed -r 's/.*[^0-9]//') 
 if ! [[ $cell_count ]]; then cell_count=-1; fi
 
 #Extracting runtime info
