@@ -54,7 +54,7 @@ To run the regression test, which tests the flow against all available designs u
     make regression_test
 ```
 
-Your results will be compared with: [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html).
+Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.csv).
 
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
 
@@ -87,7 +87,7 @@ The following sections are to give you an understanding of what happens under th
 
     ```bash
         cd $PDK_ROOT
-	    git clone git@github.com:efabless/open_pdks.git
+	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
         git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-local-path=$PDK_ROOT
