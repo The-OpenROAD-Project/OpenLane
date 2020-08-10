@@ -27,31 +27,32 @@ pdk: skywater-pdk open_pdks
 
 skywater-pdk: clone-skywater-pdk skywater-library
 
-clone-skywater-pdk: check-env 
+clone-skywater-pdk: check-env
 	cd  $(PDK_ROOT) && \
-		git clone https://github.com/google/skywater-pdk.git && \
+		rm -rf skywater-pdk && \
+		git clone https://github.com/google/skywater-pdk.git skywater-pdk && \
 		cd skywater-pdk && \
-		git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
+		git checkout -qf 3f310bcc264df0194b9f7e65b83c59759bb27480
 
-
-skywater-library: check-env 
+skywater-library: check-env
 	cd  $(PDK_ROOT)/skywater-pdk && \
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
-		make $(STD_CELL_LIBRARY) 
+		make $(STD_CELL_LIBRARY)
 
 open_pdks: clone-open_pdks install-open_pdks
 
 clone-open_pdks: check-env
 	cd $(PDK_ROOT) && \
-                git clone https://github.com/RTimothyEdwards/open_pdks.git && \
-                cd open_pdks && \
-                git checkout 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
+		rm -rf open_pdks && \
+		git clone https://github.com/RTimothyEdwards/open_pdks.git open_pdks && \
+		cd open_pdks && \
+		git checkout -qf 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
 
 install-open_pdks: check-env
 	cd $(PDK_ROOT)/open_pdks && \
-                ./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
-                make && \
-                make install-local 
+		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
+		make && \
+		make install-local
 
 
 openlane:
@@ -72,7 +73,7 @@ test: check-env
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(shell pwd):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) openlane:rc3 bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
 
-clean_runs: 
+clean_runs:
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(shell pwd):/openLANE_flow openlane:rc3 bash -c "./clean_runs.tcl"
 
@@ -82,6 +83,3 @@ check-env:
 ifndef PDK_ROOT
 	$(error PDK_ROOT is undefined, please export it before running make)
 endif
-
-
-
