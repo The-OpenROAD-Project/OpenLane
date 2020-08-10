@@ -18,7 +18,7 @@ import csv
 import pandas as pd
 
 parser = argparse.ArgumentParser(
-        description="update configuration of design(s) per given PDK")
+        description="compare one design from a regression result to a benchmark result")
 
 
 parser.add_argument('--benchmark', '-b', action='store', required=True,
@@ -42,7 +42,7 @@ design = args.design
 
 output_report_list = []
 
-critical_statistics = ['tritonRoute_violations',  'Magic_violations', 'antenna_violations']
+critical_statistics = ['tritonRoute_violations', 'antenna_violations']
 
 
 def compare_vals(benchmark_value, regression_value):
