@@ -21,6 +21,8 @@
     - [Flow configuration](#flow-configuration)
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
+
 # Overview
 
 OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
