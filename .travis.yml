@@ -34,9 +34,40 @@ jobs:
       env: TEST_SET=fastestTestSet
     - name: "Typical Test Set"
       env: TEST_SET=typicalTestSet
-    - name: "Single Big Design"
+    - name: "chacha"
       env: TEST_SET=chacha
-  allow_failures:
+    - name: "sha3"
+      env: TEST_SET=sha3
+    - name: "wb_conbus_top"
+      env: TEST_SET=wb_conbus_top
+    - name: "ocs_blitter"
+      env: TEST_SET=ocs_blitter
+    - name: "md5"
+      env: TEST_SET=md5
+    - name: "PPU"
+      env: TEST_SET=PPU
+    - name: "Slowest Test Set"
+      env: TEST_SET=slowestTestSet
+    - name: "Timeout Test Set"
+      env: TEST_SET=timoutTestSet
+    - name: "Failing Designs Test Set"
+      env: TEST_SET=failingTestSet
+
+    allow_failures:
+    - name: "Typical Test Set"
+      env: TEST_SET=typicalTestSet
+    - name: "chacha"
+      env: TEST_SET=chacha
+    - name: "sha3"
+      env: TEST_SET=sha3
+    - name: "wb_conbus_top"
+      env: TEST_SET=wb_conbus_top
+    - name: "ocs_blitter"
+      env: TEST_SET=ocs_blitter
+    - name: "md5"
+      env: TEST_SET=md5
+    - name: "PPU"
+      env: TEST_SET=PPU
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
     - name: "Timeout Test Set"
