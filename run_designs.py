@@ -59,7 +59,9 @@ parser.add_argument('--excluded_designs', '-e', nargs='+', default=[],
                 help="designs to exclude from the run")
 parser.add_argument('--benchmark', '-b', action='store', default=None,
                 help="benchmark report file to compare with")
-                
+parser.add_argument('--print_rem', '-p', action='store', default=None,
+                help="Takes a time period, and prints the list of remaining designs periodically based on it")
+                                
 
 args = parser.parse_args()
 
@@ -74,6 +76,8 @@ else:
         designs = list(OrderedDict.fromkeys(args.designs))
 
 excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
+rem_designs = designs
+
 
 for excluded_design in excluded_designs:
         if excluded_design in designs:
@@ -137,6 +141,19 @@ report_log.addHandler(report_handler)
 report_log.setLevel(logging.INFO)
 
 report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
+
+
+
+def printRemDesignList():
+        t = threading.Timer(float(args.print_rem), printRemDesignList)  
+        t.start()
+        print("Remaining designs: ",rem_designs)
+        if len(rem_designs) == 0:
+                t.cancel()
+
+if args.print_rem is not None:
+        printRemDesignList()
+
 
 def run_design(designs_queue):
         while not designs_queue.empty():
@@ -226,12 +243,13 @@ def run_design(designs_queue):
                         subprocess.check_output(deleteDirectory.split())
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
+                
+                rem_designs.remove(design)
 
-
-print(designs)
+#print(designs)
 
 def addCellPerMMSquaredOverCoreUtil(filename):
-        data = pd.read_csv(filename)
+        data = pd.read_csv(filename, error_bad_lines=False)
         df = pd.DataFrame(data)
         df.insert(5, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
         df.to_csv(filename)
@@ -324,6 +342,8 @@ if args.benchmark is not None:
                 output_xlsx=report_file_name + "_benchmark_final_report.xlsx"
         )
         subprocess.check_output(full_benchmark_comp_cmd.split())
+
+
 
 log.info("Done")
 
