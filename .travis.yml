@@ -34,6 +34,8 @@ jobs:
       env: TEST_SET=fastestTestSet
     - name: "Typical Test Set"
       env: TEST_SET=typicalTestSet
+    - name: "Single Big Design"
+      env: TEST_SET=chacha
   allow_failures:
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
