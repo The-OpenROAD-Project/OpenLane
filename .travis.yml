@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: python
+language: minimal
 
 branches:
   only:
@@ -32,45 +32,57 @@ jobs:
       env: TEST_SET=spm
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
-    - name: "Typical Test Set"
-      env: TEST_SET=typicalTestSet
+    - name: "Typical Test Set 1"
+      env: TEST_SET=typicalTestSet1
+    - name: "Typical Test Set 2"
+      env: TEST_SET=typicalTestSet2
     - name: "chacha"
       env: TEST_SET=chacha
-    - name: "sha3"
-      env: TEST_SET=sha3
-    - name: "wb_conbus_top"
-      env: TEST_SET=wb_conbus_top
-    - name: "ocs_blitter"
-      env: TEST_SET=ocs_blitter
+    - name: "aes_core"
+      env: TEST_SET=aes_core
+    - name: "des"
+      env: TEST_SET=des
     - name: "md5"
       env: TEST_SET=md5
     - name: "PPU"
       env: TEST_SET=PPU
+    - name: "genericfir"
+      env: TEST_SET=genericfir
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
-    - name: "Timeout Test Set"
-      env: TEST_SET=timoutTestSet
+    - name: "Timeout Test Set 1"
+      env: TEST_SET=timeoutTestSet1
+    - name: "Timeout Test Set 2"
+      env: TEST_SET=timeoutTestSet2
+    - name: "Timeout Test Set 3"
+      env: TEST_SET=timeoutTestSet3
     - name: "Failing Designs Test Set"
       env: TEST_SET=failingTestSet
   allow_failures:
-    - name: "Typical Test Set"
-      env: TEST_SET=typicalTestSet
+    - name: "Typical Test Set 1"
+      env: TEST_SET=typicalTestSet1
+    - name: "Typical Test Set 2"
+      env: TEST_SET=typicalTestSet2
     - name: "chacha"
       env: TEST_SET=chacha
-    - name: "sha3"
-      env: TEST_SET=sha3
-    - name: "wb_conbus_top"
-      env: TEST_SET=wb_conbus_top
-    - name: "ocs_blitter"
-      env: TEST_SET=ocs_blitter
+    - name: "aes_core"
+      env: TEST_SET=aes_core
+    - name: "des"
+      env: TEST_SET=des
     - name: "md5"
       env: TEST_SET=md5
     - name: "PPU"
       env: TEST_SET=PPU
+    - name: "genericfir"
+      env: TEST_SET=genericfir
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
-    - name: "Timeout Test Set"
-      env: TEST_SET=timoutTestSet
+    - name: "Timeout Test Set 1"
+      env: TEST_SET=timeoutTestSet1
+    - name: "Timeout Test Set 2"
+      env: TEST_SET=timeoutTestSet2
+    - name: "Timeout Test Set 3"
+      env: TEST_SET=timeoutTestSet3
     - name: "Failing Designs Test Set"
       env: TEST_SET=failingTestSet
 

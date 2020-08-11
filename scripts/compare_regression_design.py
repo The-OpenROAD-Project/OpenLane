@@ -40,7 +40,6 @@ regression_results_file = args.regression_results
 output_report_file = args.output_report
 design = args.design
 
-output_report_list = []
 
 critical_statistics = ['tritonRoute_violations', 'antenna_violations']
 
