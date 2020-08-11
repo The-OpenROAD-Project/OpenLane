@@ -16,7 +16,6 @@
 yosys -import
 set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
-set sclib $::env(LIB_SYNTH)
 
 set well_tap_cell "$::env(FP_WELLTAP_CELL)"
 set decap_cell_wildcard "$::env(DECAP_CELL)*"
@@ -36,7 +35,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-
+read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
 
 read_verilog $::env(LEC_LHS_NETLIST)
 rmports
@@ -64,6 +63,8 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
+read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
+
 read_verilog $::env(LEC_RHS_NETLIST)
 rmports
 hierarchy -generate $well_tap_cell
@@ -77,6 +78,9 @@ renames -top gate
 design -stash gate
 
 
+design -copy-from gold -as gold gold
+design -copy-from gate -as gate gate
+
 # Rebuild the database due to -stash
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {
@@ -89,10 +93,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-read_liberty -ignore_miss_func $::env(LIB_SYNTH_COMPLETE)
-
-design -copy-from gold -as gold gold
-design -copy-from gate -as gate gate
+read_liberty -nooverwrite -ignore_miss_func $::env(LIB_SYNTH_COMPLETE)
 
 equiv_make gold gate equiv
 hierarchy -generate $well_tap_cell
