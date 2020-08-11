@@ -17,8 +17,8 @@ language: minimal
 branches:
   only:
     - develop
-    - master
-    - develop-*
+    - masterploy
+    - /^(?i:develop)-.*$/
 
 services:
     - docker
@@ -36,55 +36,20 @@ jobs:
       env: TEST_SET=typicalTestSet1
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
+    - name: "BM64"
+      env: TEST_SET=BM64
+    - name: "picorv32a"
+      env: TEST_SET=picorv32a
     - name: "chacha"
       env: TEST_SET=chacha
-    - name: "aes_core"
-      env: TEST_SET=aes_core
     - name: "des"
       env: TEST_SET=des
     - name: "md5"
       env: TEST_SET=md5
     - name: "PPU"
       env: TEST_SET=PPU
-    - name: "genericfir"
-      env: TEST_SET=genericfir
     - name: "Slowest Test Set"
       env: TEST_SET=slowestTestSet
-    - name: "Timeout Test Set 1"
-      env: TEST_SET=timeoutTestSet1
-    - name: "Timeout Test Set 2"
-      env: TEST_SET=timeoutTestSet2
-    - name: "Timeout Test Set 3"
-      env: TEST_SET=timeoutTestSet3
-    - name: "Failing Designs Test Set"
-      env: TEST_SET=failingTestSet
-  allow_failures:
-    - name: "Typical Test Set 1"
-      env: TEST_SET=typicalTestSet1
-    - name: "Typical Test Set 2"
-      env: TEST_SET=typicalTestSet2
-    - name: "chacha"
-      env: TEST_SET=chacha
-    - name: "aes_core"
-      env: TEST_SET=aes_core
-    - name: "des"
-      env: TEST_SET=des
-    - name: "md5"
-      env: TEST_SET=md5
-    - name: "PPU"
-      env: TEST_SET=PPU
-    - name: "genericfir"
-      env: TEST_SET=genericfir
-    - name: "Slowest Test Set"
-      env: TEST_SET=slowestTestSet
-    - name: "Timeout Test Set 1"
-      env: TEST_SET=timeoutTestSet1
-    - name: "Timeout Test Set 2"
-      env: TEST_SET=timeoutTestSet2
-    - name: "Timeout Test Set 3"
-      env: TEST_SET=timeoutTestSet3
-    - name: "Failing Designs Test Set"
-      env: TEST_SET=failingTestSet
 
 install:
   - sh travisCI/travisBuild.sh
