@@ -24,7 +24,7 @@ This is the expected folder structure for a PDK:
 - `common_pdn.tcl` Pdn configuration file. Refer to PDN configuration [section](#pdn-configuration-file).
 - `<standard cell library>/config.tcl` standard cell library configuration file which contains information specific to that SCL. It can override PDK configuration file.
 - `<standard cell library>/tracks.info` Contains information about the metal layers offsets and pitches. Refer to tracks configuration file [section](#tracks-info-file)
-- `<standard cell library>/no_synth.cells` that should contain the list of newline-separated cell names to trim during synthesis (to not use them in synthesis)
+- `<standard cell library>/no_synth.cells` that should contain the list of newline-separated cell names to trim during synthesis (to not use them in synthesis). More in this [section](#no-synthesis-cells-file).
 
 
 ## PDK Variables 
@@ -80,7 +80,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `CTS_SQR_RES` | Defines the resistance per square micron, used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
 
-## Tracks info file
+## Tracks Info File
 
 The tracks files defines the metal layers pitches and offsets. This information should be extracted from the PDK's tech lef. The following is the format of the files
 
@@ -89,6 +89,15 @@ The tracks files defines the metal layers pitches and offsets. This information 
 ```
 
 
-## PDN configuration file
+## PDN Configuration File
 
 A sample PDN configuration file exists [here](https://github.com/RTimothyEdwards/open_pdks/blob/master/sky130/openlane/common_pdn.tcl).
+
+
+## No Synthesis Cells File
+
+There are some cell types that you don't want to use in synthesis like, for example, delay cells and clock buffers (since CTS is a separate step that would insert the clock buffers).
+
+Also, some of the cells, back when this list was created, had hard-to-access pin shapes, so the detailed router didn't manage to do routing cleanly. 
+
+However, this list is likely over-constraining, and if you have done experiments allowing smaller sizes incrementally and still got clean routed layouts, please let us know your findings, or better yet, submit a pull request at [open_pdks](https://github.com/RTimothyEdwards/open_pdks) with a suggested no_synth list.
