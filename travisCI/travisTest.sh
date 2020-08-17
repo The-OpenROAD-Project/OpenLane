@@ -26,6 +26,8 @@ cat $RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*_best.csv
 echo "Fail/Pass report:"
 echo "design,status"
 cat $FILE
+crashSignal=$(find $FILE)
+if ! [[ $crashSignal ]]; then exit -1; fi
 val=$(grep "FAILED" $FILE | wc -l)
 if ! [[ $val ]]; then val=0; fi
 exit $val
