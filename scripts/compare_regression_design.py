@@ -41,7 +41,7 @@ output_report_file = args.output_report
 design = args.design
 
 
-critical_statistics = ['tritonRoute_violations', 'antenna_violations']
+critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations']
 
 
 def compare_vals(benchmark_value, regression_value):
@@ -85,20 +85,23 @@ def criticalMistmatch(benchmark, regression_result):
         if compare_vals(benchmark[stat],regression_result[stat]):
             continue
         else:
-            return True
-    return False
+            if str(regression_result[stat]) == "-1":
+                return True, "The test didn't pass the stage responsible for "+ stat
+            else:
+                return True, "The results of " +stat+" mismatched with the benchmark"
+    return False, "The test passed"
         
 
 benchmark = parseCSV(benchmark_file)
 regression_result = parseCSV(regression_results_file)
 
-testFail = criticalMistmatch(benchmark,regression_result)
+testFail, reasonForFailure = criticalMistmatch(benchmark,regression_result)
 
 report = str(design)
 if testFail:
-    report += ",FAILED\n"
+    report += ",FAILED,"+reasonForFailure+"\n"
 else:
-    report += ",PASSED\n"
+    report += ",PASSED,\n"
 
 
 outputReportOpener = open(output_report_file, 'a+')

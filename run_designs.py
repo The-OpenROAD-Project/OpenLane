@@ -335,7 +335,7 @@ addCellPerMMSquaredOverCoreUtil(report_file_name + "_best.csv")
 
 if args.benchmark is not None:
         log.info("Generating final benchmark results..")
-        full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
+        full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -ur -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
                 benchmark=args.benchmark,
                 this_run=report_file_name + ".csv",
                 output_report=report_file_name + "_benchmark_written_report.rpt",

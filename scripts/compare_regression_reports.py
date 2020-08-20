@@ -28,6 +28,9 @@ parser.add_argument('--benchmark', '-b', action='store', required=True,
 parser.add_argument('--regression_results', '-r', action='store', required=True,
                 help="The csv file to be tested")
 
+parser.add_argument('--use_regression_results_as_design_list_source', '-ur', action='store_true', default=False,
+                help="uses the regression results instead of the benchmark as the source of the designs list")
+
 parser.add_argument('--output_report', '-o', action='store', required=True,
                 help="The file to print the final report in")
 
@@ -39,6 +42,9 @@ benchmark_file = args.benchmark
 regression_results_file = args.regression_results
 output_report_file = args.output_report
 output_xlsx_file = args.output_xlsx
+
+regression_results_as_design_list_source=args.use_regression_results_as_design_list_source
+
 
 benchmark =dict()
 regression_results =dict()
@@ -56,9 +62,9 @@ missing_configs = []
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'ROUTING_STRATEGY']
 
-critical_statistics = ['tritonRoute_violations',  'antenna_violations']
+critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations']
 
-note_worthy_statistics = ['Magic_violations','Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
+note_worthy_statistics = ['Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 
 def compare_vals(benchmark_value, regression_value):
     if str(benchmark_value) == "-1":
@@ -115,7 +121,13 @@ def parseCSV(csv_file, isBenchmark):
 
 def configurationMismatch(benchmark, regression_results):
     global configuration_mismatches
-    for design in benchmark.keys():
+    designList = list()
+    if regression_results_as_design_list_source:
+        designList = regression_results.keys()
+    else:
+        designList = benchmark.keys()
+    
+    for design in designList:
         output_report_list.append("\nComparing Configurations for: "+ design+"\n")
         configuration_mismatches.append("\nComparing Configurations for: "+ design+"\n")
         if design not in regression_results:
@@ -141,7 +153,13 @@ def configurationMismatch(benchmark, regression_results):
 def criticalMistmatch(benchmark, regression_results):
     global testFail
     global critical_mismatches
-    for design in benchmark.keys():
+    designList = list()
+    if regression_results_as_design_list_source:
+        designList = regression_results.keys()
+    else:
+        designList = benchmark.keys()
+    
+    for design in designList:
         output_report_list.append("\nComparing Critical Statistics for: "+ design+"\n")
         critical_mismatches.append("\nComparing Critical Statistics for: "+ design+"\n")
         if design not in regression_results:
@@ -169,7 +187,13 @@ def criticalMistmatch(benchmark, regression_results):
             critical_mismatches= critical_mismatches[:-1]
 
 def noteWorthyMismatch(benchmark, regression_results):
-    for design in benchmark.keys():
+    designList = list()
+    if regression_results_as_design_list_source:
+        designList = regression_results.keys()
+    else:
+        designList = benchmark.keys()
+    
+    for design in designList:
         output_report_list.append("\nComparing Note Worthy Statistics for: "+ design+"\n")
         if design not in regression_results:
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
@@ -223,6 +247,13 @@ outputReportOpener = open(output_report_file, 'w')
 outputReportOpener.write(report)
 outputReportOpener.close()
 
+
+def formNotFoundStatus(benchmark, regression_results):
+    for design in benchmark.keys():
+            if design not in regression_results:
+                benchmark[design]["Status"] = "NOT FOUND"
+
+formNotFoundStatus(benchmark, regression_results)
 
 # Open an Excel workbook
 workbook = xlsxwriter.Workbook(output_xlsx_file)
