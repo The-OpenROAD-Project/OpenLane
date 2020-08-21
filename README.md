@@ -217,6 +217,15 @@ The following are arguments that can be passed to `flow.tcl`
     <tr>
         </tr>
         <td align="center">
+            <code>-src &lt;verilog_source_file&gt; </code> <br> (Optional)
+        </td>
+        <td td align="justify">
+            Sets the verilog source code file(s) in case of using `-init_design_config`. <br> The default is that the source code files are under <code>design_path/src/</code>, where the design path is the one passed to <code>-design</code>
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
             <code>-init_design_config </code> <br> (Optional)
         </td>
         <td td align="justify">

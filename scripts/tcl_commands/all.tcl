@@ -795,7 +795,7 @@ proc set_layer_tracks {args} {
 set options {{-defFile required} \
     {-layer required} \
     {-valuesFile required} \
-    {-originalFile optional} \
+    {-originalFile required} \
      \
   }
   set flags {}
