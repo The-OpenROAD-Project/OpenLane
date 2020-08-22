@@ -77,8 +77,13 @@ def read $::env(CURRENT_DEF)
 load $::env(DESIGN_NAME) -dereference
 cd $::env(RESULTS_DIR)/magic/
 extract do local
+extract no capacitance
+extract no coupling
+extract no resistance
+extract no adjust
 # extract warn all
 extract
+
 ext2spice lvs
 ext2spice $::env(DESIGN_NAME).ext
 feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
@@ -152,6 +157,10 @@ select top cell
 # but getting many warnings
 if { ! \[file exists \$::env(DESIGN_NAME).ext\] } {
 	extract do local
+	extract no capacitance
+	extract no coupling
+	extract no resistance
+	extract no adjust
 	# extract warn all
 	extract
 	feedback save $::env(magic_log_file_tag)_ext2spice.antenna.feedback.txt
