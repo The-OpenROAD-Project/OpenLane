@@ -67,8 +67,8 @@ with open(output_file_name, 'w') as output_def_file, \
                     print("Placing ", line[1])
                     macro_name = line[1]
                     if (line[4] != "FIXED") & (line[4] != "PLACED"):
-                        print("[ERROR] DEF Format Not Supported for MACRO Placement!") 
-                        exit()  
+                        print("[ERROR] DEF Format Not Supported for MACRO Placement!")
+                        exit()
                     if fixed_flag == True:
                         line[4] = "FIXED"
                     else:

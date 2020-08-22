@@ -26,7 +26,21 @@ set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
 set left_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(LEFT_MARGIN_MULT)]
 set right_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(RIGHT_MARGIN_MULT)]
 
+
 if {$::env(FP_SIZING) == "absolute"} {
+  set die_ll_x [lindex $::env(DIE_AREA) 0]
+  set die_ll_y [lindex $::env(DIE_AREA) 1]
+  set die_ur_x [lindex $::env(DIE_AREA) 2]
+  set die_ur_y [lindex $::env(DIE_AREA) 3]
+
+  set core_ll_x [expr {$die_ll_x + $left_margin}]
+  set core_ll_y [expr {$die_ll_y + $bottom_margin}]
+  set core_ur_x [expr {$die_ur_x - $right_margin}]
+  set core_ur_y [expr {$die_ur_y - $top_margin}]
+
+  set ::env(CORE_AREA) [list $core_ll_x $core_ll_y $core_ur_x $core_ur_y]
+
+
   initialize_floorplan \
     -die_area $::env(DIE_AREA) \
     -core_area $::env(CORE_AREA) \

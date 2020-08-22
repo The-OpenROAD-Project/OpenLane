@@ -49,6 +49,8 @@ These variables are optional that can be specified in the design configuration f
 |---------------|---------------------------------------------------------------|
 | `FP_CORE_UTIL`  | The core utilization percentage. <br> (Default: `50` percent)|
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
+| `FP_SIZING`  | Whether to use relative sizing by making use of `FP_CORE_UTIL` or absolute one using `DIE_AREA`. <br> (Default: `"relative"` - accepts "absolute" as well)|
+| `DIE_AREA`  | Specific die area to be used in floorplanning. Specified as a 4-corner rectangle. Units in microns<br> (Default: unset)|
 | `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `3`)|
 | `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `2`)|
 | `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. <br> (Default: `efs8hd_tap_1`)|
