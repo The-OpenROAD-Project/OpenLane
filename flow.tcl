@@ -36,8 +36,6 @@ proc run_non_interactive_mode {args} {
 	gen_pdn
 	run_routing
 
-	run_magic_spice_export
-
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
 	    run_magic_antenna_check; # produces a report of violators; extraction!
 	    heal_antenna_violators; # modifies the routed DEF
@@ -45,17 +43,6 @@ proc run_non_interactive_mode {args} {
 
 	run_magic
 
-	run_magic_drc
-	run_lvs
-	run_magic_antenna_check; # to verify the above and get a final report
-
-
-
-
-
-	#export_magic_view \
-		-def $::env(CURRENT_DEF) \
-		-output $::env(magic_result_file_tag).mag
 	if {  [info exists flags_map(-save) ] } {
 		if { [info exists arg_values(-save_path)] } {
 			save_views 	-lef_path $::env(magic_result_file_tag).lef \
@@ -72,6 +59,14 @@ proc run_non_interactive_mode {args} {
 					-tag $::env(RUN_TAG)
 			}
 	}
+
+	run_magic_drc
+
+	run_magic_spice_export
+	run_lvs
+
+	run_magic_antenna_check; # to verify the above and get a final report
+
 }
 
 proc run_interactive_mode {args} {
