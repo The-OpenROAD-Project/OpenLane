@@ -84,10 +84,11 @@ foreach net $::nets {
 	}
 }
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
-set_placement_padding -global -left $::env(DIODE_PADDING)
+# set_placement_padding -global -left $::env(DIODE_PADDING)
+set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement
+write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1
 }
-write_def $::env(SAVE_DEF)

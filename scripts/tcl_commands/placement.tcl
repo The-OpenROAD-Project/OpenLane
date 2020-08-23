@@ -42,6 +42,13 @@ proc global_placement_or {args} {
 	TIMER::timer_start
 	set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
+	# sometimes replace fails with a ZERO exit code; the following is a workaround
+	# until the cause is found and fixed
+	if { ! [file exists $::env(SAVE_DEF)] } {
+		puts_err "Failure in global placement"
+		return -code error
+	}
+
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
 	set_def $::env(SAVE_DEF)
@@ -126,7 +133,7 @@ proc run_placement {args} {
 # |----------------------------------------------------|
 	set ::env(CURRENT_STAGE) placement
 
-	global_placement
+	global_placement_or
 	if { $::env(RUN_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
