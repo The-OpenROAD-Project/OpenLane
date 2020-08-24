@@ -27,12 +27,18 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 read_verilog $::env(yosys_result_file_tag).v
 read_sdc $::env(SCRIPTS_DIR)/base.sdc
 
-clock_tree_synthesis\
-    -max_slew $::env(SYNTH_MAX_TRAN)\
-    -max_cap $::env(CTS_MAX_CAP)\
-    -buf_list $::env(CTS_CLK_BUFFER_LIST)\
+set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
+set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
+
+configure_cts_characterization\
+    -max_slew $max_slew\
+    -max_cap $max_cap\
     -sqr_cap $::env(CTS_SQR_CAP)\
-    -sqr_res $::env(CTS_SQR_RES)\
-    -root_buf $::env(CTS_ROOT_BUFFER)
+    -sqr_res $::env(CTS_SQR_RES)
+
+clock_tree_synthesis\
+    -buf_list $::env(CTS_CLK_BUFFER_LIST)\
+    -root_buf $::env(CTS_ROOT_BUFFER)\
+    -out_path $::env(TMP_DIR)/cts/
 
 write_def $::env(SAVE_DEF)
