@@ -46,11 +46,12 @@ clone-open_pdks: check-env
 		rm -rf open_pdks && \
 		git clone https://github.com/RTimothyEdwards/open_pdks.git open_pdks && \
 		cd open_pdks && \
-		git checkout -qf 60b4f62aabff2e4fd9df194b6db59e61a2bd2472
+	       	git checkout -qf e90095abe0b1e577b77c66d0179968fc6a553389	
 
 install-open_pdks: check-env
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-local-path=$(PDK_ROOT) && \
+		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		cd sky130 && \
 		make && \
 		make install-local
 
