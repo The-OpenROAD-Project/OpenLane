@@ -23,7 +23,7 @@ Then, you should be able to run the following commands:
 8. `run_magic`
 9. `run_magic_spice_export`
 10. `run_magic_drc`
-11. `run_netgen`
+11. `run_lvs`
 12. `run_magic_antenna_check`
 
 
