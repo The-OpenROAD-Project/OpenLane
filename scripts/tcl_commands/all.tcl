@@ -805,4 +805,10 @@ set options {{-defFile required} \
 
 }
 
+proc run_or_antenna_check {args} {
+
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(LOG_DIR)/routing/or_antenna.log
+
+}
+
 package provide openlane 0.9
