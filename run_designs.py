@@ -253,7 +253,9 @@ def run_design(designs_queue):
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
                 
-                rem_designs.remove(design)
+                if args.print_rem is not None:
+                        if design in rem_designs:
+                                rem_designs.remove(design)
 
 #print(designs)
 
