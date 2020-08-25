@@ -61,7 +61,9 @@ parser.add_argument('--benchmark', '-b', action='store', default=None,
                 help="benchmark report file to compare with")
 parser.add_argument('--print_rem', '-p', action='store', default=None,
                 help="Takes a time period, and prints the list of remaining designs periodically based on it")
-                                
+parser.add_argument('--disable_timestamp', '-dt',action='store_true', default=False,
+                help="Disables appending the timestamp to the file names and tags.")
+                             
 
 args = parser.parse_args()
 
@@ -118,11 +120,18 @@ if args.configuration_parameters is not None:
                         print ("Could not open/read file:", args.configuration_parameters)
                         sys.exit()
 
-store_dir =  "./regression_results/{tag}_{date}/".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+store_dir = ""
+report_file_name = ""
+if args.disable_timestamp:
+        store_dir =  "./regression_results/{tag}/".format(tag=tag)
+        report_file_name = "{store_dir}/{tag}".format(store_dir=store_dir,tag=tag)
+else:
+        store_dir =  "./regression_results/{tag}_{date}/".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+        report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+
 if os.path.exists(store_dir) == False:
     os.mkdir(store_dir)
 
-report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
 handler1 = logging.FileHandler("{report_file_name}.log".format(report_file_name=report_file_name), 'w')

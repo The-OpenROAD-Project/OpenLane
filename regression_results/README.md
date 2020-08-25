@@ -242,7 +242,7 @@ The script can be used in two ways
         </td>
         <td align="justify">
             Specifies whether or not to delete the run directory after completion and reporting the results in the csv.
-            If this flag is used with --tar, then the compressed files will not be deleted because they are placed outside of the run directory.
+            If this flag is used with --tar, then the compressed files will not be deleted because they are placed outside of the run directory. <br> Default value: <code>False</code>
         </td>
     </tr>
     <tr>
@@ -251,7 +251,7 @@ The script can be used in two ways
             <code>--htmlExtract | -html</code> <br> (Boolean)
         </td>
         <td align="justify">
-            Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics.
+            Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics. <br> Default value: <code>False</code>
         </td>
     </tr>
     <tr>
@@ -263,6 +263,16 @@ The script can be used in two ways
             If provided this run will be tested against (compared to) the given benchmark <code>&lt;file&gt;</code>. check the output section above for the details of the reported results.
         </td>
     </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--disable_timestamp | -dt </code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, the output files and tags will not contain the appended timestamp. <br> Default value: <code>False</code>
+        </td>
+    </tr>
+
 </table>
 
 [21]: ./columns_defintions.md
