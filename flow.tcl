@@ -36,12 +36,12 @@ proc run_non_interactive_mode {args} {
 	gen_pdn
 	run_routing
 
-	run_or_antenna_check
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
-	    run_magic_antenna_check; # produces a report of violators; extraction!
+		run_or_antenna_check;
 	    heal_antenna_violators; # modifies the routed DEF
 	}
-
+	run_or_antenna_check
+	
 	run_magic
 
 	if {  [info exists flags_map(-save) ] } {
@@ -65,8 +65,6 @@ proc run_non_interactive_mode {args} {
 
 	run_magic_spice_export
 	run_lvs
-
-	run_magic_antenna_check; # to verify the above and get a final report
 
 }
 
