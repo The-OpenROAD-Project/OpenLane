@@ -42,3 +42,12 @@ clock_tree_synthesis\
     -out_path $::env(TMP_DIR)/cts/
 
 write_def $::env(SAVE_DEF)
+
+set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)" 
+set_placement_padding -masters $buffers -left $::env(CELL_PAD)
+puts "\[INFO\]: Legalizing..."
+detailed_placement
+write_def $::env(SAVE_DEF)
+if { [check_placement -verbose] } {
+	exit 1
+}
