@@ -49,7 +49,7 @@ def compare_vals(benchmark_value, regression_value):
         return True
     if str(regression_value) == "-1":
         return False
-    if float(benchmark_value) - float(regression_value) > -1: # Allow for tolerance 1
+    if float(benchmark_value) - float(regression_value) >= -1: # Allow for tolerance 1
         return True
     else:
         return False

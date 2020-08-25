@@ -225,6 +225,44 @@ Most of the following commands' implementation exists in this [file][5]
 | `run_lvs` | | Runs an lvs check between an extracted spice netlist (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. |
 
 
+## Utility Commands 
+
+Most of the following commands' implementation exists in these files: [deflef][10] and [general][12]
+ 
+| Command      | Flags                   | Description                                           |
+|---------------|------------------------|-----------------------------------------|
+| `remove_pins` | | Removes the pins' section from a given DEF file. |
+|    | `-input <def_file>` | The input DEF file. |
+| `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
+|    | `-input <def_file>` | The input DEF file. |
+| `resize_die` | | Resizes the DIEAREA in a given DEF file to the given size. |
+|    | `-def <def_file>` | The input DEF file. |
+|    | `-area <list>` | The new coordinates of the DIEARA listed as (llx, lly, urx, ury). |
+| `get_instance_position` | | Returns the position of a given instance from the DEF view file. |
+|    | `-instance <instance_name>` | The name of the instance. |
+|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF` of the currently processed design. <br> Optional Flag. |
+| `add_lefs` | | Merges the given `<-src>` LEF files to the existing processed LEF files. |
+|    | `-src <lef_files>` | The input LEF files. |
+| `merge_components` | | Merges the components section of two DEF files. |
+|    | `-input1 <def_file>` | The first DEF file. |
+|    | `-input2 <def_file>` | The second DEF file. |
+|    | `-output <def_file>` | The output DEF file. |
+| `move_pins` | | Moves the PINS section from one DEF file to another. |
+|    | `-from <def_file>` | The input DEF file. |
+|    | `-to <def_file>` | The target DEF file. |
+| `zeroize_origin_lef` | | Zeroizes the origin of all views in a LEF file. |
+|    | `-file <lef_file>` | The input LEF file. |
+| `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
+| `kill_display_buffer` | | Kills the fake display buffer. |
+| `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
+| `try_catch <command>` | | A minimal try_catch block to execute the `<command>`. |
+| `puts_err <text>` | | Prints `[ERROR]: ` followed by the `<text>` in red. |
+| `puts_success <text>` | | Prints `[SUCCESS]: ` followed by the `<text>` in green. |
+| `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |
+| `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
+
+
+
 [0]: ./scripts/tcl_commands/all.tcl
 [1]:./scripts/tcl_commands/checkers.tcl
 [2]:./scripts/tcl_commands/cts.tcl

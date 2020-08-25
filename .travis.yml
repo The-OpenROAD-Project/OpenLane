@@ -48,8 +48,10 @@ jobs:
       env: TEST_SET=md5
     - name: "PPU"
       env: TEST_SET=PPU
-    - name: "Slowest Test Set"
-      env: TEST_SET=slowestTestSet
+    - name: "aes_cipher"
+      env: TEST_SET=aes_cipher
+    - name: "y_huff"
+      env: TEST_SET=y_huff
 
 install:
   - sh travisCI/travisBuild.sh
