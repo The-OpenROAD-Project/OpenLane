@@ -1,4 +1,4 @@
-set ::env(FP_CORE_UTIL) 5
+
 set ::env(SYNTH_STRATEGY) 2
 
 
