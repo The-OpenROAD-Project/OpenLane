@@ -43,12 +43,19 @@ proc run_non_interactive_mode {args} {
 
 	run_magic
 
+	run_magic_drc
+
+	run_magic_spice_export
+	run_lvs
+
 	if {  [info exists flags_map(-save) ] } {
 		if { [info exists arg_values(-save_path)] } {
 			save_views 	-lef_path $::env(magic_result_file_tag).lef \
 					-def_path $::env(tritonRoute_result_file_tag).def \
 					-gds_path $::env(magic_result_file_tag).gds \
 					-mag_path $::env(magic_result_file_tag).mag \
+					-spice_path $::env(magic_result_file_tag).spice \
+					-verilog_path $::env(CURRENT_NETLIST) \
 					-save_path $arg_values(-save_path) \
 					-tag $::env(RUN_TAG)
 		} else  {
@@ -56,17 +63,13 @@ proc run_non_interactive_mode {args} {
 					-def_path $::env(tritonRoute_result_file_tag).def \
 					-mag_path $::env(magic_result_file_tag).mag \
 					-gds_path $::env(magic_result_file_tag).gds \
+					-spice_path $::env(magic_result_file_tag).spice \
+					-verilog_path $::env(CURRENT_NETLIST) \
 					-tag $::env(RUN_TAG)
 			}
 	}
 
-	run_magic_drc
-
-	run_magic_spice_export
-	run_lvs
-
 	run_magic_antenna_check; # to verify the above and get a final report
-
 }
 
 proc run_interactive_mode {args} {

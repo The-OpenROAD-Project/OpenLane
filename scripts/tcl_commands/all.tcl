@@ -65,13 +65,13 @@ proc prep_lefs {args} {
 		file delete $::env(CELLS_LEF).old $::env(CELLS_LEF_UNPADDED).old
 	}
 	set ::env(MERGED_LEF) $::env(CELLS_LEF)
-	
+
 	try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF)
 	try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF_UNPADDED)
 
 	widen_site_width
 	use_widened_lefs
-	
+
 }
 
 proc trim_lib {args} {
@@ -556,6 +556,8 @@ proc save_views {args} {
 			{-mag_path optional} \
 			{-def_path optional} \
 			{-gds_path optional} \
+			{-verilog_path optional} \
+			{-spice_path optional} \
 			{-save_path optional} \
 			{-tag required} \
 		}
@@ -598,6 +600,21 @@ proc save_views {args} {
 		file mkdir $destination
 		if { [file exists $arg_values(-gds_path)] } {
 			file copy -force $arg_values(-gds_path) $destination/$arg_values(-tag).gds
+		}
+	}
+	if { [info exists arg_values(-verilog_path)] } {
+		set destination $path/verilog/gl
+		file mkdir $destination
+		if { [file exists $arg_values(-verilog_path)] } {
+			file copy -force $arg_values(-verilog_path) $destination/$arg_values(-tag).v
+		}
+	}
+
+	if { [info exists arg_values(-spice_path)] } {
+		set destination $path/spi/lvs
+		file mkdir $destination
+		if { [file exists $arg_values(-spice_path)] } {
+			file copy -force $arg_values(-spice_path) $destination/$arg_values(-tag).spice
 		}
 	}
 }
@@ -660,7 +677,7 @@ proc reorder_macro_pins {args} {
 }
 
 proc widen_site_width {args} {
-	
+
 	set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
 	set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)
 
@@ -690,7 +707,7 @@ proc use_widened_lefs {args} {
 }
 
 proc use_original_lefs {args} {
-	
+
 	if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
 		set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
 		set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
