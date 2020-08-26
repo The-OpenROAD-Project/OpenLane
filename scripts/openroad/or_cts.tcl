@@ -39,7 +39,8 @@ configure_cts_characterization\
 clock_tree_synthesis\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\
-    -out_path $::env(TMP_DIR)/cts/
+    -out_path $::env(TMP_DIR)/cts/\
+    -clk_nets $::env(CLOCK_NET)
 
 write_def $::env(SAVE_DEF)
 

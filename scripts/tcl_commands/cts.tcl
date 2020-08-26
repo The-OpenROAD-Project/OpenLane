@@ -67,6 +67,7 @@ proc simple_cts {args} {
 proc run_cts {args} {
 		puts "\[INFO\]: Running TritonCTS..."
 		if {$::env(CLOCK_TREE_SYNTH)} {
+			set_if_unset ::env(CLOCK_NET) $::env(CLOCK_PORT)
 			set ::env(CURRENT_STAGE) cts
 			TIMER::timer_start		
 			
