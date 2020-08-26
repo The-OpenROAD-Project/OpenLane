@@ -37,11 +37,13 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-folder <padframe_folder>` |  specifies the `<padframe_folder>` for the padframe generator. The folder should contain the following: `./mag/<mag files>`, `./verilog/<verilog files>`, and optionally `./mag/padframe.cfg`|
 | `save_views` | | Saves the views of a given `run_tag` into the specifies `path`(s).|
 |    | `-tag <run_tag>` |  Specifies the `<run_tag>` from which the views were generated.|
-|    | `[-lef_path <path>]` |  Changes the save path for the lef files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-mag_path <path>]` |  Changes the save path for the mag files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-def_path <path>]` |  Changes the save path for the def files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-gds_path <path>]` |  Changes the save path for the gds files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
+|    | `[-lef_path <path>]` |  Changes the save path for the lef files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-mag_path <path>]` |  Changes the save path for the mag files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-def_path <path>]` |  Changes the save path for the def files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-gds_path <path>]` |  Changes the save path for the gds files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-verilog_path <path>]` |  Changes the save path for the verilog files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-spice_path <path>]` |  Changes the save path for the spice files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
 | `widen_site_width`   | | generates two new lef files (merged_wider.lef and merged_unpadded_wider.lef) with a widened site width based on the values of `WIDEN_SITE_IS_FACTOR` and `WIDEN_SITE`, more about those in the [configurations/readme.md][13].|
 | `use_widened_lefs`   | | Switches to using the lef files with the widened site width in the flow.|
 | `use_original_lefs`   | | Switches to using the normal lef files in the flow.|

@@ -20,10 +20,10 @@ designName=$2
 # This assumes that all these files exist
 tritonRoute_log="${path}/logs/routing/tritonRoute.log"
 tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
-yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
+yosys_rprt=reports${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
-HPWL_rpt=${path}/reports/placement/replace_hpwl.rpt
+HPWL_rpt=${path}/logs/placement/replace.log 
 yosys_log=${path}/logs/synthesis/yosys.log
 magic_drc=${path}/logs/magic/magic.drc
 tapcell_log=${path}/logs/floorplan/tapcell.log
@@ -115,7 +115,11 @@ wns=$(grep "wns" $wns_rpt | sed -r 's/wns //')
 if ! [[ $wns ]]; then wns=-1; fi
 
 #Extracting Info from RePlace
-hpwl=$(cat $HPWL_rpt)
+#standalone replace extraction
+#hpwl=$(cat $HPWL_rpt)
+
+#openroad replace extraction
+hpwl=$(grep " HPWL: " $HPWL_rpt | tail -1 | sed -E 's/.*HPWL: (\S+).*/\1/')
 if ! [[ $hpwl ]]; then hpwl=-1; fi
 
 #Extracting Info from Yosys logs
