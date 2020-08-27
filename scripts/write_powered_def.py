@@ -38,6 +38,8 @@ parser.add_argument('--ground-port', '-g',
 parser.add_argument('--output', '-o',
                     default='output.def', help='Output modified netlist')
 
+parser.add_argument('--ignore-missing-pins', '-q', action='store_true', required=False)
+
 # parser.add_argument('--create-pg-ports',
 #                     help='Create power and ground ports if not found')
 
@@ -47,6 +49,8 @@ def_file_name = args.input_def
 lef_file_name = args.input_lef
 power_port_name = args.power_port
 ground_port_name = args.ground_port
+
+ignore_missing_pins = args.ignore_missing_pins
 
 output_file_name = args.output
 
@@ -98,8 +102,12 @@ for cell in cells:
             GND_ITERM = iterm
     if None in [VDD_ITERM, GND_ITERM]:
         print("Warning: not all power pins found for cell:", cell.getName())
-        print("Warning: ignoring", cell.getName(), "!!!!!!!")
-        continue    # or exit
+        if ignore_missing_pins:
+            print("Warning: ignoring", cell.getName(), "!!!!!!!")
+            continue
+        else:
+            print("Exiting... Use --ignore-missing-pins to ignore such errors")
+            sys.exit(1)
 
     if VDD_ITERM.isConnected() or GND_ITERM.isConnected():
         print("Warning: power pins of", cell.getName(), "are already connected")
