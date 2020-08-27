@@ -1,5 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm 
+DOCKERFILE_PATH ?= ./Dockerfile
+IMAGE_NAME ?= openlane:rc3
 #ROOT = sudo
 
 #TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
@@ -47,7 +49,7 @@ FORCE:
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
-	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc3 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+	docker build $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:

@@ -1,0 +1,5 @@
+#!/bin/bash
+echo $DOCKERFILE_PATH
+ls ./tar
+echo $IMAGE_NAME
+make merge
