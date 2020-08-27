@@ -20,7 +20,7 @@ designName=$2
 # This assumes that all these files exist
 tritonRoute_log="${path}/logs/routing/tritonRoute.log"
 tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
-yosys_rprt=reports${path}/reports/synthesis/yosys_*.stat.rpt
+yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
 HPWL_rpt=${path}/logs/placement/replace.log 
