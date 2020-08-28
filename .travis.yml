@@ -44,23 +44,19 @@ jobs:
       env: TEST_SET=chacha
     - name: "des"
       env: TEST_SET=des
-    - name: "md5"
-      env: TEST_SET=md5
     - name: "PPU"
       env: TEST_SET=PPU
     - name: "aes_cipher"
       env: TEST_SET=aes_cipher
     - name: "y_huff"
       env: TEST_SET=y_huff
-    - name: "cic_decimator"
-      env: TEST_SET=cic_decimator
     - name: "blabla"
       env: TEST_SET=blabla
+    - name: "ldpcenc"
+      env: TEST_SET=ldpcenc
   allow_failures:
-    - name: "cic_decimator"
-      env: TEST_SET=cic_decimator
-    - name: "blabla"
-      env: TEST_SET=blabla
+    - name: "ldpcenc"
+      env: TEST_SET=ldpcenc
       
 install:
   - sh travisCI/travisBuild.sh
