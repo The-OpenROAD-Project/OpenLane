@@ -56,7 +56,7 @@ jobs:
       env: TEST_SET=cic_decimator
     - name: "blabla"
       env: TEST_SET=blabla
-    allow_failures:
+  allow_failures:
     - name: "cic_decimator"
       env: TEST_SET=cic_decimator
     - name: "blabla"
