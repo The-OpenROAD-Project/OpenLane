@@ -32,7 +32,7 @@ set_replace_density_cmd $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_INITIAL_PLACEMENT) } {
 	set_replace_overflow_cmd 0.9
-	set_replace_initial_place_max_iter_cmd 20
+	set_replace_initial_place_max_iter_cmd 5
 }
 
 if { $::env(PL_TIME_DRIVEN) } {
