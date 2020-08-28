@@ -52,7 +52,16 @@ jobs:
       env: TEST_SET=aes_cipher
     - name: "y_huff"
       env: TEST_SET=y_huff
-
+    - name: "cic_decimator"
+      env: TEST_SET=cic_decimator
+    - name: "blabla"
+      env: TEST_SET=blabla
+    allow_failures:
+    - name: "cic_decimator"
+      env: TEST_SET=cic_decimator
+    - name: "blabla"
+      env: TEST_SET=blabla
+      
 install:
   - sh travisCI/travisBuild.sh
 
