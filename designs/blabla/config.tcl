@@ -3,7 +3,7 @@ set ::env(DESIGN_NAME) "blabla"
 set ::env(VERILOG_FILES) "./designs/blabla/src/blabla.v"
 set ::env(SDC_FILE) "./designs/blabla/src/blabla.sdc"
 
-set ::env(CLOCK_PERIOD) "25.0"
+set ::env(CLOCK_PERIOD) "65.0"
 set ::env(CLOCK_PORT) "clk"
 
 

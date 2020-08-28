@@ -4,7 +4,7 @@ set ::env(SYNTH_STRATEGY)    2
 #Routing
 
 set ::env(SYNTH_STRATEGY) 2
-set ::env(CLOCK_PERIOD) "10.000"
+set ::env(CLOCK_PERIOD) "18.000"
 
 
 
