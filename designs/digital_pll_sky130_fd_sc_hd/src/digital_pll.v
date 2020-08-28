@@ -20,7 +20,7 @@
 `include "ring_osc2x13.v"
 `include "cells.v"
 
-module digital_pll(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco, ext_trim);
+module digital_pll_sky130_fd_sc_hd(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco, ext_trim);
 
     input	reset;		// Sense positive reset
     input	extclk_sel;	// External clock select (acts as 2nd reset)

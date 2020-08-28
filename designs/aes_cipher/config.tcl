@@ -1,5 +1,5 @@
 # Design
-set ::env(DESIGN_NAME) "aes_cipher_top"
+set ::env(DESIGN_NAME) "aes_cipher"
 
 set ::env(VERILOG_FILES) [glob ./designs/aes_cipher/src/*.v]
 
