@@ -95,6 +95,9 @@ assign output_tvalid = input_tvalid & cycle_reg == 0;
 
 genvar k;
 integer i;
+integer j;
+integer l;
+integer v;
 
 initial begin
     for (i = 0; i < N; i = i + 1) begin
@@ -131,15 +134,15 @@ for (k = 0; k < N; k = k + 1) begin : comb
     reg [REG_WIDTH-1:0] delay_reg[M-1:0];
 
     initial begin
-        for (i = 0; i < M; i = i + 1) begin
-            delay_reg[i] <= 0;
+        for (j = 0; j < M; j = j + 1) begin
+            delay_reg[j] <= 0;
         end
     end
 
     always @(posedge clk) begin
         if (rst) begin
-            for (i = 0; i < M; i = i + 1) begin
-                delay_reg[i] <= 0;
+            for (l = 0; l < M; l = l + 1) begin
+                delay_reg[l] <= 0;
             end
             comb_reg[k] <= 0;
         end else begin
@@ -152,7 +155,7 @@ for (k = 0; k < N; k = k + 1) begin : comb
                     comb_reg[k] <= $signed(comb_reg[k-1]) - $signed(delay_reg[M-1]);
                 end
 
-                for (i = 0; i < M-1; i = i + 1) begin
+                for (v = 0; v < M-1; v = v + 1) begin
                     delay_reg[i+1] <= delay_reg[i];
                 end
             end
