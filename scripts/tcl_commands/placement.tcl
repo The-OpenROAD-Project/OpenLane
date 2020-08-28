@@ -72,7 +72,11 @@ proc detailed_placement {args} {
 }
 proc add_macro_placement {args} {
 	puts_info " Adding Macro Placement..."
-	try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] >> $::env(TMP_DIR)/macro_placements.cfg
+	set ori "NONE"
+	if { [llength $args] == 4 } {
+		set ori [lindex $args 3]
+	}
+	try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placements.cfg
 }
 
 proc manual_macro_placement {args} {
