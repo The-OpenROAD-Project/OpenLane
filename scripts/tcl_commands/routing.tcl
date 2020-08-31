@@ -96,9 +96,41 @@ proc ins_fill_cells_or {args} {
 
 }
 
+proc power_routing {args} {
+	TIMER::timer_start
+	puts_info "Routing top-level power"
+	set options {\
+		{-lef optional}\
+		{-def optional}\
+		{-power optional}\
+		{-ground optional}\
+		{-output_def optional}\
+		{-extra_args optional}\
+	}
+	set flags {}
+	parse_key_args "power_routing" args arg_values $options flags_map $flags
+
+	set_if_unset arg_values(-lef) $::env(MERGED_LEF)
+	set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+	set_if_unset arg_values(-power) $::env(VDD_PIN)
+	set_if_unset arg_values(-ground) $::env(GND_PIN)
+	set_if_unset arg_values(-output_def) $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).power_routed.def
+	set_if_unset arg_values(-extra_args) ""
+
+
+	try_catch python3 $::env(SCRIPTS_DIR)/power_route.py\
+		--input-lef $arg_values(-lef)\
+		--input-def $arg_values(-def)\
+		--core-vdd-pin $arg_values(-power)\
+		--core-gnd-pin $arg_values(-ground)\
+		-o $arg_values(-output_def)\
+		{*}$arg_values(-extra_args) |& tee $::env(LOG_DIR)/routing/power_routed.log $::env(TERMINAL_OUTPUT)
+	set_def $arg_values(-output_def)
+}
+
 proc run_routing {args} {
 	puts_info "Routing..."
-	
+
 # |----------------------------------------------------|
 # |----------------   5. ROUTING ----------------------|
 # |----------------------------------------------------|
@@ -180,7 +212,7 @@ proc ins_diode_cells {args} {
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_diodes.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/diodes.log
 
 
-	
+
 	if { $::env(CHECK_DIODE_PLACEMENT) == 1 } {
 		check_diode_placement
 	}

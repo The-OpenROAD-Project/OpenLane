@@ -56,6 +56,8 @@ if { !$::env(PL_ROUTABILITY_DRIVEN) } {
 	set_replace_routability_max_inflation_iter_cmd 10
 }
 
+# set_replace_init_density_penalty_factor_cmd 0.001
+
 # set_replace_pad_right_cmd 1
 if { ! $::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_INITIAL_PLACEMENT) } {
     replace_initial_place_cmd

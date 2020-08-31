@@ -79,7 +79,7 @@ for port in ports:
 
 if None in [VDD, GND]:  # and not --create-pg-ports
     print("Error: No power ports found at the top-level. Make sure that they exist\
-          and are have the USE POWER|GROUND property or they match the argumens\
+          and have the USE POWER|GROUND property or they match the argumens\
           specified with --power-port and --ground-port")
     exit(1)
 

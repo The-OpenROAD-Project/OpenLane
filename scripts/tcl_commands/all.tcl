@@ -745,7 +745,7 @@ proc label_macro_pins {args} {
     --netlist-def $arg_values(-netlist_def)\
     --pad-pin-name $arg_values(-pad_pin_name)\
     -o $output_def\
-    {*}$extra_args |& tee $::env(TERMINAL_OUTPUT)
+    {*}$extra_args |& tee $::env(LOG_DIR)/label_macro_pins.log $::env(TERMINAL_OUTPUT)
 
 }
 

@@ -61,7 +61,7 @@ proc write_powered_verilog {args} {
 		-v $arg_values(-power) \
 		-g $arg_values(-ground) \
 		-o $arg_values(-output_def) \
-		|& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/connect_power_pins_explicitly.log
+		|& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
 
 	write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)
 }
