@@ -28,8 +28,8 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ioPlacer::set_hor_metal_layer [expr $::env(FP_IO_HMETAL) + 1]
-ioPlacer::set_ver_metal_layer [expr $::env(FP_IO_VMETAL) + 1]
+ioPlacer::set_hor_metal_layer $::env(FP_IO_HMETAL)
+ioPlacer::set_ver_metal_layer $::env(FP_IO_VMETAL)
 
 puts "\[INFO\]: Vertical Metal Layer: [ioPlacer::get_ver_metal_layer]"
 puts "\[INFO\]: Horizontal Metal Layer: [ioPlacer::get_hor_metal_layer]"
