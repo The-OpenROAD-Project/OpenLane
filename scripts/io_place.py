@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser(description='''
 Places the IOs according to an input file. Supports regexes.
 File format:
 #N|#S|#E|#W
-pin1_regex (low co-ordinates to high co-ordinates; e.g., bot to top)
+pin1_regex (low co-ordinates to high co-ordinates; e.g., bot to top and left to right)
 pin2_regex
 ...
 
@@ -77,6 +77,12 @@ parser.add_argument('--length-mult', '-lm',
                     default=2,
                     help='')
 
+parser.add_argument('--reverse', '-rev',
+                    choices=['N', 'E', 'S', 'W'],
+                    nargs='+',
+                    required=False,
+                    default=[],
+                    help='')
 # TODO
 # width, length, and extension multipliers
 
@@ -94,6 +100,9 @@ h_width_mult = int(args.hor_width_mult)
 v_width_mult = int(args.ver_width_mult)
 
 length_mult = int(args.length_mult)
+
+reverse_arr = args.reverse
+reverse_arr = ["#"+rev for rev in reverse_arr]
 
 def getGrid(origin, count, step):
     tracks = []
@@ -153,10 +162,14 @@ if config_file_name is not None and config_file_name != "":
 
             if cur_side is not None and token[0] != "#":
                 pin_placement_cfg[cur_side].append(token)
-            elif token not in ["#N", "#E", "#S", "#W"]:
-                print("Valid sides are #N, #E, #S, or #W. Please set a side first before listing pins")
+            elif token not in ["#N", "#E", "#S", "#W", "#NR", "#ER", "#SR", "#WR"]:
+                print("Valid sides are #N, #E, #S, or #W. Append R for reversing the default order.",
+                      "Please make sure you have set a valid side first before listing pins")
                 sys.exit(1)
             else:
+                if len(token) == 3:
+                    token = token[0:2]
+                    reverse_arr.append(token)
                 cur_side = token
 
 print(pin_placement_cfg)
@@ -178,54 +191,55 @@ V_LAYER = tech.findRoutingLayer(v_layer_index)
 H_WIDTH = h_width_mult * H_LAYER.getWidth()
 V_WIDTH = v_width_mult * V_LAYER.getWidth()
 
-
-print(H_WIDTH)
-print(V_WIDTH)
-
 LENGTH = length_mult*max(V_WIDTH, H_WIDTH)
 
 print("Top-level design name:", top_design_name)
 
-pin_placement = {"#N": [], "#E": [], "#S": [], "#W": []}
 bterms = block_top.getBTerms()
 bterms_enum = []
 for bterm in bterms:
     pin_name = bterm.getName()
     bterms_enum.append((pin_name, bterm))
 
+# sort them "humanly"
 bterms_enum.sort(key=natural_keys)
-print(bterms_enum)
-bterms = []
-for bterm in bterms_enum:
-    bterms.append(bterm[1])
+bterms = [bterm[1] for bterm in bterms_enum]
 
-# sorted properly
-for bterm in bterms:
-    pin_name = bterm.getName()
-    matches = []
-    for side in pin_placement_cfg:
-        for regex in pin_placement_cfg[side]:
-            regex += "$"  # anchor
+pin_placement = {"#N": [], "#E": [], "#S": [], "#W": []}
+bterm_regex_map = {}
+for side in pin_placement_cfg:
+    for regex in pin_placement_cfg[side]:  # going through them in order
+        regex += "$"  # anchor
+        for bterm in bterms:
+            # if a pin name matches multiple regexes, their order will be
+            # arbitrary. More refinement requires more strict regexes (or just
+            # the exact pin name).
+            pin_name = bterm.getName()
             if re.match(regex, pin_name) is not None:
-                matches.append((side, regex))
-                print(regex, "matched", pin_name)
+                if bterm in bterm_regex_map:
+                    print("Warning: Multiple regexes matched", pin_name,
+                          ". Those are", bterm_regex_map[bterm], "and", regex)
+                    print("Only the first one is taken into consideration.")
+                    continue
+                    # sys.exit(1)
+                bterm_regex_map[bterm] = regex
+                pin_placement[side].append(bterm)  # to maintain the order
 
-    if len(matches) > 1:
-        print("Error: Multiple regexes matched for", pin_name, ". Those are", matches)
+unmatched_bterms = [bterm for bterm in bterms if bterm not in bterm_regex_map]
+
+if len(unmatched_bterms) > 0:
+    print("Warning: Some pins weren't matched by the config file")
+    print("Those are:", [bterm.getName() for bterm in unmatched_bterms])
+    if True:
+        print("Assigning random sides to the above pins")
+        for bterm in unmatched_bterms:
+            random_side = random.choice(list(pin_placement.keys()))
+            pin_placement[random_side].append(bterm)
+    else:
         sys.exit(1)
-    elif len(matches) == 0:
-        print("Warning: No regexes matched for", pin_name)
-        if True:
-            print("Assigning to a random side")
-            matches.append((random.choice(list(pin_placement.keys())), ".*"))
-        else:
-            sys.exit(1)
-
-    matched_regex = matches[0]
-    pin_placement[matched_regex[0]].append(bterm)
 
 
-assert len(bterms) == len(pin_placement["#N"] + pin_placement["#E"] + pin_placement["#S"] + pin_placement["#W"])
+assert len(block_top.getBTerms()) == len(pin_placement["#N"] + pin_placement["#E"] + pin_placement["#S"] + pin_placement["#W"])
 
 # generate slots
 
@@ -250,6 +264,9 @@ block_top.findTrackGrid(V_LAYER).getGridPatternX(0, origin, count, step)
 origin, count, step = odb.get_int(origin),  odb.get_int(count), odb.get_int(step)
 
 v_tracks = getGrid(origin, count, step)
+
+for rev in reverse_arr:
+    pin_placement[rev].reverse()
 
 # create the pins
 for side in pin_placement:
