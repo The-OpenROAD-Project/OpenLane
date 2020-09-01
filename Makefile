@@ -58,7 +58,7 @@ clone-open_pdks: check-env
 		rm -rf open_pdks && \
 		git clone https://github.com/RTimothyEdwards/open_pdks.git open_pdks && \
 		cd open_pdks && \
-	       	git checkout -qf e90095abe0b1e577b77c66d0179968fc6a553389	
+	       	git checkout -qf 52f78fa08f91503e0cff238979db4589e6187fdf	
 
 install-open_pdks: check-env
 	cd $(PDK_ROOT)/open_pdks && \
