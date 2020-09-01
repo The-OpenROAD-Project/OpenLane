@@ -17,6 +17,31 @@ proc init_floorplan_or {args} {
         set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).openroad.log
+
+	set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
+	  set ::env(CORE_AREA) [read $die_area_file]
+	close $die_area_file
+
+	puts $::env(CORE_AREA)
+
+	set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
+	set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
+
+	puts_info "Core area width: $core_width"
+	puts_info "Core area height: $core_height"
+
+	if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
+	  $core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
+	    puts_warn "Current core area is too small for a power grid"
+	    puts_warn "Minimizing the power grid!!!!"
+	    
+	    set ::env(FP_PDN_VOFFSET) [expr {$core_width/6.0}]
+	    set ::env(FP_PDN_HOFFSET) [expr {$core_height/6.0}]
+
+	    set ::env(FP_PDN_VPITCH) [expr {$core_width/3.0}]
+	    set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
+	  }
+
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> $::env(verilog2def_log_file_tag)_openroad_runtime.txt
         set_def $::env(verilog2def_tmp_file_tag)_openroad.def
