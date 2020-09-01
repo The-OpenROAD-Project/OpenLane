@@ -128,7 +128,7 @@ To setup openlane you can build the docker container locally following these isn
     cd ..
 ```
 
-### Pulling a Pre-Built Docker Image
+### Pulling an Auto-Built Docker Image from Dockerhub
 
 Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags)
 
@@ -147,7 +147,7 @@ Issue the following command to open the docker container from /path/to/openlane 
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
 ```
 
-### Running the Pulled Pre-Built Docker Image
+### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
