@@ -60,16 +60,10 @@ jobs:
       env: TEST_SET=aes_core
     - name: "aes"
       env: TEST_SET=aes
-  allow_failures:
-    - name: "salsa20"
-      env: TEST_SET=salsa20
-    - name: "aes_core"
-      env: TEST_SET=aes_core
-    - name: "aes"
-      env: TEST_SET=aes      
+     
 
 install:
   - sh travisCI/travisBuild.sh
 
 script:
-  - bash travisCI/travisTest.sh $TEST_SET  
+  - bash travisCI/travisTest.sh $TEST_SET
