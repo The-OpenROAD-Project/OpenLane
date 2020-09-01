@@ -92,9 +92,10 @@ The following sections are to give you an understanding of what happens under th
 	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
         git checkout e90095abe0b1e577b77c66d0179968fc6a553389
-        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-local-path=$PDK_ROOT
-        make
-        make install-local
+        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT && \
+		cd sky130
+		make
+		make install-local
     ```
 
 **Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
