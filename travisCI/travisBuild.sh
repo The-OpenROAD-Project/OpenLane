@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-git merge develop
+git checkout develop
+git checkout staging
+git merge develop --no-commit 
 make openlane
 mkdir pdks
 export PDK_ROOT=$(pwd)/pdks

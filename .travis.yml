@@ -20,9 +20,11 @@ branches:
     - master
     - staging
     - /^(?i:develop)-.*$/
+git:
+  depth: false
 
 services:
-    - docker
+  - docker
 
 os: 
   - linux
