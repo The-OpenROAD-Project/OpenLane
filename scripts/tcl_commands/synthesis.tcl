@@ -79,9 +79,6 @@ proc run_synthesis {args} {
 #        verilog_to_verilogPower -input $::env(yosys_result_file_tag).v -output $::env(yosys_tmp_file_tag).v -power $::env(VDD_PIN) -ground $::env(GND_PIN) -lef $::env(MERGED_LEF)
 #	exec cp $::env(yosys_tmp_file_tag).v $::env(yosys_result_file_tag).v
 
-	if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
-		check_unmapped_cells
-	}
 
 	if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
 		check_assign_statements

@@ -213,9 +213,6 @@ proc ins_diode_cells {args} {
 
 
 
-	if { $::env(CHECK_DIODE_PLACEMENT) == 1 } {
-		check_diode_placement
-	}
 
 	set_def $::env(TMP_DIR)/placement/diodes.def
 	write_verilog $::env(yosys_result_file_tag)_diodes.v
