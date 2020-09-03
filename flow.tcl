@@ -46,7 +46,6 @@ proc run_non_interactive_mode {args} {
 	run_magic_drc
 
 	run_magic_spice_export
-	run_lvs
 
 	if {  [info exists flags_map(-save) ] } {
 		if { [info exists arg_values(-save_path)] } {
@@ -68,6 +67,8 @@ proc run_non_interactive_mode {args} {
 					-tag $::env(RUN_TAG)
 			}
 	}
+
+	run_lvs; # requires run_magic_spice_export
 
 	run_magic_antenna_check; # to verify the above and get a final report
 }
