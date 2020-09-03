@@ -64,6 +64,8 @@ jobs:
     - name: "aes"
       env: TEST_SET=aes
      
+before_install:
+  - sh travisCI/travisAutoMerge.sh
 
 install:
   - sh travisCI/travisBuild.sh
