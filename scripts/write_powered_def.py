@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import argparse
 import opendbpy as odb
 
@@ -71,10 +72,10 @@ ports = block.getBTerms()
 
 for port in ports:
     if port.getSigType() == "POWER" or port.getName() == power_port_name:
-        print("Found port", port.getName(), "of type POWER")
+        print("Found port", port.getName(), "of type", port.getSigType())
         VDD = port
     elif port.getSigType() == "GROUND" or port.getName() == ground_port_name:
-        print("Found port", port.getName(), "of type GROUND")
+        print("Found port", port.getName(), "of type", port.getSigType())
         GND = port
 
 if None in [VDD, GND]:  # and not --create-pg-ports
@@ -95,20 +96,31 @@ for cell in cells:
     iterms = cell.getITerms()
     VDD_ITERM = None
     GND_ITERM = None
+    VDD_ITERM_BY_NAME = None
+    GND_ITERM_BY_NAME = None
     for iterm in iterms:
         if iterm.getSigType() == "POWER":
             VDD_ITERM = iterm
         elif iterm.getSigType() == "GROUND":
             GND_ITERM = iterm
-        else:
-            print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as power nor ground")
-            print("Warning: Attempting to match power pins by name (using top-level port name) for cell:", cell.getName())
-            if iterm.getMTerm().getName() == power_port_name:  # note **PORT**
-                print("Found", power_port_name, "using that as a power pin")
-                VDD_ITERM = iterm
-            elif iterm.getMTerm().getName() == ground_port_name:  # note **PORT**
-                print("Found", ground_port_name, "using that as a ground pin")
-                GND_ITERM = iterm
+        elif iterm.getMTerm().getName() == power_port_name:
+            VDD_ITERM_BY_NAME = iterm
+        elif iterm.getMTerm().getName() == ground_port_name:  # note **PORT**
+            GND_ITERM_BY_NAME = iterm
+
+    if VDD_ITERM is None:
+        print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as power")
+        print("Warning: Attempting to match power pin by name (using top-level port name) for cell:", cell.getName())
+        if VDD_ITERM_BY_NAME is not None:  # note **PORT**
+            print("Found", power_port_name, "using that as a power pin")
+            VDD_ITERM = VDD_ITERM_BY_NAME
+
+    if GND_ITERM is None:
+        print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as ground")
+        print("Warning: Attempting to match ground pin by name (using top-level port name) for cell:", cell.getName())
+        if GND_ITERM_BY_NAME is not None:  # note **PORT**
+            print("Found", ground_port_name, "using that as a ground pin")
+            GND_ITERM = GND_ITERM_BY_NAME
 
     if None in [VDD_ITERM, GND_ITERM]:
         print("Warning: not all power pins found for cell:", cell.getName())
