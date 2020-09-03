@@ -22,6 +22,8 @@ import datetime
 import argparse
 import os
 import pandas as pd
+import re
+import copy
 from collections import OrderedDict
 
 from scripts.report.report import Report
@@ -78,12 +80,14 @@ else:
         designs = list(OrderedDict.fromkeys(args.designs))
 
 excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
-rem_designs = designs
+
 
 
 for excluded_design in excluded_designs:
         if excluded_design in designs:
                 designs.remove(excluded_design)
+
+rem_designs = copy.deepcopy(designs)
 
 num_workers = args.threads
 config = args.config_tag
@@ -166,7 +170,7 @@ if args.print_rem is not None:
 
 def run_design(designs_queue):
         while not designs_queue.empty():
-                design, config, tag= designs_queue.get(timeout=3)  # 3s timeout
+                design, config, tag,design_name= designs_queue.get(timeout=3)  # 3s timeout
                 run_path = utils.get_run_path(design=design, tag=tag)
                 command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 log.info('{design} {tag} running'.format(design=design, tag=tag))
@@ -185,7 +189,7 @@ def run_design(designs_queue):
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)
 
-                report = Report(design, tag, params).get_report()
+                report = Report(design, tag, design_name,params).get_report()
                 report_log.info(report)
         
                 with open(run_path + "final_report.txt", "w") as report_file:
@@ -208,14 +212,14 @@ def run_design(designs_queue):
 
                 if args.clean:
                         log.info('{design} {tag} Cleaning tmp Directory..'.format(design=design, tag=tag))
-                        moveUnPadded_cmd = "cp ./designs/{design}/runs/{tag}/tmp/merged_unpadded.lef ./designs/{design}/runs/{tag}/results/".format(
-                                design=design,
+                        moveUnPadded_cmd = "cp {run_path}/tmp/merged_unpadded.lef {run_path}/results/".format(
+                                run_path=run_path,
                                 tag=tag
                         )
                         subprocess.check_output(moveUnPadded_cmd.split())
 
-                        clean_cmd = "rm -rf ./designs/{design}/runs/{tag}/tmp/".format(
-                                design=design,
+                        clean_cmd = "rm -rf {run_path}/tmp/".format(
+                                run_path=run_path,
                                 tag=tag
                         )
                         subprocess.check_output(clean_cmd.split())
@@ -225,18 +229,20 @@ def run_design(designs_queue):
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
                         if 'all' in tarList: 
-                                tarAll_cmd = "tar -cvzf ./designs/{design}/runs/{design}_{tag}.tar.gz ./designs/{design}/runs/{tag}/".format(
-                                        design=design,
+                                tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
+                                        run_path=run_path,
+                                        design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tarAll_cmd.split())
                                 
                         else:
-                                tarString = "tar -cvzf ./designs/{design}/runs/{design}_{tag}.tar.gz"
+                                tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
                                 for dirc in tarList:
-                                        tarString+=  " ./designs/{design}/runs/{tag}/"+dirc
+                                        tarString+=  " {run_path}"+dirc
                                 tar_cmd = tarString.format(
-                                        design=design,
+                                        run_path=run_path,
+                                        design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tar_cmd.split())
@@ -245,9 +251,8 @@ def run_design(designs_queue):
                 if args.delete:                
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
                         
-                        deleteDirectory = "rm -rf ./designs/{design}/runs/{tag}/".format(
-                                design=design,
-                                tag=tag
+                        deleteDirectory = "rm -rf {run_path}".format(
+                                run_path=run_path
                         )
                         subprocess.check_output(deleteDirectory.split())
 
@@ -262,8 +267,27 @@ def run_design(designs_queue):
 def addCellPerMMSquaredOverCoreUtil(filename):
         data = pd.read_csv(filename, error_bad_lines=False)
         df = pd.DataFrame(data)
-        df.insert(5, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
+        df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
         df.to_csv(filename)
+
+def get_design_name(design, config):
+        design_path= utils.get_design_path(design=design)
+        if design_path is None:
+            print("{design} not found, skipping...".format(design=design))
+            return "INVALID DESIGN PATH"
+        config_file = "{design_path}/{config}.tcl".format(
+                design_path=design_path,
+                config=config,
+        )
+        config_file_opener = open(config_file, "r")
+        configs = config_file_opener.read()
+        config_file_opener.close()
+        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
+        for name in re.findall(pattern, configs):
+                return name.replace("\"","")
+        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
+        return "INVALID DESIGN PATH"
+
 
 
 que = queue.Queue()
@@ -277,7 +301,7 @@ if regression is not None:
         if base_path is None:
             print("{design} not found, skipping...".format(design=design))
             continue
-
+        design_name= get_design_name(design, config)
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -301,11 +325,12 @@ if regression is not None:
                     base_path=base_path,
                     config_tag=config_tag,
                     )
-            que.put((design, config_tag, config_tag))
+            que.put((design, config_tag, config_tag,design_name))
 else:
     for design in designs:
         default_config_tag = "config_{tag}".format(tag=tag)
-        que.put((design, config, default_config_tag))
+        design_name= get_design_name(design, config)
+        que.put((design, config, default_config_tag,design_name))
 
 
 workers = []

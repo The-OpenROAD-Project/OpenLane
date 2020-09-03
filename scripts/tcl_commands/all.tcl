@@ -152,6 +152,11 @@ proc prep {args} {
 	}
 	set src_files ""
 
+	set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
+	if { ![file exists $::env(DESIGN_DIR)] } {
+		set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)/]
+	}
+
 	if { [info exists flags_map(-init_design_config)] } {
 		set config_tag "config"
 		if { [info exists arg_values(-tag) ] } {
@@ -181,10 +186,6 @@ proc prep {args} {
 	}
 
 	set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
-	set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
-	if { ![file exists $::env(DESIGN_DIR)] } {
-		set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)/]
-	}
 
 	if { [info exists arg_values(-config_file)] } {
 	  set ::env(DESIGN_CONFIG) $arg_values(-config_file)

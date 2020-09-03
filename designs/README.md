@@ -110,21 +110,12 @@ The following is the list of flags used with the script:
             <code>--designs | -d &lt;design1 design2 design3 ...&gt; </code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the designs to create/replicate the configs for. <br> Default is to update all designs under designs/
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>--root | -r &lt;dirctory&gt; </code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Sets the root directory. The root should have the following folders under it: designs and scripts. <br> Default is the assumption that the script is called from the openlane root. 
+            Specifies the designs to create/replicate the configs for. same as -design argument in flow.tcl <br> Default is to update all designs under designs/
         </td>
     </tr>
     <tr>
         <td align="center">
-            <code>--pdkFrom | -pf &lt;PDK&gt;</code> <br> (Optional)
+            <code>--from-pdk | -fp &lt;PDK&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
             The name of the PDK that the replicated design configuration belongs to. <br> if not specified along with from-std-cell-lib, the script will create a new configuration file for (pdkTo,to_std_cell_lib) that is empty.
@@ -142,7 +133,7 @@ The following is the list of flags used with the script:
     <tr>
         </tr>
         <td align="center">
-            <code>--pdkTo | -pt &lt;PDK&gt;</code> <br> (Required)
+            <code>--to-pdk | -tp &lt;PDK&gt;</code> <br> (Required)
         </td>
         <td align="justify">
             The name of the PDK that the created design configurations belongs to.
@@ -182,7 +173,7 @@ The following is the list of flags used with the script:
             <code>--designs | -d &lt;design1 design2 design3 ...&gt; </code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the designs to update the configs for. <br> Default is to update all designs that exist in the given log file (_best.csv)
+            Specifies the designs to update the configs for. Same us -design in flow.tcl. <br> Default is to update all designs that exist in the given log file (_best.csv)
         </td>
     </tr>
     <tr>
@@ -205,7 +196,7 @@ The following is the list of flags used with the script:
     <tr>
         </tr>
         <td align="center">
-            <code>--std-cell-lib | -pv &lt;STD_CELL_LIBRARY&gt;</code> <br> (Optional)
+            <code>--std-cell-lib | -scl &lt;STD_CELL_LIBRARY&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
             The name of the STD_CELL_LIBRARY that the updated design(s) configuration belongs to.
@@ -214,7 +205,7 @@ The following is the list of flags used with the script:
       <tr>
         </tr>
         <td align="center">
-            <code>--log | -l &lt;log file&gt;</code> <br> (Required)
+            <code>--best_results | -b &lt;log file&gt;</code> <br> (Required)
         </td>
         <td align="justify">
             This is the log file containing the best run for each design in a specific exploration. The log file will be used to determine the name of the configuration file to update from.

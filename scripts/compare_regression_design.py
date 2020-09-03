@@ -28,7 +28,7 @@ parser.add_argument('--regression_results', '-r', action='store', required=True,
                 help="The csv file to be tested")
 
 parser.add_argument('--design', '-d', action='store', required=True,
-                help="The design to compare for between the two scripts")
+                help="The design to compare for between the two scripts. Same as -design in flow.tcl")
 
 parser.add_argument('--output_report', '-o', action='store', required=True,
                 help="The file to print the final report in")

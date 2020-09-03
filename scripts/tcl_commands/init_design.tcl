@@ -14,10 +14,10 @@
 
 
 proc init_design {design_name config_tag src_files} {
-	set src "\$::env(OPENLANE_ROOT)/designs/$design_name/src"
-	set src_dir "$::env(OPENLANE_ROOT)/designs/$design_name/src"
-	set config_path "$::env(OPENLANE_ROOT)/designs/${design_name}/$config_tag.tcl"
-	set base_config_path "$::env(OPENLANE_ROOT)/designs/${design_name}/base_config.tcl"
+	set src "\$::env(DESIGN_DIR)/src"
+	set src_dir "$::env(DESIGN_DIR)/src"
+	set config_path "$::env(DESIGN_DIR)/$config_tag.tcl"
+	set base_config_path "$::env(DESIGN_DIR)/base_config.tcl"
 	puts_info "Creating design src directory $src_dir"
 	exec mkdir -p $src_dir
 	exec touch $config_path
@@ -38,7 +38,7 @@ set ::env(CLOCK_PORT) \"clk\"
 set ::env(CLOCK_NET) \$::env(CLOCK_PORT)
 
 
-set filename \$::env(OPENLANE_ROOT)/designs/\$::env(DESIGN_NAME)/\$::env(PDK)_\$::env(STD_CELL_LIBRARY)_config.tcl
+set filename \$::env(DESIGN_DIR)/\$::env(PDK)_\$::env(STD_CELL_LIBRARY)_config.tcl
 if { \[file exists \$filename\] == 1} {
 	source \$filename
 }

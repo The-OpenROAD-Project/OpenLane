@@ -14,6 +14,7 @@
 
 import argparse
 import subprocess
+import utils.utils as utils
 
 parser = argparse.ArgumentParser(
         description="update configuration of design(s) per given PDK")
@@ -85,9 +86,9 @@ for design in designs:
         continue
 
     print("Updating "+ design + " config...")
-
-    configFileToUpdate = str(root)+"designs/"+str(design)+"/"+str(pdk)+"_"+str(std_cell_library)+"_config.tcl"
-    configFileBest = str(root)+"designs/"+str(design)+"/"+str(designConfigDict[design])+".tcl"
+    base_path = utils.get_design_path(design=design)
+    configFileToUpdate = str(base_path)+"/"+str(pdk)+"_"+str(std_cell_library)+"_config.tcl"
+    configFileBest = str(base_path)+"/"+str(designConfigDict[design])+".tcl"
 
     configFileBestOpener = open(configFileBest, 'r')
     configFileBestData = configFileBestOpener.read().split("\n")
