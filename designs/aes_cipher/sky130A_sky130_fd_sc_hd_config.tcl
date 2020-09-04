@@ -1,6 +1,6 @@
 #Routing
 
-set ::env(FP_CORE_UTIL) 40
+set ::env(FP_CORE_UTIL) 30
 
 
 # Extra

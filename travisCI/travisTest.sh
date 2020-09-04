@@ -18,13 +18,13 @@ export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 echo $PDK_ROOT
 echo $RUN_ROOT
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3  bash -c "python3 run_designs.py -d $(cat $RUN_ROOT/travisCI/$test_set) -t TEST_$test_set -dl -th 20 -b regression_results/benchmark_results/SW_HD.csv -p 30"
+docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3  bash -c "python3 run_designs.py -d $(cat $RUN_ROOT/travisCI/$test_set) -t TEST_$test_set -dl -dt -th 20 -b regression_results/benchmark_results/SW_HD.csv -p 30"
 
-FILE=$RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*_design_test_report.csv
+FILE=$RUN_ROOT/regression_results/TEST_$test_set/TEST_${test_set}_design_test_report.csv
 echo "Verbose Differences with the Benchmark"
-cat $RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*.rpt 
+cat $RUN_ROOT/regression_results/TEST_$test_set/TEST_$test_set*.rpt 
 echo "Full report:"
-cat $RUN_ROOT/regression_results/TEST_$test_set*/TEST_$test_set*_best.csv
+cat $RUN_ROOT/regression_results/TEST_$test_set/TEST_$test_set.csv
 echo "Fail/Pass report:"
 echo "Design,Status,Reason"
 cat $FILE

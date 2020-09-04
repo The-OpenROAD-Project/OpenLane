@@ -2,7 +2,7 @@ set ::env(DESIGN_NAME) "APU"
 
 set ::env(VERILOG_FILES) "./designs/APU/src/APU.v"
 
-set ::env(CLOCK_PERIOD) "10.000"
+set ::env(CLOCK_PERIOD) "17.000"
 set ::env(CLOCK_PORT) "clk"
 
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

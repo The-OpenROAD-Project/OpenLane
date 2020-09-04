@@ -30,8 +30,6 @@ extra =[]
 
 std_cell_library = []
 
-debugFileOpener = open("Debug_Generate_config.txt", "a+")
-
 
 def readContent(regressionFile):
     try:
@@ -46,21 +44,15 @@ def readContent(regressionFile):
                     continue
                 elif line.find("extra") != -1:
                     while regressionFileContent[i][0] != "\"":
-                        debugFileOpener.write("extra: " + regressionFileContent[i]+"\n")
-                        debugFileOpener.write("extra: " + str(i)+"\n")
                         i+=1
                         if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
                             extra.append(regressionFileContent[i])
                 elif line.find("std_cell_library") != -1:
                     while regressionFileContent[i][0] != "\"":
-                        debugFileOpener.write("std_cell_library: " + regressionFileContent[i]+"\n")
-                        debugFileOpener.write("std_cell_library: " + str(i)+"\n")
                         i+=1
                         if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
                             std_cell_library.append(regressionFileContent[i])
                 else:
-                    debugFileOpener.write("other: " + line+"\n")
-                    debugFileOpener.write("other: " + str(i)+"\n")
                     keysList.append(line.split("=")[0])
                     vals = line.split("=")[1]
                     vals = vals[1:-1]
@@ -72,11 +64,7 @@ def readContent(regressionFile):
 
 
 def resolveExpression(valExpression,expressionKeeper):
-    debugFileOpener.write(valExpression)
-    debugFileOpener.write("\n")
     for i in expressionKeeper.keys():
-        debugFileOpener.write(i)
-        debugFileOpener.write("\n")
         valExpression= valExpression.replace(i,expressionKeeper[i])
     return eval(valExpression)
 

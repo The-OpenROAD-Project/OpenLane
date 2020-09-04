@@ -28,7 +28,7 @@ parser.add_argument('--regression_results', '-r', action='store', required=True,
                 help="The csv file to be tested")
 
 parser.add_argument('--design', '-d', action='store', required=True,
-                help="The design to compare for between the two scripts")
+                help="The design to compare for between the two scripts. Same as -design in flow.tcl")
 
 parser.add_argument('--output_report', '-o', action='store', required=True,
                 help="The file to print the final report in")
@@ -49,7 +49,7 @@ def compare_vals(benchmark_value, regression_value):
         return True
     if str(regression_value) == "-1":
         return False
-    if float(benchmark_value) - float(regression_value) > -1: # Allow for tolerance 1
+    if float(benchmark_value) - float(regression_value) >= -1: # Allow for tolerance 1
         return True
     else:
         return False

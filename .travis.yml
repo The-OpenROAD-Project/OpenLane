@@ -17,7 +17,8 @@ language: minimal
 branches:
   only:
     - develop
-    - masterploy
+    - master
+    - staging
     - /^(?i:develop)-.*$/
 
 services:
@@ -36,23 +37,14 @@ jobs:
       env: TEST_SET=typicalTestSet1
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
-    - name: "BM64"
-      env: TEST_SET=BM64
-    - name: "picorv32a"
-      env: TEST_SET=picorv32a
-    - name: "chacha"
-      env: TEST_SET=chacha
+    - name: "aes_cipher"
+      env: TEST_SET=aes_cipher
     - name: "des"
       env: TEST_SET=des
-    - name: "md5"
-      env: TEST_SET=md5
-    - name: "PPU"
-      env: TEST_SET=PPU
-    - name: "Slowest Test Set"
-      env: TEST_SET=slowestTestSet
+
 
 install:
   - sh travisCI/travisBuild.sh
 
 script:
-  - bash travisCI/travisTest.sh $TEST_SET  
+  - bash travisCI/travisTest.sh $TEST_SET

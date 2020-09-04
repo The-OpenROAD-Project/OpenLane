@@ -37,11 +37,13 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-folder <padframe_folder>` |  specifies the `<padframe_folder>` for the padframe generator. The folder should contain the following: `./mag/<mag files>`, `./verilog/<verilog files>`, and optionally `./mag/padframe.cfg`|
 | `save_views` | | Saves the views of a given `run_tag` into the specifies `path`(s).|
 |    | `-tag <run_tag>` |  Specifies the `<run_tag>` from which the views were generated.|
-|    | `[-lef_path <path>]` |  Changes the save path for the lef files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-mag_path <path>]` |  Changes the save path for the mag files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-def_path <path>]` |  Changes the save path for the def files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-gds_path <path>]` |  Changes the save path for the gds files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
-|    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `run directory` under the `design path` specified by the `<run_tag>` <br> Optional flag.|
+|    | `[-lef_path <path>]` |  Changes the save path for the lef files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-mag_path <path>]` |  Changes the save path for the mag files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-def_path <path>]` |  Changes the save path for the def files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-gds_path <path>]` |  Changes the save path for the gds files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-verilog_path <path>]` |  Changes the save path for the verilog files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-spice_path <path>]` |  Changes the save path for the spice files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
+|    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
 | `widen_site_width`   | | generates two new lef files (merged_wider.lef and merged_unpadded_wider.lef) with a widened site width based on the values of `WIDEN_SITE_IS_FACTOR` and `WIDEN_SITE`, more about those in the [configurations/readme.md][13].|
 | `use_widened_lefs`   | | Switches to using the lef files with the widened site width in the flow.|
 | `use_original_lefs`   | | Switches to using the normal lef files in the flow.|
@@ -143,7 +145,7 @@ Most of the following commands' implementation exists in this [file][7]
 | `global_placement` | | Runs global placement on the processed design using RePlace. The resulting file is under `/<run_path>/tmp/placement/` . |
 | `detailed_placement_or` | | Runs detailed placement on the processed design using the openroad app. The resulting file is under `/<run_path>/results/placement/` . |
 | `detailed_placement` | | Runs detailed placement on the processed design using OpenDP. The resulting file is under `/<run_path>/results/placement/` . |
-| `add_macro_placement <macro_name> <x_coordinate> <y_coordinate>` | | Writes a configuration file to be processed by `manual_macro_placement` by setting the initial placement of the macro `<macro_name>` to location (`<x_coordinate>`,`<y_coordinate>`) on the chip. The line written will be appened to this configuration file `/run_path/tmp/macro_placements.cfg`. |
+| `add_macro_placement <macro_name> <x_coordinate> <y_coordinate> [<orientation>]` | | Writes a configuration file to be processed by `manual_macro_placement` by setting the initial placement of the macro `<macro_name>` to location (`<x_coordinate>`,`<y_coordinate>`) on the chip with the option of specifying the `<orientation>` as well. The line written will be appened to this configuration file `/run_path/tmp/macro_placements.cfg`. |
 | `manual_macro_placement [f]` | | Uses the configuration file generated by `add_macro_placement` (`/run_path/tmp/macro_placements.cfg`) to manually initialize the placement of the macros to the locations determined in the file. It works on the currently processed design and it overwrites the `CURRENT_DEF`. if `f` is passed as the first argument, the placement will be fixed and final, and the placement tools will not be allowed to change it.|
 | `basic_macro_placement` | | Runs basic macro placement on the chip level using the openroad app, and it overwrites the `CURRENT_DEF`. |
 | `repair_wire_length`| | Runs resizer overbuffering to limit the wire length given in `MAX_WIRE_LENGTH` using the openroad app. |
@@ -225,19 +227,57 @@ Most of the following commands' implementation exists in this [file][5]
 | `run_lvs` | | Runs an lvs check between an extracted spice netlist (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. |
 
 
-[0]: ./scripts/tcl_commands/all.tcl
-[1]:./scripts/tcl_commands/checkers.tcl
-[2]:./scripts/tcl_commands/cts.tcl
-[3]:./scripts/tcl_commands/floorplan.tcl
-[4]:./scripts/tcl_commands/init_design.tcl
-[5]:./scripts/tcl_commands/lvs.tcl
-[6]:./scripts/tcl_commands/magic.tcl
-[7]:./scripts/tcl_commands/placement.tcl
-[8]:./scripts/tcl_commands/routing.tcl
-[9]:./scripts/tcl_commands/synthesis.tcl
-[10]:./scripts/utils/deflef_utils.tcl
-[11]:./scripts/utils/fake_display_buffer.tcl
-[12]:./scripts/utils/utils.tcl
-[13]: ./configuration/README.md
+## Utility Commands 
+
+Most of the following commands' implementation exists in these files: [deflef][10] and [general][12]
+ 
+| Command      | Flags                   | Description                                           |
+|---------------|------------------------|-----------------------------------------|
+| `remove_pins` | | Removes the pins' section from a given DEF file. |
+|    | `-input <def_file>` | The input DEF file. |
+| `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
+|    | `-input <def_file>` | The input DEF file. |
+| `resize_die` | | Resizes the DIEAREA in a given DEF file to the given size. |
+|    | `-def <def_file>` | The input DEF file. |
+|    | `-area <list>` | The new coordinates of the DIEARA listed as (llx, lly, urx, ury). |
+| `get_instance_position` | | Returns the position of a given instance from the DEF view file. |
+|    | `-instance <instance_name>` | The name of the instance. |
+|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF` of the currently processed design. <br> Optional Flag. |
+| `add_lefs` | | Merges the given `<-src>` LEF files to the existing processed LEF files. |
+|    | `-src <lef_files>` | The input LEF files. |
+| `merge_components` | | Merges the components section of two DEF files. |
+|    | `-input1 <def_file>` | The first DEF file. |
+|    | `-input2 <def_file>` | The second DEF file. |
+|    | `-output <def_file>` | The output DEF file. |
+| `move_pins` | | Moves the PINS section from one DEF file to another. |
+|    | `-from <def_file>` | The input DEF file. |
+|    | `-to <def_file>` | The target DEF file. |
+| `zeroize_origin_lef` | | Zeroizes the origin of all views in a LEF file. |
+|    | `-file <lef_file>` | The input LEF file. |
+| `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
+| `kill_display_buffer` | | Kills the fake display buffer. |
+| `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
+| `try_catch <command>` | | A minimal try_catch block to execute the `<command>`. |
+| `puts_err <text>` | | Prints `[ERROR]: ` followed by the `<text>` in red. |
+| `puts_success <text>` | | Prints `[SUCCESS]: ` followed by the `<text>` in green. |
+| `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |
+| `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
+
+
+
+[0]: ./../scripts/tcl_commands/all.tcl
+[1]:./../scripts/tcl_commands/checkers.tcl
+[2]:./../scripts/tcl_commands/cts.tcl
+[3]:./../scripts/tcl_commands/floorplan.tcl
+[4]:./../scripts/tcl_commands/init_design.tcl
+[5]:./../scripts/tcl_commands/lvs.tcl
+[6]:./../scripts/tcl_commands/magic.tcl
+[7]:./../scripts/tcl_commands/placement.tcl
+[8]:./../scripts/tcl_commands/routing.tcl
+[9]:./../scripts/tcl_commands/synthesis.tcl
+[10]:./../scripts/utils/deflef_utils.tcl
+[11]:./../scripts/utils/fake_display_buffer.tcl
+[12]:./../scripts/utils/utils.tcl
+[13]: ./../configuration/README.md
 
 

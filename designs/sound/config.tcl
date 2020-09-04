@@ -6,7 +6,7 @@ set ::env(DESIGN_NAME) sound
 set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/sound/src/*.v]
 
 # Fill this
-set ::env(CLOCK_PERIOD) "1.5"
+set ::env(CLOCK_PERIOD) "10"
 set ::env(CLOCK_PORT) "clk"
 
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

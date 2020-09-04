@@ -1,7 +1,7 @@
 # Design
 
 # User config
-set ::env(DESIGN_NAME) digital_pll
+set ::env(DESIGN_NAME) digital_pll_sky130_fd_sc_hd
 
 # Change if needed
 set ::env(VERILOG_FILES) ./designs/digital_pll_sky130_fd_sc_hd/src/digital_pll.v

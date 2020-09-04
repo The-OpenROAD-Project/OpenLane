@@ -29,11 +29,11 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN yum install -y csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone magic components
-RUN git clone git://opencircuitdesign.com/magic magic_02082020
+RUN git clone git://opencircuitdesign.com/magic magic_04092020
 
-WORKDIR magic_02082020
+WORKDIR magic_04092020
 
-RUN git checkout 0598f4edf7b9da8987e7bf3b7d6c0e15772f4b0d
+RUN git checkout 05950b16ea4274e429f1ec449976aeae72a3e2fb
 
 # build
 RUN ./configure --prefix=/build && \

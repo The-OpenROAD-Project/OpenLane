@@ -25,11 +25,11 @@ RUN yum install -y csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-
 
 # git clone netgen components
 # RUN git clone https://github.com/RTimothyEdwards/netgen
-RUN git clone git://opencircuitdesign.com/netgen netgen_04082020
+RUN git clone git://opencircuitdesign.com/netgen netgen_22082020
 
-WORKDIR netgen_04082020
+WORKDIR netgen_22082020
 
-RUN git checkout 82be18ec4b106d25e03929aa0111349a88d5f61b
+RUN git checkout 50b0e9cb6572cfa2f96d49556d13e4c445986e0f
 
 # build
 RUN ./configure --prefix=/build && \

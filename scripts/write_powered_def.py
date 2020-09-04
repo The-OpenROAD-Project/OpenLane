@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import sys
 import argparse
 import opendbpy as odb
 
@@ -38,6 +39,8 @@ parser.add_argument('--ground-port', '-g',
 parser.add_argument('--output', '-o',
                     default='output.def', help='Output modified netlist')
 
+parser.add_argument('--ignore-missing-pins', '-q', action='store_true', required=False)
+
 # parser.add_argument('--create-pg-ports',
 #                     help='Create power and ground ports if not found')
 
@@ -47,6 +50,8 @@ def_file_name = args.input_def
 lef_file_name = args.input_lef
 power_port_name = args.power_port
 ground_port_name = args.ground_port
+
+ignore_missing_pins = args.ignore_missing_pins
 
 output_file_name = args.output
 
@@ -67,15 +72,15 @@ ports = block.getBTerms()
 
 for port in ports:
     if port.getSigType() == "POWER" or port.getName() == power_port_name:
-        print("Found port", port.getName(), "of type POWER")
+        print("Found port", port.getName(), "of type", port.getSigType())
         VDD = port
     elif port.getSigType() == "GROUND" or port.getName() == ground_port_name:
-        print("Found port", port.getName(), "of type GROUND")
+        print("Found port", port.getName(), "of type", port.getSigType())
         GND = port
 
 if None in [VDD, GND]:  # and not --create-pg-ports
     print("Error: No power ports found at the top-level. Make sure that they exist\
-          and are have the USE POWER|GROUND property or they match the argumens\
+          and have the USE POWER|GROUND property or they match the argumens\
           specified with --power-port and --ground-port")
     exit(1)
 
@@ -91,15 +96,40 @@ for cell in cells:
     iterms = cell.getITerms()
     VDD_ITERM = None
     GND_ITERM = None
+    VDD_ITERM_BY_NAME = None
+    GND_ITERM_BY_NAME = None
     for iterm in iterms:
         if iterm.getSigType() == "POWER":
             VDD_ITERM = iterm
         elif iterm.getSigType() == "GROUND":
             GND_ITERM = iterm
+        elif iterm.getMTerm().getName() == power_port_name:
+            VDD_ITERM_BY_NAME = iterm
+        elif iterm.getMTerm().getName() == ground_port_name:  # note **PORT**
+            GND_ITERM_BY_NAME = iterm
+
+    if VDD_ITERM is None:
+        print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as power")
+        print("Warning: Attempting to match power pin by name (using top-level port name) for cell:", cell.getName())
+        if VDD_ITERM_BY_NAME is not None:  # note **PORT**
+            print("Found", power_port_name, "using that as a power pin")
+            VDD_ITERM = VDD_ITERM_BY_NAME
+
+    if GND_ITERM is None:
+        print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as ground")
+        print("Warning: Attempting to match ground pin by name (using top-level port name) for cell:", cell.getName())
+        if GND_ITERM_BY_NAME is not None:  # note **PORT**
+            print("Found", ground_port_name, "using that as a ground pin")
+            GND_ITERM = GND_ITERM_BY_NAME
+
     if None in [VDD_ITERM, GND_ITERM]:
         print("Warning: not all power pins found for cell:", cell.getName())
-        print("Warning: ignoring", cell.getName(), "!!!!!!!")
-        continue    # or exit
+        if ignore_missing_pins:
+            print("Warning: ignoring", cell.getName(), "!!!!!!!")
+            continue
+        else:
+            print("Exiting... Use --ignore-missing-pins to ignore such errors")
+            sys.exit(1)
 
     if VDD_ITERM.isConnected() or GND_ITERM.isConnected():
         print("Warning: power pins of", cell.getName(), "are already connected")
