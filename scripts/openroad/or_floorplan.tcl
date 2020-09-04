@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-read_liberty $::env(LIB_SYNTH)
+read_liberty $::env(LIB_SYNTH_COMPLETE)
 
 if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
