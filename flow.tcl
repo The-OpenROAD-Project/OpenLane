@@ -37,10 +37,10 @@ proc run_non_interactive_mode {args} {
 	run_routing
 
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
-		run_or_antenna_check;
+		run_antenna_check
 	    heal_antenna_violators; # modifies the routed DEF
 	}
-	run_or_antenna_check
+	run_antenna_check
 	
 	run_magic
 
