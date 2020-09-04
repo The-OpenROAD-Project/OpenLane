@@ -65,6 +65,8 @@ parser.add_argument('--print_rem', '-p', action='store', default=None,
                 help="Takes a time period, and prints the list of remaining designs periodically based on it")
 parser.add_argument('--disable_timestamp', '-dt',action='store_true', default=False,
                 help="Disables appending the timestamp to the file names and tags.")
+parser.add_argument('--show_output', '-so',action='store_true', default=False,
+                help="Enables showing the ./flow.tcl output into the stdout. If more than one design/more than one configuration is run, this flag will be treated as False, even if specified otherwise.")
                              
 
 args = parser.parse_args()
@@ -86,6 +88,8 @@ excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
 for excluded_design in excluded_designs:
         if excluded_design in designs:
                 designs.remove(excluded_design)
+
+show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
 
 rem_designs = copy.deepcopy(designs)
 
@@ -174,8 +178,23 @@ def run_design(designs_queue):
                 run_path = utils.get_run_path(design=design, tag=tag)
                 command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 log.info('{design} {tag} running'.format(design=design, tag=tag))
+                command = ""
+                if show_log_output:
+                        command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                else:
+                        command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                
                 try:
-                        subprocess.check_output(command.split(), stderr=subprocess.PIPE)
+                        if show_log_output:
+                                process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                                while True:
+                                        output = process.stdout.readline()
+                                        if not output:
+                                                break
+                                        if output:
+                                                print (str(output.strip())[2:-1])
+                        else:
+                                subprocess.check_output(command.split(), stderr=subprocess.PIPE)
                 except subprocess.CalledProcessError as e:
                         error_msg = e.stderr.decode(sys.getfilesystemencoding())
                         #print(error_msg)

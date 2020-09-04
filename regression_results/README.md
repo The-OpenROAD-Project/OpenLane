@@ -272,6 +272,15 @@ The script can be used in two ways
             If enabled, the output files and tags will not contain the appended timestamp. <br> Default value: <code>False</code>
         </td>
     </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--show_output | -so </code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, the full output log resulting from running ./flow.tcl will be displayed realtime in the terminal. However, if more than one design or more than one configuration is running at the same time, this flag will be ignored and no live output will be displayed. <br> Default value: <code>False</code>
+        </td>
+    </tr>
 
 </table>
 
