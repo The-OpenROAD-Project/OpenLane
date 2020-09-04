@@ -17,7 +17,7 @@
 proc check_assign_statements {args} {
 
     set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(yosys_result_file_tag).v ]
-  
+
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
         puts_err "Existing..."
