@@ -40,8 +40,8 @@ These variables are optional that can be specified in the design configuration f
 | `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Default: `sky130_fd_sc_hd__clkbuf_4`) |
 | `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Default: `A`) |
 | `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Default: `X`) |
-| `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) 
-
+| `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
+| `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
 
 
 ### Floorplanning

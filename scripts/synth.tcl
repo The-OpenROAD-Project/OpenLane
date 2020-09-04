@@ -151,8 +151,16 @@ set scriptname(2) "scpt_2"
 set scriptname(3) "scpt_3"
 
 
+set vIdirsArgs ""
+if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
+  foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+    lappend vIdirsArgs "-I$dir"
+  }
+  set vIdirsArgs [join $vIdirsArgs]
+}
+
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-  read_verilog [lindex $::env(VERILOG_FILES) $i]
+  read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 hierarchy -check -top $vtop
