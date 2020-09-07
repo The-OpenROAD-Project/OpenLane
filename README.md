@@ -94,7 +94,7 @@ The following sections are to give you an understanding of what happens under th
 	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
         git checkout 52f78fa08f91503e0cff238979db4589e6187fdf
-        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT && \
+        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
 		make install-local
