@@ -39,6 +39,10 @@ if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 load $::env(DESIGN_NAME)
 select top cell
 
+puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
+cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+save
+
 # padding
 
 if { $::env(MAGIC_PAD) } {
@@ -66,6 +70,7 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 
 select top cell
 
+
 # Write gds
 if { $::env(MAGIC_GENERATE_GDS) } {
 	cif *hier write disable
@@ -80,9 +85,6 @@ if { $::env(MAGIC_GENERATE_LEF) } {
 	puts "\[INFO\]: LEF Write Complete"
 }
 
-puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
-# WARNING: changes the name of the cell; keep as last step
-save $::env(magic_result_file_tag).mag
 
 puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
 exit 0

@@ -65,27 +65,30 @@ proc simple_cts {args} {
 
 
 proc run_cts {args} {
-		puts "\[INFO\]: Running TritonCTS..."
-		if {$::env(CLOCK_TREE_SYNTH)} {
-			set_if_unset ::env(CLOCK_NET) $::env(CLOCK_PORT)
-			set ::env(CURRENT_STAGE) cts
-			TIMER::timer_start		
-			
-			set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
-			try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(cts_log_file_tag).log
-			
-			TIMER::timer_stop
-			exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
+	puts "\[INFO\]: Running TritonCTS..."
+	if {$::env(CLOCK_TREE_SYNTH)} {
+		set ::env(CURRENT_STAGE) cts
+		TIMER::timer_start
 
-			set_def $::env(SAVE_DEF)
-			write_verilog $::env(yosys_result_file_tag)_cts.v
-			set_netlist $::env(yosys_result_file_tag)_cts.v
-			if { $::env(LEC_ENABLE) } {
-				logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-			}
-		} else {
-			exec echo "SKIPPED!" >> $::env(cts_log_file_tag).log
+		if {![info exists ::env(CLOCK_NET)]} {
+			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
+
+		set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(cts_log_file_tag).log
+
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
+
+		set_def $::env(SAVE_DEF)
+		write_verilog $::env(yosys_result_file_tag)_cts.v
+		set_netlist $::env(yosys_result_file_tag)_cts.v
+		if { $::env(LEC_ENABLE) } {
+			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+		}
+	} else {
+		exec echo "SKIPPED!" >> $::env(cts_log_file_tag).log
+	}
 
 }
 

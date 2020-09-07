@@ -21,6 +21,7 @@
     - [OpenLANE Output](#openlane-output)
     - [Flow configuration](#flow-configuration)
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
+- [Chip Integration](#chip-integration)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
 
@@ -449,6 +450,12 @@ For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
+# Chip Integration
+
+Using openlane, you can produce a GDSII from a chip RTL. This is done by applying a certain methodology that we follow using our custom scripts and the integrated tools.
+
+To learn more about Chip Integration. Check this [file][26]
+
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
@@ -473,4 +480,5 @@ For more information on design configurations, how to update them, and the need 
 [21]: ./regression_results/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
 [24]: ./doc/PDK_STRUCTURE.md
-[25]: ./advanced_readme.md
+[25]: ./doc/advanced_readme.md
+[26]: ./doc/chip_integration.md

@@ -30,7 +30,7 @@ set_replace_verbose_level_cmd 1
 
 set_replace_density_cmd $::env(PL_TARGET_DENSITY)
 
-if { $::env(PL_INITIAL_PLACEMENT) } {
+if { $::env(PL_BASIC_PLACEMENT) } {
 	set_replace_overflow_cmd 0.9
 	set_replace_initial_place_max_iter_cmd 20
 }
@@ -59,7 +59,7 @@ if { !$::env(PL_ROUTABILITY_DRIVEN) } {
 # set_replace_init_density_penalty_factor_cmd 0.001
 
 # set_replace_pad_right_cmd 1
-if { ! $::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_INITIAL_PLACEMENT) } {
+if { !$::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_BASIC_PLACEMENT) } {
     replace_initial_place_cmd
 }
 

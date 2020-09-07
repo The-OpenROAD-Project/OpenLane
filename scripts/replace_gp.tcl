@@ -29,7 +29,7 @@ if { $::env(PL_TIME_DRIVEN) } {
 	rep import_verilog $::env(yosys_result_file_tag).v
 }
 
-if { $::env(PL_INITIAL_PLACEMENT) } {
+if { $::env(PL_BASIC_PLACEMENT) } {
 	rep set_target_overflow 0.9
 }
 

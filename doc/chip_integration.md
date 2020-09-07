@@ -94,11 +94,11 @@ Given these inputs the following [interactive script][5] script. Mainly, it does
 
 
 
-[0]: ./configuration/README.md
+[0]: ./../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/openroad/src/pdngen/doc/PDN.md
 [4]: Reference_for_interactive_script_core
 [5]: Reference_for_interactive_script_chip
 [6]: Example_padframe_cfg_file
-[7]: ./scripts/topModuleGen/README.md
+[7]: ./../scripts/topModuleGen/README.md
