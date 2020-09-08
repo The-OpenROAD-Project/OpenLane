@@ -19,7 +19,7 @@ THREADS ?= 8
 #location of the PDK inside the docker
 PDK_ROOT ?= /pdks
 #location of PDK outside the docker
-PDK_BASE ?= $(OPENLANE_DIR)/pdks 
+PDK_BASE ?= $(shell pwd)/pdks
 #Image name of the docker
 IMAGE_NAME ?= openlane:rc3
 #The benchmark result to compare against 
