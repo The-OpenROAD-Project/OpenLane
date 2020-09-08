@@ -53,7 +53,7 @@ proc prep_lefs {args} {
     # pad lef
     set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
 
-    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXECLUDE)" |& tee $::env(TERMINAL_OUTPUT)
+    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
@@ -247,6 +247,7 @@ proc prep {args} {
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST
     handle_deprecated_config LIB_MAX LIB_SLOWEST
+    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE; # typo
 
     if { [info exists arg_values(-run_path)] } {
         set run_path "[file normalize $arg_values(-run_path)]/$tag"
