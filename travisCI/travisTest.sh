@@ -14,11 +14,11 @@
 # limitations under the License.
 
 test_set=$1
-export PDK_ROOT=$(pwd)/pdks
+export PDK_BASE=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-echo $PDK_ROOT
+echo $PDK_BASE
 echo $RUN_ROOT
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3  bash -c "python3 run_designs.py -d $(cat $RUN_ROOT/travisCI/$test_set) -t TEST_$test_set -dl -dt -th 20 -b regression_results/benchmark_results/SW_HD.csv -p 30"
+docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_BASE:/pdks -e PDK_ROOT=/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc3  bash -c "python3 run_designs.py -d $(cat $RUN_ROOT/travisCI/$test_set) -t TEST_$test_set -dl -dt -th 20 -b regression_results/benchmark_results/SW_HD.csv -p 30"
 
 FILE=$RUN_ROOT/regression_results/TEST_$test_set/TEST_${test_set}_design_test_report.csv
 echo "Verbose Differences with the Benchmark"
