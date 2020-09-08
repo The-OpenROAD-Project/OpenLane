@@ -1,0 +1,4 @@
+[submodule "pdks"]
+	path = pdks
+	url = https://github.com/efabless/sky130A-prebuilt
+	branch = master
