@@ -42,13 +42,11 @@ For more details about the docker container and its process, the [following inst
 
 You can start setting up the skywater-pdk and openlane by running:
 
+**WARNING:** This will expand to ~7GB for the skywater-pdk.
 ```bash
-    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
 ```
-
-**Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
@@ -68,39 +66,12 @@ The following sections are to give you an understanding of what happens under th
 
 # Setting up the PDK: skywater-pdk
 
-- Clone and build at least one skywater-pdk standard cell Library inside the pdks directory:
-    - To setup one standard cell library only
+The full PDK is already pre-built [here](https://github.com/efabless/sky130A-prebuilt), which is a submodule in this repo. So, run this command:
 
-    ```bash
-        export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-        cd  $PDK_ROOT
-        git clone git@github.com:google/skywater-pdk.git
-        cd skywater-pdk
-        git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
-        git submodule update --init libraries/sky130_fd_sc_hd/latest
-        make sky130_fd_sc_hd
-    ```
-    - To setup other SCLs:
-        - replace sky130_fd_sc_hd with any of the following list:
-            - sky130_fd_sc_hs
-            - sky130_fd_sc_ms
-            - sky130_fd_sc_ls
-            - sky130_fd_sc_hdll
-
-- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
-
-    ```bash
-        cd $PDK_ROOT
-	    git clone git@github.com:RTimothyEdwards/open_pdks.git
-        cd open_pdks
-        git checkout 52f78fa08f91503e0cff238979db4589e6187fdf
-        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
-		cd sky130
-		make
-		make install-local
-    ```
-
-**Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
+**WARNING:** This will expand to ~7GB.
+```bash
+    git submodule update --init pdks/
+```
 
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
@@ -111,8 +82,16 @@ The following sections are to give you an understanding of what happens under th
             - sky130_fd_sc_ls
             - sky130_fd_sc_hdll
 
+
+Alternatively, you can build the PDK yourself locally following [this][27].
+
 Refer to [this][24] for more details on the structure.
 
+**Note:** To use the pdk mag files outside of the openlane docker, you need to create a symbolic link:
+```bash
+    export PDK_BASE==<absolute path to ./pdks>
+    ln -s $PDK_BASE /pdks
+```
 
 # Setting up OpenLANE
 
@@ -145,7 +124,7 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
+    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/pdks -e PDK_ROOT=/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc3
 ```
 
 ### Running the Pulled Auto-Built Docker Image
@@ -153,7 +132,7 @@ If you pulled the docker image from dockerhub instead of building it locally, th
 
 ```bash
     export IMAGE_NAME=efabless/openlane:rc3
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/pdks -e PDK_ROOT=/pdks -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
 **Note: this will mount the openlane directory inside the container.**
@@ -482,3 +461,4 @@ To learn more about Chip Integration. Check this [file][26]
 [24]: ./doc/PDK_STRUCTURE.md
 [25]: ./doc/advanced_readme.md
 [26]: ./doc/chip_integration.md
+[27]: ./doc/Building_PDK.md

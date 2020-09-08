@@ -13,6 +13,9 @@
 # limitations under the License.
 
 # default pdk
+if {![info exists ::env(PDK_ROOT)]} {
+	set ::env(PDK_ROOT) "/pdks"
+}
 set ::env(PDK) "sky130A"
 set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
 set ::env(USE_GPIO_PADS) 0
@@ -27,7 +30,7 @@ set ::env(MAGIC_GENERATE_LEF) 1
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 
-set ::env(USE_ARC_ANTENNA_CHECK) 0
+set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_RESIZER_OVERBUFFER) 0
 
 set ::env(FILL_INSERTION) 1
