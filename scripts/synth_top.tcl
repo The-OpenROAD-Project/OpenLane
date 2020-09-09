@@ -44,6 +44,10 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 hierarchy -check -top $vtop
+if { $::env(SYNTH_FLAT_TOP) } {
+	flatten
+}
+
 setattr -set keep 1
 #synth -top $vtop
 tee -o "$::env(yosys_report_file_tag)_synth.stat" stat
