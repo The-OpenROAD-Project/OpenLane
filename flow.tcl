@@ -37,10 +37,10 @@ proc run_non_interactive_mode {args} {
 	run_routing
 
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
-		run_antenna_check
+		run_antenna_check; # Generate initial antenna report to acquire the list of violating nets in order to fix them
 	    heal_antenna_violators; # modifies the routed DEF
 	}
-	run_antenna_check
+	run_antenna_check; # Generate the final antenna report
 	
 	run_magic
 
