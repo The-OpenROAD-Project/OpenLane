@@ -28,7 +28,9 @@ yosys_log=${path}/logs/synthesis/yosys.log
 magic_drc=${path}/logs/magic/magic.drc
 tapcell_log=${path}/logs/floorplan/tapcell.log
 diodes_log=${path}/logs/placement/diodes.log
-antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
+#old magic directory
+magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
+arc_antenna_report=${path}/reports/routing/antenna.rpt
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
 # Extracting info from Yosys
@@ -97,11 +99,19 @@ else
 fi
 
 # Extracting Antenna Violations
-if [ -f $antenna_report ]; then
-        antenna_violations=$(wc $antenna_report -l | cut -d ' ' -f 1)
+if [ -f $arc_antenna_report ]; then
+        #arc check
+        antenna_violations=$(grep "Number of nets violated:" $arc_antenna_report | tail -1 | sed -r 's/.*[^0-9]//')
         if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
 else
-        antenna_violations=-1;
+        if [ -f $magic_antenna_report ]; then
+                #old magic check
+                antenna_violations=$(wc $magic_antenna_report -l | cut -d ' ' -f 1)
+                if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
+        else
+
+                antenna_violations=-1;
+        fi
 fi
 
 #Extracting Other information from TritonRoute Logs

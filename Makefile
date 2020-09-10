@@ -13,7 +13,7 @@
 # limitations under the License.
 
 OPENLANE_DIR ?= $(shell pwd)
-THREADS ?= 8
+THREADS ?= $(shell nproc)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 
 IMAGE_NAME ?= openlane:rc3

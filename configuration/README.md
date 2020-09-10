@@ -42,6 +42,7 @@ These variables are optional that can be specified in the design configuration f
 | `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Default: `X`) |
 | `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 | `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
+| `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> Default=`0`. |
 
 
 ### Floorplanning
@@ -54,8 +55,8 @@ These variables are optional that can be specified in the design configuration f
 | `DIE_AREA`  | Specific die area to be used in floorplanning. Specified as a 4-corner rectangle. Units in microns<br> (Default: unset)|
 | `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `4`)|
 | `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `3`)|
-| `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. <br> (Default: `efs8hd_tap_1`)|
-| `FP_ENDCAP_CELL`  | The name of the endcap cell during endcap insertion. <br> (Default: `efs8hd_decap_3`)|
+| `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. |
+| `FP_ENDCAP_CELL`  | The name of the endcap cell during endcap insertion. |
 | `FP_PDN_VOFFSET`  | The offset of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `16.32`) |
 | `FP_PDN_VPITCH`  | The pitch of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `153.6`) |
 | `FP_PDN_HOFFSET`  | The offset of the horizontal power stripes on the metal layer 5 in the power distribution network <br> (Default: `16.65`) |
@@ -87,7 +88,7 @@ These variables are optional that can be specified in the design configuration f
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `20` ps)|
-| `CTS_ROOT_BUFFER`| The name of cell inserted at the root of the clock tree. <br> (Default: `efs8hd_clkbuf_16`)|
+| `CTS_ROOT_BUFFER`| The name of cell inserted at the root of the clock tree. |
 | `CLOCK_TREE_SYNTH` | Enable clock tree synthesis for tirtonCTS. <br> (Default: `1`)|
 | `CTS_TOLERANCE` | an integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 
@@ -98,8 +99,8 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_MINLAYER` | The number of lowest layer to be used in routing. <br> (Default: `6`)|
 | `GLB_RT_MAXLAYER` | The number of highest layer to be used in routing. <br> (Default: `6`)|
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.15`)|
-| `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in ef-skywater-s8/EFS8A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_UNIDIRECTIONAL` | Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_ALLOW_CONGESTION` | Allow congestion in the resultign guides. 0 = false, 1 = true <br> (Default: `0`) |
 | `GLB_RT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
@@ -126,7 +127,7 @@ These variables are optional that can be specified in the design configuration f
 |---------------|---------------------------------------------------------------|
 | `PDK` | Specifies the process design kit (PDK). <br> (Default: `sky130A` )|
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
-| `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$STD_CELL_LIBRARY`. <br> See [this][3] PDK config file and [this][4] standard cell library config file as an example . <br> (Default: `$OPENLANE_ROOT/pdks/` )|
+| `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$STD_CELL_LIBRARY`. |
 | `CELL_PAD` | Cell padding; increases the width of cells. <br> (Default: `2` microns -- 2 sites)|
 | `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
 
@@ -140,8 +141,8 @@ These variables are optional that can be specified in the design configuration f
 | `FILL_INSERTION` | Enables fill cells insertion after cts (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. 0 = No diode insertion, 1 = Spray diodes, 2 = insert fake diodes and replace them with real diodes if needed <br> (Default: `1`) |
 | `WIDEN_SITE` | Specifies the new virtual width of the site to be used in all stages up to diode insertion, then switched back to the original site width. It can be either a factor or an absolute value controlled by `WIDEN_SITE_IS_FACTOR` <br> (Default: `1`) |
-| `WIDEN_SITE_IS_FACTOR` | Specifies Whether the given `WIDEN_SITE` should be treated as a factor or an absolute value. 0 = absolute, 1 = factor <br> (Default: `1`) |
-
+| `WIDEN_SITE_IS_FACTOR` | Specifies whether the given `WIDEN_SITE` should be treated as a factor or an absolute value. 0 = absolute, 1 = factor <br> (Default: `1`) |
+| `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `0`)
 ### Checkers
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
@@ -150,8 +151,5 @@ These variables are optional that can be specified in the design configuration f
 | `CHECK_LATCHES_IN_DESIGN` | Checks for any latches or failures in synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `CHECK_DIODE_PLACEMENT` | Checks if there was any failure in legalizing placement after inserting diodes and aborts if any was found.1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
-
-[3]: ../pdks/ef-skywater-s8/EFS8A/libs.tech/config.tcl
-[4]: ../pdks/ef-skywater-s8/EFS8A/libs.tech/config.tcl
 
 

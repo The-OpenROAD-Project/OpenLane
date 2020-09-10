@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Synth defaults
-set ::env(SYNTH_BIN) yosys
-set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/synth.tcl
-set ::env(SYNTH_NO_FLAT) 0
-set ::env(SYNTH_BUFFERING) 1
-set ::env(SYNTH_SIZING) 0
-set ::env(SYNTH_MAX_FANOUT) 5
-set ::env(SYNTH_STRATEGY) 2
-set ::env(CLOCK_BUFFER_FANOUT) 16
-set ::env(SYNTH_READ_BLACKBOX_LIB) 0
-set ::env(SYNTH_TOP_LEVEL) 0
-set ::env(SYNTH_FLAT_TOP) 0
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
 
+if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+	exit 1
+}
 
-set ::env(BASE_SDC_FILE) $::env(OPENLANE_ROOT)/scripts/base.sdc
+# load layers' antenna rules into ARC
+load_antenna_rules
+
+# start checking antennas and generate a detail report
+check_antennas -path $::env(REPORTS_DIR)/routing/

@@ -44,6 +44,9 @@ hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
 hierarchy -auto-top
+if { $::env(SYNTH_FLAT_TOP) } {
+	flatten
+}
 setattr -set keep 1
 stat
 renames -top gold
@@ -72,6 +75,9 @@ hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
 hierarchy -auto-top
+if { $::env(SYNTH_FLAT_TOP) } {
+	flatten
+}
 setattr -set keep 1
 stat
 renames -top gate

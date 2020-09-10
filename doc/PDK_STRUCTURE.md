@@ -34,9 +34,6 @@ This section defines the neccessary variables for PDK configuration file
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `DEF_UNITS_PER_MICRON` | Defines the unit distance microns. Used during floorplanning for proper def file generation. |
-| `PLACE_SITE` | Defines the main site used by the cells. Used during floorplanning to generate the rows. |
-| `PLACE_SITE_WIDTH` | Defines the main site width.Used during floorplanning to generate the rows. |
-| `PLACE_SITE_HEIGHT` | Defines the main site height.Used during floorplanning to generate the rows. |
 | `VDD_PIN` | Defines the power pin of the cells.  |
 | `GND_PIN` | Defines the ground pin of the cells. |
 | `TRACKS_INFO_FILE` | Points to the path of the tracks file. Used by the floorplanner to generate tracks |
@@ -47,6 +44,13 @@ This section defines the neccessary variables for PDK configuration file
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |
 | `FP_TAPCELL_DIST` | The distance between tapcell columns. Used in floorplanning in tapcell insertion. |
+| `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `CTS_SQR_CAP` | Defines the capacitance per square micron, used in CTS. |
+| `CTS_SQR_RES` | Defines the resistance per square micron, used in CTS. |
+| `FP_PDN_RAIL_OFFSET` | Defines the rail offset for met1 used in PDN. <br> Default: `0`. |
+| `FP_PDN_VWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
+| `FP_PDN_HWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
+
 
 ## Standard cell library-specific variables
 
@@ -58,6 +62,9 @@ This section defines the necessary variables to configure a standard cell librar
 | `LIB_SLOWEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. |
 | `LIB_FASTEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. |
 | `LIB_TYPICAL` | Points to the lib file for typical delay calculation during STA. |
+| `PLACE_SITE` | Defines the main site used by the cells. Used during floorplanning to generate the rows. |
+| `PLACE_SITE_WIDTH` | Defines the main site width.Used during floorplanning to generate the rows. |
+| `PLACE_SITE_HEIGHT` | Defines the main site height.Used during floorplanning to generate the rows. |
 | `FP_WELLTAP_CELL` | Defines the tapcell to be used in tapcell insertion. <br> If this is not defiend then tapcell insertion will be skipped but the flow will resume normally |
 | `FP_ENDCAP_CELL` | Defines the decapcell. Inserted during floorplanning at the sides of the design. |
 | `SYNTH_DRIVING_CELL` | Defines the cell to drive the input ports. Used in synthesis |
@@ -76,9 +83,9 @@ This section defines the necessary variables to configure a standard cell librar
 | `CLK_BUFFER` | Defines the clock buffer cell. Used in CTS. |
 | `CLK_BUFFER_INPUT` | Defines the clock buffer cell input port. Used in CTS. |
 | `CLK_BUFFER_OUTPUT` | Defines the clock buffer cell output port. Used in CTS. |
-| `CTS_SQR_CAP` | Defines the capacitance per square micron, used in CTS. |
-| `CTS_SQR_RES` | Defines the resistance per square micron, used in CTS. |
+| `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
+| `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |
 
 ## Tracks Info File
 

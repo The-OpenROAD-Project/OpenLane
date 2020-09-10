@@ -53,7 +53,7 @@ proc prep_lefs {args} {
     # pad lef
     set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
 
-    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXECLUDE)" |& tee $::env(TERMINAL_OUTPUT)
+    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
@@ -247,6 +247,7 @@ proc prep {args} {
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST
     handle_deprecated_config LIB_MAX LIB_SLOWEST
+    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE; # typo
 
     if { [info exists arg_values(-run_path)] } {
         set run_path "[file normalize $arg_values(-run_path)]/$tag"
@@ -597,40 +598,26 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-    # requires a pre-existing report containing a list of cells (-pins?)
-    # that need the real diode in place of the fake diode:
-    # $::env(magic_tmp_file_tag).antenna_violators.rpt
-    # => fixes the routed def
-    if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
-        set report_file [open $::env(magic_report_file_tag).antenna_violators.rpt r]
-        set violators [split [string trim [read $report_file]]]
-        close $report_file
-        # may need to speed this up for extremely huge files using hash tables
-        exec echo $violators >> $::env(TMP_DIR)/vios.txt
-        #foreach violator $violators {
-        #	if { 1 } {; #  VERBOSE
-        #		puts_info "Healing $violator"
-        #	}
-        # try_catch $::env(SCRIPTS_DIR)/heal_antenna_violators.sh $violator
-        #	try_catch sed -i -E "/COMPONENTS/,/END COMPONENTS/ s/(- ANTENNA_${violator}\\S+) $::env(FAKEDIODE_CELL)/\\1 $::env(DIODE_CELL)/" $::env(tritonRoute_result_file_tag).def
-        #}
-        #try_catch sed -i -E "/COMPONENTS/,/END COMPONENTS/ s/(- ANTENNA_${violator}\\S+) $::env(FAKEDIODE_CELL)/\\1 $::env(DIODE_CELL)/g" $::env(tritonRoute_result_file_tag).def
-        #try_catch sed -f <(printf '/COMPONENTS/,/END COMPONENTS/ s/ANTENNA_%s\\S+ $::env(FAKEDIODE_CELL)/\\1ANTENNA_%s\\S+ $::env(DIODE_CELL)/g\n' $(<$::env(TMP_DIR)/vios.txt)) <($::env(tritonRoute_result_file_tag).def) >$::env(tritonRoute_result_file_tag).def
-        #try_catch sed -f <(printf '/COMPONENTS/,/END COMPONENTS/ s/(- ANTENNA_%s\\S+)$::env(FAKEDIODE_CELL)/\\1 $::env(DIODE_CELL)/g/\n' $(<$::env(TMP_DIR)/vios.txt)) $::env(tritonRoute_result_file_tag).def
-        #exec sed -f <(printf '/COMPONENTS/,/END COMPONENTS/ /(- ANTENNA_%s\\S+)/ s/$::env(FAKEDIODE_CELL)/$::env(DIODE_CELL)/g\n' (<$::env(TMP_DIR)/vios.txt)) $::env(tritonRoute_result_file_tag).def
-        #foreach violator $violators {
-        #	if { 1 } {;
-        #		puts_info "Healing $violator"
-        #	}
-        #	set tmpString "'/COMPONENTS/,/END COMPONENTS/ s/(- ANTENNA_${violator}\\S+) $::env(FAKEDIODE_CELL)/\\1 $::env(DIODE_CELL)/'"
-        # try_catch $::env(SCRIPTS_DIR)/heal_antenna_violators.sh $violator
-        #	try_catch sed -i -E $tmpString $::env(tritonRoute_result_file_tag).def
-        #}
-        #exec sed -i '' -e s/Red/$color1/g -e s/Blue/$color2/g {} \;
-        exec python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v $::env(TMP_DIR)/vios.txt -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
-        puts_info "DONE HEALING ANTENNA VIOLATORS"
-
-    }
+	# requires a pre-existing report containing a list of cells (-pins?)
+	# that need the real diode in place of the fake diode:
+	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
+	# => fixes the routed def
+	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
+			#ARC specific		
+			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
+		} else {
+            #Magic Specific
+			set report_file [open $::env(magic_report_file_tag).antenna_violators.rpt r]
+			set violators [split [string trim [read $report_file]]]
+			close $report_file
+			# may need to speed this up for extremely huge files using hash tables
+			exec echo $violators >> $::env(TMP_DIR)/vios.txt
+		}
+		#replace violating cells with real diodes
+		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v $::env(TMP_DIR)/vios.txt -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		puts_info "DONE HEALING ANTENNA VIOLATORS"
+	}
 }
 
 
@@ -792,6 +779,20 @@ proc set_layer_tracks {args} {
 
     try_catch python3 $::env(SCRIPTS_DIR)/setLayerTracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
 
+}
+
+proc run_or_antenna_check {args} {
+
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(LOG_DIR)/routing/or_antenna.log
+
+}
+
+proc run_antenna_check {args} {
+	if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
+		run_or_antenna_check
+	} else {
+		run_magic_antenna_check
+	}
 }
 
 package provide openlane 0.9
