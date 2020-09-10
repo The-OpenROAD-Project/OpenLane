@@ -31,7 +31,7 @@ Make sure to properly configure your macro to get the expected outcome, if it re
 
 If your macro requires special steps or skipping/repeating some steps. Then you should use an [interactive script][2].
 
-If your macro require special power grid setup. Then refer to [this][3] and write your own `pdn.tcl` and point to it by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
+For power routing purposes your macros will require a special `pdn.tcl` each and will have to meet certain area constraints. Check this [section](#power-routing) for more details.
 
 ## Hardening The Core
 
@@ -49,7 +49,7 @@ Add `set ::env(SYNTH_READ_BLACKBOX_LIB) 1`, if you have `::env(VERILOG_FILES_BLA
 
 [Here][0] you can find a list of all the available OpenLANE configuartions.
 
-If your core requires special power grid setup. Then refer to [this][3] and write your own `pdn.tcl` and point to it by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
+For power routing purposes your core will require a special `pdn.tcl` each and will have to meet certain constraints. Check this [section](#power-routing) for more details.
 
 ## Hardening The Full Chip
 
@@ -66,6 +66,7 @@ Therefore, the verilog files shouldn't have any includes in any of your verilog 
 
 Add `set ::env(SYNTH_READ_BLACKBOX_LIB) 1`, if you have `::env(VERILOG_FILES_BLACKBOX)` in your configuration file.
 
+Add `set ::env(SYNTH_FLAT_TOP) 1` to your `config.tcl`. To flatten the padframe, if it's presented in a `chip_io` module.
 
 The following inputs are provided to produce the final GDSII:
 
@@ -87,12 +88,94 @@ Given these inputs the following [interactive script][5] script. Mainly, it does
 -  Replace the components of the floorplan def file with placed components from padframe def file and core def file.
 -  Perform manual placement if desired.
 -  legalize the placement.
+-  Perform `power_routing`.
 -  Route the design.
 -  Perform power routing.
 -  Generate a GDSII file of the routed design.
 -  Run DRC and LVS checks.
 
+## Power_routing
 
+### Macros:
+Each macro in your design should have a special `pdn.tcl` and point to it by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
+
+- All `pdn.tcl` files should contain this special stdcell section, instead of the one in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top levels.
+
+```tcl
+pdngen::specify_grid stdcell {
+    name grid
+    rails {
+	    met1 {width $::env(FP_PDN_RAIL_WIDTH) pitch $::env(PLACE_SITE_HEIGHT) offset $::env(FP_PDN_RAIL_OFFSET)}
+    }
+    straps {
+	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
+    }
+    connect {{met1 met4}}
+}
+```
+
+- If your macro contains other macros inside it. Then make sure to add a `macro` section for each or one for all of them depending on their special configs. The following example is using special `connect` section and different `rails`:
+```tcl
+pdngen::specify_grid macro {
+    orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
+    power_pins "vpwr vpb"
+    ground_pins "vgnd vnb"
+    rails {
+	    met1 {width 0.74 pitch 3.56 offset 0}
+    }
+      straps {
+	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
+    }
+    connect {{met1_PIN_hor met4}}
+}
+```
+
+**WARNING:** only use met1 for rails and met4 for straps.
+
+Refer to [this][3] for more details about the syntax.
+
+- The height of each macro must be greater than or eaqual to the value of `$::env(FP_PDN_HPITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
+
+### Core:
+
+The core as well should have a special `pdn.tcl` pointed to by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
+
+It should have an `stdcell` section that includes a `core_ring` on met4 and met5. It should use met5 and met4 for the straps, and met1 for the rails.
+
+```tcl
+pdngen::specify_grid stdcell {
+    name grid
+    core_ring {
+	    met4 {width 20 spacing 5 core_offset 20}
+	    met5 {width 20 spacing 5 core_offset 20}
+    }
+    rails {
+	    met1 {width $::env(FP_PDN_RAIL_WIDTH) pitch $::env(PLACE_SITE_HEIGHT) offset $::env(FP_PDN_RAIL_OFFSET)}
+    }
+    straps {
+	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
+	    met5 {width $::env(FP_PDN_HWIDTH) pitch $::env(FP_PDN_HPITCH) offset $::env(FP_PDN_HOFFSET)}
+    }
+    connect {{met1 met4} {met4 met5}}
+}
+```
+
+Then for each macro it should have a `macro` section to specify that metal4 pins should be hooked up to the metal5 straps. The follwing is an example for one macro section, specified for a macro called `pll`:
+```
+pdngen::specify_grid macro {
+    instance "pll"
+    power_pins "vpwr"
+    ground_pins "vgnd"
+    blockages "li1 met1 met2 met3 met4"
+    straps { 
+    } 
+    connect {{met4_PIN_ver met5}}
+}
+```
+
+Refer to [this][3] for more details about the syntax.
+
+When you use the `power_routing` command in the chip interactive script, the power pads will be connected to the core ring, and thus the whole chip would be powered.
 
 [0]: ./../configuration/README.md
 [1]: ./OpenLANE_commands.md
