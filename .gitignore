@@ -8,7 +8,6 @@ dummy.guide
 lefRWarning.log
 run.param
 macrocell.list
-default.cvcrc
 *.log
 ./docker_build/build/
 ./docker_build/logs/
@@ -17,3 +16,7 @@ default.cvcrc
 
 # Mac
 .DS_Store
+
+# Sphinx
+*/_build
+
