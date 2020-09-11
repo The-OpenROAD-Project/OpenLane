@@ -90,39 +90,39 @@ GND = GND.getNet()
 print("Power net: ", VDD.getName())
 print("Ground net:", GND.getName())
 
-connection_count = 0
+modified_cells = 0
 cells = block.getInsts()
 for cell in cells:
     iterms = cell.getITerms()
-    VDD_ITERM = None
-    GND_ITERM = None
+    VDD_ITERMS = []
+    GND_ITERMS = []
     VDD_ITERM_BY_NAME = None
     GND_ITERM_BY_NAME = None
     for iterm in iterms:
         if iterm.getSigType() == "POWER":
-            VDD_ITERM = iterm
+            VDD_ITERMS.append(iterm)
         elif iterm.getSigType() == "GROUND":
-            GND_ITERM = iterm
+            GND_ITERMS.append(iterm)
         elif iterm.getMTerm().getName() == power_port_name:
             VDD_ITERM_BY_NAME = iterm
         elif iterm.getMTerm().getName() == ground_port_name:  # note **PORT**
             GND_ITERM_BY_NAME = iterm
 
-    if VDD_ITERM is None:
+    if len(VDD_ITERMS) == 0:
         print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as power")
         print("Warning: Attempting to match power pin by name (using top-level port name) for cell:", cell.getName())
         if VDD_ITERM_BY_NAME is not None:  # note **PORT**
             print("Found", power_port_name, "using that as a power pin")
-            VDD_ITERM = VDD_ITERM_BY_NAME
+            VDD_ITERMS.append(VDD_ITERM_BY_NAME)
 
-    if GND_ITERM is None:
+    if len(GND_ITERMS) == 0:
         print("Warning: No pins in the LEF view of", cell.getName(), " marked for use as ground")
         print("Warning: Attempting to match ground pin by name (using top-level port name) for cell:", cell.getName())
         if GND_ITERM_BY_NAME is not None:  # note **PORT**
             print("Found", ground_port_name, "using that as a ground pin")
-            GND_ITERM = GND_ITERM_BY_NAME
+            GND_ITERMS.append(GND_ITERM_BY_NAME)
 
-    if None in [VDD_ITERM, GND_ITERM]:
+    if len(VDD_ITERMS) == 0 or len(GND_ITERMS) == 0:
         print("Warning: not all power pins found for cell:", cell.getName())
         if ignore_missing_pins:
             print("Warning: ignoring", cell.getName(), "!!!!!!!")
@@ -131,16 +131,27 @@ for cell in cells:
             print("Exiting... Use --ignore-missing-pins to ignore such errors")
             sys.exit(1)
 
-    if VDD_ITERM.isConnected() or GND_ITERM.isConnected():
-        print("Warning: power pins of", cell.getName(), "are already connected")
-        print("Warning: ignoring", cell.getName(), "!!!!!!!")
-        continue    # or exit
+    for VDD_ITERM in VDD_ITERMS:
+        if VDD_ITERM.isConnected():
+            pin_name = VDD_ITERM.getMTerm().getName()
+            cell_name = cell.getName()
+            print("Warning: power pin", pin_name, "of", cell_name, "is already connected")
+            print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
+        else:
+            odb.dbITerm_connect(VDD_ITERM, VDD)
 
-    odb.dbITerm_connect(VDD_ITERM, VDD)
-    odb.dbITerm_connect(GND_ITERM, GND)
-    connection_count += 1
+    for GND_ITERM in GND_ITERMS:
+        if GND_ITERM.isConnected():
+            pin_name = GND_ITERM.getMTerm().getName()
+            cell_name = cell.getName()
+            print("Warning: ground pin", pin_name, "of", cell_name, "is already connected")
+            print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
+        else:
+            odb.dbITerm_connect(GND_ITERM, GND)
 
-print("Connected", connection_count, "instances to power (Remaining:",
-      len(cells)-connection_count,
+    modified_cells += 1
+
+print("Modified power connections of", modified_cells, "cells (Remaining:",
+      len(cells)-modified_cells,
       ").")
 odb.write_def(block, output_file_name)
