@@ -27,7 +27,7 @@ proc run_non_interactive_mode {args} {
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
-	prep {*}$args
+    prep {*}$args
 
 	run_synthesis
 	run_floorplan
@@ -63,6 +63,11 @@ proc run_non_interactive_mode {args} {
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)
 	}
+    }
+
+    # Physical verification
+
+    run_magic_drc
 
 	# Physical verification
 
@@ -90,8 +95,8 @@ proc run_interactive_mode {args} {
 		prep {*}$args
 	}
 
-	set ::env(TCLLIBPATH) $::auto_path
-	exec tclsh >&@stdout
+    set ::env(TCLLIBPATH) $::auto_path
+    exec tclsh >&@stdout
 }
 
 proc run_magic_drc_batch {args} {
@@ -218,6 +223,6 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	prep {*}$argv
 	run_synth_exploration
 } else {
-	puts_info "Running non-interactively"
-	run_non_interactive_mode {*}$argv
+    puts_info "Running non-interactively"
+    run_non_interactive_mode {*}$argv
 }
