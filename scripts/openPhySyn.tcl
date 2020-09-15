@@ -3,6 +3,7 @@ import_lib $::env(LIB_SYNTH_COMPLETE)
 import_lef $::env(MERGED_LEF_UNPADDED)
 import_def $::env(CURRENT_DEF)
 read_sdc $::env(BASE_SDC_FILE)
+link_design $::env(DESIGN_NAME)
 
 set_wire_rc met1;# 1.0e-03 1.0e-03  # or set_wire_rc <metal layer>
 

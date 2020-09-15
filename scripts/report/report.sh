@@ -23,6 +23,7 @@ tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
 yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
+opt_wns_rpt=${path}/reports/placement/openphysyn_wns.rpt
 HPWL_rpt=${path}/logs/placement/replace.log 
 yosys_log=${path}/logs/synthesis/yosys.log
 magic_drc=${path}/logs/magic/magic.drc
@@ -124,6 +125,10 @@ if ! [[ $vias ]]; then vias=-1; fi
 wns=$(grep "wns" $wns_rpt | sed -r 's/wns //')
 if ! [[ $wns ]]; then wns=-1; fi
 
+#Extracting Info from OpenPhySyn
+opt_wns=$(grep "wns" $opt_wns_rpt | tail -1 |sed -r 's/wns //')
+if ! [[ $opt_wns ]]; then opt_wns=$wns; fi
+
 #Extracting Info from RePlace
 #standalone replace extraction
 #hpwl=$(cat $HPWL_rpt)
@@ -184,7 +189,7 @@ physical_cells=$(((endcaps+tapcells)+diodes));
 
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $wire_length $vias $wns $hpwl"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $wire_length $vias $wns $opt_wns $hpwl"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done
