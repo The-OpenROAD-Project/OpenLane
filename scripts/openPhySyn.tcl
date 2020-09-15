@@ -1,5 +1,4 @@
 #Psn ; # or ./build/Psn if not installed in the global path
-puts "Here"
 import_lib $::env(LIB_SYNTH_COMPLETE)
 import_lef $::env(MERGED_LEF_UNPADDED)
 import_def $::env(CURRENT_DEF)
@@ -22,11 +21,15 @@ repair_timing -capacitance_violations -transition_violations -fanout_violations 
 
 puts "=============== Final Reports ============="
 report_checks
+report_checks > $::env(openphysyn_report_file_tag)_allchecks.rpt
 report_check_types -max_slew -max_capacitance -violators
+report_check_types -max_slew -max_capacitance -violators > $::env(openphysyn_report_file_tag)_violators.rpt
 puts "Capacitance violations: [llength [capacitance_violations]]"
 puts "Transition violations: [llength [transition_violations]]"
 report_wns
+report_wns > $::env(openphysyn_report_file_tag)_wns.rpt
 report_tns
+report_tns > $::env(openphysyn_report_file_tag)_tns.rpt
 
 puts "Final area: [expr round([design_area] * 10E12) ] um2"
 

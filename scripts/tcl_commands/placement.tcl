@@ -141,8 +141,9 @@ proc run_placement {args} {
 	if { $::env(RUN_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
-	
-	run_openPhySyn
+	if { $::env(OPENPHYSYN_OPTIMIZATIONS) == 1} {
+	    run_openPhySyn
+    }
 	detailed_placement
 }
 
