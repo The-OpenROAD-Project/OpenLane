@@ -59,7 +59,7 @@
 
 `timescale 1ns / 10ps
 
-module aes_cipher_top(clk, rst, ld, done, key, text_in, text_out, SE, SI, SO );
+module aes_cipher(clk, rst, ld, done, key, text_in, text_out, SE, SI, SO );
 input		clk, rst;
 input		ld, SE, SI;
 output		done, SO;

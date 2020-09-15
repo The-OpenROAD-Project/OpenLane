@@ -18,4 +18,4 @@ if [[ $# -lt 2 ]]; then
     exit
 fi
 
-sed -ie "/^- [^[:space:]]\+ $1 .\+;$/ s/PLACED/FIXED/g" $2
+sed -i -E "/^.*- [^[:space:]]+ $1 .+;$/ s/PLACED/FIXED/g" $2

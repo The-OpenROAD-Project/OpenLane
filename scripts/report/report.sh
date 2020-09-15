@@ -23,16 +23,18 @@ tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
 yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
-HPWL_rpt=${path}/reports/placement/replace_hpwl.rpt
+HPWL_rpt=${path}/logs/placement/replace.log 
 yosys_log=${path}/logs/synthesis/yosys.log
 magic_drc=${path}/logs/magic/magic.drc
 tapcell_log=${path}/logs/floorplan/tapcell.log
 diodes_log=${path}/logs/placement/diodes.log
-antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
+#old magic directory
+magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
+arc_antenna_report=${path}/reports/routing/antenna.rpt
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
 # Extracting info from Yosys
-cell_count=$(cat ${yosys_rprt} | grep "cells" | sed -r 's/.*[^0-9]//') 
+cell_count=$(cat ${yosys_rprt} | grep "cells" | tail -1 | sed -r 's/.*[^0-9]//') 
 if ! [[ $cell_count ]]; then cell_count=-1; fi
 
 #Extracting runtime info
@@ -97,11 +99,19 @@ else
 fi
 
 # Extracting Antenna Violations
-if [ -f $antenna_report ]; then
-        antenna_violations=$(wc $antenna_report -l | cut -d ' ' -f 1)
+if [ -f $arc_antenna_report ]; then
+        #arc check
+        antenna_violations=$(grep "Number of nets violated:" $arc_antenna_report | tail -1 | sed -r 's/.*[^0-9]//')
         if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
 else
-        antenna_violations=-1;
+        if [ -f $magic_antenna_report ]; then
+                #old magic check
+                antenna_violations=$(wc $magic_antenna_report -l | cut -d ' ' -f 1)
+                if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
+        else
+
+                antenna_violations=-1;
+        fi
 fi
 
 #Extracting Other information from TritonRoute Logs
@@ -115,7 +125,11 @@ wns=$(grep "wns" $wns_rpt | sed -r 's/wns //')
 if ! [[ $wns ]]; then wns=-1; fi
 
 #Extracting Info from RePlace
-hpwl=$(cat $HPWL_rpt)
+#standalone replace extraction
+#hpwl=$(cat $HPWL_rpt)
+
+#openroad replace extraction
+hpwl=$(grep " HPWL: " $HPWL_rpt | tail -1 | sed -E 's/.*HPWL: (\S+).*/\1/')
 if ! [[ $hpwl ]]; then hpwl=-1; fi
 
 #Extracting Info from Yosys logs
@@ -141,7 +155,7 @@ declare -a metrics=(
 metrics_vals=()
 for metric in "${metrics[@]}"; do
         val=$(grep " \+${metric}[^0-9]\+ \+[0-9]\+" $yosys_log | tail -1 | sed -r 's/.*[^0-9]([0-9]+)$/\1/')
-        if ! [[ $val ]]; then val=-1; fi
+        if ! [[ $val ]]; then val=0; fi
         metrics_vals+=("$val")
 done
 

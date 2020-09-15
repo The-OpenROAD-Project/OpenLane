@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if { [file exists $::env(TMP_DIR)/top_level.lef] } {
+if { [info exists ::env(CONTEXTUAL_IO_FLAG_)] } {
 	read_lef $::env(TMP_DIR)/top_level.lef
 	ioPlacer::set_num_slots 2
 }
@@ -28,8 +28,8 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ioPlacer::set_hor_metal_layer [expr $::env(FP_IO_HMETAL) + 1]
-ioPlacer::set_ver_metal_layer [expr $::env(FP_IO_VMETAL) + 1]
+ioPlacer::set_hor_metal_layer $::env(FP_IO_HMETAL)
+ioPlacer::set_ver_metal_layer $::env(FP_IO_VMETAL)
 
 puts "\[INFO\]: Vertical Metal Layer: [ioPlacer::get_ver_metal_layer]"
 puts "\[INFO\]: Horizontal Metal Layer: [ioPlacer::get_hor_metal_layer]"
@@ -40,6 +40,8 @@ if { $::env(FP_IO_MODE) == 1 } {
 } else {
 	ioPlacer::set_random_mode 0
 }
+
+ioPlacer::set_min_distance 5
 ioPlacer::set_hor_length $::env(FP_IO_HLENGTH)
 ioPlacer::set_ver_length $::env(FP_IO_VLENGTH)
 ioPlacer::set_hor_length_extend $::env(FP_IO_VEXTEND)

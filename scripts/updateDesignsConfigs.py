@@ -14,6 +14,7 @@
 
 import argparse
 import subprocess
+import utils.utils as utils
 
 parser = argparse.ArgumentParser(
         description="update configuration of design(s) per given PDK")
@@ -24,8 +25,8 @@ parser.add_argument('--root', '-r', action='store', default='./',
 parser.add_argument('--pdk', '-p', action='store', required=True,
                 help="The name of the PDK")
 
-parser.add_argument('--pdkVariant', '-pv', action='store', required=True,
-                help="The name of the PDK_VARIANT")
+parser.add_argument('--std-cell-library', '-scl', action='store', required=True,
+                help="The name of the standard cell library")
 
 
 parser.add_argument('--designs', '-d', nargs='+', default=[],
@@ -41,7 +42,7 @@ parser.add_argument('--clean', '-cl', action='store_true', default=False,
 args = parser.parse_args()
 root = args.root
 pdk = args.pdk
-pdkVariant = args.pdkVariant
+std_cell_library = args.std_cell_library
 designs = list(dict.fromkeys(args.designs))
 best_results = args.best_results
 clean = args.clean
@@ -83,16 +84,16 @@ for design in designs:
     if designFailDict[design] == '-1':
         print("Skipping " + design + " ...")
         continue
-    
-    print("Updating "+ design + " config...")
 
-    configFileToUpdate = str(root)+"designs/"+str(design)+"/"+str(pdk)+"_"+str(pdkVariant)+"_config.tcl"
-    configFileBest = str(root)+"designs/"+str(design)+"/"+str(designConfigDict[design])+".tcl"
-    
+    print("Updating "+ design + " config...")
+    base_path = utils.get_design_path(design=design)
+    configFileToUpdate = str(base_path)+"/"+str(pdk)+"_"+str(std_cell_library)+"_config.tcl"
+    configFileBest = str(base_path)+"/"+str(designConfigDict[design])+".tcl"
+
     configFileBestOpener = open(configFileBest, 'r')
     configFileBestData = configFileBestOpener.read().split("\n")
     configFileBestOpener.close()
-    
+
     newData = ""
     copyFrom = False
     for line in configFileBestData:
@@ -101,11 +102,11 @@ for design in designs:
 
         if copyFrom == True:
             newData+=line+"\n"
-    
+
     configFileToUpdateOpener = open(configFileToUpdate, 'a+')
     configFileToUpdateOpener.write(newData)
     configFileToUpdateOpener.close()
-    
+
     if clean == True:
         clean_cmd = "rm -f {configFileBest}".format(
                     configFileBest=configFileBest,

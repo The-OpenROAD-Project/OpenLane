@@ -14,9 +14,9 @@
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-read_liberty -min $::env(LIB_MIN)
-read_liberty -max $::env(LIB_MAX)
-read_verilog $::env(yosys_result_file_tag).v
+read_liberty -min $::env(LIB_FASTEST)
+read_liberty -max $::env(LIB_SLOWEST)
+read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)
 
 #set_units -capacitance ff

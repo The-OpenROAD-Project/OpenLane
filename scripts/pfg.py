@@ -1573,6 +1573,8 @@ class SoCFloorplanner(ttk.Frame):
                                 newpad['name'] = vlogparse[1] + '[' + str(i) + ']'
                             else:
                                 newpad['name'] = vlogparse[1]
+                            # hack 
+                            newpad['name'] = newpad['name'].replace("\\", "")
                             newpad['cell'] = vlogparse[0]
                             padcell = next(item for item in celldefs if item['name'] == vlogparse[0])
                             newpad['iolib'] = padcell['iolib']

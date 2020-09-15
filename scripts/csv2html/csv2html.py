@@ -56,7 +56,7 @@ def create_output_html(csv_file, html_file):
     colms = ['design','config','runtime','DIEAREA_mm^2','OpenDP_Util','cell_count','tritonRoute_violations',
             'Short_violations',	'Magic_violations', 'antenna_violations', 'wns', 'CLOCK_PERIOD']
 
-    allData = pd.read_csv(csv_file) 
+    allData = pd.read_csv(csv_file, error_bad_lines=False)
     dataFrame =  pd.DataFrame(data=allData)
     usedData = dataFrame[colms]
     usedData.to_csv(csv_file.split(".csv")[0]+"_tmp_report.csv")

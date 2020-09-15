@@ -1,5 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm 
+DOCKERFILE_PATH ?= ./Dockerfile
+IMAGE_NAME ?= openlane:rc3
 #ROOT = sudo
 
 #TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
@@ -21,8 +23,8 @@ $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 # Export Tools
 # ==============================================================================
 .PHONY: $(TOOL_EXPORT_TARGETS)
-$(TOOL_EXPORT_TARGETS_PHONY): export-% : tar/%.tar.gz 
-$(TOOL_EXPORT_TARGETS_REAL): tar/%.tar.gz :
+$(TOOL_EXPORT_TARGETS_PHONY): export-% :
+	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
 	id=$$(${ROOT} docker create $*) ; \
 	  ${ROOT} docker cp $$id:\build.tar.gz tar/$*.tar.gz ; \
@@ -47,7 +49,7 @@ FORCE:
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
-	docker build $(DOCKER_BUILD_OPTS) -t openlane:openphysyn -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+	docker build $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
