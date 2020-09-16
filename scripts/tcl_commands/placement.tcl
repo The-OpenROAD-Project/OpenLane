@@ -138,10 +138,10 @@ proc run_placement {args} {
 	set ::env(CURRENT_STAGE) placement
 
 	global_placement_or
-	if { $::env(RUN_RESIZER_OVERBUFFER) == 1} {
+	if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
-	if { $::env(OPENPHYSYN_OPTIMIZATIONS) == 1} {
+	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
 	    run_openPhySyn
     }
 	detailed_placement
