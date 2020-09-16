@@ -27,7 +27,6 @@ import_lib $::env(LIB_SYNTH_COMPLETE)
 import_lef $::env(MERGED_LEF_UNPADDED)
 import_def $::env(CURRENT_DEF)
 read_sdc $::env(BASE_SDC_FILE)
-link_design $::env(DESIGN_NAME)
 
 set_wire_rc met1
 
@@ -42,7 +41,11 @@ report_tns
 puts "Initial area: [expr round([design_area] * 10E12) ] um2"
 
 puts "OpenPhySyn timing repair:"
-repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations
+if { $::env(PL_ENABLE_RESIZING) } {
+    repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations -pin_swap_disabled
+} else {
+    repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations -pin_swap_disabled -resize_disabled
+}
 
 puts "=============== Final Reports ============="
 report_checks
