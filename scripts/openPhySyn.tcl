@@ -41,11 +41,19 @@ report_tns
 puts "Initial area: [expr round([design_area] * 10E12) ] um2"
 
 puts "OpenPhySyn timing repair:"
-if { $::env(PL_ENABLE_RESIZING) } {
-    repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations -pin_swap_disabled
-} else {
-    repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations -pin_swap_disabled -resize_disabled
-}
+
+set opts ""
+
+if { $::env(PSN_ENABLE_RESIZING) == 0 } {
+    set opts "$opts -resize_disabled"
+} 
+
+if { $::env(PSN_ENABLE_PIN_SWAP) == 0 } {   
+    set opts "$opts -pin_swap_disabled"
+} 
+
+
+repair_timing -capacitance_violations -transition_violations -fanout_violations -negative_slack_violations $opts
 
 puts "=============== Final Reports ============="
 report_checks
