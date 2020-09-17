@@ -8,22 +8,14 @@ IMAGE_NAME ?= openlane:rc3
 TOOLS = replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
-TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
-TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 # Build Tools
 # ==============================================================================
-build-all: $(TOOL_BUILD_TARGETS)
+build-all: $(TOOL_BUILD_TARGETS) export-all
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 	mkdir -p logs/docker
 	export DOCKER_BUILDKIT=1; ${ROOT} docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
-
-# ==============================================================================
-# Export Tools
-# ==============================================================================
-.PHONY: $(TOOL_EXPORT_TARGETS)
-$(TOOL_EXPORT_TARGETS_PHONY): export-% :
 	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
 	id=$$(${ROOT} docker create $*) ; \
@@ -32,7 +24,7 @@ $(TOOL_EXPORT_TARGETS_PHONY): export-% :
 
 .PHONY: export-all
 export-all: tar/openroad_tools.tar.gz
-tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
+tar/openroad_tools.tar.gz:
 	for tarFile in $(foreach tool,$(TOOLS),tar/$(tool).tar.gz); do \
 	  tar -xzf $$tarFile ; \
 	done
