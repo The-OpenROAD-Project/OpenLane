@@ -23,7 +23,7 @@
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Chip Integration](#chip-integration)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=staging)](https://travis-ci.com/efabless/openlane)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
 
 # Overview
 
