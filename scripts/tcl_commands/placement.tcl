@@ -138,12 +138,13 @@ proc run_placement {args} {
 	set ::env(CURRENT_STAGE) placement
 
 	global_placement_or
-	if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
+    if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
 	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
 	    run_openPhySyn
     }
+    
 	detailed_placement
 }
 
@@ -154,6 +155,8 @@ proc repair_wire_length {args} {
 }
 
 proc run_openPhySyn {args} {
+    TIMER::timer_start
+	
     set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
     try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
 	set_def $::env(SAVE_DEF)
@@ -168,6 +171,10 @@ proc run_openPhySyn {args} {
     run_sta
     set ::env(opensta_report_file_tag) $report_tag_holder
     set ::env(opensta_log_file_tag) $log_tag_holder
+    
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
+    
 }
 
 package provide openlane 0.9
