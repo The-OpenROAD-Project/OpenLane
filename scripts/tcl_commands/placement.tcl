@@ -157,6 +157,17 @@ proc run_openPhySyn {args} {
     set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
     try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
 	set_def $::env(SAVE_DEF)
+
+    # Use SLOWEST/FASTEST libs and Netlist to generate sta report
+    write_verilog $::env(yosys_result_file_tag)_optimized.v
+    set_netlist $::env(yosys_result_file_tag)_optimized.v
+    set report_tag_holder $::env(opensta_report_file_tag)
+    set log_tag_holder $::env(opensta_log_file_tag)
+    set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
+    set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_openphysyn
+    run_sta
+    set ::env(opensta_report_file_tag) $report_tag_holder
+    set ::env(opensta_log_file_tag) $log_tag_holder
 }
 
 package provide openlane 0.9
