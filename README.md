@@ -34,7 +34,7 @@ Join the community on [slack](https://invite.skywater.tools)!
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
- - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
+ - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
@@ -76,7 +76,7 @@ The following sections are to give you an understanding of what happens under th
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
+        git checkout 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd
     ```
@@ -93,7 +93,7 @@ The following sections are to give you an understanding of what happens under th
         cd $PDK_ROOT
 	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 52f78fa08f91503e0cff238979db4589e6187fdf
+        git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make

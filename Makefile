@@ -35,7 +35,7 @@ clone-skywater-pdk: check-env
 		rm -rf skywater-pdk && \
 		git clone https://github.com/google/skywater-pdk.git skywater-pdk && \
 		cd skywater-pdk && \
-		git checkout -qf 3f310bcc264df0194b9f7e65b83c59759bb27480
+		git checkout -qf 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
 
 skywater-library: check-env
 	cd  $(PDK_ROOT)/skywater-pdk && \
@@ -58,7 +58,7 @@ clone-open_pdks: check-env
 		rm -rf open_pdks && \
 		git clone https://github.com/RTimothyEdwards/open_pdks.git open_pdks && \
 		cd open_pdks && \
-	       	git checkout -qf 52f78fa08f91503e0cff238979db4589e6187fdf	
+		git checkout -qf 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d	
 
 install-open_pdks: check-env
 	cd $(PDK_ROOT)/open_pdks && \
