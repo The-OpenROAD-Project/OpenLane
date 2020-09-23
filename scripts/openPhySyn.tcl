@@ -23,7 +23,7 @@
 #OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 #OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import_lib $::env(LIB_SYNTH)
+import_lib $::env(LIB_OPT)
 import_lef $::env(MERGED_LEF_UNPADDED)
 import_def $::env(CURRENT_DEF)
 read_sdc $::env(BASE_SDC_FILE)
@@ -72,3 +72,4 @@ puts "Final area: [expr round([design_area] * 10E12) ] um2"
 puts "Export optimized design"
 export_def $::env(SAVE_DEF)
 exit 0
+

@@ -21,7 +21,9 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist. <br> Optional flag.       |
 | `set_def <def>`   | | Sets the current def file used by the flow to `<def>` |
 | `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generated a merged.lef and a merged_unpadded.lef. Both to be used by different stages of the flow.|
-| `trim_lib`   | | prepares the synthesis liberty file `LIB_SYNTH` by trimming the `no_synth.cells` from it.|
+| `trim_lib`   | | prepares a liberty file (i.e. `LIB_SYNTH`) by trimming the `no_synth.cells` from another input liberty file (i.e. `$::env(LIB_SYNTH_COMPLETE)`).|
+|    | `[-output <lib_file>]` | The lib file to output the trimmed liberty into. <br> Default: `$::env(LIB_SYNTH)` <br> Optional flag. |
+|    | `[-input <lib_file>]` | The input liberty file to trim the cells from. <br> Default: `$::env(LIB_SYNTH_COMPLETE)` <br> Optional flag. |
 | `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file.|
 | `prep`  | | Prepares a run in openlane or loads a previously stopped run in order to proceed with it. It calls `trim_lib`, `prep_lefs`, `source_config`, and other procs to set all the needed environment variables.<br> It has similar flags to ./flow.tcl. |
 |    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a config.tcl definig the design parameters. <br> If the folder is not found, ./designs directory is searched.|

@@ -156,7 +156,9 @@ proc repair_wire_length {args} {
 
 proc run_openPhySyn {args} {
     TIMER::timer_start
-	
+    set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+    trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+
     set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
     try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
 	set_def $::env(SAVE_DEF)

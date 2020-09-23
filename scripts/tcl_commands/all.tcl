@@ -76,15 +76,22 @@ proc prep_lefs {args} {
 }
 
 proc trim_lib {args} {
-    set trimmed_lib $::env(TMP_DIR)/trimmed.lib
+    set options {
+        {-input optional}
+        {-output optional}
+    }
+    set flags {}
+    parse_key_args "trim_lib" args arg_values $options flags_map $flags
+    
+    set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)    
+    set_if_unset arg_values(-output) $::env(LIB_SYNTH)
+
     set scl_no_synth_lib $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
     if { [file exists $scl_no_synth_lib] } {
-        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $::env(LIB_SYNTH) $scl_no_synth_lib > $trimmed_lib
+        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $scl_no_synth_lib > $arg_values(-output)
     } else {
-        file copy -force $::env(LIB_SYNTH) $trimmed_lib
+        file copy -force $arg_values(-input) $arg_values(-output)
     }
-    set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
-    set ::env(LIB_SYNTH) $trimmed_lib
 }
 
 proc source_config {config_file} {
@@ -289,6 +296,8 @@ proc prep {args} {
 
     if { ! $skip_basic_prep } {
         prep_lefs
+        set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
+        set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
         set tracks_copy $::env(TMP_DIR)/tracks_copy.info
         file copy -force $::env(TRACKS_INFO_FILE) $tracks_copy
