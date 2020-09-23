@@ -27,7 +27,7 @@
 
 # Overview
 
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, SPEF-Extractor and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
 Join the community on [slack](https://invite.skywater.tools)!
 
@@ -328,6 +328,7 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
 5. **Routing** *
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `TritonRoute` - Performs detailed routing
+    3. `SPEF-Extractor` - Performs SPEF extraction
 6. **GDSII Generation**
     1. `Magic` - Streams out the final GDSII layout file from the routed def
 7. **Checks**
@@ -342,6 +343,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] (Global) and [TritonRoute][13] (Detailed)
+- SPEF Extraction: [SPEF-Extractor][27]
 - GDSII Streaming out: [Magic][14]
 - DRC Checks: [Magic][14]
 - LVS check: [Netgen][22]
@@ -482,3 +484,4 @@ To learn more about Chip Integration. Check this [file][26]
 [24]: ./doc/PDK_STRUCTURE.md
 [25]: ./doc/advanced_readme.md
 [26]: ./doc/chip_integration.md
+[27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR

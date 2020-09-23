@@ -77,6 +77,7 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-cfg <padframe_configurations_file>` | The file containing the padframe information. |
 | `set_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
+| `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/synthesis/opensta_spef_*`. |
 
 ## Checker Commands 
 
@@ -203,7 +204,7 @@ Most of the following commands' implementation exists in this [file][8]
 | `global_routing_or` | | Runs global routing  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `global_routing` | | Runs global routing on the processed design using FastRoute. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute. The resulting file is under `/<run_path>/results/routing/` . |
-| `run_routing` | | Runs global routing, fill insertion, diode insertion, and detailed routing on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist and a powered netlist using yosys and stores the results under `/<run_path>/results/synthesis` and `/<run_path>/results/lvs` respectively, and it runs yosys logic verification if enabled.|
+| `run_routing` | | Runs global routing, fill insertion, diode insertion, detailed routing, and SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist and a powered netlist using yosys and stores the results under `/<run_path>/results/synthesis` and `/<run_path>/results/lvs` respectively, and it runs yosys logic verification if enabled.|
 
 
 
