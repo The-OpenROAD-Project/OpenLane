@@ -34,6 +34,11 @@ set ::env(FILL_INSERTION) 1
 set ::env(WIDEN_SITE) 1
 set ::env(WIDEN_SITE_IS_FACTOR) 1 
 
+set ::env(RUN_SPEF_EXTRACTION) 1
+set ::env(SPEF_WIRE_MODEL) "L"
+set ::env(SPEF_EDGE_CAP_FACTOR) 1
+set ::env(MPLCONFIGDIR) /tmp
+
 # 0: no diodes
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
