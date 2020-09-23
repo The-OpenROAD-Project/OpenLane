@@ -45,6 +45,9 @@ ENV LD_LIBRARY_PATH=$OPENROAD/lib:$OPENROAD/lib/Linux-x86_64:$LD_LIBRARY_PATH
 ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
 
+ARG CACHE_INVALIDATOR=1
+RUN echo "$CACHE_INVALIDATOR"
+
 COPY ./openroad_tools.tar.gz /
 COPY ./.tclshrc /
 COPY ./.tclshrc /root
