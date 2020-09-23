@@ -131,38 +131,52 @@ proc basic_macro_placement {args} {
 }
 
 proc run_placement {args} {
-    puts "\[INFO\]: Running Placement..."
-    # |----------------------------------------------------|
-    # |----------------   3. PLACEMENT   ------------------|
-    # |----------------------------------------------------|
-    set ::env(CURRENT_STAGE) placement
+	puts "\[INFO\]: Running Placement..."
+# |----------------------------------------------------|
+# |----------------   3. PLACEMENT   ------------------|
+# |----------------------------------------------------|
+	set ::env(CURRENT_STAGE) placement
 
-    global_placement_or
-    if { $::env(RUN_RESIZER_OVERBUFFER) == 1} {
-	repair_wire_length
+	global_placement_or
+    if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
+		repair_wire_length
+	}
+	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
+	    run_openPhySyn
     }
-    #try_catch replace < $::env(SCRIPTS_DIR)/replace_io.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
-    #try_catch Psn --verbose --file $::env(SCRIPTS_DIR)/psn.tcl |& tee /dev/tty $::env(psn_log_file_tag).log
-
-    # GIFing the result
-    #puts "Generating Placement GIF"
-    #try_catch convert -delay 20 {*}[lsort [glob $::env(RESULTS_DIR)/4_placement/etc/3_floorplanning/output/cell/*.jpg]] \
-    -delay 100 $::env(RESULTS_DIR)/4_placement/etc/3_floorplanning/output/globalPlaceResult.jpg \
-	\
-	$::env(RESULTS_DIR)/4_placement.gif \
-	|& tee $::env(TERMINAL_OUTPUT)
-
-    #try_catch cp $::env(RESULTS_DIR)/4_placement/etc/3_floorplanning/output/3_floorplan_final.def $::env(RESULTS_DIR)/4_1_place_gp.def
-
-    # outputs: 4_1_place_gp.def
-
-    # detailed 4_placement
-    detailed_placement
+    
+	detailed_placement
 }
 
 proc repair_wire_length {args} {
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+        set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+		set_def $::env(SAVE_DEF)
+}
+
+proc run_openPhySyn {args} {
+    TIMER::timer_start
+    set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+    trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+
+    set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
+    try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
+	set_def $::env(SAVE_DEF)
+
+    # Use SLOWEST/FASTEST libs and Netlist to generate sta report
+    write_verilog $::env(yosys_result_file_tag)_optimized.v
+    set_netlist $::env(yosys_result_file_tag)_optimized.v
+    set report_tag_holder $::env(opensta_report_file_tag)
+    set log_tag_holder $::env(opensta_log_file_tag)
+    set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
+    set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_openphysyn
+    run_sta
+    set ::env(opensta_report_file_tag) $report_tag_holder
+    set ::env(opensta_log_file_tag) $log_tag_holder
+    
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
+    
 }
 
 package provide openlane 0.9

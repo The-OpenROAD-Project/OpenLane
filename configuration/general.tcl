@@ -28,7 +28,6 @@ set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 
 set ::env(USE_ARC_ANTENNA_CHECK) 0
-set ::env(RUN_RESIZER_OVERBUFFER) 0
 
 set ::env(FILL_INSERTION) 1
 
