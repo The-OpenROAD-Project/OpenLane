@@ -454,7 +454,6 @@ proc prep {args} {
 
     # ROUTING
     exec echo "# Routing config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(ROUTING_STRATEGY) $::env(ROUTING_STRATEGY) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_MAXLAYER) $::env(GLB_RT_MAXLAYER) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_ADJUSTMENT) $::env(GLB_RT_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_CFG_FILE) 1

@@ -39,7 +39,7 @@ make build-<tool>
 The following are the available tools:
 
 ```bash
-replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog openphysyn
+replace ioplacer opendp route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog openphysyn
 ```
 
 ### Rebuilding
