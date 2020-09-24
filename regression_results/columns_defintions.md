@@ -22,7 +22,12 @@
 | `antenna_violations`   | The total number of magic drc violations from running TritonRoute. Extracted from Magic drc.        |
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
-| `wns`   | Worst Negative Slack. Extracted from OpenSTA.        |
+| `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
+| `opt_wns`   | Worst Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
+| `spef_wns`   | Worst Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
+| `tns`   | Total Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
+| `opt_tns`   | Total Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
+| `spef_tns`   | Total Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
 | `HPWL`   | Final value for the half-perimeter wire length. Extracted from RePlace logs.       |
 | `wires_count`   | The number of wires in the design. Extracted from yosys logs.        |
 | `wire_bits`   | The number of wire bits in the design. Extracted from yosys logs.        |
