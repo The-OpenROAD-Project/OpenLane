@@ -138,15 +138,15 @@ spef_wns=$(grep "wns" $spef_wns_rpt | sed -r 's/wns //')
 if ! [[ $spef_wns ]]; then spef_wns=-1; fi
 
 #Extracting Info from OpenSTA
-tns=$(grep "tns" $tns_rpt | sed -r 's/wns //')
+tns=$(grep "tns" $tns_rpt | sed -r 's/tns //')
 if ! [[ $tns ]]; then tns=-1; fi
 
 #Extracting Info from OpenPhySyn
-opt_tns=$(grep "tns" $opt_tns_rpt | tail -1 |sed -r 's/wns //')
+opt_tns=$(grep "tns" $opt_tns_rpt | tail -1 |sed -r 's/tns //')
 if ! [[ $opt_tns ]]; then opt_tns=$tns; fi
 
 #Extracting info from OpenSTA post SPEF extraction
-spef_tns=$(grep "tns" $spef_tns_rpt | sed -r 's/wns //')
+spef_tns=$(grep "tns" $spef_tns_rpt | sed -r 's/tns //')
 if ! [[ $spef_tns ]]; then spef_tns=-1; fi
 
 
