@@ -23,7 +23,7 @@
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Chip Integration](#chip-integration)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane)
 
 # Overview
 
@@ -58,7 +58,7 @@ To run the regression test, which tests the flow against all available designs u
     make regression_test
 ```
 
-Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.csv).
+Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv).
 
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
 
