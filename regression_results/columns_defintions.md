@@ -3,7 +3,8 @@
 ## Default Printed Information Variables
 | Variable      | Description                                           |
 |---------------|-------------------------------------------------------|
-| `design`   | The name of the top level module of the design        |
+| `design`   | The directory of the design        |
+| `design_name`   | The name of the top level module of the design        |
 | `config`   | The name of the configurations file of the design        |
 | `runtime`   | The runtime of running the process on the design. Extracted from runtime.txt       |
 | `DIEAREA_mm^2`   | The diearea in mm<sup>2</sup> as reported from the def file.        |
@@ -18,8 +19,8 @@
 | `OffGrid_violations`   | The total number of off-grid violations from running TritonRoute. Extracted from tritonRoute drc.        |
 | `MinHole_violations`   | The total number of MinHole violations from running TritonRoute. Extracted from tritonRoute drc.        |
 | `Other_violations`   | The total number of other types of violations from running TritonRoute. Extracted from tritonRoute drc.        |
-| `Magic_violations`   | The total number of magic drc violations from running TritonRoute. Extracted from Magic drc.        |
-| `antenna_violations`   | The total number of magic drc violations from running TritonRoute. Extracted from Magic drc.        |
+| `Magic_violations`   | The total number of magic drc violations in the design. Extracted from Magic drc.        |
+| `antenna_violations`   | The total number of antenna violations in the design. Extracted from Magic antenna check or OpenROAD ARC.        |
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |

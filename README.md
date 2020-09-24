@@ -48,6 +48,12 @@ You can start setting up the skywater-pdk and openlane by running:
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
+the Makefile should do the following when you run the above command:
+- Clone Skywater-pdk and the specified STD_CELL_LIBRARY and build it.
+- Clone open_pdks and set up the STD_CELL_LIBRARY for OpenLANE use.
+- Build the OpenLANE docker.
+- Test the whole setup with a complete run on a small design `spm`.
+
 **Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
@@ -120,7 +126,7 @@ Refer to [this][24] for more details on the structure.
 
 ### Building the Docker Image Locally
 
-To setup openlane you can build the docker container locally following these isntructions:
+To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
     git clone git@github.com:efabless/openlane --branch rc3
@@ -184,10 +190,10 @@ The following are arguments that can be passed to `flow.tcl`
     </tr>
     <tr>
         <td align="center">
-            <code>-design</code> <br> (Required)
+            <code>-design &lt;folder path&gt;</code> <br> (Required)
         </td>
         <td align="justify">
-            Specifies the design folder. A design folder should contain a config.tcl definig the design parameters. <br> If the folder is not found, ./designs directory is searched
+            Specifies the design folder. A design folder should contain a config.tcl defining the design parameters. <br> If the folder is not found, ./designs directory is searched
         </td>
     </tr>
     <tr>
