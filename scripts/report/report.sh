@@ -194,15 +194,19 @@ if ! [[ $level ]]; then level=-1; fi
 
 #Extracting Endcaps and TapCells
 endcaps=$(grep "#Endcaps inserted:" $tapcell_log | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $endcaps ]]; then endcaps=-1; fi
+if ! [[ $endcaps ]]; then endcaps=0; fi
 
 tapcells=$(grep "#Tapcells inserted:" $tapcell_log | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $tapcells ]]; then tapcells=-1; fi
+if ! [[ $tapcells ]]; then tapcells=0; fi
 
 
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
-if ! [[ $diodes ]]; then diodes=-1; fi
+if ! [[ $diodes ]]; then 
+        # A temporary solution until FR reports the number of diodes added.
+        diodes=$(grep "diode" $tritonRoute_def | wc -l)  
+        if ! [[ $diodes ]]; then diodes=0; fi 
+fi
 
 #Summing the number of Endcaps, Tapcells, and Diodes
 physical_cells=$(((endcaps+tapcells)+diodes));
