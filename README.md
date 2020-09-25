@@ -23,18 +23,18 @@
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Chip Integration](#chip-integration)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane)
 
 # Overview
 
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, SPEF-Extractor and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
 Join the community on [slack](https://invite.skywater.tools)!
 
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
- - Magic VLSI Layout Tool is needed to run open_pdks -- version >= 8.3.25
+ - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
@@ -48,6 +48,12 @@ You can start setting up the skywater-pdk and openlane by running:
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
+the Makefile should do the following when you run the above command:
+- Clone Skywater-pdk and the specified STD_CELL_LIBRARY and build it.
+- Clone open_pdks and set up the STD_CELL_LIBRARY for OpenLANE use.
+- Build the OpenLANE docker.
+- Test the whole setup with a complete run on a small design `spm`.
+
 **Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
@@ -58,7 +64,7 @@ To run the regression test, which tests the flow against all available designs u
     make regression_test
 ```
 
-Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.csv).
+Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv).
 
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
 
@@ -76,7 +82,7 @@ The following sections are to give you an understanding of what happens under th
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 3f310bcc264df0194b9f7e65b83c59759bb27480
+        git checkout 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd
     ```
@@ -93,7 +99,7 @@ The following sections are to give you an understanding of what happens under th
         cd $PDK_ROOT
 	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 52f78fa08f91503e0cff238979db4589e6187fdf
+        git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
@@ -101,6 +107,8 @@ The following sections are to give you an understanding of what happens under th
     ```
 
 **Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
+
+**WARNING**: Please, don't move `sk130A` from the installed directory because the generated .mag files contain absolute paths. Moving it will result in producing an invalid GDS.
 
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
@@ -120,7 +128,7 @@ Refer to [this][24] for more details on the structure.
 
 ### Building the Docker Image Locally
 
-To setup openlane you can build the docker container locally following these isntructions:
+To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
     git clone git@github.com:efabless/openlane --branch rc3
@@ -184,10 +192,10 @@ The following are arguments that can be passed to `flow.tcl`
     </tr>
     <tr>
         <td align="center">
-            <code>-design</code> <br> (Required)
+            <code>-design &lt;folder path&gt;</code> <br> (Required)
         </td>
         <td align="justify">
-            Specifies the design folder. A design folder should contain a config.tcl definig the design parameters. <br> If the folder is not found, ./designs directory is searched
+            Specifies the design folder. A design folder should contain a config.tcl defining the design parameters. <br> If the folder is not found, ./designs directory is searched
         </td>
     </tr>
     <tr>
@@ -322,12 +330,14 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
 3. **Placement**
     1. `RePLace` - Performs global placement
     2. `Resizer` - Performs optional optimizations on the design
-    3. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
+    3. `OpenPhySyn` - Performs timing optimizations on the design
+    4. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
 4. **CTS**
     1. `TritonCTS` - Synthesizes the clock distribution network (the clock tree)
 5. **Routing** *
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `TritonRoute` - Performs detailed routing
+    3. `SPEF-Extractor` - Performs SPEF extraction
 6. **GDSII Generation**
     1. `Magic` - Streams out the final GDSII layout file from the routed def
 7. **Checks**
@@ -338,10 +348,11 @@ OpenLANE integrated several key open source tools over the execution stages:
 - RTL Synthesis, Technology Mapping, and Formal Verification : [yosys + abc][4]
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7]
-- Placement: [RePLace][9] (Global), [Resizer][15] (Optimizations), and [OpenDP][10] (Detailed)
+- Placement: [RePLace][9] (Global), [Resizer][15] and [OpenPhySyn][28] (Optimizations), and [OpenDP][10] (Detailed)
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] (Global) and [TritonRoute][13] (Detailed)
+- SPEF Extraction: [SPEF-Extractor][27]
 - GDSII Streaming out: [Magic][14]
 - DRC Checks: [Magic][14]
 - LVS check: [Netgen][22]
@@ -482,3 +493,5 @@ To learn more about Chip Integration. Check this [file][26]
 [24]: ./doc/PDK_STRUCTURE.md
 [25]: ./doc/advanced_readme.md
 [26]: ./doc/chip_integration.md
+[27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
+[28]: https://github.com/scale-lab/OpenPhySyn

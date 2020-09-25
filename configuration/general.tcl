@@ -27,13 +27,17 @@ set ::env(MAGIC_GENERATE_LEF) 1
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 
-set ::env(USE_ARC_ANTENNA_CHECK) 0
-set ::env(RUN_RESIZER_OVERBUFFER) 0
+set ::env(USE_ARC_ANTENNA_CHECK) 1
 
 set ::env(FILL_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
 set ::env(WIDEN_SITE_IS_FACTOR) 1 
+
+set ::env(RUN_SPEF_EXTRACTION) 1
+set ::env(SPEF_WIRE_MODEL) "L"
+set ::env(SPEF_EDGE_CAP_FACTOR) 1
+set ::env(MPLCONFIGDIR) /tmp
 
 # 0: no diodes
 # 1: spray inputs with diodes

@@ -37,15 +37,10 @@ proc detailed_routing {args} {
     if {$::env(RUN_ROUTING_DETAILED)} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-	if {$::env(ROUTING_STRATEGY) == 14} {
-	    try_catch TritonRoute14 \
-		$::env(tritonRoute_tmp_file_tag).param \
-		|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
-	} else {
-	    try_catch TritonRoute \
-		$::env(tritonRoute_tmp_file_tag).param \
-		|& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
-	}
+    try_catch TritonRoute14 \
+    $::env(tritonRoute_tmp_file_tag).param \
+    |& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
+
     } else {
 	exec echo "SKIPPED!" >> $::env(tritonRoute_log_file_tag).log
     }
@@ -153,11 +148,6 @@ proc run_routing {args} {
 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-	write_powered_verilog
-	set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
     # Unmatched ports would be detected. Need another way to check this.
     # if { $::env(LEC_ENABLE) } {
     # 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -169,6 +159,12 @@ proc run_routing {args} {
 
     # detailed routing
     detailed_routing
+    run_spef_extraction
+
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+	write_powered_verilog
+	set_netlist $::env(lvs_result_file_tag).powered.v
+    }
 
     ## TIMER END
     set timer_end [clock seconds]
@@ -223,5 +219,21 @@ proc ins_diode_cells {args} {
 
 }
 
+proc run_spef_extraction {args} {
+    if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
+        try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py $::env(MERGED_LEF_UNPADDED) $::env(CURRENT_DEF) $::env(SPEF_WIRE_MODEL) $::env(SPEF_EDGE_CAP_FACTOR) > $::env(LOG_DIR)/routing/spef_extraction.log
+        set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
+        #puts $fbasename
+        #set ::env(CURRENT_SPEF) 
+        # Use SLOWEST/FASTEST libs and Netlist to generate sta report
+        set report_tag_holder $::env(opensta_report_file_tag)
+        set log_tag_holder $::env(opensta_log_file_tag)
+        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
+        run_sta
+        set ::env(opensta_report_file_tag) $report_tag_holder
+        set ::env(opensta_log_file_tag) $log_tag_holder    
+    }
+}
 
 package provide openlane 0.9

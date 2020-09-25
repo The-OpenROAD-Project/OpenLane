@@ -37,7 +37,8 @@ class Report:
 
     values = ['design', 'design_name','config', 'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','Peak_Memory_Usage_MB','cell_count', 'tritonRoute_violations',
             'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,
-            'Magic_violations', 'antenna_violations' ,'wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count',
+            'Magic_violations', 'antenna_violations' ,'wire_length', 'vias', 'wns', 'optimized_wns', 'spef_wns', 'tns', 'optimized_tns', 'spef_tns', 
+            'HPWL', 'wires_count','wire_bits','public_wires_count',
             'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND',
             'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 

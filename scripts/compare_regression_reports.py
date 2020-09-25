@@ -60,18 +60,23 @@ missing_configs = []
 
 
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
-                'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'ROUTING_STRATEGY']
+                'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD']
+
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':2}
 
 critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations']
 
 note_worthy_statistics = ['Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 
-def compare_vals(benchmark_value, regression_value):
+def compare_vals(benchmark_value, regression_value,param):
     if str(benchmark_value) == "-1":
         return True
     if str(regression_value) == "-1":
         return False
-    if float(benchmark_value) - float(regression_value) >= -1: # Allow for tolerance 1
+    tol = tolerance['general_tolerance']
+    if param in tolerance.keys():
+        tol = 0-tolerance[param]
+    if float(benchmark_value) - float(regression_value) >= tol: 
         return True
     else:
         return False
@@ -171,7 +176,7 @@ def criticalMistmatch(benchmark, regression_results):
 
         size_before = len(critical_mismatches)
         for stat in critical_statistics:
-            if compare_vals(benchmark[design][stat],regression_results[design][stat]):
+            if compare_vals(benchmark[design][stat],regression_results[design][stat],stat):
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
                 output_report_list.append("\t\tStatistic "+ stat+" value: "+ benchmark[design][stat] +"\n")
             else:
@@ -315,7 +320,7 @@ while idx < len(benchmark):
                 continue
             if benchmark[design][header] != regression_results[design][header]:
                 if header in critical_statistics:
-                    if compare_vals(benchmark[design][header],regression_results[design][header]) == False:
+                    if compare_vals(benchmark[design][header],regression_results[design][header],header) == False:
                         worksheet.write(idx*2+1, col_num, benchmark[design][header],fail_format)
                         worksheet.write(idx*2+2, col_num, regression_results[design][header],fail_format)
                     else:

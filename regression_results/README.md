@@ -12,13 +12,13 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through this sheets:
+You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
-- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HS.html)
-- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_MS.html)
-- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_LS.html)
-- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HDLL.html)
+- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.html)
+- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.html)
+- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.html)
+- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.html)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.html)
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
@@ -110,7 +110,7 @@ The script can be used in two ways
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
 
 ## Output
-- In addition to files produced inside `designs/<design>/runs/config_<tag>_<number>` for each run on a design, three files are produced:
+- In addition to files produced inside `designs/<design>/runs/config_<tag>_<timestamp>` for each run on a design, three files are produced:
     1. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
     2. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
     3. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
@@ -151,7 +151,7 @@ The script can be used in two ways
             <code>--defaultTestSet | -dts </code> <br> (Boolean)
         </td>
         <td align="justify">
-            Ignores the design flag, and runs the default design test set consisting of all designs under the [../designs/](../designs/) directory. <br> Default: <code> False</code>
+            Ignores the design flag, and runs the default design test set consisting of all designs under the ../designs/ directory. <br> Default: <code> False</code>
         </td>
     </tr>
     <tr>

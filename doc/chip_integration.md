@@ -1,10 +1,12 @@
+**DISCLAIMER: THIS PAGE IS STILL UNDER DEVELOPMENT.**
+**THE INFORMATION HERE MIGHT BE INCORRECT OR OUTDATED.**
+
+**FINALIZATION PENDING IO RELEASE.**
+
 # Chip Integration
 
 Using openlane, you can produce a GDSII from a chip RTL.
 
-For example, striVe2a:
-
-**Image**
 
 ## The current Methodology
 
@@ -114,23 +116,21 @@ pdngen::specify_grid stdcell {
 }
 ```
 
-- If your macro contains other macros inside it. Then make sure to add a `macro` section for each or one for all of them depending on their special configs. The following example is using special `connect` section and different `rails`:
+- If your macro contains other macros inside it. Then make sure to add a `macro` section for each or one for all of them depending on their special configs. The following example is using special `connect` section and different `rails` and `straps`:
 ```tcl
 pdngen::specify_grid macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
     power_pins "vpwr vpb"
     ground_pins "vgnd vnb"
-    rails {
+    straps {
 	    met1 {width 0.74 pitch 3.56 offset 0}
-    }
-      straps {
 	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
     }
     connect {{met1_PIN_hor met4}}
 }
 ```
 
-**WARNING:** only use met1 for rails and met4 for straps.
+**WARNING:** only use met1 and met4 for and rails straps.
 
 Refer to [this][3] for more details about the syntax.
 

@@ -87,12 +87,12 @@ Two scripts were created for this purpose:
 
 To run the script to create new (empty) configurations for a (PDK,STD_CELL_LIBRARY) pair:
 ```bash
-    python3 ./scripts/replicateDesignsConfigs.py --pdkTo PDK --to-std-cell-lib STD_CELL_LIBRARY
+    python3 ./scripts/replicateDesignsConfigs.py --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
 ```
 
 To run the script to replicate configurations from one (PDK,STD_CELL_LIBRARY) pair to another:
 ```bash
-    python3 ./scripts/replicateDesignsConfigs.py --pdkFrom PDK_FROM --from-std-cell-lib STD_CELL_LIBRARY_FROM --pdkTo PDK --to-std-cell-lib STD_CELL_LIBRARY
+    python3 ./scripts/replicateDesignsConfigs.py --from-pdk PDK_FROM --from-std-cell-lib STD_CELL_LIBRARY_FROM --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
 ```
 
 The following is the list of flags used with the script:
@@ -124,7 +124,7 @@ The following is the list of flags used with the script:
     <tr>
         </tr>
         <td align="center">
-            <code>--from-std-cell-lib | -pvf &lt;STD_CELL_LIBRARY&gt;</code> <br> (Optional)
+            <code>--from-std-cell-lib | -fscl &lt;STD_CELL_LIBRARY&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
             The name of the STD_CELL_LIBRARY that the replicated design configuration belongs to. <br> if not specified along with from_std_cell_lib, the script will create a new configuration file for (pdkTo,to_std_cell_lib) that is empty.
@@ -141,7 +141,7 @@ The following is the list of flags used with the script:
     <tr>
         </tr>
         <td align="center">
-            <code>--to-std-cell-lib | -pvt &lt;STD_CELL_LIBRARY&gt;</code> <br> (Required)
+            <code>--to-std-cell-lib | -tscl &lt;STD_CELL_LIBRARY&gt;</code> <br> (Required)
         </td>
         <td align="justify">
             The name of the STD_CELL_LIBRARY that the created design configurations belongs to.
@@ -153,7 +153,7 @@ The following is the list of flags used with the script:
 
 To run the script to update configurations for a (PDK,STD_CELL_LIBRARY) pair after an exploration:
 ```bash
-    python3 ./scripts/updateDesignsConfigs.py --pdk PDK --std-cell-lib STD_CELL_LIBRARY -log SW_exploration_best.csv
+    python3 ./scripts/updateDesignsConfigs.py --pdk PDK --std-cell-lib STD_CELL_LIBRARY --best_results SW_exploration_best.csv
 ```
 
 Check [this][1] for more details on the log files.
@@ -205,12 +205,12 @@ The following is the list of flags used with the script:
       <tr>
         </tr>
         <td align="center">
-            <code>--best_results | -b &lt;log file&gt;</code> <br> (Required)
+            <code>--best_results | -b &lt;csv file&gt;</code> <br> (Required)
         </td>
         <td align="justify">
             This is the log file containing the best run for each design in a specific exploration. The log file will be used to determine the name of the configuration file to update from.
-            The log file provided must lie under root/logs/ and should contain one occurance of each design.
-            To tolerate custom log files, the script only exctracts the name of the design and its corresponding configuration from the file. If there were more than one occurance of the same design, the last occurance will override others. 
+            The csv file provided must one occurance of each design.
+            To tolerate custom log files, the script only exctracts the name of the design, its corresponding configuration file path, and whether the design passed or not by reading the runtime. If there were more than one occurance of the same design, the last occurance will override others. 
         </td>
     </tr>
       <tr>
@@ -223,6 +223,8 @@ The following is the list of flags used with the script:
         </td>
     </tr>
 </table>
+
+**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their runtime will be `-1`.
 
 **Important Note:** *The updateDesignsConfigs script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the replicateDesignsConfigs copies the whole file.*
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # Routing defaults
-set ::env(ROUTING_STRATEGY) 14
 set ::env(ROUTING_CORES) 4
 set ::env(GLB_RT_OLD_FR) 0
 set ::env(GLB_RT_ADJUSTMENT) 0
