@@ -16,26 +16,40 @@
 FROM centos:centos6 as build
 
 
-# install gcc 6
+# Install Development Environment
+RUN yum groupinstall -y "Development Tools"
+RUN yum install -y wget git
 RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-6 devtoolset-6-libatomic-devel
-ENV CC=/opt/rh/devtoolset-6/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-6/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-6/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-6/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-6/root/usr/lib64:/opt/rh/devtoolset-6/root/usr/lib:/opt/rh/devtoolset-6/root/usr/lib64/dyninst:/opt/rh/devtoolset-6/root/usr/lib/dyninst:/opt/rh/devtoolset-6/root/usr/lib64:/opt/rh/devtoolset-6/root/usr/lib:$LD_LIBRARY_PATH
+    yum -y install devtoolset-8 devtoolset-8-libatomic-devel
+RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
+    chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
+    ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
-# install dependencies
-RUN yum install -y wget git zlib-devel tcl-devel swig bison flex
+# centos6 doesn't set the PATH automatically for the installed gcc from dev tools
+ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
+    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
+    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
+    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
 
+# update bison
+RUN yum -y remove bison
+RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
+    tar -xvzf bison-3.0.5.tar.gz
+RUN cd bison-3.0.5 && \
+    ./configure --prefix=/usr && \
+    make -j$(nproc) && \
+    make install
 
-# download public key for github.com
-RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+RUN yum remove -y swig \
+    && yum install -y pcre-devel \
+    && wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz \
+    && tar xfz rel-3.0.12.tar.gz \
+    && rm -rf rel-3.0.12.tar.gz \
+    && cd swig-rel-3.0.12 \
+    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install 
 
-# Installing cmake for build dependency
-RUN wget https://cmake.org/files/v3.9/cmake-3.9.0-Linux-x86_64.sh && \
-    chmod +x cmake-3.9.0-Linux-x86_64.sh  && \
-    ./cmake-3.9.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
+RUN yum -y install zlib-devel flex
 
 # download CUDD
 RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
@@ -45,13 +59,13 @@ RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
     make && \
     make install
 
-# get Resizer
-RUN git clone --recursive https://github.com/The-OpenROAD-Project/OpenSTA \
-	&& git checkout e7d8689f70497eda1ad2686ecfcd628ffccb3a2e
+RUN yum install -d6 -y tcl-devel tcl
 
+RUN git clone https://github.com/The-OpenROAD-Project/OpenSTA
 
 WORKDIR OpenSTA
 
+RUN git checkout 6deaf6d8fcabc884063941c3046eb8bdb80061b5
 
 RUN mkdir /build
 RUN mkdir build
