@@ -29,6 +29,7 @@ proc global_routing_or {args} {
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
       set ::env(DIODE_INSERTION_STRATEGY) 0
+      set_def $::env(SAVE_DEF)
       try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
       set ::env(DIODE_INSETION_STRATEGY) 3
     }
