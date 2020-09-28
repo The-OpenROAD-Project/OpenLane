@@ -178,6 +178,12 @@ opt_clean -purge
 
 tee -o "$::env(yosys_report_file_tag)_pre.stat" stat
 
+# handle technology mapping of latches
+if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
+	techmap -map $::env(SYNTH_LATCH_MAP)
+	simplemap
+}
+
 dfflibmap -liberty $sclib
 tee -o "$::env(yosys_report_file_tag)_dff.stat" stat
 
