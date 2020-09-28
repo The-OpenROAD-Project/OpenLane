@@ -24,8 +24,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
-
+if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
+}
 
 FastRoute::set_verbose 3
 
@@ -54,10 +55,10 @@ FastRoute::run_fastroute
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)"
+	check_placement
 }
 
 
-check_placement
 
 write_guides $::env(fastroute_tmp_file_tag).guide
 write_def $::env(SAVE_DEF)
