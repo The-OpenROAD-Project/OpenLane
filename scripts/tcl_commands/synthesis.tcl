@@ -57,6 +57,16 @@ proc run_sta {args} {
 	|& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log
 }
 
+proc run_synth_exploration {args} {
+    set ::env(SYNTH_EXPLORE) 1
+
+    run_yosys
+
+    try_catch $::env(SCRIPTS_DIR)/synth_exp/analyze.pl $::env(yosys_log_file_tag).log > $::env(yosys_report_file_tag).exploration.html
+    file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(REPORTS_DIR)/synthesis
+    file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(REPORTS_DIR)/synthesis
+}
+
 proc run_synthesis {args} {
     puts "\[INFO\]: Running Synthesis..."
     # in-place insertion
@@ -137,7 +147,7 @@ proc logic_equiv_check {args} {
 	|& tee $::env(TERMINAL_OUTPUT)}] } {
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
 	    return -code error
-	}
+    }
 
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
     return -code ok
