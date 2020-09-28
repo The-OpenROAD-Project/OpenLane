@@ -135,7 +135,7 @@ set options {
     {-file optional}
 }
 
-set flags {-interactive -it -drc}
+set flags {-interactive -it -drc -synth_explore}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
@@ -166,6 +166,9 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
     }
 } elseif { [info exists flags_map(-drc)] } {
     run_magic_drc_batch {*}$argv
+} elseif { [info exists flags_map(-synth_explore)] } {
+    prep {*}$argv
+    run_synth_exploration
 } else {
     puts_info "Running non-interactively"
     run_non_interactive_mode {*}$argv
