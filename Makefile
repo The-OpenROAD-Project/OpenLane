@@ -16,7 +16,7 @@ OPENLANE_DIR ?= $(shell pwd)
 THREADS ?= $(shell nproc)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 
-IMAGE_NAME ?= openlane:rc3
+IMAGE_NAME ?= openlane:rc4
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 
