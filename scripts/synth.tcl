@@ -25,10 +25,10 @@ set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
 
 if { [info exists ::env(SYNTH_DEFINES) ] } {
-	foreach define $::env(SYNTH_DEFINES) {
-		puts "Defining $define"
-		verilog_defines -D$define
-	}
+    foreach define $::env(SYNTH_DEFINES) {
+	puts "Defining $define"
+	verilog_defines -D$define
+    }
 }
 
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
@@ -59,9 +59,9 @@ set cload   $::env(SYNTH_CAP_LOAD)
 # input pin cap of IN_3VX8
 set max_FO $::env(SYNTH_MAX_FANOUT)
 if {![info exist ::env(SYNTH_MAX_TRAN)]} {
-	set ::env(SYNTH_MAX_TRAN) [expr {0.1*$clock_period}]
+    set ::env(SYNTH_MAX_TRAN) [expr {0.1*$clock_period}]
 } else {
-	set ::env(SYNTH_MAX_TRAN) [expr {$::env(SYNTH_MAX_TRAN) * 1000}]
+    set ::env(SYNTH_MAX_TRAN) [expr {$::env(SYNTH_MAX_TRAN) * 1000}]
 }
 set max_Tran $::env(SYNTH_MAX_TRAN)
 
@@ -189,9 +189,9 @@ if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
-	synth -top $vtop
+    synth -top $vtop
 } else {
-	synth -top $vtop -flatten
+    synth -top $vtop -flatten
 }
 
 share -aggressive
@@ -209,8 +209,8 @@ if { $tbuf_map } {
 
 # handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
-	techmap -map $::env(SYNTH_LATCH_MAP)
-	simplemap
+       techmap -map $::env(SYNTH_LATCH_MAP)
+       simplemap
 }
 
 dfflibmap -liberty $sclib
