@@ -12,17 +12,17 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against the [default test set](../designs/defaultTestSet.list) (more [here](#usage)) against any of the 5 sky130 variants through this sheets:
+You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](./benchmark_results/SW_HD_21072020_21_07_2020_17_00.html)
-- [sky130_fd_sc_hs](./benchmark_results/SW_HS_24072020_23_07_2020_14_52.html)
-- [sky130_fd_sc_ms](./benchmark_results/SW_MS_24072020_23_07_2020_14_55.html)
-- [sky130_fd_sc_ls](./benchmark_results/SW_LS_24072020_23_07_2020_14_54.html)
-- [sky130_fd_sc_hdll](./benchmark_results/)
+- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.html)
+- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.html)
+- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.html)
+- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.html)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.html)
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
-To replicate these sheets, run the following command inside the docker after setting the proper variant name in [../configuration/general.tcl](../configuration/general.tcl):
+To replicate these sheets, run the following command inside the docker after setting the proper standard cell library in [../configuration/general.tcl](../configuration/general.tcl):
 
 ```bash
     python3 run_design.py --defaultTestSet --htmlExtract
@@ -42,7 +42,7 @@ The script can be used in two ways
     python3 run_designs.py --designs spm xtea PPU APU
     ```
 
-    You can run the defualt test set consisting of 60 designs through running the following command along with any of the flags:
+    You can run the defualt test set consisting of all designs under [./designs](../designs/) through running the following command along with any of the flags:
     
     ```bash
     python3 run_design.py --defaultTestSet
@@ -67,8 +67,6 @@ The script can be used in two ways
         FP_ASPECT_RATIO=(1)
         SYNTH_MAX_FANOUT=(5)
 
-        extra="
-        "
         ```
     
     - Complex Expressions:
@@ -84,9 +82,9 @@ The script can be used in two ways
         "
         ```
 
-    - Varaint Section:
+    - SCL-specific section
 
-        You can use the variant section to specify information that you would like to be sourced before sourcing variant specific information:
+        You can use this section to specify information that you would like to be sourced before sourcing SCL-specific information:
 
         ```
         FP_CORE_UTIL=(40 50)
@@ -96,29 +94,39 @@ The script can be used in two ways
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
         "
         
-        variant="
-        set ::env(PDK_VARIANT) sky130_fd_sc_hd
+        std_cell_library="
+        set ::env(STD_CELL_LIBRARY) sky130_fd_sc_hd
         set ::env(SYNTH_STRATEGY) 1
         "
         ```
-        In the example above, SYNTH_STRATEGY and PDK_VARIANT will be set before sourcing the pdk_variant specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
 
-        This can also be used to control the used PDK and its variant, since it is set before sourcing the variant specific configurations, so this will override the variant set in general.tcl and allow for more control on different variants under the same design.
+        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
 
-    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceeding to its use in the file.
+    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding to its use in the file.
 
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
 
 ## Output
-- In addition to files produced inside `designs/<design>/runs/config_<tag>_<number>` for each run on a design, three files are produced:
-    1. `regression_results/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
-    2. `regression_results/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
-    3. `regression_results/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
-    4. `regression_results/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
-    5. `regression_results/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
-    
+- In addition to files produced inside `designs/<design>/runs/config_<tag>_<timestamp>` for each run on a design, three files are produced:
+    1. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
+    2. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
+    3. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
+
+- If the --htmlExtract flag is enabled, the following files will also be generated:
+
+    4. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.html` A summary of the report file that provides a summary of each run. The summary contains the most important metrics and configuration of that run
+    5. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.html` A summary of the report file that selects the best configuration per design based on number of violations. The summary contains the most important metrics and configuration of that run
+
+- If a file is provided to the --benchmark flag, the following files will also be generated:
+
+    6. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_design_test_report.csv` An incrementaly generated list of all designs in this run compared to the benchmark results and whether they PASSED or FAILED the regression test.
+    7. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_written_report.rpt` A detailed report pointing out the differences between this run of the test set and the benchmark results. It divides them into three categories: Critical, Note-worthy, and Configurations.
+    8. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_final_report.xlsx` A design to design comparison between benchmark results and this run of the test set. It includes whether or not a design failed or passed the test and it highlights the differences.
+
+
 ## Command line arguments
 <table>
     <tr>
@@ -143,7 +151,16 @@ The script can be used in two ways
             <code>--defaultTestSet | -dts </code> <br> (Boolean)
         </td>
         <td align="justify">
-            Ignores the design flag, and runs the default design test set consisting of 62 default designs. <br> Default: <code> False</code>
+            Ignores the design flag, and runs the default design test set consisting of all designs under the ../designs/ directory. <br> Default: <code> False</code>
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--excluded_designs | -e  design1 design2 design3 ...</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies the designs to exclude from the run. Useful with <code>&lt;--defaultTestSet&gt;</code>.
         </td>
     </tr>
     <tr>
@@ -225,17 +242,46 @@ The script can be used in two ways
         </td>
         <td align="justify">
             Specifies whether or not to delete the run directory after completion and reporting the results in the csv.
-            If this flag is used with --tar, then the compressed files will not be deleted because they are placed outside of the run directory.
+            If this flag is used with --tar, then the compressed files will not be deleted because they are placed outside of the run directory. <br> Default value: <code>False</code>
         </td>
+    </tr>
     <tr>
         </tr>
         <td align="center">
             <code>--htmlExtract | -html</code> <br> (Boolean)
         </td>
         <td align="justify">
-            Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics.
+            Specifies whether or not to print an html summary of the report printed in the csv format with the most important configurations and metrics. <br> Default value: <code>False</code>
         </td>
     </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--benchmark | -b &lt;file&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            If provided this run will be tested against (compared to) the given benchmark <code>&lt;file&gt;</code>. check the output section above for the details of the reported results.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--disable_timestamp | -dt </code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, the output files and tags will not contain the appended timestamp. <br> Default value: <code>False</code>
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--show_output | -so </code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, the full output log resulting from running ./flow.tcl will be displayed realtime in the terminal. However, if more than one design or more than one configuration is running at the same time, this flag will be ignored and no live output will be displayed. <br> Default value: <code>False</code>
+        </td>
+    </tr>
+
 </table>
 
 [21]: ./columns_defintions.md

@@ -33,12 +33,17 @@ parser.add_argument('--top-lef', '-tl', required=True,
 parser.add_argument('--output', '-o', required=True,
                     default='output.def', help='Output Contextualized DEF')
 
+parser.add_argument('--keep-inner-connections', '-keep', action='store_true', default=False,
+                help="If set, the internal cells will remain conneted in the otput DEF")
+
+
 args = parser.parse_args()
 
 macro_def_file_name = args.macro_def
 macro_lef_file_name = args.macro_lef
 top_def_file_name = args.top_def
 top_lef_file_name = args.top_lef
+keep_flag = args.keep_inner_connections
 
 output_def_file_name = args.output
 
@@ -79,7 +84,7 @@ MACRO_TOP_PLACEMENT_Y = 0
 MACRO_TOP_PLACEMENT_ORIENT = 0
 
 for net in nets_top:
-    iterms = net.getITerms(); # asssumption: no pins (bterms) on top level
+    iterms = net.getITerms()  # asssumption: no pins (bterms) on top level
     block_net_name = None
     for iterm in iterms:
         macro_name = iterm.getMTerm().getMaster().getName()
@@ -107,6 +112,10 @@ for net in nets_top:
 nets_macro = block_macro.getNets()
 created_macros = {}
 for net in nets_macro:
+    iterms = net.getITerms()  # asssumption: no pins (bterms) on top level
+    if not keep_flag:
+        for iterm in iterms:
+            odb.dbITerm_disconnect(iterm)
     if net.getName() in to_connect:
         for node_iterm in to_connect[net.getName()]:
             node_master = node_iterm.getMTerm().getMaster()
@@ -116,8 +125,8 @@ for net in nets_macro:
                 created_macros[node_inst_name] = 1
                 print("Creating: ", node_master.getName(), node_inst_name)
                 new_inst = odb.dbInst_create(block_macro, node_master, node_inst_name)
-                new_inst.setLocation(node_inst.getLocation()[0]-MACRO_TOP_PLACEMENT_X, node_inst.getLocation()[1]-MACRO_TOP_PLACEMENT_Y)
                 new_inst.setOrient(node_inst.getOrient())
+                new_inst.setLocation(node_inst.getLocation()[0]-MACRO_TOP_PLACEMENT_X, node_inst.getLocation()[1]-MACRO_TOP_PLACEMENT_Y)
                 new_inst.setPlacementStatus("FIRM")
             else:
                 new_inst = block_macro.findInst(node_inst_name)

@@ -23,6 +23,7 @@ use feature "switch";
 
 open (LIB, $ARGV[0]) or die("Couldn't open $ARGV[0]");
 open (CELLS,'<', $ARGV[1]) or die("Couldn't open $ARGV[1]");
+
 my @cells = ();
 while(<CELLS>){ #cells to remove
   chop($_);

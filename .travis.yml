@@ -1,0 +1,72 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+language: minimal
+
+branches:
+  only:
+    - develop
+    - master
+    - staging
+    - /^(?i:develop)-.*$/
+git:
+  depth: false
+
+services:
+  - docker
+
+os: 
+  - linux
+
+jobs:
+  include:
+    - name: "Base Test"
+      env: TEST_SET=spm
+    - name: "Fastest Test Set"
+      env: TEST_SET=fastestTestSet
+    - name: "Typical Test Set 1"
+      env: TEST_SET=typicalTestSet1
+    - name: "Typical Test Set 2"
+      env: TEST_SET=typicalTestSet2
+    - name: "aes_cipher"
+      env: TEST_SET=aes_cipher
+    - name: "des"
+      env: TEST_SET=des
+    - name: "BM64"
+      env: TEST_SET=BM64
+    - name: "picorv32a"
+      env: TEST_SET=picorv32a
+    - name: "chacha"
+      env: TEST_SET=chacha
+    - name: "PPU"
+      env: TEST_SET=PPU
+    - name: "y_huff"
+      env: TEST_SET=y_huff
+    - name: "blabla"
+      env: TEST_SET=blabla
+    - name: "ldpcenc"
+      env: TEST_SET=ldpcenc
+    - name: "salsa20"
+      env: TEST_SET=salsa20
+    - name: "aes_core"
+      env: TEST_SET=aes_core
+    - name: "aes"
+      env: TEST_SET=aes
+     
+
+install:
+  - sh travisCI/travisBuild.sh
+
+script:
+  - bash travisCI/travisTest.sh $TEST_SET

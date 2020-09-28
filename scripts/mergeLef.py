@@ -53,6 +53,8 @@ for lefFile in lefs:
   snippet = f.read()
   f.close()
 
+  snippet = re.sub("END LIBRARY","",snippet)
+
   # Match the sites
   pattern = r"^SITE.*?^END\s\S+"
   m = re.findall(pattern, snippet, re.M | re.DOTALL)

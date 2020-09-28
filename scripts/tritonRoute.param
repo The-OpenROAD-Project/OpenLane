@@ -6,5 +6,5 @@ outputTA:${tritonRoute_tmp_file_tag}_TA.def
 outputguide:${tritonRoute_tmp_file_tag}.guide
 outputDRC:${tritonRoute_report_file_tag}.drc
 outputMaze:${tritonRoute_tmp_file_tag}_maze.log
-optimizationMode:${ROUTING_STRATEGY}
+threads:${ROUTING_CORES}
 verbose:1

@@ -13,8 +13,13 @@
 # limitations under the License.
 
 # Placement defaults
-set ::env(PL_TARGET_DENSITY) 0.5
+set ::env(PL_TARGET_DENSITY) 0.4
 set ::env(PL_ROUTABILITY_DRIVEN) 0
 set ::env(PL_TIME_DRIVEN) 0
-set ::env(PL_INITIAL_PLACEMENT) 0
+set ::env(PL_BASIC_PLACEMENT) 0
+set ::env(PL_SKIP_INITIAL_PLACEMENT) 0
 set ::env(MAX_WIRE_LENGTH) 50
+set ::env(PL_OPENPHYSYN_OPTIMIZATIONS) 1
+set ::env(PSN_ENABLE_RESIZING) 1
+set ::env(PSN_ENABLE_PIN_SWAP) 1
+set ::env(PL_RESIZER_OVERBUFFER) 0

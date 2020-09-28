@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Routing defaults
-set ::env(ROUTING_STRATEGY) 0
+set ::env(ROUTING_CORES) 4
 set ::env(GLB_RT_OLD_FR) 0
 set ::env(GLB_RT_ADJUSTMENT) 0
 set ::env(GLB_RT_L1_ADJUSTMENT) 0; # more like pdk-specific (e.g., when L1 = li)

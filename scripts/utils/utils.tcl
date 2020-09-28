@@ -12,6 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# warn about deprecated configs and preserve backwards compatibility
+proc handle_deprecated_config {old new} {
+  if { [info exists ::env($old)] } {
+    puts_warn "$old is now deprecated; use $new instead"
+
+    if { ! [info exists ::env($new)] } {
+      set ::env($new) $::env($old)
+    }
+    if { $::env($new) != $::env($old) } {
+      puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
+      return -code error
+    }
+  }
+}
+
+proc handle_deprecated_command {old new args} {
+  puts_warn "$old is now deprecated; use $new instead"
+  eval {$new {*}$args}
+}
+
+proc set_if_unset {var default_value} {
+  upvar $var x
+  if {! [info exists x] } {
+    set x $default_value
+  }
+}
+
 # create an array out of a list
 
 proc add_to_env {my_array} {
@@ -34,10 +61,11 @@ proc is_keyword_arg { arg } {
 # parse arguments
 # adopted from https://github.com/The-OpenROAD-Project/OpenSTA/blob/77f22e482e8d48d29f2810d871a22847f1bdd74a/tcl/Util.tcl#L31
 
-proc parse_key_args { cmd arg_var key_var options {flag_var ""} {flags {}}} {
+proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consume_args_flag "-consume"}} {
 	upvar 1 $arg_var args
 	upvar 1 $key_var key_value
 	upvar 1 $flag_var flag_present
+	set args_copy $args
 	set keys {}
 	foreach option $options {
 		set option_name [lindex $option 0]
@@ -72,13 +100,15 @@ proc parse_key_args { cmd arg_var key_var options {flag_var ""} {flags {}}} {
 			}
 		} else {
 			lappend args_rtn $arg
-#			if { [info exists key] } {
-#				lappend key_value($key) $arg
-#			}
 		}
 		set args [lrange $args 1 end]
 	}
-	set args $args_rtn
+
+	if { $consume_args_flag == "-no_consume" } {
+	  set args $args_copy
+	} else {
+	  set args $args_rtn
+	}
 	return -code ok
 }
 

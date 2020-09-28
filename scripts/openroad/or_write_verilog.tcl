@@ -15,7 +15,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+if {[catch {read_def $::env(INPUT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }

@@ -13,38 +13,11 @@
 # limitations under the License.
 
 
-proc check_diode_placement {args} {
-    #set st {detailed placement failed on}
-    set checker [catch {exec grep "detailed placement failed" $::env(LOG_DIR)/placement/diodes.log}]
-
-    if { ! $checker } {
-        puts_err "Diode placement failed"
-        puts_err "Existing..."
-        exit
-    } else {
-        puts_info "Diode placement passed."
-    }
-
-}
-
-proc check_unmapped_cells {args} {
-
-    set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh unmapped $::env(yosys_log_file_tag).log ]
-  
-    if { $checker != 0 } {
-        puts_err "Unmapped cells in design."
-        puts_err "Existing..."
-        exit
-    } else {
-        puts_info "No unmapped cells."
-    }
-
-}
 
 proc check_assign_statements {args} {
 
     set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(yosys_result_file_tag).v ]
-  
+
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
         puts_err "Existing..."

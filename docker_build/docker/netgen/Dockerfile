@@ -20,24 +20,16 @@ RUN yum groupinstall -y "Development Tools" "Development Libraries"
 RUN yum -y install centos-release-scl && \
     yum -y install devtoolset-8 devtoolset-8-libatomic-devel
 
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
-    CXX="/opt/rh/devtoolset-8/root/usr/bin/g++" \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
-#
-
 # netgen dependencies
 RUN yum install -y csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone netgen components
 # RUN git clone https://github.com/RTimothyEdwards/netgen
-RUN git clone git://opencircuitdesign.com/netgen netgen_07072020
+RUN git clone git://opencircuitdesign.com/netgen netgen_22082020
 
-WORKDIR netgen_07072020
+WORKDIR netgen_22082020
 
-RUN git checkout 18739235a9a1ae901c1bbfed206a9b44ca6a2e97
-
+RUN git checkout 50b0e9cb6572cfa2f96d49556d13e4c445986e0f
 
 # build
 RUN ./configure --prefix=/build && \
@@ -49,4 +41,3 @@ RUN mkdir -p /build/version/
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/netgen.version
 RUN git rev-parse HEAD >> /build/version/netgen.version
 RUN tar -czf /build.tar.gz /build
-

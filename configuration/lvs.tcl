@@ -1,0 +1,1 @@
+set ::env(LVS_INSERT_POWER_PINS) 1

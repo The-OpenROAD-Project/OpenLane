@@ -1,0 +1,42 @@
+# A general XOR script
+# (https://www.klayout.de/forum/discussion/100/xor-vs-diff-tool)
+# This script uses KLayout's DRC language to implement a generic
+# XOR between two layouts. The name of the layouts is given
+# in $a and $b.
+
+# For layout-to-layout XOR with multiple cores, run this script with
+#   ./klayout -r xor.drc -rd thr=NUM_CORES -rd top_cell=TOP_CELL_NAME -rd a=a.gds -rd b=b.gds -rd ol=xor.gds -zz
+# (replace NUM_CORES by the desired number of cores to utilize
+
+# enable timing output
+verbose
+
+# set up input a
+a = source($a, $top_cell)
+
+# set up input b
+b = source($b, $top_cell)
+
+$o && report("XOR #{$a} vs. #{$b}", $o)
+$ol && target($ol, $co || "XOR")
+
+$thr && threads($thr) || threads(2)
+
+# collect all common layers
+layers = {}
+[ a.layout, b.layout ].each do |ly|
+  ly.layer_indices.each do |li|
+    i = ly.get_info(li)
+    layers[i.to_s] = i
+  end
+end
+
+# perform the XOR's
+layers.keys.sort.each do |l|
+  i = layers[l]
+  info("--- Running XOR for #{l} ---")
+  x = a.input(l) ^ b.input(l)
+  info("XOR differences: #{x.data.size}")
+  $o && x.output(l, "XOR results for layer #{l}")
+  $ol && x.output(i.layer, i.datatype, i.name)
+end

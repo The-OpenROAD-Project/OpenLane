@@ -22,6 +22,8 @@ import datetime
 import argparse
 import os
 import pandas as pd
+import re
+import copy
 from collections import OrderedDict
 
 from scripts.report.report import Report
@@ -45,32 +47,52 @@ parser.add_argument('--configuration_parameters', '-cp', action='store', default
                 help="file containing configuration parameters to write in report, to report all possible configurations add: all ")
 parser.add_argument('--append_configurations', '-app', action='store_true', default=False,
                 help="append configuration parameters provided to the existing default printed configurations")
-
 parser.add_argument('--clean', '-cl', action='store_true', default=False,
                 help="cleans all intermediate files in runs")
-
 parser.add_argument('--delete', '-dl', action='store_true', default=False,
                 help="deletes the whole run directory upon completion leaving only the final_report.txt file")
-
 parser.add_argument('--tarList', '-tar',  nargs='+', default=None,
                 help="tars the specified sub directories and deletes the whole directory leaving only the compressed version")
-
 parser.add_argument('--htmlExtract', '-html', action='store_true', default=False,
                 help="An option to extract an html summary of the final csv summary")
-
 parser.add_argument('--defaultTestSet', '-dts', action='store_true', default=False,
-                help="Runs the default test set to generate the regression sheet")
+                help="Runs the default test set (all designs under ./designs/) to generate the regression sheet")
+parser.add_argument('--excluded_designs', '-e', nargs='+', default=[],
+                help="designs to exclude from the run")
+parser.add_argument('--benchmark', '-b', action='store', default=None,
+                help="benchmark report file to compare with")
+parser.add_argument('--print_rem', '-p', action='store', default=None,
+                help="Takes a time period, and prints the list of remaining designs periodically based on it")
+parser.add_argument('--disable_timestamp', '-dt',action='store_true', default=False,
+                help="Disables appending the timestamp to the file names and tags.")
+parser.add_argument('--show_output', '-so',action='store_true', default=False,
+                help="Enables showing the ./flow.tcl output into the stdout. If more than one design/more than one configuration is run, this flag will be treated as False, even if specified otherwise.")
+                             
 
 args = parser.parse_args()
 
 regression = args.regression
 tag = args.tag
 if args.defaultTestSet:
-        defaultTestSetFileOpener = open('./designs/defaultTestSet.list', 'r')
-        designs = defaultTestSetFileOpener.read().split()
-        defaultTestSetFileOpener.close()
+        designs= [x  for x in os.listdir('./designs/')]
+        for i in designs:
+                if os.path.isdir('./designs/'+i) == False:
+                        designs.remove(i)
 else:
         designs = list(OrderedDict.fromkeys(args.designs))
+
+excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
+
+
+
+for excluded_design in excluded_designs:
+        if excluded_design in designs:
+                designs.remove(excluded_design)
+
+show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
+
+rem_designs = copy.deepcopy(designs)
+
 num_workers = args.threads
 config = args.config_tag
 tarList = ['']
@@ -106,7 +128,18 @@ if args.configuration_parameters is not None:
                         print ("Could not open/read file:", args.configuration_parameters)
                         sys.exit()
 
-report_file_name = "./regression_results/{tag}_{date}".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+store_dir = ""
+report_file_name = ""
+if args.disable_timestamp:
+        store_dir =  "./regression_results/{tag}/".format(tag=tag)
+        report_file_name = "{store_dir}/{tag}".format(store_dir=store_dir,tag=tag)
+else:
+        store_dir =  "./regression_results/{tag}_{date}/".format(tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+        report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
+
+if os.path.exists(store_dir) == False:
+    os.mkdir(store_dir)
+
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
 handler1 = logging.FileHandler("{report_file_name}.log".format(report_file_name=report_file_name), 'w')
@@ -126,14 +159,42 @@ report_log.setLevel(logging.INFO)
 
 report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
 
+
+
+def printRemDesignList():
+        t = threading.Timer(float(args.print_rem), printRemDesignList)  
+        t.start()
+        print("Remaining designs: ",rem_designs)
+        if len(rem_designs) == 0:
+                t.cancel()
+
+if args.print_rem is not None:
+        printRemDesignList()
+
+
 def run_design(designs_queue):
         while not designs_queue.empty():
-                design, config, tag= designs_queue.get(timeout=3)  # 3s timeout
+                design, config, tag,design_name= designs_queue.get(timeout=3)  # 3s timeout
                 run_path = utils.get_run_path(design=design, tag=tag)
                 command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 log.info('{design} {tag} running'.format(design=design, tag=tag))
+                command = ""
+                if show_log_output:
+                        command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                else:
+                        command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                
                 try:
-                        subprocess.check_output(command.split(), stderr=subprocess.PIPE)
+                        if show_log_output:
+                                process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                                while True:
+                                        output = process.stdout.readline()
+                                        if not output:
+                                                break
+                                        if output:
+                                                print (str(output.strip())[2:-1])
+                        else:
+                                subprocess.check_output(command.split(), stderr=subprocess.PIPE)
                 except subprocess.CalledProcessError as e:
                         error_msg = e.stderr.decode(sys.getfilesystemencoding())
                         #print(error_msg)
@@ -147,7 +208,7 @@ def run_design(designs_queue):
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)
 
-                report = Report(design, tag, params).get_report()
+                report = Report(design, tag, design_name,params).get_report()
                 report_log.info(report)
         
                 with open(run_path + "final_report.txt", "w") as report_file:
@@ -155,16 +216,29 @@ def run_design(designs_queue):
                         report_file.write("\n")
                         report_file.write(report)
                 
+
+                if args.benchmark is not None:
+                        log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
+                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design}".format(
+                                benchmark=args.benchmark,
+                                this_run=report_file_name + ".csv",
+                                output_report=report_file_name + "_design_test_report.csv",
+                                design=design
+                        )
+                        subprocess.check_output(design_benchmark_comp_cmd.split())
+
+
+
                 if args.clean:
                         log.info('{design} {tag} Cleaning tmp Directory..'.format(design=design, tag=tag))
-                        moveUnPadded_cmd = "cp ./designs/{design}/runs/{tag}/tmp/merged_unpadded.lef ./designs/{design}/runs/{tag}/results/".format(
-                                design=design,
+                        moveUnPadded_cmd = "cp {run_path}/tmp/merged_unpadded.lef {run_path}/results/".format(
+                                run_path=run_path,
                                 tag=tag
                         )
                         subprocess.check_output(moveUnPadded_cmd.split())
 
-                        clean_cmd = "rm -rf ./designs/{design}/runs/{tag}/tmp/".format(
-                                design=design,
+                        clean_cmd = "rm -rf {run_path}/tmp/".format(
+                                run_path=run_path,
                                 tag=tag
                         )
                         subprocess.check_output(clean_cmd.split())
@@ -174,18 +248,20 @@ def run_design(designs_queue):
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
                         if 'all' in tarList: 
-                                tarAll_cmd = "tar -cvzf ./designs/{design}/runs/{design}_{tag}.tar.gz ./designs/{design}/runs/{tag}/".format(
-                                        design=design,
+                                tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
+                                        run_path=run_path,
+                                        design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tarAll_cmd.split())
                                 
                         else:
-                                tarString = "tar -cvzf ./designs/{design}/runs/{design}_{tag}.tar.gz"
+                                tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
                                 for dirc in tarList:
-                                        tarString+=  " ./designs/{design}/runs/{tag}/"+dirc
+                                        tarString+=  " {run_path}"+dirc
                                 tar_cmd = tarString.format(
-                                        design=design,
+                                        run_path=run_path,
+                                        design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tar_cmd.split())
@@ -194,22 +270,43 @@ def run_design(designs_queue):
                 if args.delete:                
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
                         
-                        deleteDirectory = "rm -rf ./designs/{design}/runs/{tag}/".format(
-                                design=design,
-                                tag=tag
+                        deleteDirectory = "rm -rf {run_path}".format(
+                                run_path=run_path
                         )
                         subprocess.check_output(deleteDirectory.split())
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
+                
+                if args.print_rem is not None:
+                        if design in rem_designs:
+                                rem_designs.remove(design)
 
-
-print(designs)
+#print(designs)
 
 def addCellPerMMSquaredOverCoreUtil(filename):
-        data = pd.read_csv(filename)
+        data = pd.read_csv(filename, error_bad_lines=False)
         df = pd.DataFrame(data)
-        df.insert(5, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
+        df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
         df.to_csv(filename)
+
+def get_design_name(design, config):
+        design_path= utils.get_design_path(design=design)
+        if design_path is None:
+            print("{design} not found, skipping...".format(design=design))
+            return "INVALID DESIGN PATH"
+        config_file = "{design_path}/{config}.tcl".format(
+                design_path=design_path,
+                config=config,
+        )
+        config_file_opener = open(config_file, "r")
+        configs = config_file_opener.read()
+        config_file_opener.close()
+        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
+        for name in re.findall(pattern, configs):
+                return name.replace("\"","")
+        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
+        return "INVALID DESIGN PATH"
+
 
 
 que = queue.Queue()
@@ -223,7 +320,7 @@ if regression is not None:
         if base_path is None:
             print("{design} not found, skipping...".format(design=design))
             continue
-
+        design_name= get_design_name(design, config)
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -247,11 +344,12 @@ if regression is not None:
                     base_path=base_path,
                     config_tag=config_tag,
                     )
-            que.put((design, config_tag, config_tag))
+            que.put((design, config_tag, config_tag,design_name))
 else:
     for design in designs:
         default_config_tag = "config_{tag}".format(tag=tag)
-        que.put((design, config, default_config_tag))
+        design_name= get_design_name(design, config)
+        que.put((design, config, default_config_tag,design_name))
 
 
 workers = []
@@ -273,13 +371,13 @@ subprocess.check_output(best_result_cmd.split())
 
 if args.htmlExtract:
         log.info("Converting to html..")
-        csv2html_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
+        csv2html_result_cmd = "python3 ./scripts/csv2html/csv2html.py -i {input} -o {output}".format(
                 input=report_file_name + ".csv",
                 output=report_file_name + ".html"
                 )
         subprocess.check_output(csv2html_result_cmd.split())
 
-        csv2besthtml_result_cmd = "python3 ./scripts/csv2html/main.py {input} {output}".format(
+        csv2besthtml_result_cmd = "python3 ./scripts/csv2html/csv2html.py -i {input} -o {output}".format(
                 input=report_file_name + "_best.csv",
                 output=report_file_name + "_best.html"
                 )
@@ -288,6 +386,19 @@ if args.htmlExtract:
 addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
 
 addCellPerMMSquaredOverCoreUtil(report_file_name + "_best.csv")
+
+
+if args.benchmark is not None:
+        log.info("Generating final benchmark results..")
+        full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -ur -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
+                benchmark=args.benchmark,
+                this_run=report_file_name + ".csv",
+                output_report=report_file_name + "_benchmark_written_report.rpt",
+                output_xlsx=report_file_name + "_benchmark_final_report.xlsx"
+        )
+        subprocess.check_output(full_benchmark_comp_cmd.split())
+
+
 
 log.info("Done")
 

@@ -31,7 +31,8 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN pip3.6 install --upgrade pip && \
     pip install matplotlib && \
     pip install jinja2 && \
-    pip install pandas
+    pip install pandas && \
+    pip install install XlsxWriter
 
 RUN yum install -y tcllib
 
@@ -44,7 +45,11 @@ ENV LD_LIBRARY_PATH=$OPENROAD/lib:$OPENROAD/lib/Linux-x86_64:$LD_LIBRARY_PATH
 ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
 
+ARG CACHE_INVALIDATOR=1
+RUN echo "$CACHE_INVALIDATOR"
+
 COPY ./openroad_tools.tar.gz /
+COPY ./.tclshrc /
 COPY ./.tclshrc /root
 RUN tar -xzf openroad_tools.tar.gz && \
     rm -rf openroad_tools.tar.gz

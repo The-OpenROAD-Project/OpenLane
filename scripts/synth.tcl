@@ -41,6 +41,8 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
+
+
 # ns expected (in sdc as well)
 set clock_period [expr {$::env(CLOCK_PERIOD)*1000}]
 
@@ -149,14 +151,23 @@ set scriptname(2) "scpt_2"
 set scriptname(3) "scpt_3"
 
 
+set vIdirsArgs ""
+if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
+  foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+    lappend vIdirsArgs "-I$dir"
+  }
+  set vIdirsArgs [join $vIdirsArgs]
+}
+
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-  read_verilog [lindex $::env(VERILOG_FILES) $i]
+  read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 hierarchy -check -top $vtop
 
+
 if { $::env(SYNTH_NO_FLAT) } {
-	synth -top $vtop 
+	synth -top $vtop
 } else {
 	synth -top $vtop -flatten
 }
@@ -166,6 +177,12 @@ opt
 opt_clean -purge
 
 tee -o "$::env(yosys_report_file_tag)_pre.stat" stat
+
+# handle technology mapping of latches
+if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
+	techmap -map $::env(SYNTH_LATCH_MAP)
+	simplemap
+}
 
 dfflibmap -liberty $sclib
 tee -o "$::env(yosys_report_file_tag)_dff.stat" stat
@@ -216,19 +233,19 @@ if {$strategy==100} {
 
     tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
     tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $sclib
-    write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag).v"
+    write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
 	design -reset
 	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
-	file copy -force $::env(yosys_result_file_tag).v $::env(yosys_tmp_file_tag)_unflat.v 
-	read_verilog $::env(yosys_result_file_tag).v
+	file copy -force $::env(SAVE_NETLIST) $::env(yosys_tmp_file_tag)_unflat.v
+	read_verilog $::env(SAVE_NETLIST)
 	synth -top $vtop -flatten
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-	write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag).v"
+	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
 	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
 	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $sclib
 }

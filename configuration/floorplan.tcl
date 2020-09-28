@@ -13,8 +13,8 @@
 # limitations under the License.
 
 # Floorplan defaults
-set ::env(FP_IO_VMETAL) 2
-set ::env(FP_IO_HMETAL) 3
+set ::env(FP_IO_VMETAL) 3
+set ::env(FP_IO_HMETAL) 4
 
 set ::env(FP_SIZING) relative
 set ::env(FP_CORE_UTIL) 50

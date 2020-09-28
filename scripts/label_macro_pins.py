@@ -99,10 +99,18 @@ pad_pin_map = {}
 for net in mapping_nets:
     iterms = net.getITerms()
     bterms = net.getBTerms()
-    if len(iterms) == 1 and len(bterms) == 1\
-            and iterms[0].getMTerm().getName() == PAD_PIN_NAME:
+    if len(iterms) >= 1 and len(bterms) == 1:
+        pad_name = None
+        for iterm in iterms:
+            if iterm.getMTerm().getName() == PAD_PIN_NAME:
+                pad_name = iterm.getInst().getName()
+                break
+
+        if pad_name is None:
+            print ("Warning: net", net.getName(), "has a BTerm but no ITerms that match PAD_PIN_NAME")
+            continue
+
         pin_name = bterms[0].getName()
-        pad_name = iterms[0].getInst().getName()
 
         # warning: no \ in names
         pad_name = pad_name.replace("\\", "")

@@ -1,9 +1,10 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm 
+DOCKERFILE_PATH ?= ./Dockerfile
+IMAGE_NAME ?= openlane:rc3
 #ROOT = sudo
 
-#TOOLS = brown_yosys tapcell replace magic cts ioplacer pdn opendp resizer route macroplacer fastroute opensta yosys
-TOOLS = replace ioplacer opendp route route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog
+TOOLS = replace ioplacer opendp route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog openphysyn
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
@@ -11,18 +12,19 @@ TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 # Build Tools
 # ==============================================================================
-build-all: $(TOOL_BUILD_TARGETS)
+build-all: $(TOOL_BUILD_TARGETS) export-all
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 	mkdir -p logs/docker
 	export DOCKER_BUILDKIT=1; ${ROOT} docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
+	${MAKE} export-$*
 
 # ==============================================================================
 # Export Tools
 # ==============================================================================
 .PHONY: $(TOOL_EXPORT_TARGETS)
-$(TOOL_EXPORT_TARGETS_PHONY): export-% : tar/%.tar.gz 
-$(TOOL_EXPORT_TARGETS_REAL): tar/%.tar.gz :
+$(TOOL_EXPORT_TARGETS_PHONY): export-% :
+	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
 	id=$$(${ROOT} docker create $*) ; \
 	  ${ROOT} docker cp $$id:\build.tar.gz tar/$*.tar.gz ; \
@@ -47,7 +49,7 @@ FORCE:
 .PHONY: merge
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
-	docker build $(DOCKER_BUILD_OPTS) -t openlane:rc2 -f ./Dockerfile ./tar | tee logs/docker/$<.build.txt ; \
+	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
