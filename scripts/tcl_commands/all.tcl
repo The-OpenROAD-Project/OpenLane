@@ -791,7 +791,7 @@ proc set_layer_tracks {args} {
 
 proc run_or_antenna_check {args} {
 
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(LOG_DIR)/routing/or_antenna.log
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/or_antenna.log
 
 }
 
