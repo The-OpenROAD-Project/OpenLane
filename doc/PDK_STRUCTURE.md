@@ -49,8 +49,13 @@ This section defines the neccessary variables for PDK configuration file
 | `CTS_SQR_RES` | Defines the resistance per square micron, used in CTS. |
 | `FP_PDN_RAIL_OFFSET` | Defines the rail offset for met1 used in PDN. <br> Default: `0`. |
 | `FP_PDN_VWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
-| `FP_PDN_HWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
-
+| `FP_PDN_HWIDTH` | Defines the strap width for the horizontal layer used in PDN. <br> Default: `1.6`. |
+| `FP_PDN_CORE_RING_VWIDTH` | Defines the vertical width for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
+| `FP_PDN_CORE_RING_HWIDTH` | Defines the horizontal width for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
+| `FP_PDN_CORE_RING_VSPACING` | Defines the spacing for the vertical layer used to create the core ring in the PDN. <br> Default: `5`. |
+| `FP_PDN_CORE_RING_HSPACING` | Defines the spacing for the horizontal layer used to create the core ring in the PDN. <br> Default: `5`. |
+| `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
+| `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
 
 ## Standard cell library-specific variables
 

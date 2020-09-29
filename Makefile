@@ -16,7 +16,8 @@ OPENLANE_DIR ?= $(shell pwd)
 THREADS ?= $(shell nproc)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 
-IMAGE_NAME ?= openlane:rc3
+IMAGE_NAME ?= openlane:rc4
+TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 
@@ -84,7 +85,7 @@ regression_test: check-env
 
 test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -overwrite"
 
 clean_runs:
 	cd $(OPENLANE_DIR) && \

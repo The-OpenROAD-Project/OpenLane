@@ -28,7 +28,29 @@ Authors:
 
 import sys
 import pathlib
-p = pathlib.Path('.')
+import argparse
+
+parser = argparse.ArgumentParser(
+    description='Creates and obstruction in def and lef files.')
+
+parser.add_argument('--def_file', '-d',required=True,
+                    help='Input DEF')
+
+parser.add_argument('--lef_file', '-l',required=True,
+                   help='Input LEF')
+
+parser.add_argument('--root_dir', '-r',default=pathlib.Path('.'),required=False,
+                   help='root directory')
+
+parser.add_argument('--wire_model', '-mw', default='PI',required=False,
+                    help='name of wire model')
+
+parser.add_argument('--edge_cap_factor', '-ec', default=1,required=False,
+                    help='Edge Capacitance Factor 0 to 1')
+
+args = parser.parse_args()
+
+p = args.root_dir
 sys.path.insert(0, str(p)+'/scripts/spef_extractor/lef_def_parser')
 import matplotlib as plt
 from def_parser import *
@@ -380,26 +402,10 @@ vias_dict_def = {}
 edgeCapFactor = [1]
 wireModel = 'PI'
 
-
-# this section is responsible for allowing the script to run directly from a terminal
-if(len(sys.argv) < 5):
-    if(len(sys.argv) < 4):
-        if(len(sys.argv) < 3):
-            sys.exit("Arguments should be passed: python <script_name>.py <path/lef_name>.lef <path/def_name>.def  <wire_model (either 'L' or 'PI')> <edge_capacitance factor (default is 1)>")
-        else:
-            lef_file_name = sys.argv[1]
-            def_file_name = sys.argv[2]
-    else:
-        lef_file_name = sys.argv[1]
-        def_file_name = sys.argv[2]
-        wireModel = sys.argv[3]
-        
-else:
-    lef_file_name = sys.argv[1]
-    def_file_name = sys.argv[2]
-    wireModel = sys.argv[3]
-    edgeCapFactor[0] = float(sys.argv[4])
-
+lef_file_name = args.lef_file
+def_file_name = args.def_file
+wireModel = args.wire_model
+edgeCapFactor[0] = float(args.edge_cap_factor)
 
 
 # convert DEF to readable format

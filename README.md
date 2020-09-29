@@ -23,7 +23,7 @@
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Chip Integration](#chip-integration)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
 
 # Overview
 
@@ -131,7 +131,7 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc3
+    git clone git@github.com:efabless/openlane --branch rc4
     cd openlane/docker_build
     make merge
     cd ..
@@ -142,8 +142,8 @@ To setup openlane you can build the docker container locally following these ins
 Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags)
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc3
-    docker pull efabless/openlane:rc3
+    git clone git@github.com:efabless/openlane --branch rc4
+    docker pull efabless/openlane:rc4
 ```
 
 ## Running OpenLANE
@@ -153,14 +153,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc3
+    export IMAGE_NAME=efabless/openlane:rc4
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 

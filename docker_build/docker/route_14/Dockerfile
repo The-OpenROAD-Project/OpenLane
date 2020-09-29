@@ -1,3 +1,16 @@
+# Copyright 2020 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # syntax = docker/dockerfile:1.0-experimental
 FROM centos:centos6 as build
 
@@ -26,25 +39,33 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
+RUN yum -y remove bison
+RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
+    tar -xvzf bison-3.0.5.tar.gz
+RUN cd bison-3.0.5 && \
+    ./configure --prefix=/usr && \
+    make -j$(nproc) && \
+    make install
+
 # Installing boost for build dependency
-RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.bz2 && \
-    tar -xf boost_1_68_0.tar.bz2 && \
-    cd boost_1_68_0 && \
-    ./bootstrap.sh -with-libraries=program_options,log,filesystem && \
-    ./b2 -j$(nproc) install
+RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
+    tar -xf download && \
+    cd boost_1_72_0 && \
+    ./bootstrap.sh && \
+    ./b2 install --with-iostreams --with-test link=shared -j $(nproc)
 
 # download public key for github.com
 RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN git clone -b openroad https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute14 \
-	&& cd TritonRoute14 \
-	&& git checkout 1570d785ff1cb28b998e5d2c8c8d24ec76e32dbf
+RUN git clone -b openroad https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute_10092020 \
+	&& cd TritonRoute_10092020 \
+	&& git checkout e494b6bb8df70014646cd4eabec0baedb1517e94
 
-RUN mkdir TritonRoute14/build
+RUN mkdir TritonRoute_10092020/build
 
-WORKDIR TritonRoute14/build
+WORKDIR TritonRoute_10092020/build
 
-RUN cmake ..
+RUN cmake ../
 RUN make -j$(nproc)
 
 RUN mkdir -p /build/bin/ && \
@@ -54,3 +75,4 @@ RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/route_14.version
 RUN git rev-parse HEAD >> /build/version/route_14.version
 RUN tar -czf /build.tar.gz /build
+

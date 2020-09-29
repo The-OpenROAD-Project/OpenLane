@@ -39,10 +39,6 @@ if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 load $::env(DESIGN_NAME)
 select top cell
 
-puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
-save
-
 # padding
 
 if { $::env(MAGIC_PAD) } {
@@ -67,6 +63,10 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	puts "\[INFO\]: Current Box Values: [box values]"
 	property FIXED_BBOX [box values]
 }
+
+puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
+cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+save
 
 select top cell
 
