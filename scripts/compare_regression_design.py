@@ -86,6 +86,8 @@ def parseCSV(csv_file):
     return design_out
     
 def criticalMistmatch(benchmark, regression_result):
+    if len(benchmark) == 0 or len(regression_result) == 0:
+        return False, "Nothing to compare with"
     for stat in critical_statistics:
         if compare_vals(benchmark[stat],regression_result[stat],stat):
             continue
@@ -100,13 +102,13 @@ def criticalMistmatch(benchmark, regression_result):
 benchmark = parseCSV(benchmark_file)
 regression_result = parseCSV(regression_results_file)
 
-testFail, reasonForFailure = criticalMistmatch(benchmark,regression_result)
+testFail, reasonWhy = criticalMistmatch(benchmark,regression_result)
 
 report = str(design)
 if testFail:
-    report += ",FAILED,"+reasonForFailure+"\n"
+    report += ",FAILED,"+reasonWhy+"\n"
 else:
-    report += ",PASSED,\n"
+    report += ",PASSED,"+reasonWhy+"\n"
 
 
 outputReportOpener = open(output_report_file, 'a+')
