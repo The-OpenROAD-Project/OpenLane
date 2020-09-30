@@ -58,7 +58,6 @@ from lef_parser import *
 import codecs
 from collections import defaultdict
 import datetime
-from convertDEF import *
 from extractUnitsFromLEF import *
 import os
 #in order to print Date in the SPEF file
@@ -408,16 +407,13 @@ wireModel = args.wire_model
 edgeCapFactor[0] = float(args.edge_cap_factor)
 
 
-# convert DEF to readable format
-covnertToDef57(def_file_name)
-
 # We had to modify the lef parser to ignore the second parameter for the offset
 # since our files provide only 1 value
 lef_parser = LefParser(lef_file_name)
 lef_parser.parse()
 
 # read the updated def
-def_parser = DefParser(def_file_name[:-4] + '_new.def')
+def_parser = DefParser(def_file_name)
 def_parser.parse()
 
 extractViasFromDef(def_parser.vias)
@@ -431,7 +427,8 @@ if(def_parser.scale != None):
     
 
 
-# Get a factor covnersion so that the unit of capacitance is PICOFARADS       
+
+# Get a factor conversion so that the unit of capacitance is PICOFARADS
 capacitanceFactor = 1
 if(lefUnits["CAPACITANCE"] == "NANOFARADS"):
     capacitanceFactor = 1e3
@@ -783,5 +780,5 @@ newContent = newContent.replace('>', ']')
 
 f =  open(str(def_file_name[:-4]) + ".spef","w+", newline='\n')
 f.write(newContent)
-os.remove(def_file_name[:-4] + '_new.def')
+
 print("Writing SPEF is done")
