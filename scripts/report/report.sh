@@ -137,11 +137,11 @@ if ! [[ $opt_wns ]]; then opt_wns=$wns; fi
 
 #Extracting info from OpenSTA post SPEF extraction
 fr_wns=$(grep "wns" $fr_wns_rpt -s | sed -r 's/wns //')
-if ! [[ $fr_wns ]]; then fr_wns=-1; fi
+if ! [[ $fr_wns ]]; then fr_wns=$opt_wns; fi
 
 #Extracting info from OpenSTA post SPEF extraction
 spef_wns=$(grep "wns" $spef_wns_rpt -s | sed -r 's/wns //')
-if ! [[ $spef_wns ]]; then spef_wns=-1; fi
+if ! [[ $spef_wns ]]; then spef_wns=$fr_wns; fi
 
 #Extracting Info from OpenSTA
 tns=$(grep "tns" $tns_rpt -s | sed -r 's/tns //')
@@ -153,11 +153,11 @@ if ! [[ $opt_tns ]]; then opt_tns=$tns; fi
 
 #Extracting info from FR:estimate_parasitics
 fr_tns=$(grep "tns" $fr_tns_rpt -s | sed -r 's/tns //')
-if ! [[ $fr_tns ]]; then fr_tns=-1; fi
+if ! [[ $fr_tns ]]; then fr_tns=$opt_tns; fi
 
 #Extracting info from OpenSTA post SPEF extraction
 spef_tns=$(grep "tns" $spef_tns_rpt -s | sed -r 's/tns //')
-if ! [[ $spef_tns ]]; then spef_tns=-1; fi
+if ! [[ $spef_tns ]]; then spef_tns=$opt_tns; fi
 
 
 #Extracting Info from RePlace
