@@ -26,8 +26,10 @@
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
 | `opt_wns`   | Worst Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
 | `spef_wns`   | Worst Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
+| `spef_wns`   | Worst Negative Slack. Reported after global routing using estimate parasitics. Extracted from FastRoute/OpenSTA.        |
 | `tns`   | Total Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
 | `opt_tns`   | Total Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
+| `fastroute_tns`   | Total Negative Slack. Reported after global routing using estimate parasitics. Extracted from FastRoute/OpenSTA.       |
 | `spef_tns`   | Total Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
 | `HPWL`   | Final value for the half-perimeter wire length. Extracted from RePlace logs.       |
 | `wires_count`   | The number of wires in the design. Extracted from yosys logs.        |

@@ -24,9 +24,11 @@ yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
 opt_wns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_wns.rpt
+fr_wns_rpt=${path}/reports/routing/fastroute_wns.rpt
 spef_wns_rpt=${path}/reports/synthesis/opensta_spef_wns.rpt
 tns_rpt=${path}/reports/synthesis/opensta_tns.rpt
 opt_tns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_tns.rpt
+fr_tns_rpt=${path}/reports/routing/fastroute_tns.rpt
 spef_tns_rpt=${path}/reports/synthesis/opensta_spef_tns.rpt
 HPWL_rpt=${path}/logs/placement/replace.log 
 yosys_log=${path}/logs/synthesis/yosys.log
@@ -134,6 +136,10 @@ opt_wns=$(grep "wns" $opt_wns_rpt | tail -1 |sed -r 's/wns //')
 if ! [[ $opt_wns ]]; then opt_wns=$wns; fi
 
 #Extracting info from OpenSTA post SPEF extraction
+fr_wns=$(grep "wns" $fr_wns_rpt | sed -r 's/wns //')
+if ! [[ $fr_wns ]]; then fr_wns=-1; fi
+
+#Extracting info from OpenSTA post SPEF extraction
 spef_wns=$(grep "wns" $spef_wns_rpt | sed -r 's/wns //')
 if ! [[ $spef_wns ]]; then spef_wns=-1; fi
 
@@ -144,6 +150,10 @@ if ! [[ $tns ]]; then tns=-1; fi
 #Extracting Info from OpenPhySyn
 opt_tns=$(grep "tns" $opt_tns_rpt | tail -1 |sed -r 's/tns //')
 if ! [[ $opt_tns ]]; then opt_tns=$tns; fi
+
+#Extracting info from FR:estimate_parasitics
+fr_tns=$(grep "tns" $fr_tns_rpt | sed -r 's/tns //')
+if ! [[ $fr_tns ]]; then fr_tns=-1; fi
 
 #Extracting info from OpenSTA post SPEF extraction
 spef_tns=$(grep "tns" $spef_tns_rpt | sed -r 's/tns //')
@@ -214,7 +224,7 @@ physical_cells=$(((endcaps+tapcells)+diodes));
 
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $wire_length $vias $wns $opt_wns $spef_wns $tns $opt_tns $spef_tns $hpwl"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $wire_length $vias $wns $opt_wns $fr_wns $spef_wns $tns $opt_tns $fr_tns $spef_tns $hpwl"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done
