@@ -26,6 +26,8 @@ set ::env(FP_PDN_VPITCH) 153.6
 set ::env(FP_PDN_HOFFSET) 16.65
 set ::env(FP_PDN_HPITCH) 153.18
 
+set ::env(FP_PDN_CORE_RING) 0
+
 set ::env(FP_IO_MODE) 1; # 0 matching mode - 1 random equidistant mode
 set ::env(FP_IO_HLENGTH) 4
 set ::env(FP_IO_VLENGTH) 4

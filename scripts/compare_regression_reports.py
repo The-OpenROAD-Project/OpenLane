@@ -140,6 +140,11 @@ def configurationMismatch(benchmark, regression_results):
             configuration_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
 
+        if design not in benchmark:
+            output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
+            configuration_mismatches.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
+            continue
+        
         size_before = len(configuration_mismatches)
         for config in base_configs:
             if benchmark[design][config] == regression_results[design][config]:
@@ -173,7 +178,13 @@ def criticalMistmatch(benchmark, regression_results):
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-
+        
+        if design not in benchmark:
+            testFail = False
+            output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
+            critical_mismatches.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
+            continue
+        
         size_before = len(critical_mismatches)
         for stat in critical_statistics:
             if compare_vals(benchmark[design][stat],regression_results[design][stat],stat):
@@ -203,7 +214,11 @@ def noteWorthyMismatch(benchmark, regression_results):
         if design not in regression_results:
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-
+        
+        if design not in benchmark:
+            output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
+            continue
+        
         for stat in note_worthy_statistics:
             if benchmark[design][stat] == regression_results[design][stat] or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")
