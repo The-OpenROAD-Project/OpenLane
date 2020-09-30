@@ -268,40 +268,46 @@ class Nets:
             new_net = Net(net_name)
             self.nets.append(new_net)
             self.net_dict[net_name] = new_net
+            current_net = new_net
+            del info[:2]
+            # The net may be followed by components
+            if not info:
+                return
         else:
             current_net = self.get_last_net()
-            # parse next info
-            if isinstance(info[0], list):
-                for comp in info:
-                    current_net.comp_pin.append(comp)
-            elif info[0] == "ROUTED" or info[0] == "NEW":
-                new_routed = Routed()
-                new_routed.layer = info[1]
-                # add points to the new_routed
-                for idx in range(2, len(info)):
-                    if isinstance(info[idx], list):
-                        # this is a point
-                        parsed_pt = info[idx]
-                        new_pt = []
-                        for j in range(len(parsed_pt)):
-                            # if we see "*", the new coordinate comes from last
-                            #  point's coordinate
-                            if parsed_pt[j] == "*":
-                                last_pt = new_routed.get_last_pt()
-                                new_coor = last_pt[j]
-                                new_pt.append(new_coor)
-                            else:
-                                new_pt.append(int(parsed_pt[j]))
-                        # add new_pt to the new_routed
-                        new_routed.points.append(new_pt)
-                    else:
-                        # this should be via end point
-                        if(info[idx] != ';'):
-                            new_routed.end_via = info[idx]
-                        # the location of end_via is the last point in the route
-                        new_routed.end_via_loc = new_routed.points[-1]
-                # add new_routed to the current_net
-                current_net.routed.append(new_routed)
+
+        # parse next info
+        if isinstance(info[0], list):
+            for comp in info:
+                current_net.comp_pin.append(comp)
+        elif info[0] == "ROUTED" or info[0] == "NEW":
+            new_routed = Routed()
+            new_routed.layer = info[1]
+            # add points to the new_routed
+            for idx in range(2, len(info)):
+                if isinstance(info[idx], list):
+                    # this is a point
+                    parsed_pt = info[idx]
+                    new_pt = []
+                    for j in range(len(parsed_pt)):
+                        # if we see "*", the new coordinate comes from last
+                        #  point's coordinate
+                        if parsed_pt[j] == "*":
+                            last_pt = new_routed.get_last_pt()
+                            new_coor = last_pt[j]
+                            new_pt.append(new_coor)
+                        else:
+                            new_pt.append(int(parsed_pt[j]))
+                    # add new_pt to the new_routed
+                    new_routed.points.append(new_pt)
+                else:
+                    # this should be via end point
+                    if(info[idx] != ';'):
+                        new_routed.end_via = info[idx]
+                    # the location of end_via is the last point in the route
+                    new_routed.end_via_loc = new_routed.points[-1]
+            # add new_routed to the current_net
+            current_net.routed.append(new_routed)
 
     def __iter__(self):
         return self.nets.__iter__()
