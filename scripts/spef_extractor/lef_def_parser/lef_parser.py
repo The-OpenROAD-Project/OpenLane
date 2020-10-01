@@ -39,6 +39,7 @@ class LefParser:
     def __init__(self, lef_file):
         self.lef_path = lef_file
         # dictionaries to map the definitions
+        self.units_dict = {}
         self.macro_dict = {}
         self.layer_dict = {}
         self.via_dict = {}
@@ -47,9 +48,6 @@ class LefParser:
         # store the statements info in a list
         self.statements = []
         self.cell_height = -1
-        
-        self.units_dict = {}
-
 
     def get_cell_height(self):
         """
@@ -94,6 +92,8 @@ class LefParser:
                             self.layer_dict[done_obj.name] = done_obj
                         elif isinstance(done_obj, Via):
                             self.via_dict[done_obj.name] = done_obj
+                        elif isinstance(done_obj, Units):
+                            self.units_dict = done_obj.info
                         self.statements.append(done_obj)
                 elif nextState == -1:
                     pass
