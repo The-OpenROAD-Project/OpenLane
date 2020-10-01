@@ -41,7 +41,7 @@ clone-skywater-pdk: check-env
 skywater-library: check-env
 	cd  $(PDK_ROOT)/skywater-pdk && \
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
-		make $(STD_CELL_LIBRARY)
+		make -j$(THREADS) $(STD_CELL_LIBRARY)
 
 all-skywater-libraries: check-env
 	cd  $(PDK_ROOT)/skywater-pdk && \
@@ -50,7 +50,7 @@ all-skywater-libraries: check-env
 		git submodule update --init libraries/sky130_fd_sc_hdll/latest && \
 		git submodule update --init libraries/sky130_fd_sc_ms/latest && \
 		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
-		make timing
+		make -j$(THREADS) timing
 
 open_pdks: clone-open_pdks install-open_pdks
 

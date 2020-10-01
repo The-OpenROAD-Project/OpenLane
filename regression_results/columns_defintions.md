@@ -1,5 +1,7 @@
 # Variables information
 
+***NOTE:** The value `-1`, if not meaningful, indicates that the report/log from which the information is extracted wasn't found (the stage responsible for it was skipped or failed).
+
 ## Default Printed Information Variables
 | Variable      | Description                                           |
 |---------------|-------------------------------------------------------|
@@ -24,11 +26,13 @@
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
-| `opt_wns`   | Worst Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
-| `spef_wns`   | Worst Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
+| `opt_wns`   | Worst Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA. If the report wasn't found, the value from the previous STA report is used.        |
+| `fastroute_tns`   | Worst Negative Slack. Reported after global routing using estimate parasitics. Extracted from FastRoute/OpenSTA. If the report wasn't found, the value from the previous STA report is used.        |
+| `spef_wns`   | Worst Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA. If the report wasn't found, the value from the previous STA report is used.        |
 | `tns`   | Total Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
-| `opt_tns`   | Total Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA.        |
-| `spef_tns`   | Total Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA.        |
+| `opt_tns`   | Total Negative Slack. Reported after OpenPhySyn optimizations. Extracted from OpenSTA. If the report wasn't found, the value from the previous STA report is used.       |
+| `fastroute_tns`   | Total Negative Slack. Reported after global routing using estimate parasitics. Extracted from FastRoute/OpenSTA. If the report wasn't found, the value from the previous STA report is used.       |
+| `spef_tns`   | Total Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA. If the report wasn't found, the value from the previous STA report is used.        |
 | `HPWL`   | Final value for the half-perimeter wire length. Extracted from RePlace logs.       |
 | `wires_count`   | The number of wires in the design. Extracted from yosys logs.        |
 | `wire_bits`   | The number of wire bits in the design. Extracted from yosys logs.        |

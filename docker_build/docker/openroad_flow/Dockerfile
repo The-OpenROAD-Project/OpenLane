@@ -102,18 +102,18 @@ RUN cd / && wget http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz \
     && cmake -B build . \ 
     && cmake --build build -j $(nproc) --target install
 
-RUN git clone --recursive --branch openroad https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_02092020
-WORKDIR /OpenROAD_02092020/
-RUN git checkout bbd0ededbcdbfb133fc6ddd5248388e6e86dc516 \
+RUN git clone --recursive --branch openroad https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_23092020
+WORKDIR /OpenROAD_23092020/
+RUN git checkout ae151616ad1d65fba0a2b0f4ab5d18f56f04e1a8 \
 	&& git submodule update --init --recursive
 
-COPY rails.patch /OpenROAD_02092020/
+COPY rails.patch /OpenROAD_23092020/
 RUN git apply rails.patch
 
-COPY setup_local.patch /OpenROAD_02092020/src/OpenDB/src/swig/python
-RUN cd /OpenROAD_02092020/src/OpenDB/src/swig/python && git apply setup_local.patch
+COPY setup_local.patch /OpenROAD_23092020/src/OpenDB/src/swig/python
+RUN cd /OpenROAD_23092020/src/OpenDB/src/swig/python && git apply setup_local.patch
 
-COPY pdn_export_pin.patch /OpenROAD_02092020/
+COPY pdn_export_pin.patch /OpenROAD_23092020/
 RUN git apply pdn_export_pin.patch
 
 # Build OpenROAD
@@ -127,7 +127,7 @@ WORKDIR src/OpenDB
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
 RUN cp -r build/src/swig/python /build/OpenDB_python
-WORKDIR /OpenROAD_02092020/
+WORKDIR /OpenROAD_23092020/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version

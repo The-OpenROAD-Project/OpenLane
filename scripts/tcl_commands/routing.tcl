@@ -25,8 +25,14 @@ proc global_routing {args} {
 
 proc global_routing_or {args} {
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+    set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
+    if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+      set ::env(DIODE_INSERTION_STRATEGY) 0
+      set_def $::env(SAVE_DEF)
+      try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
+      set ::env(DIODE_INSETION_STRATEGY) 3
+    }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
@@ -130,16 +136,16 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-    if { $::env(DIODE_INSERTION_STRATEGY) > 0  && [info exists ::env(DIODE_CELL)] } {
-	if { $::env(DIODE_CELL) ne "" } {
-	    ins_diode_cells
+	 if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {       
+	      if { $::env(DIODE_CELL) ne "" } {
+    		ins_diode_cells
 	}
     }
     use_original_lefs
-    # insert fill_cells
+	global_routing_or
+	# insert fill_cells
     ins_fill_cells_or
     # fastroute global 6_routing
-    # li1_hack_start
 
     # for LVS
     write_verilog $::env(yosys_result_file_tag)_preroute.v
@@ -153,8 +159,6 @@ proc run_routing {args} {
     # 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     # }
 
-    global_routing_or
-    # li1_hack_end
 
 
     # detailed routing
