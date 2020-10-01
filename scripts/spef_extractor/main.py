@@ -58,7 +58,6 @@ from lef_parser import *
 import codecs
 from collections import defaultdict
 import datetime
-from extractUnitsFromLEF import *
 import os
 #in order to print Date in the SPEF file
 now = datetime.datetime.now()
@@ -418,27 +417,23 @@ def_parser.parse()
 
 extractViasFromDef(def_parser.vias)
 
-lefUnits = extractLefUnits(lef_file_name)
-
 # l2d is the conversion factor between the scale in LEF and DEF
 l2d = 1000 # an initial value
 if(def_parser.scale != None):
     l2d = float(def_parser.scale)
-    
-
 
 
 # Get a factor conversion so that the unit of capacitance is PICOFARADS
+capacitanceUnit = lef_parser.units_dict.get('CAPACITANCE')
 capacitanceFactor = 1
-if(lefUnits["CAPACITANCE"] == "NANOFARADS"):
-    capacitanceFactor = 1e3
-
-elif(lefUnits["CAPACITANCE"] == "PICOFARADS"):
-    capacitanceFactor = 1
-    
-elif(lefUnits["CAPACITANCE"] == "FEMTOFARADS"):
-    capacitanceFactor = 1e-3
-
+if capacitanceUnit is None:
+    pass
+elif capacitanceUnit[0] == "NANOFARADS":
+    capacitanceFactor = float(capacitanceUnit[1]) * 1e3
+elif capacitanceUnit[0] == "PICOFARADS":
+    capacitanceFactor = float(capacitanceUnit[1])
+elif capacitanceUnit[0] == "FEMTOFARADS":
+    capacitanceFactor = float(capacitanceUnit[1]) * 1e-3
 
 print("Parameters Used:")
 print("Edge Capacitance Factor:", edgeCapFactor[0])
