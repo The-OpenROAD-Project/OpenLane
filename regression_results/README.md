@@ -266,6 +266,15 @@ The script can be used in two ways
     <tr>
         </tr>
         <td align="center">
+            <code>--print_rem | -p &lt;number&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            If a <code>&lt;number&gt;</code> greater than 0 is provided, a list of the remaining designs will be printed into the terminal every <code>&lt;number&gt;</code> seconds.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
             <code>--disable_timestamp | -dt </code> <br> (Boolean)
         </td>
         <td align="justify">
