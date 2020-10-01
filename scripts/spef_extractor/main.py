@@ -760,7 +760,7 @@ maxCapNet = ["*0"]
 minCap = [1]
 minCapNet = ["*0"]
 
-f = open(str(def_file_name[:-4]) + ".spef","w+", newline='\n')
+f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
 print("Start writing SPEF file")
 printSPEFHeader()
 printNameMap(map_of_names)
