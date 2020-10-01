@@ -52,7 +52,6 @@ args = parser.parse_args()
 
 p = args.root_dir
 sys.path.insert(0, str(p)+'/scripts/spef_extractor/lef_def_parser')
-import matplotlib as plt
 from def_parser import *
 from lef_parser import *
 import codecs

@@ -28,8 +28,6 @@ Date: August 2016
 """
 
 SCALE = 2000
-import matplotlib.pyplot as plt
-import numpy as np
 import math
 
 
@@ -124,69 +122,6 @@ def split_space(line):
     """
     new_line = line.split()
     return new_line
-
-
-def draw_obs(obs, color):
-    """
-    Helper method to draw a OBS object
-    :return: void
-    """
-    # process each Layer
-    for layer in obs.info["LAYER"]:
-        for shape in layer.shapes:
-            scaled_pts = scalePts(shape.points, SCALE)
-            if (shape.type == "RECT"):
-                scaled_pts = rect_to_polygon(scaled_pts)
-            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True,
-                                     color=color)
-            plt.gca().add_patch(draw_shape)
-
-
-def draw_port(port, color):
-    """
-    Helper method to draw a PORT object
-    :return: void
-    """
-    # process each Layer
-    for layer in port.info["LAYER"]:
-        for shape in layer.shapes:
-            scaled_pts = scalePts(shape.points, SCALE)
-            if (shape.type == "RECT"):
-                scaled_pts = rect_to_polygon(scaled_pts)
-            #print (scaled_pts)
-            draw_shape = plt.Polygon(scaled_pts, closed=True, fill=True,
-                                     color=color)
-            plt.gca().add_patch(draw_shape)
-
-
-def draw_pin(pin):
-    """
-    function to draw a PIN object
-    :param pin: a pin object
-    :return: void
-    """
-    # chosen color of the PIN in the sketch
-
-    color = "blue"
-    pin_name = pin.name.lower()
-    if pin_name == "vdd" or pin_name == "gnd":
-        color = "blue"
-    else:
-        color = "red"
-    draw_port(pin.info["PORT"], color)
-
-def draw_macro(macro):
-    """
-    function to draw a Macro (cell) object
-    :param macro: a Macro object
-    :return: void
-    """
-    # draw OBS (if it exists)
-    if "OBS" in macro.info:
-        draw_obs(macro.info["OBS"], "blue")
-    # draw each PIN
-    for pin in macro.info["PIN"]:
-        draw_pin(pin)
 
 def compare_metal(metal_a, metal_b):
     """
@@ -360,13 +295,6 @@ def sort_vias_by_row(layout_area, row_height, vias):
     for each_row in rows:
         each_row.sort(key = lambda x: x[0][0])
     return rows
-
-
-def randomize(dataset, labels):
-    permutation = np.random.permutation(labels.shape[0])
-    shuffled_dataset = dataset[permutation, :]
-    shuffled_labels = labels[permutation]
-    return shuffled_dataset, shuffled_labels
 
 
 def group_via(via_list, max_number, max_distance):
