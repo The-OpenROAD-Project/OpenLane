@@ -56,6 +56,8 @@
 | `TapCells`   | The number of tapcells in the final design. Extracted from tapcell log.        |
 | `Diodes`   | The number of diodes in the final design. Extracted from diode logs.        |
 | `Total_Physical_Cells`   | The sum of endcaps, tapcells, and diodes in the final design.        |
+| `suggested_clock_frequency`   | The suggested clock frequency to be used with the design. Calculated based on the value of `spef_wns`, and reported in `MHz`.       |
+| `suggested_clock_period`   | TThe suggested clock period to be used with the design. Calculated based on the value of `spef_wns`, and reported in `ns`.        |
 
 
 ## Default Printed Configuration Variables
