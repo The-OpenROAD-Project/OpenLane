@@ -41,7 +41,9 @@ jobs:
       env: TEST_SET=aes_cipher
     - name: "des"
       env: TEST_SET=des
-
+  allow_failure:
+    - name: "sha512"
+      env: TEST_SET=sha512
 
 install:
   - sh travisCI/travisBuild.sh
