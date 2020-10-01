@@ -52,10 +52,8 @@ args = parser.parse_args()
 
 p = args.root_dir
 sys.path.insert(0, str(p)+'/scripts/spef_extractor/lef_def_parser')
-from def_parser import *
-from lef_parser import *
-import codecs
-from collections import defaultdict
+from def_parser import DefParser
+from lef_parser import LefParser
 import datetime
 import os
 #in order to print Date in the SPEF file
