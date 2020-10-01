@@ -42,7 +42,8 @@ set ::env(MPLCONFIGDIR) /tmp
 # 0: no diodes
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
-set ::env(DIODE_INSERTION_STRATEGY) 1
+# 3: use FR Antenna Avoidance flow
+set ::env(DIODE_INSERTION_STRATEGY) 3
 
 # psn
 if { [file exists /build/transforms/] } {

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+read_liberty $::env(LIB_SYNTH_COMPLETE)
+
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -22,9 +24,12 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
+if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
+}
+
 FastRoute::set_verbose 3
 
-FastRoute::set_output_file "$::env(fastroute_tmp_file_tag).guide"
 FastRoute::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
 # FastRoute::set_alpha 0.4
@@ -41,8 +46,36 @@ FastRoute::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
 # FastRoute::report_congestion $::env(fastroute_report_file_tag).congestion.rpt
 
+
 FastRoute::set_tile_size $::env(GLB_RT_TILES)
+
 
 FastRoute::start_fastroute
 FastRoute::run_fastroute
-FastRoute::write_guides
+
+if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+    repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)"
+	check_placement
+}
+
+
+
+write_guides $::env(fastroute_tmp_file_tag).guide
+write_def $::env(SAVE_DEF)
+
+# remove $::env(DIODE_INSERTION_STRATEGY) != 3 when FR is fixed.
+if { $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
+    read_liberty -max $::env(LIB_SLOWEST)
+    read_liberty -min $::env(LIB_FASTEST)
+    read_sdc -echo $::env(BASE_SDC_FILE)
+
+    set_wire_rc -layer met1
+    estimate_parasitics -global_routing
+
+    report_checks -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt
+    report_checks -path_delay min_max > $::env(fastroute_report_file_tag).min_max.rpt
+    report_checks -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
+
+    report_wns > $::env(fastroute_report_file_tag)_wns.rpt
+    report_tns > $::env(fastroute_report_file_tag)_tns.rpt
+}

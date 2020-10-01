@@ -63,6 +63,11 @@ jobs:
       env: TEST_SET=aes_core
     - name: "aes"
       env: TEST_SET=aes
+    - name: "sha512"
+      env: TEST_SET=sha512
+  allow_failures:
+    - name: "sha512"
+      env: TEST_SET=sha512
 
 before_install:
   - sh travisCI/travisAutoMerge.sh

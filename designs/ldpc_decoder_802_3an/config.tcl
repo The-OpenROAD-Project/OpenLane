@@ -4,7 +4,7 @@ set ::env(DESIGN_NAME) "ldpc_decoder_802_3an"
 set ::env(VERILOG_FILES) "./designs/ldpc_decoder_802_3an/src/*.v"
 # set ::env(SDC_FILE) "./designs/aes/src/aes.sdc"
 
-set ::env(CLOCK_PERIOD) "5.000"
+set ::env(CLOCK_PERIOD) "15.000"
 set ::env(CLOCK_PORT) "clk"
 
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

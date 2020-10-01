@@ -20,21 +20,38 @@ FROM centos:centos6 as build
 # USER openlane
 
 # install base dependencies
-RUN yum install -y git tcl tk libjpeg libgomp libXext libSM libXft libffi cairo gettext Xvfb
+# including python 3.6
+RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && \
+	yum install -y \
+		cairo \
+		gettext \
+		git \
+		libffi \
+		libgomp \
+		libjpeg \
+		libSM \
+		libXext \
+		libXft \
+		python36u \
+		python36u-pip \
+		python36u-tkinter \
+		tcl \
+		tcllib \
+		tk \
+		Xvfb && \
+	yum clean all && \
+	rm -rf /var/cache/yum
 
-# python 3.6
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
-RUN yum install -y python36u python36u-pip python36u-tkinter
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
 # Install python dependencies
-RUN pip3.6 install --upgrade pip && \
-    pip install matplotlib && \
-    pip install jinja2 && \
-    pip install pandas && \
-    pip install install XlsxWriter
-
-RUN yum install -y tcllib
+RUN pip3.6 install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir \
+		matplotlib \
+		jinja2 \
+		pandas \
+		install \
+		XlsxWriter
 
 ENV OPENLANE_ROOT=/openLANE_flow
 ENV OPENROAD=/build/
@@ -48,19 +65,17 @@ ENV MANPATH=$OPENROAD/share/man:$MANPATH
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
 
-COPY ./openroad_tools.tar.gz /
+ADD ./openroad_tools.tar.gz /
 COPY ./.tclshrc /
 COPY ./.tclshrc /root
-RUN tar -xzf openroad_tools.tar.gz && \
-    rm -rf openroad_tools.tar.gz
 
-COPY ./openLANE_flow.tar.gz /
-RUN mkdir /openLANE_flow
-RUN tar -xzf openLANE_flow.tar.gz -C openLANE_flow&& \
-    rm -rf openLANE_flow.tar.gz
+ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 
 # install opendb python
-RUN cd $OPENROAD/OpenDB_python/&& python3 setup.py install
-RUN rm -rf $OPENROAD/OpenDB_python
+RUN cd $OPENROAD/OpenDB_python/ && \
+	python3 setup.py install && \
+	rm -rf $OPENROAD/OpenDB_python
 
-WORKDIR /openLANE_flow
+WORKDIR $OPENLANE_ROOT
+
+CMD /bin/bash

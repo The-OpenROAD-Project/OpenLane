@@ -73,6 +73,14 @@ args = parser.parse_args()
 
 regression = args.regression
 tag = args.tag
+if args.print_rem is not None:
+        if float(args.print_rem) > 0:
+                print_rem_time = float(args.print_rem)
+        else:
+                print_rem_time = None
+else:
+        print_rem_time = None
+
 if args.defaultTestSet:
         designs= [x  for x in os.listdir('./designs/')]
         for i in designs:
@@ -91,7 +99,8 @@ for excluded_design in excluded_designs:
 
 show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
 
-rem_designs = copy.deepcopy(designs)
+if print_rem_time is not None:
+        rem_designs = dict.fromkeys(designs, 1)
 
 num_workers = args.threads
 config = args.config_tag
@@ -160,16 +169,18 @@ report_log.setLevel(logging.INFO)
 report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
 
 
-
+allow_print_rem_designs = False
 def printRemDesignList():
-        t = threading.Timer(float(args.print_rem), printRemDesignList)  
+        t = threading.Timer(print_rem_time, printRemDesignList)
         t.start()
-        print("Remaining designs: ",rem_designs)
+        if allow_print_rem_designs:
+                print("Remaining designs (design, # of times): ",rem_designs)
         if len(rem_designs) == 0:
                 t.cancel()
 
-if args.print_rem is not None:
+if print_rem_time is not None:
         printRemDesignList()
+        allow_print_rem_designs = True
 
 
 def run_design(designs_queue):
@@ -247,14 +258,13 @@ def run_design(designs_queue):
                 
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
-                        if 'all' in tarList: 
+                        if 'all' in tarList:
                                 tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
                                         run_path=run_path,
                                         design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tarAll_cmd.split())
-                                
                         else:
                                 tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
                                 for dirc in tarList:
@@ -267,7 +277,7 @@ def run_design(designs_queue):
                                 subprocess.check_output(tar_cmd.split())
                         log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
 
-                if args.delete:                
+                if args.delete:
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
                         
                         deleteDirectory = "rm -rf {run_path}".format(
@@ -277,16 +287,23 @@ def run_design(designs_queue):
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
                 
-                if args.print_rem is not None:
-                        if design in rem_designs:
-                                rem_designs.remove(design)
+                if print_rem_time is not None:
+                        if design in rem_designs.keys():
+                                rem_designs[design]-=1
+                                if rem_designs[design] == 0:
+                                        rem_designs.pop(design)
 
 #print(designs)
 
-def addCellPerMMSquaredOverCoreUtil(filename):
+#addExtra adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency
+def addExtra(filename):
         data = pd.read_csv(filename, error_bad_lines=False)
         df = pd.DataFrame(data)
         df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
+        suggest_clock_period=df['CLOCK_PERIOD']-df['spef_wns']
+        used_idx = df.columns.get_loc('CLOCK_PERIOD')
+        df.insert(used_idx,'suggested_clock_period',suggest_clock_period,True)
+        df.insert(used_idx,'suggested_clock_frequency',1000.0/suggest_clock_period,True)
         df.to_csv(filename)
 
 def get_design_name(design, config):
@@ -334,7 +351,8 @@ if regression is not None:
         number_of_configs = subprocess.check_output(gen_config_cmd.split())
         number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
         total_runs = total_runs + number_of_configs
-
+        if print_rem_time is not None:
+                rem_designs[design] = number_of_configs
         for i in range(number_of_configs):
             config_tag = "config_{tag}_{idx}".format(
                     tag=tag,
@@ -383,9 +401,9 @@ if args.htmlExtract:
                 )
         subprocess.check_output(csv2besthtml_result_cmd.split())
 
-addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
+addExtra(report_file_name + ".csv")
 
-addCellPerMMSquaredOverCoreUtil(report_file_name + "_best.csv")
+addExtra(report_file_name + "_best.csv")
 
 
 if args.benchmark is not None:
