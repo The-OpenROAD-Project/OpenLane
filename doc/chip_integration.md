@@ -33,7 +33,7 @@ Make sure to properly configure your macro to get the expected outcome, if it re
 
 If your macro requires special steps or skipping/repeating some steps. Then you should use an [interactive script][2].
 
-For power routing purposes your macros will require a special `pdn.tcl` each and will have to meet certain area constraints. Check this [section](#power-routing) for more details.
+For power routing purposes your macros will require special configurations in your `config.tcl` to properly setup the pdngen configs, and they will have to meet certain area constraints. Check this [section](#power-routing) for more details.
 
 ## Hardening The Core
 
@@ -51,7 +51,7 @@ Add `set ::env(SYNTH_READ_BLACKBOX_LIB) 1`, if you have `::env(VERILOG_FILES_BLA
 
 [Here][0] you can find a list of all the available OpenLANE configuartions.
 
-For power routing purposes your core will require a special `pdn.tcl` each and will have to meet certain constraints. Check this [section](#power-routing) for more details.
+For power routing purposes your core will require  special configurations in your `config.tcl` to properly setup the pdngen configs, and it will have to meet certain constraints. Check this [section](#power-routing) for more details.
 
 ## Hardening The Full Chip
 
@@ -99,24 +99,16 @@ Given these inputs the following [interactive script][5] script. Mainly, it does
 ## Power_routing
 
 ### Macros:
-Each macro in your design should have a special `pdn.tcl` and point to it by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
-
-- All `pdn.tcl` files should contain this special stdcell section, instead of the one in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top levels.
+Each macro in your design should configure the `common_pdn.tcl` for it's use. Generally, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. This is done by setting the following configs:
 
 ```tcl
-pdngen::specify_grid stdcell {
-    name grid
-    rails {
-	    met1 {width $::env(FP_PDN_RAIL_WIDTH) pitch $::env(PLACE_SITE_HEIGHT) offset $::env(FP_PDN_RAIL_OFFSET)}
-    }
-    straps {
-	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
-    }
-    connect {{met1 met4}}
-}
+set ::env(DESIGN_IS_CORE) 0
+set ::env(FP_PDN_CORE_RING) 0
 ```
 
-- If your macro contains other macros inside it. Then make sure to add a `macro` section for each or one for all of them depending on their special configs. The following example is using special `connect` section and different `rails` and `straps`:
+Pdngen configs for macros contain a special stdcell section, instead of the one used for the core in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top level.
+
+If your macro contains other macros inside it. Then make sure to check the `macro` section and see if it requires any modifications for each them depending on their special configs. The following example is using default `connect` section and a different `straps` section:
 ```tcl
 pdngen::specify_grid macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
@@ -126,7 +118,7 @@ pdngen::specify_grid macro {
 	    met1 {width 0.74 pitch 3.56 offset 0}
 	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
     }
-    connect {{met1_PIN_hor met4}}
+    connect {{met1 met4}}
 }
 ```
 
@@ -138,40 +130,14 @@ Refer to [this][3] for more details about the syntax.
 
 ### Core:
 
-The core as well should have a special `pdn.tcl` pointed to by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
-
-It should have an `stdcell` section that includes a `core_ring` on met4 and met5. It should use met5 and met4 for the straps, and met1 for the rails.
+It should have an `stdcell` section that includes a `core_ring` on met4 and met5. It should use met5 and met4 for the straps, and met1 for the rails. Thus make sure to add these to your config file:
 
 ```tcl
-pdngen::specify_grid stdcell {
-    name grid
-    core_ring {
-	    met4 {width 20 spacing 5 core_offset 20}
-	    met5 {width 20 spacing 5 core_offset 20}
-    }
-    rails {
-	    met1 {width $::env(FP_PDN_RAIL_WIDTH) pitch $::env(PLACE_SITE_HEIGHT) offset $::env(FP_PDN_RAIL_OFFSET)}
-    }
-    straps {
-	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
-	    met5 {width $::env(FP_PDN_HWIDTH) pitch $::env(FP_PDN_HPITCH) offset $::env(FP_PDN_HOFFSET)}
-    }
-    connect {{met1 met4} {met4 met5}}
-}
+set ::env(DESIGN_IS_CORE) 1
+set ::env(FP_PDN_CORE_RING) 1
 ```
 
-Then for each macro it should have a `macro` section to specify that metal4 pins should be hooked up to the metal5 straps. The follwing is an example for one macro section, specified for a macro called `pll`:
-```
-pdngen::specify_grid macro {
-    instance "pll"
-    power_pins "vpwr"
-    ground_pins "vgnd"
-    blockages "li1 met1 met2 met3 met4"
-    straps { 
-    } 
-    connect {{met4_PIN_ver met5}}
-}
-```
+If your core contains other macros inside it. Then make sure to check the `macro` section and see if it requires any modifications for each of them depending on their special configs. The default section specifies that metal4 pins should be hooked up to the metal5 straps. 
 
 Refer to [this][3] for more details about the syntax.
 
