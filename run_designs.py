@@ -73,14 +73,6 @@ args = parser.parse_args()
 
 regression = args.regression
 tag = args.tag
-if args.print_rem is not None:
-        if float(args.print_rem) > 0:
-                print_rem_time = float(args.print_rem)
-        else:
-                print_rem_time = None
-else:
-        print_rem_time = None
-
 if args.defaultTestSet:
         designs= [x  for x in os.listdir('./designs/')]
         for i in designs:
@@ -98,6 +90,16 @@ for excluded_design in excluded_designs:
                 designs.remove(excluded_design)
 
 show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
+
+
+if args.print_rem is not None and show_log_output == False:
+        if float(args.print_rem) > 0:
+                print_rem_time = float(args.print_rem)
+        else:
+                print_rem_time = None
+else:
+        print_rem_time = None
+
 
 if print_rem_time is not None:
         rem_designs = dict.fromkeys(designs, 1)
@@ -336,6 +338,9 @@ if regression is not None:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
             print("{design} not found, skipping...".format(design=design))
+            if print_rem_time is not None:
+                if design in rem_designs.keys():
+                        rem_designs.pop(design)
             continue
         design_name= get_design_name(design, config)
         base_config_path=base_path+"base_config.tcl"
@@ -365,6 +370,13 @@ if regression is not None:
             que.put((design, config_tag, config_tag,design_name))
 else:
     for design in designs:
+        base_path = utils.get_design_path(design=design)
+        if base_path is None:
+            print("{design} not found, skipping...".format(design=design))
+            if print_rem_time is not None:
+                if design in rem_designs.keys():
+                        rem_designs.pop(design)
+            continue
         default_config_tag = "config_{tag}".format(tag=tag)
         design_name= get_design_name(design, config)
         que.put((design, config, default_config_tag,design_name))

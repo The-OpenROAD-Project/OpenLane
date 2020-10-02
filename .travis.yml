@@ -65,9 +65,8 @@ jobs:
       env: TEST_SET=aes
     - name: "sha512"
       env: TEST_SET=sha512
-  allow_failures:
-    - name: "sha512"
-      env: TEST_SET=sha512
+    - name: "genericfir"
+      env: TEST_SET=genericfir
 
 before_install:
   - sh travisCI/travisAutoMerge.sh

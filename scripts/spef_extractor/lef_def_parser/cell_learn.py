@@ -105,6 +105,13 @@ def merge_data(data_folder, num_cells):
     return dataset
 
 
+def randomize(dataset, labels):
+    permutation = np.random.permutation(labels.shape[0])
+    shuffled_dataset = dataset[permutation, :]
+    shuffled_labels = labels[permutation]
+    return shuffled_dataset, shuffled_labels
+
+
 def train_model(dataset, data_len, num_to_label):
     """
     Method to train model
@@ -131,7 +138,7 @@ def train_model(dataset, data_len, num_to_label):
 
     # shuffle the dataset
     random.seed(6789)
-    all_dataset, all_label = util.randomize(all_dataset, all_label)
+    all_dataset, all_label = randomize(all_dataset, all_label)
     num_train = int(0.85 * data_len)
 
     #print(max(all_label))

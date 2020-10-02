@@ -29,18 +29,23 @@ Authors:
 import sys
 import pathlib
 import argparse
+import datetime
+import os
+from lef_def_parser.def_parser import DefParser
+from lef_def_parser.lef_parser import LefParser
+
+#in order to print Date in the SPEF file
+now = datetime.datetime.now()
+
 
 parser = argparse.ArgumentParser(
-    description='Creates and obstruction in def and lef files.')
+    description='Create a parasitic SPEF file from def and lef files.')
 
 parser.add_argument('--def_file', '-d',required=True,
                     help='Input DEF')
 
 parser.add_argument('--lef_file', '-l',required=True,
                    help='Input LEF')
-
-parser.add_argument('--root_dir', '-r',default=pathlib.Path('.'),required=False,
-                   help='root directory')
 
 parser.add_argument('--wire_model', '-mw', default='PI',required=False,
                     help='name of wire model')
@@ -49,18 +54,6 @@ parser.add_argument('--edge_cap_factor', '-ec', default=1,required=False,
                     help='Edge Capacitance Factor 0 to 1')
 
 args = parser.parse_args()
-
-p = args.root_dir
-sys.path.insert(0, str(p)+'/scripts/spef_extractor/lef_def_parser')
-import matplotlib as plt
-from def_parser import *
-from lef_parser import *
-import codecs
-from collections import defaultdict
-import datetime
-import os
-#in order to print Date in the SPEF file
-now = datetime.datetime.now()
 
 
 
@@ -761,19 +754,11 @@ maxCapNet = ["*0"]
 minCap = [1]
 minCapNet = ["*0"]
 
-f = open(str(def_file_name[:-4]) + ".spef","w+", newline='\n')
+f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
 print("Start writing SPEF file")
 printSPEFHeader()
 printNameMap(map_of_names)
 printSPEFNets(netsDict)  
 f.close()
-
-
-content = open(str(def_file_name[:-4]) + ".spef", "r+").read()
-newContent = content.replace('<', '[')
-newContent = newContent.replace('>', ']')
-
-f =  open(str(def_file_name[:-4]) + ".spef","w+", newline='\n')
-f.write(newContent)
 
 print("Writing SPEF is done")

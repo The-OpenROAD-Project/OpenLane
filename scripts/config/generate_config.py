@@ -79,6 +79,10 @@ def insertSCL(configs):
                     idx+=1
                 configs = "\n".join(lines)
                 return configs
+        for var in std_cell_library:
+            lines.insert(0,var)
+        configs = "\n".join(lines)
+        return configs
     else:
         return configs
 

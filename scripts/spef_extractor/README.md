@@ -4,19 +4,6 @@ A Python library that reads LEF and DEF files, extracts the RC parasitics and ge
 ## Dependancies:  
   In order to parse the lef and def files, we used [trimcao's def and lef parser](https://github.com/trimcao/lef-parser)
 
-## Build Instructions:
-   To install the library run the following commands: 
-   ```
-   
-   pip install numpy
-   
-   pip install sympy
-  
-   pip install matplotlib   
-   
-   git clone https://github.com/Cloud-V/SPEF_EXTRACTOR/
-   ```
-
 ## Using the library
 In order to use the project, use the terminal to run `main.py` using the following format.<br />
 `python3 main.py -l <lef_file_path> -d <def_file_path> -wm <wire_model which can be L or Pi> -ec <edge_capacitance_factor which is a value between 0 and 1 where the default is 1> [-r <root_directory from which you are running the code>]` <br />

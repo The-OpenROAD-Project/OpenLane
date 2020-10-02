@@ -42,7 +42,7 @@ module delay_stage(in, trim, out);
 
     sky130_fd_sc_hd__einvn_4 delayenb1 (
 	.A(ts),
-	.TEB(trim[1]),
+	.TE_B(trim[1]),
 	.Z(d1)
     );
 
@@ -59,7 +59,7 @@ module delay_stage(in, trim, out);
 
     sky130_fd_sc_hd__einvn_8 delayenb0 (
 	.A(ts),
-	.TEB(trim[0]),
+	.TE_B(trim[0]),
 	.Z(out)
     );
 
@@ -86,7 +86,7 @@ module start_stage(in, trim, reset, out);
 
     sky130_fd_sc_hd__einvn_4 delayenb1 (
 	.A(in),
-	.TEB(trim[1]),
+	.TE_B(trim[1]),
 	.Z(d1)
     );
 
@@ -103,7 +103,7 @@ module start_stage(in, trim, reset, out);
 
     sky130_fd_sc_hd__einvn_8 delayenb0 (
 	.A(in),
-	.TEB(ctrl0),
+	.TE_B(ctrl0),
 	.Z(out)
     );
 

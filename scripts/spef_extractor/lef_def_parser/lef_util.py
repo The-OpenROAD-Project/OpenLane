@@ -26,7 +26,7 @@ Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from util import *
+from .util import *
 
 class Statement:
     """
