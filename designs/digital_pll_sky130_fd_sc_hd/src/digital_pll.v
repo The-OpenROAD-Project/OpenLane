@@ -83,7 +83,7 @@ module digital_pll (reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dc
 	.D(clockd[0]),
 	.Q(nint[0]),
 	.Q_N(clockd[0]),
-	.REST_B(resetb)
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv4 (
@@ -91,7 +91,7 @@ module digital_pll (reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dc
 	.D(clockd[1]),
 	.Q(nint[1]),
 	.Q_N(clockd[1]),
-	.REST_B(resetb)
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv8 (
@@ -99,7 +99,7 @@ module digital_pll (reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dc
 	.D(clockd[2]),
 	.Q(nint[2]),
 	.Q_N(clockd[2]),
-	.REST_B(resetb)
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv16 (
@@ -107,6 +107,6 @@ module digital_pll (reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dc
 	.D(clockd[3]),
 	.Q(nint[3]),
 	.Q_N(clockd[3]),
-	.REST_B(resetb)
+	.RESET_B(resetb)
     );
 endmodule
