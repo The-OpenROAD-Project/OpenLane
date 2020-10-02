@@ -26,8 +26,8 @@ Author: Tri Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from lef_util import *
-from util import *
+from .lef_util import *
+from .util import *
 
 SCALE = 2000
 
