@@ -299,7 +299,7 @@ def get_capacitance_modified(point1, point2, layer_name, via_type): #point is a 
             edgeCapacitance = 0
             
         # the edge capacitance factor value is 1 by default
-        capacitance = length * cPerSquare * width +  edgeCapFactor[0] * 2 * edgeCapacitance * (length  + width)   #capactiance in pF
+        capacitance = length * cPerSquare * width +  edgeCapFactor * 2 * edgeCapacitance * (length  + width)   #capactiance in pF
         
         return capacitance
     
@@ -336,14 +336,7 @@ def printSPEFNets(netsDict):
 
 #method to print a particular net into SPEF format 
 def printNet(netsDict, wireName):
-    
-    if(netsDict[wireName]['maxC'] > maxCap[0]):
-        maxCapNet[0] = wireName
-        maxCap[0] = netsDict[wireName]['maxC']
-        
-    if(netsDict[wireName]['maxC'] < minCap[0]):
-        minCapNet[0] = wireName
-        minCap[0] = netsDict[wireName]['maxC']
+    global capCounter, resCounter
     
     var=('*D_NET'+" "+ wireName+" "+ str(netsDict[wireName]['maxC']))
     f.write(var+'\n')
@@ -359,16 +352,16 @@ def printNet(netsDict, wireName):
     
     
     for key,value in bigCapacitanceTable[wireName].items():
-        var=(str(capCounter[0]) +" "+ str(key) +" "+ str(value))
+        var=(str(capCounter) +" "+ str(key) +" "+ str(value))
         f.write(var+'\n')
-        capCounter[0] += 1
+        capCounter += 1
         
     var=('*RES')
     f.write(var+'\n')
     for eachSegment in netsDict[wireName]['segments']:
-        var=(str(resCounter[0])+" "+ str(eachSegment[0])+" "+ str(eachSegment[1])+" "+ str(eachSegment[2]))
+        var=(str(resCounter)+" "+ str(eachSegment[0])+" "+ str(eachSegment[1])+" "+ str(eachSegment[2]))
         f.write(var+'\n')
-        resCounter[0] += 1
+        resCounter += 1
     var=('*END\n')
     f.write(var+'\n')
     
@@ -390,13 +383,13 @@ bigCapacitanceTable = {}
 netsDict = {}
 vias_dict_def = {}
 
-edgeCapFactor = [1]
+edgeCapFactor = 1
 wireModel = 'PI'
 
 lef_file_name = args.lef_file
 def_file_name = args.def_file
 wireModel = args.wire_model
-edgeCapFactor[0] = float(args.edge_cap_factor)
+edgeCapFactor = float(args.edge_cap_factor)
 
 
 # We had to modify the lef parser to ignore the second parameter for the offset
@@ -429,7 +422,7 @@ elif capacitanceUnit[0] == "FEMTOFARADS":
     capacitanceFactor = float(capacitanceUnit[1]) * 1e-3
 
 print("Parameters Used:")
-print("Edge Capacitance Factor:", edgeCapFactor[0])
+print("Edge Capacitance Factor:", edgeCapFactor)
 print("Wire model:", wireModel, '\n')
 
 #creation of the name map
@@ -743,16 +736,8 @@ print("RC Extraction is done")
 
  
 #writing into SPEF file
-capCounter = {}
-capCounter[0] = 0
-resCounter = {}
-resCounter[0] = 0
-
-# these are used to extract the net with the maximum capacitance
-maxCap = [0]
-maxCapNet = ["*0"]
-minCap = [1]
-minCapNet = ["*0"]
+capCounter = 0
+resCounter = 0
 
 f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
 print("Start writing SPEF file")
