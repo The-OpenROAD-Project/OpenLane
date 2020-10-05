@@ -15,7 +15,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='initiates the li1 hack')
+    description='reorders pins of a macro in the def file based on a configuration file that contains the pad/pin order')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')
