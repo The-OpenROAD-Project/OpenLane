@@ -26,13 +26,35 @@ proc global_routing {args} {
 proc global_routing_or {args} {
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log   
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
-      set ::env(DIODE_INSERTION_STRATEGY) 0
-      set_def $::env(SAVE_DEF)
-      try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
-      set ::env(DIODE_INSETION_STRATEGY) 3
+        set iter 2
+        set prevAntennaVal [exec grep "#Antenna violations:" $::env(fastroute_log_file_tag).log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+        while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
+            set_def $::env(SAVE_DEF)
+            set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag)_$iter.def
+            set replaceWith "INSDIODE$iter"
+            try_catch sed -i -e "s/ANTENNA/$replaceWith/g" $::env(CURRENT_DEF)
+            puts_info "FastRoute Iteration $iter"
+            puts_info "Antenna Violations Previous: $prevAntennaVal"
+            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log   
+            set currAntennaVal [exec grep "#Antenna violations:"  $::env(fastroute_log_file_tag)_$iter.log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+            puts_info "Antenna Violations Current: $currAntennaVal"
+            if { $currAntennaVal >= $prevAntennaVal } {
+                set iter [expr $iter - 1]
+                set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+                break
+            } else {
+                set prevAntennaVal $currAntennaVal
+                set iter [expr $iter + 1]
+                
+            }
+        }
+        set ::env(DIODE_INSERTION_STRATEGY) 0
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
+        set ::env(DIODE_INSERTION_STRATEGY) 3
     }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
