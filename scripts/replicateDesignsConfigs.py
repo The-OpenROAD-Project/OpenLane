@@ -19,7 +19,7 @@ from os import path
 import utils.utils as utils
 
 parser = argparse.ArgumentParser(
-        description="update configuration of design(s) per given PDK")
+        description="replicate configurations of design(s) from a given (PDK, STD_CELL_LIB) to another, or generates an empty config file for a given (PDK, STD_CELL_LIB)")
 
 
 parser.add_argument('--from-pdk', '-fp', action='store',
@@ -35,7 +35,7 @@ parser.add_argument('--to-std-cell-library', '-tscl', action='store', required=T
                 help="The name of the STD_CELL_LIBRARY to copy to")
 
 parser.add_argument('--designs', '-d', nargs='+', default=[],
-                help="designs to update. Same as -d in run desings. If non provided, then all designs under ./designs will be replicated")
+                help="designs to update. Same as -d in run desings. If none provided, then all designs under ./designs will be replicated")
 
 
 args = parser.parse_args()

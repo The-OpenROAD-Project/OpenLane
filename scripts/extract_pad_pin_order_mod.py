@@ -15,7 +15,7 @@
 import argparse
 import re
 parser = argparse.ArgumentParser(
-    description='initiates the li1 hack')
+    description='extracts the pad/pin order configuration file from a def and a padframe.cfg')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')

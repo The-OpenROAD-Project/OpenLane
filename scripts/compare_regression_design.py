@@ -41,7 +41,7 @@ output_report_file = args.output_report
 design = args.design
 
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':2}
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5}
 
 critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations']
 

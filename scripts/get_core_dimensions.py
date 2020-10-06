@@ -17,7 +17,7 @@ import opendbpy as odb
 
 # overkill
 parser = argparse.ArgumentParser(
-    description='Labels pins of macros according to netlist')
+    description='gets the core dimensions from DEF/LEF')
 
 parser.add_argument('--input-def', '-d', required=True)
 

@@ -216,6 +216,15 @@ The following is the list of flags used with the script:
       <tr>
         </tr>
         <td align="center">
+            <code>--update_clock_period | -ucp</code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            Specifies whether or not to update the CLOCK_PERIOD of the design based on the suggested_clock_period parameter.<br> Default value: <code>False</code>
+        </td>
+    </tr>
+      <tr>
+        </tr>
+        <td align="center">
             <code>--clean | -cl</code> <br> (Boolean)
         </td>
         <td align="justify">

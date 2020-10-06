@@ -21,7 +21,7 @@ import argparse
 import re
 
 parser = argparse.ArgumentParser(
-    description='Fixes macros in positions specified by a config file')
+    description='Places macros in positions and orientations specified by a config file')
 
 parser.add_argument('--input', '-i', required=True,
                     help='Input DEF')
