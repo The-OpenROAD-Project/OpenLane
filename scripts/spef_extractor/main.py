@@ -350,7 +350,6 @@ class SpefExtractor:
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
         # create all the data structures that we will be using
-        listOfLocations = []
         pinsTable = []
         segmentsList = []
         bigPinsTable = {}
@@ -404,9 +403,6 @@ class SpefExtractor:
             segmentsList = []
 
             # generate the conn data structure for conn section
-            if(net.name == "*518"):
-                # print("test")
-                testingMode = 1
             for con in net.comp_pin:
                 # check if pin is (*P) an external input/output pin
                 current_pin = []
