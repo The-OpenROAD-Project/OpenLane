@@ -86,7 +86,8 @@ regression_test: check-env
 
 test: check-env
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -overwrite"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
+	[[ -f $(OPENLANE_DIR)/designs/spm/runs/openlane_test/results/magic/spm.gds ]] && echo "Basic test passed" || echo "Basic test failed"
 
 clean_runs:
 	cd $(OPENLANE_DIR) && \
