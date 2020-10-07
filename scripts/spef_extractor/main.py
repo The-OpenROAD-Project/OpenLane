@@ -274,8 +274,6 @@ class SpefExtractor:
     # method to look for intersetions between segment nodes in order to decide
     # on creating a new node or add to the existing capacitance
     def checkPinsTable(self, point, layer, pinsTable):
-        flag = "new"
-
         for pin in pinsTable:
             locations = pin[0]
             for location in locations:
@@ -285,19 +283,12 @@ class SpefExtractor:
                     if((type(location[0]) == "<class 'int'>")
                        or (type(location[0]) == "<class 'float'>")):
                         if point[0] == location[0] and point[1] == location[1]:
-                            flag = pin
-                            return flag
-                        else:
-                            flag = "new"
+                            return pin
                     else:
                         if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
                             and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
-                            flag = pin
-                            return flag
-                        else:
-                            flag = "new"
-
-        return flag
+                            return pin
+        return "new"
 
     # method for creating the header of the SPEF file
     def printSPEFHeader(self, f):
