@@ -29,9 +29,11 @@ proc global_routing_or {args} {
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log   
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set iter 2
-        set prevAntennaVal [exec grep "#Antenna violations:" $::env(fastroute_log_file_tag).log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
-        while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
-            set_def $::env(SAVE_DEF)
+        set prevDEF1 $::env(SAVE_DEF)
+	set prevDEF2 $::env(SAVE_DEF)
+	set prevAntennaVal [exec grep "#Antenna violations:" $::env(fastroute_log_file_tag).log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+        set_def $::env(SAVE_DEF)
+	while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag)_$iter.def
             set replaceWith "INSDIODE$iter"
             try_catch sed -i -e "s/ANTENNA/$replaceWith/g" $::env(CURRENT_DEF)
@@ -42,13 +44,15 @@ proc global_routing_or {args} {
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
                 set iter [expr $iter - 1]
-                set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+                set ::env(SAVE_DEF) $prevDEF1
                 break
             } else {
                 set prevAntennaVal $currAntennaVal
                 set iter [expr $iter + 1]
-                
+                set prevDEF1 $prevDEF2
+ 	        set prevDEF2 $::env(SAVE_DEF) 
             }
+	    set_def $::env(SAVE_DEF)
         }
         set ::env(DIODE_INSERTION_STRATEGY) 0
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
@@ -58,6 +62,7 @@ proc global_routing_or {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
+	puts_info "Current Def is $::env(CURRENT_DEF)"
 }
 
 proc detailed_routing {args} {
