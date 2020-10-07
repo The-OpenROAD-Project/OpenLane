@@ -72,19 +72,18 @@ class SpefExtractor:
         name_counter = 0
         map_of_names = []
         for key in self.def_parser.nets.net_dict:
-            new_name = []
-            new_name.append(self.def_parser.nets.net_dict[key].name)
-            self.def_parser.nets.net_dict[key].name = "*" + str(name_counter)
-            new_name.append(self.def_parser.nets.net_dict[key].name)
+            name = self.def_parser.nets.net_dict[key].name
+            abbrev = "*" + str(name_counter)
+            self.def_parser.nets.net_dict[key].name = abbrev
             name_counter += 1
-            map_of_names.append(new_name)
+            map_of_names.append((name, abbrev))
         return map_of_names
 
     # printing the keys of the name map into the SPEF file
     def printNameMap(self, f, map_of_names):
         f.write('*NAME_MAP\n')
-        for entry in map_of_names:
-            f.write(entry[1] + " " + entry[0] + "\n")
+        for name, abbrev in map_of_names:
+            f.write(abbrev + " " + name + "\n")
         f.write("\n")
 
     # A method that takes an instance and a pin and returns a list of all
