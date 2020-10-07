@@ -608,13 +608,9 @@ class SpefExtractor:
         self.bigCapacitanceTable[net.name] = currentNodeList
 
         sumC = 0
-        lists = {}
         for k in currentNodeList:
             sumC += currentNodeList[k]
-        lists["conn"] = conList
-        lists['maxC'] = sumC
-        lists['segments'] = segmentsList
-        return lists
+        return {'conn': conList, 'maxC': sumC, 'segments': segmentsList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
