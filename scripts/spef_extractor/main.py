@@ -516,12 +516,11 @@ class SpefExtractor:
 
                 if segment.end_via is not None and segment.end_via != ';':
                     via_type = self.getViaType(segment.end_via)
-                    resistance = self.get_resistance_modified(spoint, epoint, segment.layer, via_type)
-                    capacitance = self.get_capacitance_modified(spoint, epoint, segment.layer, via_type)
                 else:
                     # dummy via
-                    resistance = self.get_resistance_modified(spoint, epoint, segment.layer, 'via')
-                    capacitance = self.get_capacitance_modified(spoint, epoint, segment.layer, 'via')
+                    via_type = 'via'
+                resistance = self.get_resistance_modified(spoint, epoint, segment.layer, via_type)
+                capacitance = self.get_capacitance_modified(spoint, epoint, segment.layer, via_type)
 
                 # the name of the first node of the segment
                 currentSNodeName = str(snode[1]) + ':' + str(snode[2])
