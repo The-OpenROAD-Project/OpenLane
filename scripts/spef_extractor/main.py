@@ -356,57 +356,58 @@ class SpefExtractor:
             locationsOfCurrentPin = []
 
             # Check if con != ';'
-            if con[0] != ';':
-                if con[0] == "PIN":
-                    current_pin.append("*P")
-                    current_pin.append(con[1])
-                    x = self.def_parser.pins.get_pin(con[1])
-                    if x.direction == "INPUT":
-                        current_pin.append("I")
-                    else:
-                        current_pin.append("O")
-
-                    # these are used for the pinsTable
-                    pinLocation = self.def_parser.pins.pin_dict[con[1]].placed
-                    metalLayer = self.def_parser.pins.pin_dict[con[1]].layer.name
-                    locationsOfCurrentPin.append(((pinLocation[0], pinLocation[1]),
-                                                  (pinLocation[0], pinLocation[1]),
-                                                  metalLayer))
-
+            if con[0] == ';':
+                continue
+            if con[0] == "PIN":
+                current_pin.append("*P")
+                current_pin.append(con[1])
+                x = self.def_parser.pins.get_pin(con[1])
+                if x.direction == "INPUT":
+                    current_pin.append("I")
                 else:
-                    # it is an internal pin, check for input or output
-                    current_pin.append("*I")
-                    current_pin.append(con[0]+":"+con[1])
-                    cell_type = self.def_parser.components.comp_dict[con[0]].macro
+                    current_pin.append("O")
 
-                    # some cells do not have direction
-                    # check first if a cell has a direction or not
+                # these are used for the pinsTable
+                pinLocation = self.def_parser.pins.pin_dict[con[1]].placed
+                metalLayer = self.def_parser.pins.pin_dict[con[1]].layer.name
+                locationsOfCurrentPin.append(((pinLocation[0], pinLocation[1]),
+                                              (pinLocation[0], pinLocation[1]),
+                                              metalLayer))
 
-                    pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
+            else:
+                # it is an internal pin, check for input or output
+                current_pin.append("*I")
+                current_pin.append(con[0]+":"+con[1])
+                cell_type = self.def_parser.components.comp_dict[con[0]].macro
 
-                    # check if it has a direction
-                    if 'DIRECTION' in pinInfo.info:
-                        direction = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info["DIRECTION"]
+                # some cells do not have direction
+                # check first if a cell has a direction or not
+
+                pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
+
+                # check if it has a direction
+                if 'DIRECTION' in pinInfo.info:
+                    direction = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info["DIRECTION"]
+                else:
+                    # check if cell has 'in' or 'out' in its name
+                    if cell_type.find("in"):
+                        direction = "INPUT"
                     else:
-                        # check if cell has 'in' or 'out' in its name
-                        if cell_type.find("in"):
-                            direction = "INPUT"
-                        else:
-                            direction = "OUTPUT"
+                        direction = "OUTPUT"
 
-                    if direction == "INPUT":
-                        current_pin.append("I")
-                    else:
-                        current_pin.append("O")
+                if direction == "INPUT":
+                    current_pin.append("I")
+                else:
+                    current_pin.append("O")
 
-                    # this is used for the pins table
-                    metalLayerInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info
-                    metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
-                    self.getPinLocation(con[0], con[1], metalLayer, locationsOfCurrentPin)
+                # this is used for the pins table
+                metalLayerInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info
+                metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
+                self.getPinLocation(con[0], con[1], metalLayer, locationsOfCurrentPin)
 
-                # we append list of pin locations - cellName - pinName - metalLayer
-                pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
-                conList.append(current_pin)
+            # we append list of pin locations - cellName - pinName - metalLayer
+            pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
+            conList.append(current_pin)
 
         counter = 1
 
