@@ -76,7 +76,6 @@ RUN make -j$(nproc)
 
 RUN mkdir -p /build/bin/ && \
     cp ../app/sta /build/bin
-#    cp verilog2def /build/bin
 
 RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/opensta.version

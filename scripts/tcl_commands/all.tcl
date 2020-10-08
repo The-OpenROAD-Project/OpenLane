@@ -680,7 +680,6 @@ proc widen_site_width {args} {
 }
 
 proc use_widened_lefs {args} {
-    puts_info "Using Widenned LEFs"
     if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
         set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
         set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
@@ -688,7 +687,6 @@ proc use_widened_lefs {args} {
 }
 
 proc use_original_lefs {args} {
-    puts_info "Using Original LEFs"
     if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
         set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
         set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)

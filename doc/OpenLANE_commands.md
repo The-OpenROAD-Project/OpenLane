@@ -127,7 +127,6 @@ Most of the following commands' implementation exists in this [file][3]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `init_floorplan_or` | | Runs floorplanning on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
-| `init_floorplan` | | Runs floorplanning on the processed design using verilog2def. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_io` | | Runs io placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_contextualized_io` | | contextualizes io placement on a given macro (the processed design) with the context of the higher macro that contains it. This allows the io pins to be placed in location closer to what they will be connected with on the bigger macro. The resuls are saved under `/<run_path>/tmp/floorplan/` . |
 |    | `-lef <lef_file>` | LEF file needed to have a proper view of the top-level DEF |
