@@ -36,7 +36,7 @@ proc global_routing_or {args} {
 	while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag)_$iter.def
             set replaceWith "INSDIODE$iter"
-            try_catch sed -i -e "s/ANTENNA/$replaceWith/g" $::env(CURRENT_DEF)
+            try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
             try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log   
