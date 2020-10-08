@@ -94,7 +94,7 @@ proc run_synthesis {args} {
 	check_assign_statements
     }
 
-    if { $::env(CHECK_LATCHES_IN_DESIGN) == 1 } {
+    if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
 	check_synthesis_failure
     }
 }
