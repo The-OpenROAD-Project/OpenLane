@@ -212,20 +212,6 @@ proc place_contextualized_io {args} {
 		}
 }
 
-proc tap_decap {args} {
-		try_catch cp $::env(CURRENT_DEF) $::env(tapcell_result_file_tag).def
-		TIMER::timer_start
-		try_catch tapcell -lef $::env(MERGED_LEF_UNPADDED) \
-				-def $::env(tapcell_result_file_tag).def \
-				-rule [expr $::env(FP_TAPCELL_DIST) * 2] \
-				-welltap $::env(FP_WELLTAP_CELL) \
-				-endcap $::env(FP_ENDCAP_CELL) \
-				-outdef $::env(tapcell_result_file_tag).def \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(tapcell_log_file_tag).log
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(tapcell_log_file_tag)_runtime.txt
-		set_def $::env(tapcell_result_file_tag).def
-}
 proc tap_decap_or {args} {
 		#try_catch cp $::env(CURRENT_DEF) $::env(tapcell_result_file_tag).def
 		TIMER::timer_start

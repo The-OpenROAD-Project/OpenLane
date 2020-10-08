@@ -132,7 +132,6 @@ Most of the following commands' implementation exists in this [file][3]
 | `place_contextualized_io` | | contextualizes io placement on a given macro (the processed design) with the context of the higher macro that contains it. This allows the io pins to be placed in location closer to what they will be connected with on the bigger macro. The resuls are saved under `/<run_path>/tmp/floorplan/` . |
 |    | `-lef <lef_file>` | LEF file needed to have a proper view of the top-level DEF |
 |    | `-def <def_file>` | DEF view of the top-level design where the macro is instantiated.       |
-| `tap_decap` | | Runs tap/decap placement on the design processed using the tapcell app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `tap_decap_or` | | Runs tap/decap placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `chip_floorplan` | | Runs floorplanning on a chip removing pins section and other empty sections from the def. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `run_floorplan` | | Runs `init_floorplan_or`, `place_io`, and `tap_decap_or` on the processed design. The resulting files are under `/<run_path>/tmp/floorplan/` . |
