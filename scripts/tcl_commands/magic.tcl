@@ -32,17 +32,6 @@ proc run_magic {args} {
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
-		# fix off-grid points
-		# if { [file exists $::env(magic_result_file_tag).lef] } {
-		# 	try_catch python3 $::env(SCRIPTS_DIR)/lef_enforce_manufacturing_grid.py 0.005 < $::env(magic_result_file_tag).lef > $::env(magic_result_file_tag).discrete.lef
-		# 	file rename -force $::env(magic_result_file_tag).discrete.lef $::env(magic_result_file_tag).lef
-		# }
-
-		#		set PDKPATH $::env(PDK_ROOT)/$::env(PDK)/
-		#		set tech $PDKPATH/libs.tech/magic/current/EFS8A.tech
-		#		cd $::env(TMP_DIR)
-		#		try_catch /ef/apps/bin/magicGdrc -T $tech $::env(magic_result_file_tag).gds $::env(DESIGN_NAME) \
-		|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc
 }
 
 
@@ -63,6 +52,7 @@ proc run_magic_drc {args} {
 
 
 proc run_magic_spice_export {args} {
+		puts_info "Running Magic Spice Export..."
 		set magic_export $::env(TMP_DIR)/magic_spice.tcl
 		set commands \
 "
@@ -140,6 +130,7 @@ puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 }
 
 proc run_magic_antenna_check {args} {
+		puts_info "Running Magic Antenna Checks..."
 		set magic_export $::env(TMP_DIR)/magic_antenna.tcl
 		set commands \
 "

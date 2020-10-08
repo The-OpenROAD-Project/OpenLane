@@ -13,6 +13,7 @@
 # limitations under the License.
 
 proc global_routing_or {args} {
+    puts_info "Running Global Routing..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
@@ -28,6 +29,7 @@ proc global_routing_or {args} {
 }
 
 proc detailed_routing {args} {
+    puts_info "Running Detailed Routing..."
     TIMER::timer_start
     if {$::env(RUN_ROUTING_DETAILED)} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
@@ -45,6 +47,7 @@ proc detailed_routing {args} {
 }
 
 proc ins_fill_cells {args} {
+    puts_info "Running Fill Insertion..."
     TIMER::timer_start
     if {$::env(FILL_INSERTION)} {
 	try_catch sh $::env(SCRIPTS_DIR)/addspacers.sh\
@@ -66,6 +69,7 @@ proc ins_fill_cells {args} {
 }
 
 proc ins_fill_cells_or {args} {
+    puts_info "Running Fill Insertion..."
     TIMER::timer_start
 
     if {$::env(FILL_INSERTION)} {
@@ -179,7 +183,7 @@ proc run_routing {args} {
 }
 
 proc gen_pdn {args} {
-    puts "\[INFO\]: Generating PDN..."
+    puts_info "Generating PDN..."
     TIMER::timer_start
     if {![info exists ::env(PDN_CFG)]} {
 	set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
@@ -195,6 +199,7 @@ proc gen_pdn {args} {
 
 
 proc ins_diode_cells {args} {
+    puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/diodes.def
 
 
@@ -214,11 +219,10 @@ proc ins_diode_cells {args} {
 
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
+        puts_info "Running SPEF Extraction..."
         try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/spef_extraction.log
         set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
-        #puts $fbasename
-        #set ::env(CURRENT_SPEF) 
-        # Use SLOWEST/FASTEST libs and Netlist to generate sta report
+        # Static Timing Analysis using the extracted SPEF
         set report_tag_holder $::env(opensta_report_file_tag)
         set log_tag_holder $::env(opensta_log_file_tag)
         set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef

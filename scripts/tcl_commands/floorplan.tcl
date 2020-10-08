@@ -13,6 +13,7 @@
 # limitations under the License.
 
 proc init_floorplan_or {args} {
+		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
@@ -49,6 +50,7 @@ proc init_floorplan_or {args} {
 
 
 proc init_floorplan {args} {
+		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(CURRENT_STAGE) floorplan
 		if {$::env(FP_SIZING) == "absolute"} {
@@ -157,6 +159,7 @@ proc place_io_ol {args} {
 }
 
 proc place_io {args} {
+		puts_info "Running IO Placement..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
 
@@ -168,6 +171,7 @@ proc place_io {args} {
 }
 
 proc place_contextualized_io {args} {
+		puts_info "Running Contextualized IO Placement..."
 		set options {{-lef required} {-def required}}
 		set flags {}
 		parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
@@ -213,7 +217,7 @@ proc place_contextualized_io {args} {
 }
 
 proc tap_decap_or {args} {
-		#try_catch cp $::env(CURRENT_DEF) $::env(tapcell_result_file_tag).def
+		puts_info "Running Tap/Decap Insertion..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(tapcell_log_file_tag).log
@@ -224,6 +228,7 @@ proc tap_decap_or {args} {
 
 
 proc padframe_extract_area {args} {
+		puts_info "Extracting Padframe area..."
 		set options {{-cfg required}}
 		set flags {}
 		parse_key_args "padframe_extract_area" args arg_values $options flags_map $flags
@@ -232,6 +237,7 @@ proc padframe_extract_area {args} {
 }
 
 proc chip_floorplan {args} {
+		puts_info "Running Chip Floorplanning..."
 		# intial fp
 		init_floorplan_or
 		# remove pins section and others
@@ -240,7 +246,7 @@ proc chip_floorplan {args} {
 }
 
 proc run_floorplan {args} {
-		puts "\[INFO\]: Running Floorplanning..."
+		puts_info "Running Floorplanning..."
 		# |----------------------------------------------------|
 		# |----------------   2. FLOORPLAN   ------------------|
 		# |----------------------------------------------------|
@@ -254,9 +260,6 @@ proc run_floorplan {args} {
 		} else {
 				place_io
 		}
-
-		#	# pdn generation
-		#	gen_pdn
 
 		# tapcell
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} { 

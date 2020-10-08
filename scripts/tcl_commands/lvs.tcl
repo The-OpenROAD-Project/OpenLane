@@ -14,6 +14,7 @@
 
 # WORKS ON VERILOG FILES
 proc verilog_to_verilogPower {args} {
+    puts_info "Adding Power Nets to Verilog..."
     set options {
       {-input required}
       {-output required}
@@ -39,6 +40,7 @@ proc verilog_to_verilogPower {args} {
 
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
+    puts_info "Writing Powered Verilog..."
     set options {
       {-def optional}
       {-output_def optional}

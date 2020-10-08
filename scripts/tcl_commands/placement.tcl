@@ -13,6 +13,7 @@
 # limitations under the License.
 
 proc global_placement {args} {
+    puts_info "Running Global Placement..."
     TIMER::timer_start
     #for {set i 0} {$i < $::env(PL_IO_ITER)} {incr i} {
     try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
@@ -38,6 +39,7 @@ proc global_placement {args} {
 }
 
 proc global_placement_or {args} {
+    puts_info "Running Global Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
@@ -54,6 +56,7 @@ proc global_placement_or {args} {
 }
 
 proc detailed_placement {args} {
+    puts_info "Running Detailed Placement..."
     TIMER::timer_start
     try_catch opendp \
 	-lef $::env(MERGED_LEF) \
@@ -62,11 +65,6 @@ proc detailed_placement {args} {
 	|& tee $::env(TERMINAL_OUTPUT) $::env(opendp_log_file_tag).log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(opendp_log_file_tag)_runtime.txt
-    #	if {[catch {exec grep -q "FAIL" $::env(opendp_log_file_tag).log}] == 0}  {
-    #		puts "Error: Check $::env(opendp_log_file_tag).log"
-    #		puts stderr "\[ERROR\]: Check $::env(opendp_log_file_tag).log"
-    #		exit 1
-    #	}
     set_def $::env(opendp_result_file_tag).def
 }
 
@@ -91,6 +89,7 @@ proc manual_macro_placement {args} {
 }
 
 proc detailed_placement_or {args} {
+    puts_info "Running Detailed Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
 
@@ -120,6 +119,7 @@ proc detailed_placement_or {args} {
 }
 
 proc basic_macro_placement {args} {
+    puts_info "Running Basic Macro Placement"
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(CURRENT_DEF)
 
@@ -131,7 +131,7 @@ proc basic_macro_placement {args} {
 }
 
 proc run_placement {args} {
-	puts "\[INFO\]: Running Placement..."
+	puts_info "Running Placement..."
 # |----------------------------------------------------|
 # |----------------   3. PLACEMENT   ------------------|
 # |----------------------------------------------------|
@@ -149,12 +149,14 @@ proc run_placement {args} {
 }
 
 proc repair_wire_length {args} {
-        set ::env(SAVE_DEF) $::env(CURRENT_DEF)
-        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
-		set_def $::env(SAVE_DEF)
+    puts_info "Repairing Wire Length By Inserting Buffers..."
+    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+    set_def $::env(SAVE_DEF)
 }
 
 proc run_openPhySyn {args} {
+    puts_info "Running OpenPhySyn Timing Optimization..."
     TIMER::timer_start
     set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
     trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
@@ -163,7 +165,6 @@ proc run_openPhySyn {args} {
     try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
 	set_def $::env(SAVE_DEF)
 
-    # Use SLOWEST/FASTEST libs and Netlist to generate sta report
     write_verilog $::env(yosys_result_file_tag)_optimized.v
     set_netlist $::env(yosys_result_file_tag)_optimized.v
     set report_tag_holder $::env(opensta_report_file_tag)
