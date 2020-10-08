@@ -29,3 +29,6 @@ set ::env(GLB_RT_SCRIPT) $::env(SCRIPTS_DIR)/fastroute.tcl
 set ::env(GLB_RT_ESTIMATE_PARASITICS) 1
 
 set ::env(DIODE_PADDING) 2 ; # sites 
+
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 2
+
