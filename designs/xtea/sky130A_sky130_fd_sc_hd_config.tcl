@@ -23,14 +23,12 @@ set ::env(FP_CORE_UTIL) 50
 
 
 # Extra# Regression
-set ::env(FP_CORE_UTIL) 40
 
 
 # Extra
 
 
 # Regression
-set ::env(FP_CORE_UTIL) 30
 
 
 # Extra
