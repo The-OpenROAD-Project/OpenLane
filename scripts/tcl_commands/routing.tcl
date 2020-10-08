@@ -12,17 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc global_routing {args} {
-    TIMER::timer_start
-    try_catch envsubst < $::env(GLB_RT_SCRIPT) > $::env(fastroute_tmp_file_tag).tcl
-    cd $::env(OPENLANE_ROOT)/etc
-    try_catch FastRoute -c 1 < $::env(fastroute_tmp_file_tag).tcl \
-	|& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
-    cd $::env(OPENLANE_ROOT)
-}
-
 proc global_routing_or {args} {
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
