@@ -69,7 +69,7 @@ if { $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS)
     read_liberty -min $::env(LIB_FASTEST)
     read_sdc -echo $::env(BASE_SDC_FILE)
 
-    set_wire_rc -layer met1
+    set_wire_rc -layer $::env(WIRE_RC_LAYER)
     estimate_parasitics -global_routing
 
     report_checks -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt

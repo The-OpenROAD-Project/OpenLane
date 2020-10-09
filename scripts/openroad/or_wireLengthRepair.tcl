@@ -23,7 +23,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-#set_wire_rc -layer metal3
+set_wire_rc -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
 repair_design -max_wire_length $::env(MAX_WIRE_LENGTH) -buffer_cell $::env(RE_BUFFER_CELL)
 #check_in_core
