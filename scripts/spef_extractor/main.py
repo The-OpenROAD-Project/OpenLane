@@ -353,20 +353,18 @@ class SpefExtractor:
         # generate the conn data structure for conn section
         for con in net.comp_pin:
             # check if pin is (*P) an external input/output pin
-            current_pin = []
             locationsOfCurrentPin = []
 
             # Check if con != ';'
             if con[0] == ';':
                 continue
             if con[0] == "PIN":
-                current_pin.append("*P")
-                current_pin.append(con[1])
                 x = self.def_parser.pins.get_pin(con[1])
                 if x.direction == "INPUT":
-                    current_pin.append("I")
+                    pin_dir = "I"
                 else:
-                    current_pin.append("O")
+                    pin_dir = "O"
+                current_pin = ["*P", con[1], pin_dir]
 
                 # these are used for the pinsTable
                 pinLocation = self.def_parser.pins.pin_dict[con[1]].placed
@@ -377,8 +375,6 @@ class SpefExtractor:
 
             else:
                 # it is an internal pin, check for input or output
-                current_pin.append("*I")
-                current_pin.append(con[0]+":"+con[1])
                 cell_type = self.def_parser.components.comp_dict[con[0]].macro
 
                 # some cells do not have direction
@@ -387,9 +383,8 @@ class SpefExtractor:
                 pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
 
                 # check if it has a direction
-                if 'DIRECTION' in pinInfo.info:
-                    direction = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info["DIRECTION"]
-                else:
+                direction = pinInfo.info.get("DIRECTION")
+                if direction is None:
                     # check if cell has 'in' or 'out' in its name
                     if cell_type.find("in"):
                         direction = "INPUT"
@@ -397,9 +392,10 @@ class SpefExtractor:
                         direction = "OUTPUT"
 
                 if direction == "INPUT":
-                    current_pin.append("I")
+                    pin_dir = "I"
                 else:
-                    current_pin.append("O")
+                    pin_dir = "O"
+                current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
 
                 # this is used for the pins table
                 metalLayerInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info
