@@ -88,7 +88,7 @@ class SpefExtractor:
 
     # A method that takes an instance and a pin and returns a list of all
     # rectangles of that pin
-    def getPinLocation(self, instanceName, pinName, metalLayer, listOfPinRects):
+    def getPinLocation(self, instanceName, pinName, metalLayer):
         inst = self.def_parser.components.comp_dict[instanceName]
         origin = inst.placed
         orientation = inst.orient
@@ -99,6 +99,7 @@ class SpefExtractor:
 
         pinObject = self.lef_parser.macro_dict[cellType].pin_dict[pinName]
         port_info = pinObject.info['PORT'].info['LAYER'][0]
+        res = []
 
         if orientation == 'N':
             for shape in port_info.shapes:
@@ -108,7 +109,7 @@ class SpefExtractor:
                 ury = shape.points[1][1]*self.l2d + origin[1]
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'S':
             # consider origin to be top right corner
@@ -120,7 +121,7 @@ class SpefExtractor:
                 ury = rotatedOrigin[1] - shape.points[0][1]*self.l2d
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'W':
             # consider origin to be bottom right corner
@@ -133,7 +134,7 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'E':
             # consider origin to be top left corner
@@ -146,7 +147,7 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'FN':
             # consider origin to be bottom right corner
@@ -159,7 +160,7 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'FS':
             # consider origin to be upper left corner
@@ -172,7 +173,7 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'FW':
             # consider origin to be bottom left corner
@@ -185,7 +186,7 @@ class SpefExtractor:
 
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
         elif orientation == 'FE':
             # consider origin to be top right corner
@@ -198,7 +199,9 @@ class SpefExtractor:
 
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
+
+        return res
 
     # method to extract the via type by its name fromt the lef file
     def getViaType(self, via):
@@ -344,21 +347,23 @@ class SpefExtractor:
         f.write(var + '\n')
 
     def extract_net(self, net):
+        """From a DEF net extract the corresponding SPEF net"""
+
         # a list of the connections in the net
         conList = []
         # a list of all pins referenced in the net, including the internal nodes between each 2 segments
         pinsTable = []
         segmentsList = []
 
+        # A SPEF net is made of CONNs, capacities and resistors.
+        # A CONN correspond to either an external PAD or an internal cell PIN.
         # generate the conn data structure for conn section
         for con in net.comp_pin:
-            # check if pin is (*P) an external input/output pin
-            locationsOfCurrentPin = []
-
             # Check if con != ';'
             if con[0] == ';':
                 continue
             if con[0] == "PIN":
+                # It is an external PAD
                 x = self.def_parser.pins.get_pin(con[1])
                 if x.direction == "INPUT":
                     pin_dir = "I"
@@ -367,14 +372,14 @@ class SpefExtractor:
                 current_pin = ["*P", con[1], pin_dir]
 
                 # these are used for the pinsTable
-                pinLocation = self.def_parser.pins.pin_dict[con[1]].placed
-                metalLayer = self.def_parser.pins.pin_dict[con[1]].layer.name
-                locationsOfCurrentPin.append(((pinLocation[0], pinLocation[1]),
-                                              (pinLocation[0], pinLocation[1]),
-                                              metalLayer))
-
+                pin = self.def_parser.pins.pin_dict[con[1]]
+                pinLocation = pin.placed
+                metalLayer = pin.layer.name
+                locationsOfCurrentPin = [((pinLocation[0], pinLocation[1]),
+                                          (pinLocation[0], pinLocation[1]),
+                                          metalLayer)]
             else:
-                # it is an internal pin, check for input or output
+                # It is an internal pin, check for input or output
                 cell_type = self.def_parser.components.comp_dict[con[0]].macro
 
                 # some cells do not have direction
@@ -398,9 +403,9 @@ class SpefExtractor:
                 current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
 
                 # this is used for the pins table
-                metalLayerInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info
+                metalLayerInfo = pinInfo.info
                 metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
-                self.getPinLocation(con[0], con[1], metalLayer, locationsOfCurrentPin)
+                locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
             # we append list of pin locations - cellName - pinName - metalLayer
             pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
