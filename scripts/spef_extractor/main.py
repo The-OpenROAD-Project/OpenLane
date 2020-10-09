@@ -411,9 +411,9 @@ class SpefExtractor:
             pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
             conList.append(current_pin)
 
-        counter = 1
 
         # the value will be incremented if more than 1 segment end at the same node
+        counter = 1
         currentNodeList = {}
         for segment in net.routed:
             if segment.end_via == 'RECT':
@@ -437,15 +437,16 @@ class SpefExtractor:
                         continue
 
                 sflag = self.checkPinsTable(spoint, segment.layer, pinsTable)
-
                 if sflag != "new":
                     snode = sflag
                 else:
-                    snode = []
-                    snode.append([((spoint[0], spoint[1]), (spoint[0], spoint[1]), segment.layer)])
-                    snode.append(str(net.name))
-                    snode.append(str(counter))
-                    snode.append(str(segment.layer))
+                    # Add a new pin
+                    snode = [[((spoint[0], spoint[1]),
+                               (spoint[0], spoint[1]),
+                               segment.layer)],
+                             net.name,
+                             str(counter),
+                             segment.layer]
                     counter += 1
                     pinsTable.append(snode)
 
@@ -491,24 +492,19 @@ class SpefExtractor:
                 if eflag != "new":
                     enode = eflag
                 else:
-                    enode = []
                     if last:
                         # if it is a VIA and starting point was on second layer
                         if choose == 1:
-                            enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), first)])
-                            enode.append(str(net.name))
-                            enode.append(str(counter))
-                            enode.append(first)
+                            layer = first
                         else:
-                            enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), second)])
-                            enode.append(str(net.name))
-                            enode.append(str(counter))
-                            enode.append(second)
+                            layer = second
                     else:
-                        enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), segment.layer)])
-                        enode.append(str(net.name))
-                        enode.append(str(counter))
-                        enode.append(str(segment.layer))
+                        layer = segment.layer
+                    enode = [[((epoint[0], epoint[1]),
+                               (epoint[0], epoint[1]), layer)],
+                             net.name,
+                             str(counter),
+                             layer]
                     counter += 1
                     pinsTable.append(enode)
 
