@@ -88,16 +88,18 @@ class SpefExtractor:
 
     # A method that takes an instance and a pin and returns a list of all
     # rectangles of that pin
-    def getPinLocation(self, instanceName, pinName, metalLayer, listOfPinRects):
-        # myInstance = self.def_parser.components.get_comp(instanceName)
-        origin = self.def_parser.components.comp_dict[instanceName].placed
-        orientation = self.def_parser.components.comp_dict[instanceName].orient
-        cellType = self.def_parser.components.comp_dict[instanceName].macro
-        cellWidth = self.lef_parser.macro_dict[cellType].info['SIZE'][0] * self.l2d
-        cellHeight = self.lef_parser.macro_dict[cellType].info['SIZE'][1] * self.l2d
+    def getPinLocation(self, instanceName, pinName, metalLayer):
+        inst = self.def_parser.components.comp_dict[instanceName]
+        origin = inst.placed
+        orientation = inst.orient
+        cellType = inst.macro
+        size = self.lef_parser.macro_dict[cellType].info['SIZE']
+        cellWidth = size[0] * self.l2d
+        cellHeight = size[1] * self.l2d
 
         pinObject = self.lef_parser.macro_dict[cellType].pin_dict[pinName]
         port_info = pinObject.info['PORT'].info['LAYER'][0]
+        res = []
 
         if orientation == 'N':
             for shape in port_info.shapes:
@@ -107,9 +109,9 @@ class SpefExtractor:
                 ury = shape.points[1][1]*self.l2d + origin[1]
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'S':
+        elif orientation == 'S':
             # consider origin to be top right corner
             rotatedOrigin = (origin[0]+cellWidth, origin[1] + cellHeight)
             for shape in port_info.shapes:
@@ -119,9 +121,9 @@ class SpefExtractor:
                 ury = rotatedOrigin[1] - shape.points[0][1]*self.l2d
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'W':
+        elif orientation == 'W':
             # consider origin to be bottom right corner
             rotatedOrigin = (origin[0]+cellHeight, origin[1])
             for shape in port_info.shapes:
@@ -132,9 +134,9 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'E':
+        elif orientation == 'E':
             # consider origin to be top left corner
             rotatedOrigin = (origin[0], origin[1]+cellWidth)
             for shape in port_info.shapes:
@@ -145,9 +147,9 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'FN':
+        elif orientation == 'FN':
             # consider origin to be bottom right corner
             rotatedOrigin = (origin[0]+cellWidth, origin[1])
             for shape in port_info.shapes:
@@ -158,9 +160,9 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'FS':
+        elif orientation == 'FS':
             # consider origin to be upper left corner
             rotatedOrigin = (origin[0], origin[1]+cellHeight)
             for shape in port_info.shapes:
@@ -171,9 +173,9 @@ class SpefExtractor:
 
                 ll = (ulx, lry)
                 ur = (lrx, uly)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'FW':
+        elif orientation == 'FW':
             # consider origin to be bottom left corner
             rotatedOrigin = (origin[0], origin[1])
             for shape in port_info.shapes:
@@ -184,9 +186,9 @@ class SpefExtractor:
 
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
 
-        if orientation == 'FE':
+        elif orientation == 'FE':
             # consider origin to be top right corner
             rotatedOrigin = (origin[0] + cellHeight, origin[1] + cellWidth)
             for shape in port_info.shapes:
@@ -197,7 +199,9 @@ class SpefExtractor:
 
                 ll = (llx, lly)
                 ur = (urx, ury)
-                listOfPinRects.append((ll, ur, metalLayer))
+                res.append((ll, ur, metalLayer))
+
+        return res
 
     # method to extract the via type by its name fromt the lef file
     def getViaType(self, via):
@@ -343,41 +347,39 @@ class SpefExtractor:
         f.write(var + '\n')
 
     def extract_net(self, net):
+        """From a DEF net extract the corresponding SPEF net"""
+
         # a list of the connections in the net
         conList = []
         # a list of all pins referenced in the net, including the internal nodes between each 2 segments
         pinsTable = []
         segmentsList = []
 
+        # A SPEF net is made of CONNs, capacities and resistors.
+        # A CONN correspond to either an external PAD or an internal cell PIN.
         # generate the conn data structure for conn section
         for con in net.comp_pin:
-            # check if pin is (*P) an external input/output pin
-            current_pin = []
-            locationsOfCurrentPin = []
-
             # Check if con != ';'
             if con[0] == ';':
                 continue
             if con[0] == "PIN":
-                current_pin.append("*P")
-                current_pin.append(con[1])
+                # It is an external PAD
                 x = self.def_parser.pins.get_pin(con[1])
                 if x.direction == "INPUT":
-                    current_pin.append("I")
+                    pin_dir = "I"
                 else:
-                    current_pin.append("O")
+                    pin_dir = "O"
+                current_pin = ["*P", con[1], pin_dir]
 
                 # these are used for the pinsTable
-                pinLocation = self.def_parser.pins.pin_dict[con[1]].placed
-                metalLayer = self.def_parser.pins.pin_dict[con[1]].layer.name
-                locationsOfCurrentPin.append(((pinLocation[0], pinLocation[1]),
-                                              (pinLocation[0], pinLocation[1]),
-                                              metalLayer))
-
+                pin = self.def_parser.pins.pin_dict[con[1]]
+                pinLocation = pin.placed
+                metalLayer = pin.layer.name
+                locationsOfCurrentPin = [((pinLocation[0], pinLocation[1]),
+                                          (pinLocation[0], pinLocation[1]),
+                                          metalLayer)]
             else:
-                # it is an internal pin, check for input or output
-                current_pin.append("*I")
-                current_pin.append(con[0]+":"+con[1])
+                # It is an internal pin, check for input or output
                 cell_type = self.def_parser.components.comp_dict[con[0]].macro
 
                 # some cells do not have direction
@@ -386,9 +388,8 @@ class SpefExtractor:
                 pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
 
                 # check if it has a direction
-                if 'DIRECTION' in pinInfo.info:
-                    direction = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info["DIRECTION"]
-                else:
+                direction = pinInfo.info.get("DIRECTION")
+                if direction is None:
                     # check if cell has 'in' or 'out' in its name
                     if cell_type.find("in"):
                         direction = "INPUT"
@@ -396,31 +397,38 @@ class SpefExtractor:
                         direction = "OUTPUT"
 
                 if direction == "INPUT":
-                    current_pin.append("I")
+                    pin_dir = "I"
                 else:
-                    current_pin.append("O")
+                    pin_dir = "O"
+                current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
 
                 # this is used for the pins table
-                metalLayerInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]].info
+                metalLayerInfo = pinInfo.info
                 metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
-                self.getPinLocation(con[0], con[1], metalLayer, locationsOfCurrentPin)
+                locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
             # we append list of pin locations - cellName - pinName - metalLayer
             pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
             conList.append(current_pin)
 
+
+        # the value will be incremented if more than 1 segment end at
+        # the same node
         counter = 1
 
-        # the value will be incremented if more than 1 segment end at the same node
+        # A net has a list of segments which are composed of points.
+        # Each segment lies on a layer.
+        # The points create multiple segments in the same layer.
         currentNodeList = {}
         for segment in net.routed:
             if segment.end_via == 'RECT':
                 continue
             # traversing all segments in a certain net to get all their information
             for it in range(len(segment.points)):
-                # traversing all points in a certain segment, classifyng them as starting and ending points and
-                # checking for their existence in the pinstable, using checkPinsTable method
-                last = 0
+                # Traversing all points in a certain segment, classifyng them
+                # as starting and ending points and checking for their
+                # existence in the pinstable, using checkPinsTable method
+                myVia = None
                 if it < (len(segment.points) - 1):
                     spoint = segment.points[it]
                     epoint = segment.points[it+1]
@@ -428,41 +436,47 @@ class SpefExtractor:
                     # last point in the line (either via or no via)
                     spoint = segment.points[it]
                     epoint = segment.points[it]
-                    last = 1
-                    # if we are at the last point and there is no via, then ignore the point
-                    # as it has already been considered with the previous point
-                    if segment.end_via == ';' or segment.end_via is None:
+                    myVia = segment.end_via
+                    # If we are at the last point and there is no via, then
+                    # ignore the point as it has already been considered with
+                    # the previous point
+                    if myVia == ';' or myVia is None:
                         continue
 
+                # Get or create the start pin for the segment
                 sflag = self.checkPinsTable(spoint, segment.layer, pinsTable)
-
                 if sflag != "new":
                     snode = sflag
                 else:
-                    snode = []
-                    snode.append([((spoint[0], spoint[1]), (spoint[0], spoint[1]), segment.layer)])
-                    snode.append(str(net.name))
-                    snode.append(str(counter))
-                    snode.append(str(segment.layer))
+                    # Add a new pin
+                    snode = [[((spoint[0], spoint[1]),
+                               (spoint[0], spoint[1]),
+                               segment.layer)],
+                             net.name,
+                             str(counter),
+                             segment.layer]
                     counter += 1
                     pinsTable.append(snode)
 
-                if last and (segment.end_via != ';' and segment.end_via is not None):
-                    # special handeling for vias to tget the via types through the via name
-                    myVia = segment.end_via
+                # Get of create the end pin for the segment
+                if myVia:
+                    # Special handeling for vias to get the via types
+                    # through the via name
                     if myVia[-1] == ';':
+                        # Remove trailing ';'
                         myVia = myVia[0:-1]
 
                     if myVia in self.lef_parser.via_dict:
-                        firstLayer = self.lef_parser.via_dict[myVia].layers[0].name
-                        secondLayer = self.lef_parser.via_dict[myVia].layers[1].name
-                        thirdLayer = self.lef_parser.via_dict[myVia].layers[2].name
+                        viaLayers = self.lef_parser.via_dict[myVia].layers
+                        firstLayer = viaLayers[0].name
+                        secondLayer = viaLayers[1].name
+                        thirdLayer = viaLayers[2].name
 
                     elif myVia in self.vias_dict_def:
-
-                        firstLayer = self.vias_dict_def[myVia]['LAYERS'][0]
-                        secondLayer = self.vias_dict_def[myVia]['LAYERS'][1]
-                        thirdLayer = self.vias_dict_def[myVia]['LAYERS'][2]
+                        viaLayers = self.vias_dict_def[myVia]['LAYERS']
+                        firstLayer = viaLayers[0]
+                        secondLayer = viaLayers[1]
+                        thirdLayer = viaLayers[2]
 
                     if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
                         first = secondLayer
@@ -476,37 +490,24 @@ class SpefExtractor:
                         first = firstLayer
                         second = secondLayer
 
+                    # Select the other layer
                     if first == segment.layer:
-                        choose = 2  # choose second layer in case of creating end node
-                        eflag = self.checkPinsTable(epoint, second, pinsTable)
+                        layer = second
                     else:
-                        choose = 1  # choose first layer in case of creating end node
-                        eflag = self.checkPinsTable(epoint, first, pinsTable)
-
+                        layer = first
                 else:
-                    eflag = self.checkPinsTable(epoint, segment.layer, pinsTable)
+                    # Normal segment
+                    layer = segment.layer
 
+                eflag = self.checkPinsTable(epoint, layer, pinsTable)
                 if eflag != "new":
                     enode = eflag
                 else:
-                    enode = []
-                    if last:
-                        # if it is a VIA and starting point was on second layer
-                        if choose == 1:
-                            enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), first)])
-                            enode.append(str(net.name))
-                            enode.append(str(counter))
-                            enode.append(first)
-                        else:
-                            enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), second)])
-                            enode.append(str(net.name))
-                            enode.append(str(counter))
-                            enode.append(second)
-                    else:
-                        enode.append([((epoint[0], epoint[1]), (epoint[0], epoint[1]), segment.layer)])
-                        enode.append(str(net.name))
-                        enode.append(str(counter))
-                        enode.append(str(segment.layer))
+                    enode = [[((epoint[0], epoint[1]),
+                               (epoint[0], epoint[1]), layer)],
+                             net.name,
+                             str(counter),
+                             layer]
                     counter += 1
                     pinsTable.append(enode)
 
@@ -514,8 +515,8 @@ class SpefExtractor:
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
-                if segment.end_via is not None and segment.end_via != ';':
-                    via_type = self.getViaType(segment.end_via)
+                if myVia:
+                    via_type = self.getViaType(myVia)
                 else:
                     # dummy via
                     via_type = 'via'
