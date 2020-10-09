@@ -412,17 +412,23 @@ class SpefExtractor:
             conList.append(current_pin)
 
 
-        # the value will be incremented if more than 1 segment end at the same node
+        # the value will be incremented if more than 1 segment end at
+        # the same node
         counter = 1
+
+        # A net has a list of segments which are composed of points.
+        # Each segment lies on a layer.
+        # The points create multiple segments in the same layer.
         currentNodeList = {}
         for segment in net.routed:
             if segment.end_via == 'RECT':
                 continue
             # traversing all segments in a certain net to get all their information
             for it in range(len(segment.points)):
-                # traversing all points in a certain segment, classifyng them as starting and ending points and
-                # checking for their existence in the pinstable, using checkPinsTable method
-                last = 0
+                # Traversing all points in a certain segment, classifyng them
+                # as starting and ending points and checking for their
+                # existence in the pinstable, using checkPinsTable method
+                myVia = None
                 if it < (len(segment.points) - 1):
                     spoint = segment.points[it]
                     epoint = segment.points[it+1]
@@ -430,12 +436,14 @@ class SpefExtractor:
                     # last point in the line (either via or no via)
                     spoint = segment.points[it]
                     epoint = segment.points[it]
-                    last = 1
-                    # if we are at the last point and there is no via, then ignore the point
-                    # as it has already been considered with the previous point
-                    if segment.end_via == ';' or segment.end_via is None:
+                    myVia = segment.end_via
+                    # If we are at the last point and there is no via, then
+                    # ignore the point as it has already been considered with
+                    # the previous point
+                    if myVia == ';' or myVia is None:
                         continue
 
+                # Get or create the start pin for the segment
                 sflag = self.checkPinsTable(spoint, segment.layer, pinsTable)
                 if sflag != "new":
                     snode = sflag
@@ -450,22 +458,25 @@ class SpefExtractor:
                     counter += 1
                     pinsTable.append(snode)
 
-                if last and (segment.end_via != ';' and segment.end_via is not None):
-                    # special handeling for vias to tget the via types through the via name
-                    myVia = segment.end_via
+                # Get of create the end pin for the segment
+                if myVia:
+                    # Special handeling for vias to get the via types
+                    # through the via name
                     if myVia[-1] == ';':
+                        # Remove trailing ';'
                         myVia = myVia[0:-1]
 
                     if myVia in self.lef_parser.via_dict:
-                        firstLayer = self.lef_parser.via_dict[myVia].layers[0].name
-                        secondLayer = self.lef_parser.via_dict[myVia].layers[1].name
-                        thirdLayer = self.lef_parser.via_dict[myVia].layers[2].name
+                        viaLayers = self.lef_parser.via_dict[myVia].layers
+                        firstLayer = viaLayers[0].name
+                        secondLayer = viaLayers[1].name
+                        thirdLayer = viaLayers[2].name
 
                     elif myVia in self.vias_dict_def:
-
-                        firstLayer = self.vias_dict_def[myVia]['LAYERS'][0]
-                        secondLayer = self.vias_dict_def[myVia]['LAYERS'][1]
-                        thirdLayer = self.vias_dict_def[myVia]['LAYERS'][2]
+                        viaLayers = self.vias_dict_def[myVia]['LAYERS']
+                        firstLayer = viaLayers[0]
+                        secondLayer = viaLayers[1]
+                        thirdLayer = viaLayers[2]
 
                     if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
                         first = secondLayer
@@ -479,27 +490,19 @@ class SpefExtractor:
                         first = firstLayer
                         second = secondLayer
 
+                    # Select the other layer
                     if first == segment.layer:
-                        choose = 2  # choose second layer in case of creating end node
-                        eflag = self.checkPinsTable(epoint, second, pinsTable)
+                        layer = second
                     else:
-                        choose = 1  # choose first layer in case of creating end node
-                        eflag = self.checkPinsTable(epoint, first, pinsTable)
-
+                        layer = first
                 else:
-                    eflag = self.checkPinsTable(epoint, segment.layer, pinsTable)
+                    # Normal segment
+                    layer = segment.layer
 
+                eflag = self.checkPinsTable(epoint, layer, pinsTable)
                 if eflag != "new":
                     enode = eflag
                 else:
-                    if last:
-                        # if it is a VIA and starting point was on second layer
-                        if choose == 1:
-                            layer = first
-                        else:
-                            layer = second
-                    else:
-                        layer = segment.layer
                     enode = [[((epoint[0], epoint[1]),
                                (epoint[0], epoint[1]), layer)],
                              net.name,
@@ -512,8 +515,8 @@ class SpefExtractor:
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
-                if segment.end_via is not None and segment.end_via != ';':
-                    via_type = self.getViaType(segment.end_via)
+                if myVia:
+                    via_type = self.getViaType(myVia)
                 else:
                     # dummy via
                     via_type = 'via'
