@@ -15,23 +15,8 @@
 proc global_placement {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
-    #for {set i 0} {$i < $::env(PL_IO_ITER)} {incr i} {
     try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
 
-    #try_catch mv $::env(replaceio_tmp_file_tag)_io.def $::env(replaceio_tmp_file_tag)_io_$i.def
-
-    #try_catch ioPlacer \
-    -l $::env(MERGED_LEF) \
-	-d $::env(replaceio_tmp_file_tag)_place.def \
-	-h $::env(FP_IO_HMETAL) \
-	-v $::env(FP_IO_VMETAL) \
-	-r $::env(FP_IO_RANDOM) \
-	\
-	-o $::env(replaceio_tmp_file_tag)_io.def \
-	|& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
-
-    #try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag)_place_$i.def
-    #}
     try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
