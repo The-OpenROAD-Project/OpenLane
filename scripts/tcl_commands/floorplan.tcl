@@ -64,7 +64,7 @@ proc place_io_ol {args} {
 				{-extra_args optional}
 		}
 		set flags {}
-		# set proc_name [info level 0]
+		
 		parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
 		set_if_unset arg_values(-lef) $::env(MERGED_LEF)

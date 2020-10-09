@@ -15,8 +15,6 @@
 import sys
 import os
 
-#for i in range(len(sys.argv)):
-
 outputPrefix = sys.argv[1]
 baseConfigFile = sys.argv[2]
 regressionFile = sys.argv[3]
@@ -93,7 +91,6 @@ def Generator(i,j, regression_config, expressionKeeper):
         outFile.write("\n# Design\n")
         baseConfigFileRead = open(baseConfigFile,"r")
         outFile.write(insertSCL(baseConfigFileRead.read()))
-        #os.system("$(cat "+baseConfigFile+">>"+outFileName+")")
         outFile.write("\n# Regression\n")
         outFile.write(regression_config+"set ::env("+keysList[i]+") "+valuesList[i][j]+"\n")
         outFile.write("\n# Extra\n")

@@ -78,7 +78,7 @@ proc prep_lefs {args} {
 }
 
 proc trim_lib {args} {
-    puts_info "Trimming Liberty"
+    puts_info "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}

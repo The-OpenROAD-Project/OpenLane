@@ -84,13 +84,6 @@ proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(
 
     puts_info "$layout against $schematic"
 
-    # if { $::env(LVS_INSERT_POWER_PINS) } {
-    # 	verilog_to_verilogPower -input $schematic -output $::env(lvs_result_file_tag).v -lef $::env(MERGED_LEF) \
-    # 		-power $::env(VDD_PIN) -ground $::env(GND_PIN)
-
-    # 	set schematic $::env(lvs_result_file_tag).v
-    # }
-
     try_catch netgen -batch lvs \
       "$layout $module_name" \
       "$schematic $module_name" \

@@ -174,21 +174,10 @@ proc run_routing {args} {
 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-    # Unmatched ports would be detected. Need another way to check this.
-    # if { $::env(LEC_ENABLE) } {
-    # 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-    # }
-
-
 
     # detailed routing
     detailed_routing
     run_spef_extraction
-
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-	write_powered_verilog
-	set_netlist $::env(lvs_result_file_tag).powered.v
-    }
 
     ## TIMER END
     set timer_end [clock seconds]
@@ -207,6 +196,12 @@ proc run_routing {args} {
     set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
     puts $runtime_log $routing_status
     close $runtime_log
+
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+	write_powered_verilog
+	set_netlist $::env(lvs_result_file_tag).powered.v
+    }
+
 }
 
 proc gen_pdn {args} {
