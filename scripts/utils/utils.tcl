@@ -198,6 +198,13 @@ proc puts_info {txt} {
   puts "[color_text 6 "\[INFO\]: $txt"]"
 }
 
+proc generate_final_summary_report {args} {
+    puts_info "Generating Final Summary Report..."
+    if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
+        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $::env(REPORTS_DIR)/final_summary_report.csv
+    }
+}
+
 namespace eval TIMER {
 	variable timer_start
 	variable timer_end

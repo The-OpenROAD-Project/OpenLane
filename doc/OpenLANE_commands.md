@@ -234,6 +234,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
  
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
+| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run. The generated report will be under `<run_path>/reports/`. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. | 
 | `remove_pins` | | Removes the pins' section from a given DEF file. |
 |    | `-input <def_file>` | The input DEF file. |
 | `remove_empty_nets` | | Removes the empty nets from a given DEF file. |

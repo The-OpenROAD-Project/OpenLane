@@ -16,7 +16,7 @@
 
 import os
 import sys
-
+import pandas as pd
 
 def get_design_path(design):
     path = os.path.abspath(design) + '/'
@@ -41,3 +41,15 @@ def get_run_path(design, tag):
     )
 
     return DEFAULT_PATH
+
+
+# addComputedStatistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
+def addComputedStatistics(filename):
+    data = pd.read_csv(filename, error_bad_lines=False)
+    df = pd.DataFrame(data)
+    df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
+    suggest_clock_period=df['CLOCK_PERIOD']-df['spef_wns']
+    used_idx = df.columns.get_loc("CLOCK_PERIOD")
+    df.insert(used_idx,'suggested_clock_period',suggest_clock_period,True)
+    df.insert(used_idx,'suggested_clock_frequency',1000.0/suggest_clock_period,True)
+    df.to_csv(filename)
