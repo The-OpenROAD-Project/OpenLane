@@ -89,12 +89,13 @@ class SpefExtractor:
     # A method that takes an instance and a pin and returns a list of all
     # rectangles of that pin
     def getPinLocation(self, instanceName, pinName, metalLayer, listOfPinRects):
-        # myInstance = self.def_parser.components.get_comp(instanceName)
-        origin = self.def_parser.components.comp_dict[instanceName].placed
-        orientation = self.def_parser.components.comp_dict[instanceName].orient
-        cellType = self.def_parser.components.comp_dict[instanceName].macro
-        cellWidth = self.lef_parser.macro_dict[cellType].info['SIZE'][0] * self.l2d
-        cellHeight = self.lef_parser.macro_dict[cellType].info['SIZE'][1] * self.l2d
+        inst = self.def_parser.components.comp_dict[instanceName]
+        origin = inst.placed
+        orientation = inst.orient
+        cellType = inst.macro
+        size = self.lef_parser.macro_dict[cellType].info['SIZE']
+        cellWidth = size[0] * self.l2d
+        cellHeight = size[1] * self.l2d
 
         pinObject = self.lef_parser.macro_dict[cellType].pin_dict[pinName]
         port_info = pinObject.info['PORT'].info['LAYER'][0]
@@ -109,7 +110,7 @@ class SpefExtractor:
                 ur = (urx, ury)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'S':
+        elif orientation == 'S':
             # consider origin to be top right corner
             rotatedOrigin = (origin[0]+cellWidth, origin[1] + cellHeight)
             for shape in port_info.shapes:
@@ -121,7 +122,7 @@ class SpefExtractor:
                 ur = (urx, ury)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'W':
+        elif orientation == 'W':
             # consider origin to be bottom right corner
             rotatedOrigin = (origin[0]+cellHeight, origin[1])
             for shape in port_info.shapes:
@@ -134,7 +135,7 @@ class SpefExtractor:
                 ur = (lrx, uly)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'E':
+        elif orientation == 'E':
             # consider origin to be top left corner
             rotatedOrigin = (origin[0], origin[1]+cellWidth)
             for shape in port_info.shapes:
@@ -147,7 +148,7 @@ class SpefExtractor:
                 ur = (lrx, uly)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'FN':
+        elif orientation == 'FN':
             # consider origin to be bottom right corner
             rotatedOrigin = (origin[0]+cellWidth, origin[1])
             for shape in port_info.shapes:
@@ -160,7 +161,7 @@ class SpefExtractor:
                 ur = (lrx, uly)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'FS':
+        elif orientation == 'FS':
             # consider origin to be upper left corner
             rotatedOrigin = (origin[0], origin[1]+cellHeight)
             for shape in port_info.shapes:
@@ -173,7 +174,7 @@ class SpefExtractor:
                 ur = (lrx, uly)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'FW':
+        elif orientation == 'FW':
             # consider origin to be bottom left corner
             rotatedOrigin = (origin[0], origin[1])
             for shape in port_info.shapes:
@@ -186,7 +187,7 @@ class SpefExtractor:
                 ur = (urx, ury)
                 listOfPinRects.append((ll, ur, metalLayer))
 
-        if orientation == 'FE':
+        elif orientation == 'FE':
             # consider origin to be top right corner
             rotatedOrigin = (origin[0] + cellHeight, origin[1] + cellWidth)
             for shape in port_info.shapes:
