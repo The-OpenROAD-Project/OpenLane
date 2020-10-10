@@ -207,24 +207,28 @@ class SpefExtractor:
     def getViaType(self, via):
         # this 'met' and 'li1' have to be handeled design by design.
         if via in self.lef_parser.via_dict:
-            firstLayer = self.lef_parser.via_dict[via].layers[0].name
-            secondLayer = self.lef_parser.via_dict[via].layers[1].name
-            thirdLayer = self.lef_parser.via_dict[via].layers[2].name
+            viaLayers = self.lef_parser.via_dict[via].layers
+            firstLayer = viaLayers[0].name
+            secondLayer = viaLayers[1].name
+            thirdLayer = viaLayers[2].name
+
         elif via in self.vias_dict_def:
-            firstLayer = self.vias_dict_def[via]['LAYERS'][0]
-            secondLayer = self.vias_dict_def[via]['LAYERS'][1]
-            thirdLayer = self.vias_dict_def[via]['LAYERS'][2]
+            viaLayers = self.vias_dict_def[via]['LAYERS']
+            firstLayer = viaLayers[0]
+            secondLayer = viaLayers[1]
+            thirdLayer = viaLayers[2]
 
         if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
-            cutLayer = firstLayer
+            return (secondLayer, firstLayer, thirdLayer)
 
         if self.lef_parser.layer_dict[secondLayer].layer_type == 'CUT':
-            cutLayer = secondLayer
+            return (firstLayer, secondLayer, thirdLayer)
 
         if self.lef_parser.layer_dict[thirdLayer].layer_type == 'CUT':
-            cutLayer = thirdLayer
+            return (firstLayer, thirdLayer, secondLayer)
 
-        return cutLayer
+        # There must be a cut layer in a via
+        assert False
 
     # method to get the resistance of a certain segment (wire of via) using
     # its length (distance between 2 points) and info from the lef file
@@ -466,29 +470,7 @@ class SpefExtractor:
                         # Remove trailing ';'
                         myVia = myVia[0:-1]
 
-                    if myVia in self.lef_parser.via_dict:
-                        viaLayers = self.lef_parser.via_dict[myVia].layers
-                        firstLayer = viaLayers[0].name
-                        secondLayer = viaLayers[1].name
-                        thirdLayer = viaLayers[2].name
-
-                    elif myVia in self.vias_dict_def:
-                        viaLayers = self.vias_dict_def[myVia]['LAYERS']
-                        firstLayer = viaLayers[0]
-                        secondLayer = viaLayers[1]
-                        thirdLayer = viaLayers[2]
-
-                    if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
-                        first = secondLayer
-                        second = thirdLayer
-
-                    if self.lef_parser.layer_dict[secondLayer].layer_type == 'CUT':
-                        first = firstLayer
-                        second = thirdLayer
-
-                    if self.lef_parser.layer_dict[thirdLayer].layer_type == 'CUT':
-                        first = firstLayer
-                        second = secondLayer
+                    first, _, second = self.getViaType(myVia)
 
                     # Select the other layer
                     if first == segment.layer:
@@ -514,7 +496,7 @@ class SpefExtractor:
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
-                    via_type = self.getViaType(myVia)
+                    _, via_type, _ = self.getViaType(myVia)
                 else:
                     # dummy via
                     via_type = 'via'
