@@ -511,8 +511,6 @@ class SpefExtractor:
                     counter += 1
                     pinsTable.append(enode)
 
-                seg = []
-
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
@@ -555,15 +553,6 @@ class SpefExtractor:
                         # assigning the new node capacitance
                         currentNodeList[currentENodeName] = 0.5 * capacitance
 
-                    if snode[1] != 'PIN':
-                        seg.append(snode[1] + ':' + snode[2])
-                    else:
-                        seg.append(snode[2])
-                    if enode[1] != 'PIN':
-                        seg.append(enode[1] + ':' + enode[2])
-                    else:
-                        seg.append(enode[2])
-
                 # use the L wire model. Essentially, we will add the capacitance of the segment
                 # at the starting node
                 else:
@@ -581,14 +570,15 @@ class SpefExtractor:
                         # assigning the new node capacitance
                         currentNodeList[currentSNodeName] = capacitance
 
-                    if snode[1] != 'PIN':
-                        seg.append(snode[1] + ':' + snode[2])
-                    else:
-                        seg.append(snode[2])
-                    if enode[1] != 'PIN':
-                        seg.append(enode[1] + ':' + enode[2])
-                    else:
-                        seg.append(enode[2])
+                seg = []
+                if snode[1] != 'PIN':
+                    seg.append(snode[1] + ':' + snode[2])
+                else:
+                    seg.append(snode[2])
+                if enode[1] != 'PIN':
+                    seg.append(enode[1] + ':' + enode[2])
+                else:
+                    seg.append(enode[2])
 
                 seg.append(resistance)
                 seg.append(capacitance)
