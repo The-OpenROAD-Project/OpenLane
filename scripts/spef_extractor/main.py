@@ -331,15 +331,15 @@ class SpefExtractor:
     # method to print all nets in the net dictionay
     def printSPEFNets(self, f, netsDict):
         for key, value in netsDict.items():
-            self.printNet(f, netsDict, key)
+            self.printNet(f, value, key)
 
     # method to print a particular net into SPEF format
-    def printNet(self, f, netsDict, wireName):
-        var = '*D_NET' + " " + wireName + " " + str(netsDict[wireName]['maxC'])
+    def printNet(self, f, net, wireName):
+        var = '*D_NET' + " " + wireName + " " + str(net['maxC'])
         f.write(var + '\n')
         var = '*CONN'
         f.write(var + '\n')
-        for eachConnection in netsDict[wireName]['conn']:
+        for eachConnection in net['conn']:
             var = eachConnection[0] + " " + eachConnection[1] + " " + eachConnection[2]
             f.write(var + '\n')
 
@@ -352,7 +352,7 @@ class SpefExtractor:
 
         var = '*RES'
         f.write(var + '\n')
-        for eachSegment in netsDict[wireName]['segments']:
+        for eachSegment in net['segments']:
             var = str(self.resCounter) + " " + str(eachSegment[0]) + " " + str(eachSegment[1]) + " " + str(eachSegment[2])
             f.write(var + '\n')
             self.resCounter += 1
@@ -566,8 +566,6 @@ class SpefExtractor:
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
         # create all the data structures that we will be using
-        pinsTable = []
-        segmentsList = []
         self.bigCapacitanceTable = {}
         netsDict = {}
         self.vias_dict_def = {}
