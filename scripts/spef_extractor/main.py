@@ -42,6 +42,7 @@ class SpefExtractor:
         self.bigCapacitanceTable = {}
         self.capCounter = 0
         self.resCounter = 0
+        self.pinCounter = 0
 
     # this extracts the vias and viarules definied in the def file given the lines in which the vias are defined
     def extractViasFromDef(self, vias_data):
@@ -281,7 +282,7 @@ class SpefExtractor:
 
     # method to look for intersetions between segment nodes in order to decide
     # on creating a new node or add to the existing capacitance
-    def checkPinsTable(self, point, layer, pinsTable):
+    def checkPinsTable(self, point, layer, netName, pinsTable):
         for pin in pinsTable:
             locations = pin[0]
             for location in locations:
@@ -296,7 +297,16 @@ class SpefExtractor:
                         if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
                             and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
                             return pin
-        return "new"
+        # Add a new pin
+        pin = [[((point[0], point[1]),
+                 (point[0], point[1]),
+                 layer)],
+               netName,
+               str(self.pinCounter),
+               netName]
+        self.pinCounter += 1
+        pinsTable.append(pin)
+        return pin
 
     # method for creating the header of the SPEF file
     def printSPEFHeader(self, f):
@@ -418,7 +428,7 @@ class SpefExtractor:
 
         # the value will be incremented if more than 1 segment end at
         # the same node
-        counter = 1
+        self.pinCounter = 1
 
         # A net has a list of segments which are composed of points.
         # Each segment lies on a layer.
@@ -448,19 +458,7 @@ class SpefExtractor:
                         continue
 
                 # Get or create the start pin for the segment
-                sflag = self.checkPinsTable(spoint, segment.layer, pinsTable)
-                if sflag != "new":
-                    snode = sflag
-                else:
-                    # Add a new pin
-                    snode = [[((spoint[0], spoint[1]),
-                               (spoint[0], spoint[1]),
-                               segment.layer)],
-                             net.name,
-                             str(counter),
-                             segment.layer]
-                    counter += 1
-                    pinsTable.append(snode)
+                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
 
                 # Get of create the end pin for the segment
                 if myVia:
@@ -481,17 +479,7 @@ class SpefExtractor:
                     # Normal segment
                     layer = segment.layer
 
-                eflag = self.checkPinsTable(epoint, layer, pinsTable)
-                if eflag != "new":
-                    enode = eflag
-                else:
-                    enode = [[((epoint[0], epoint[1]),
-                               (epoint[0], epoint[1]), layer)],
-                             net.name,
-                             str(counter),
-                             layer]
-                    counter += 1
-                    pinsTable.append(enode)
+                enode = self.checkPinsTable(epoint, layer, net.name, pinsTable)
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
