@@ -496,63 +496,34 @@ class SpefExtractor:
                 # the name of the second node of the segment
                 currentENodeName = str(enode[1]) + ':' + str(enode[2])
 
-                # put the capacitance for the current node.
-                existsS = False
-                existsE = False
-
                 if wireModel == 'PI':
-                    for key in currentNodeList:
-                        if currentSNodeName == key:
-                            existsS = True
-                        if currentENodeName == key:
-                            existsE = True
-
-                    # these 2 if-else statements add half the capactiances at each of the endpoints of thes egment
-                    # to use a pi model
-                    if existsS:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    # PI model: add half the capacitances at each of
+                    # the endpoints of the segment to use a pi model
+                    if currentSNodeName in currentNodeList:
                         currentNodeList[currentSNodeName] += 0.5 * capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentSNodeName] = 0.5 * capacitance
-
-                    if existsE:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    if currentENodeName in currentNodeList:
                         currentNodeList[currentENodeName] += 0.5 * capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentENodeName] = 0.5 * capacitance
-
-                # use the L wire model. Essentially, we will add the capacitance of the segment
-                # at the starting node
                 else:
-
-                    for key in currentNodeList:
-                        if currentSNodeName == key:
-                            existsS = True
-
-                    # these 2 if-else statements add half the capactiances at each of the endpoints of thes egment
-                    # to use a pi model
-                    if existsS:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    # L wire model:  add the capacitance of the segment
+                    # at the starting node
+                    if currentSNodeName in currentNodeList:
                         currentNodeList[currentSNodeName] += capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentSNodeName] = capacitance
 
-                seg = []
                 if snode[1] != 'PIN':
-                    seg.append(snode[1] + ':' + snode[2])
+                    sname = snode[1] + ':' + snode[2]
                 else:
-                    seg.append(snode[2])
+                    sname = snode[2]
                 if enode[1] != 'PIN':
-                    seg.append(enode[1] + ':' + enode[2])
+                    ename = enode[1] + ':' + enode[2]
                 else:
-                    seg.append(enode[2])
-
-                seg.append(resistance)
-                seg.append(capacitance)
-                segmentsList.append(seg)
+                    ename = node[2]
+                segmentsList.append([sname, ename, resistance, capacitance])
 
         # appending the pins, segments resistances and node capacitances into the big table dictionaries that will
         # be used for printing the final SPEF
