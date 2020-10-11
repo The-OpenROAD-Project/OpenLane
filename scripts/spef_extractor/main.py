@@ -231,54 +231,46 @@ class SpefExtractor:
         # There must be a cut layer in a via
         assert False
 
-    # method to get the resistance of a certain segment (wire of via) using
+    # method to get the resistance of a via
+    def get_via_resistance_modified(self, via_layer):
+        # return 0 if u cannot find the target via in the LEF file.
+        return self.lef_parser.layer_dict[via_layer].resistance or 0
+
+    # method to get the resistance of a certain segment using
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
-    def get_resistance_modified(self, point1, point2, layer_name, via_type):
+    def get_wire_resistance_modified(self, point1, point2, layer_name):
+        layer = self.lef_parser.layer_dict[layer_name]
+        rPerSquare = layer.resistance[1]
+        width = layer.width  # width in microns
+        wire_len = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+        resistance = wire_len * rPerSquare / width  # R in ohms
+        return resistance
 
-        if point1 == point2:
-            # we have a via
-            if self.lef_parser.layer_dict[via_type].resistance is not None:
-                return self.lef_parser.layer_dict[via_type].resistance
-            else:
-                return 0  # return 0 if u cannot find the target via in the LEF file.
-        else:
-            # we have a wire
-            rPerSquare = self.lef_parser.layer_dict[layer_name].resistance[1]
+    # method to get the capacitance of a via
+    def get_via_capacitance_modified(self, via_type):
+        return self.lef_parser.layer_dict[via_type].edge_cap or 0
 
-            width = self.lef_parser.layer_dict[layer_name].width  # width in microns
-            wire_len = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
-            resistance = wire_len * rPerSquare / width  # R in ohms
-
-            return resistance
-
-    # method to get the capacitance of a certain segment (wire of via) using
+    # method to get the capacitance of a certain segment using
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
-    def get_capacitance_modified(self, point1, point2, layer_name, via_type):
-        if point1 == point2:
-            # we have a via
-            if self.lef_parser.layer_dict[via_type].edge_cap is None:
-                return 0
-            else:
-                return self.lef_parser.layer_dict[via_type].edge_cap
+    def get_wire_capacitance_modified(self, point1, point2, layer_name):
+        # we have a wire
+        layer = self.lef_parser.layer_dict[layer_name]
+        if layer.capacitance is not None:
+            cPerSquare = self.capacitanceFactor * layer.capacitance[1]  # unit in lef is pF
         else:
-            # we have a wire
-            if self.lef_parser.layer_dict[layer_name].capacitance is not None:
-                cPerSquare = self.capacitanceFactor * self.lef_parser.layer_dict[layer_name].capacitance[1]  # unit in lef is pF
-            else:
-                cPerSquare = 0
-            width = self.lef_parser.layer_dict[layer_name].width  # width in microns
-            length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
-            if self.lef_parser.layer_dict[layer_name].edge_cap is not None:
-                edgeCapacitance = self.capacitanceFactor * self.lef_parser.layer_dict[layer_name].edge_cap
-            else:
-                edgeCapacitance = 0
+            cPerSquare = 0
+        width = layer.width  # width in microns
+        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+        if layer.edge_cap is not None:
+            edgeCapacitance = self.capacitanceFactor * layer.edge_cap
+        else:
+            edgeCapacitance = 0
 
-            # the edge capacitance factor value is 1 by default
-            capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
-
-            return capacitance
+        # the edge capacitance factor value is 1 by default
+        capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
+        return capacitance
 
     # method to look for intersetions between segment nodes in order to decide
     # on creating a new node or add to the existing capacitance
@@ -484,12 +476,12 @@ class SpefExtractor:
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
-                    _, via_type, _ = self.getViaType(myVia)
+                    _, via_layer, _ = self.getViaType(myVia)
+                    resistance = self.get_via_resistance_modified(via_layer)
+                    capacitance = self.get_via_capacitance_modified(via_layer)
                 else:
-                    # dummy via
-                    via_type = 'via'
-                resistance = self.get_resistance_modified(spoint, epoint, segment.layer, via_type)
-                capacitance = self.get_capacitance_modified(spoint, epoint, segment.layer, via_type)
+                    resistance = self.get_wire_resistance_modified(spoint, epoint, segment.layer)
+                    capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
                 currentSNodeName = str(snode[1]) + ':' + str(snode[2])
