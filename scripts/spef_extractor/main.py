@@ -39,7 +39,6 @@ class SpefExtractor:
         self.l2d = None
         self.vias_dict_def = {}
         self.capacitanceFactor = 1
-        self.bigCapacitanceTable = {}
         self.capCounter = 0
         self.resCounter = 0
         self.pinCounter = 0
@@ -333,7 +332,7 @@ class SpefExtractor:
             print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
 
         print('*CAP', file=f)
-        for key, value in self.bigCapacitanceTable[wireName].items():
+        for key, value in net['cap'].items():
             print('{} {} {}'.format(self.capCounter, key, value), file=f)
             self.capCounter += 1
 
@@ -510,19 +509,14 @@ class SpefExtractor:
                     ename = node[2]
                 segmentsList.append([sname, ename, resistance, capacitance])
 
-        # appending the pins, segments resistances and node capacitances into the big table dictionaries that will
-        # be used for printing the final SPEF
-        self.bigCapacitanceTable[net.name] = currentNodeList
-
         sumC = 0
         for k in currentNodeList:
             sumC += currentNodeList[k]
-        return {'conn': conList, 'maxC': sumC, 'segments': segmentsList}
+        return {'conn': conList, 'cap': currentNodeList, 'maxC': sumC, 'segments': segmentsList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
         # create all the data structures that we will be using
-        self.bigCapacitanceTable = {}
         netsDict = {}
         self.vias_dict_def = {}
 
