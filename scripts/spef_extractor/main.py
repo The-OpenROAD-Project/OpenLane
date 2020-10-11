@@ -293,8 +293,7 @@ class SpefExtractor:
                  (point[0], point[1]),
                  layer)],
                netName,
-               str(self.pinCounter),
-               netName]
+               str(self.pinCounter)]
         self.pinCounter += 1
         pinsTable.append(pin)
         return pin
@@ -405,8 +404,8 @@ class SpefExtractor:
                 metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
                 locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
-            # we append list of pin locations - cellName - pinName - metalLayer
-            pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
+            # we append list of pin locations - cellName - pinName
+            pinsTable.append((locationsOfCurrentPin, con[0], con[1]))
             conList.append(current_pin)
 
 
