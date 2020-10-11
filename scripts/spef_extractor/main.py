@@ -327,30 +327,23 @@ class SpefExtractor:
 
     # method to print a particular net into SPEF format
     def printNet(self, f, net, wireName):
-        var = '*D_NET' + " " + wireName + " " + str(net['maxC'])
-        f.write(var + '\n')
-        var = '*CONN'
-        f.write(var + '\n')
-        for eachConnection in net['conn']:
-            var = eachConnection[0] + " " + eachConnection[1] + " " + eachConnection[2]
-            f.write(var + '\n')
+        print('*D_NET {} {}'.format(wireName, net['maxC']), file=f)
+        print('*CONN', file=f)
+        for conn in net['conn']:
+            print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
 
-        var = '*CAP'
-        f.write(var + '\n')
+        print('*CAP', file=f)
         for key, value in self.bigCapacitanceTable[wireName].items():
-            var = str(self.capCounter) + " " + str(key) + " " + str(value)
-            f.write(var + '\n')
+            print('{} {} {}'.format(self.capCounter, key, value), file=f)
             self.capCounter += 1
 
-        var = '*RES'
-        f.write(var + '\n')
-        for eachSegment in net['segments']:
-            var = str(self.resCounter) + " " + str(eachSegment[0]) + " " + str(eachSegment[1]) + " " + str(eachSegment[2])
-            f.write(var + '\n')
+        print('*RES', file=f)
+        for seg in net['segments']:
+            print('{} {} {} {}'.format(self.resCounter, seg[0], seg[1], seg[2]),
+                  file=f)
             self.resCounter += 1
 
-        var = '*END\n'
-        f.write(var + '\n')
+        print('*END\n', file=f)
 
     def extract_net(self, net):
         """From a DEF net extract the corresponding SPEF net"""
