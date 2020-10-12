@@ -96,7 +96,7 @@ Given these inputs the following [interactive script][5] script. Mainly, it does
 -  Generate a GDSII file of the routed design.
 -  Run DRC and LVS checks.
 
-## Power_routing
+## Power-routing
 
 ### Macros:
 Each macro in your design should have a special `pdn.tcl` and point to it by setting `::env(PDN_CFG)`. You could also use `$PDK_ROOT/sky130A/libs.tech/openlane/common_pdn.tcl` as a reference.
