@@ -21,9 +21,10 @@ set ::env(FP_CORE_UTIL) 0.4
 set ::env(PL_TARGET_DENSITY) 0.3
 # CTS config
 # Routing config
-set ::env(ROUTING_STRATEGY) 14 ;# run TritonRoute14
 set ::env(GLB_RT_ADJUSTMENT) 0
 # Flow control config
 
 # # threads for supporting tools
 set ::env(ROUTING_CORES) 4
+
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 1
