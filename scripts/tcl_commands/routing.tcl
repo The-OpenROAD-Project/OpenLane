@@ -12,33 +12,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc global_routing {args} {
-    TIMER::timer_start
-    try_catch envsubst < $::env(GLB_RT_SCRIPT) > $::env(fastroute_tmp_file_tag).tcl
-    cd $::env(OPENLANE_ROOT)/etc
-    try_catch FastRoute -c 1 < $::env(fastroute_tmp_file_tag).tcl \
-	|& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
-    cd $::env(OPENLANE_ROOT)
-}
-
 proc global_routing_or {args} {
+    puts_info "Running Global Routing..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log   
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
-      set ::env(DIODE_INSERTION_STRATEGY) 0
-      set_def $::env(SAVE_DEF)
-      try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
-      set ::env(DIODE_INSETION_STRATEGY) 3
+        set iter 2
+        set prevDEF1 $::env(SAVE_DEF)
+	set prevDEF2 $::env(SAVE_DEF)
+	set prevAntennaVal [exec grep "#Antenna violations:" $::env(fastroute_log_file_tag).log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+        set_def $::env(SAVE_DEF)
+	while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
+            set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag)_$iter.def
+            set replaceWith "INSDIODE$iter"
+            try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
+            puts_info "FastRoute Iteration $iter"
+            puts_info "Antenna Violations Previous: $prevAntennaVal"
+            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log   
+            set currAntennaVal [exec grep "#Antenna violations:"  $::env(fastroute_log_file_tag)_$iter.log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+            puts_info "Antenna Violations Current: $currAntennaVal"
+            if { $currAntennaVal >= $prevAntennaVal } {
+                set iter [expr $iter - 1]
+                set ::env(SAVE_DEF) $prevDEF1
+                break
+            } else {
+                set prevAntennaVal $currAntennaVal
+                set iter [expr $iter + 1]
+                set prevDEF1 $prevDEF2
+ 	        set prevDEF2 $::env(SAVE_DEF) 
+            }
+	    set_def $::env(SAVE_DEF)
+        }
+        set ::env(DIODE_INSERTION_STRATEGY) 0
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
+        set ::env(DIODE_INSERTION_STRATEGY) 3
     }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
+	puts_info "Current Def is $::env(CURRENT_DEF)"
 }
 
 proc detailed_routing {args} {
+    puts_info "Running Detailed Routing..."
     TIMER::timer_start
     if {$::env(RUN_ROUTING_DETAILED)} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
@@ -56,6 +74,7 @@ proc detailed_routing {args} {
 }
 
 proc ins_fill_cells {args} {
+    puts_info "Running Fill Insertion..."
     TIMER::timer_start
     if {$::env(FILL_INSERTION)} {
 	try_catch sh $::env(SCRIPTS_DIR)/addspacers.sh\
@@ -77,6 +96,7 @@ proc ins_fill_cells {args} {
 }
 
 proc ins_fill_cells_or {args} {
+    puts_info "Running Fill Insertion..."
     TIMER::timer_start
 
     if {$::env(FILL_INSERTION)} {
@@ -154,21 +174,10 @@ proc run_routing {args} {
 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-    # Unmatched ports would be detected. Need another way to check this.
-    # if { $::env(LEC_ENABLE) } {
-    # 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-    # }
-
-
 
     # detailed routing
     detailed_routing
     run_spef_extraction
-
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-	write_powered_verilog
-	set_netlist $::env(lvs_result_file_tag).powered.v
-    }
 
     ## TIMER END
     set timer_end [clock seconds]
@@ -187,10 +196,16 @@ proc run_routing {args} {
     set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
     puts $runtime_log $routing_status
     close $runtime_log
+
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+	write_powered_verilog
+	set_netlist $::env(lvs_result_file_tag).powered.v
+    }
+
 }
 
 proc gen_pdn {args} {
-    puts "\[INFO\]: Generating PDN..."
+    puts_info "Generating PDN..."
     TIMER::timer_start
     if {![info exists ::env(PDN_CFG)]} {
 	set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
@@ -206,6 +221,7 @@ proc gen_pdn {args} {
 
 
 proc ins_diode_cells {args} {
+    puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/diodes.def
 
 
@@ -225,11 +241,10 @@ proc ins_diode_cells {args} {
 
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
+        puts_info "Running SPEF Extraction..."
         try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/spef_extraction.log
         set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
-        #puts $fbasename
-        #set ::env(CURRENT_SPEF) 
-        # Use SLOWEST/FASTEST libs and Netlist to generate sta report
+        # Static Timing Analysis using the extracted SPEF
         set report_tag_holder $::env(opensta_report_file_tag)
         set log_tag_holder $::env(opensta_log_file_tag)
         set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef

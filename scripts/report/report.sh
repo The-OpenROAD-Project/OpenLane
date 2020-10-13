@@ -40,6 +40,7 @@ magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
+lvs_report=${path}/results/lvs/${designName}.lvs_parsed.log
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
 if ! [[ $cell_count ]]; then cell_count=-1; fi
@@ -221,10 +222,13 @@ fi
 #Summing the number of Endcaps, Tapcells, and Diodes
 physical_cells=$(((endcaps+tapcells)+diodes));
 
+#Extracting the total number of lvs errors
+lvs_total_errors=$(grep "Total errors =" $lvs_report -s | tail -1 | sed -r 's/[^0-9]*//g')
+if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
 
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $wire_length $vias $wns $opt_wns $fr_wns $spef_wns $tns $opt_tns $fr_tns $spef_tns $hpwl"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $opt_wns $fr_wns $spef_wns $tns $opt_tns $fr_tns $spef_tns $hpwl"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done

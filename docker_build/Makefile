@@ -4,7 +4,7 @@ DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= openlane:rc4
 #ROOT = sudo
 
-TOOLS = replace ioplacer opendp route_14 fastroute opensta yosys antmicro_yosys tapcell magic resizer addspacers openroad_flow padring netgen vlogtoverilog openphysyn
+TOOLS = replace opendp route_14 opensta yosys antmicro_yosys magic addspacers openroad_flow padring netgen vlogtoverilog openphysyn
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))

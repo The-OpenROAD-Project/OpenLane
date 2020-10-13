@@ -22,16 +22,6 @@ from collections import OrderedDict
 
 
 class ConfigHandler():
-#    def __init__(self, tag):
-#        self.tag = tag
-#        self.current_directory = os.path.dirname(__file__)
-#        self.config_generator_script = os.path.join(self.current_directory, "gen_raw_config.sh")
-#        self.config_generator_cmd = '{script} {tag}'.format(
-#                script=self.config_generator_script,
-#                tag=self.tag
-#                )
-#        self.config_dict = {}
-
     config_getter_script = os.path.join(os.path.dirname(__file__), "config_get.sh")
     configuration_values = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'DIODE_INSERTION_STRATEGY']
@@ -73,14 +63,6 @@ class ConfigHandler():
     @classmethod
     def get_header(cls):
         return ",".join(cls.configuration_values)
-
-#    def gen_possible_combos(self):
-#        raw_configuration = subprocess.check_output(self.config_generator_cmd.split())
-#        raw_configuration = raw_configuration.decode(sys.getfilesystemencoding())
-#        for possible_vector in raw_configuration.splitlines():
-#            parameters = possible_vector.split()
-#            key = parameters[0]
-#            self.config_dict[key] = parameters[1:]
 
     @classmethod
     def get_config(cls, design, tag):

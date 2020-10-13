@@ -54,3 +54,6 @@ set ::env(SYNTH_MAX_FANOUT) 9
 
 
 set ::env(PL_TARGET_DENSITY) 0.2
+
+# Suggested Clock Period:
+ set ::env(CLOCK_PERIOD) "26.38"

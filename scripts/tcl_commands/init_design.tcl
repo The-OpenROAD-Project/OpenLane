@@ -46,7 +46,6 @@ if { \[file exists \$filename\] == 1} {
 "
     set config_file [open $config_path w]
     puts $config_file $config_user
-    #puts $config_file $config_default
     close $config_file
 
     foreach src_file $src_files {

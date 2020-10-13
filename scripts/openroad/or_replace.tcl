@@ -22,10 +22,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-# global_placement \
-# 	-density $::env(PL_TARGET_DENSITY) \
-# 	-verbose 3
-
 set_replace_verbose_level_cmd 1
 
 set_replace_density_cmd $::env(PL_TARGET_DENSITY)
@@ -56,9 +52,6 @@ if { !$::env(PL_ROUTABILITY_DRIVEN) } {
 	set_replace_routability_max_inflation_iter_cmd 10
 }
 
-# set_replace_init_density_penalty_factor_cmd 0.001
-
-# set_replace_pad_right_cmd 1
 if { !$::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_BASIC_PLACEMENT) } {
     replace_initial_place_cmd
 }

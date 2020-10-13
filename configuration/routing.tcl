@@ -24,8 +24,10 @@ set ::env(GLB_RT_OVERFLOW_ITERS) 50
 set ::env(GLB_RT_MINLAYER) 1
 set ::env(GLB_RT_MAXLAYER) 6
 set ::env(GLB_RT_TILES) 15 ; # openroads fastroute default value
-set ::env(GLB_RT_SCRIPT) $::env(SCRIPTS_DIR)/fastroute.tcl
 
 set ::env(GLB_RT_ESTIMATE_PARASITICS) 1
 
 set ::env(DIODE_PADDING) 2 ; # sites 
+
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 2
+

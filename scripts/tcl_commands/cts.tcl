@@ -16,6 +16,7 @@ global script_path
 set script_path [ file dirname [ file normalize [ info script ] ] ]
 
 proc set_core_dims {args} {
+	puts_info "Setting Core Dimensions..."
 	set options {{-log_path required}}
 	parse_key_args "set_core_dims" args values $options
 	set log_path $values(-log_path)
@@ -34,6 +35,7 @@ proc set_core_dims {args} {
 }
 
 proc simple_cts {args} {
+	puts_info "Running Simple CTS..."
 	set options {
 		{-verilog required}
 		{-fanout required}
@@ -65,8 +67,8 @@ proc simple_cts {args} {
 
 
 proc run_cts {args} {
-	puts "\[INFO\]: Running TritonCTS..."
 	if {$::env(CLOCK_TREE_SYNTH)} {
+		puts_info "Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
 

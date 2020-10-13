@@ -25,7 +25,7 @@ proc set_netlist {netlist args} {
 
     parse_key_args "set_netlist" args arg_values $options flags_map $flags
 
-    puts_info "Changing netlist from $::env(CURRENT_NETLIST) $netlist"
+    puts_info "Changing netlist from $::env(CURRENT_NETLIST) to $netlist"
 
     set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
     set ::env(CURRENT_NETLIST) $netlist
@@ -42,12 +42,14 @@ proc set_netlist {netlist args} {
 }
 
 proc set_def {def} {
+    puts_info "Changing netlist from $::env(CURRENT_DEF) to $def"
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
 proc prep_lefs {args} {
+    puts_info "Preparing LEF Files"
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
     # pad lef
@@ -76,6 +78,7 @@ proc prep_lefs {args} {
 }
 
 proc trim_lib {args} {
+    puts_info "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
@@ -95,6 +98,7 @@ proc trim_lib {args} {
 }
 
 proc source_config {config_file} {
+    puts_info "Sourcing Configurations from $config_file"
     if { ![file exists $config_file] } {
         puts_err "Configuration file $config_file not found"
         return -code error
@@ -499,6 +503,7 @@ proc prep {args} {
 }
 
 proc padframe_gen {args} {
+    puts_info "Generating Padframe..."
     set options {{-folder required}}
     set flags {}
     parse_key_args "padframe_gen" args arg_values $options flags_map $flags
@@ -553,7 +558,7 @@ proc save_views {args} {
     } else {
         set path $::env(DESIGN_DIR)
     }
-    puts "\[INFO\]: Saving Magic Views in $path"
+    puts_info "Saving Magic Views in $path"
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
@@ -606,7 +611,8 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-	# requires a pre-existing report containing a list of cells (-pins?)
+	puts_info "Healing Antenna Violators..."
+    # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
 	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
 	# => fixes the routed def
@@ -630,19 +636,23 @@ proc heal_antenna_violators {args} {
 
 
 proc li1_hack_start {args} {
+    puts_info "Starting the li1 Hack..."
     try_catch touch $::env(TMP_DIR)/li1HackTmpFile.txt
     try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_start.py -d $::env(CURRENT_DEF) -l $::env(MERGED_LEF_UNPADDED) -t $::env(TMP_DIR)/li1HackTmpFile.txt
 }
 
 proc li1_hack_end {args} {
+    puts_info "Ending the li1 Hack..."
     try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
 }
 
 proc extract_macros_pin_order {args} {
+    puts_info "Extracting Macros Pin Order..."
     try_catch python3 $::env(SCRIPTS_DIR)/extract_pad_pin_order_mod.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -o $::env(RESULTS_DIR)/pinPadOrder.txt
 }
 
 proc reorder_macro_pins {args} {
+    puts_info "Reordering Macros Pins..."
     try_catch python3 $::env(SCRIPTS_DIR)/reorder_pins.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -m [lindex $args 1] -o $::env(CURRENT_DEF)
 }
 
@@ -655,6 +665,7 @@ proc widen_site_width {args} {
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(MERGED_LEF_UNPADDED)
         set ::env(MERGED_LEF_WIDENED) $::env(MERGED_LEF)
     } else {
+        puts_info "Widenning Site Width..."
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
         set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
         if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
@@ -718,6 +729,7 @@ proc label_macro_pins {args} {
 
 
 proc write_verilog {filename args} {
+    puts_info "Writing Verilog..."
     set ::env(SAVE_NETLIST) $filename
 
     set options {
@@ -736,6 +748,7 @@ proc write_verilog {filename args} {
 }
 
 proc add_macro_obs {args} {
+    puts_info "Adding Macro Obstruction..."
     set options {
         {-defFile required}
         {-lefFile required}
@@ -776,6 +789,7 @@ proc add_macro_obs {args} {
 }
 
 proc set_layer_tracks {args} {
+    puts_info "Setting Layer Tracks..."
     set options {
         {-defFile required}
         {-layer required}
@@ -790,12 +804,13 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
-
+    puts_info "Running OpenROAD Antenna Rule Checker..."
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/or_antenna.log
 
 }
 
 proc run_antenna_check {args} {
+    puts_info "Running Antenna Checks..."
 	if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 		run_or_antenna_check
 	} else {

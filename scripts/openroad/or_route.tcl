@@ -32,10 +32,6 @@ FastRoute::set_verbose 3
 
 FastRoute::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
-# FastRoute::set_alpha 0.4
-# FastRoute::set_grid_origin 0 0
-
-# FastRoute::set_max_layer $::env(GLB_RT_MAXLAYER)
 FastRoute::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
 
 FastRoute::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
@@ -43,8 +39,6 @@ FastRoute::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
 FastRoute::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
 FastRoute::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
-
-# FastRoute::report_congestion $::env(fastroute_report_file_tag).congestion.rpt
 
 
 FastRoute::set_tile_size $::env(GLB_RT_TILES)
@@ -69,7 +63,7 @@ if { $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS)
     read_liberty -min $::env(LIB_FASTEST)
     read_sdc -echo $::env(BASE_SDC_FILE)
 
-    set_wire_rc -layer met1
+    set_wire_rc -layer $::env(WIRE_RC_LAYER)
     estimate_parasitics -global_routing
 
     report_checks -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt

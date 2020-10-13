@@ -13,6 +13,7 @@
 # limitations under the License.
 
 proc init_floorplan_or {args} {
+		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
@@ -48,66 +49,6 @@ proc init_floorplan_or {args} {
 }
 
 
-proc init_floorplan {args} {
-		TIMER::timer_start
-		set ::env(CURRENT_STAGE) floorplan
-		if {$::env(FP_SIZING) == "absolute"} {
-				if { [info exists ::env(CORE_AREA)] } {
-						puts_warn "Ignoring CORE_AREA set; deriving it from *_MARGIN_MULT configurations"
-				}
-				set die_area $::env(DIE_AREA)
-				set ll_x [lindex $die_area 0]
-				set ll_y [lindex $die_area 1]
-				set ur_x [lindex $die_area 2]
-				set ur_y [lindex $die_area 3]
-
-				set ll_x [expr {$ll_x + $::env(LEFT_MARGIN_MULT) * $::env(PLACE_SITE_WIDTH)}]
-				set ll_y [expr {$ll_y + $::env(BOTTOM_MARGIN_MULT) * $::env(PLACE_SITE_HEIGHT)}]
-				set ur_x [expr {$ur_x - $::env(RIGHT_MARGIN_MULT) * $::env(PLACE_SITE_WIDTH)}]
-				set ur_y [expr {$ur_y - $::env(TOP_MARGIN_MULT) * $::env(PLACE_SITE_HEIGHT)}]
-
-				set ::env(CORE_AREA) [list $ll_x $ll_y $ur_x $ur_y]
-
-
-				try_catch verilog2def \
-						-verilog $::env(yosys_result_file_tag).v \
-						-lef $::env(MERGED_LEF) \
-						-liberty $::env(LIB_SYNTH) \
-						-top_module $::env(DESIGN_NAME) \
-						-site $::env(PLACE_SITE) \
-						-tracks $::env(TRACKS_INFO_FILE) \
-						-units $::env(DEF_UNITS_PER_MICRON) \
-						\
-						-die_area $::env(DIE_AREA) \
-						-core_area $::env(CORE_AREA) \
-						\
-						-def $::env(verilog2def_tmp_file_tag)_broken.def \
-						-verbose \
-						|& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).log
-		} else {
-				try_catch verilog2def \
-						-verilog $::env(yosys_result_file_tag).v \
-						-lef $::env(MERGED_LEF) \
-						-liberty $::env(LIB_SYNTH) \
-						-top_module $::env(DESIGN_NAME) \
-						-site $::env(PLACE_SITE) \
-						-tracks $::env(TRACKS_INFO_FILE) \
-						-units $::env(DEF_UNITS_PER_MICRON) \
-						\
-						-utilization $::env(FP_CORE_UTIL) \
-						-aspect_ratio $::env(FP_ASPECT_RATIO) \
-						-core_space $::env(FP_CORE_MARGIN) \
-						\
-						-def $::env(verilog2def_tmp_file_tag)_broken.def \
-						-verbose \
-						|& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).log
-		}
-		exec cat $::env(verilog2def_tmp_file_tag)_broken.def | sed -r "s/(ROW.*) by /\\1 BY /g" > $::env(verilog2def_tmp_file_tag).def
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(verilog2def_log_file_tag)_runtime.txt
-		set_def $::env(verilog2def_tmp_file_tag).def
-}
-
 proc place_io_ol {args} {
 		set options {
 				{-lef optional}
@@ -123,7 +64,7 @@ proc place_io_ol {args} {
 				{-extra_args optional}
 		}
 		set flags {}
-		# set proc_name [info level 0]
+		
 		parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
 		set_if_unset arg_values(-lef) $::env(MERGED_LEF)
@@ -157,6 +98,7 @@ proc place_io_ol {args} {
 }
 
 proc place_io {args} {
+		puts_info "Running IO Placement..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
 
@@ -168,6 +110,7 @@ proc place_io {args} {
 }
 
 proc place_contextualized_io {args} {
+		puts_info "Running Contextualized IO Placement..."
 		set options {{-lef required} {-def required}}
 		set flags {}
 		parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
@@ -212,22 +155,8 @@ proc place_contextualized_io {args} {
 		}
 }
 
-proc tap_decap {args} {
-		try_catch cp $::env(CURRENT_DEF) $::env(tapcell_result_file_tag).def
-		TIMER::timer_start
-		try_catch tapcell -lef $::env(MERGED_LEF_UNPADDED) \
-				-def $::env(tapcell_result_file_tag).def \
-				-rule [expr $::env(FP_TAPCELL_DIST) * 2] \
-				-welltap $::env(FP_WELLTAP_CELL) \
-				-endcap $::env(FP_ENDCAP_CELL) \
-				-outdef $::env(tapcell_result_file_tag).def \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(tapcell_log_file_tag).log
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(tapcell_log_file_tag)_runtime.txt
-		set_def $::env(tapcell_result_file_tag).def
-}
 proc tap_decap_or {args} {
-		#try_catch cp $::env(CURRENT_DEF) $::env(tapcell_result_file_tag).def
+		puts_info "Running Tap/Decap Insertion..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(tapcell_log_file_tag).log
@@ -238,6 +167,7 @@ proc tap_decap_or {args} {
 
 
 proc padframe_extract_area {args} {
+		puts_info "Extracting Padframe area..."
 		set options {{-cfg required}}
 		set flags {}
 		parse_key_args "padframe_extract_area" args arg_values $options flags_map $flags
@@ -246,6 +176,7 @@ proc padframe_extract_area {args} {
 }
 
 proc chip_floorplan {args} {
+		puts_info "Running Chip Floorplanning..."
 		# intial fp
 		init_floorplan_or
 		# remove pins section and others
@@ -254,7 +185,7 @@ proc chip_floorplan {args} {
 }
 
 proc run_floorplan {args} {
-		puts "\[INFO\]: Running Floorplanning..."
+		puts_info "Running Floorplanning..."
 		# |----------------------------------------------------|
 		# |----------------   2. FLOORPLAN   ------------------|
 		# |----------------------------------------------------|
@@ -268,9 +199,6 @@ proc run_floorplan {args} {
 		} else {
 				place_io
 		}
-
-		#	# pdn generation
-		#	gen_pdn
 
 		# tapcell
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} { 

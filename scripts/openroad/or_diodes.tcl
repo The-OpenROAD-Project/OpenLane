@@ -59,9 +59,7 @@ proc add_antenna_cell { iterm } {
 	$antenna_inst setOrient $inst_ori
 	$antenna_inst setPlacementStatus PLACED
 	odb::dbITerm_connect $antenna_iterm $iterm_net
-	# odb::dbITerm_connect $iterm $antenna_subnet
-	# odb::dbITerm_connect $iterm $iterm_net
-	#
+
 	if { $::VERBOSE } {
 		puts "\[INFO\]: Adding $antenna_inst_name on subnet $antenna_subnet for cell $iterm_inst_name pin $iterm_pin_name"
 	}
@@ -84,7 +82,6 @@ foreach net $::nets {
 	}
 }
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
-# set_placement_padding -global -left $::env(DIODE_PADDING)
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement
