@@ -39,9 +39,9 @@ class SpefExtractor:
         self.l2d = None
         self.vias_dict_def = {}
         self.capacitanceFactor = 1
-        self.bigCapacitanceTable = {}
         self.capCounter = 0
         self.resCounter = 0
+        self.pinCounter = 0
 
     # this extracts the vias and viarules definied in the def file given the lines in which the vias are defined
     def extractViasFromDef(self, vias_data):
@@ -207,77 +207,73 @@ class SpefExtractor:
     def getViaType(self, via):
         # this 'met' and 'li1' have to be handeled design by design.
         if via in self.lef_parser.via_dict:
-            firstLayer = self.lef_parser.via_dict[via].layers[0].name
-            secondLayer = self.lef_parser.via_dict[via].layers[1].name
-            thirdLayer = self.lef_parser.via_dict[via].layers[2].name
+            viaLayers = self.lef_parser.via_dict[via].layers
+            firstLayer = viaLayers[0].name
+            secondLayer = viaLayers[1].name
+            thirdLayer = viaLayers[2].name
+
         elif via in self.vias_dict_def:
-            firstLayer = self.vias_dict_def[via]['LAYERS'][0]
-            secondLayer = self.vias_dict_def[via]['LAYERS'][1]
-            thirdLayer = self.vias_dict_def[via]['LAYERS'][2]
+            viaLayers = self.vias_dict_def[via]['LAYERS']
+            firstLayer = viaLayers[0]
+            secondLayer = viaLayers[1]
+            thirdLayer = viaLayers[2]
 
         if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
-            cutLayer = firstLayer
+            return (secondLayer, firstLayer, thirdLayer)
 
         if self.lef_parser.layer_dict[secondLayer].layer_type == 'CUT':
-            cutLayer = secondLayer
+            return (firstLayer, secondLayer, thirdLayer)
 
         if self.lef_parser.layer_dict[thirdLayer].layer_type == 'CUT':
-            cutLayer = thirdLayer
+            return (firstLayer, thirdLayer, secondLayer)
 
-        return cutLayer
+        # There must be a cut layer in a via
+        assert False
 
-    # method to get the resistance of a certain segment (wire of via) using
+    # method to get the resistance of a via
+    def get_via_resistance_modified(self, via_layer):
+        # return 0 if u cannot find the target via in the LEF file.
+        return self.lef_parser.layer_dict[via_layer].resistance or 0
+
+    # method to get the resistance of a certain segment using
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
-    def get_resistance_modified(self, point1, point2, layer_name, via_type):
+    def get_wire_resistance_modified(self, point1, point2, layer_name):
+        layer = self.lef_parser.layer_dict[layer_name]
+        rPerSquare = layer.resistance[1]
+        width = layer.width  # width in microns
+        wire_len = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+        resistance = wire_len * rPerSquare / width  # R in ohms
+        return resistance
 
-        if point1 == point2:
-            # we have a via
-            if self.lef_parser.layer_dict[via_type].resistance is not None:
-                return self.lef_parser.layer_dict[via_type].resistance
-            else:
-                return 0  # return 0 if u cannot find the target via in the LEF file.
-        else:
-            # we have a wire
-            rPerSquare = self.lef_parser.layer_dict[layer_name].resistance[1]
+    # method to get the capacitance of a via
+    def get_via_capacitance_modified(self, via_type):
+        return self.lef_parser.layer_dict[via_type].edge_cap or 0
 
-            width = self.lef_parser.layer_dict[layer_name].width  # width in microns
-            wire_len = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
-            resistance = wire_len * rPerSquare / width  # R in ohms
-
-            return resistance
-
-    # method to get the capacitance of a certain segment (wire of via) using
+    # method to get the capacitance of a certain segment using
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
-    def get_capacitance_modified(self, point1, point2, layer_name, via_type):
-        if point1 == point2:
-            # we have a via
-            if self.lef_parser.layer_dict[via_type].edge_cap is None:
-                return 0
-            else:
-                return self.lef_parser.layer_dict[via_type].edge_cap
+    def get_wire_capacitance_modified(self, point1, point2, layer_name):
+        # we have a wire
+        layer = self.lef_parser.layer_dict[layer_name]
+        if layer.capacitance is not None:
+            cPerSquare = self.capacitanceFactor * layer.capacitance[1]  # unit in lef is pF
         else:
-            # we have a wire
-            if self.lef_parser.layer_dict[layer_name].capacitance is not None:
-                cPerSquare = self.capacitanceFactor * self.lef_parser.layer_dict[layer_name].capacitance[1]  # unit in lef is pF
-            else:
-                cPerSquare = 0
-            width = self.lef_parser.layer_dict[layer_name].width  # width in microns
-            length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
-            if self.lef_parser.layer_dict[layer_name].edge_cap is not None:
-                edgeCapacitance = self.capacitanceFactor * self.lef_parser.layer_dict[layer_name].edge_cap
-            else:
-                edgeCapacitance = 0
+            cPerSquare = 0
+        width = layer.width  # width in microns
+        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+        if layer.edge_cap is not None:
+            edgeCapacitance = self.capacitanceFactor * layer.edge_cap
+        else:
+            edgeCapacitance = 0
 
-            # the edge capacitance factor value is 1 by default
-            capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
-
-            return capacitance
+        # the edge capacitance factor value is 1 by default
+        capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
+        return capacitance
 
     # method to look for intersetions between segment nodes in order to decide
     # on creating a new node or add to the existing capacitance
-    def checkPinsTable(self, point, layer, pinsTable):
+    def checkPinsTable(self, point, layer, netName, pinsTable):
         for pin in pinsTable:
             locations = pin[0]
             for location in locations:
@@ -292,7 +288,15 @@ class SpefExtractor:
                         if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
                             and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
                             return pin
-        return "new"
+        # Add a new pin
+        pin = [[((point[0], point[1]),
+                 (point[0], point[1]),
+                 layer)],
+               netName,
+               str(self.pinCounter)]
+        self.pinCounter += 1
+        pinsTable.append(pin)
+        return pin
 
     # method for creating the header of the SPEF file
     def printSPEFHeader(self, f):
@@ -317,34 +321,27 @@ class SpefExtractor:
     # method to print all nets in the net dictionay
     def printSPEFNets(self, f, netsDict):
         for key, value in netsDict.items():
-            self.printNet(f, netsDict, key)
+            self.printNet(f, value, key)
 
     # method to print a particular net into SPEF format
-    def printNet(self, f, netsDict, wireName):
-        var = '*D_NET' + " " + wireName + " " + str(netsDict[wireName]['maxC'])
-        f.write(var + '\n')
-        var = '*CONN'
-        f.write(var + '\n')
-        for eachConnection in netsDict[wireName]['conn']:
-            var = eachConnection[0] + " " + eachConnection[1] + " " + eachConnection[2]
-            f.write(var + '\n')
+    def printNet(self, f, net, wireName):
+        print('*D_NET {} {}'.format(wireName, net['maxC']), file=f)
+        print('*CONN', file=f)
+        for conn in net['conn']:
+            print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
 
-        var = '*CAP'
-        f.write(var + '\n')
-        for key, value in self.bigCapacitanceTable[wireName].items():
-            var = str(self.capCounter) + " " + str(key) + " " + str(value)
-            f.write(var + '\n')
+        print('*CAP', file=f)
+        for key, value in net['cap'].items():
+            print('{} {} {}'.format(self.capCounter, key, value), file=f)
             self.capCounter += 1
 
-        var = '*RES'
-        f.write(var + '\n')
-        for eachSegment in netsDict[wireName]['segments']:
-            var = str(self.resCounter) + " " + str(eachSegment[0]) + " " + str(eachSegment[1]) + " " + str(eachSegment[2])
-            f.write(var + '\n')
+        print('*RES', file=f)
+        for seg in net['segments']:
+            print('{} {} {} {}'.format(self.resCounter, seg[0], seg[1], seg[2]),
+                  file=f)
             self.resCounter += 1
 
-        var = '*END\n'
-        f.write(var + '\n')
+        print('*END\n', file=f)
 
     def extract_net(self, net):
         """From a DEF net extract the corresponding SPEF net"""
@@ -407,14 +404,14 @@ class SpefExtractor:
                 metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
                 locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
-            # we append list of pin locations - cellName - pinName - metalLayer
-            pinsTable.append((locationsOfCurrentPin, con[0], con[1], metalLayer))
+            # we append list of pin locations - cellName - pinName
+            pinsTable.append((locationsOfCurrentPin, con[0], con[1]))
             conList.append(current_pin)
 
 
         # the value will be incremented if more than 1 segment end at
         # the same node
-        counter = 1
+        self.pinCounter = 1
 
         # A net has a list of segments which are composed of points.
         # Each segment lies on a layer.
@@ -444,19 +441,7 @@ class SpefExtractor:
                         continue
 
                 # Get or create the start pin for the segment
-                sflag = self.checkPinsTable(spoint, segment.layer, pinsTable)
-                if sflag != "new":
-                    snode = sflag
-                else:
-                    # Add a new pin
-                    snode = [[((spoint[0], spoint[1]),
-                               (spoint[0], spoint[1]),
-                               segment.layer)],
-                             net.name,
-                             str(counter),
-                             segment.layer]
-                    counter += 1
-                    pinsTable.append(snode)
+                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
 
                 # Get of create the end pin for the segment
                 if myVia:
@@ -466,29 +451,7 @@ class SpefExtractor:
                         # Remove trailing ';'
                         myVia = myVia[0:-1]
 
-                    if myVia in self.lef_parser.via_dict:
-                        viaLayers = self.lef_parser.via_dict[myVia].layers
-                        firstLayer = viaLayers[0].name
-                        secondLayer = viaLayers[1].name
-                        thirdLayer = viaLayers[2].name
-
-                    elif myVia in self.vias_dict_def:
-                        viaLayers = self.vias_dict_def[myVia]['LAYERS']
-                        firstLayer = viaLayers[0]
-                        secondLayer = viaLayers[1]
-                        thirdLayer = viaLayers[2]
-
-                    if self.lef_parser.layer_dict[firstLayer].layer_type == 'CUT':
-                        first = secondLayer
-                        second = thirdLayer
-
-                    if self.lef_parser.layer_dict[secondLayer].layer_type == 'CUT':
-                        first = firstLayer
-                        second = thirdLayer
-
-                    if self.lef_parser.layer_dict[thirdLayer].layer_type == 'CUT':
-                        first = firstLayer
-                        second = secondLayer
+                    first, _, second = self.getViaType(myVia)
 
                     # Select the other layer
                     if first == segment.layer:
@@ -499,116 +462,60 @@ class SpefExtractor:
                     # Normal segment
                     layer = segment.layer
 
-                eflag = self.checkPinsTable(epoint, layer, pinsTable)
-                if eflag != "new":
-                    enode = eflag
-                else:
-                    enode = [[((epoint[0], epoint[1]),
-                               (epoint[0], epoint[1]), layer)],
-                             net.name,
-                             str(counter),
-                             layer]
-                    counter += 1
-                    pinsTable.append(enode)
-
-                seg = []
+                enode = self.checkPinsTable(epoint, layer, net.name, pinsTable)
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
-                    via_type = self.getViaType(myVia)
+                    _, via_layer, _ = self.getViaType(myVia)
+                    resistance = self.get_via_resistance_modified(via_layer)
+                    capacitance = self.get_via_capacitance_modified(via_layer)
                 else:
-                    # dummy via
-                    via_type = 'via'
-                resistance = self.get_resistance_modified(spoint, epoint, segment.layer, via_type)
-                capacitance = self.get_capacitance_modified(spoint, epoint, segment.layer, via_type)
+                    resistance = self.get_wire_resistance_modified(spoint, epoint, segment.layer)
+                    capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
                 currentSNodeName = str(snode[1]) + ':' + str(snode[2])
                 # the name of the second node of the segment
                 currentENodeName = str(enode[1]) + ':' + str(enode[2])
 
-                # put the capacitance for the current node.
-                existsS = False
-                existsE = False
-
                 if wireModel == 'PI':
-                    for key in currentNodeList:
-                        if currentSNodeName == key:
-                            existsS = True
-                        if currentENodeName == key:
-                            existsE = True
-
-                    # these 2 if-else statements add half the capactiances at each of the endpoints of thes egment
-                    # to use a pi model
-                    if existsS:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    # PI model: add half the capacitances at each of
+                    # the endpoints of the segment to use a pi model
+                    if currentSNodeName in currentNodeList:
                         currentNodeList[currentSNodeName] += 0.5 * capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentSNodeName] = 0.5 * capacitance
-
-                    if existsE:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    if currentENodeName in currentNodeList:
                         currentNodeList[currentENodeName] += 0.5 * capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentENodeName] = 0.5 * capacitance
-
-                    if snode[1] != 'PIN':
-                        seg.append(snode[1] + ':' + snode[2])
-                    else:
-                        seg.append(snode[2])
-                    if enode[1] != 'PIN':
-                        seg.append(enode[1] + ':' + enode[2])
-                    else:
-                        seg.append(enode[2])
-
-                # use the L wire model. Essentially, we will add the capacitance of the segment
-                # at the starting node
                 else:
-
-                    for key in currentNodeList:
-                        if currentSNodeName == key:
-                            existsS = True
-
-                    # these 2 if-else statements add half the capactiances at each of the endpoints of thes egment
-                    # to use a pi model
-                    if existsS:
-                        # adding the capacitance to the previous capacitances in an existing node
+                    # L wire model:  add the capacitance of the segment
+                    # at the starting node
+                    if currentSNodeName in currentNodeList:
                         currentNodeList[currentSNodeName] += capacitance
                     else:
-                        # assigning the new node capacitance
                         currentNodeList[currentSNodeName] = capacitance
 
-                    if snode[1] != 'PIN':
-                        seg.append(snode[1] + ':' + snode[2])
-                    else:
-                        seg.append(snode[2])
-                    if enode[1] != 'PIN':
-                        seg.append(enode[1] + ':' + enode[2])
-                    else:
-                        seg.append(enode[2])
-
-                seg.append(resistance)
-                seg.append(capacitance)
-                segmentsList.append(seg)
-
-        # appending the pins, segments resistances and node capacitances into the big table dictionaries that will
-        # be used for printing the final SPEF
-        self.bigCapacitanceTable[net.name] = currentNodeList
+                if snode[1] != 'PIN':
+                    sname = snode[1] + ':' + snode[2]
+                else:
+                    sname = snode[2]
+                if enode[1] != 'PIN':
+                    ename = enode[1] + ':' + enode[2]
+                else:
+                    ename = node[2]
+                segmentsList.append([sname, ename, resistance, capacitance])
 
         sumC = 0
         for k in currentNodeList:
             sumC += currentNodeList[k]
-        return {'conn': conList, 'maxC': sumC, 'segments': segmentsList}
+        return {'conn': conList, 'cap': currentNodeList, 'maxC': sumC, 'segments': segmentsList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
         # create all the data structures that we will be using
-        pinsTable = []
-        segmentsList = []
-        self.bigCapacitanceTable = {}
         netsDict = {}
         self.vias_dict_def = {}
 
