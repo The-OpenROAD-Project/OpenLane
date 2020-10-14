@@ -475,9 +475,9 @@ class SpefExtractor:
                     capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
-                currentSNodeName = str(snode[1]) + ':' + str(snode[2])
+                currentSNodeName = snode[1] + ':' + snode[2]
                 # the name of the second node of the segment
-                currentENodeName = str(enode[1]) + ':' + str(enode[2])
+                currentENodeName = enode[1] + ':' + enode[2]
 
                 if wireModel == 'PI':
                     # PI model: add half the capacitances at each of
@@ -565,7 +565,7 @@ class SpefExtractor:
         self.capCounter = 0
         self.resCounter = 0
 
-        f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
+        f = open(def_file_name[:-4] + ".spef", "w", newline='\n')
         print("Start writing SPEF file")
         self.printSPEFHeader(f)
         self.printNameMap(f, map_of_names)
