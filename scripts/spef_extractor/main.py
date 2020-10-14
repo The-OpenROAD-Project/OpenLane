@@ -71,10 +71,10 @@ class SpefExtractor:
     def remap_names(self):
         name_counter = 0
         map_of_names = []
-        for key in self.def_parser.nets.net_dict:
-            name = self.def_parser.nets.net_dict[key].name
+        for key, val in self.def_parser.nets.net_dict.items():
+            name = val.name
             abbrev = "*" + str(name_counter)
-            self.def_parser.nets.net_dict[key].name = abbrev
+            val.name = abbrev
             name_counter += 1
             map_of_names.append((name, abbrev))
         return map_of_names
@@ -401,8 +401,7 @@ class SpefExtractor:
                 current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
 
                 # this is used for the pins table
-                metalLayerInfo = pinInfo.info
-                metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
+                metalLayer = pinInfo.info['PORT'].info['LAYER'][0].name
                 locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
             # we append list of pin locations - cellName - pinName
@@ -507,7 +506,7 @@ class SpefExtractor:
                     ename = enode[1] + ':' + enode[2]
                 else:
                     ename = node[2]
-                segmentsList.append([sname, ename, resistance, capacitance])
+                segmentsList.append([sname, ename, resistance])
 
         return {'conn': conList, 'cap': currentNodeList, 'segments': segmentsList}
 
