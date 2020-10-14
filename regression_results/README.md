@@ -57,6 +57,9 @@ The script can be used in two ways
     These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
     
     - Basic Regression Script:
+    
+        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
+
         ```
         GLB_RT_ADJUSTMENT=(0.1 0.15)
         FP_CORE_UTIL=(40 50)
