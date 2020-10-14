@@ -325,7 +325,8 @@ class SpefExtractor:
 
     # method to print a particular net into SPEF format
     def printNet(self, f, net, wireName):
-        print('*D_NET {} {}'.format(wireName, net['maxC']), file=f)
+        sumC = sum(net['cap'].values())
+        print('*D_NET {} {}'.format(wireName, sumC), file=f)
         print('*CONN', file=f)
         for conn in net['conn']:
             print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
@@ -508,10 +509,7 @@ class SpefExtractor:
                     ename = node[2]
                 segmentsList.append([sname, ename, resistance, capacitance])
 
-        sumC = 0
-        for k in currentNodeList:
-            sumC += currentNodeList[k]
-        return {'conn': conList, 'cap': currentNodeList, 'maxC': sumC, 'segments': segmentsList}
+        return {'conn': conList, 'cap': currentNodeList, 'segments': segmentsList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
