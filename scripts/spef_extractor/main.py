@@ -358,11 +358,8 @@ class SpefExtractor:
                 # It is an external PAD
                 pinName = con[1]
                 x = self.def_parser.pins.get_pin(pinName)
-                if x.direction == "INPUT":
-                    pin_dir = "I"
-                else:
-                    pin_dir = "O"
-                current_pin = ["*P", pinName, pin_dir]
+                direction = x.direction
+                pinType = "*P"
 
                 # these are used for the pinsTable
                 pin = self.def_parser.pins.pin_dict[pinName]
@@ -389,12 +386,8 @@ class SpefExtractor:
                     else:
                         direction = "OUTPUT"
 
-                if direction == "INPUT":
-                    pin_dir = "I"
-                else:
-                    pin_dir = "O"
                 pinName = con[0] + ":" + con[1]
-                current_pin = ["*I", pinName, pin_dir]
+                pinType = "*I"
 
                 # this is used for the pins table
                 metalLayer = pinInfo.info['PORT'].info['LAYER'][0].name
@@ -402,7 +395,11 @@ class SpefExtractor:
 
             # we append list of pin locations - cellName - pinName
             pinsTable.append((locationsOfCurrentPin, pinName))
-            conList.append(current_pin)
+            if direction == "INPUT":
+                pinDir = "I"
+            else:
+                pinDir = "O"
+            conList.append([pinType, pinName, pinDir])
 
         # the value will be incremented if more than 1 segment end at
         # the same node
