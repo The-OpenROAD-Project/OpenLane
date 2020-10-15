@@ -73,9 +73,10 @@ open_pdks: $(PDK_ROOT)/open_pdks
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[[ -d $(PDK_ROOT)/sky130A ]] && \
-		echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
+		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
 		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A
+		rm -rf $(PDK_ROOT)/sky130A) || \
+		true
 	cd $(PDK_ROOT)/open_pdks && \
 		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
