@@ -71,10 +71,10 @@ class SpefExtractor:
     def remap_names(self):
         name_counter = 0
         map_of_names = []
-        for key in self.def_parser.nets.net_dict:
-            name = self.def_parser.nets.net_dict[key].name
+        for key, val in self.def_parser.nets.net_dict.items():
+            name = val.name
             abbrev = "*" + str(name_counter)
-            self.def_parser.nets.net_dict[key].name = abbrev
+            val.name = abbrev
             name_counter += 1
             map_of_names.append((name, abbrev))
         return map_of_names
@@ -292,8 +292,7 @@ class SpefExtractor:
         pin = [[((point[0], point[1]),
                  (point[0], point[1]),
                  layer)],
-               netName,
-               str(self.pinCounter)]
+               '{}:{}'.format(netName, self.pinCounter)]
         self.pinCounter += 1
         pinsTable.append(pin)
         return pin
@@ -325,7 +324,8 @@ class SpefExtractor:
 
     # method to print a particular net into SPEF format
     def printNet(self, f, net, wireName):
-        print('*D_NET {} {}'.format(wireName, net['maxC']), file=f)
+        sumC = sum(net['cap'].values())
+        print('*D_NET {} {}'.format(wireName, sumC), file=f)
         print('*CONN', file=f)
         for conn in net['conn']:
             print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
@@ -361,15 +361,16 @@ class SpefExtractor:
                 continue
             if con[0] == "PIN":
                 # It is an external PAD
-                x = self.def_parser.pins.get_pin(con[1])
+                pinName = con[1]
+                x = self.def_parser.pins.get_pin(pinName)
                 if x.direction == "INPUT":
                     pin_dir = "I"
                 else:
                     pin_dir = "O"
-                current_pin = ["*P", con[1], pin_dir]
+                current_pin = ["*P", pinName, pin_dir]
 
                 # these are used for the pinsTable
-                pin = self.def_parser.pins.pin_dict[con[1]]
+                pin = self.def_parser.pins.pin_dict[pinName]
                 pinLocation = pin.placed
                 metalLayer = pin.layer.name
                 locationsOfCurrentPin = [((pinLocation[0], pinLocation[1]),
@@ -397,15 +398,15 @@ class SpefExtractor:
                     pin_dir = "I"
                 else:
                     pin_dir = "O"
-                current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
+                pinName = con[0] + ":" + con[1]
+                current_pin = ["*I", pinName, pin_dir]
 
                 # this is used for the pins table
-                metalLayerInfo = pinInfo.info
-                metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
+                metalLayer = pinInfo.info['PORT'].info['LAYER'][0].name
                 locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
             # we append list of pin locations - cellName - pinName
-            pinsTable.append((locationsOfCurrentPin, con[0], con[1]))
+            pinsTable.append((locationsOfCurrentPin, pinName))
             conList.append(current_pin)
 
 
@@ -475,9 +476,9 @@ class SpefExtractor:
                     capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
-                currentSNodeName = str(snode[1]) + ':' + str(snode[2])
+                currentSNodeName = snode[1]
                 # the name of the second node of the segment
-                currentENodeName = str(enode[1]) + ':' + str(enode[2])
+                currentENodeName = enode[1]
 
                 if wireModel == 'PI':
                     # PI model: add half the capacitances at each of
@@ -498,20 +499,9 @@ class SpefExtractor:
                     else:
                         currentNodeList[currentSNodeName] = capacitance
 
-                if snode[1] != 'PIN':
-                    sname = snode[1] + ':' + snode[2]
-                else:
-                    sname = snode[2]
-                if enode[1] != 'PIN':
-                    ename = enode[1] + ':' + enode[2]
-                else:
-                    ename = node[2]
-                segmentsList.append([sname, ename, resistance, capacitance])
+                segmentsList.append([currentSNodeName, currentENodeName, resistance])
 
-        sumC = 0
-        for k in currentNodeList:
-            sumC += currentNodeList[k]
-        return {'conn': conList, 'cap': currentNodeList, 'maxC': sumC, 'segments': segmentsList}
+        return {'conn': conList, 'cap': currentNodeList, 'segments': segmentsList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
@@ -565,7 +555,7 @@ class SpefExtractor:
         self.capCounter = 0
         self.resCounter = 0
 
-        f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
+        f = open(def_file_name[:-4] + ".spef", "w", newline='\n')
         print("Start writing SPEF file")
         self.printSPEFHeader(f)
         self.printNameMap(f, map_of_names)
