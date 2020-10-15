@@ -280,14 +280,9 @@ class SpefExtractor:
                 if(location[2] == layer
                    or (location[2] == 'met1' and layer == 'li1')
                    or (location[2] == 'li1' and layer == 'met1')):
-                    if((type(location[0]) == "<class 'int'>")
-                       or (type(location[0]) == "<class 'float'>")):
-                        if point[0] == location[0] and point[1] == location[1]:
-                            return pin
-                    else:
-                        if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
-                            and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
-                            return pin
+                    if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
+                        and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
+                        return pin
         # Add a new pin
         pin = [[((point[0], point[1]),
                  (point[0], point[1]),
@@ -408,7 +403,6 @@ class SpefExtractor:
             # we append list of pin locations - cellName - pinName
             pinsTable.append((locationsOfCurrentPin, pinName))
             conList.append(current_pin)
-
 
         # the value will be incremented if more than 1 segment end at
         # the same node
