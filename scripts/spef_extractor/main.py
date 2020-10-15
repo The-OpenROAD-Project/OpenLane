@@ -419,8 +419,10 @@ class SpefExtractor:
                 # existence in the pinstable, using checkPinsTable method
                 myVia = None
                 if it < (len(segment.points) - 1):
+                    # Normal segment
                     spoint = segment.points[it]
                     epoint = segment.points[it+1]
+                    layer = segment.layer
                 else:
                     # last point in the line (either via or no via)
                     spoint = segment.points[it]
@@ -431,35 +433,28 @@ class SpefExtractor:
                     # the previous point
                     if myVia == ';' or myVia is None:
                         continue
-
-                # Get or create the start pin for the segment
-                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
-
-                # Get of create the end pin for the segment
-                if myVia:
-                    # Special handeling for vias to get the via types
-                    # through the via name
                     if myVia[-1] == ';':
                         # Remove trailing ';'
                         myVia = myVia[0:-1]
 
-                    first, _, second = self.getViaType(myVia)
+                    # Special handeling for vias to get the via types
+                    # through the via name
+                    first, via_layer, second = self.getViaType(myVia)
 
                     # Select the other layer
                     if first == segment.layer:
                         layer = second
                     else:
                         layer = first
-                else:
-                    # Normal segment
-                    layer = segment.layer
+
+                # Get or create the start pin for the segment
+                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
 
                 enode = self.checkPinsTable(epoint, layer, net.name, pinsTable)
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
-                    _, via_layer, _ = self.getViaType(myVia)
                     resistance = self.get_via_resistance_modified(via_layer)
                     capacitance = self.get_via_capacitance_modified(via_layer)
                 else:
