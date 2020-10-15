@@ -331,8 +331,8 @@ class SpefExtractor:
             self.capCounter += 1
 
         print('*RES', file=f)
-        for seg in net['segments']:
-            print('{} {} {} {}'.format(self.resCounter, seg[0], seg[1], seg[2]),
+        for res in net['res']:
+            print('{} {} {} {}'.format(self.resCounter, res[0], res[1], res[2]),
                   file=f)
             self.resCounter += 1
 
@@ -345,7 +345,6 @@ class SpefExtractor:
         conList = []
         # a list of all pins referenced in the net, including the internal nodes between each 2 segments
         pinsTable = []
-        segmentsList = []
 
         # A SPEF net is made of CONNs, capacities and resistors.
         # A CONN correspond to either an external PAD or an internal cell PIN.
@@ -408,7 +407,8 @@ class SpefExtractor:
         # A net has a list of segments which are composed of points.
         # Each segment lies on a layer.
         # The points create multiple segments in the same layer.
-        currentNodeList = {}
+        capList = {}
+        resList = []
         for segment in net.routed:
             if segment.end_via == 'RECT':
                 continue
@@ -467,32 +467,26 @@ class SpefExtractor:
                     capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
-                currentSNodeName = snode[1]
+                snodeName = snode[1]
                 # the name of the second node of the segment
-                currentENodeName = enode[1]
+                enodeName = enode[1]
+
+                resList.append([snodeName, enodeName, resistance])
 
                 if wireModel == 'PI':
                     # PI model: add half the capacitances at each of
                     # the endpoints of the segment to use a pi model
-                    if currentSNodeName in currentNodeList:
-                        currentNodeList[currentSNodeName] += 0.5 * capacitance
-                    else:
-                        currentNodeList[currentSNodeName] = 0.5 * capacitance
-                    if currentENodeName in currentNodeList:
-                        currentNodeList[currentENodeName] += 0.5 * capacitance
-                    else:
-                        currentNodeList[currentENodeName] = 0.5 * capacitance
+                    capList.setdefault(snodeName, 0)
+                    capList[snodeName] += 0.5 * capacitance
+                    capList.setdefault(enodeName, 0)
+                    capList[enodeName] += 0.5 * capacitance
                 else:
                     # L wire model:  add the capacitance of the segment
                     # at the starting node
-                    if currentSNodeName in currentNodeList:
-                        currentNodeList[currentSNodeName] += capacitance
-                    else:
-                        currentNodeList[currentSNodeName] = capacitance
+                    capList.setdefault(snodeName, 0)
+                    capList[snodeName] += capacitance
 
-                segmentsList.append([currentSNodeName, currentENodeName, resistance])
-
-        return {'conn': conList, 'cap': currentNodeList, 'segments': segmentsList}
+        return {'conn': conList, 'cap': capList, 'res': resList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
         # main starts here:
