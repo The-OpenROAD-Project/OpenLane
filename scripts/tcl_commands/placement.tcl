@@ -31,9 +31,11 @@ proc global_placement_or {args} {
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
-	puts_err "Failure in global placement"
-	return -code error
+        puts_err "Failure in global placement"
+        return -code error
     }
+
+    check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -129,7 +131,7 @@ proc run_placement {args} {
 	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
 	    run_openPhySyn
     }
-    
+
 	detailed_placement
 }
 
@@ -159,10 +161,10 @@ proc run_openPhySyn {args} {
     run_sta
     set ::env(opensta_report_file_tag) $report_tag_holder
     set ::env(opensta_log_file_tag) $log_tag_holder
-    
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
-    
+
 }
 
 package provide openlane 0.9

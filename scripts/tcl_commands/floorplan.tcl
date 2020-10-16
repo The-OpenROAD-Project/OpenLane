@@ -22,6 +22,7 @@ proc init_floorplan {args} {
 		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).openroad.log
+		check_floorplan_missing_lef
 
 		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
 		set ::env(CORE_AREA) [read $die_area_file]
