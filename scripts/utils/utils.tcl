@@ -15,7 +15,7 @@
 # warn about deprecated configs and preserve backwards compatibility
 proc handle_deprecated_config {old new} {
   if { [info exists ::env($old)] } {
-    puts_warn "$old is now deprecated; use $new instead"
+    puts_warn "$old is now deprecated; use $new instead."
 
     if { ! [info exists ::env($new)] } {
       set ::env($new) $::env($old)
@@ -27,8 +27,12 @@ proc handle_deprecated_config {old new} {
   }
 }
 
-proc handle_deprecated_command {old new args} {
-  puts_warn "$old is now deprecated; use $new instead"
+proc handle_deprecated_command {new} {
+  set invocation [info level -1]
+  set caller [lindex $invocation 0]
+  set args [lrange $invocation 1 end]
+
+  puts_warn "$caller is now deprecated; use $new instead."
   eval {$new {*}$args}
 }
 

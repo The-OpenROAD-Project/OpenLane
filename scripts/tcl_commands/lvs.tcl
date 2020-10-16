@@ -96,6 +96,6 @@ proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(
 }
 
 proc run_netgen {args} {
-    handle_deprecated_command run_netgen run_lvs {*}$args
+    handle_deprecated_command run_lvs
 }
 package provide openlane 0.9
