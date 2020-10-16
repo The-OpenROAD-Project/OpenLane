@@ -255,21 +255,17 @@ class SpefExtractor:
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
     def get_wire_capacitance_modified(self, point1, point2, layer_name):
-        # we have a wire
+        capacitance = 0.0  # in pF
         layer = self.lef_parser.layer_dict[layer_name]
+        # width and length in microns
+        width = layer.width
+        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000
         if layer.capacitance is not None:
             cPerSquare = self.capacitanceFactor * layer.capacitance[1]  # unit in lef is pF
-        else:
-            cPerSquare = 0
-        width = layer.width  # width in microns
-        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+            capacitance += length * cPerSquare * width
         if layer.edge_cap is not None:
             edgeCapacitance = self.capacitanceFactor * layer.edge_cap
-        else:
-            edgeCapacitance = 0
-
-        # the edge capacitance factor value is 1 by default
-        capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
+            capacitance += edgeCapFactor * 2 * edgeCapacitance * (length + width)
         return capacitance
 
     # method to look for intersetions between segment nodes in order to decide
