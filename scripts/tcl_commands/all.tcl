@@ -421,6 +421,7 @@ proc prep {args} {
     set_log ::env(SYNTH_STRATEGY) $::env(SYNTH_STRATEGY) $::env(GLB_CFG_FILE) 1
     set_log ::env(CLOCK_BUFFER_FANOUT) $::env(CLOCK_BUFFER_FANOUT) $::env(GLB_CFG_FILE) 1
     set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
+    set_log ::env(BASE_SDC_FILE) $::env(BASE_SDC_FILE) $::env(GLB_CFG_FILE) 1
 
     # Floorplan
     exec echo "# Floorplan config" >> $::env(GLB_CFG_FILE)
@@ -448,6 +449,12 @@ proc prep {args} {
     set_log ::env(PL_TIME_DRIVEN) $::env(PL_TIME_DRIVEN) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_LIB) $::env(PL_LIB) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
+    set_log ::env(PL_BASIC_PLACEMENT) $::env(PL_BASIC_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_SKIP_INITIAL_PLACEMENT) $::env(PL_SKIP_INITIAL_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PSN_ENABLE_RESIZING) $::env(PSN_ENABLE_RESIZING) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PSN_ENABLE_PIN_SWAP) $::env(PSN_ENABLE_PIN_SWAP) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_RESIZER_OVERBUFFER) $::env(PL_RESIZER_OVERBUFFER) $::env(GLB_CFG_FILE) 1
 
     # CTS
     exec echo "# CTS config" >> $::env(GLB_CFG_FILE)
@@ -467,6 +474,12 @@ proc prep {args} {
     set_log ::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_TILES) $::env(GLB_RT_TILES) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DIODE_PADDING) $::env(DIODE_PADDING) $::env(GLB_CFG_FILE) 1
+    set_log ::env(SPEF_WIRE_MODEL) $::env(SPEF_WIRE_MODEL) $::env(GLB_CFG_FILE) 1
+    set_log ::env(SPEF_EDGE_CAP_FACTOR) $::env(SPEF_EDGE_CAP_FACTOR) $::env(GLB_CFG_FILE) 1
 
     # Flow control
     exec echo "# Flow control config" >> $::env(GLB_CFG_FILE)
@@ -476,6 +489,10 @@ proc prep {args} {
     set_log ::env(LEC_ENABLE) $::env(LEC_ENABLE) $::env(GLB_CFG_FILE) 1
     set_log ::env(FILL_INSERTION) $::env(FILL_INSERTION) $::env(GLB_CFG_FILE) 1
     set_log ::env(DIODE_INSERTION_STRATEGY) $::env(DIODE_INSERTION_STRATEGY) $::env(GLB_CFG_FILE) 1
+    set_log ::env(CHECK_ASSIGN_STATEMENTS) $::env(CHECK_ASSIGN_STATEMENTS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(CHECK_UNMAPPED_CELLS) $::env(CHECK_UNMAPPED_CELLS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(USE_ARC_ANTENNA_CHECK) $::env(USE_ARC_ANTENNA_CHECK) $::env(GLB_CFG_FILE) 1
+    set_log ::env(RUN_SPEF_EXTRACTION) $::env(RUN_SPEF_EXTRACTION) $::env(GLB_CFG_FILE) 1
 
     if { [info exists ::env(CURRENT_DEF)] } {
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
