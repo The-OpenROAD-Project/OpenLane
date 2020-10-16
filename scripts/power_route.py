@@ -46,13 +46,13 @@ parser.add_argument('--vdd-pad-pin-map', '-vmap', action='append',
                     nargs=2,
                     required=False,
                     default=None,
-                    help='Mappings to mark PAD-pin pairs as part of the VDD net. Defaults to sky130 settnings.')
+                    help='Mappings to mark PAD-pin pairs as part of the VDD net. Defaults to sky130 settings.')
 
 parser.add_argument('--gnd-pad-pin-map', '-gmap', action='append',
                     nargs=2,
                     required=False,
                     default=None,
-                    help='Mappings to mark PAD-pin pairs as part of the GND net. Defaults to sky130 settnings.')
+                    help='Mappings to mark PAD-pin pairs as part of the GND net. Defaults to sky130 settings.')
 
 
 args = parser.parse_args()
@@ -268,16 +268,33 @@ def getITermBoxes(iterm):
     orient = inst.getOrient()
     transform = odb.dbTransform(orient, odb.Point(px, py))
     mpins = mterm.getMPins()
+    if len(mpins) > 1:
+        print("Warning:", len(mpins), "mpins for iterm", inst.getName(),
+              mterm.getName())
     for i in range(len(mpins)):
         mpin = mpins[i]
         boxes = mpin.getGeometry()
         iterm_boxes += boxes2Rects(boxes, transform)
 
-    return iterm_boxes
+    # filter duplications
+    # TODO: OpenDB bug? duplicate mpins for some reason
+    iterm_boxes_set = set()
+    iterm_boxes_uniq = []
+    for box in iterm_boxes:
+        rect = box['rect']
+        llx, lly = rect.ll()
+        urx, ury = rect.ur()
+        set_item = (box['layer'].getName(), llx, lly, urx, ury)
+        if not set_item in iterm_boxes_set:
+            iterm_boxes_set.add(set_item)
+            iterm_boxes_uniq.append(box)
 
-def getBiggestBox(boxes):
-    biggest_box = None
+    return iterm_boxes_uniq
+
+def getBiggestBoxAndIndex(boxes):
     biggest_area = -1
+    biggest_box = None
+    biggest_i = -1
     for i in range(len(boxes)):
         box = boxes[i]
         rect = box["rect"]
@@ -285,8 +302,9 @@ def getBiggestBox(boxes):
         if area > biggest_area:
             biggest_area = area
             biggest_box = box
+            biggest_i = i
 
-    return biggest_box
+    return biggest_box, biggest_i
 
 
 def rectOverlaps(rect1, rect2):
@@ -497,7 +515,7 @@ for inst in block_top.getInsts():
                 pad_pin = mapping["pad_pin"]
                 pad_name_substr = mapping["pad_name_substr"]
 
-                if pad_pin == pin_name\
+                if pin_name == pad_pin\
                         and pad_name_substr in master_name:  # pad pin
                     matched_special_net_name = special_net_name
                     print(inst.getName(), "connected to", net.getName())
@@ -527,10 +545,12 @@ for inst in block_top.getInsts():
                     h_stripes = []
                     v_stripes = []
                     for i in range(4):  # ASSUMPTION: 4 CORE RING-STRIPES
-                        biggest_pin_box = getBiggestBox(iterm_boxes)
+                        biggest_pin_box, biggest_pin_box_i = getBiggestBoxAndIndex(iterm_boxes)
                         if biggest_pin_box is None:
                             continue
-                        iterm_boxes.remove(biggest_pin_box)
+
+                        del iterm_boxes[biggest_pin_box_i]
+
                         biggest_pin_box["stripe_flag"] = True
 
                         rect = biggest_pin_box["rect"]
@@ -540,6 +560,7 @@ for inst in block_top.getInsts():
                         else:
                             biggest_pin_box["orient"] = "R0"
                             v_stripes.append(biggest_pin_box)
+
                     if len(h_stripes) >= 2:
                         if h_stripes[0]["rect"].yMin() < h_stripes[1]["rect"].yMin():
                             h_stripes[0]["side"] = "S"
@@ -548,7 +569,7 @@ for inst in block_top.getInsts():
                             h_stripes[0]["side"] = "N"
                             h_stripes[1]["side"] = "S"
                     elif len(h_stripes) == 1:
-                        print("Warning: only", len(h_stripes), "horizontal stripes found for", core_pin)
+                        print("Warning: only one horizontal stripe found for", core_pin)
                         if  block_top.getBBox().yMax() - h_stripes[0]["rect"].yMin()\
                                 > block_top.getBBox().yMin() - h_stripes[0]["rect"].yMin():
                             h_stripes[0]["side"] = "S"
@@ -565,14 +586,14 @@ for inst in block_top.getInsts():
                             v_stripes[0]["side"] = "E"
                             v_stripes[1]["side"] = "W"
                     elif len(v_stripes) == 1:
-                        print("Warning: only", len(v_stripes), "vertical stripes found for", core_pin)
+                        print("Warning: only one vertical stripe found for", core_pin)
                         if  block_top.getBBox().xMax() - v_stripes[0]["rect"].xMin()\
                                 > block_top.getBBox().xMin() - v_stripes[0]["rect"].xMin():
                             v_stripes[0]["side"] = "W"
                         else:
                             v_stripes[0]["side"] = "E"
                     else:
-                        print("Warning: No horizontal stripes in the design!")
+                        print("Warning: No vertical stripes in the design!")
 
                     ALL_BOXES += iterm_boxes + v_stripes + h_stripes
         if matched_special_net_name is None:  # other pins are obstructions for our purposes

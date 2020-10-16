@@ -62,9 +62,9 @@ missing_configs = []
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'DIODE_INSERTION_STRATEGY']
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5}
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5,'lvs_total_errors':0}
 
-critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations']
+critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations','lvs_total_errors']
 
 note_worthy_statistics = ['Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'optimized_wns', 'spef_wns', 'tns', 'optimized_tns', 'spef_tns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 
@@ -73,10 +73,10 @@ def compare_vals(benchmark_value, regression_value,param):
         return True
     if str(regression_value) == "-1":
         return False
-    tol = tolerance['general_tolerance']
+    tol = 0-tolerance['general_tolerance']
     if param in tolerance.keys():
         tol = 0-tolerance[param]
-    if float(benchmark_value) - float(regression_value) >= tol: 
+    if float(benchmark_value) - float(regression_value) >= tol:
         return True
     else:
         return False
@@ -131,7 +131,7 @@ def configurationMismatch(benchmark, regression_results):
         designList = regression_results.keys()
     else:
         designList = benchmark.keys()
-    
+
     for design in designList:
         output_report_list.append("\nComparing Configurations for: "+ design+"\n")
         configuration_mismatches.append("\nComparing Configurations for: "+ design+"\n")
@@ -144,7 +144,7 @@ def configurationMismatch(benchmark, regression_results):
             output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
             configuration_mismatches.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
             continue
-        
+
         size_before = len(configuration_mismatches)
         for config in base_configs:
             if benchmark[design][config] == regression_results[design][config]:
@@ -168,7 +168,7 @@ def criticalMistmatch(benchmark, regression_results):
         designList = regression_results.keys()
     else:
         designList = benchmark.keys()
-    
+
     for design in designList:
         output_report_list.append("\nComparing Critical Statistics for: "+ design+"\n")
         critical_mismatches.append("\nComparing Critical Statistics for: "+ design+"\n")
@@ -178,13 +178,13 @@ def criticalMistmatch(benchmark, regression_results):
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-        
+
         if design not in benchmark:
             testFail = False
             output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
             critical_mismatches.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
             continue
-        
+
         size_before = len(critical_mismatches)
         for stat in critical_statistics:
             if compare_vals(benchmark[design][stat],regression_results[design][stat],stat):
@@ -208,17 +208,17 @@ def noteWorthyMismatch(benchmark, regression_results):
         designList = regression_results.keys()
     else:
         designList = benchmark.keys()
-    
+
     for design in designList:
         output_report_list.append("\nComparing Note Worthy Statistics for: "+ design+"\n")
         if design not in regression_results:
             output_report_list.append("\tDesign "+ design+" Not Found in the provided regression sheet\n")
             continue
-        
+
         if design not in benchmark:
             output_report_list.append("\tDesign "+ design+" Not Found in the provided benchmark sheet\n")
             continue
-        
+
         for stat in note_worthy_statistics:
             if benchmark[design][stat] == regression_results[design][stat] or benchmark[design][stat] == "-1":
                 output_report_list.append("\tStatistic "+ stat+" MATCH\n")

@@ -21,7 +21,7 @@ module no_cache_mem #(
   output reg [CPU_WIDTH-1:0]  cpu_resp_data
 );
 
-  localparam DEPTH = 2*1024*1024;
+  localparam DEPTH = 2*512*512;
   localparam WORDS = `MEM_DATA_BITS/CPU_WIDTH;
 
   reg [`MEM_DATA_BITS-1:0] ram [DEPTH-1:0];

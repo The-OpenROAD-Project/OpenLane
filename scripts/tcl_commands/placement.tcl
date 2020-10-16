@@ -31,9 +31,11 @@ proc global_placement_or {args} {
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
-	puts_err "Failure in global placement"
-	return -code error
+        puts_err "Failure in global placement"
+        return -code error
     }
+
+    check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -66,11 +68,11 @@ proc manual_macro_placement {args} {
     puts_info " Manual Macro Placement..."
     set var "f"
     if { [string compare [lindex $args 0] $var] == 0 } {
-	try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement -c $::env(TMP_DIR)/macro_placements.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placements.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     } else {
-	try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement -c $::env(TMP_DIR)/macro_placements.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
-    }	
-    file rename -force $::env(CURRENT_DEF).macro_placement $::env(CURRENT_DEF)
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placements.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+    }
+    set_def $::env(CURRENT_DEF).macro_placement.def
 }
 
 proc detailed_placement_or {args} {
@@ -106,7 +108,7 @@ proc detailed_placement_or {args} {
 proc basic_macro_placement {args} {
     puts_info "Running Basic Macro Placement"
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+    set ::env(SAVE_DEF) $::env(CURRENT_DEF).macro_placement.def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/basic_mp.log
 
@@ -129,7 +131,7 @@ proc run_placement {args} {
 	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
 	    run_openPhySyn
     }
-    
+
 	detailed_placement
 }
 
@@ -159,10 +161,10 @@ proc run_openPhySyn {args} {
     run_sta
     set ::env(opensta_report_file_tag) $report_tag_holder
     set ::env(opensta_log_file_tag) $log_tag_holder
-    
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
-    
+
 }
 
 package provide openlane 0.9

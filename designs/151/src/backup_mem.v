@@ -57,7 +57,7 @@ module BackupMemory
 );
 
   localparam DATA_CYCLES = 4;
-  localparam DEPTH = 2*1024*1024;
+  localparam DEPTH = 2*512*512;
 
   reg [`ceilLog2(DATA_CYCLES)-1:0] cnt;
   reg [`MEM_TAG_BITS-1:0] tag;

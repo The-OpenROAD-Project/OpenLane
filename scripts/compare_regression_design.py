@@ -16,6 +16,7 @@ import argparse
 import subprocess
 import csv
 import pandas as pd
+import os
 
 parser = argparse.ArgumentParser(
         description="compare one design from a regression result to a benchmark result")
@@ -30,6 +31,9 @@ parser.add_argument('--regression_results', '-r', action='store', required=True,
 parser.add_argument('--design', '-d', action='store', required=True,
                 help="The design to compare for between the two scripts. Same as -design in flow.tcl")
 
+parser.add_argument('--run_path', '-rp', action='store', required=True,
+                help="The run path, will be used to search for any missing files.")
+
 parser.add_argument('--output_report', '-o', action='store', required=True,
                 help="The file to print the final report in")
 
@@ -39,22 +43,23 @@ benchmark_file = args.benchmark
 regression_results_file = args.regression_results
 output_report_file = args.output_report
 design = args.design
+run_path = args.run_path
 
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5, 'lvs_total_errors':0}
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5}
+critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations','lvs_total_errors']
 
-critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations']
-
+magic_file_extensions = ['gds','mag','lef','spice']
 
 def compare_vals(benchmark_value, regression_value, param):
     if str(benchmark_value) == "-1":
         return True
     if str(regression_value) == "-1":
         return False
-    tol = tolerance['general_tolerance']
+    tol = 0-tolerance['general_tolerance']
     if param in tolerance.keys():
         tol = 0-tolerance[param]
-    if float(benchmark_value) - float(regression_value) >= tol: 
+    if float(benchmark_value) - float(regression_value) >= tol:
         return True
     else:
         return False
@@ -71,20 +76,20 @@ def parseCSV(csv_file):
     csvOpener = open(csv_file, 'r')
     csvData = csvOpener.read().split("\n")
     headerInfo = csvData[0].split(",")
-    designNameIdx = findIdx(headerInfo, "design")
-    if designNameIdx == -1:
-        print("invalid report. No design names.")
+    designPathIdx = findIdx(headerInfo, "design")
+    if designPathIdx == -1:
+        print("invalid report. No design paths.")
     for i in range(1, len(csvData)):
         if len(csvData[i]):
             entry = csvData[i].split(",")
-            designName=entry[designNameIdx]
-            if designName == design:
+            designPath=entry[designPathIdx]
+            if designPath == design:
                 for idx in range(len(headerInfo)):
-                    if idx != designNameIdx:
+                    if idx != designPathIdx:
                         design_out[headerInfo[idx]] = entry[idx]
                 break
     return design_out
-    
+
 def criticalMistmatch(benchmark, regression_result):
     if len(benchmark) == 0 or len(regression_result) == 0:
         return False, "Nothing to compare with"
@@ -97,7 +102,15 @@ def criticalMistmatch(benchmark, regression_result):
             else:
                 return True, "The results of " +stat+" mismatched with the benchmark"
     return False, "The test passed"
-        
+
+
+def missingResultingFiles(design):
+    searchPrefix = str(run_path) + '/results/magic/' + str(design['design_name'])
+    for ext in magic_file_extensions:
+        File = searchPrefix+'.'+str(ext)
+        if os.path.isfile(File) == False:
+            return True, "File "+File+" is missing from the results directory"
+    return False, "The test passed"
 
 benchmark = parseCSV(benchmark_file)
 regression_result = parseCSV(regression_results_file)
@@ -108,7 +121,11 @@ report = str(design)
 if testFail:
     report += ",FAILED,"+reasonWhy+"\n"
 else:
-    report += ",PASSED,"+reasonWhy+"\n"
+    testFail, reasonWhy = missingResultingFiles(regression_result)
+    if testFail:
+        report += ",FAILED,"+reasonWhy+"\n"
+    else:
+        report += ",PASSED,"+reasonWhy+"\n"
 
 
 outputReportOpener = open(output_report_file, 'a+')
