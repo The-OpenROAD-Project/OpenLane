@@ -42,7 +42,7 @@ proc set_netlist {netlist args} {
 }
 
 proc set_def {def} {
-    puts_info "Changing netlist from $::env(CURRENT_DEF) to $def"
+    puts_info "Changing layout from $::env(CURRENT_DEF) to $def"
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -51,9 +51,15 @@ proc set_def {def} {
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
+
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
     # pad lef
     set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
+
+    if { [info exist ::env(EXTRA_LEFS)] } {
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
+        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
+    }
 
     try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
@@ -210,6 +216,7 @@ proc prep {args} {
         puts_err "No design configuration found"
         return -code error
     }
+
     puts_info "Using design configuration at $::env(DESIGN_CONFIG)"
 
     foreach config $::env(CONFIGS) {
