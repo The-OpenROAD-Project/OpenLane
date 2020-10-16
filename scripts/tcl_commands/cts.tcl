@@ -67,12 +67,18 @@ proc simple_cts {args} {
 
 
 proc run_cts {args} {
+	if { ! [info exists ::env(CLOCK_PORT)] && ! [info exists ::env(CLOCK_NET)] } {
+		puts_info "::env(CLOCK_PORT) is not set"
+		puts_warn "Skipping CTS..."
+		set ::env(CLOCK_TREE_SYNTH) 0
+	}
+
 	if {$::env(CLOCK_TREE_SYNTH)} {
 		puts_info "Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
 
-		if {![info exists ::env(CLOCK_NET)]} {
+		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
 
