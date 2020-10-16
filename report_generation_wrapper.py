@@ -28,10 +28,10 @@ parser.add_argument('--design', '-d', required=True,
 parser.add_argument('--design_name', '-dn', required=True,
                     help='Design Name')
 
-parser.add_argument('--tag', '-t', required=False,
+parser.add_argument('--tag', '-t', required=True,
                     help='Run Tag')
 
-parser.add_argument('--output_file', '-o', required=False,
+parser.add_argument('--output_file', '-o', required=True,
                     help='Output File')
 
 args = parser.parse_args()

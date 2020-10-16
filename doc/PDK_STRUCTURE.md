@@ -56,6 +56,7 @@ This section defines the neccessary variables for PDK configuration file
 | `FP_PDN_CORE_RING_HSPACING` | Defines the spacing for the horizontal layer used to create the core ring in the PDN. <br> Default: `5`. |
 | `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
 | `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
+| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> Default: `met1`.|
 
 ## Standard cell library-specific variables
 
