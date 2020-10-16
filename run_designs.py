@@ -21,7 +21,6 @@ import logging
 import datetime
 import argparse
 import os
-import re
 import copy
 from collections import OrderedDict
 
@@ -66,7 +65,7 @@ parser.add_argument('--disable_timestamp', '-dt',action='store_true', default=Fa
                 help="Disables appending the timestamp to the file names and tags.")
 parser.add_argument('--show_output', '-so',action='store_true', default=False,
                 help="Enables showing the ./flow.tcl output into the stdout. If more than one design/more than one configuration is run, this flag will be treated as False, even if specified otherwise.")
-                             
+
 
 args = parser.parse_args()
 
@@ -117,7 +116,7 @@ if args.regression is not None:
         for k in regressionFileContent:
                 if k.find("=") == -1:
                         continue
-               
+
                 if k.find("extra") != -1:
                         break
                 else:
@@ -195,7 +194,7 @@ def run_design(designs_queue):
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 else:
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
-                
+
                 try:
                         if show_log_output:
                                 process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -209,33 +208,30 @@ def run_design(designs_queue):
                                 subprocess.check_output(command.split(), stderr=subprocess.PIPE)
                 except subprocess.CalledProcessError as e:
                         error_msg = e.stderr.decode(sys.getfilesystemencoding())
-                        #print(error_msg)
                         log.error('{design} {tag} failed check {run_path}error.txt'.format(design=design, run_path=run_path, tag=tag))
-                        #report_log.error('{design} {tag} failed'.format(design=design, tag=tag))
                         with open(run_path + "error.txt", "w") as error_file:
                                 error_file.write(error_msg)
-
-                        #continue
 
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)
 
                 report = Report(design, tag, design_name,params).get_report()
                 report_log.info(report)
-        
+
                 with open(run_path + "final_report.txt", "w") as report_file:
                         report_file.write(Report.get_header() + "," + ConfigHandler.get_header())
                         report_file.write("\n")
                         report_file.write(report)
-                
+
 
                 if args.benchmark is not None:
                         log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
-                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design}".format(
+                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design} -rp {run_path}".format(
                                 benchmark=args.benchmark,
                                 this_run=report_file_name + ".csv",
                                 output_report=report_file_name + "_design_test_report.csv",
-                                design=design
+                                design=design,
+                                run_path=run_path
                         )
                         subprocess.check_output(design_benchmark_comp_cmd.split())
 
@@ -255,8 +251,7 @@ def run_design(designs_queue):
                         )
                         subprocess.check_output(clean_cmd.split())
                         log.info('{design} {tag} Cleaning tmp Directory Finished'.format(design=design, tag=tag))
-               
-                
+
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
                         if 'all' in tarList:
@@ -280,41 +275,21 @@ def run_design(designs_queue):
 
                 if args.delete:
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
-                        
                         deleteDirectory = "rm -rf {run_path}".format(
                                 run_path=run_path
                         )
                         subprocess.check_output(deleteDirectory.split())
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
-                
+
                 if print_rem_time is not None:
                         if design in rem_designs.keys():
                                 rem_designs[design]-=1
                                 if rem_designs[design] == 0:
                                         rem_designs.pop(design)
 
-#print(designs)
 
 
-
-def get_design_name(design, config):
-        design_path= utils.get_design_path(design=design)
-        if design_path is None:
-            print("{design} not found, skipping...".format(design=design))
-            return "INVALID DESIGN PATH"
-        config_file = "{design_path}/{config}.tcl".format(
-                design_path=design_path,
-                config=config,
-        )
-        config_file_opener = open(config_file, "r")
-        configs = config_file_opener.read()
-        config_file_opener.close()
-        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
-        for name in re.findall(pattern, configs):
-                return name.replace("\"","")
-        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
-        return "INVALID DESIGN PATH"
 
 
 
@@ -332,7 +307,7 @@ if regression is not None:
                 if design in rem_designs.keys():
                         rem_designs.pop(design)
             continue
-        design_name= get_design_name(design, config)
+        design_name= utils.get_design_name(design, config)
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -368,7 +343,7 @@ else:
                         rem_designs.pop(design)
             continue
         default_config_tag = "config_{tag}".format(tag=tag)
-        design_name= get_design_name(design, config)
+        design_name= utils.get_design_name(design, config)
         que.put((design, config, default_config_tag,design_name))
 
 
@@ -421,7 +396,3 @@ if args.benchmark is not None:
 
 
 log.info("Done")
-
-
-
-
