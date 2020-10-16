@@ -41,9 +41,9 @@ output_report_file = args.output_report
 design = args.design
 
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5}
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5, 'lvs_total_errors':0}
 
-critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations']
+critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations','lvs_total_errors']
 
 
 def compare_vals(benchmark_value, regression_value, param):
@@ -51,7 +51,7 @@ def compare_vals(benchmark_value, regression_value, param):
         return True
     if str(regression_value) == "-1":
         return False
-    tol = tolerance['general_tolerance']
+    tol = 0-tolerance['general_tolerance']
     if param in tolerance.keys():
         tol = 0-tolerance[param]
     if float(benchmark_value) - float(regression_value) >= tol: 
