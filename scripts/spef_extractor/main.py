@@ -45,6 +45,7 @@ class SpefExtractor:
 
     # this extracts the vias and viarules definied in the def file given the lines in which the vias are defined
     def extractViasFromDef(self, vias_data):
+        self.vias_dict_def = {}
         vias = {}
         for line in vias_data:
             words = line.strip().split()
@@ -368,15 +369,12 @@ class SpefExtractor:
                                           (pinLocation[0], pinLocation[1]),
                                           metalLayer)]
             else:
-                # It is an internal pin, check for input or output
+                # It is an internal pin
                 cell_type = self.def_parser.components.comp_dict[con[0]].macro
-
-                # some cells do not have direction
-                # check first if a cell has a direction or not
-
                 pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
 
                 # check if it has a direction
+                # some cells do not have direction
                 direction = pinInfo.info.get("DIRECTION")
                 if direction is None:
                     # check if cell has 'in' or 'out' in its name
@@ -484,17 +482,12 @@ class SpefExtractor:
         return {'conn': conList, 'cap': capList, 'res': resList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
-        # main starts here:
-        # create all the data structures that we will be using
-        netsDict = {}
-        self.vias_dict_def = {}
-
-        # We had to modify the lef parser to ignore the second parameter for the offset
-        # since our files provide only 1 value
+        # We had to modify the lef parser to ignore the second
+        # parameter for the offset since our files provide only 1 value
         self.lef_parser = LefParser(lef_file_name)
         self.lef_parser.parse()
 
-        # read the updated def
+        # read the def
         self.def_parser = DefParser(def_file_name)
         self.def_parser.parse()
 
@@ -524,6 +517,7 @@ class SpefExtractor:
         # creation of the name map
         map_of_names = self.remap_names()
 
+        netsDict = {}
         for net in self.def_parser.nets:
             # traversing all nets in the def file to extract segments
             # information
