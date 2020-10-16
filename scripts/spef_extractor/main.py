@@ -281,8 +281,8 @@ class SpefExtractor:
                 if(location[2] == layer
                    or (location[2] == 'met1' and layer == 'li1')
                    or (location[2] == 'li1' and layer == 'met1')):
-                    if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
-                        and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
+                    if ((location[0][0] - 5 <= point[0] <= location[1][0] + 5)
+                        and (location[0][1] - 5 <= point[1] <= location[1][1] + 5)):
                         return pin
         # Add a new pin
         pin = [[((point[0], point[1]),
