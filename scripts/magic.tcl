@@ -80,8 +80,16 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 }
 
 if { $::env(MAGIC_GENERATE_LEF) } {
-	lef write $::env(magic_result_file_tag).lef -hide
-	# lef write $::env(DESIGN_NAME).full.lef
+	if { [info exists ::env(FP_PDN_CORE_RING)] && $::env(FP_PDN_CORE_RING) == 1 } {
+		set tolerance 1
+		set cr_offset [expr max($::env(FP_PDN_CORE_RING_HOFFSET), $::env(FP_PDN_CORE_RING_VOFFSET))/2]
+		set cr_spacing [expr max($::env(FP_PDN_CORE_RING_HSPACING), $::env(FP_PDN_CORE_RING_VSPACING))]
+		set cr_width [expr max($::env(FP_PDN_CORE_RING_HWIDTH), $::env(FP_PDN_CORE_RING_VWIDTH))]
+		set cr_distance [expr $cr_offset + $cr_spacing + 2 * $cr_width - $tolerance]
+		lef write $::env(magic_result_file_tag).lef -hide ${cr_distance}um
+	} else {
+		lef write $::env(magic_result_file_tag).lef -hide
+	}
 	puts "\[INFO\]: LEF Write Complete"
 }
 
