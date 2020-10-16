@@ -434,7 +434,9 @@ proc prep {args} {
     if {[info exists  ::env(FP_WELLTAP_CELL)]} {
         set_log ::env(FP_WELLTAP_CELL) $::env(FP_WELLTAP_CELL) $::env(GLB_CFG_FILE) 1
     }
-    set_log ::env(FP_ENDCAP_CELL) $::env(FP_ENDCAP_CELL) $::env(GLB_CFG_FILE) 1
+    if {[info exists ::env(FP_ENDCAP_CELL)] } {
+        set_log ::env(FP_ENDCAP_CELL) $::env(FP_ENDCAP_CELL) $::env(GLB_CFG_FILE) 1
+    }
     set_log ::env(FP_PDN_VOFFSET) $::env(FP_PDN_VOFFSET) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_VPITCH) $::env(FP_PDN_VPITCH) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_HOFFSET) $::env(FP_PDN_HOFFSET) $::env(GLB_CFG_FILE) 1
