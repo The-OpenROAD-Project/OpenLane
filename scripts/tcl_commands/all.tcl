@@ -91,8 +91,7 @@ proc trim_lib {args} {
     }
     set flags {}
     parse_key_args "trim_lib" args arg_values $options flags_map $flags
-    
-    set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)    
+    set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
     set scl_no_synth_lib $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
@@ -670,16 +669,6 @@ proc li1_hack_start {args} {
 proc li1_hack_end {args} {
     puts_info "Ending the li1 Hack..."
     try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
-}
-
-proc extract_macros_pin_order {args} {
-    puts_info "Extracting Macros Pin Order..."
-    try_catch python3 $::env(SCRIPTS_DIR)/extract_pad_pin_order_mod.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -o $::env(RESULTS_DIR)/pinPadOrder.txt
-}
-
-proc reorder_macro_pins {args} {
-    puts_info "Reordering Macros Pins..."
-    try_catch python3 $::env(SCRIPTS_DIR)/reorder_pins.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -m [lindex $args 1] -o $::env(CURRENT_DEF)
 }
 
 proc widen_site_width {args} {
