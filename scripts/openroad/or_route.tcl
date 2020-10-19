@@ -43,8 +43,6 @@ FastRoute::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
 FastRoute::set_tile_size $::env(GLB_RT_TILES)
 
-
-FastRoute::start_fastroute
 FastRoute::run_fastroute
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {

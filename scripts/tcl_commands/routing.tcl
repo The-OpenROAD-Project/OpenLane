@@ -48,9 +48,6 @@ proc global_routing {args} {
             }
 	    set_def $::env(SAVE_DEF)
         }
-        set ::env(DIODE_INSERTION_STRATEGY) 0
-        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
-        set ::env(DIODE_INSERTION_STRATEGY) 3
     }
     if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_estimate_parasitics_global_routing.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_estimate_parasitics.log
