@@ -36,8 +36,8 @@ class Report:
 
     values = ['design', 'design_name','config', 'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','Peak_Memory_Usage_MB','cell_count',
             'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations',
-            'Magic_violations', 'antenna_violations', 'lvs_total_errors', 'wire_length', 'vias', 'wns', 'optimized_wns', 'fastroute_wns' ,
-            'spef_wns', 'tns', 'optimized_tns', 'fastroute_tns' , 'spef_tns', 'HPWL', 'wires_count','wire_bits','public_wires_count',
+            'Magic_violations', 'antenna_violations', 'lvs_total_errors', 'wire_length', 'vias', 'wns', 'pl_wns', 'optimized_wns', 'fastroute_wns',
+            'spef_wns', 'tns', 'pl_tns', 'optimized_tns', 'fastroute_tns' , 'spef_tns', 'HPWL', 'wires_count', 'wire_bits','public_wires_count',
             'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND',
             'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
 
@@ -57,7 +57,7 @@ class Report:
         dieareaIdx = self.values.index('DIEAREA_mm^2') - prefixIdx
         cell_countIdx = self.values.index('cell_count') - prefixIdx
         splited_report = self.raw_report.split()
-        splited_report[dieareaIdx] = str(float(splited_report[dieareaIdx])/1000000) 
+        splited_report[dieareaIdx] = str(float(splited_report[dieareaIdx])/1000000)
         splited_report[cellperumIdx] = str(int(splited_report[cell_countIdx])/float(splited_report[dieareaIdx]))
         report = ",".join(splited_report)
         report = "{design},{design_name},{tag},".format(
