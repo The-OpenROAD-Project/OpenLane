@@ -8,7 +8,7 @@
 //  MEM_SIZE is a multiple of CONFIG_WIDTH 
 
 module lut #(
-    parameter INPUTS=4, MEM_SIZE=2^INPUTS, CONFIG_WIDTH=8
+    parameter INPUTS=4, MEM_SIZE=1<<INPUTS, CONFIG_WIDTH=8
 ) (
     // IO
     input [INPUTS-1:0] addr, 
