@@ -70,7 +70,7 @@ RUN wget http://downloads.sourceforge.net/project/boost/boost/1.68.0/boost_1_68_
     && rm -f boost_1_68_0.tar.gz \
     && cd boost_1_68_0 \
     && ./bootstrap.sh --prefix=/usr --with-libraries=program_options,log,filesystem \
-    && ./b2 install -j $(nproc) 
+    && ./b2 install --with-test -j $(nproc) 
 
 # Install python dev
 RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
@@ -102,18 +102,18 @@ RUN cd / && wget http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz \
     && cmake -B build . \ 
     && cmake --build build -j $(nproc) --target install
 
-RUN git clone --recursive --branch openroad https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_16102020
-WORKDIR /OpenROAD_16102020/
-RUN git checkout 0ef9bb2468058bfd8b4a46002714ab956460cf76 \
+RUN git clone --recursive https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_20102020
+WORKDIR /OpenROAD_20102020/
+RUN git checkout e582f2522b320d0b1c43fec129fe03a14b0a7402 \
 	&& git submodule update --init --recursive
 
-COPY rails.patch /OpenROAD_16102020/
+COPY rails.patch /OpenROAD_20102020/
 RUN git apply rails.patch
 
-COPY setup_local.patch /OpenROAD_16102020/src/OpenDB/src/swig/python
-RUN cd /OpenROAD_16102020/src/OpenDB/src/swig/python && git apply setup_local.patch
+COPY setup_local.patch /OpenROAD_20102020/src/OpenDB/src/swig/python
+RUN cd /OpenROAD_20102020/src/OpenDB/src/swig/python && git apply setup_local.patch
 
-COPY pdn_export_pin.patch /OpenROAD_16102020/
+COPY pdn_export_pin.patch /OpenROAD_20102020/
 RUN git apply pdn_export_pin.patch
 
 # Build OpenROAD
@@ -127,7 +127,7 @@ WORKDIR src/OpenDB
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
 RUN cp -r build/src/swig/python /build/OpenDB_python
-WORKDIR /OpenROAD_16102020/
+WORKDIR /OpenROAD_20102020/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version
