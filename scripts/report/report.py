@@ -19,15 +19,17 @@ from ..utils.utils import *
 
 
 class Report:
-    def __init__(self, design, tag, design_name,params):
+    def __init__(self, design, tag, design_name,params,run_path=None):
         self.design = design
         self.design_name=design_name
         self.tag = tag
         self.current_directory = os.path.dirname(__file__)
         self.report_script = os.path.join(self.current_directory, 'report.sh')
+        if run_path is None:
+            run_path=get_run_path(design=design, tag=tag)
         self.report_command = '{script} {path} {design_name}'.format(
                 script=self.report_script,
-                path=get_run_path(design=design, tag=tag),
+                path=run_path,
                 design_name=self.design_name
             )
         self.configuration = params
