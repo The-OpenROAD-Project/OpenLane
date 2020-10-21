@@ -41,27 +41,15 @@ jobs:
       env: TEST_SET=des
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
-    - name: "aes128"
-      env: TEST_SET=aes128
-    - name: "aes192"
-      env: TEST_SET=aes192
     - name: "aes256"
       env: TEST_SET=aes256
     - name: "jpeg_encoder"
       env: TEST_SET=jpeg_encoder
-    - name: "point_add"
-      env: TEST_SET=point_add
   allow_failures:
-    - name: "aes128"
-      env: TEST_SET=aes128
-    - name: "aes192"
-      env: TEST_SET=aes192
     - name: "aes256"
       env: TEST_SET=aes256
     - name: "jpeg_encoder"
       env: TEST_SET=jpeg_encoder
-    - name: "point_add"
-      env: TEST_SET=point_add
 
 install:
   - sh travisCI/travisBuild.sh
