@@ -13,17 +13,20 @@
 # limitations under the License.
 
 proc init_floorplan_or {args} {
+    handle_deprecated_command init_floorplan
+}
+
+proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).openroad.log
+		check_floorplan_missing_lef
 
 		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
 		set ::env(CORE_AREA) [read $die_area_file]
 		close $die_area_file
-
-		puts $::env(CORE_AREA)
 
 		set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
 		set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
@@ -178,7 +181,7 @@ proc padframe_extract_area {args} {
 proc chip_floorplan {args} {
 		puts_info "Running Chip Floorplanning..."
 		# intial fp
-		init_floorplan_or
+		init_floorplan
 		# remove pins section and others
 		remove_pins -input $::env(CURRENT_DEF)
 		remove_empty_nets -input $::env(CURRENT_DEF)
@@ -191,7 +194,8 @@ proc run_floorplan {args} {
 		# |----------------------------------------------------|
 		#
 		# intial fp
-		init_floorplan_or
+		init_floorplan
+
 
 		# place io
 		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {

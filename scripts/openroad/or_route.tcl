@@ -43,8 +43,6 @@ FastRoute::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
 FastRoute::set_tile_size $::env(GLB_RT_TILES)
 
-
-FastRoute::start_fastroute
 FastRoute::run_fastroute
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
@@ -53,12 +51,10 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 }
 
 
-
 write_guides $::env(fastroute_tmp_file_tag).guide
 write_def $::env(SAVE_DEF)
 
-# remove $::env(DIODE_INSERTION_STRATEGY) != 3 when FR is fixed.
-if { $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
+if {  $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
     read_liberty -max $::env(LIB_SLOWEST)
     read_liberty -min $::env(LIB_FASTEST)
     read_sdc -echo $::env(BASE_SDC_FILE)
@@ -72,4 +68,5 @@ if { $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS)
 
     report_wns > $::env(fastroute_report_file_tag)_wns.rpt
     report_tns > $::env(fastroute_report_file_tag)_tns.rpt
+    
 }

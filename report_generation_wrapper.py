@@ -28,22 +28,26 @@ parser.add_argument('--design', '-d', required=True,
 parser.add_argument('--design_name', '-dn', required=True,
                     help='Design Name')
 
-parser.add_argument('--tag', '-t', required=False,
+parser.add_argument('--tag', '-t', required=True,
                     help='Run Tag')
 
-parser.add_argument('--output_file', '-o', required=False,
+parser.add_argument('--run_path', '-r', default=None,
+                    help='Run Path')
+
+parser.add_argument('--output_file', '-o', required=True,
                     help='Output File')
 
 args = parser.parse_args()
 design = args.design
 design_name = args.design_name
 tag = args.tag
+run_path=args.run_path
 output_file = args.output_file
 
 # Extracting Configurations
-params = ConfigHandler.get_config(design, tag)
+params = ConfigHandler.get_config(design, tag, run_path)
 # Extracting Report
-report = Report(design, tag, design_name,params).get_report()
+report = Report(design, tag, design_name,params,run_path).get_report()
 # write into file
 outputFileOpener = open(output_file,"w")
 outputFileOpener.write(Report.get_header() + "," + ConfigHandler.get_header())

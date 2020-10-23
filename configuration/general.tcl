@@ -38,7 +38,6 @@ set ::env(WIDEN_SITE_IS_FACTOR) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(SPEF_WIRE_MODEL) "L"
 set ::env(SPEF_EDGE_CAP_FACTOR) 1
-set ::env(MPLCONFIGDIR) /tmp
 
 set ::env(WIRE_RC_LAYER) "met1"; # Used for estimate_parasitics
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1

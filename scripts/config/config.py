@@ -65,10 +65,12 @@ class ConfigHandler():
         return ",".join(cls.configuration_values)
 
     @classmethod
-    def get_config(cls, design, tag):
+    def get_config(cls, design, tag,run_path=None):
+        if run_path is None:
+            run_path = get_run_path(design=design, tag=tag)
         config_params = " ".join(cls.configuration_values)
         config_relative_path = "config.tcl"
-        config_path = os.path.join(os.getcwd(), get_run_path(design=design, tag=tag), config_relative_path)
+        config_path = os.path.join(os.getcwd(), run_path, config_relative_path)
         cmd = "{script} {path} {params}".format(script=cls.config_getter_script, path=config_path, params=config_params)
         config_coded = subprocess.check_output(cmd.split())
         config = config_coded.decode(sys.getfilesystemencoding()).strip()

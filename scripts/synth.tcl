@@ -199,9 +199,10 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	    -liberty $sclib  \
 	    -script $scripts($index)
 
+	setundef -zero
+
 	hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-	setundef -zero
 	# get rid of the assignments that make verilog2def fail
 	splitnets
 	opt_clean -purge
@@ -223,9 +224,10 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	-script $scripts($strategy) \
 	-showtmp;
 
+    setundef -zero
+
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-    setundef -zero
     # get rid of the assignments that make verilog2def fail
     splitnets
     opt_clean -purge

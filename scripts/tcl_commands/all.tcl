@@ -42,7 +42,7 @@ proc set_netlist {netlist args} {
 }
 
 proc set_def {def} {
-    puts_info "Changing netlist from $::env(CURRENT_DEF) to $def"
+    puts_info "Changing layout from $::env(CURRENT_DEF) to $def"
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -51,9 +51,15 @@ proc set_def {def} {
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
+
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
     # pad lef
     set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
+
+    if { [info exist ::env(EXTRA_LEFS)] } {
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
+        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
+    }
 
     try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
@@ -85,8 +91,7 @@ proc trim_lib {args} {
     }
     set flags {}
     parse_key_args "trim_lib" args arg_values $options flags_map $flags
-    
-    set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)    
+    set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
     set scl_no_synth_lib $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
@@ -210,6 +215,7 @@ proc prep {args} {
         puts_err "No design configuration found"
         return -code error
     }
+
     puts_info "Using design configuration at $::env(DESIGN_CONFIG)"
 
     foreach config $::env(CONFIGS) {
@@ -421,6 +427,7 @@ proc prep {args} {
     set_log ::env(SYNTH_STRATEGY) $::env(SYNTH_STRATEGY) $::env(GLB_CFG_FILE) 1
     set_log ::env(CLOCK_BUFFER_FANOUT) $::env(CLOCK_BUFFER_FANOUT) $::env(GLB_CFG_FILE) 1
     set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
+    set_log ::env(BASE_SDC_FILE) $::env(BASE_SDC_FILE) $::env(GLB_CFG_FILE) 1
 
     # Floorplan
     exec echo "# Floorplan config" >> $::env(GLB_CFG_FILE)
@@ -434,7 +441,9 @@ proc prep {args} {
     if {[info exists  ::env(FP_WELLTAP_CELL)]} {
         set_log ::env(FP_WELLTAP_CELL) $::env(FP_WELLTAP_CELL) $::env(GLB_CFG_FILE) 1
     }
-    set_log ::env(FP_ENDCAP_CELL) $::env(FP_ENDCAP_CELL) $::env(GLB_CFG_FILE) 1
+    if {[info exists ::env(FP_ENDCAP_CELL)] } {
+        set_log ::env(FP_ENDCAP_CELL) $::env(FP_ENDCAP_CELL) $::env(GLB_CFG_FILE) 1
+    }
     set_log ::env(FP_PDN_VOFFSET) $::env(FP_PDN_VOFFSET) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_VPITCH) $::env(FP_PDN_VPITCH) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_HOFFSET) $::env(FP_PDN_HOFFSET) $::env(GLB_CFG_FILE) 1
@@ -448,6 +457,12 @@ proc prep {args} {
     set_log ::env(PL_TIME_DRIVEN) $::env(PL_TIME_DRIVEN) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_LIB) $::env(PL_LIB) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
+    set_log ::env(PL_BASIC_PLACEMENT) $::env(PL_BASIC_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_SKIP_INITIAL_PLACEMENT) $::env(PL_SKIP_INITIAL_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PSN_ENABLE_RESIZING) $::env(PSN_ENABLE_RESIZING) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PSN_ENABLE_PIN_SWAP) $::env(PSN_ENABLE_PIN_SWAP) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_RESIZER_OVERBUFFER) $::env(PL_RESIZER_OVERBUFFER) $::env(GLB_CFG_FILE) 1
 
     # CTS
     exec echo "# CTS config" >> $::env(GLB_CFG_FILE)
@@ -467,6 +482,12 @@ proc prep {args} {
     set_log ::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_TILES) $::env(GLB_RT_TILES) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DIODE_PADDING) $::env(DIODE_PADDING) $::env(GLB_CFG_FILE) 1
+    set_log ::env(SPEF_WIRE_MODEL) $::env(SPEF_WIRE_MODEL) $::env(GLB_CFG_FILE) 1
+    set_log ::env(SPEF_EDGE_CAP_FACTOR) $::env(SPEF_EDGE_CAP_FACTOR) $::env(GLB_CFG_FILE) 1
 
     # Flow control
     exec echo "# Flow control config" >> $::env(GLB_CFG_FILE)
@@ -476,6 +497,10 @@ proc prep {args} {
     set_log ::env(LEC_ENABLE) $::env(LEC_ENABLE) $::env(GLB_CFG_FILE) 1
     set_log ::env(FILL_INSERTION) $::env(FILL_INSERTION) $::env(GLB_CFG_FILE) 1
     set_log ::env(DIODE_INSERTION_STRATEGY) $::env(DIODE_INSERTION_STRATEGY) $::env(GLB_CFG_FILE) 1
+    set_log ::env(CHECK_ASSIGN_STATEMENTS) $::env(CHECK_ASSIGN_STATEMENTS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(CHECK_UNMAPPED_CELLS) $::env(CHECK_UNMAPPED_CELLS) $::env(GLB_CFG_FILE) 1
+    set_log ::env(USE_ARC_ANTENNA_CHECK) $::env(USE_ARC_ANTENNA_CHECK) $::env(GLB_CFG_FILE) 1
+    set_log ::env(RUN_SPEF_EXTRACTION) $::env(RUN_SPEF_EXTRACTION) $::env(GLB_CFG_FILE) 1
 
     if { [info exists ::env(CURRENT_DEF)] } {
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
@@ -644,16 +669,6 @@ proc li1_hack_start {args} {
 proc li1_hack_end {args} {
     puts_info "Ending the li1 Hack..."
     try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
-}
-
-proc extract_macros_pin_order {args} {
-    puts_info "Extracting Macros Pin Order..."
-    try_catch python3 $::env(SCRIPTS_DIR)/extract_pad_pin_order_mod.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -o $::env(RESULTS_DIR)/pinPadOrder.txt
-}
-
-proc reorder_macro_pins {args} {
-    puts_info "Reordering Macros Pins..."
-    try_catch python3 $::env(SCRIPTS_DIR)/reorder_pins.py -d $::env(CURRENT_DEF) -c [lindex $args 0] -m [lindex $args 1] -o $::env(CURRENT_DEF)
 }
 
 proc widen_site_width {args} {

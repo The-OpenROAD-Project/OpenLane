@@ -56,6 +56,7 @@ This section defines the neccessary variables for PDK configuration file
 | `FP_PDN_CORE_RING_HSPACING` | Defines the spacing for the horizontal layer used to create the core ring in the PDN. <br> Default: `5`. |
 | `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
 | `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
+| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> Default: `met1`.|
 
 ## Standard cell library-specific variables
 
@@ -83,7 +84,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `CELL_PAD` | Defines the number of sites to pad the cells lef views with. |
-| `CELL_PAD_EXECLUDE` | Defines the cells to exclude from padding. |
+| `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
 | `CLK_BUFFER` | Defines the clock buffer cell. Used in CTS. |
 | `CLK_BUFFER_INPUT` | Defines the clock buffer cell input port. Used in CTS. |

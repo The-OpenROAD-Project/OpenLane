@@ -77,16 +77,19 @@ proc run_synthesis {args} {
     run_sta
 
     if {$::env(RUN_SIMPLE_CTS)} {
-	simple_cts \
-	    -verilog $::env(yosys_result_file_tag).v \
-	    -fanout $::env(CLOCK_BUFFER_FANOUT) \
-	    -clk_net $::env(CLOCK_NET) \
-	    -root_clk_buf $::env(ROOT_CLK_BUFFER) \
-	    -clk_buf $::env(CLK_BUFFER) \
-	    -clk_buf_input $::env(CLK_BUFFER_INPUT) \
-	    -clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
-	    -cell_clk_port $::env(CELL_CLK_PORT) \
-	    -output $::env(yosys_result_file_tag).v
+		if { ! [info exists ::env(CLOCK_NET)] } {
+			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
+		}
+		simple_cts \
+			-verilog $::env(yosys_result_file_tag).v \
+			-fanout $::env(CLOCK_BUFFER_FANOUT) \
+			-clk_net $::env(CLOCK_NET) \
+			-root_clk_buf $::env(ROOT_CLK_BUFFER) \
+			-clk_buf $::env(CLK_BUFFER) \
+			-clk_buf_input $::env(CLK_BUFFER_INPUT) \
+			-clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
+			-cell_clk_port $::env(CELL_CLK_PORT) \
+			-output $::env(yosys_result_file_tag).v
     }
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {

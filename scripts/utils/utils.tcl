@@ -15,7 +15,7 @@
 # warn about deprecated configs and preserve backwards compatibility
 proc handle_deprecated_config {old new} {
   if { [info exists ::env($old)] } {
-    puts_warn "$old is now deprecated; use $new instead"
+    puts_warn "$old is now deprecated; use $new instead."
 
     if { ! [info exists ::env($new)] } {
       set ::env($new) $::env($old)
@@ -27,8 +27,12 @@ proc handle_deprecated_config {old new} {
   }
 }
 
-proc handle_deprecated_command {old new args} {
-  puts_warn "$old is now deprecated; use $new instead"
+proc handle_deprecated_command {new} {
+  set invocation [info level -1]
+  set caller [lindex $invocation 0]
+  set args [lrange $invocation 1 end]
+
+  puts_warn "$caller is now deprecated; use $new instead."
   eval {$new {*}$args}
 }
 
@@ -209,7 +213,7 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
 
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
-        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output)
+        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -r $::env(RUN_DIR)
     }
 }
 

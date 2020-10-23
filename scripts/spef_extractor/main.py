@@ -45,6 +45,7 @@ class SpefExtractor:
 
     # this extracts the vias and viarules definied in the def file given the lines in which the vias are defined
     def extractViasFromDef(self, vias_data):
+        self.vias_dict_def = {}
         vias = {}
         for line in vias_data:
             words = line.strip().split()
@@ -71,10 +72,10 @@ class SpefExtractor:
     def remap_names(self):
         name_counter = 0
         map_of_names = []
-        for key in self.def_parser.nets.net_dict:
-            name = self.def_parser.nets.net_dict[key].name
+        for key, val in self.def_parser.nets.net_dict.items():
+            name = val.name
             abbrev = "*" + str(name_counter)
-            self.def_parser.nets.net_dict[key].name = abbrev
+            val.name = abbrev
             name_counter += 1
             map_of_names.append((name, abbrev))
         return map_of_names
@@ -254,21 +255,17 @@ class SpefExtractor:
     # its length (distance between 2 points) and info from the lef file
     # point is a list of (x, y)
     def get_wire_capacitance_modified(self, point1, point2, layer_name):
-        # we have a wire
+        capacitance = 0.0  # in pF
         layer = self.lef_parser.layer_dict[layer_name]
+        # width and length in microns
+        width = layer.width
+        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000
         if layer.capacitance is not None:
             cPerSquare = self.capacitanceFactor * layer.capacitance[1]  # unit in lef is pF
-        else:
-            cPerSquare = 0
-        width = layer.width  # width in microns
-        length = (abs(point1[0] - point2[0]) + abs(point1[1] - point2[1]))/1000  # length in microns
+            capacitance += length * cPerSquare * width
         if layer.edge_cap is not None:
             edgeCapacitance = self.capacitanceFactor * layer.edge_cap
-        else:
-            edgeCapacitance = 0
-
-        # the edge capacitance factor value is 1 by default
-        capacitance = length * cPerSquare * width + edgeCapFactor * 2 * edgeCapacitance * (length + width)   # capactiance in pF
+            capacitance += edgeCapFactor * 2 * edgeCapacitance * (length + width)
         return capacitance
 
     # method to look for intersetions between segment nodes in order to decide
@@ -280,20 +277,14 @@ class SpefExtractor:
                 if(location[2] == layer
                    or (location[2] == 'met1' and layer == 'li1')
                    or (location[2] == 'li1' and layer == 'met1')):
-                    if((type(location[0]) == "<class 'int'>")
-                       or (type(location[0]) == "<class 'float'>")):
-                        if point[0] == location[0] and point[1] == location[1]:
-                            return pin
-                    else:
-                        if ((location[0][0] - 5 <= float(point[0]) <= location[1][0] + 5)
-                            and (location[0][1] - 5 <= float(point[1]) <= location[1][1] + 5)):
-                            return pin
+                    if ((location[0][0] - 5 <= point[0] <= location[1][0] + 5)
+                        and (location[0][1] - 5 <= point[1] <= location[1][1] + 5)):
+                        return pin
         # Add a new pin
         pin = [[((point[0], point[1]),
                  (point[0], point[1]),
                  layer)],
-               netName,
-               str(self.pinCounter)]
+               '{}:{}'.format(netName, self.pinCounter)]
         self.pinCounter += 1
         pinsTable.append(pin)
         return pin
@@ -325,7 +316,8 @@ class SpefExtractor:
 
     # method to print a particular net into SPEF format
     def printNet(self, f, net, wireName):
-        print('*D_NET {} {}'.format(wireName, net['maxC']), file=f)
+        sumC = sum(net['cap'].values())
+        print('*D_NET {} {}'.format(wireName, sumC), file=f)
         print('*CONN', file=f)
         for conn in net['conn']:
             print('{} {} {}'.format(conn[0], conn[1], conn[2]), file=f)
@@ -336,8 +328,8 @@ class SpefExtractor:
             self.capCounter += 1
 
         print('*RES', file=f)
-        for seg in net['segments']:
-            print('{} {} {} {}'.format(self.resCounter, seg[0], seg[1], seg[2]),
+        for res in net['res']:
+            print('{} {} {} {}'.format(self.resCounter, res[0], res[1], res[2]),
                   file=f)
             self.resCounter += 1
 
@@ -350,7 +342,6 @@ class SpefExtractor:
         conList = []
         # a list of all pins referenced in the net, including the internal nodes between each 2 segments
         pinsTable = []
-        segmentsList = []
 
         # A SPEF net is made of CONNs, capacities and resistors.
         # A CONN correspond to either an external PAD or an internal cell PIN.
@@ -361,30 +352,25 @@ class SpefExtractor:
                 continue
             if con[0] == "PIN":
                 # It is an external PAD
-                x = self.def_parser.pins.get_pin(con[1])
-                if x.direction == "INPUT":
-                    pin_dir = "I"
-                else:
-                    pin_dir = "O"
-                current_pin = ["*P", con[1], pin_dir]
+                pinName = con[1]
+                x = self.def_parser.pins.get_pin(pinName)
+                direction = x.direction
+                pinType = "*P"
 
                 # these are used for the pinsTable
-                pin = self.def_parser.pins.pin_dict[con[1]]
+                pin = self.def_parser.pins.pin_dict[pinName]
                 pinLocation = pin.placed
                 metalLayer = pin.layer.name
                 locationsOfCurrentPin = [((pinLocation[0], pinLocation[1]),
                                           (pinLocation[0], pinLocation[1]),
                                           metalLayer)]
             else:
-                # It is an internal pin, check for input or output
+                # It is an internal pin
                 cell_type = self.def_parser.components.comp_dict[con[0]].macro
-
-                # some cells do not have direction
-                # check first if a cell has a direction or not
-
                 pinInfo = self.lef_parser.macro_dict[cell_type].pin_dict[con[1]]
 
                 # check if it has a direction
+                # some cells do not have direction
                 direction = pinInfo.info.get("DIRECTION")
                 if direction is None:
                     # check if cell has 'in' or 'out' in its name
@@ -393,21 +379,20 @@ class SpefExtractor:
                     else:
                         direction = "OUTPUT"
 
-                if direction == "INPUT":
-                    pin_dir = "I"
-                else:
-                    pin_dir = "O"
-                current_pin = ["*I", con[0] + ":" + con[1], pin_dir]
+                pinName = con[0] + ":" + con[1]
+                pinType = "*I"
 
                 # this is used for the pins table
-                metalLayerInfo = pinInfo.info
-                metalLayer = metalLayerInfo['PORT'].info['LAYER'][0].name
+                metalLayer = pinInfo.info['PORT'].info['LAYER'][0].name
                 locationsOfCurrentPin = self.getPinLocation(con[0], con[1], metalLayer)
 
             # we append list of pin locations - cellName - pinName
-            pinsTable.append((locationsOfCurrentPin, con[0], con[1]))
-            conList.append(current_pin)
-
+            pinsTable.append((locationsOfCurrentPin, pinName))
+            if direction == "INPUT":
+                pinDir = "I"
+            else:
+                pinDir = "O"
+            conList.append([pinType, pinName, pinDir])
 
         # the value will be incremented if more than 1 segment end at
         # the same node
@@ -416,7 +401,8 @@ class SpefExtractor:
         # A net has a list of segments which are composed of points.
         # Each segment lies on a layer.
         # The points create multiple segments in the same layer.
-        currentNodeList = {}
+        capList = {}
+        resList = []
         for segment in net.routed:
             if segment.end_via == 'RECT':
                 continue
@@ -427,8 +413,10 @@ class SpefExtractor:
                 # existence in the pinstable, using checkPinsTable method
                 myVia = None
                 if it < (len(segment.points) - 1):
+                    # Normal segment
                     spoint = segment.points[it]
                     epoint = segment.points[it+1]
+                    layer = segment.layer
                 else:
                     # last point in the line (either via or no via)
                     spoint = segment.points[it]
@@ -439,35 +427,28 @@ class SpefExtractor:
                     # the previous point
                     if myVia == ';' or myVia is None:
                         continue
-
-                # Get or create the start pin for the segment
-                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
-
-                # Get of create the end pin for the segment
-                if myVia:
-                    # Special handeling for vias to get the via types
-                    # through the via name
                     if myVia[-1] == ';':
                         # Remove trailing ';'
                         myVia = myVia[0:-1]
 
-                    first, _, second = self.getViaType(myVia)
+                    # Special handeling for vias to get the via types
+                    # through the via name
+                    first, via_layer, second = self.getViaType(myVia)
 
                     # Select the other layer
                     if first == segment.layer:
                         layer = second
                     else:
                         layer = first
-                else:
-                    # Normal segment
-                    layer = segment.layer
+
+                # Get or create the start pin for the segment
+                snode = self.checkPinsTable(spoint, segment.layer, net.name, pinsTable)
 
                 enode = self.checkPinsTable(epoint, layer, net.name, pinsTable)
 
                 # TODO: pass segment.endvia to function to be used if 2 points are equal
 
                 if myVia:
-                    _, via_layer, _ = self.getViaType(myVia)
                     resistance = self.get_via_resistance_modified(via_layer)
                     capacitance = self.get_via_capacitance_modified(via_layer)
                 else:
@@ -475,56 +456,34 @@ class SpefExtractor:
                     capacitance = self.get_wire_capacitance_modified(spoint, epoint, segment.layer)
 
                 # the name of the first node of the segment
-                currentSNodeName = str(snode[1]) + ':' + str(snode[2])
+                snodeName = snode[1]
                 # the name of the second node of the segment
-                currentENodeName = str(enode[1]) + ':' + str(enode[2])
+                enodeName = enode[1]
+
+                resList.append([snodeName, enodeName, resistance])
 
                 if wireModel == 'PI':
                     # PI model: add half the capacitances at each of
                     # the endpoints of the segment to use a pi model
-                    if currentSNodeName in currentNodeList:
-                        currentNodeList[currentSNodeName] += 0.5 * capacitance
-                    else:
-                        currentNodeList[currentSNodeName] = 0.5 * capacitance
-                    if currentENodeName in currentNodeList:
-                        currentNodeList[currentENodeName] += 0.5 * capacitance
-                    else:
-                        currentNodeList[currentENodeName] = 0.5 * capacitance
+                    capList.setdefault(snodeName, 0)
+                    capList[snodeName] += 0.5 * capacitance
+                    capList.setdefault(enodeName, 0)
+                    capList[enodeName] += 0.5 * capacitance
                 else:
                     # L wire model:  add the capacitance of the segment
                     # at the starting node
-                    if currentSNodeName in currentNodeList:
-                        currentNodeList[currentSNodeName] += capacitance
-                    else:
-                        currentNodeList[currentSNodeName] = capacitance
+                    capList.setdefault(snodeName, 0)
+                    capList[snodeName] += capacitance
 
-                if snode[1] != 'PIN':
-                    sname = snode[1] + ':' + snode[2]
-                else:
-                    sname = snode[2]
-                if enode[1] != 'PIN':
-                    ename = enode[1] + ':' + enode[2]
-                else:
-                    ename = node[2]
-                segmentsList.append([sname, ename, resistance, capacitance])
-
-        sumC = 0
-        for k in currentNodeList:
-            sumC += currentNodeList[k]
-        return {'conn': conList, 'cap': currentNodeList, 'maxC': sumC, 'segments': segmentsList}
+        return {'conn': conList, 'cap': capList, 'res': resList}
 
     def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
-        # main starts here:
-        # create all the data structures that we will be using
-        netsDict = {}
-        self.vias_dict_def = {}
-
-        # We had to modify the lef parser to ignore the second parameter for the offset
-        # since our files provide only 1 value
+        # We had to modify the lef parser to ignore the second
+        # parameter for the offset since our files provide only 1 value
         self.lef_parser = LefParser(lef_file_name)
         self.lef_parser.parse()
 
-        # read the updated def
+        # read the def
         self.def_parser = DefParser(def_file_name)
         self.def_parser.parse()
 
@@ -554,6 +513,7 @@ class SpefExtractor:
         # creation of the name map
         map_of_names = self.remap_names()
 
+        netsDict = {}
         for net in self.def_parser.nets:
             # traversing all nets in the def file to extract segments
             # information
@@ -565,7 +525,7 @@ class SpefExtractor:
         self.capCounter = 0
         self.resCounter = 0
 
-        f = open(str(def_file_name[:-4]) + ".spef", "w", newline='\n')
+        f = open(def_file_name[:-4] + ".spef", "w", newline='\n')
         print("Start writing SPEF file")
         self.printSPEFHeader(f)
         self.printNameMap(f, map_of_names)

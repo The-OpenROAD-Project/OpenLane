@@ -13,6 +13,10 @@
 # limitations under the License.
 
 proc global_routing_or {args} {
+    handle_deprecated_command global_routing
+}
+
+proc global_routing {args} {
     puts_info "Running Global Routing..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
@@ -48,7 +52,6 @@ proc global_routing_or {args} {
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_post_antenna.log
         set ::env(DIODE_INSERTION_STRATEGY) 3
     }
-
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
@@ -156,16 +159,17 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-	 if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {       
-	      if { $::env(DIODE_CELL) ne "" } {
-    		ins_diode_cells
-	}
+    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {       
+	    if { $::env(DIODE_CELL) ne "" } {
+		    ins_diode_cells
+	    }
     }
     use_original_lefs
-	global_routing_or
-	# insert fill_cells
+    
+    global_routing
+
+    # insert fill_cells
     ins_fill_cells_or
-    # fastroute global 6_routing
 
     # for LVS
     write_verilog $::env(yosys_result_file_tag)_preroute.v
@@ -224,11 +228,7 @@ proc ins_diode_cells {args} {
     puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/diodes.def
 
-
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_diodes.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/diodes.log
-
-
-
 
     set_def $::env(TMP_DIR)/placement/diodes.def
     write_verilog $::env(yosys_result_file_tag)_diodes.v
@@ -236,12 +236,12 @@ proc ins_diode_cells {args} {
     if { $::env(LEC_ENABLE) } {
 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
-
 }
 
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
         puts_info "Running SPEF Extraction..."
+	set ::env(MPLCONFIGDIR) /tmp
         try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/spef_extraction.log
         set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
         # Static Timing Analysis using the extracted SPEF

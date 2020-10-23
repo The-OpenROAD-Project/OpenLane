@@ -27,7 +27,10 @@ set ::env(GLB_RT_TILES) 15 ; # openroads fastroute default value
 
 set ::env(GLB_RT_ESTIMATE_PARASITICS) 1
 
-set ::env(DIODE_PADDING) 2 ; # sites 
+set ::env(DIODE_PADDING) 2 ; # sites
 
-set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 2
-
+# GLB_RT_MAX_DIODE_INS_ITERS is set to 1 because of the bulk testing we're running (as it will speed-up the runtime for big designs).
+# However, the user is advised to set it up to 5 or more, in case of running a specific design.
+# It is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
+# Check the configuration/README.md for more.
+set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 1

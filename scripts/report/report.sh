@@ -23,14 +23,16 @@ tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
 yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=${path}/reports/synthesis/opensta_wns.rpt
+pl_wns_rpt=${path}/reports/placement/replace_wns.rpt
 opt_wns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_wns.rpt
 fr_wns_rpt=${path}/reports/routing/fastroute_wns.rpt
 spef_wns_rpt=${path}/reports/synthesis/opensta_spef_wns.rpt
 tns_rpt=${path}/reports/synthesis/opensta_tns.rpt
+pl_tns_rpt=${path}/reports/placement/replace_tns.rpt
 opt_tns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_tns.rpt
 fr_tns_rpt=${path}/reports/routing/fastroute_tns.rpt
 spef_tns_rpt=${path}/reports/synthesis/opensta_spef_tns.rpt
-HPWL_rpt=${path}/logs/placement/replace.log 
+HPWL_rpt=${path}/logs/placement/replace.log
 yosys_log=${path}/logs/synthesis/yosys.log
 magic_drc=${path}/logs/magic/magic.drc
 tapcell_log=${path}/logs/floorplan/tapcell.log
@@ -85,7 +87,7 @@ if [ -f $tritonRoute_drc ]; then
 
         OffGrid_violations=$(grep "OffGrid" $tritonRoute_drc -s | wc -l)
         if ! [[ $OffGrid_violations ]]; then OffGrid_violations=-1; fi
-        Other_violations=$((Other_violations-OffGrid_violations)); 
+        Other_violations=$((Other_violations-OffGrid_violations));
 
         MinHole_violations=$(grep "MinHole" $tritonRoute_drc -s | wc -l)
         if ! [[ $MinHole_violations ]]; then MinHole_violations=-1; fi
@@ -132,11 +134,15 @@ if ! [[ $vias ]]; then vias=-1; fi
 wns=$(grep "wns" $wns_rpt -s | sed -r 's/wns //')
 if ! [[ $wns ]]; then wns=-1; fi
 
+#Extracting info from OpenSTA post global placement using estimate parasitics
+pl_wns=$(grep "wns" $pl_wns_rpt -s | tail -1 |sed -r 's/wns //')
+if ! [[ $pl_wns ]]; then pl_wns=$wns; fi
+
 #Extracting Info from OpenPhySyn
 opt_wns=$(grep "wns" $opt_wns_rpt -s | tail -1 |sed -r 's/wns //')
-if ! [[ $opt_wns ]]; then opt_wns=$wns; fi
+if ! [[ $opt_wns ]]; then opt_wns=$pl_wns; fi
 
-#Extracting info from OpenSTA post SPEF extraction
+#Extracting info from OpenSTA post global routing using estimate parasitics
 fr_wns=$(grep "wns" $fr_wns_rpt -s | sed -r 's/wns //')
 if ! [[ $fr_wns ]]; then fr_wns=$opt_wns; fi
 
@@ -148,9 +154,13 @@ if ! [[ $spef_wns ]]; then spef_wns=$fr_wns; fi
 tns=$(grep "tns" $tns_rpt -s | sed -r 's/tns //')
 if ! [[ $tns ]]; then tns=-1; fi
 
+#Extracting info from OpenSTA post global placement using estimate parasitics
+pl_tns=$(grep "tns" $pl_tns_rpt -s | tail -1 |sed -r 's/tns //')
+if ! [[ $pl_tns ]]; then pl_tns=$tns; fi
+
 #Extracting Info from OpenPhySyn
 opt_tns=$(grep "tns" $opt_tns_rpt -s | tail -1 |sed -r 's/tns //')
-if ! [[ $opt_tns ]]; then opt_tns=$tns; fi
+if ! [[ $opt_tns ]]; then opt_tns=$pl_tns; fi
 
 #Extracting info from FR:estimate_parasitics
 fr_tns=$(grep "tns" $fr_tns_rpt -s | sed -r 's/tns //')
@@ -213,10 +223,10 @@ if ! [[ $tapcells ]]; then tapcells=0; fi
 
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log -s | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
-if ! [[ $diodes ]]; then 
+if ! [[ $diodes ]]; then
         # A temporary solution until FR reports the number of diodes added.
-        diodes=$(grep "diode" $tritonRoute_def -s | wc -l)  
-        if ! [[ $diodes ]]; then diodes=0; fi 
+        diodes=$(grep "diode" $tritonRoute_def -s | wc -l)
+        if ! [[ $diodes ]]; then diodes=0; fi
 fi
 
 #Summing the number of Endcaps, Tapcells, and Diodes
@@ -228,7 +238,7 @@ if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
 
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $opt_wns $fr_wns $spef_wns $tns $opt_tns $fr_tns $spef_tns $hpwl"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done

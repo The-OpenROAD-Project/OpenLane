@@ -17,6 +17,7 @@
 import os
 import sys
 import pandas as pd
+import re
 
 def get_design_path(design):
     path = os.path.abspath(design) + '/'
@@ -42,6 +43,23 @@ def get_run_path(design, tag):
 
     return DEFAULT_PATH
 
+def get_design_name(design, config):
+        design_path= get_design_path(design=design)
+        if design_path is None:
+            print("{design} not found, skipping...".format(design=design))
+            return "INVALID DESIGN PATH"
+        config_file = "{design_path}/{config}.tcl".format(
+                design_path=design_path,
+                config=config,
+        )
+        config_file_opener = open(config_file, "r")
+        configs = config_file_opener.read()
+        config_file_opener.close()
+        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
+        for name in re.findall(pattern, configs):
+                return name.replace("\"","")
+        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
+        return "INVALID DESIGN PATH"
 
 # addComputedStatistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
 def addComputedStatistics(filename):
