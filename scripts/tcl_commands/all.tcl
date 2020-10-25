@@ -64,6 +64,8 @@ proc prep_lefs {args} {
     try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
+        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
+
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
 
@@ -288,10 +290,12 @@ proc prep {args} {
 
     set skip_basic_prep 0
 
+    puts_info "Current run directory is $::env(RUN_DIR)"
 
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing exisiting run $::env(RUN_DIR)"
+            puts_warn "Removing exisiting run $::env(RUN_DIR)"
+            after 1000
             file delete -force $::env(RUN_DIR)
         } else {
             puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"

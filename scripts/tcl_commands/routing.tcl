@@ -20,7 +20,7 @@ proc global_routing {args} {
     puts_info "Running Global Routing..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log   
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set iter 2
         set prevDEF1 $::env(SAVE_DEF)
@@ -33,7 +33,7 @@ proc global_routing {args} {
             try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
-            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log   
+            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log
             set currAntennaVal [exec grep "#Antenna violations:"  $::env(fastroute_log_file_tag)_$iter.log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
@@ -44,7 +44,7 @@ proc global_routing {args} {
                 set prevAntennaVal $currAntennaVal
                 set iter [expr $iter + 1]
                 set prevDEF1 $prevDEF2
- 	        set prevDEF2 $::env(SAVE_DEF) 
+ 	        set prevDEF2 $::env(SAVE_DEF)
             }
 	    set_def $::env(SAVE_DEF)
         }
@@ -177,7 +177,7 @@ proc run_spef_extraction {args} {
         set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
         run_sta
         set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder    
+        set ::env(opensta_log_file_tag) $log_tag_holder
     }
 }
 proc run_routing {args} {
@@ -187,13 +187,13 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {       
+    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {
 	    if { $::env(DIODE_CELL) ne "" } {
 		    ins_diode_cells
 	    }
     }
     use_original_lefs
-    
+
     global_routing
 
     # insert fill_cells
