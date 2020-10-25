@@ -301,6 +301,7 @@ proc prep {args} {
         }
     }
 
+
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOG_DIR) $::env(REPORTS_DIR)
 
@@ -750,7 +751,9 @@ proc write_verilog {filename args} {
     set options {
         {-def optional}
     }
-    set flags {}
+    set flags {
+        -canonical
+    }
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
@@ -759,7 +762,9 @@ proc write_verilog {filename args} {
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
 
-    yosys_rewrite_verilog $filename
+    if { [info exists flags_map(-canonical)] } {
+        yosys_rewrite_verilog $filename
+    }
 }
 
 proc add_macro_obs {args} {
