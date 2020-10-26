@@ -57,19 +57,19 @@ RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.
 # download public key for github.com
 RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN git clone -b openroad https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute_10092020 \
-	&& cd TritonRoute_10092020 \
-	&& git checkout e494b6bb8df70014646cd4eabec0baedb1517e94
+RUN git clone https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute_26102020 \
+	&& cd TritonRoute_26102020 \
+	&& git checkout a639a8b8c99fb078057d8449aa57333952b06309
 
-RUN mkdir TritonRoute_10092020/build
+RUN mkdir TritonRoute_26102020/build
 
-WORKDIR TritonRoute_10092020/build
+WORKDIR TritonRoute_26102020/build
 
 RUN cmake ../
 RUN make -j$(nproc)
 
 RUN mkdir -p /build/bin/ && \
-    cp TritonRoute /build/bin/TritonRoute14
+    cp TritonRoute /build/bin/TritonRoute
 
 RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/route_14.version

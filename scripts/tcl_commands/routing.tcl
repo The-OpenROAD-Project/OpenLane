@@ -64,7 +64,7 @@ proc detailed_routing {args} {
     if {$::env(RUN_ROUTING_DETAILED)} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-    try_catch TritonRoute14 \
+    try_catch TritonRoute \
     $::env(tritonRoute_tmp_file_tag).param \
     |& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
 
