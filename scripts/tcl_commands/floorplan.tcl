@@ -25,8 +25,13 @@ proc init_floorplan {args} {
 		check_floorplan_missing_lef
 
 		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
-		set ::env(CORE_AREA) [read $die_area_file]
+		set core_area_file [open $::env(verilog2def_report_file_tag).core_area.rpt]
+
+		set ::env(DIE_AREA) [read $die_area_file]
+		set ::env(CORE_AREA) [read $core_area_file]
+
 		close $die_area_file
+		close $core_area_file
 
 		set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
 		set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
