@@ -33,7 +33,6 @@ proc run_non_interactive_mode {args} {
 	run_floorplan
 	run_placement
 	run_cts
-	run_timing_optimizations
 	gen_pdn
 	run_routing
 
