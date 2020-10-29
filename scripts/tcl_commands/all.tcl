@@ -77,9 +77,6 @@ proc prep_lefs {args} {
 
     set ::env(MERGED_LEF) $::env(CELLS_LEF)
 
-    try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF)
-    try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF_UNPADDED)
-
     widen_site_width
     use_widened_lefs
 
@@ -311,12 +308,25 @@ proc prep {args} {
 
     if { ! $skip_basic_prep } {
         prep_lefs
+
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
         set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
+
         set tracks_copy $::env(TMP_DIR)/tracks_copy.info
         file copy -force $::env(TRACKS_INFO_FILE) $tracks_copy
         set ::env(TRACKS_INFO_FILE) $tracks_copy
+
+        if { $::env(USE_GPIO_PADS) } {
+            if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+                set ::env(VERILOG_FILES_BLACKBOX) ""
+            }
+            if { [info exists ::env(GPIO_PADS_VERILOG)] } {
+                lappend ::env(VERILOG_FILES_BLACKBOX) {*}$::env(GPIO_PADS_VERILOG)
+            } else {
+                puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
+            }
+        }
     }
 
     if { [file exists $::env(GLB_CFG_FILE)] } {

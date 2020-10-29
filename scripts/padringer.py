@@ -173,7 +173,7 @@ db_top = odb.dbDatabase.create()
 # odb.read_db(db_top, f"{design}.pf.db")
 for lef in lefs:
     odb.read_lef(db_top, lef)
-odb.read_def(db_top, f"{design}.pf.def")
+odb.read_def(db_top, working_def)
 
 chip_top = db_top.getChip()
 block_top = chip_top.getBlock()
