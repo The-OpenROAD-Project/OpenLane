@@ -74,6 +74,9 @@ with open(output_file_name, 'w') as output_def_file, \
                     if len(part) == 0:
                         pattern_FIXED = re.compile(r'\s*FIXED\s*\(\s*[\d+]+\s*[\d+]+\s*\)\s*[\S+]+\s*[\; \+]')
                         part = re.findall(pattern_FIXED, full_line)
+                    if len(part) == 0:
+                        raise Exception('The instance name specified is not found. Please verify the instance name in this def file: ', \
+                            str(input_file_name), 'Also, make sure you run normal/random global placement before calling this script. The macros must have an initial placement.')
                     part_split = part[0].split(" ")
 
                     if fixed_flag == True:
