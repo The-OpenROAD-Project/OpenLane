@@ -72,6 +72,12 @@ parser.add_argument('--working-dir', '-dir',
                     default=".",
                     help='Working directory to create temporary files needed')
 
+parser.add_argument('--special-nets', '-special',
+                    nargs='+',
+                    type=str,
+                    default=None,
+                    help='Net names to mark as special')
+
 parser.add_argument('--lefs', '-l',
                     nargs='+',
                     type=str,
@@ -91,6 +97,7 @@ output_file_name = args.output_def
 init_padframe_config_flag = args.init_padframe_config
 working_dir = args.working_dir
 lefs = args.lefs
+special_nets = args.special_nets
 pad_name_prefixes = args.pad_name_prefixes
 
 working_def = f"{working_dir}/{design}.pf.def"
@@ -214,27 +221,29 @@ def clean_name(name):
 
 used_pads = []
 used_corner_pads = []
+other_instances = []
 for inst in block_top.getInsts():
     inst_name = inst.getName()
     master_name = inst.getMaster().getName()
     if inst.isPad():
-        assert any(name.startswith(p) for p in pad_name_prefixes), name
+        assert any(master_name.startswith(p) for p in pad_name_prefixes), master_name
         print("Found pad instance", inst_name, "of type", master_name)
         used_pads.append((inst_name, master_name))
     elif inst.isEndCap():
         # FIXME: regular endcaps
-        assert any(name.startswith(p) for p in pad_name_prefixes), name
+        assert any(master_name.startswith(p) for p in pad_name_prefixes), master_name
         print("Found pad instance", inst_name, "of type", master_name)
         print("Found corner pad instance", inst_name, "of type", master_name)
         used_corner_pads.append((inst_name, master_name))
     else:
-        assert not any(name.startswith(p) for p in pad_name_prefixes), name
+        assert not any(master_name.startswith(p) for p in pad_name_prefixes), master_name
+        other_instances.append(inst_name)
 
 # FIXME: if used_corner_pads aren't supposed to be instantiated
 assert len(used_corner_pads) == 4, used_corner_pads
 
 print()
-print("The user design contains", len(used_pads), "cells")
+print("The user design contains", len(used_pads), "pads, 4 corner pads, and", len(other_instances), "other instances")
 print()
 assert len(used_pads) != 0, "^"
 
@@ -295,6 +304,11 @@ if config_file_name is not None:
             assert len(tokens) == 5, tokens
             inst_name, master_name = tokens[1], tokens[3]
             user_config_pads.append((inst_name, master_name))
+        elif line.startswith("AREA"):
+            tokens = line.split()
+            assert len(tokens) == 4, tokens
+            width = int(tokens[1])
+            height = int(tokens[2])
 
     assert sorted(user_config_pads) == sorted(used_pads+used_corner_pads),\
         ("Mismatch between the provided config and the provided netlist. Diff:", diff_lists(user_config_pads, used_pads+used_corner_pads))
@@ -336,7 +350,16 @@ assert padframe_design_name == "PADRING", padframe_design_name
 
 print("Padframe design name:", padframe_design_name)
 
-# TODO: place the core macros within the padframe (chip floorplan)
+# Mark special nets
+if special_nets is not None:
+    for net in block_top.getNets():
+        net_name = net.getName()
+        if net_name in special_nets:
+            print("Marking", net_name, "as a special net")
+            net.setSpecial()
+            for iterm in net.getITerms():
+                iterm.setSpecial()
+
 # get minimum width/height (core-bounded)
 
 placed_cells_count = 0
@@ -366,6 +389,20 @@ for inst in block_padframe.getInsts():
         new_inst.setLocation(x, y)
         new_inst.setPlacementStatus("FIRM")
         created_cells_count += 1
+
+# TODO: place the core macros within the padframe (chip floorplan)
+for inst in block_top.getInsts():
+    if inst.isPlaced() or inst.isFixed():
+        continue
+    print("Placing", inst.getName())
+    master = inst.getMaster()
+    master_width = master.getWidth()
+    master_height = master.getHeight()
+    print(master_width, master_height)
+    print(width, height)
+
+    inst.setLocation(width*1000//2-master_width//2, height*1000//2-master_height//2)
+    inst.setPlacementStatus("PLACED")
 
 odb.write_def(block_top, output_file_name)
 print("Done")
