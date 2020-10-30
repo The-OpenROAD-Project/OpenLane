@@ -22,13 +22,38 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
+
+set ::block [[[::ord::get_db] getChip] getBlock]
+set ::insts [$::block getInsts]
+
+set free_insts_flag 0
+
+foreach inst $::insts {
+	set placement_status [$inst getPlacementStatus]
+	if { $placement_status != "FIRM" } {
+		set free_insts_flag 1
+		break
+	}
+}
+
+if { ! $free_insts_flag } {
+	puts "\[WARN] All instances are FIXED"
+	puts "\[WARN] No need to use replace"
+	puts "\[WARN] Skipping..."
+	file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
+	exit 0
+}
+
 set_replace_verbose_level_cmd 1
 
 set_replace_density_cmd $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
 	set_replace_overflow_cmd 0.9
+	set_replace_init_density_penalty_factor_cmd 0.0001
 	set_replace_initial_place_max_iter_cmd 20
+	set_replace_bin_grid_cnt_x_cmd 64
+	set_replace_bin_grid_cnt_y_cmd 64
 }
 
 if { $::env(PL_TIME_DRIVEN) } {

@@ -61,16 +61,16 @@ proc add_macro_placement {args} {
     if { [llength $args] == 4 } {
 	set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placements.cfg
+    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
     puts_info " Manual Macro Placement..."
     set var "f"
     if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placements.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placements.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     }
     set_def $::env(CURRENT_DEF).macro_placement.def
 }
@@ -111,6 +111,9 @@ proc basic_macro_placement {args} {
     set ::env(SAVE_DEF) $::env(CURRENT_DEF).macro_placement.def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/basic_mp.log
+
+    check_macro_placer_num_solns
+
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(LOG_DIR)/placement/basic_mp_runtime.txt

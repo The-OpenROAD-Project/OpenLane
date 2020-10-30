@@ -78,4 +78,16 @@ proc check_replace_divergence {args} {
     }
 }
 
+proc check_macro_placer_num_solns {args} {
+    set checker [catch {exec grep -E -o "NumFinalSols = 0" $::env(LOG_DIR)/placement/basic_mp.log} error]
+
+    if { ! $checker } {
+        puts_err "Macro placement failed"
+        puts_err "$error; you may need to adjust the HALO"
+        return -code error
+    } else {
+        puts_info "Macro placement was successful"
+    }
+}
+
 package provide openlane 0.9
