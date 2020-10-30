@@ -209,6 +209,16 @@ proc run_floorplan {args} {
 				place_io
 		}
 
+		if { [info exist ::env(EXTRA_LEFS)] } {
+			global_placement_or
+			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
+				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
+				manual_macro_placement f
+			} else {
+				basic_macro_placement
+			}
+		}
+
 		# tapcell
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} { 
 				tap_decap_or

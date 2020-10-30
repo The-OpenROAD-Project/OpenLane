@@ -40,3 +40,6 @@ set ::env(BOTTOM_MARGIN_MULT) 4
 set ::env(TOP_MARGIN_MULT) 4
 set ::env(LEFT_MARGIN_MULT) 12
 set ::env(RIGHT_MARGIN_MULT) 12
+
+set ::env(FP_HORIZONTAL_HALO) 10
+set ::env(FP_VERTICAL_HALO) $::env(FP_HORIZONTAL_HALO)

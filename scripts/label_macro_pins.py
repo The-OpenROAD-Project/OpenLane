@@ -28,7 +28,12 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--netlist-def', '-nd', required=True,
                     help='DEF view of the design that has the connectivity information')
 
-parser.add_argument('--lef', '-l', required=True,
+
+parser.add_argument('--lef', '-l',
+                    nargs='+',
+                    type=str,
+                    default=None,
+                    required=True,
                     help='LEF file needed to have a proper view of the netlist AND the input DEF')
 
 parser.add_argument('--input-def', '-id', required=True,
@@ -68,9 +73,9 @@ BLOCK_PIN_SIZE = args.pin_size
 DEF_UNITS_PER_MICRON = args.db_microns
 
 netlist_def_file_name = args.netlist_def
-netlist_lef_file_name = args.lef
+netlist_lef_file_names = args.lef
 input_def_file_name = args.input_def
-input_lef_file_name = args.lef
+input_lef_file_names = args.lef
 
 extra_mappings = args.map
 extra_mappings_pin_names = [tup[2] for tup in extra_mappings]
@@ -84,12 +89,15 @@ else:
 mapping_db = odb.dbDatabase.create()
 # odb.read_lef(mapping_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/openlane/runs/striVe2_connectivity/tmp/merged_unpadded.lef")
 # odb.read_def(mapping_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/openlane/runs/striVe2_connectivity/tmp/floorplan/verilog2def_openroad.def")
-odb.read_lef(mapping_db, netlist_lef_file_name)
+for lef in netlist_lef_file_names:
+    odb.read_lef(mapping_db, lef)
 odb.read_def(mapping_db, netlist_def_file_name)
 
 # for later
 chip_db = odb.dbDatabase.create()
-odb.read_lef(chip_db, input_lef_file_name)
+for lef in input_lef_file_names:
+    print(lef)
+    odb.read_lef(chip_db, lef)
 odb.read_def(chip_db, input_def_file_name)
 
 mapping_chip = mapping_db.getChip()
