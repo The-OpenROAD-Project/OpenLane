@@ -37,20 +37,24 @@ set ::env(EXTRA_GDS_FILES) [list $mac_gds]
 # set ::set(SYNTH_FLAT_TOP) 1
 
 set ::env(CLOCK_PORT) "clk"
+set ::env(CLOCK_TREE_SYNTH) 0
 
 set filename $::env(OPENLANE_ROOT)/designs/250/$::env(PDK)_$::env(PDK_VARIANT)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
 }
 
+set ::env(FP_SIZING) absolute
+set ::env(DIE_AREA) {0 0 10000 10000}
+
 # Design config
 set ::env(CLOCK_PERIOD) 30
 # Synthesis config
 set ::env(SYNTH_STRATEGY) 1
 # Floorplan config
-set ::env(FP_CORE_UTIL) 5
+set ::env(FP_CORE_UTIL) 1
 # Placement config
-set ::env(PL_TARGET_DENSITY) 0.5
+#set ::env(PL_TARGET_DENSITY) 0.05
 # CTS config
 # Routing config
 set ::env(ROUTING_STRATEGY) 14 ;# run TritonRoute14
