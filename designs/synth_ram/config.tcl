@@ -4,9 +4,6 @@ set ::env(DESIGN_NAME) synth_ram
 # Change if needed
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 
-set ::env(PL_TARGET_DENSITY) 50
-
-
 # Fill this
 set ::env(CLOCK_PERIOD) "50"
 set ::env(CLOCK_PORT) "clk"

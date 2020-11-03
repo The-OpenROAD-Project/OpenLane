@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-module synth_ram #( parameter integer WORDS = 256) (
+module synth_ram #( parameter integer WORDS = 64) (
   input clk,
   input ena,
   input [3:0] wen,
