@@ -34,7 +34,11 @@ Join the community on [slack](https://invite.skywater.tools)!
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
- - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
+ - [git-lfs](https://git-lfs.github.com/): You must download and install git-lfs from [here](https://git-lfs.github.com/), then set it up once per user account by running the following command:
+
+```bash
+git lfs install
+```
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
@@ -66,7 +70,7 @@ After running you'll find a directory added under [./regression_results/](./regr
 
 # Setting up the PDK: skywater-pdk
 
-The full PDK is already pre-built [here](https://github.com/efabless/sky130A-prebuilt), which is a submodule in this repo. So, run this command:
+The full PDK is already pre-built [here](https://github.com/efabless/sky130A-prebuilt), which is a submodule in this repository. So, run this command:
 
 **WARNING:** This will expand to ~7GB.
 ```bash
@@ -78,7 +82,7 @@ The full PDK is already pre-built [here](https://github.com/efabless/sky130A-pre
  - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
     - Open [configuration/general.tcl](./configuration/general.tcl)
     - set STD_CELL_LIBRARY to one of the following:
-
+            - sky130_fd_sc_hd
             - sky130_fd_sc_hs
             - sky130_fd_sc_ms
             - sky130_fd_sc_ls
