@@ -22,8 +22,10 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-
 set_placement_padding -global -right $::env(CELL_PAD)
+
+set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+
 detailed_placement
 
 if { [check_placement -verbose] } {
