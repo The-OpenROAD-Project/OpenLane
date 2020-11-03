@@ -18,7 +18,7 @@ from operator import itemgetter
 
 
 parser = argparse.ArgumentParser(
-        description="Selects top configuration from a report file")
+        description="Selects top configuration from a report file and produces a new report file containing the top configurations only for each design")
 
 parser.add_argument("--input", '-i', required=True,
         help="input report file")

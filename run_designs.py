@@ -21,8 +21,6 @@ import logging
 import datetime
 import argparse
 import os
-import pandas as pd
-import re
 import copy
 from collections import OrderedDict
 
@@ -67,7 +65,7 @@ parser.add_argument('--disable_timestamp', '-dt',action='store_true', default=Fa
                 help="Disables appending the timestamp to the file names and tags.")
 parser.add_argument('--show_output', '-so',action='store_true', default=False,
                 help="Enables showing the ./flow.tcl output into the stdout. If more than one design/more than one configuration is run, this flag will be treated as False, even if specified otherwise.")
-                             
+
 
 args = parser.parse_args()
 
@@ -91,7 +89,18 @@ for excluded_design in excluded_designs:
 
 show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
 
-rem_designs = copy.deepcopy(designs)
+
+if args.print_rem is not None and show_log_output == False:
+        if float(args.print_rem) > 0:
+                print_rem_time = float(args.print_rem)
+        else:
+                print_rem_time = None
+else:
+        print_rem_time = None
+
+
+if print_rem_time is not None:
+        rem_designs = dict.fromkeys(designs, 1)
 
 num_workers = args.threads
 config = args.config_tag
@@ -107,7 +116,7 @@ if args.regression is not None:
         for k in regressionFileContent:
                 if k.find("=") == -1:
                         continue
-               
+
                 if k.find("extra") != -1:
                         break
                 else:
@@ -160,16 +169,18 @@ report_log.setLevel(logging.INFO)
 report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
 
 
-
+allow_print_rem_designs = False
 def printRemDesignList():
-        t = threading.Timer(float(args.print_rem), printRemDesignList)  
+        t = threading.Timer(print_rem_time, printRemDesignList)
         t.start()
-        print("Remaining designs: ",rem_designs)
+        if allow_print_rem_designs:
+                print("Remaining designs (design, # of times): ",rem_designs)
         if len(rem_designs) == 0:
                 t.cancel()
 
-if args.print_rem is not None:
+if print_rem_time is not None:
         printRemDesignList()
+        allow_print_rem_designs = True
 
 
 def run_design(designs_queue):
@@ -183,7 +194,7 @@ def run_design(designs_queue):
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 else:
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
-                
+
                 try:
                         if show_log_output:
                                 process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -197,33 +208,30 @@ def run_design(designs_queue):
                                 subprocess.check_output(command.split(), stderr=subprocess.PIPE)
                 except subprocess.CalledProcessError as e:
                         error_msg = e.stderr.decode(sys.getfilesystemencoding())
-                        #print(error_msg)
                         log.error('{design} {tag} failed check {run_path}error.txt'.format(design=design, run_path=run_path, tag=tag))
-                        #report_log.error('{design} {tag} failed'.format(design=design, tag=tag))
                         with open(run_path + "error.txt", "w") as error_file:
                                 error_file.write(error_msg)
-
-                        #continue
 
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)
 
                 report = Report(design, tag, design_name,params).get_report()
                 report_log.info(report)
-        
+
                 with open(run_path + "final_report.txt", "w") as report_file:
-                        report_file.write(Report.get_header() + ", " + ConfigHandler.get_header())
+                        report_file.write(Report.get_header() + "," + ConfigHandler.get_header())
                         report_file.write("\n")
                         report_file.write(report)
-                
+
 
                 if args.benchmark is not None:
                         log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
-                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design}".format(
+                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design} -rp {run_path}".format(
                                 benchmark=args.benchmark,
                                 this_run=report_file_name + ".csv",
                                 output_report=report_file_name + "_design_test_report.csv",
-                                design=design
+                                design=design,
+                                run_path=run_path
                         )
                         subprocess.check_output(design_benchmark_comp_cmd.split())
 
@@ -243,18 +251,16 @@ def run_design(designs_queue):
                         )
                         subprocess.check_output(clean_cmd.split())
                         log.info('{design} {tag} Cleaning tmp Directory Finished'.format(design=design, tag=tag))
-               
-                
+
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
-                        if 'all' in tarList: 
+                        if 'all' in tarList:
                                 tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
                                         run_path=run_path,
                                         design_name=design_name,
                                         tag=tag
                                 )
                                 subprocess.check_output(tarAll_cmd.split())
-                                
                         else:
                                 tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
                                 for dirc in tarList:
@@ -267,45 +273,23 @@ def run_design(designs_queue):
                                 subprocess.check_output(tar_cmd.split())
                         log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
 
-                if args.delete:                
+                if args.delete:
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
-                        
                         deleteDirectory = "rm -rf {run_path}".format(
                                 run_path=run_path
                         )
                         subprocess.check_output(deleteDirectory.split())
 
                         log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
-                
-                if args.print_rem is not None:
-                        if design in rem_designs:
-                                rem_designs.remove(design)
 
-#print(designs)
+                if print_rem_time is not None:
+                        if design in rem_designs.keys():
+                                rem_designs[design]-=1
+                                if rem_designs[design] == 0:
+                                        rem_designs.pop(design)
 
-def addCellPerMMSquaredOverCoreUtil(filename):
-        data = pd.read_csv(filename, error_bad_lines=False)
-        df = pd.DataFrame(data)
-        df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
-        df.to_csv(filename)
 
-def get_design_name(design, config):
-        design_path= utils.get_design_path(design=design)
-        if design_path is None:
-            print("{design} not found, skipping...".format(design=design))
-            return "INVALID DESIGN PATH"
-        config_file = "{design_path}/{config}.tcl".format(
-                design_path=design_path,
-                config=config,
-        )
-        config_file_opener = open(config_file, "r")
-        configs = config_file_opener.read()
-        config_file_opener.close()
-        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
-        for name in re.findall(pattern, configs):
-                return name.replace("\"","")
-        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
-        return "INVALID DESIGN PATH"
+
 
 
 
@@ -319,8 +303,11 @@ if regression is not None:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
             print("{design} not found, skipping...".format(design=design))
+            if print_rem_time is not None:
+                if design in rem_designs.keys():
+                        rem_designs.pop(design)
             continue
-        design_name= get_design_name(design, config)
+        design_name= utils.get_design_name(design, config)
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -334,7 +321,8 @@ if regression is not None:
         number_of_configs = subprocess.check_output(gen_config_cmd.split())
         number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
         total_runs = total_runs + number_of_configs
-
+        if print_rem_time is not None:
+                rem_designs[design] = number_of_configs
         for i in range(number_of_configs):
             config_tag = "config_{tag}_{idx}".format(
                     tag=tag,
@@ -347,8 +335,15 @@ if regression is not None:
             que.put((design, config_tag, config_tag,design_name))
 else:
     for design in designs:
+        base_path = utils.get_design_path(design=design)
+        if base_path is None:
+            print("{design} not found, skipping...".format(design=design))
+            if print_rem_time is not None:
+                if design in rem_designs.keys():
+                        rem_designs.pop(design)
+            continue
         default_config_tag = "config_{tag}".format(tag=tag)
-        design_name= get_design_name(design, config)
+        design_name= utils.get_design_name(design, config)
         que.put((design, config, default_config_tag,design_name))
 
 
@@ -383,9 +378,9 @@ if args.htmlExtract:
                 )
         subprocess.check_output(csv2besthtml_result_cmd.split())
 
-addCellPerMMSquaredOverCoreUtil(report_file_name + ".csv")
+utils.addComputedStatistics(report_file_name + ".csv")
 
-addCellPerMMSquaredOverCoreUtil(report_file_name + "_best.csv")
+utils.addComputedStatistics(report_file_name + "_best.csv")
 
 
 if args.benchmark is not None:
@@ -401,7 +396,3 @@ if args.benchmark is not None:
 
 
 log.info("Done")
-
-
-
-

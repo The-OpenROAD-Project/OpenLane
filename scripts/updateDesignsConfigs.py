@@ -38,6 +38,8 @@ parser.add_argument('--best_results', '-b', action='store', required=True,
 parser.add_argument('--clean', '-cl', action='store_true', default=False,
                 help="deletes the config file that the data was extracted from")
 
+parser.add_argument('--update_clock_period', '-ucp', action='store_true', default=False,
+                help="Updates the CLOCK_PERIOD of the design based on the suggested_clock_period parameter")
 
 args = parser.parse_args()
 root = args.root
@@ -46,6 +48,7 @@ std_cell_library = args.std_cell_library
 designs = list(dict.fromkeys(args.designs))
 best_results = args.best_results
 clean = args.clean
+update_clock_period = args.update_clock_period
 
 logFileOpener = open(root+'/regression_results/'+best_results, 'r')
 logFileData = logFileOpener.read().split("\n")
@@ -56,6 +59,7 @@ headerInfo = logFileData[0].split(",")
 configIdx = 0
 designIdx = 0
 runtimeIdx = 0
+clkPeriodIdx = -1
 for i in range(len(headerInfo)):
     if headerInfo[i] == "config":
         configIdx = i
@@ -65,9 +69,13 @@ for i in range(len(headerInfo)):
         continue
     if headerInfo[i] == "runtime":
         runtimeIdx = i
+        continue
+    if headerInfo[i] == "suggested_clock_period":
+        clkPeriodIdx = i
 
 designConfigDict = dict()
 designFailDict = dict()
+designClockDict = dict()
 
 logFileData = logFileData[1:]
 
@@ -76,11 +84,16 @@ for line in logFileData:
         splitLine = line.split(",")
         designConfigDict[str(splitLine[designIdx])] = str(splitLine[configIdx])
         designFailDict[str(splitLine[designIdx])] = str(splitLine[runtimeIdx])
+        if clkPeriodIdx != -1:
+            designClockDict[str(splitLine[designIdx])] = str(splitLine[clkPeriodIdx])
 
 if len(designs) == 0:
     designs = [key for key in designConfigDict]
 
 for design in designs:
+    if design not in designConfigDict.keys():
+        print(design + " Not Found in Sheet. Skipping...")
+
     if designFailDict[design] == '-1':
         print("Skipping " + design + " ...")
         continue
@@ -105,6 +118,10 @@ for design in designs:
 
     configFileToUpdateOpener = open(configFileToUpdate, 'a+')
     configFileToUpdateOpener.write(newData)
+    if update_clock_period:
+        if design in designClockDict and float(designClockDict[design]) > 0:
+            clockLine = "\n# Suggested Clock Period:\n set ::env(CLOCK_PERIOD) \"" + str(round(float(designClockDict[design]),2)) + "\"\n"
+            configFileToUpdateOpener.write(clockLine)
     configFileToUpdateOpener.close()
 
     if clean == True:

@@ -43,9 +43,9 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
-RUN git clone https://github.com/YosysHQ/padring \
+RUN git clone https://github.com/ax3ghazy/padring \
 	&& cd padring \
-        && git checkout e394c434fa4de4fdb86c9da86fa973d62f54c8c2
+        && git checkout a88faf5a4faef75ff241276599fef81c3653cb70
 
 
 WORKDIR padring

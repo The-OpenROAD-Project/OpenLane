@@ -15,17 +15,27 @@
 #The openlane directory root
 OPENLANE_DIR ?= $(shell pwd)
 #Number of threads to use
-THREADS ?= 8
+THREADS ?= $(shell nproc)
 #location of the PDK inside the docker
 PDK_ROOT ?= /pdks
 #location of PDK outside the docker
 PDK_BASE ?= $(shell pwd)/pdks
 #Image name of the docker
-IMAGE_NAME ?= openlane:rc3
+IMAGE_NAME ?= openlane:rc4
 #The benchmark result to compare against 
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 #The regression result tag to use
 REGRESSION_TAG ?= TEST_SW_HD
+#Test design for the test target
+TEST_DESIGN ?= spm
+PRINT_REM_DESIGNS_TIME ?= 0
+
+SKYWATER_COMMIT ?= 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
+OPEN_PDKS_COMMIT ?= 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
+
+ifndef PDK_ROOT
+$(error PDK_ROOT is undefined, please export it before running make)
+endif
 
 .DEFAULT_GOAL := all
 
@@ -37,24 +47,32 @@ skywater-pdk:
 	git submodule update --init pdks/
 
 
+### OPENLANE
+.PHONY: openlane
 openlane:
 	cd $(OPENLANE_DIR) && \
 		cd docker_build && \
-		make merge && \
-		cd ..
+		$(MAKE) merge
 
+.PHONY: regression
 regression:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_BASE):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS)"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
+.PHONY: regression_test
 regression_test:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_BASE):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS)"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
+.PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_BASE):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) bash -c "./flow.tcl -design spm -tag openlane_test -overwrite"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
+	@[[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ]] && \
+		echo "Basic test passed" || \
+		echo "Basic test failed"
 
+.PHONY: clean_runs
 clean_runs:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) bash -c "./clean_runs.tcl"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"

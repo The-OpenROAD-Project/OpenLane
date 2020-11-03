@@ -12,13 +12,13 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 ```
 ## Default Test Set Results:
 
-You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through this sheets:
+You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HD.html)
-- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HS.html)
-- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_MS.html)
-- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_LS.html)
-- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/develop/regression_results/benchmark_results/SW_HDLL.html)
+- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.html)
+- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.html)
+- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.html)
+- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.html)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.html)
 
 **Note**: `-1` under `runtime` implies that the run had failed.
 
@@ -57,6 +57,9 @@ The script can be used in two ways
     These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
     
     - Basic Regression Script:
+    
+        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
+
         ```
         GLB_RT_ADJUSTMENT=(0.1 0.15)
         FP_CORE_UTIL=(40 50)
@@ -110,7 +113,7 @@ The script can be used in two ways
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
 
 ## Output
-- In addition to files produced inside `designs/<design>/runs/config_<tag>_<number>` for each run on a design, three files are produced:
+- In addition to files produced inside `designs/<design>/runs/config_<tag>_<timestamp>` for each run on a design, three files are produced:
     1. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.log` A log file that describes start and stopping time of a given run.
     2. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.csv` A report file that provides a summary of each run. The summary contains some metrics and the configuration of that run
     3. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_best.csv` A report file that selects the best configuration per design based on number of violations
@@ -151,7 +154,7 @@ The script can be used in two ways
             <code>--defaultTestSet | -dts </code> <br> (Boolean)
         </td>
         <td align="justify">
-            Ignores the design flag, and runs the default design test set consisting of all designs under the [../designs/](../designs/) directory. <br> Default: <code> False</code>
+            Ignores the design flag, and runs the default design test set consisting of all designs under the ../designs/ directory. <br> Default: <code> False</code>
         </td>
     </tr>
     <tr>
@@ -261,6 +264,15 @@ The script can be used in two ways
         </td>
         <td align="justify">
             If provided this run will be tested against (compared to) the given benchmark <code>&lt;file&gt;</code>. check the output section above for the details of the reported results.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--print_rem | -p &lt;number&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            If a <code>&lt;number&gt;</code> greater than 0 is provided, a list of the remaining designs will be printed into the terminal every <code>&lt;number&gt;</code> seconds.
         </td>
     </tr>
     <tr>

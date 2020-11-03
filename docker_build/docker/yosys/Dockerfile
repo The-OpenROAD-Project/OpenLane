@@ -62,7 +62,7 @@ RUN yum install -y wget autoconf && \
 # git clone yosys
 RUN git clone https://github.com/YosysHQ/yosys yosys && \
 	cd yosys && \
-	git checkout 347dd01c2f7dff6e8222c5f9d360f84a17c937b5
+	git checkout 84e9fa764803e93c59aff9f10bcc1a5ae2f9f120
 
 #RUN git clone https://github.com/antmicro/yosys yosys &&\
 	#cd yosys &&\

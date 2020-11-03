@@ -35,3 +35,6 @@ set ::env(FP_CORE_UTIL) 20
 
 
 set ::env(PL_TARGET_DENSITY) 0.2
+
+# Suggested Clock Period:
+ set ::env(CLOCK_PERIOD) "18.0"

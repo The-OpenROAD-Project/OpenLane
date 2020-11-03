@@ -27,7 +27,7 @@ try:
 except ImportError:
     from io import StringIO
 parser = argparse.ArgumentParser(
-        description="top module generation for pdk")
+        description="top module generation for a given (core design, pads library) pair")
 
 
 parser.add_argument('--design', '-d', action='store', required=True,

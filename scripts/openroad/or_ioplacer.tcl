@@ -28,12 +28,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ioPlacer::set_hor_metal_layer $::env(FP_IO_HMETAL)
-ioPlacer::set_ver_metal_layer $::env(FP_IO_VMETAL)
-
-puts "\[INFO\]: Vertical Metal Layer: [ioPlacer::get_ver_metal_layer]"
-puts "\[INFO\]: Horizontal Metal Layer: [ioPlacer::get_hor_metal_layer]"
-
 ioPlacer::set_rand_seed 42
 if { $::env(FP_IO_MODE) == 1 } {
 	ioPlacer::set_random_mode 2; # 1 and 3 have different groupings
@@ -49,6 +43,8 @@ ioPlacer::set_ver_length_extend $::env(FP_IO_HEXTEND)
 ioPlacer::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
 ioPlacer::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
 
-ioPlacer::run_io_placement
+place_ios\
+	-hor_layer $::env(FP_IO_HMETAL)\
+	-ver_layer $::env(FP_IO_VMETAL)
 
 write_def $::env(SAVE_DEF)

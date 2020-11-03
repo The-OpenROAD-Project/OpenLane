@@ -7,5 +7,4 @@ outputguide:${tritonRoute_tmp_file_tag}.guide
 outputDRC:${tritonRoute_report_file_tag}.drc
 outputMaze:${tritonRoute_tmp_file_tag}_maze.log
 threads:${ROUTING_CORES}
-optimizationMode:${ROUTING_STRATEGY}
 verbose:1
