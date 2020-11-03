@@ -43,6 +43,7 @@ For more details about the docker container and its process, the [following inst
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
+    git clone https://github.com/efabless/openlane.git
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
