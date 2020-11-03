@@ -66,11 +66,11 @@ To run the regression test, which tests the flow against all available designs u
 
 Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv).
 
-After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
+After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
-The following sections are to give you an understanding of what happens under the hood in the Makefile.
+**DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
 
 # Setting up the PDK: skywater-pdk
 
@@ -139,7 +139,9 @@ To setup openlane you can build the docker container locally following these ins
 
 ### Pulling an Auto-Built Docker Image from Dockerhub
 
-Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags)
+Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
+
+**Note:** Make sure you have an account on dockerhub to execute the following step.
 
 ```bash
     git clone git@github.com:efabless/openlane --branch rc4
