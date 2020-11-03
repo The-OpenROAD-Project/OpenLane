@@ -43,6 +43,7 @@ You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
     git clone https://github.com/efabless/openlane.git --branch rc4
+    cd openlane
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
@@ -145,6 +146,7 @@ Alternatively, you can use the auto-built openlane docker images available throu
 
 ```bash
     git clone git@github.com:efabless/openlane --branch rc4
+    cd openlane
     docker pull efabless/openlane:rc4
 ```
 
