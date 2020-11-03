@@ -208,6 +208,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
+
 	tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
 	tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $sclib
 	write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag)_$index.v"
@@ -225,6 +226,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	-showtmp;
 
     setundef -zero
+
 
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
