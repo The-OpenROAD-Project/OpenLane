@@ -25,8 +25,13 @@ proc init_floorplan {args} {
 		check_floorplan_missing_lef
 
 		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
-		set ::env(CORE_AREA) [read $die_area_file]
+		set core_area_file [open $::env(verilog2def_report_file_tag).core_area.rpt]
+
+		set ::env(DIE_AREA) [read $die_area_file]
+		set ::env(CORE_AREA) [read $core_area_file]
+
 		close $die_area_file
+		close $core_area_file
 
 		set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
 		set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
@@ -202,6 +207,16 @@ proc run_floorplan {args} {
 				place_io_ol -cfg $::env(FP_PIN_ORDER_CFG)
 		} else {
 				place_io
+		}
+
+		if { [info exist ::env(EXTRA_LEFS)] } {
+			global_placement_or
+			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
+				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
+				manual_macro_placement f
+			} else {
+				basic_macro_placement
+			}
 		}
 
 		# tapcell

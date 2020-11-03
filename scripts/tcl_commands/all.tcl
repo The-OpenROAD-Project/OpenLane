@@ -64,6 +64,8 @@ proc prep_lefs {args} {
     try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
+        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
+
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
 
@@ -74,9 +76,6 @@ proc prep_lefs {args} {
     }
 
     set ::env(MERGED_LEF) $::env(CELLS_LEF)
-
-    try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF)
-    try_catch sed -i -E "s/CLASS PAD.*$/CLASS PAD ;/g" $::env(MERGED_LEF_UNPADDED)
 
     widen_site_width
     use_widened_lefs
@@ -288,10 +287,12 @@ proc prep {args} {
 
     set skip_basic_prep 0
 
+    puts_info "Current run directory is $::env(RUN_DIR)"
 
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing exisiting run $::env(RUN_DIR)"
+            puts_warn "Removing exisiting run $::env(RUN_DIR)"
+            after 1000
             file delete -force $::env(RUN_DIR)
         } else {
             puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"
@@ -301,17 +302,31 @@ proc prep {args} {
         }
     }
 
+
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOG_DIR) $::env(REPORTS_DIR)
 
     if { ! $skip_basic_prep } {
         prep_lefs
+
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
         set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
+
         set tracks_copy $::env(TMP_DIR)/tracks_copy.info
         file copy -force $::env(TRACKS_INFO_FILE) $tracks_copy
         set ::env(TRACKS_INFO_FILE) $tracks_copy
+
+        if { $::env(USE_GPIO_PADS) } {
+            if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+                set ::env(VERILOG_FILES_BLACKBOX) ""
+            }
+            if { [info exists ::env(GPIO_PADS_VERILOG)] } {
+                lappend ::env(VERILOG_FILES_BLACKBOX) {*}$::env(GPIO_PADS_VERILOG)
+            } else {
+                puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
+            }
+        }
     }
 
     if { [file exists $::env(GLB_CFG_FILE)] } {
@@ -750,7 +765,9 @@ proc write_verilog {filename args} {
     set options {
         {-def optional}
     }
-    set flags {}
+    set flags {
+        -canonical
+    }
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
@@ -759,7 +776,9 @@ proc write_verilog {filename args} {
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
 
-    yosys_rewrite_verilog $filename
+    if { [info exists flags_map(-canonical)] } {
+        yosys_rewrite_verilog $filename
+    }
 }
 
 proc add_macro_obs {args} {

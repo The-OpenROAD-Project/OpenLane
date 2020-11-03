@@ -67,7 +67,7 @@ proc write_powered_verilog {args} {
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
 }
 
 # "layout": a spice netlist

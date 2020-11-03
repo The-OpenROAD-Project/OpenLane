@@ -37,7 +37,9 @@ configure_cts_characterization\
     -sqr_cap $::env(CTS_SQR_CAP)\
     -sqr_res $::env(CTS_SQR_RES)
 
-puts "\[INFO\]: Performing clock tree synthesis..."
+puts "\[INFO]: Performing clock tree synthesis..."
+puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
+
 clock_tree_synthesis\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\

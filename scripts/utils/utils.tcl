@@ -131,31 +131,32 @@ proc set_log {var val filepath log_flag} {
 
 # a minimal try catch block
 proc try_catch {args} {
-	# puts_info "Executing \"$args\"\n"
-	if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
-	  set timestamp [clock format [clock seconds]]
-	  puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
-	  close $cmd_log_file
-	}
+    # puts_info "Executing \"$args\"\n"
+    if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
+        set timestamp [clock format [clock seconds]]
+        puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
+        close $cmd_log_file
+    }
+    set exit_code [catch {eval exec $args} error_msg]
+    if { $exit_code } {
+        set tool [string range $args 0 [string first " " $args]]
+        set print_error_msg "during executing: \"$args\""
 
-        if { [catch {eval exec $args} error_msg] } {
-		set tool [string range $args 0 [string first " " $args]]
-                set print_error_msg "during executing: \"$args\""
-
-		puts_err "$print_error_msg"
-		puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-		puts_err "Please check ${tool} log file"
+        puts_err "$print_error_msg"
+        puts_err "Exit code: $exit_code"
+        puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+        puts_err "Please check ${tool} log file"
 
 
-		if { ! [catch { set error_log_file [open $::env(RUN_DIR)/error.log a+] } ]} {
-		  puts_err "Dumping to $::env(RUN_DIR)/error.log"
-		  puts $error_log_file "$print_error_msg"
-		  puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-		  close $error_log_file
-		}
-
-		return -code error
+        if { ! [catch { set error_log_file [open $::env(RUN_DIR)/error.log a+] } ]} {
+            puts_err "Dumping to $::env(RUN_DIR)/error.log"
+            puts $error_log_file "$print_error_msg"
+            puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+            close $error_log_file
         }
+
+        return -code error
+    }
 }
 
 proc make_array {pesudo_dict prefix} {

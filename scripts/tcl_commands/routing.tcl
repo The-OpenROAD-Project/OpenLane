@@ -20,7 +20,7 @@ proc global_routing {args} {
     puts_info "Running Global Routing..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(fastroute_tmp_file_tag).def
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log   
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag).log
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set iter 2
         set prevDEF1 $::env(SAVE_DEF)
@@ -33,7 +33,7 @@ proc global_routing {args} {
             try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
-            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log   
+            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(fastroute_log_file_tag)_$iter.log
             set currAntennaVal [exec grep "#Antenna violations:"  $::env(fastroute_log_file_tag)_$iter.log -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
@@ -44,7 +44,7 @@ proc global_routing {args} {
                 set prevAntennaVal $currAntennaVal
                 set iter [expr $iter + 1]
                 set prevDEF1 $prevDEF2
- 	        set prevDEF2 $::env(SAVE_DEF) 
+ 	        set prevDEF2 $::env(SAVE_DEF)
             }
 	    set_def $::env(SAVE_DEF)
         }
@@ -64,7 +64,7 @@ proc detailed_routing {args} {
     if {$::env(RUN_ROUTING_DETAILED)} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-    try_catch TritonRoute14 \
+    try_catch TritonRoute \
     $::env(tritonRoute_tmp_file_tag).param \
     |& tee $::env(TERMINAL_OUTPUT) $::env(tritonRoute_log_file_tag).log
 
@@ -76,29 +76,11 @@ proc detailed_routing {args} {
     set_def $::env(tritonRoute_result_file_tag).def
 }
 
-proc ins_fill_cells {args} {
-    puts_info "Running Fill Insertion..."
-    TIMER::timer_start
-    if {$::env(FILL_INSERTION)} {
-	try_catch sh $::env(SCRIPTS_DIR)/addspacers.sh\
-	    $::env(DECAP_CELL) $::env(MERGED_LEF_UNPADDED) $::env(CURRENT_DEF) $::env(addspacers_tmp_file_tag)_0.def\
-	    |& tee $::env(TERMINAL_OUTPUT) $::env(addspacers_log_file_tag)_0.log
-	set_def $::env(addspacers_tmp_file_tag)_0.def
-
-	try_catch sh $::env(SCRIPTS_DIR)/addspacers.sh\
-	    $::env(FILL_CELL) $::env(MERGED_LEF_UNPADDED) $::env(CURRENT_DEF) $::env(addspacers_tmp_file_tag)_1.def\
-	    |& tee $::env(TERMINAL_OUTPUT) $::env(addspacers_log_file_tag)_1.log
-	set_def $::env(addspacers_tmp_file_tag)_1.def
-    } else {
-	exec echo "SKIPPED!" >> $::env(addspacers_log_file_tag).log
-	try_catch cp $::env(CURRENT_DEF) $::env(addspacers_tmp_file_tag).def
-	set_def $::env(addspacers_tmp_file_tag).def
-    }
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(addspacers_log_file_tag)_runtime.txt
+proc ins_fill_cells_or {args} {
+    handle_deprecated_command ins_fill_cells
 }
 
-proc ins_fill_cells_or {args} {
+proc ins_fill_cells {args} {
     puts_info "Running Fill Insertion..."
     TIMER::timer_start
 
@@ -152,62 +134,6 @@ proc power_routing {args} {
     set_def $arg_values(-output_def)
 }
 
-proc run_routing {args} {
-    puts_info "Routing..."
-
-    # |----------------------------------------------------|
-    # |----------------   5. ROUTING ----------------------|
-    # |----------------------------------------------------|
-    set ::env(CURRENT_STAGE) routing
-    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {       
-	    if { $::env(DIODE_CELL) ne "" } {
-		    ins_diode_cells
-	    }
-    }
-    use_original_lefs
-    
-    global_routing
-
-    # insert fill_cells
-    ins_fill_cells_or
-
-    # for LVS
-    write_verilog $::env(yosys_result_file_tag)_preroute.v
-    set_netlist $::env(yosys_result_file_tag)_preroute.v
-    if { $::env(LEC_ENABLE) } {
-	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-    }
-
-
-    # detailed routing
-    detailed_routing
-    run_spef_extraction
-
-    ## TIMER END
-    set timer_end [clock seconds]
-    set timer_start $::env(timer_start)
-    set datetime $::env(datetime)
-
-    set runtime_s [expr {($timer_end - $timer_start)}]
-    set runtime_h [expr {$runtime_s/3600}]
-
-    set runtime_s [expr {$runtime_s-$runtime_h*3600}]
-    set runtime_m [expr {$runtime_s/60}]
-
-    set runtime_s [expr {$runtime_s-$runtime_m*60}]
-    set routing_status  "Routing completed for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-    puts_info $routing_status
-    set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
-    puts $runtime_log $routing_status
-    close $runtime_log
-
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-	write_powered_verilog
-	set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
-}
-
 proc gen_pdn {args} {
     puts_info "Generating PDN..."
     TIMER::timer_start
@@ -251,8 +177,63 @@ proc run_spef_extraction {args} {
         set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
         run_sta
         set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder    
+        set ::env(opensta_log_file_tag) $log_tag_holder
     }
+}
+proc run_routing {args} {
+    puts_info "Routing..."
+
+    # |----------------------------------------------------|
+    # |----------------   5. ROUTING ----------------------|
+    # |----------------------------------------------------|
+    set ::env(CURRENT_STAGE) routing
+    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {
+	    if { $::env(DIODE_CELL) ne "" } {
+		    ins_diode_cells
+	    }
+    }
+    use_original_lefs
+
+    global_routing
+
+    # insert fill_cells
+    ins_fill_cells
+
+    # for LVS
+    write_verilog $::env(yosys_result_file_tag)_preroute.v
+    set_netlist $::env(yosys_result_file_tag)_preroute.v
+    if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    }
+
+
+    # detailed routing
+    detailed_routing
+    run_spef_extraction
+
+    ## TIMER END
+    set timer_end [clock seconds]
+    set timer_start $::env(timer_start)
+    set datetime $::env(datetime)
+
+    set runtime_s [expr {($timer_end - $timer_start)}]
+    set runtime_h [expr {$runtime_s/3600}]
+
+    set runtime_s [expr {$runtime_s-$runtime_h*3600}]
+    set runtime_m [expr {$runtime_s/60}]
+
+    set runtime_s [expr {$runtime_s-$runtime_m*60}]
+    set routing_status  "Routing completed for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
+    puts_info $routing_status
+    set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
+    puts $runtime_log $routing_status
+    close $runtime_log
+
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+		write_powered_verilog
+		set_netlist $::env(lvs_result_file_tag).powered.v
+    }
+
 }
 
 package provide openlane 0.9
