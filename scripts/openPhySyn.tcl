@@ -28,7 +28,7 @@ import_lef $::env(MERGED_LEF_UNPADDED)
 import_def $::env(CURRENT_DEF)
 read_sdc $::env(BASE_SDC_FILE)
 
-set_wire_rc met1
+set_wire_rc $::env(WIRE_RC_LAYER)
 
 puts "=============== Initial Reports ============="
 report_checks

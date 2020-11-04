@@ -27,7 +27,6 @@ generate_design_config () {
 	
 	echo "$( python $( dirname "${BASH_SOURCE[0]}" )/generate_config.py $output_path/${tag}_ $base_config_file $4)" 
 	
-	#echo "$idx"
 }
 
 generate_design_config $1 $2 $3 $4

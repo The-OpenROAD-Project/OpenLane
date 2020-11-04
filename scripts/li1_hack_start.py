@@ -15,7 +15,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='initiates the li1 hack')
+    description='initiates the li1 hack to prevent routing on li1')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')

@@ -31,22 +31,17 @@ set ::env(DESIGN_NAME) ${design_name}
 # Change if needed
 set ::env(VERILOG_FILES) \[glob $src/*.v\]
 
-
 # Fill this
 set ::env(CLOCK_PERIOD) \"10\"
 set ::env(CLOCK_PORT) \"clk\"
-set ::env(CLOCK_NET) \$::env(CLOCK_PORT)
-
 
 set filename \$::env(DESIGN_DIR)/\$::env(PDK)_\$::env(STD_CELL_LIBRARY)_config.tcl
 if { \[file exists \$filename\] == 1} {
 	source \$filename
 }
-
 "
     set config_file [open $config_path w]
     puts $config_file $config_user
-    #puts $config_file $config_default
     close $config_file
 
     foreach src_file $src_files {

@@ -33,16 +33,16 @@ jobs:
   include:
     - name: "Base Test"
       env: TEST_SET=spm
-    - name: "Fastest Test Set"
-      env: TEST_SET=fastestTestSet
-    - name: "Typical Test Set 1"
-      env: TEST_SET=typicalTestSet1
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
+    - name: "Typical Test Set 1"
+      env: TEST_SET=typicalTestSet1
     - name: "aes_cipher"
       env: TEST_SET=aes_cipher
     - name: "des"
       env: TEST_SET=des
+    - name: "Fastest Test Set"
+      env: TEST_SET=fastestTestSet
     - name: "BM64"
       env: TEST_SET=BM64
     - name: "picorv32a"
@@ -63,7 +63,14 @@ jobs:
       env: TEST_SET=aes_core
     - name: "aes"
       env: TEST_SET=aes
-     
+    - name: "sha512"
+      env: TEST_SET=sha512
+    - name: "genericfir"
+      env: TEST_SET=genericfir
+    - name: "aes128"
+      env: TEST_SET=aes128
+    - name: "aes192"
+      env: TEST_SET=aes192
 
 install:
   - sh travisCI/travisBuild.sh

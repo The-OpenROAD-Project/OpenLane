@@ -15,7 +15,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='Fixes macros in positions specified by a config file')
+    description='Ends the li1 hack to prevent routing on li1')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')

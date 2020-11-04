@@ -26,7 +26,7 @@ Author: Tri Minh Cao
 Email: tricao@utdallas.edu
 Date: August 2016
 """
-from util import *
+from .util import *
 
 class Statement:
     """
@@ -56,6 +56,9 @@ class Statement:
         elif data[0] == "VIA":
             name = data[1]
             new_state = Via(name)
+            return new_state
+        elif data[0] == "UNITS":
+            new_state = Units()
             return new_state
         elif data[0] == "END":
             return 1
@@ -399,7 +402,8 @@ class Layer(Statement):
         elif data[0] == "EDGECAPACITANCE":
             self.edge_cap = float(data[1])
         elif data[0] == "PROPERTY":
-            self.property = (data[1], float(data[2]))
+            if data[1] != "LEF58_TYPE":
+                self.property = (data[1], float(data[2]))
         elif data[0] == "END":
             
             if data[1] == self.name:
@@ -432,3 +436,31 @@ class Via(Statement):
             self.layers.add_polygon(data)
         return 0
 
+
+class Units(Statement):
+    """
+    Class Units represents the UNITS statement in the LEF file.
+    """
+
+    # Note: UNITS statement does not have name
+    def __init__(self):
+        Statement.__init__(self)
+        self.type = "UNITS"
+        self.name = ""
+        self.info = {}
+
+    def __str__(self):
+        s = ""
+        for name, unit in self.info.items:
+            s += name + " " + unit[0] + " " + unit[1] + "\n"
+        return s
+
+    def parse_next(self, data):
+        if data[0] == "END":
+            return 1
+        else:
+            name = data[0]
+            unit = data[1]
+            factor = data[2]
+            self.info[name] = (unit, factor)
+            return 0

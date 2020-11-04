@@ -19,7 +19,7 @@ import argparse
 #for i in range(len(sys.argv)):
 
 parser = argparse.ArgumentParser(
-    description='initiates the li1 hack')
+    description='Replaces fake diodes with real diodes based on the violating cells/pins')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')

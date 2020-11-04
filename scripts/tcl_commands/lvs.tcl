@@ -14,6 +14,7 @@
 
 # WORKS ON VERILOG FILES
 proc verilog_to_verilogPower {args} {
+    puts_info "Adding Power Nets to Verilog..."
     set options {
       {-input required}
       {-output required}
@@ -39,6 +40,7 @@ proc verilog_to_verilogPower {args} {
 
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
+    puts_info "Writing Powered Verilog..."
     set options {
       {-def optional}
       {-output_def optional}
@@ -65,7 +67,7 @@ proc write_powered_verilog {args} {
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
 }
 
 # "layout": a spice netlist
@@ -82,13 +84,6 @@ proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(
 
     puts_info "$layout against $schematic"
 
-    # if { $::env(LVS_INSERT_POWER_PINS) } {
-    # 	verilog_to_verilogPower -input $schematic -output $::env(lvs_result_file_tag).v -lef $::env(MERGED_LEF) \
-    # 		-power $::env(VDD_PIN) -ground $::env(GND_PIN)
-
-    # 	set schematic $::env(lvs_result_file_tag).v
-    # }
-
     try_catch netgen -batch lvs \
       "$layout $module_name" \
       "$schematic $module_name" \
@@ -101,6 +96,6 @@ proc run_lvs {{layout "$::env(magic_result_file_tag).spice"} {schematic "$::env(
 }
 
 proc run_netgen {args} {
-    handle_deprecated_command run_netgen run_lvs {*}$args
+    handle_deprecated_command run_lvs
 }
 package provide openlane 0.9

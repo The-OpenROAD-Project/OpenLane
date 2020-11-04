@@ -83,6 +83,11 @@ parser.add_argument('--reverse', '-rev',
                     required=False,
                     default=[],
                     help='')
+
+parser.add_argument('--bus-sort', '-bsort', action='store_true',
+                    default=False,
+                    help='Sort pins so that bus bits with the same index are grouped'
+                    'together. e.g., a[0] b[0] c[0] a[1] b[1] c[1]')
 # TODO
 # width, length, and extension multipliers
 
@@ -92,6 +97,7 @@ def_file_name = args.input_def
 lef_file_name = args.input_lef
 output_def_file_name = args.output_def
 config_file_name = args.config
+bus_sort_flag = args.bus_sort
 
 h_layer_index = int(args.hor_layer)
 v_layer_index = int(args.ver_layer)
@@ -134,14 +140,22 @@ def atof(text):
 
 def natural_keys(enum):
     text = enum[0]
+    text = re.sub("(\[|\]|\.|\$)", "", text)
     '''
     alist.sort(key=natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
-    (See Toothy's implementation in the comments)
+    (see toothy's implementation in the comments)
     float regex comes from https://stackoverflow.com/a/12643073/190597
     '''
     return [atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text)]
 
+def bus_keys(enum):
+    text = enum[0]
+    m = re.match("^.*\[(\d+)\]$", text)
+    if not m:
+        return -1
+    else:
+        return int(m.group(1))
 
 # read config
 
@@ -162,17 +176,18 @@ if config_file_name is not None and config_file_name != "":
 
             if cur_side is not None and token[0] != "#":
                 pin_placement_cfg[cur_side].append(token)
-            elif token not in ["#N", "#E", "#S", "#W", "#NR", "#ER", "#SR", "#WR"]:
-                print("Valid sides are #N, #E, #S, or #W. Append R for reversing the default order.",
+            elif token not in ["#N", "#E", "#S", "#W", "#NR", "#ER", "#SR", "#WR", "#BUS_SORT"]:
+                print("Valid directives are #N, #E, #S, or #W. Append R for reversing the default order.",
+                      "Use #BUS_SORT to group 'bus bits' by index.",
                       "Please make sure you have set a valid side first before listing pins")
                 sys.exit(1)
+            elif token == "#BUS_SORT":
+                bus_sort_flag = True
             else:
                 if len(token) == 3:
                     token = token[0:2]
                     reverse_arr.append(token)
                 cur_side = token
-
-print(pin_placement_cfg)
 
 # build a list of pins
 
@@ -203,6 +218,8 @@ for bterm in bterms:
 
 # sort them "humanly"
 bterms_enum.sort(key=natural_keys)
+if bus_sort_flag:
+    bterms_enum.sort(key=bus_keys)
 bterms = [bterm[1] for bterm in bterms_enum]
 
 pin_placement = {"#N": [], "#E": [], "#S": [], "#W": []}

@@ -53,11 +53,14 @@ proc run_yosys {args} {
 }
 
 proc run_sta {args} {
+    puts_info "Running Static Timing Analysis..."
     try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
 	|& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log
 }
 
 proc run_synth_exploration {args} {
+    puts_info "Running Synthesis Exploration..."
+
     set ::env(SYNTH_EXPLORE) 1
 
     run_yosys
@@ -68,33 +71,33 @@ proc run_synth_exploration {args} {
 }
 
 proc run_synthesis {args} {
-    puts "\[INFO\]: Running Synthesis..."
+    puts_info "Running Synthesis..."
     # in-place insertion
     run_yosys
 
     run_sta
 
     if {$::env(RUN_SIMPLE_CTS)} {
-	simple_cts \
-	    -verilog $::env(yosys_result_file_tag).v \
-	    -fanout $::env(CLOCK_BUFFER_FANOUT) \
-	    -clk_net $::env(CLOCK_NET) \
-	    -root_clk_buf $::env(ROOT_CLK_BUFFER) \
-	    -clk_buf $::env(CLK_BUFFER) \
-	    -clk_buf_input $::env(CLK_BUFFER_INPUT) \
-	    -clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
-	    -cell_clk_port $::env(CELL_CLK_PORT) \
-	    -output $::env(yosys_result_file_tag).v
+		if { ! [info exists ::env(CLOCK_NET)] } {
+			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
+		}
+		simple_cts \
+			-verilog $::env(yosys_result_file_tag).v \
+			-fanout $::env(CLOCK_BUFFER_FANOUT) \
+			-clk_net $::env(CLOCK_NET) \
+			-root_clk_buf $::env(ROOT_CLK_BUFFER) \
+			-clk_buf $::env(CLK_BUFFER) \
+			-clk_buf_input $::env(CLK_BUFFER_INPUT) \
+			-clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
+			-cell_clk_port $::env(CELL_CLK_PORT) \
+			-output $::env(yosys_result_file_tag).v
     }
-    #        verilog_to_verilogPower -input $::env(yosys_result_file_tag).v -output $::env(yosys_tmp_file_tag).v -power $::env(VDD_PIN) -ground $::env(GND_PIN) -lef $::env(MERGED_LEF)
-    #	exec cp $::env(yosys_tmp_file_tag).v $::env(yosys_result_file_tag).v
-
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
 	check_assign_statements
     }
 
-    if { $::env(CHECK_LATCHES_IN_DESIGN) == 1 } {
+    if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
 	check_synthesis_failure
     }
 }

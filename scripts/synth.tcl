@@ -199,13 +199,15 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	    -liberty $sclib  \
 	    -script $scripts($index)
 
+	setundef -zero
+
 	hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-	setundef -zero
 	# get rid of the assignments that make verilog2def fail
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+
 
 	tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
 	tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $sclib
@@ -223,9 +225,11 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	-script $scripts($strategy) \
 	-showtmp;
 
+    setundef -zero
+
+
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-    setundef -zero
     # get rid of the assignments that make verilog2def fail
     splitnets
     opt_clean -purge

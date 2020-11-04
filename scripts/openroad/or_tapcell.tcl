@@ -23,11 +23,11 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 tapcell\
-    -halo_width_x 5\
-    -halo_width_y 5\
     -endcap_cpp "1"\
     -distance $::env(FP_TAPCELL_DIST)\
     -tapcell_master "$::env(FP_WELLTAP_CELL)"\
-    -endcap_master "$::env(FP_ENDCAP_CELL)"
+    -endcap_master "$::env(FP_ENDCAP_CELL)"\
+    -halo_width_x $::env(FP_HORIZONTAL_HALO)\
+    -halo_width_y $::env(FP_VERTICAL_HALO)
 
 write_def $::env(SAVE_DEF)

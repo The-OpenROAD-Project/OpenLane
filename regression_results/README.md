@@ -57,6 +57,9 @@ The script can be used in two ways
     These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
     
     - Basic Regression Script:
+    
+        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
+
         ```
         GLB_RT_ADJUSTMENT=(0.1 0.15)
         FP_CORE_UTIL=(40 50)
@@ -261,6 +264,15 @@ The script can be used in two ways
         </td>
         <td align="justify">
             If provided this run will be tested against (compared to) the given benchmark <code>&lt;file&gt;</code>. check the output section above for the details of the reported results.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>--print_rem | -p &lt;number&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            If a <code>&lt;number&gt;</code> greater than 0 is provided, a list of the remaining designs will be printed into the terminal every <code>&lt;number&gt;</code> seconds.
         </td>
     </tr>
     <tr>

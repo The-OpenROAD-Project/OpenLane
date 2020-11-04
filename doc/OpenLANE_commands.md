@@ -127,12 +127,10 @@ Most of the following commands' implementation exists in this [file][3]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `init_floorplan_or` | | Runs floorplanning on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
-| `init_floorplan` | | Runs floorplanning on the processed design using verilog2def. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_io` | | Runs io placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_contextualized_io` | | contextualizes io placement on a given macro (the processed design) with the context of the higher macro that contains it. This allows the io pins to be placed in location closer to what they will be connected with on the bigger macro. The resuls are saved under `/<run_path>/tmp/floorplan/` . |
 |    | `-lef <lef_file>` | LEF file needed to have a proper view of the top-level DEF |
 |    | `-def <def_file>` | DEF view of the top-level design where the macro is instantiated.       |
-| `tap_decap` | | Runs tap/decap placement on the design processed using the tapcell app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `tap_decap_or` | | Runs tap/decap placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `chip_floorplan` | | Runs floorplanning on a chip removing pins section and other empty sections from the def. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `run_floorplan` | | Runs `init_floorplan_or`, `place_io`, and `tap_decap_or` on the processed design. The resulting files are under `/<run_path>/tmp/floorplan/` . |
@@ -202,7 +200,6 @@ Most of the following commands' implementation exists in this [file][8]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `global_routing_or` | | Runs global routing  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `global_routing` | | Runs global routing on the processed design using FastRoute. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute. The resulting file is under `/<run_path>/results/routing/` . |
 | `run_routing` | | Runs global routing, fill insertion, diode insertion, detailed routing, and SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist and a powered netlist using yosys and stores the results under `/<run_path>/results/synthesis` and `/<run_path>/results/lvs` respectively, and it runs yosys logic verification if enabled.|
 
@@ -237,6 +234,8 @@ Most of the following commands' implementation exists in these files: [deflef][1
  
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
+| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. | 
+|    | `[-output_file <output_file_path>]` | The ouput file path. <br> Defaults to being generated under `<run_path>/reports/`. |
 | `remove_pins` | | Removes the pins' section from a given DEF file. |
 |    | `-input <def_file>` | The input DEF file. |
 | `remove_empty_nets` | | Removes the empty nets from a given DEF file. |

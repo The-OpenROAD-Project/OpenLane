@@ -18,9 +18,8 @@
 
 `include "digital_pll_controller.v"
 `include "ring_osc2x13.v"
-`include "cells.v"
 
-module digital_pll_sky130_fd_sc_hd(reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco, ext_trim);
+module digital_pll (reset, extclk_sel, osc, clockc, clockp, clockd, div, sel, dco, ext_trim);
 
     input	reset;		// Sense positive reset
     input	extclk_sel;	// External clock select (acts as 2nd reset)
@@ -83,31 +82,31 @@ module digital_pll_sky130_fd_sc_hd(reset, extclk_sel, osc, clockc, clockp, clock
 	.CLK(clockp[1]),
 	.D(clockd[0]),
 	.Q(nint[0]),
-	.QN(clockd[0]),
-	.RESETB(resetb)
+	.Q_N(clockd[0]),
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv4 (
 	.CLK(clockd[0]),
 	.D(clockd[1]),
 	.Q(nint[1]),
-	.QN(clockd[1]),
-	.RESETB(resetb)
+	.Q_N(clockd[1]),
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv8 (
 	.CLK(clockd[1]),
 	.D(clockd[2]),
 	.Q(nint[2]),
-	.QN(clockd[2]),
-	.RESETB(resetb)
+	.Q_N(clockd[2]),
+	.RESET_B(resetb)
     );
 
     sky130_fd_sc_hd__dfrbp_1 idiv16 (
 	.CLK(clockd[2]),
 	.D(clockd[3]),
 	.Q(nint[3]),
-	.QN(clockd[3]),
-	.RESETB(resetb)
+	.Q_N(clockd[3]),
+	.RESET_B(resetb)
     );
 endmodule

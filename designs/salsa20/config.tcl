@@ -3,7 +3,7 @@ set ::env(DESIGN_NAME) "salsa20"
 set ::env(VERILOG_FILES) "./designs/salsa20/src/salsa20.v"
 set ::env(SDC_FILE) "./designs/salsa20/src/salsa20.sdc"
 
-set ::env(CLOCK_PERIOD) "8.0"
+set ::env(CLOCK_PERIOD) "18.0"
 set ::env(CLOCK_PORT) "clk"
 
 set ::env(GLB_RT_MINLAYER) 1

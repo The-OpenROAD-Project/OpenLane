@@ -1,0 +1,3 @@
+# Settings to improve linguist data reporting (used by GitHub) (copied from Tim Ansell: https://github.com/SymbiFlow/symbiflow-examples/commit/70b13fe74a56dd5ebfa2060c2473050dfff1a0c6#diff-fc723d30b02a4cca7a534518111c1a66)
+*.v                     linguist-language=Verilog
+*.vh                    linguist-language=Verilog

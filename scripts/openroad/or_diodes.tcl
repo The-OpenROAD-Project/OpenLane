@@ -42,12 +42,12 @@ proc add_antenna_cell { iterm } {
 	set iterm_inst [$iterm getInst]
 	set iterm_inst_name [$iterm_inst getName]
 	set iterm_pin_name [[$iterm getMTerm] getConstName]
-
-
-	set inst_loc [$iterm_inst getLocation]
-	set inst_loc_x [lindex [$iterm_inst getLocation] 0]
-	set inst_loc_y [lindex [$iterm_inst getLocation] 1]
 	set inst_ori [$iterm_inst getOrient]
+
+	foreach {success avg_iterm_x avg_iterm_y} [$iterm getAvgXY] {}
+	if { ! $success } {
+		foreach {avg_iterm_x avg_iterm_y} [$iterm_inst getLocation] {}
+	}
 
 	set antenna_inst_name ${::PREFIX}_${iterm_inst_name}_${iterm_pin_name}
 	# create a 2-node "subnet" for the antenna (for easy removal) -> doesn't work
@@ -55,13 +55,11 @@ proc add_antenna_cell { iterm } {
 	set antenna_inst [odb::dbInst_create $::block $antenna_master $antenna_inst_name]
 	set antenna_iterm [$antenna_inst findITerm $::antenna_pin_name]
 
-	$antenna_inst setLocation $inst_loc_x $inst_loc_y
+	$antenna_inst setLocation $avg_iterm_x $avg_iterm_y
 	$antenna_inst setOrient $inst_ori
 	$antenna_inst setPlacementStatus PLACED
 	odb::dbITerm_connect $antenna_iterm $iterm_net
-	# odb::dbITerm_connect $iterm $antenna_subnet
-	# odb::dbITerm_connect $iterm $iterm_net
-	#
+
 	if { $::VERBOSE } {
 		puts "\[INFO\]: Adding $antenna_inst_name on subnet $antenna_subnet for cell $iterm_inst_name pin $iterm_pin_name"
 	}
@@ -84,7 +82,6 @@ foreach net $::nets {
 	}
 }
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
-# set_placement_padding -global -left $::env(DIODE_PADDING)
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement

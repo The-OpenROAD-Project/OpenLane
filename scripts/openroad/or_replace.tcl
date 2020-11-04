@@ -22,9 +22,27 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-# global_placement \
-# 	-density $::env(PL_TARGET_DENSITY) \
-# 	-verbose 3
+
+set ::block [[[::ord::get_db] getChip] getBlock]
+set ::insts [$::block getInsts]
+
+set free_insts_flag 0
+
+foreach inst $::insts {
+	set placement_status [$inst getPlacementStatus]
+	if { $placement_status != "FIRM" } {
+		set free_insts_flag 1
+		break
+	}
+}
+
+if { ! $free_insts_flag } {
+	puts "\[WARN] All instances are FIXED"
+	puts "\[WARN] No need to use replace"
+	puts "\[WARN] Skipping..."
+	file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
+	exit 0
+}
 
 set_replace_verbose_level_cmd 1
 
@@ -32,7 +50,10 @@ set_replace_density_cmd $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
 	set_replace_overflow_cmd 0.9
+	set_replace_init_density_penalty_factor_cmd 0.0001
 	set_replace_initial_place_max_iter_cmd 20
+	set_replace_bin_grid_cnt_x_cmd 64
+	set_replace_bin_grid_cnt_y_cmd 64
 }
 
 if { $::env(PL_TIME_DRIVEN) } {
@@ -56,9 +77,6 @@ if { !$::env(PL_ROUTABILITY_DRIVEN) } {
 	set_replace_routability_max_inflation_iter_cmd 10
 }
 
-# set_replace_init_density_penalty_factor_cmd 0.001
-
-# set_replace_pad_right_cmd 1
 if { !$::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_BASIC_PLACEMENT) } {
     replace_initial_place_cmd
 }
@@ -68,3 +86,21 @@ replace_nesterov_place_cmd
 replace_reset_cmd
 
 write_def $::env(SAVE_DEF)
+
+if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
+
+    read_liberty -max $::env(LIB_SLOWEST)
+    read_liberty -min $::env(LIB_FASTEST)
+    read_sdc -echo $::env(BASE_SDC_FILE)
+
+	set_wire_rc -layer $::env(WIRE_RC_LAYER)
+	estimate_parasitics -placement
+
+	report_checks -unique -slack_max -0.0 -group_count 100 > $::env(replaceio_report_file_tag).timing.rpt
+    report_checks -path_delay min_max > $::env(replaceio_report_file_tag).min_max.rpt
+    report_checks -group_count 100  -slack_max -0.01 > $::env(replaceio_report_file_tag).rpt
+
+    report_wns > $::env(replaceio_report_file_tag)_wns.rpt
+    report_tns > $::env(replaceio_report_file_tag)_tns.rpt
+
+}

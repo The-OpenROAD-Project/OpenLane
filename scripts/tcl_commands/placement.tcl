@@ -13,24 +13,10 @@
 # limitations under the License.
 
 proc global_placement {args} {
+    puts_info "Running Global Placement..."
     TIMER::timer_start
-    #for {set i 0} {$i < $::env(PL_IO_ITER)} {incr i} {
     try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
 
-    #try_catch mv $::env(replaceio_tmp_file_tag)_io.def $::env(replaceio_tmp_file_tag)_io_$i.def
-
-    #try_catch ioPlacer \
-    -l $::env(MERGED_LEF) \
-	-d $::env(replaceio_tmp_file_tag)_place.def \
-	-h $::env(FP_IO_HMETAL) \
-	-v $::env(FP_IO_VMETAL) \
-	-r $::env(FP_IO_RANDOM) \
-	\
-	-o $::env(replaceio_tmp_file_tag)_io.def \
-	|& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
-
-    #try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag)_place_$i.def
-    #}
     try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -38,15 +24,18 @@ proc global_placement {args} {
 }
 
 proc global_placement_or {args} {
+    puts_info "Running Global Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
-	puts_err "Failure in global placement"
-	return -code error
+        puts_err "Failure in global placement"
+        return -code error
     }
+
+    check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -54,6 +43,7 @@ proc global_placement_or {args} {
 }
 
 proc detailed_placement {args} {
+    puts_info "Running Detailed Placement..."
     TIMER::timer_start
     try_catch opendp \
 	-lef $::env(MERGED_LEF) \
@@ -62,11 +52,6 @@ proc detailed_placement {args} {
 	|& tee $::env(TERMINAL_OUTPUT) $::env(opendp_log_file_tag).log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(opendp_log_file_tag)_runtime.txt
-    #	if {[catch {exec grep -q "FAIL" $::env(opendp_log_file_tag).log}] == 0}  {
-    #		puts "Error: Check $::env(opendp_log_file_tag).log"
-    #		puts stderr "\[ERROR\]: Check $::env(opendp_log_file_tag).log"
-    #		exit 1
-    #	}
     set_def $::env(opendp_result_file_tag).def
 }
 
@@ -76,21 +61,22 @@ proc add_macro_placement {args} {
     if { [llength $args] == 4 } {
 	set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placements.cfg
+    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
     puts_info " Manual Macro Placement..."
     set var "f"
     if { [string compare [lindex $args 0] $var] == 0 } {
-	try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement -c $::env(TMP_DIR)/macro_placements.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     } else {
-	try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement -c $::env(TMP_DIR)/macro_placements.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
-    }	
-    file rename -force $::env(CURRENT_DEF).macro_placement $::env(CURRENT_DEF)
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+    }
+    set_def $::env(CURRENT_DEF).macro_placement.def
 }
 
 proc detailed_placement_or {args} {
+    puts_info "Running Detailed Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
 
@@ -120,10 +106,14 @@ proc detailed_placement_or {args} {
 }
 
 proc basic_macro_placement {args} {
+    puts_info "Running Basic Macro Placement"
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+    set ::env(SAVE_DEF) $::env(CURRENT_DEF).macro_placement.def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/basic_mp.log
+
+    check_macro_placer_num_solns
+
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(LOG_DIR)/placement/basic_mp_runtime.txt
@@ -131,7 +121,7 @@ proc basic_macro_placement {args} {
 }
 
 proc run_placement {args} {
-	puts "\[INFO\]: Running Placement..."
+	puts_info "Running Placement..."
 # |----------------------------------------------------|
 # |----------------   3. PLACEMENT   ------------------|
 # |----------------------------------------------------|
@@ -144,17 +134,19 @@ proc run_placement {args} {
 	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
 	    run_openPhySyn
     }
-    
+
 	detailed_placement
 }
 
 proc repair_wire_length {args} {
-        set ::env(SAVE_DEF) $::env(CURRENT_DEF)
-        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
-		set_def $::env(SAVE_DEF)
+    puts_info "Repairing Wire Length By Inserting Buffers..."
+    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+    set_def $::env(SAVE_DEF)
 }
 
 proc run_openPhySyn {args} {
+    puts_info "Running OpenPhySyn Timing Optimization..."
     TIMER::timer_start
     set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
     trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
@@ -163,7 +155,6 @@ proc run_openPhySyn {args} {
     try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
 	set_def $::env(SAVE_DEF)
 
-    # Use SLOWEST/FASTEST libs and Netlist to generate sta report
     write_verilog $::env(yosys_result_file_tag)_optimized.v
     set_netlist $::env(yosys_result_file_tag)_optimized.v
     set report_tag_holder $::env(opensta_report_file_tag)
@@ -173,10 +164,10 @@ proc run_openPhySyn {args} {
     run_sta
     set ::env(opensta_report_file_tag) $report_tag_holder
     set ::env(opensta_log_file_tag) $log_tag_holder
-    
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
-    
+
 }
 
 package provide openlane 0.9

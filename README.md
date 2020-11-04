@@ -21,7 +21,6 @@
     - [OpenLANE Output](#openlane-output)
     - [Flow configuration](#flow-configuration)
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
-- [Chip Integration](#chip-integration)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane)
 
@@ -43,6 +42,8 @@ For more details about the docker container and its process, the [following inst
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
+    git clone https://github.com/efabless/openlane.git --branch rc4
+    cd openlane
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
@@ -66,11 +67,11 @@ To run the regression test, which tests the flow against all available designs u
 
 Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv).
 
-After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details. 
+After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
-The following sections are to give you an understanding of what happens under the hood in the Makefile.
+**DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
 
 # Setting up the PDK: skywater-pdk
 
@@ -131,7 +132,7 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc3
+    git clone git@github.com:efabless/openlane --branch rc4
     cd openlane/docker_build
     make merge
     cd ..
@@ -139,11 +140,14 @@ To setup openlane you can build the docker container locally following these ins
 
 ### Pulling an Auto-Built Docker Image from Dockerhub
 
-Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags)
+Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
+
+**Note:** Make sure you have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc3
-    docker pull efabless/openlane:rc3
+    git clone git@github.com:efabless/openlane --branch rc4
+    cd openlane
+    docker pull efabless/openlane:rc4
 ```
 
 ## Running OpenLANE
@@ -153,14 +157,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc3
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc3
+    export IMAGE_NAME=efabless/openlane:rc4
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
@@ -461,11 +465,6 @@ For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
-# Chip Integration
-
-Using openlane, you can produce a GDSII from a chip RTL. This is done by applying a certain methodology that we follow using our custom scripts and the integrated tools.
-
-To learn more about Chip Integration. Check this [file][26]
 
 
 [1]: ./docker_build/README.md
@@ -473,17 +472,17 @@ To learn more about Chip Integration. Check this [file][26]
 [3]: ./doc/flow.png
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/init_fp
-[6]: https://github.com/The-OpenROAD-Project/ioPlacer/
+[6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/ioPlacer
 [7]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/tapcell
 [8]: https://github.com/The-OpenROAD-Project/OpenSTA
-[9]: https://github.com/The-OpenROAD-Project/RePlAce
+[9]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/replace
 [10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
 [11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS
-[12]: https://github.com/The-OpenROAD-Project/FastRoute/tree/openroad
+[12]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/FastRoute
 [13]: https://github.com/The-OpenROAD-Project/TritonRoute
 [14]: https://github.com/RTimothyEdwards/magic
 [15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/resizer
-[16]: https://github.com/The-OpenROAD-Project/pdn/
+[16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/pdngen
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
