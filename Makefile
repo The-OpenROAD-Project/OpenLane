@@ -17,7 +17,7 @@ OPENLANE_DIR ?= $(shell pwd)
 # Number of threads to use
 THREADS ?= $(shell nproc)
 # Location of the PDK inside the docker
-PDK_ROOT ?= /pdks
+PDK_ROOT ?= /tmp/pdks
 # Location of PDK outside the docker
 PDK_BASE ?= $(shell pwd)/pdks
 # Image name of the docker

@@ -96,7 +96,7 @@ Refer to [this][24] for more details on the structure.
 **Note:** To use the pdk mag files outside of the openlane docker, you need to create a symbolic link:
 ```bash
     export PDK_BASE==<absolute path to ./pdks>
-    ln -s $PDK_BASE /pdks
+    ln -s $PDK_BASE /tmp/pdks
 ```
 
 # Setting up OpenLANE
@@ -132,7 +132,7 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/pdks -e PDK_ROOT=/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/tmp/pdks -e PDK_ROOT=/tmp/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc4
 ```
 
 ### Running the Pulled Auto-Built Docker Image
@@ -140,7 +140,7 @@ If you pulled the docker image from dockerhub instead of building it locally, th
 
 ```bash
     export IMAGE_NAME=efabless/openlane:rc4
-    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/pdks -e PDK_ROOT=/pdks -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/tmp/pdks -e PDK_ROOT=/tmp/pdks -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
 **Note: this will mount the openlane directory inside the container.**

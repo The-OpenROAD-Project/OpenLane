@@ -14,7 +14,7 @@
 
 # default pdk
 if {![info exists ::env(PDK_ROOT)]} {
-	set ::env(PDK_ROOT) "/pdks"
+	set ::env(PDK_ROOT) "/tmp/pdks"
 }
 set ::env(PDK) "sky130A"
 set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
