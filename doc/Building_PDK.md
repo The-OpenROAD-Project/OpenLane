@@ -7,8 +7,8 @@
     - To setup one standard cell library only
 
     ```bash
-        export PDK_BASE=<absolute path to where skywater-pdk and open_pdks will reside>
-        cd  $PDK_BASE
+        export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+        cd  $PDK_ROOT
         git clone https://github.com/google/skywater-pdk.git
         cd skywater-pdk
         git checkout bd7b0f6a274a4cec839023a5b94b5b216a8d9231
@@ -25,11 +25,11 @@
 - Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
 
     ```bash
-        cd $PDK_BASE
+        cd $PDK_ROOT
 	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
         git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
-        ./configure --with-sky130-source=$PDK_BASE/skywater-pdk/libraries --with-sky130-local-path=$PDK_BASE
+        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
 		make install-local
@@ -46,7 +46,7 @@ Alternatively you can use [this repo](https://github.com/efabless/sky130A-prebui
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_BASE:$PDK_BASE -e PDK_ROOT=$PDK_BASE -u $(id -u $USER):$(id -g $USER) openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4
 ```
 
 ## Running the Pulled Auto-Built Docker Image
@@ -54,6 +54,6 @@ If you pulled the docker image from dockerhub instead of building it locally, th
 
 ```bash
     export IMAGE_NAME=efabless/openlane:rc4
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_BASE:$PDK_BASE -e PDK_ROOT=$PDK_BASE -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
