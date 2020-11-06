@@ -32,15 +32,73 @@ TEST_DESIGN ?= spm
 # During the regression run
 PRINT_REM_DESIGNS_TIME ?= 0
 
+# Manual PDK setup vars:
+STD_CELL_LIBRARY ?= sky130_fd_sc_hd
+SKYWATER_COMMIT ?= 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
+OPEN_PDKS_COMMIT ?= 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
+
 .DEFAULT_GOAL := all
 
 .PHONY: all
 
 all: pdk openlane
 
-### PDK
+### prebuilt PDK
+.PHONY: pdk
 pdk: 
 	git submodule update --init pdks/
+
+### Manual PDK
+.PHONY: manaul-pdk
+manaul-pdk: skywater-pdk skywater-library open_pdks build-pdk
+
+$(PDK_ROOT)/skywater-pdk:
+	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
+
+.PHONY: skywater-pdk
+skywater-pdk: $(PDK_ROOT)/skywater-pdk
+	cd $(PDK_ROOT)/skywater-pdk && \
+		git checkout -qf $(SKYWATER_COMMIT)
+
+.PHONY: skywater-library
+skywater-library: $(PDK_ROOT)/skywater-pdk
+	cd $(PDK_ROOT)/skywater-pdk && \
+		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
+		$(MAKE) -j$(THREADS) $(STD_CELL_LIBRARY)
+
+.PHONY: all-skywater-libraries
+all-skywater-libraries: skywater-pdk
+	cd $(PDK_ROOT)/skywater-pdk && \
+		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
+		git submodule update --init libraries/sky130_fd_sc_hs/latest && \
+		git submodule update --init libraries/sky130_fd_sc_hdll/latest && \
+		git submodule update --init libraries/sky130_fd_sc_ms/latest && \
+		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
+		$(MAKE) -j$(THREADS) timing
+
+### OPEN_PDKS
+$(PDK_ROOT)/open_pdks:
+	git clone https://github.com/RTimothyEdwards/open_pdks.git $(PDK_ROOT)/open_pdks
+
+.PHONY: open_pdks
+open_pdks: $(PDK_ROOT)/open_pdks
+	cd $(PDK_ROOT)/open_pdks && \
+		git checkout -qf $(OPEN_PDKS_COMMIT)
+
+.PHONY: build-pdk
+build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
+	[[ -d $(PDK_ROOT)/sky130A ]] && \
+		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
+		sleep 5 && \
+		rm -rf $(PDK_ROOT)/sky130A) || \
+		true
+	cd $(PDK_ROOT)/open_pdks && \
+		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		cd sky130 && \
+		$(MAKE) veryclean && \
+		$(MAKE) && \
+		$(MAKE) install-local && \
+		$(shell export PDK_BASE=${PDK_ROOT}) 
 
 ### OPENLANE
 .PHONY: openlane

@@ -95,8 +95,8 @@ Refer to [this][24] for more details on the structure.
 
 **Note:** To use the pdk mag files outside of the openlane docker, you need to create a symbolic link:
 ```bash
-    export PDK_BASE==$(pwd)/pdks
-    ln -s $PDK_BASE /tmp/pdks
+    ln -s $(pwd)/pdks /tmp/pdks
+    export PDK_ROOT=/tmp/pdks
 ```
 
 # Setting up OpenLANE

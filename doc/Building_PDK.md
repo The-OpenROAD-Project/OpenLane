@@ -1,6 +1,14 @@
 # Prerequisites:
  - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
 
+# Quick-start:
+
+To build the PDK using the OpenLANE Makefile, run:
+```bash
+    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    make manual-pdk
+```
+
 # Manually Setting up the PDK: skywater-pdk
 
 - Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
