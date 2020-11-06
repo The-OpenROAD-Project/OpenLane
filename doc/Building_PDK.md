@@ -1,6 +1,9 @@
 # Prerequisites:
  - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
 
+**NOTE**
+> You can avoid using the magic prerequisite, by using the openlane docker to build the pdk. Check this [script](../travisCI/travisBuildOld.sh) as a sample.
+
 # Quick-start:
 
 To build the PDK using the OpenLANE Makefile, run:
