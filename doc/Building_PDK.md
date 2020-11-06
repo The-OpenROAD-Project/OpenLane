@@ -9,6 +9,16 @@ To build the PDK using the OpenLANE Makefile, run:
     make manual-pdk
 ```
 
+If you haven't built the openlane docker, run:
+```bash
+    make openlane
+```
+To test a successful make process, run:
+```bash
+    export PDK_BASE=$PDK_ROOT
+    make test
+```
+
 # Manually Setting up the PDK: skywater-pdk
 
 - Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:

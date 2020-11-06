@@ -52,6 +52,8 @@ You can start setting up the skywater-pdk and openlane by running:
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
+To build a single standard cell library of skywater-pdk refer to [this][29]
+
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
 To run the regression test, which tests the flow against all available designs under [./designs/](./designs/) vs the the benchmark results, run the following command:

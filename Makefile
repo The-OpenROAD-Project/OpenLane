@@ -49,8 +49,8 @@ pdk:
 	git submodule update --init pdks/
 
 ### Manual PDK
-.PHONY: manaul-pdk
-manaul-pdk: skywater-pdk skywater-library open_pdks build-pdk
+.PHONY: manual-pdk
+manual-pdk: skywater-pdk skywater-library open_pdks build-pdk
 
 $(PDK_ROOT)/skywater-pdk:
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
@@ -98,7 +98,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		$(MAKE) veryclean && \
 		$(MAKE) && \
 		$(MAKE) install-local && \
-		$(shell export PDK_BASE=${PDK_ROOT}) 
+		export PDK_BASE=$(PDK_ROOT) 
 
 ### OPENLANE
 .PHONY: openlane
