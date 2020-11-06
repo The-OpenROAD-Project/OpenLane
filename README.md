@@ -13,7 +13,7 @@
 - [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Building the OpenLANE Docker](#building-the-openlane-docker)
-    - [Running OpenLANE](#running-openlane)
+    - [Running OpenLANE](#running-openlane-with-the-pre-built-pdk)
     - [Command line arguments](#command-line-arguments)
     - [Adding a design](#adding-a-design)
 - [OpenLANE Architecture](#openlane-architecture)
@@ -40,14 +40,14 @@ Join the community on [slack](https://invite.skywater.tools)!
 git lfs install
 ```
 
-For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
-
 # Quick Start:
 
 You can start setting up the skywater-pdk and openlane by running:
 
 **WARNING:** This will expand to ~7GB for the skywater-pdk.
 ```bash
+    git clone https://github.com/efabless/openlane.git --branch rc4
+    cd openlane/
     make
     make test # This is to test that the flow and the pdk were properly installed
 ```
@@ -95,7 +95,7 @@ Refer to [this][24] for more details on the structure.
 
 **Note:** To use the pdk mag files outside of the openlane docker, you need to create a symbolic link:
 ```bash
-    export PDK_BASE==<absolute path to ./pdks>
+    export PDK_BASE==$(pwd)/pdks
     ln -s $PDK_BASE /tmp/pdks
 ```
 
@@ -108,11 +108,13 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc4
+    git clone https://github.com/efabless/openlane.git --branch rc4
     cd openlane/docker_build
     make merge
     cd ..
 ```
+
+For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
 ### Pulling an Auto-Built Docker Image from Dockerhub
 
@@ -121,11 +123,13 @@ Alternatively, you can use the auto-built openlane docker images available throu
 **Note:** Make sure you have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc4
+    git clone https://github.com/efabless/openlane.git --branch rc4
     docker pull efabless/openlane:rc4
 ```
 
-## Running OpenLANE
+## Running OpenLANE with the Pre-Built PDK:
+
+**NOTE:** To run OpenLANE with a manully built PDK, follow the instructions [here][29].
 
 ### Running the Locally Built Docker Image
 

@@ -3,13 +3,13 @@
 
 # Manually Setting up the PDK: skywater-pdk
 
-- Clone and build at least one skywater-pdk standard cell Library inside the pdks directory:
+- Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
     - To setup one standard cell library only
 
     ```bash
         export PDK_BASE=<absolute path to where skywater-pdk and open_pdks will reside>
         cd  $PDK_BASE
-        git clone git@github.com:google/skywater-pdk.git
+        git clone https://github.com/google/skywater-pdk.git
         cd skywater-pdk
         git checkout bd7b0f6a274a4cec839023a5b94b5b216a8d9231
         git submodule update --init libraries/sky130_fd_sc_hd/latest
@@ -26,7 +26,7 @@
 
     ```bash
         cd $PDK_BASE
-	    git clone git@github.com:RTimothyEdwards/open_pdks.git
+	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
         git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
         ./configure --with-sky130-source=$PDK_BASE/skywater-pdk/libraries --with-sky130-local-path=$PDK_BASE
@@ -35,13 +35,25 @@
 		make install-local
     ```
 
-- Create a symbolic link to be accessible by the docker:
-
-    ```bash
-        ln -s $PDK_BASE /pdks
-    ```
-
 **Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
 
-
 Alternatively you can use [this repo](https://github.com/efabless/sky130A-prebuilt) and use the instructions there to reproduce the PDK on the same or a different commit/version.
+
+# Running OpenLANE with the Manually Built PDK
+
+## Running the Locally Built Docker Image
+
+Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
+
+```bash
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_BASE:$PDK_BASE -e PDK_ROOT=$PDK_BASE -u $(id -u $USER):$(id -g $USER) openlane:rc4
+```
+
+## Running the Pulled Auto-Built Docker Image
+If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
+
+```bash
+    export IMAGE_NAME=efabless/openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_BASE:$PDK_BASE -e PDK_ROOT=$PDK_BASE -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+```
+
