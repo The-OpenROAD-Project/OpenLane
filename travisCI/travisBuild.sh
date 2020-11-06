@@ -21,7 +21,7 @@ make openlane
 make skywater-pdk
 make skywater-library
 make open_pdks
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4  bash -c "make build-pdk"
+docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5  bash -c "make build-pdk"
 echo "done installing"
 cd $RUN_ROOT
 exit 0
