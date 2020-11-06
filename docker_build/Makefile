@@ -1,7 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm 
 DOCKERFILE_PATH ?= ./Dockerfile
-IMAGE_NAME ?= openlane:rc4
+IMAGE_NAME ?= openlane:rc5
 #ROOT = sudo
 
 TOOLS = replace opendp route opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn

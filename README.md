@@ -46,7 +46,7 @@ You can start setting up the skywater-pdk and openlane by running:
 
 **WARNING:** This will expand to ~7GB for the skywater-pdk.
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc4
+    git clone https://github.com/efabless/openlane.git --branch rc5
     cd openlane/
     make
     make test # This is to test that the flow and the pdk were properly installed
@@ -110,7 +110,7 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc4
+    git clone https://github.com/efabless/openlane.git --branch rc5
     cd openlane/docker_build
     make merge
     cd ..
@@ -125,8 +125,8 @@ Alternatively, you can use the auto-built openlane docker images available throu
 **Note:** Make sure you have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc4
-    docker pull efabless/openlane:rc4
+    git clone https://github.com/efabless/openlane.git --branch rc5
+    docker pull efabless/openlane:rc5
 ```
 
 ## Running OpenLANE with the Pre-Built PDK:
@@ -138,14 +138,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/tmp/pdks -e PDK_ROOT=/tmp/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/tmp/pdks -e PDK_ROOT=/tmp/pdks -u $(id -u $USER):$(id -g $USER) openlane:rc5
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc4
+    export IMAGE_NAME=efabless/openlane:rc5
     docker run -it -v $(pwd):/openLANE_flow -v $(pwd)/pdks:/tmp/pdks -e PDK_ROOT=/tmp/pdks -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 

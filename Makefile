@@ -21,7 +21,7 @@ PDK_ROOT ?= /tmp/pdks
 # Location of PDK outside the docker
 PDK_BASE ?= $(shell pwd)/pdks
 # Image name of the docker
-IMAGE_NAME ?= openlane:rc4
+IMAGE_NAME ?= openlane:rc5
 # The benchmark result to compare against 
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 # The regression result tag to use
@@ -87,7 +87,7 @@ open_pdks: $(PDK_ROOT)/open_pdks
 
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[[ -d $(PDK_ROOT)/sky130A ]] && \
+	[ -d $(PDK_ROOT)/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
 		sleep 5 && \
 		rm -rf $(PDK_ROOT)/sky130A) || \
@@ -97,8 +97,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local && \
-		export PDK_BASE=$(PDK_ROOT) 
+		$(MAKE) install-local
 
 ### OPENLANE
 .PHONY: openlane
@@ -121,7 +120,7 @@ regression_test:
 test:
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_BASE):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
-	@[[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ]] && \
+	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
 

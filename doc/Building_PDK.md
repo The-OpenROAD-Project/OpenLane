@@ -67,14 +67,14 @@ Alternatively you can use [this repo](https://github.com/efabless/sky130A-prebui
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5
 ```
 
 ## Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc4
+    export IMAGE_NAME=efabless/openlane:rc5
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
