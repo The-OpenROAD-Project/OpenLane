@@ -44,6 +44,9 @@ jobs:
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
 
+before_install:
+  - sh travisCI/travisAutoMerge.sh
+
 install:
   - sh travisCI/travisBuild.sh
 
