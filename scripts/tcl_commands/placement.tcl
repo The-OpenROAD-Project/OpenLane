@@ -42,6 +42,20 @@ proc global_placement_or {args} {
     set_def $::env(SAVE_DEF)
 }
 
+proc random_global_placement {args} {
+    puts_warn "Performing Random Global Placement..."
+    TIMER::timer_start
+    set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
+
+    try_catch python3 $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
+        --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
+        |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
+    set_def $::env(SAVE_DEF)
+}
+
 proc detailed_placement {args} {
     puts_info "Running Detailed Placement..."
     TIMER::timer_start
@@ -127,7 +141,13 @@ proc run_placement {args} {
 # |----------------------------------------------------|
 	set ::env(CURRENT_STAGE) placement
 
-	global_placement_or
+    if { $::env(PL_RANDOM_GLB_PLACEMENT) } {
+        # useful for very tiny designs
+        random_global_placement
+    } else {
+        global_placement_or
+    }
+
     if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
