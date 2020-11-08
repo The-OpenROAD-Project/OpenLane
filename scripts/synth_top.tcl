@@ -59,4 +59,4 @@ splitnets
 opt_clean -purge
 tee -o "$::env(yosys_report_file_tag)_$chk_ext" check
 tee -o "$::env(yosys_report_file_tag)$stat_ext" stat -top $vtop -liberty $sclib
-write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"

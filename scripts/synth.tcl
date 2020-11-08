@@ -25,10 +25,10 @@ set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
 
 if { [info exists ::env(SYNTH_DEFINES) ] } {
-    foreach define $::env(SYNTH_DEFINES) {
-	puts "Defining $define"
-	verilog_defines -D$define
-    }
+	foreach define $::env(SYNTH_DEFINES) {
+		puts "Defining $define"
+		verilog_defines -D$define
+	}
 }
 
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
@@ -37,9 +37,9 @@ if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
 
 
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-    foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-	read_verilog -lib $verilog_file
-    }
+	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+		read_verilog -sv -lib $verilog_file
+	}
 }
 
 
@@ -160,7 +160,7 @@ if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
 }
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-    read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+    read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 hierarchy -check -top $vtop
@@ -209,7 +209,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
 	tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $sclib
+	tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
 	write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag)_$index.v"
 	#tee -o "$vtop-finl.stat" stat
 	design -reset
@@ -234,20 +234,20 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
     tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $sclib
-    write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
     design -reset
     read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
     file copy -force $::env(SAVE_NETLIST) $::env(yosys_tmp_file_tag)_unflat.v
-    read_verilog $::env(SAVE_NETLIST)
+    read_verilog -sv $::env(SAVE_NETLIST)
     synth -top $vtop -flatten
     splitnets
     opt_clean -purge
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
     write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
     tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $sclib
+    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
 }
