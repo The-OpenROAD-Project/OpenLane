@@ -37,10 +37,15 @@ proc run_yosys {args} {
 	set ::env(SAVE_NETLIST) $::env(yosys_result_file_tag).v
     }
 
-    try_catch [get_yosys_bin] \
-	-c $::env(SYNTH_SCRIPT) \
-	-l $::env(yosys_log_file_tag).log \
-	|& tee $::env(TERMINAL_OUTPUT)
+	if { [file exists $::env(SAVE_NETLIST)] } {
+		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
+		puts_warn "Skipping synthesis"
+	} else {
+		try_catch [get_yosys_bin] \
+			-c $::env(SYNTH_SCRIPT) \
+			-l $::env(yosys_log_file_tag).log \
+			|& tee $::env(TERMINAL_OUTPUT)
+	}
 
     set_netlist $::env(SAVE_NETLIST)
     if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
