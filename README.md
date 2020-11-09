@@ -82,7 +82,7 @@ After running you'll find a directory added under [./regression_results/](./regr
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
+        git checkout c06bef0d55e68b621dce4fa5ef31de43e0c4200a
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         make sky130_fd_sc_hd
     ```
@@ -99,7 +99,7 @@ After running you'll find a directory added under [./regression_results/](./regr
         cd $PDK_ROOT
 	    git clone git@github.com:RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
+        git checkout 6cdeb7a2c5a90339512ee2f08948a8a5895626b8
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
