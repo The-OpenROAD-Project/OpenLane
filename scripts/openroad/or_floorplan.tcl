@@ -14,7 +14,7 @@
 
 read_liberty $::env(LIB_SYNTH_COMPLETE)
 
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
