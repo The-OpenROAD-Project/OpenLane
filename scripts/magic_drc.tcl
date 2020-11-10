@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lef read $::env(TECH_LEF)
-#load $::env(magic_result_file_tag).mag
-if {  [info exist ::env(EXTRA_LEFS)] } {
-	set lefs_in $::env(EXTRA_LEFS)
-	foreach lef_file $lefs_in {
-		lef read $lef_file
+if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
+	gds read $::env(CURRENT_GDS)
+} else {
+	lef read $::env(TECH_LEF)
+	#load $::env(magic_result_file_tag).mag
+	if {  [info exist ::env(EXTRA_LEFS)] } {
+		set lefs_in $::env(EXTRA_LEFS)
+		foreach lef_file $lefs_in {
+			lef read $lef_file
+		}
 	}
+	def read $::env(CURRENT_DEF)
 }
-def read $::env(CURRENT_DEF)
 
 set fout [open $::env(magic_log_file_tag).drc w]
 set oscale [cif scale out]
