@@ -43,6 +43,10 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
   read_verilog  [lindex $::env(VERILOG_FILES) $i]
 }
 
+select -module $vtop
+show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+select -clear
+
 hierarchy -check -top $vtop
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
