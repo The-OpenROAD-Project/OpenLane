@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if { [info exist ::env(MAGIC_DRC_GDS)] && $::env(MAGIC_DRC_GDS) } {
+if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 	gds read $::env(CURRENT_GDS)
 } else {
 	lef read $::env(TECH_LEF)
