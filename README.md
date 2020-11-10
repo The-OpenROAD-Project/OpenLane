@@ -465,6 +465,7 @@ For more information on design configurations, how to update them, and the need 
 
 # Chip Integration
 
+The first step of chip integration is hardening the macros. To learn more about this check this [file](29)
 Using openlane, you can produce a GDSII from a chip RTL. This is done by applying a certain methodology that we follow using our custom scripts and the integrated tools.
 
 To learn more about Chip Integration. Check this [file][26]
