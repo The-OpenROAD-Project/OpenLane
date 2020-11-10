@@ -155,7 +155,7 @@ proc run_placement {args} {
 	    run_openPhySyn
     }
 
-	detailed_placement
+	detailed_placement_or
 }
 
 proc repair_wire_length {args} {
