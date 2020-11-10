@@ -82,9 +82,10 @@ After running you'll find a directory added under [./regression_results/](./regr
         cd  $PDK_ROOT
         git clone git@github.com:google/skywater-pdk.git
         cd skywater-pdk
-        git checkout c06bef0d55e68b621dce4fa5ef31de43e0c4200a
+        git checkout 1ce480d61120895462adc03df617d39de7a0f76e
         git submodule update --init libraries/sky130_fd_sc_hd/latest
-        make sky130_fd_sc_hd
+        git submodule update --init libraries/sky130_fd_io/latest
+        make timing
     ```
     - To setup other SCLs:
         - replace sky130_fd_sc_hd with any of the following list:
