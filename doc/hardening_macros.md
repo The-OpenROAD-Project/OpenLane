@@ -169,9 +169,25 @@ set ::env(FP_PDN_CORE_RING) 1
 
 ## Diode Insertion
 
+Here, you have four options to choose from and they are controlled by setting `DIODE_INSERTION_STRATEGY` to one of the following values: (0, 1, 2, 3)
+
+0. No diode insertion is done.
+
+1. A diode is inserted for each PIN and connected to it.
+
+2. A fake diode is inserted for each PIN and connected to it, then after an antenna check is run and the fake diodes are replaced with real ones if the pin is violated.
+
+3. Rely on OpenROAD:FastRoute antenna avoidance flow to insert the diodes during global routing by using the Antenna Rule Checker and fixing violations. You can execute this iteratively by setting `GLB_RT_MAX_DIODE_INS_ITERS`, it is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
+
+You can read more about those configurations [here][0].
+
 ## Routing
 
-## Final Reports and Summaries
+The configurations here were optimized based on a large design set and are best left as is, however the advanced user could refer to [this documentation][0] to learn more about each used configuration and how to change it.
+
+You are advised to change `ROUTING_CORES` based on your CPU capacity to specify the number of threads that TritonRoute can run with to perform Detailed Routing in the least runtime possible.
+
+## Final Reports and Checks
 
 
 [0]: ./../configuration/README.md
