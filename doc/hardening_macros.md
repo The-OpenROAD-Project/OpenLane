@@ -4,7 +4,7 @@ Using openlane, you can produce a GDSII from an RTL for macros, and then use the
 
 In this document we will go through the hardening steps and discuss in some detail what considerations should be made when hardening your macro.
 
-**NOTE:** For all the configurations mentioned in this documentation and any other openlane documentation, you can use the exploration script `run_designs.py` to find the optimal value for each configuration. Read more [here][6]. 
+**NOTE:** For all the configurations mentioned in this documentation and any other openlane documentation, you can use the exploration script `run_designs.py` to find the optimal value for each configuration. Read more [here][6].
 
 ## Base Requirements:
 
@@ -29,7 +29,7 @@ These configurations should get you through the flow with the all other configur
 
 The first decision in synthesis is determining the optimal synthesis strategy `::env(SYNTH_STRATEGY)` for your design. For that purpose there is a flag in the `flow.tcl` script, `-synth_explore` that runs a synthesis strategy exploration and reports the results in a table under `<run_path>/reports/`.
 
-Then you need to consider the best values for the `SYNTH_MAX_FANOUT`. 
+Then you need to consider the best values for the `SYNTH_MAX_FANOUT`.
 
 If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1`.
 
@@ -39,11 +39,11 @@ Other configurations like `SYNTH_SIZING`, `SYNTH_BUFFERING`, and other synthesis
 
 Static Timing Analysis happens multiple times during the flow. However, they all use the same base.sdc file. You can control the outcome of the static timing analysis by setting those values:
 
-1. The clock ports in the design, explained in the base requirements section `CLOCK_PORT`. 
+1. The clock ports in the design, explained in the base requirements section `CLOCK_PORT`.
 
 2. The clock period that you prefer the design to run with. This could be set using `::env(CLOCK_PERIOD)` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/final_summary_report.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
 
-3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0]. 
+3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
 
 Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here][0].
 
@@ -59,7 +59,55 @@ You can read more about how to control these variables [here][0].
 
 ## IO Placement
 
+For IO placement, you currently have 3 options:
+
+1. Manually setting the direction of each pin using a configuration file such as [this one][7]. Then you need to set `::env(FP_PIN_ORDER_CFG)` to point to that file.
+
+2. Using contextualized pin placement, which will automatically optimize the placement of the pins based on their context in the larger design that includes them. This relevant for macros since they will be included inside a core, and also relevant for the core since it will be part of a bigger chip. For this to happen, you need to point to the LEF and DEF of the container/parent design using these two variables: `FP_CONTEXT_DEF` and `FP_CONTEXT_LEF`. Note that currently this script can only handle the existance of a single instance of that macro.
+
+3. To let the tool randomly assign IOs using the random equidistant mode. This is the default way.
+
+The options are prioritized based on the order mentioned above. This means that if you set a value for `FP_PIN_ORDER_CFG`, the manual placement will be used regardless of the values of the other configurations.
+
+You can read more about those configurations [here][0].
+
 ## Placement
+
+Placement is done in three steps: Global Placement, Optimizations, and Detailed Placement.
+
+### Global Placement:
+
+For Global Placement, the most important value would be `PL_TARGET_DENSITY` which should be easy to set.
+
+- If your design is not a tiny design, then `PL_TARGET_DENSITY` should have a value that is `FP_CORE_UTIL` + 1~5%. Note that `FP_CORE_UTIL` has a value from 0 to 100, while `PL_TARGET_DENSITY` has a value from 0 to 1.0.
+
+- If your design is a tiny design, then `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5).
+
+Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here][0].
+
+### Optimizations:
+
+For this step we rely on Resizer and OpenPhySyn.
+
+#### Resizer optimizations:
+
+The only optimization we use from resizer is the wire length optimization which is used to reduce the antenna violations. This is disabled by default since the diode insertion strategies should cover that purpose.
+
+However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then determine the maximum wire length by setting this value `MAX_WIRE_LENGTH`.
+
+#### OpenPhySyn optimizations:
+
+The timing OpenPhySyn optimizations are enabled by default and you can control that using this flag `PL_OPENPHYSYN_OPTIMIZATIONS`.
+
+You can also control resizing and pin swapping using these flags: `PSN_ENABLE_RESIZING` and `PSN_ENABLE_PIN_SWAP`
+
+You can read more about those configurations [here][0].
+
+### Detailed Placement:
+
+The only value to consider here is the `CELL_PAD` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is.
+
+You can read more about that [here][0].
 
 ## Clock Tree Synthesis
 
@@ -78,8 +126,8 @@ If your macro contains other macros inside it. Then make sure to check the `macr
 ```tcl
 pdngen::specify_grid macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
-    power_pins "vpwr vpb"
-    ground_pins "vgnd vnb"
+    power_pins "vpwr"
+    ground_pins "vgnd"
     straps {
 	    met1 {width 0.74 pitch 3.56 offset 0}
 	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
@@ -88,7 +136,7 @@ pdngen::specify_grid macro {
 }
 ```
 
-**WARNING:** only use met1 and met4 for and rails straps.
+**WARNING:** only use met1 and met4 for rails and straps.
 
 Refer to [this][3] for more details about the syntax in case you needed to create your own `pdn.tcl` and then point to it using `::env(PDN_CFG)`.
 
@@ -100,6 +148,8 @@ If your design is a core, then check the power routing section in the [chip inte
 set ::env(DESIGN_IS_CORE) 1
 set ::env(FP_PDN_CORE_RING) 1
 ```
+
+## Diode Insertion
 
 ## Routing
 
@@ -113,3 +163,4 @@ set ::env(FP_PDN_CORE_RING) 1
 [4]: ./chip_integration.md
 [5]: ./../designs/README.md
 [6]: ./../regression_results/README.md5
+[7]: ./../designs/spm/pin_order.cfg
