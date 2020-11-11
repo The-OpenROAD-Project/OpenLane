@@ -1,3 +1,4 @@
+# SCL Configs
 set ::env(SYNTH_STRATEGY) 2
 set ::env(GLB_RT_ADJUSTMENT) 0.05
 set ::env(FP_CORE_UTIL) 20
