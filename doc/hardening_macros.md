@@ -47,6 +47,18 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here][0].
 
+Static Timing Analysis are done after:
+
+1. Synthesis using the verilog netlist.
+
+2. Placement using OpenROAD's estimate_parasitics.
+
+3. Timing optimizations using the verilog netlist.
+
+4. Global Routing using OpenROAD's estimate_parasitics.
+
+5. Detailed Routing using SPEF extraction and the verilog netlist.
+
 ## Floorplan
 
 During Floor plan, you have one of two options:
@@ -99,7 +111,7 @@ However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then 
 
 The timing OpenPhySyn optimizations are enabled by default and you can control that using this flag `PL_OPENPHYSYN_OPTIMIZATIONS`.
 
-You can also control resizing and pin swapping using these flags: `PSN_ENABLE_RESIZING` and `PSN_ENABLE_PIN_SWAP`
+You can also control resizing and pin swapping using these flags: `PSN_ENABLE_RESIZING` and `PSN_ENABLE_PIN_SWAP`.
 
 You can read more about those configurations [here][0].
 
@@ -110,6 +122,12 @@ The only value to consider here is the `CELL_PAD` which is usually selected for 
 You can read more about that [here][0].
 
 ## Clock Tree Synthesis
+
+Most of the values for clock tree synthesis are (PDK, STD_CELL_LIBRARY) specific and you can read more about those [here][8].
+
+You can disable it by setting `CLOCK_TREE_SYNTH` to `0`.
+
+If you don't want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 
 ## Power Grid (pdn)
 
@@ -159,8 +177,9 @@ set ::env(FP_PDN_CORE_RING) 1
 [0]: ./../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/openroad/src/pdngen/doc/PDN.md
+[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
 [4]: ./chip_integration.md
 [5]: ./../designs/README.md
 [6]: ./../regression_results/README.md5
 [7]: ./../designs/spm/pin_order.cfg
+[8]: ./PDK_STRUCTURE.md
