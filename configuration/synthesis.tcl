@@ -24,6 +24,6 @@ set ::env(CLOCK_BUFFER_FANOUT) 16
 set ::env(SYNTH_READ_BLACKBOX_LIB) 0
 set ::env(SYNTH_TOP_LEVEL) 0
 set ::env(SYNTH_FLAT_TOP) 0
-
+set ::env(IO_PCT) 0.2
 
 set ::env(BASE_SDC_FILE) $::env(OPENLANE_ROOT)/scripts/base.sdc
