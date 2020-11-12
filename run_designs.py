@@ -297,17 +297,19 @@ que = queue.Queue()
 total_runs = 0
 if regression is not None:
     regression_file = os.path.join(os.getcwd(), regression)
-    print(regression_file)
     number_of_configs=0
     for design in designs:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
-            print("{design} not found, skipping...".format(design=design))
+            log.error("{design} not found, skipping...".format(design=design))
             if print_rem_time is not None:
                 if design in rem_designs.keys():
                         rem_designs.pop(design)
             continue
         design_name= utils.get_design_name(design, config)
+        if design_name.startswith("[INVALID]:"):
+            log.error('{design} will not Run, {reason}'.format(design=design, reason=design_name))
+            continue
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -337,13 +339,16 @@ else:
     for design in designs:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
-            print("{design} not found, skipping...".format(design=design))
+            log.error("{design} not found, skipping...".format(design=design))
             if print_rem_time is not None:
                 if design in rem_designs.keys():
                         rem_designs.pop(design)
             continue
         default_config_tag = "config_{tag}".format(tag=tag)
         design_name= utils.get_design_name(design, config)
+        if design_name.startswith("[INVALID]:"):
+            log.error('{design} Will not Run, {reason}'.format(design=design, reason=design_name))
+            continue
         que.put((design, config, default_config_tag,design_name))
 
 
