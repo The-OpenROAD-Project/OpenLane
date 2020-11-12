@@ -10,6 +10,7 @@
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Updating OpenLANE](#updating-openlane)
 - [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Building the OpenLANE Docker](#building-the-openlane-docker)
@@ -74,6 +75,22 @@ Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efables
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
+
+# Updating OpenLANE
+
+If you already have the repo locally, then no need to re-clone it. You can directly run the following:
+
+```bash
+    cd openlane/
+    git checkout master
+    git pull
+    git checkout rc5
+    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    make
+    make test # This is to test that the flow and the pdk were properly installed
+```
+
+This should install the latest openlane docker, and re-install the pdk for the latest used version. If you want to only update the openlane docker check this [section](#building-the-openlane-docker) after updating the repo.
 
 **DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
 
