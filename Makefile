@@ -16,7 +16,7 @@ OPENLANE_DIR ?= $(shell pwd)
 THREADS ?= $(shell nproc)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 
-IMAGE_NAME ?= openlane:rc5
+IMAGE_NAME ?= efabless/openlane:develop-cvc
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -94,12 +94,12 @@ openlane:
 .PHONY: regression
 regression:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: regression_test
 regression_test:
 	cd $(OPENLANE_DIR) && \
-		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: test
 test:
