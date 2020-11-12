@@ -59,6 +59,10 @@ Static Timing Analysis are done after:
 
 5. Detailed Routing using SPEF extraction and the verilog netlist.
 
+For SPEF extraction, you can control the wire model and the edge capacitance factor through these variables `SPEF_WIRE_MODEL` and `SPEF_EDGE_CAP_FACTOR`.
+
+More about that [here][0].
+
 ## Floorplan
 
 During Floor plan, you have one of two options:
@@ -189,6 +193,21 @@ You are advised to change `ROUTING_CORES` based on your CPU capacity to specify 
 
 ## Final Reports and Checks
 
+Finally, the flow ends with physical verification. This begins by streaming out the GDS followed by running DRC, LVS, and Antenna checks on the design. Then, it produced a final summary reports in csv format to summaries all the reports.
+
+You can control whether the magic DRC should be done on GDS-II or on LEF/DEF abstract views. We recommend using GDS-II on macros while using LEF/DEF on the chip level. This should speed up the run process and still give as accurate as possible results. This is controlled by `MAGIC_DRC_USE_GDS`.
+
+You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `USE_ARC_ANTENNA_CHECK`.
+
+You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
+
+A final summary report is produced by default as `<run-path>/reports/final_summary_report.csv`.
+
+The final GDS-II should be found under `<run-path>/results/magic/`.
+
+To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
+
+If you want to create further tweaks in the flow that the abundant configurations doesn't allow, make sure to check [this][2] for more details about the interactive mode of the OpenLANE flow.
 
 [0]: ./../configuration/README.md
 [1]: ./OpenLANE_commands.md
