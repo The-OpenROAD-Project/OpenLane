@@ -69,6 +69,11 @@ def convert_vio_to_int(val):
         val = 2**31 # Explode
     return val
 
+def convert_vio_to_string(val):
+    if val == 2**31:
+        val = -1
+    return str(val)
+
 def convert_vios_to_int(results_vector):
     # change violations to int
     for i in range(len(results_vector)):
@@ -171,10 +176,10 @@ def get_best_violation(results_vector):
         wirelength = row[wire_length_idx]
         via = row[via_idx]
         row.append((int(wirelength) + int(via)))
-        row[tr_violations_idx] = str(row[tr_violations_idx])
-        row[lvs_errors_idx] = str(row[lvs_errors_idx])
-        row[magic_violations_idx] = str(row[magic_violations_idx])
-        row[antenna_violations_idx] = str(row[antenna_violations_idx])
+        row[tr_violations_idx] = convert_vio_to_string(row[tr_violations_idx])
+        row[lvs_errors_idx] = convert_vio_to_string(row[lvs_errors_idx])
+        row[magic_violations_idx] = convert_vio_to_string(row[magic_violations_idx])
+        row[antenna_violations_idx] = convert_vio_to_string(row[antenna_violations_idx])
         close_subset[i] = row
 
 
