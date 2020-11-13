@@ -97,7 +97,7 @@ For Global Placement, the most important value would be `PL_TARGET_DENSITY` whic
 
 - If your design is not a tiny design, then `PL_TARGET_DENSITY` should have a value that is `FP_CORE_UTIL` + 1~5%. Note that `FP_CORE_UTIL` has a value from 0 to 100, while `PL_TARGET_DENSITY` has a value from 0 to 1.0.
 
-- If your design is a tiny design, then `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5).
+- If your design is a tiny design, then set `PL_RANDOM_GLB_PLACEMENT` to `1`. You may need to also set `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5).
 
 Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here][0].
 
