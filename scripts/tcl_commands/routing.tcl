@@ -74,6 +74,11 @@ proc detailed_routing {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(tritonRoute_log_file_tag)_runtime.txt
     set_def $::env(tritonRoute_result_file_tag).def
+
+	try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
+		-i $::env(tritonRoute_report_file_tag).drc \
+		-o $::env(tritonRoute_report_file_tag).klayout.xml \
+		--design-name $::env(DESIGN_NAME)
 }
 
 proc ins_fill_cells_or {args} {
