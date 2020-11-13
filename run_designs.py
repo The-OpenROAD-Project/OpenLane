@@ -254,25 +254,27 @@ def run_design(designs_queue):
 
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
-                        if 'all' in tarList:
-                                tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
-                                        run_path=run_path,
-                                        design_name=design_name,
-                                        tag=tag
-                                )
-                                subprocess.check_output(tarAll_cmd.split())
-                        else:
-                                tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
-                                for dirc in tarList:
-                                        tarString+=  " {run_path}"+dirc
-                                tar_cmd = tarString.format(
-                                        run_path=run_path,
-                                        design_name=design_name,
-                                        tag=tag
-                                )
-                                subprocess.check_output(tar_cmd.split())
-                        log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
-
+                        try:
+                                if 'all' in tarList:
+                                        tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
+                                                run_path=run_path,
+                                                design_name=design_name,
+                                                tag=tag
+                                        )
+                                        subprocess.check_output(tarAll_cmd.split())
+                                else:
+                                        tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
+                                        for dirc in tarList:
+                                                tarString+=  " {run_path}"+dirc
+                                        tar_cmd = tarString.format(
+                                                run_path=run_path,
+                                                design_name=design_name,
+                                                tag=tag
+                                        )
+                                        subprocess.check_output(tar_cmd.split())
+                                log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
+                        except subprocess.CalledProcessError as e:
+                                log.info('{design} {tag} Compressing Run Directory Failed'.format(design=design, tag=tag))
                 if args.delete:
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
                         deleteDirectory = "rm -rf {run_path}".format(
