@@ -391,8 +391,6 @@ proc prep {args} {
         set ::env(${key}_tmp_file_tag) $value
     }
 
-
-
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
@@ -403,6 +401,9 @@ proc prep {args} {
             $::env(TMP_DIR)/$stage  \
             $::env(LOG_DIR)/$stage \
             $::env(REPORTS_DIR)/$stage
+
+        file link -symbolic $::env(TMP_DIR)/$stage/merged.lef ../../tmp/merged.lef
+        file link -symbolic $::env(RESULTS_DIR)/$stage/merged.lef ../../tmp/merged.lef
     }
 
     # Fill config file
