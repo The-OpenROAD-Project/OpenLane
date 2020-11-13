@@ -8,3 +8,10 @@ set ::env(FP_ASPECT_RATIO) 1
 set ::env(GLB_RT_ADJUSTMENT) 0.1
 set ::env(CLOCK_PERIOD) "12.71"
 set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
+# Regression
+set ::env(FP_CORE_UTIL) 35
+set ::env(CELL_PAD) 6
+
+# Extra
+set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
+
