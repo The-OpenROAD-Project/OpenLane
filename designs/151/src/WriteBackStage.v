@@ -23,7 +23,7 @@ module WriteBackStage #(
   localparam HALF_WORD_SIGN_BITS = `CPU_DATA_BITS - 16;
 
 
-  wire [31:0] byte =
+  wire [31:0] byteX =
     (s3_rdata & (32'hFF << (byte_select * 8))) >> (byte_select * 8);
   wire [31:0] half_word =
     (s3_rdata & (32'hFFFF << (byte_select * 8))) >> (byte_select * 8);
@@ -33,9 +33,9 @@ module WriteBackStage #(
       `S3_RDATA_SEL_PASSTHROUGH:
         s3_rdata_out = s3_rdata;
       `S3_RDATA_SEL_LOW_BYTE:
-        s3_rdata_out = {{BYTE_SIGN_BITS{1'b0}}, byte[7:0]};
+        s3_rdata_out = {{BYTE_SIGN_BITS{1'b0}}, byteX[7:0]};
       `S3_RDATA_SEL_LOW_BYTE_SIGNED:
-        s3_rdata_out = {{BYTE_SIGN_BITS{byte[7]}}, byte[7:0]};
+        s3_rdata_out = {{BYTE_SIGN_BITS{byteX[7]}}, byteX[7:0]};
       `S3_RDATA_SEL_LOW_HALF_WORD:
         s3_rdata_out = {{HALF_WORD_SIGN_BITS{1'b0}}, half_word[15:0]};
       `S3_RDATA_SEL_LOW_HALF_WORD_SIGNED: 
