@@ -16,8 +16,14 @@ set ::env(RUN_SIMPLE_CTS) 0
 set ::env(SYNTH_BUFFERING) 0
 set ::env(SYNTH_SIZING) 0
 
-set ::env(RUN_MAGIC) 1
-set filename $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
+
+set ::env(SYNTH_MAX_FANOUT) 6
+set ::env(FP_CORE_UTIL) 50
+set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
+set ::env(CLOCK_PERIOD) "15.8"
+set ::env(CELL_PAD) 4
+
+set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
 }
