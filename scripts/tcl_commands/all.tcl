@@ -360,6 +360,7 @@ proc prep {args} {
         {magic magic/magic}
         {cts cts/cts}
         {lvs lvs/lvs}
+        {cvc cvc/cvc}
     }
 
     set final_output \
@@ -371,6 +372,7 @@ proc prep {args} {
         [list cts cts/$::env(DESIGN_NAME).cts] \
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
+        [list cvc cvc/$::env(DESIGN_NAME)] \
         ]
 
     array set results_file_name [make_array $final_output $::env(RESULTS_DIR)/]
@@ -396,7 +398,7 @@ proc prep {args} {
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
-    set stages {synthesis floorplan placement cts routing magic lvs}
+    set stages {synthesis floorplan placement cts routing magic lvs cvc}
     foreach stage $stages {
         file mkdir\
             $::env(RESULTS_DIR)/$stage \

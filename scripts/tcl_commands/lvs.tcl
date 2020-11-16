@@ -99,3 +99,50 @@ proc run_netgen {args} {
     handle_deprecated_command run_lvs
 }
 package provide openlane 0.9
+
+proc run_lef_cvc {args} {
+    puts_info "CVC"
+
+    set cvc_power_awk "\
+BEGIN {  # Print power and standard_input definitions
+    print \"VPWR power 1.8\";
+    print \"VGND power 0.0\";
+    print \"#define std_input min@VGND max@VPWR\";
+}
+\$1 == \"input\" {  # Print input nets
+    gsub(/;/, \"\"); 
+    if ( \$2 == \"VPWR\" || \$2 == \"VGND\" ) {  # ignore power nets
+        next;
+    }
+    if ( NF == 3 ) {  # print buses as net\[range\]
+        \$2 = \$3 \$2;
+    }
+    print \$2, \"input std_input\";
+}"
+
+    set cvc_cdl_awk "\
+/Black-box entry subcircuit/ {  # remove black-box defintions
+    while ( \$1 != \".ends\" ) {
+        getline;
+    }
+    getline;
+}
+/^\\\*/ {  # remove comments
+    next;
+}
+/^.ENDS .*/ {  # remove name from ends lines
+    print \$1;
+    next;
+}
+ {
+    print \$0;
+}"
+
+    # Create power file
+    exec awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+    # Create cdl file by combining cdl library with lef spice
+    exec awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
+        > $::env(cvc_result_file_tag).cdl
+    exec cvc $::env(SCRIPTS_DIR)/cvcrc.sky130 \
+        |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_result_file_tag)_screen.log
+}
