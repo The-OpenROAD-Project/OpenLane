@@ -22,12 +22,12 @@ make skywater-pdk
 
 # The following section is for running on the CI.
 # If you're running locally you should replace them with: `make skywater-library`
-# This is because sometimes while setting up the conda env it fails to fetch something
-# Then it exists without retrying. So, here we're retrying here, and if it something is wrong it will timeout.
+# This is because sometimes while setting up the conda env (skywater's make timing) it fails to fetch something
+# Then it exits without retrying. So, here we're retrying, and if something goes wrong it will exit after 5 retries.
 # Section Begin
 cnt=0
 until make skywater-library; do
-cnt=$cnt+1
+cnt=$((cnt+1))
 if [ $cnt -eq 5 ]; then
 	exit 2
 fi
