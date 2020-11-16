@@ -96,7 +96,7 @@ This should install the latest openlane docker, and re-install the pdk for the l
 
 # Setting up the PDK: skywater-pdk
 
-- Clone and build at least one skywater-pdk standard cell Library inside the pdks directory:
+- Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
     - To setup one standard cell library only
 
     ```bash
@@ -104,8 +104,9 @@ This should install the latest openlane docker, and re-install the pdk for the l
         cd  $PDK_ROOT
         git clone https://github.com/google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 1ce480d61120895462adc03df617d39de7a0f76e
+        git checkout d8e2cf1ba006ed01468aa60e7f4e85a1ece74ca4
         git submodule update --init libraries/sky130_fd_sc_hd/latest
+        git submodule update --init libraries/sky130_fd_sc_hvl/latest
         git submodule update --init libraries/sky130_fd_io/latest
         make timing
     ```
@@ -122,7 +123,7 @@ This should install the latest openlane docker, and re-install the pdk for the l
         cd $PDK_ROOT
 	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 6cdeb7a2c5a90339512ee2f08948a8a5895626b8
+        git checkout 94513d439f76501eacb39701f6e98f3b4f07dcdf
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
