@@ -74,6 +74,8 @@ proc run_non_interactive_mode {args} {
 
 	run_antenna_check
 
+	run_lef_cvc
+
 	generate_final_summary_report
 
 	puts_success "Flow Completed Without Fatal Errors."
