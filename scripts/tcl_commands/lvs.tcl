@@ -105,13 +105,13 @@ proc run_lef_cvc {args} {
 
     set cvc_power_awk "\
 BEGIN {  # Print power and standard_input definitions
-    print \"VPWR power 1.8\";
-    print \"VGND power 0.0\";
-    print \"#define std_input min@VGND max@VPWR\";
+    print \"$::env(VDD_PIN) power 1.8\";
+    print \"$::env(GND_PIN) power 0.0\";
+    print \"#define std_input min@$::env(GND_PIN) max@$::env(VDD_PIN)\";
 }
 \$1 == \"input\" {  # Print input nets
     gsub(/;/, \"\"); 
-    if ( \$2 == \"VPWR\" || \$2 == \"VGND\" ) {  # ignore power nets
+    if ( \$2 == \"$::env(VDD_PIN)\" || \$2 == \"$::env(GND_PIN)\" ) {  # ignore power nets
         next;
     }
     if ( NF == 3 ) {  # print buses as net\[range\]
