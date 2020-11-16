@@ -78,7 +78,7 @@ Most of the following commands' implementation exists in this [file][0]
 | `set_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/synthesis/opensta_spef_*`. |
-
+| `run_lef_cvc` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`. It is controlled by `::env(RUN_CVC)`.|
 ## Checker Commands 
 
 Most of the following commands' implementation exists in this [file][1]

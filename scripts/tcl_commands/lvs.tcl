@@ -101,8 +101,8 @@ proc run_netgen {args} {
 package provide openlane 0.9
 
 proc run_lef_cvc {args} {
-    puts_info "CVC"
-
+    puts_info "Running CVC"
+    if {$::env(RUN_CVC) == 1 } {
     set cvc_power_awk "\
 BEGIN {  # Print power and standard_input definitions
     print \"$::env(VDD_PIN) power 1.8\";
@@ -145,4 +145,7 @@ BEGIN {  # Print power and standard_input definitions
         > $::env(cvc_result_file_tag).cdl
     exec cvc $::env(SCRIPTS_DIR)/cvcrc.sky130 \
         |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_result_file_tag)_screen.log
+    } else {
+        puts_info "Skipping CVC"
+    }
 }
