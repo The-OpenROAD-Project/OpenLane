@@ -402,8 +402,12 @@ proc prep {args} {
             $::env(LOG_DIR)/$stage \
             $::env(REPORTS_DIR)/$stage
 
-        file link -symbolic $::env(TMP_DIR)/$stage/merged.lef ../../tmp/merged.lef
-        file link -symbolic $::env(RESULTS_DIR)/$stage/merged.lef ../../tmp/merged.lef
+        if { ! [file exists $::env(TMP_DIR)/$stage/merged_unpadded.lef] } {
+            file link -symbolic $::env(TMP_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
+        if { ! [file exists $::env(RESULTS_DIR)/$stage/merged_unpadded.lef] } {
+            file link -symbolic $::env(RESULTS_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
     }
 
     # Fill config file
