@@ -21,4 +21,4 @@ if {[catch {read_def $::env(INPUT_DEF)} errmsg]} {
 }
 
 
-write_verilog $::env(SAVE_NETLIST)
+write_verilog -include_pwr_gnd $::env(SAVE_NETLIST)
