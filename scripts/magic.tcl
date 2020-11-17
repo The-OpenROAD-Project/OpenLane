@@ -64,10 +64,6 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	property FIXED_BBOX [box values]
 }
 
-puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
-save
-
 select top cell
 
 
@@ -99,6 +95,12 @@ if { $::env(MAGIC_GENERATE_LEF) } {
 	puts "\[INFO\]: LEF Write Complete"
 }
 
+puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
+# This comes afterwards, so that it would contain GDS pointers
+# And yes, we need to re-read the GDS we just generated...
+gds read $::env(magic_result_file_tag).gds
+cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+save
 
 puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
 exit 0
