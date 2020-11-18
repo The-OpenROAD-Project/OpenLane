@@ -1,7 +1,6 @@
 create_clock [get_ports $::env(CLOCK_PORT)]  -name $::env(CLOCK_PORT)  -period $::env(CLOCK_PERIOD)
-set IO_PCT  0.2
-set input_delay_value [expr $::env(CLOCK_PERIOD) * $IO_PCT]
-set output_delay_value [expr $::env(CLOCK_PERIOD) * $IO_PCT]
+set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
+set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
 puts "\[INFO\]: Setting input delay to: $input_delay_value"
 

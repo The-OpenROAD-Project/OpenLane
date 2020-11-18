@@ -51,9 +51,9 @@ set cload   $::env(SYNTH_CAP_LOAD)
 # input pin cap of IN_3VX8
 set max_FO $::env(SYNTH_MAX_FANOUT)
 if {![info exist ::env(SYNTH_MAX_TRAN)]} {
-    set ::env(SYNTH_MAX_TRAN) [expr {0.1*$clock_period}]
+	set ::env(SYNTH_MAX_TRAN) [expr {0.1*$clock_period}]
 } else {
-    set ::env(SYNTH_MAX_TRAN) [expr {$::env(SYNTH_MAX_TRAN) * 1000}]
+	set ::env(SYNTH_MAX_TRAN) [expr {$::env(SYNTH_MAX_TRAN) * 1000}]
 }
 set max_Tran $::env(SYNTH_MAX_TRAN)
 
@@ -127,11 +127,11 @@ set abc_retime_dly    	"retime,-D,{D},-M,6"
 set abc_map_new_area  	"amap,-m,-Q,0.1,-F,20,-A,20,-C,5000"
 
 if {$buffering==1} {
-    set abc_fine_tune		    "buffer,-N,${max_FO},-S,${max_Tran};upsize,{D};dnsize,{D}"
+	set abc_fine_tune		"buffer,-N,${max_FO},-S,${max_Tran};upsize,{D};dnsize,{D}"
 } elseif {$sizing} {
-    set abc_fine_tune       "upsize,{D};dnsize,{D}"
+	set abc_fine_tune       "upsize,{D};dnsize,{D}"
 } else {
-    set abc_fine_tune       ""
+	set abc_fine_tune       ""
 }
 
 set scpt_0        "+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${map_old_cnt};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m"
@@ -153,23 +153,27 @@ set scriptname(3) "scpt_3"
 
 set vIdirsArgs ""
 if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
-    foreach dir $::env(VERILOG_INCLUDE_DIRS) {
-	lappend vIdirsArgs "-I$dir"
-    }
-    set vIdirsArgs [join $vIdirsArgs]
+	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+		lappend vIdirsArgs "-I$dir"
+	}
+	set vIdirsArgs [join $vIdirsArgs]
 }
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-    read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+	read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
+
+select -module $vtop
+show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+select -clear
 
 hierarchy -check -top $vtop
 
 
 if { $::env(SYNTH_NO_FLAT) } {
-    synth -top $vtop
+	synth -top $vtop
 } else {
-    synth -top $vtop -flatten
+	synth -top $vtop -flatten
 }
 
 share -aggressive
@@ -180,24 +184,49 @@ tee -o "$::env(yosys_report_file_tag)_pre.stat" stat
 
 # handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
-       techmap -map $::env(SYNTH_LATCH_MAP)
-       simplemap
+	techmap -map $::env(SYNTH_LATCH_MAP)
+	simplemap
 }
 
 dfflibmap -liberty $sclib
 tee -o "$::env(yosys_report_file_tag)_dff.stat" stat
 
 if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-    design -save myDesign
+	design -save myDesign
 
-    for { set index 0 }  { $index < [array size scriptname] }  { incr index } {
-	puts "\[INFO\]: ABC: WireLoad : $scriptname($index)"
-	design -load myDesign
+	for { set index 0 }  { $index < [array size scriptname] }  { incr index } {
+		puts "\[INFO\]: ABC: WireLoad : $scriptname($index)"
+		design -load myDesign
+
+		abc -D $clock_period \
+			-constr "$sdc_file" \
+			-liberty $sclib  \
+			-script $scripts($index)
+
+		setundef -zero
+
+		hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
+
+		# get rid of the assignments that make verilog2def fail
+		splitnets
+		opt_clean -purge
+		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+
+		tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
+		tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+		write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag)_$index.v"
+		#tee -o "$vtop-finl.stat" stat
+		design -reset
+	}
+} else {
+
+	puts "\[INFO\]: ABC: WireLoad : S_$strategy"
 
 	abc -D $clock_period \
-	    -constr "$sdc_file" \
-	    -liberty $sclib  \
-	    -script $scripts($index)
+		-constr "$sdc_file" \
+		-liberty $sclib  \
+		-script $scripts($strategy) \
+		-showtmp;
 
 	setundef -zero
 
@@ -208,46 +237,21 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-	tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
-	write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag)_$index.v"
-	#tee -o "$vtop-finl.stat" stat
-	design -reset
-    }
-} else {
-
-    puts "\[INFO\]: ABC: WireLoad : S_$strategy"
-
-    abc -D $clock_period \
-	-constr "$sdc_file" \
-	-liberty $sclib  \
-	-script $scripts($strategy) \
-	-showtmp;
-
-    setundef -zero
-
-    hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
-
-    # get rid of the assignments that make verilog2def fail
-    splitnets
-    opt_clean -purge
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-
-    tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
+	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
 	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
-    design -reset
-    read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
-    file copy -force $::env(SAVE_NETLIST) $::env(yosys_tmp_file_tag)_unflat.v
-    read_verilog -sv $::env(SAVE_NETLIST)
-    synth -top $vtop -flatten
-    splitnets
-    opt_clean -purge
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-    write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
-    tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-    tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+	design -reset
+	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
+	file copy -force $::env(SAVE_NETLIST) $::env(yosys_tmp_file_tag)_unflat.v
+	read_verilog -sv $::env(SAVE_NETLIST)
+	synth -top $vtop -flatten
+	splitnets
+	opt_clean -purge
+	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
+	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
 }

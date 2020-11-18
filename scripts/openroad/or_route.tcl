@@ -28,6 +28,12 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
+FastRoute::check_routing_layer $::env(GLB_RT_MINLAYER)
+FastRoute::set_min_layer $::env(GLB_RT_MINLAYER)
+
+FastRoute::check_routing_layer $::env(GLB_RT_MAXLAYER)
+FastRoute::set_max_layer $::env(GLB_RT_MAXLAYER)
+
 FastRoute::set_verbose 3
 
 FastRoute::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)

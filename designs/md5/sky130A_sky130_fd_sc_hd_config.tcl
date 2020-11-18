@@ -1,14 +1,6 @@
-set ::env(CLOCK_PERIOD) "30"
-
-
+# SCL Configs
+set ::env(CLOCK_PERIOD) "37.05"
 set ::env(SYNTH_MAX_FANOUT) 6
-
-# Extra
-# Regression
-set ::env(FP_CORE_UTIL) 50
-
-
-set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)-10) / 100.0 ] 
-
-# Suggested Clock Period:
- set ::env(CLOCK_PERIOD) "30.0"
+set ::env(FP_CORE_UTIL) 35
+set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
+set ::env(CELL_PAD) 4

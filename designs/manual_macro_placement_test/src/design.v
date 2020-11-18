@@ -1,3 +1,4 @@
+`default_nettype none
 // Copyright 2020 Efabless Corporation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +35,8 @@ module manual_macro_placement_test(
     output p1;
     output p2;
 
-    spm spm_inst_0 (clk1, rst1, x1, y1, p1);
-    spm spm_inst_1 (clk2, rst2, x2, y2, p2);
+    spm spm_inst_0 (.clk(clk1), .rst(rst1), .x(x1), .y(y1), .p(p1));
+    spm spm_inst_1 (.clk(clk2), .rst(rst2), .x(x2), .y(y2), .p(p2));
 endmodule
 
 (* blackbox *)

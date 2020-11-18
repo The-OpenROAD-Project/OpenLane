@@ -64,7 +64,7 @@ cellperum=-1
 #if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
-opendpUtil=$(grep "design util" $openDP_log -s | tail -1 | sed -E 's/.*: (\S+).*/\1/')
+opendpUtil=$(grep "utilization" $openDP_log -s | head -1 | sed -E 's/.* (\S+).*%/\1/')
 if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
@@ -111,7 +111,7 @@ fi
 # Extracting Antenna Violations
 if [ -f $arc_antenna_report ]; then
         #arc check
-        antenna_violations=$(grep "Number of nets violated:" $arc_antenna_report -s | tail -1 | sed -r 's/.*[^0-9]//')
+        antenna_violations=$(grep "Number of pins violated:" $arc_antenna_report -s | tail -1 | sed -r 's/.*[^0-9]//')
         if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
 else
         if [ -f $magic_antenna_report ]; then

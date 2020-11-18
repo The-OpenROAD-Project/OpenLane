@@ -194,7 +194,6 @@ def run_design(designs_queue):
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 else:
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
-
                 try:
                         if show_log_output:
                                 process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -254,25 +253,27 @@ def run_design(designs_queue):
 
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
-                        if 'all' in tarList:
-                                tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
-                                        run_path=run_path,
-                                        design_name=design_name,
-                                        tag=tag
-                                )
-                                subprocess.check_output(tarAll_cmd.split())
-                        else:
-                                tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
-                                for dirc in tarList:
-                                        tarString+=  " {run_path}"+dirc
-                                tar_cmd = tarString.format(
-                                        run_path=run_path,
-                                        design_name=design_name,
-                                        tag=tag
-                                )
-                                subprocess.check_output(tar_cmd.split())
-                        log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
-
+                        try:
+                                if 'all' in tarList:
+                                        tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
+                                                run_path=run_path,
+                                                design_name=design_name,
+                                                tag=tag
+                                        )
+                                        subprocess.check_output(tarAll_cmd.split())
+                                else:
+                                        tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
+                                        for dirc in tarList:
+                                                tarString+=  " {run_path}"+dirc
+                                        tar_cmd = tarString.format(
+                                                run_path=run_path,
+                                                design_name=design_name,
+                                                tag=tag
+                                        )
+                                        subprocess.check_output(tar_cmd.split())
+                                log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
+                        except subprocess.CalledProcessError as e:
+                                log.info('{design} {tag} Compressing Run Directory Failed'.format(design=design, tag=tag))
                 if args.delete:
                         log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
                         deleteDirectory = "rm -rf {run_path}".format(
@@ -297,17 +298,19 @@ que = queue.Queue()
 total_runs = 0
 if regression is not None:
     regression_file = os.path.join(os.getcwd(), regression)
-    print(regression_file)
     number_of_configs=0
     for design in designs:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
-            print("{design} not found, skipping...".format(design=design))
+            log.error("{design} not found, skipping...".format(design=design))
             if print_rem_time is not None:
                 if design in rem_designs.keys():
                         rem_designs.pop(design)
             continue
         design_name= utils.get_design_name(design, config)
+        if design_name.startswith("[INVALID]:"):
+            log.error('{design} will not Run, {reason}'.format(design=design, reason=design_name))
+            continue
         base_config_path=base_path+"base_config.tcl"
 
         ConfigHandler.gen_base_config(design, base_config_path)
@@ -337,13 +340,16 @@ else:
     for design in designs:
         base_path = utils.get_design_path(design=design)
         if base_path is None:
-            print("{design} not found, skipping...".format(design=design))
+            log.error("{design} not found, skipping...".format(design=design))
             if print_rem_time is not None:
                 if design in rem_designs.keys():
                         rem_designs.pop(design)
             continue
         default_config_tag = "config_{tag}".format(tag=tag)
         design_name= utils.get_design_name(design, config)
+        if design_name.startswith("[INVALID]:"):
+            log.error('{design} Will not Run, {reason}'.format(design=design, reason=design_name))
+            continue
         que.put((design, config, default_config_tag,design_name))
 
 

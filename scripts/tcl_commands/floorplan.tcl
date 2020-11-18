@@ -206,7 +206,13 @@ proc run_floorplan {args} {
 		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
 				place_io_ol -cfg $::env(FP_PIN_ORDER_CFG)
 		} else {
+			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
+				place_contextualized_io \
+					-lef $::env(FP_CONTEXT_LEF) \
+					-def $::env(FP_CONTEXT_DEF)
+			} else {
 				place_io
+			}
 		}
 
 		if { [info exist ::env(EXTRA_LEFS)] } {

@@ -15,6 +15,8 @@
 OPENLANE_DIR ?= $(shell pwd)
 THREADS ?= $(shell nproc)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
+SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
+IO_LIBRARY ?= sky130_fd_io
 
 IMAGE_NAME ?= openlane:rc5
 TEST_DESIGN ?= spm
@@ -22,8 +24,8 @@ BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= c06bef0d55e68b621dce4fa5ef31de43e0c4200a
-OPEN_PDKS_COMMIT ?= 6cdeb7a2c5a90339512ee2f08948a8a5895626b8
+SKYWATER_COMMIT ?= d8e2cf1ba006ed01468aa60e7f4e85a1ece74ca4
+OPEN_PDKS_COMMIT ?= 94513d439f76501eacb39701f6e98f3b4f07dcdf
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -49,7 +51,9 @@ skywater-pdk: $(PDK_ROOT)/skywater-pdk
 skywater-library: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
-		$(MAKE) -j$(THREADS) $(STD_CELL_LIBRARY)
+		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
+		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
+		$(MAKE) -j$(THREADS) timing
 
 .PHONY: all-skywater-libraries
 all-skywater-libraries: skywater-pdk
@@ -59,6 +63,8 @@ all-skywater-libraries: skywater-pdk
 		git submodule update --init libraries/sky130_fd_sc_hdll/latest && \
 		git submodule update --init libraries/sky130_fd_sc_ms/latest && \
 		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
+		git submodule update --init libraries/sky130_fd_sc_hvl/latest && \
+		git submodule update --init libraries/sky130_fd_io/latest && \
 		$(MAKE) -j$(THREADS) timing
 
 ### OPEN_PDKS

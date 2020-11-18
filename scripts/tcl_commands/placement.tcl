@@ -141,11 +141,20 @@ proc run_placement {args} {
 # |----------------------------------------------------|
 	set ::env(CURRENT_STAGE) placement
 
+    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
+        set old_pl_target_density $::env(PL_TARGET_DENSITY)
+        set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
+    }
+
     if { $::env(PL_RANDOM_GLB_PLACEMENT) } {
         # useful for very tiny designs
         random_global_placement
     } else {
         global_placement_or
+    }
+
+    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
+        set ::env(PL_TARGET_DENSITY) $old_pl_target_density
     }
 
     if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
@@ -155,7 +164,7 @@ proc run_placement {args} {
 	    run_openPhySyn
     }
 
-	detailed_placement
+	detailed_placement_or
 }
 
 proc repair_wire_length {args} {
