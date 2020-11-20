@@ -24,12 +24,23 @@ proc run_magic {args} {
 		# the following MAGTYPE better be mag for clean GDS generation
 		# use load -dereference to ignore it later if needed
 		set ::env(MAGTYPE) mag
-		# Generate GDS, LEF, MAG views
+		# Generate GDS, LEF views
 		try_catch magic \
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic.tcl \
+				</dev/null \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
+		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
+		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+
+		# Generate MAG views
+		try_catch magic \
+				-noconsole \
+				-dnull \
+				-rcfile $::env(MAGIC_MAGICRC) \
+				$::env(SCRIPTS_DIR)/magic_mag.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
 		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
