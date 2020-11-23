@@ -216,11 +216,12 @@ proc run_floorplan {args} {
 		}
 
 		if { [info exist ::env(EXTRA_LEFS)] } {
-			global_placement_or
 			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
 				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
 				manual_macro_placement f
+				global_placement_or
 			} else {
+				global_placement_or
 				basic_macro_placement
 			}
 		}
