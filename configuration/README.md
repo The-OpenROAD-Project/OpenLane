@@ -147,6 +147,8 @@ These variables are optional that can be specified in the design configuration f
 | `CELL_PAD` | Cell padding; increases the width of cells. <br> (Default: `2` microns -- 2 sites)|
 | `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
 | `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. Should be moved to PDK configurations later.. <br> Default: `met1`.|
+| `MERGED_LEF_UNPADDED` | Points to `merged_unpadded.lef` by default. it contains the technology LEF for the used STD_CELL_LIBRARY merged with the LEF file for all the cells. |
+| `MERGED_LEF` | points to `merged.lef`, which is `merged_unpadded.lef` but with cell padding. This is controlled by CELL_PAD. |
 
 ### Flow control
 | Variable      | Description                                                   |

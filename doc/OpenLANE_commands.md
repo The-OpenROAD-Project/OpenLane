@@ -201,6 +201,7 @@ Most of the following commands' implementation exists in this [file][8]
 |---------------|------------------------|-----------------------------------------|
 | `global_routing_or` | | Runs global routing  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute. The resulting file is under `/<run_path>/results/routing/` . |
+| `add_route_obs`| | Uses `GLB_RT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GLB_RT_OBS` in the configurations documentation for more details.|
 | `run_routing` | | Runs global routing, fill insertion, diode insertion, detailed routing, and SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist and a powered netlist using yosys and stores the results under `/<run_path>/results/synthesis` and `/<run_path>/results/lvs` respectively, and it runs yosys logic verification if enabled.|
 
 
