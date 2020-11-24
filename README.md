@@ -123,7 +123,7 @@ This should install the latest openlane docker, and re-install the pdk for the l
         cd $PDK_ROOT
 	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout ad548dc60911f4c3fe1f6391349bd63a61b9df8f
+        git checkout b427e3bd10dcdc36891ae270a1ef0bd02602c553
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
