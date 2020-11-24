@@ -64,10 +64,6 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	property FIXED_BBOX [box values]
 }
 
-puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
-save
-
 select top cell
 
 
@@ -99,6 +95,4 @@ if { $::env(MAGIC_GENERATE_LEF) } {
 	puts "\[INFO\]: LEF Write Complete"
 }
 
-
-puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
 exit 0

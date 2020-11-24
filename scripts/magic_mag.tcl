@@ -1,3 +1,5 @@
+# Copyright 2020 Efabless Corporation
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,15 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+drc off
 
-if {[catch {read_def $::env(INPUT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+gds readonly true
+gds rescale false
 
+puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
+# This comes afterwards, so that it would contain GDS pointers
+# And yes, we need to re-read the GDS we just generated...
+gds read $::env(magic_result_file_tag).gds
+cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+save
 
-write_verilog -include_pwr_gnd $::env(SAVE_NETLIST)
+puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
+exit 0

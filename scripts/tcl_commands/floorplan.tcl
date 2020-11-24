@@ -78,7 +78,7 @@ proc place_io_ol {args} {
 		set_if_unset arg_values(-lef) $::env(MERGED_LEF)
 		set_if_unset arg_values(-def) $::env(CURRENT_DEF)
 
-		set_if_unset arg_values(-cfg) ""
+		set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
 		set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HMETAL)
 		set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VMETAL)
@@ -141,8 +141,8 @@ proc place_contextualized_io {args} {
 				puts_info "Custom floorplan created"
 
 				set_def $::env(ioPlacer_tmp_file_tag).context.def
-				set ::env(SAVE_DEF) $::env(CURRENT_DEF)
 
+				set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
@@ -150,7 +150,7 @@ proc place_contextualized_io {args} {
 				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
 				set ::env(FP_IO_MODE) $old_mode
 
-				move_pins -from $::env(CURRENT_DEF) -to $prev_def
+				move_pins -from $::env(SAVE_DEF) -to $prev_def
 				set_def $prev_def
 
 				TIMER::timer_stop
@@ -204,7 +204,7 @@ proc run_floorplan {args} {
 
 		# place io
 		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
-				place_io_ol -cfg $::env(FP_PIN_ORDER_CFG)
+				place_io_ol
 		} else {
 			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
 				place_contextualized_io \
@@ -216,11 +216,11 @@ proc run_floorplan {args} {
 		}
 
 		if { [info exist ::env(EXTRA_LEFS)] } {
-			global_placement_or
 			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
 				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
 				manual_macro_placement f
 			} else {
+				global_placement_or
 				basic_macro_placement
 			}
 		}

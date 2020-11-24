@@ -1,3 +1,5 @@
+# Copyright 2020 Efabless Corporation
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -10,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+drc off
 
-if {[catch {read_def $::env(INPUT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+lef read $::env(magic_result_file_tag).lef
 
+load $::env(DESIGN_NAME)
 
-write_verilog -include_pwr_gnd $::env(SAVE_NETLIST)
+cellname rename $::env(DESIGN_NAME) $::env(DESIGN_NAME).lef
+
+cellname filepath $::env(DESIGN_NAME).lef $::env(RESULTS_DIR)/magic
+save
+
+puts "\[INFO\]: DONE GENERATING MAGLEF VIEW"
+exit 0

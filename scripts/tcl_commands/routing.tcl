@@ -169,6 +169,30 @@ proc ins_diode_cells {args} {
     }
 }
 
+proc add_route_obs {args} {
+    if {![info exists ::env(GLB_RT_OBS)]} {
+        return
+    }
+
+    puts_info "Adding routing obstructions..."
+
+    set obs_list [split $::env(GLB_RT_OBS) ","]
+    set obs_idx 0
+    foreach obs $obs_list {
+        add_macro_obs \
+            -defFile $::env(CURRENT_DEF) \
+            -lefFile $::env(MERGED_LEF_UNPADDED) \
+            -obstruction "core_obs_${obs_idx}" \
+            -placementX [lindex $obs 1] \
+            -placementY [lindex $obs 2] \
+            -sizeWidth  [lindex $obs 3] \
+            -sizeHeight [lindex $obs 4] \
+            -fixed 1 \
+            -layerNames [lindex $obs 0]
+        incr obs_idx
+    }
+}
+
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
         puts_info "Running SPEF Extraction..."
@@ -213,6 +237,7 @@ proc run_routing {args} {
 
 
     # detailed routing
+    add_route_obs
     detailed_routing
     run_spef_extraction
 
@@ -233,12 +258,6 @@ proc run_routing {args} {
     set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
     puts $runtime_log $routing_status
     close $runtime_log
-
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
 }
 
 package provide openlane 0.9

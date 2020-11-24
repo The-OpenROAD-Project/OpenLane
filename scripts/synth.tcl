@@ -214,8 +214,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
 		tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
 		tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
-		write_verilog -noattr -noexpr -nohex -nodec "$::env(yosys_result_file_tag)_$index.v"
-		#tee -o "$vtop-finl.stat" stat
+		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(yosys_result_file_tag)_$index.v"
 		design -reset
 	}
 } else {
@@ -239,7 +238,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
 	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
 	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
-	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
@@ -251,7 +250,7 @@ if { $::env(SYNTH_NO_FLAT) } {
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-	write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
 	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
 }
