@@ -258,12 +258,6 @@ proc run_routing {args} {
     set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
     puts $runtime_log $routing_status
     close $runtime_log
-
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
 }
 
 package provide openlane 0.9

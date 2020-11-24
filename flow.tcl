@@ -41,6 +41,11 @@ proc run_non_interactive_mode {args} {
 		heal_antenna_violators; # modifies the routed DEF
 	}
 
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+		write_powered_verilog
+		set_netlist $::env(lvs_result_file_tag).powered.v
+    }
+
 	run_magic
 
 	run_magic_spice_export
