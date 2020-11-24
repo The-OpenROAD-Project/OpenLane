@@ -37,6 +37,12 @@
 | `fastroute_tns`   | Total Negative Slack. Reported after global routing using estimate parasitics. Extracted from FastRoute/OpenSTA. If the report wasn't found, the value from the previous STA report is used.       |
 | `spef_tns`   | Total Negative Slack. Reported after routing and spef extraction. Extracted from OpenSTA. If the report wasn't found, the value from the previous STA report is used.        |
 | `HPWL`   | Final value for the half-perimeter wire length. Extracted from RePlace logs.       |
+| `routing_layer1_pct` | The percentage usage of routing resources on layer 1 in global routing. Extracted from fastroute log. |
+| `routing_layer2_pct` | The percentage usage of routing resources on layer 2 in global routing. Extracted from fastroute log. |
+| `routing_layer3_pct` | The percentage usage of routing resources on layer 3 in global routing. Extracted from fastroute log. |
+| `routing_layer4_pct` | The percentage usage of routing resources on layer 4 in global routing. Extracted from fastroute log. |
+| `routing_layer5_pct` | The percentage usage of routing resources on layer 5 in global routing. Extracted from fastroute log. |
+| `routing_layer6_pct` | The percentage usage of routing resources on layer 6 in global routing. Extracted from fastroute log. |
 | `wires_count`   | The number of wires in the design. Extracted from yosys logs.        |
 | `wire_bits`   | The number of wire bits in the design. Extracted from yosys logs.        |
 | `public_wires_count`   | The number of public wires in the design. Extracted from yosys logs.        |
@@ -57,7 +63,7 @@
 | `level`   | The number of levels in the final design. Extracted from yosys logs.        |
 | `EndCaps`   | The number of endcaps in the final design. Extracted from tapcell log.        |
 | `TapCells`   | The number of tapcells in the final design. Extracted from tapcell log.        |
-| `Diodes`   | The number of diodes in the final design. Extracted from diode logs.        |
+| `Diodes`   | The number of diodes in the final design. Extracted from diode logs or Fastroute log based on the used diode insertion strategy.        |
 | `Total_Physical_Cells`   | The sum of endcaps, tapcells, and diodes in the final design.        |
 | `suggested_clock_frequency`   | The suggested clock frequency to be used with the design. Calculated based on the value of `spef_wns`, and reported in `MHz`.       |
 | `suggested_clock_period`   | TThe suggested clock period to be used with the design. Calculated based on the value of `spef_wns`, and reported in `ns`.        |
