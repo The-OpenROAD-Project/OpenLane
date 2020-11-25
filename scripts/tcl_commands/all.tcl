@@ -64,6 +64,9 @@ proc prep_lefs {args} {
     file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
+        if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
+            set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
+        }
         puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
 
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
@@ -667,7 +670,7 @@ proc heal_antenna_violators {args} {
 	# => fixes the routed def
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-			#ARC specific		
+			#ARC specific
 			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
 		} else {
             #Magic Specific
