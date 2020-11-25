@@ -61,7 +61,7 @@ proc prep_lefs {args} {
         puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
 
-    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
+    file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
         puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
