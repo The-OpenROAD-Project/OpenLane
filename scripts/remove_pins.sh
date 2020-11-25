@@ -22,8 +22,6 @@ file=$1
 
 # remove the PINS section
 sed -ie "/PINS.*;/,/END PINS/d" $file
-# remove extra \ characters
-sed -ie "s/[\\]//g" $file
 # remove ( PIN xxx ) in the nets section
 sed -ie "s/(\sPIN\s[^[:space:]]*\s)\s//g" $file
 # remove empty nets
