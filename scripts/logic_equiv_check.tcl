@@ -35,7 +35,9 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+}
 
 read_verilog $::env(LEC_LHS_NETLIST)
 rmports
@@ -66,7 +68,9 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+}
 
 read_verilog $::env(LEC_RHS_NETLIST)
 rmports
@@ -99,7 +103,9 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-read_liberty -nooverwrite -ignore_miss_func $::env(LIB_SYNTH_COMPLETE)
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+}
 
 equiv_make gold gate equiv
 hierarchy -generate $well_tap_cell

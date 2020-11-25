@@ -23,6 +23,19 @@ set gl_ext      ".gl.v"
 set timing_ext  ".timing.txt"
 set abc_ext     ".abc"
 
+if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
+	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
+}
+
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
+}
+
+
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {
 		verilog_defines -D$define
@@ -33,9 +46,6 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
 		read_verilog -lib $verilog_file
 	}
-}
-if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
 }
 
 

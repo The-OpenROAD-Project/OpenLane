@@ -32,9 +32,17 @@ if { [info exists ::env(SYNTH_DEFINES) ] } {
 }
 
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-    read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
+	puts "Reading $::env(LIB_SYNTH_COMPLETE) as a blackbox"
+	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
 }
 
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
+}
 
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
@@ -213,7 +221,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
 		tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
-		tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+		tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE) 0]
 		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(yosys_result_file_tag)_$index.v"
 		design -reset
 	}
@@ -237,7 +245,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
 	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE) 0]
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 }
 
@@ -252,5 +260,5 @@ if { $::env(SYNTH_NO_FLAT) } {
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty $::env(LIB_SYNTH_COMPLETE)
+	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE) 0]
 }
