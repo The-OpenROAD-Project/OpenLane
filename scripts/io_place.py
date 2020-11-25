@@ -90,6 +90,7 @@ parser.add_argument('--bus-sort', '-bsort', action='store_true',
                     'together. e.g., a[0] b[0] c[0] a[1] b[1] c[1]')
 # TODO
 # width, length, and extension multipliers
+EXTENSION = 0
 
 args = parser.parse_args()
 
@@ -311,7 +312,7 @@ for side in pin_placement:
         pin_bpin.setPlacementStatus("PLACED")
 
         if side in ["#N", "#S"]:
-            rect = odb.Rect(0, 0, V_WIDTH, LENGTH)
+            rect = odb.Rect(0, 0, V_WIDTH, LENGTH+EXTENSION)
             if side == "#N":
                 y = BLOCK_UR_Y-LENGTH
             else:
@@ -319,7 +320,7 @@ for side in pin_placement:
             rect.moveTo(slot-V_WIDTH//2, y)
             odb.dbBox_create(pin_bpin, V_LAYER, *rect.ll(), *rect.ur())
         else:
-            rect = odb.Rect(0, 0, LENGTH, H_WIDTH)
+            rect = odb.Rect(0, 0, LENGTH+EXTENSION, H_WIDTH)
             if side == "#E":
                 x = BLOCK_UR_X-LENGTH
             else:
