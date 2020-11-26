@@ -113,8 +113,8 @@ RUN git apply rails.patch
 COPY setup_local.patch /OpenROAD_23112020/src/OpenDB/src/swig/python
 RUN cd /OpenROAD_23112020/src/OpenDB/src/swig/python && git apply setup_local.patch
 
-COPY pdn_export_pin.patch /OpenROAD_23112020/
-RUN git apply pdn_export_pin.patch
+COPY pdngen_export_subst.patch /OpenROAD_23112020/
+RUN git apply pdngen_export_subst.patch
 
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
