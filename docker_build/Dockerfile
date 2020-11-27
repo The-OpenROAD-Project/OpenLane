@@ -77,6 +77,9 @@ RUN cd $OPENROAD/OpenDB_python/ && \
 	python3 setup.py install && \
 	rm -rf $OPENROAD/OpenDB_python
 
+RUN touch /.sta
+RUN touch /.openroad
+
 WORKDIR $OPENLANE_ROOT
 
 CMD /bin/bash
