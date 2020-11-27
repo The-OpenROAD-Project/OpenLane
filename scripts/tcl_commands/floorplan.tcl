@@ -200,6 +200,15 @@ proc chip_floorplan {args} {
 		remove_empty_nets -input $::env(CURRENT_DEF)
 }
 
+proc apply_def_template {args} {
+	if { [info exists ::env(FP_DEF_TEMPLATE)] } {		
+		puts_info "Applying DEF template..."
+		try_catch $::env(SCRIPTS_DIR)/apply_def_template.py -t $::env(FP_DEF_TEMPLATE) -u $::env(CURRENT_DEF) -s $::env(SCRIPTS_DIR)
+	}
+
+
+}
+
 proc run_floorplan {args} {
 		puts_info "Running Floorplanning..."
 		# |----------------------------------------------------|
@@ -222,6 +231,8 @@ proc run_floorplan {args} {
 				place_io
 			}
 		}
+		
+		apply_def_template
 
 		if { [info exist ::env(EXTRA_LEFS)] } {
 			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
