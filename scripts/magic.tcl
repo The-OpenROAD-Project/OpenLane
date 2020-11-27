@@ -62,6 +62,9 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	move origin [expr {$offset_x/2}] [expr {$offset_y/2}]
 	puts "\[INFO\]: Current Box Values: [box values]"
 	property FIXED_BBOX [box values]
+} else {
+	box [lindex $::env(DIE_AREA) 0]um [lindex $::env(DIE_AREA) 1]um [lindex $::env(DIE_AREA) 2]um [lindex $::env(DIE_AREA) 3]um
+	property FIXED_BBOX [box values]
 }
 
 select top cell
