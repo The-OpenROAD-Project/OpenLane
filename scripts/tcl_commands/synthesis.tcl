@@ -52,6 +52,9 @@ proc run_yosys {args} {
 	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
+    # The following is a naive workaround to the defparam issue.. it should be handled with
+    # an issue to the OpenROAD verilog parser.
+    try_catch sed -ie {/defparam/d} $::env(CURRENT_NETLIST)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(yosys_log_file_tag)_runtime.txt
