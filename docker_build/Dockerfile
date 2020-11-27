@@ -69,6 +69,9 @@ ADD ./openroad_tools.tar.gz /
 COPY ./.tclshrc /
 COPY ./.tclshrc /root
 
+RUN touch /.sta
+RUN touch /.openroad
+
 ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 
 # install opendb python
