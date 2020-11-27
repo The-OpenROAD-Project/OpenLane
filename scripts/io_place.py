@@ -73,8 +73,16 @@ parser.add_argument('--ver-width-mult', '-vwm',
                     default=2,
                     help='')
 
-parser.add_argument('--length-mult', '-lm',
+parser.add_argument('--length', '-len', type=float,
                     default=2,
+                    help='')
+
+parser.add_argument('--hor-extension', '-hext', type=float,
+                    default=0.0,
+                    help='')
+
+parser.add_argument('--ver-extension', '-vext', type=float,
+                    default=0.0,
                     help='')
 
 parser.add_argument('--reverse', '-rev',
@@ -90,7 +98,6 @@ parser.add_argument('--bus-sort', '-bsort', action='store_true',
                     'together. e.g., a[0] b[0] c[0] a[1] b[1] c[1]')
 # TODO
 # width, length, and extension multipliers
-EXTENSION = 0
 
 args = parser.parse_args()
 
@@ -106,7 +113,10 @@ v_layer_index = int(args.ver_layer)
 h_width_mult = int(args.hor_width_mult)
 v_width_mult = int(args.ver_width_mult)
 
-length_mult = int(args.length_mult)
+LENGTH = int(1000*args.length)
+
+H_EXTENSION = int(1000*args.hor_extension)
+V_EXTENSION = int(1000*args.ver_extension)
 
 reverse_arr = args.reverse
 reverse_arr = ["#"+rev for rev in reverse_arr]
@@ -206,8 +216,6 @@ V_LAYER = tech.findRoutingLayer(v_layer_index)
 
 H_WIDTH = h_width_mult * H_LAYER.getWidth()
 V_WIDTH = v_width_mult * V_LAYER.getWidth()
-
-LENGTH = length_mult*max(V_WIDTH, H_WIDTH)
 
 print("Top-level design name:", top_design_name)
 
@@ -312,19 +320,19 @@ for side in pin_placement:
         pin_bpin.setPlacementStatus("PLACED")
 
         if side in ["#N", "#S"]:
-            rect = odb.Rect(0, 0, V_WIDTH, LENGTH+EXTENSION)
+            rect = odb.Rect(0, 0, V_WIDTH, LENGTH+V_EXTENSION)
             if side == "#N":
                 y = BLOCK_UR_Y-LENGTH
             else:
-                y = BLOCK_LL_Y
+                y = BLOCK_LL_Y-V_EXTENSION
             rect.moveTo(slot-V_WIDTH//2, y)
             odb.dbBox_create(pin_bpin, V_LAYER, *rect.ll(), *rect.ur())
         else:
-            rect = odb.Rect(0, 0, LENGTH+EXTENSION, H_WIDTH)
+            rect = odb.Rect(0, 0, LENGTH+H_EXTENSION, H_WIDTH)
             if side == "#E":
                 x = BLOCK_UR_X-LENGTH
             else:
-                x = BLOCK_LL_X
+                x = BLOCK_LL_X-H_EXTENSION
             rect.moveTo(x, slot-H_WIDTH//2)
             odb.dbBox_create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
 

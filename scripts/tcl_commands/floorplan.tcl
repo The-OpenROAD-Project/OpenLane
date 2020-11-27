@@ -65,8 +65,10 @@ proc place_io_ol {args} {
 				{-horizontal_layer optional}
 				{-vertical_layer optional}
 				{-horizontal_mult optional}
+				{-horizontal_ext optional}
 				{-vertical_layer optional}
 				{-vertical_mult optional}
+				{-vertical_ext optional}
 				{-length optional}
 				{-output_def optional}
 				{-extra_args optional}
@@ -85,6 +87,10 @@ proc place_io_ol {args} {
 
 		set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
 		set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
+
+		set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VEXTEND)
+		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
+
 		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
 		set_if_unset arg_values(-output_def) $::env(ioPlacer_tmp_file_tag).def
 
@@ -98,7 +104,9 @@ proc place_io_ol {args} {
 				--ver-layer $arg_values(-vertical_layer)\
 				--ver-width-mult $arg_values(-vertical_mult)\
 				--hor-width-mult $arg_values(-horizontal_mult)\
-				--length-mult $arg_values(-length)\
+				--hor-extension $arg_values(-horizontal_ext)\
+				--ver-extension $arg_values(-vertical_ext)\
+				--length $arg_values(-length)\
 				-o $arg_values(-output_def)\
 				{*}$arg_values(-extra_args) |& tee $::env(LOG_DIR)/floorplan/place_io_ol.log $::env(TERMINAL_OUTPUT)
 
