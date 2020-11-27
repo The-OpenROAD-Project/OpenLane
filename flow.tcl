@@ -137,7 +137,7 @@ proc run_magic_drc_batch {args} {
 
 proc run_file {args} {
 	set ::env(TCLLIBPATH) $::auto_path
-	exec tclsh $args >&@stdout
+	exec tclsh {*}$args >&@stdout
 }
 
 set options {
@@ -169,7 +169,7 @@ puts_info "Version: $::env(OPENLANE_VERSION)"
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"
 	if { [info exists arg_values(-file)] } {
-		run_file [file normalize $arg_values(-file)]
+		run_file [file normalize $arg_values(-file)] {*}$argv
 	} else {
 		run_interactive_mode {*}$argv
 	}
