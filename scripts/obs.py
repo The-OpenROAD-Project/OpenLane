@@ -34,12 +34,21 @@ def print_obs_section():
         print("       RECT %f %f %s %s ;" % (LLX, LLY, URX, URY))
 
 obs_section = False
+macro_name = None
 for line in sys.stdin:
     if line.isspace():
         continue
 
-    if line.find("MACRO") != -1:
+    if line.startswith("MACRO"):
+        macro_name = line.split()[1]
         LAYERS = {layer:False for layer in LAYER_LIST}
+
+    if macro_name and line.startswith("END " + macro_name):
+        macro_name = None
+        if not any(l[1] for l in LAYERS.items()):
+            print("   OBS")
+            print_obs_section()
+            print("   END")
 
     if line.find("OBS") != -1:
         obs_section = True
@@ -47,6 +56,7 @@ for line in sys.stdin:
         obs_section = False
         for layer in LAYERS:  # draw remaining obs on layers that didn't appear
             if not LAYERS[layer]:
+                LAYERS[layer] = True
                 print("     LAYER %s ;" % (layer))
                 print("       RECT %.3f %.3f %.3f %.3f ;" %
                       (LLX, LLY, URX, URY))
