@@ -65,7 +65,7 @@ def copyStringWithWord(word, f_rom, t_o):
 
 # Copy DIEAREA
 word='DIEAREA'
-userDEFContent = copyStringWithWord(word, templateDEF,userDEFContent)
+userDEFContent = copyStringWithWord(word, templateDEFContent, userDEFContent)
 
 
 if userDEFContent is not None:

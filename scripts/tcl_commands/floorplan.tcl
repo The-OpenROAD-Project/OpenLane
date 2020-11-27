@@ -203,7 +203,7 @@ proc chip_floorplan {args} {
 proc apply_def_template {args} {
 	if { [info exists ::env(FP_DEF_TEMPLATE)] } {		
 		puts_info "Applying DEF template..."
-		try_catch $::env(SCRIPTS_DIR)/apply_def_template.py -t $::env(FP_DEF_TEMPLATE) -u $::env(CURRENT_DEF) -s $::env(SCRIPTS_DIR)
+		try_catch python3 $::env(SCRIPTS_DIR)/apply_def_template.py -t $::env(FP_DEF_TEMPLATE) -u $::env(CURRENT_DEF) -s $::env(SCRIPTS_DIR)
 	}
 
 
