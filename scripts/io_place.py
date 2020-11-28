@@ -118,6 +118,12 @@ LENGTH = int(1000*args.length)
 H_EXTENSION = int(1000*args.hor_extension)
 V_EXTENSION = int(1000*args.ver_extension)
 
+if H_EXTENSION < 0:
+    H_EXTENSION = 0
+
+if V_EXTENSION < 0:
+    V_EXTENSION = 0
+
 reverse_arr = args.reverse
 reverse_arr = ["#"+rev for rev in reverse_arr]
 
