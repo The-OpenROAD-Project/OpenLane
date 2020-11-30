@@ -249,6 +249,8 @@ proc run_floorplan {args} {
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} { 
 				tap_decap_or
 		}
+
+		gen_pdn
 }
 
 package provide openlane 0.9
