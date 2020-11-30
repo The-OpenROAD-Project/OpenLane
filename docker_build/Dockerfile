@@ -25,6 +25,7 @@ RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && 
 	yum install -y \
 		cairo \
 		gettext \
+		gdb \
 		git \
 		libffi \
 		libgomp \
@@ -35,6 +36,7 @@ RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && 
 		python36u \
 		python36u-pip \
 		python36u-tkinter \
+		strace \
 		tcl \
 		tcllib \
 		tk \
