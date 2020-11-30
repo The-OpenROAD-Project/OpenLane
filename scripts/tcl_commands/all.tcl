@@ -428,6 +428,14 @@ proc prep {args} {
     # Design
     exec echo "# Design config" >> $::env(GLB_CFG_FILE)
     set_log ::env(CLOCK_PERIOD) $::env(CLOCK_PERIOD) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DESIGN_NAME) $::env(DESIGN_NAME) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DESIGN_DIR) $::env(DESIGN_DIR) $::env(GLB_CFG_FILE) 1
+    if { [info exists ::env(CLOCK_PORT)] } {
+        set_log ::env(CLOCK_PORT) $::env(CLOCK_PORT) $::env(GLB_CFG_FILE) 1
+    }
+    if { [info exists ::env(CLOCK_NET)] } {
+        set_log ::env(CLOCK_NET) $::env(CLOCK_NET) $::env(GLB_CFG_FILE) 1
+    }
     # Synthesis
     exec echo "# Synthesis config" >> $::env(GLB_CFG_FILE)
     set_log ::env(LIB_SYNTH) $::env(LIB_SYNTH) $::env(GLB_CFG_FILE) 1
@@ -476,6 +484,9 @@ proc prep {args} {
     set_log ::env(FP_PDN_HOFFSET) $::env(FP_PDN_HOFFSET) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_HPITCH) $::env(FP_PDN_HPITCH) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_TAPCELL_DIST) $::env(FP_TAPCELL_DIST) $::env(GLB_CFG_FILE) 1
+    if { [info exists ::env(CELL_PAD_EXCLUDE)] } {
+        set_log ::env(CELL_PAD_EXCLUDE) $::env(CELL_PAD_EXCLUDE) $::env(GLB_CFG_FILE) 1
+    }
 
     # Placement
     exec echo "# Placement config" >> $::env(GLB_CFG_FILE)
