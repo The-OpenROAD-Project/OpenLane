@@ -9,8 +9,8 @@ This page describes configuration variables and their default values.
 | `DESIGN_NAME`   | The name of the top level module of the design        |
 | `VERILOG_FILES` | The path of the design's verilog files |
 | `CLOCK_PERIOD`  | The clock period for the design in ns       |
-| `CLOCK_NET` | The name of the Net input to root clock buffer. |
-| `CLOCK_PORT`    | The name of the design's clock port    |
+| `CLOCK_NET` | The name of the Net input to root clock buffer used in Clock Tree Synthesis. |
+| `CLOCK_PORT`    | The name of the design's clock port used in Static Timing Analysis.   |
 
 ## Optional variables
 
