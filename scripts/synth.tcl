@@ -177,6 +177,16 @@ select -clear
 
 hierarchy -check -top $vtop
 
+# Infer tri-state buffers.
+set tbuf_map false
+if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
+        if { [file exists $::env(TRISTATE_BUFFER_MAP)] } {
+                set tbuf_map true
+                tribuf
+        } else {
+          puts "WARNING: TRISTATE_BUFFER_MAP is defined but could not be found: $::env(TRISTATE_BUFFER_MAP)"
+        }
+}
 
 if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop
@@ -189,6 +199,13 @@ opt
 opt_clean -purge
 
 tee -o "$::env(yosys_report_file_tag)_pre.stat" stat
+
+# Map tri-state buffers.
+if { $tbuf_map } {
+        puts {mapping tbuf}
+        techmap -map $::env(TRISTATE_BUFFER_MAP)
+        simplemap
+}
 
 # handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
