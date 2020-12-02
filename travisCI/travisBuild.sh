@@ -15,6 +15,7 @@
 mkdir pdks
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
+export IMAGE_NAME=efabless/openlane:rc5
 echo $PDK_ROOT
 echo $RUN_ROOT
 make openlane
@@ -37,7 +38,7 @@ done
 # Section End
 
 make open_pdks
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5  bash -c "make build-pdk"
+docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME bash -c "make build-pdk"
 echo "done installing"
 cd $RUN_ROOT
 exit 0
