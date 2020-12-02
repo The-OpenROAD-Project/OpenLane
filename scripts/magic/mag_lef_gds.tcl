@@ -26,21 +26,10 @@ if {  [info exist ::env(EXTRA_LEFS)] } {
 # Read def and load design
 def read $::env(CURRENT_DEF)
 
-gds readonly true
-gds rescale false
-if {  [info exist ::env(EXTRA_GDS_FILES)] } {
-       set gds_files_in $::env(EXTRA_GDS_FILES)
-       foreach gds_file $gds_files_in {
-               gds read $gds_file
-       }
-}
-
-
 load $::env(DESIGN_NAME)
 select top cell
 
 # padding
-
 if { $::env(MAGIC_PAD) } {
 	puts "\[INFO\]: Padding LEFs"
 	# assuming scalegrid 1 2
@@ -52,9 +41,12 @@ if { $::env(MAGIC_PAD) } {
 	box grow down [expr 100*($::env(PLACE_SITE_HEIGHT))]
 	property FIXED_BBOX [box values]
 }
+
 if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	# assuming scalegrid 1 2
-	# makes origin zero based on the selection
+	# makes origin zero based on the minimum enclosing box
+	# all shapes will be within the block boundary
+	# lower left corner will become (0, 0)
 	puts "\[INFO\]: Zeroizing Origin"
 	set bbox [box values]
 	set offset_x [lindex $bbox 0]
@@ -63,21 +55,21 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 	puts "\[INFO\]: Current Box Values: [box values]"
 	property FIXED_BBOX [box values]
 } else {
+	# makes origin zero based on the DIEAREA as defined in the DEF
+	# file. Shapes can extend outside the block boundary.
+	# magic "lef write -hide" doesn't produce nice results in this 
+	# case for shapes outside the boundary.
 	box [lindex $::env(DIE_AREA) 0]um [lindex $::env(DIE_AREA) 1]um [lindex $::env(DIE_AREA) 2]um [lindex $::env(DIE_AREA) 3]um
 	property FIXED_BBOX [box values]
 }
 
 select top cell
 
+cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
 
-# Write gds
-if { $::env(MAGIC_GENERATE_GDS) } {
-	cif *hier write disable
-	#gds write $::env(DESIGN_NAME).gds
-	gds write $::env(magic_result_file_tag).gds
-	puts "\[INFO\]: GDS Write Complete"
-}
+save
 
+# Write LEF
 if { $::env(MAGIC_GENERATE_LEF) } {
 	if { $::env(MAGIC_WRITE_FULL_LEF) } {
 		puts "\[INFO\]: Writing non-abstract (full) LEF"
@@ -96,6 +88,25 @@ if { $::env(MAGIC_GENERATE_LEF) } {
 		}
 	}
 	puts "\[INFO\]: LEF Write Complete"
+}
+
+# Write GDS
+if { $::env(MAGIC_GENERATE_GDS) } {
+	# mark the incoming cell defs as readonly so that their
+	# GDS data gets copied verbatim
+	gds readonly true
+	gds rescale false
+	if {  [info exist ::env(EXTRA_GDS_FILES)] } {
+		set gds_files_in $::env(EXTRA_GDS_FILES)
+		foreach gds_file $gds_files_in {
+			gds read $gds_file
+		}
+	}
+	
+	load $::env(DESIGN_NAME)
+
+	gds write $::env(magic_result_file_tag).gds
+	puts "\[INFO\]: GDS Write Complete"
 }
 
 exit 0

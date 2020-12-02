@@ -26,6 +26,7 @@ set ::env(MAGIC_GENERATE_GDS) 1
 set ::env(MAGIC_GENERATE_LEF) 1
 set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
+set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"

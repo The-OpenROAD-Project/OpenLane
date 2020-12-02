@@ -24,23 +24,13 @@ proc run_magic {args} {
 		# the following MAGTYPE better be mag for clean GDS generation
 		# use load -dereference to ignore it later if needed
 		set ::env(MAGTYPE) mag
-		# Generate GDS, LEF views
-		try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic.tcl \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
-		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
-		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 
-		# Generate MAG views
+		# Generate GDS, MAG, and LEF views
 		try_catch magic \
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic_mag.tcl \
+				$::env(SCRIPTS_DIR)/magic/mag_lef_gds.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
 		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
@@ -51,22 +41,32 @@ proc run_magic {args} {
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic_maglef.tcl \
+				$::env(SCRIPTS_DIR)/magic/maglef.tcl \
 			 	</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).maglef.log
 
-		# copy GDS properties from the MAG view into the MAGLEF view
-		set gds_properties [list]
-		set fp [open $::env(magic_result_file_tag).mag r]
+		if { [info exists ::env(MAGIC_INCLUDE_GDS_POINTERS)] \
+			&& $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+			try_catch magic \
+				-noconsole \
+				-dnull \
+				-rcfile $::env(MAGIC_MAGICRC) \
+				$::env(SCRIPTS_DIR)/magic/mag.tcl \
+				</dev/null \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
+
+			# copy GDS properties from the MAG view into the MAGLEF view
+			set gds_properties [list]
+			set fp [open $::env(magic_result_file_tag).mag r]
 			set mag_lines [split [read $fp] "\n"]
 			foreach line $mag_lines {
 				if { [string first "string GDS_" $line] != -1 } {
 					lappend gds_properties $line
 				}
 			}
-		close $fp
+			close $fp
 
-		set fp [open $::env(magic_result_file_tag).lef.mag r]
+			set fp [open $::env(magic_result_file_tag).lef.mag r]
 			set mag_lines [split [read $fp] "\n"]
 			set new_mag_lines [list]
 			foreach line $mag_lines {
@@ -75,11 +75,12 @@ proc run_magic {args} {
 				}
 				lappend new_mag_lines $line
 			}
-		close $fp
+			close $fp
 
-		set fp [open $::env(magic_result_file_tag).lef.mag w]
+			set fp [open $::env(magic_result_file_tag).lef.mag w]
 			puts $fp [join $new_mag_lines "\n"]
-		close $fp
+			close $fp
+		}
 }
 
 
@@ -92,7 +93,7 @@ proc run_magic_drc {args} {
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic_drc.tcl \
+				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
