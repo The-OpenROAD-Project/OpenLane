@@ -50,24 +50,18 @@ proc run_non_interactive_mode {args} {
 	run_magic_spice_export
 
 	if {  [info exists flags_map(-save) ] } {
-		if { [info exists arg_values(-save_path)] } {
-			save_views 	-lef_path $::env(magic_result_file_tag).lef \
-				-def_path $::env(tritonRoute_result_file_tag).def \
-				-gds_path $::env(magic_result_file_tag).gds \
-				-mag_path $::env(magic_result_file_tag).mag \
-				-spice_path $::env(magic_result_file_tag).spice \
-				-verilog_path $::env(CURRENT_NETLIST) \
-				-save_path $arg_values(-save_path) \
-				-tag $::env(RUN_TAG)
-		} else  {
-			save_views 	-lef_path $::env(magic_result_file_tag).lef \
-				-def_path $::env(tritonRoute_result_file_tag).def \
-				-mag_path $::env(magic_result_file_tag).mag \
-				-gds_path $::env(magic_result_file_tag).gds \
-				-spice_path $::env(magic_result_file_tag).spice \
-				-verilog_path $::env(CURRENT_NETLIST) \
-				-tag $::env(RUN_TAG)
+		if { ! [info exists arg_values(-save_path)] } {
+			set arg_values(-save_path) ""
 		}
+		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+			-def_path $::env(tritonRoute_result_file_tag).def \
+			-gds_path $::env(magic_result_file_tag).gds \
+			-mag_path $::env(magic_result_file_tag).mag \
+			-mag_path $::env(magic_result_file_tag).lef.mag \
+			-spice_path $::env(magic_result_file_tag).spice \
+			-verilog_path $::env(CURRENT_NETLIST) \
+			-save_path $arg_values(-save_path) \
+			-tag $::env(RUN_TAG)
 	}
 
 	# Physical verification
@@ -123,13 +117,13 @@ proc run_magic_drc_batch {args} {
 			-noconsole \
 			-dnull \
 			-rcfile $magicrc \
-			$::env(OPENLANE_ROOT)/scripts/magic_drc_batch.tcl \
+			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
 			</dev/null |& tee /dev/tty
 	} else {
 		exec magic \
 			-noconsole \
 			-dnull \
-			$::env(OPENLANE_ROOT)/scripts/magic_drc_batch.tcl \
+			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
 			</dev/null |& /dev/tty
 	}
 }

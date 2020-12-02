@@ -606,6 +606,7 @@ proc save_views {args} {
     set options {
         {-lef_path optional}
         {-mag_path optional}
+        {-maglef_path optional}
         {-def_path optional}
         {-gds_path optional}
         {-verilog_path optional}
@@ -616,7 +617,8 @@ proc save_views {args} {
 
     set flags {}
     parse_key_args "save_views" args arg_values $options flags_map $flags
-    if { [info exists arg_values(-save_path)] } {
+    if { [info exists arg_values(-save_path)]\
+        && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
     } else {
         set path $::env(DESIGN_DIR)
@@ -636,6 +638,14 @@ proc save_views {args} {
         file mkdir $destination
         if { [file exists $arg_values(-mag_path)] } {
             file copy -force $arg_values(-mag_path) $destination/$arg_values(-tag).mag
+        }
+    }
+
+    if { [info exists arg_values(-maglef_path)] } {
+        set destination $path/maglef
+        file mkdir $destination
+        if { [file exists $arg_values(-maglef_path)] } {
+            file copy -force $arg_values(-maglef_path) $destination/$arg_values(-tag).mag
         }
     }
 
