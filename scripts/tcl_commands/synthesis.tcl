@@ -54,8 +54,11 @@ proc run_yosys {args} {
 
     # The following is a naive workaround to the defparam issue.. it should be handled with
     # an issue to the OpenROAD verilog parser.
-    try_catch sed -ie {/defparam/d} $::env(CURRENT_NETLIST)
-
+    if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
+        puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
+    } else {
+        try_catch sed -ie {/defparam/d} $::env(CURRENT_NETLIST)
+    }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(yosys_log_file_tag)_runtime.txt
 }
