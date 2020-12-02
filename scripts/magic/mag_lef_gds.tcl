@@ -105,6 +105,14 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 	
 	load $::env(DESIGN_NAME)
 
+	select top cell
+
+	if {  [info exist ::env(MAGIC_DISABLE_HIER_GDS)]\
+		&& $::env(MAGIC_DISABLE_HIER_GDS) } {
+		cif *hier write disable
+		cif *array write disable
+	}
+
 	gds write $::env(magic_result_file_tag).gds
 	puts "\[INFO\]: GDS Write Complete"
 }
