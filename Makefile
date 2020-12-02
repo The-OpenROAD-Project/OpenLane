@@ -93,9 +93,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	cd $(OPENLANE_DIR) && \
-		cd docker_build && \
-		$(MAKE) merge
+	docker pull efabless/openlane:rc5
 
 .PHONY: regression
 regression:
