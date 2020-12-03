@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:centos6 AS base-dependencies
+FROM centos:centos7 AS base-dependencies
 
 # Install Development Environment
 RUN yum groupinstall -y "Development Tools"
@@ -23,7 +23,7 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
-# centos6 doesn't set the PATH automatically for the installed gcc from dev tools
+# centos7 doesn't set the PATH automatically for the installed gcc from dev tools
 ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
     CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
@@ -40,29 +40,12 @@ RUN cd bison-3.0.5 && \
     make install
 
 # Install epel repo
-RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-RUN yum install -y epel-release-latest-6.noarch.rpm
+RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN yum install -y epel-release-latest-7.noarch.rpm
 
 # Install dev and runtime dependencies
 # Tcl 8.5
 RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel 
-
-# Tcl 8.6
-# RUN wget https://sourceforge.net/projects/tcl/files/Tcl/8.6.10/tcl8.6.10-src.tar.gz && \
-#     tar -xvzf tcl8.6.10-src.tar.gz
-# RUN cd tcl8.6.10/unix && \
-#     ./configure --prefix=/usr && \
-#     make -j$(nproc) && \
-#     make install
-
-# Install tclreadline
-# RUN wget https://github.com/flightaware/tclreadline/archive/v2.3.8.tar.gz && \
-#     tar -xvzf v2.3.8.tar.gz
-# RUN cd tclreadline-2.3.8 && \
-#     ./configure --prefix=/usr --with-tk=/tcl8.6.10/unix && \
-#     make -j$(nproc) && \
-#     make install
-# RUN yum -y install tclreadline
 
 # build boost
 RUN wget http://downloads.sourceforge.net/project/boost/boost/1.68.0/boost_1_68_0.tar.gz \
@@ -73,24 +56,27 @@ RUN wget http://downloads.sourceforge.net/project/boost/boost/1.68.0/boost_1_68_
     && ./b2 install --with-test -j $(nproc) 
 
 # Install python dev
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
 RUN yum install -y python36u python36u-libs python36u-devel python36u-pip
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
+# Install SWIG
 RUN yum remove -y swig \
     && yum install -y pcre-devel \
-    && wget https://github.com/swig/swig/archive/rel-3.0.12.tar.gz \
-    && tar xfz rel-3.0.12.tar.gz \
-    && rm -rf rel-3.0.12.tar.gz \
-    && cd swig-rel-3.0.12 \
-    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install 
+    && wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
+    && tar xfz rel-4.0.1.tar.gz \
+    && rm -rf rel-4.0.1.tar.gz \
+    && cd swig-rel-4.0.1 \
+    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install \
+    && cd .. \
+    && rm -rf swig-rel-4.0.1
 
 RUN yum -y install zlib-devel
 
-RUN yum install -y http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm
-RUN yum install -y git 
-RUN git clone https://gitlab.com/libeigen/eigen.git /eigen \
-    && cd /eigen \
+
+# eigen required by replace, TritonMacroPlace
+RUN git clone https://gitlab.com/libeigen/eigen.git \
+    && cd eigen \
     && mkdir build \
     && cd build \
     && cmake .. \
