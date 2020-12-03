@@ -23,6 +23,7 @@ FROM centos:centos7 as build
 # including python 3.6
 RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && \
 	yum install -y \
+		make \
 		cairo \
 		gettext \
 		gdb \
