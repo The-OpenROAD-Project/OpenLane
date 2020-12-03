@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TEST_SET=$1
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 export IMAGE_NAME=efabless/openlane:rc5
