@@ -43,12 +43,7 @@ Join the community on [slack](https://invite.skywater.tools)!
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
 
 
-**DISCLAIMER:** centos6 has reached its end of life, so until we update all our Docker files, the only way to build openlane would be to use the dockerhub installation method.
-
-
 # Quick Start:
-
-**Note:** Make sure you have an account on [dockerhub](https://hub.docker.com) and that you're logged-in to execute the following step.
 
 You can start setting up the skywater-pdk and openlane by running:
 
@@ -156,7 +151,7 @@ Refer to [this][24] for more details on the structure.
 
 ## Building the OpenLANE Docker
 
-### Building the Docker Image Locally  -- Not Supported at the moment!
+### Building the Docker Image Locally
 
 To setup openlane you can build the docker container locally following these instructions:
 
@@ -171,7 +166,7 @@ To setup openlane you can build the docker container locally following these ins
 
 Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
 
-**Note:** Make sure you have an account on dockerhub to execute the following step.
+**Note:** You may need to have an account on dockerhub to execute the following step.
 
 ```bash
     git clone https://github.com/efabless/openlane.git --branch rc5

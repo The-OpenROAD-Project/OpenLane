@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 AS build
+FROM centos:centos7 AS build
 
 # Install Development Environment
 RUN yum groupinstall -y "Development Tools"

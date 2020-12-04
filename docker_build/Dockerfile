@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 # RUN useradd -m openlane
 # RUN usermod -aG wheel openlane
@@ -23,6 +23,7 @@ FROM centos:centos6 as build
 # including python 3.6
 RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && \
 	yum install -y \
+		make \
 		cairo \
 		gettext \
 		gdb \
@@ -54,6 +55,9 @@ RUN pip install --no-cache-dir \
 		pandas \
 		install \
 		XlsxWriter
+
+# for magic
+RUN yum install -y mesa-libGLU-devel
 
 ENV OPENLANE_ROOT=/openLANE_flow
 ENV OPENROAD=/build/

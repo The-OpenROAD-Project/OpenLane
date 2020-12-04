@@ -18,7 +18,7 @@ STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= efabless/openlane:rc5
+IMAGE_NAME ?= openlane:rc5
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -93,7 +93,8 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	docker pull $(IMAGE_NAME)
+	cd $(OPENLANE_DIR)/docker_build && \
+		$(MAKE) merge
 
 .PHONY: regression
 regression:
