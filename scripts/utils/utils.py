@@ -47,19 +47,21 @@ def get_design_name(design, config):
         design_path= get_design_path(design=design)
         if design_path is None:
             print("{design} not found, skipping...".format(design=design))
-            return "INVALID DESIGN PATH"
+            return "[INVALID]: design path doesn't exist"
         config_file = "{design_path}/{config}.tcl".format(
                 design_path=design_path,
                 config=config,
         )
-        config_file_opener = open(config_file, "r")
-        configs = config_file_opener.read()
-        config_file_opener.close()
-        pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
-        for name in re.findall(pattern, configs):
-                return name.replace("\"","")
-        print ("{design} DESIGN NAME doesn't exist inside the config file!".format(design=design))
-        return "INVALID DESIGN PATH"
+        try:
+            config_file_opener = open(config_file, "r")
+            configs = config_file_opener.read()
+            config_file_opener.close()
+            pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
+            for name in re.findall(pattern, configs):
+                    return name.replace("\"","")
+            return "[INVALID]: design name doesn't exist inside the config file!"
+        except OSError:
+            return "[INVALID]: design config doesn't exist"
 
 # addComputedStatistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
 def addComputedStatistics(filename):

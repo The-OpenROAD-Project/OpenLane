@@ -43,7 +43,6 @@ puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
 clock_tree_synthesis\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\
-    -out_path $::env(TMP_DIR)/cts/\
     -clk_nets $::env(CLOCK_NET)
 
 write_def $::env(SAVE_DEF)

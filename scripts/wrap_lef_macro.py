@@ -22,7 +22,12 @@ import re
 import argparse
 import subprocess
 
-MIN_SIZE = 1
+OPENLANE_ROOT = os.environ["OPENLANE_ROOT"]
+assert OPENLANE_ROOT, "You need to set OPENLANE_ROOT"
+print("OPENLANE_ROOT:", OPENLANE_ROOT)
+SCRIPTS_DIR = OPENLANE_ROOT + "/scripts"
+
+MIN_SIZE = 0.8
 MAX_SIZE = 52
 MARGIN = 100  # 100 um
 SPACING = -0.6  # in um
@@ -258,6 +263,7 @@ with open(input_file_name, 'r') as input_lef_file, \
                     and last_layer in allowed_layers\
                     and is_near_boundary(llx, lly, urx, ury)\
                     and is_good_size(llx, lly, urx, ury):
+                print("Extending", pin_to_extend)
                 llx, lly, urx, ury = extension_to_boundary(llx, lly, urx, ury)
                 output_tmp_lef_file.write("        " +
                                           "RECT %.3f %.3f %.3f %.3f ;\n" % (llx,
@@ -276,24 +282,27 @@ else:
 
         # os.rename(output_tmp_file_name, output_file_name)
         # exit()
-        rectify_process = subprocess.Popen(["python", "rectify.py",
+        rectify_process = subprocess.Popen(["python", SCRIPTS_DIR + "/rectify.py",
                                             str(MARGIN-SPACING), str(MARGIN-SPACING),
                                             str(0+SIZE_X-MARGIN+SPACING), str(0+SIZE_Y-MARGIN+SPACING)],
                                            stdin=output_tmp_lef_file, stdout=subprocess.PIPE)
 
         if not no_obs:
-            obs_process = subprocess.Popen(["python", "obs.py",
+            obs_process = subprocess.Popen(["python", SCRIPTS_DIR + "/obs.py",
                                             str(MARGIN), str(MARGIN),
                                             str(0+SIZE_X-MARGIN), str(0+SIZE_Y-MARGIN)],
                                            stdin=rectify_process.stdout, stdout=subprocess.PIPE)
         else:
             obs_process = rectify_process
 
-        pin_clean_process = subprocess.Popen(["python", "remove_empty_pins.py"],
+        port_clean_process = subprocess.Popen(["python", SCRIPTS_DIR + "/remove_empty_ports.py"],
                                                  stdin=obs_process.stdout, stdout=subprocess.PIPE)
 
 
-        pin_clean_process = subprocess.Popen(["python", "remove_empty_pins.py"],
-                                             stdin=pin_clean_process.stdout, stdout=output_lef_file)
+        pin_clean_process = subprocess.Popen(["python", SCRIPTS_DIR + "/remove_empty_pins.py"],
+                                             stdin=port_clean_process.stdout, stdout=output_lef_file)
 
     os.remove(output_tmp_file_name)
+
+assert os.path.exists(output_file_name), "Failed to write %s" % (output_file_name)
+print("Done", output_file_name)

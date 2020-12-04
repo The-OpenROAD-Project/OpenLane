@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 # Common development tools and libraries (kitchen sink approach)
 RUN yum groupinstall -y "Development Tools" "Development Libraries"

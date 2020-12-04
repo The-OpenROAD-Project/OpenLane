@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 # # install gcc 8
 RUN yum -y install centos-release-scl && \
@@ -30,7 +30,7 @@ RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.0.tar.gz && \
     tar -xf swig-4.0.0.tar.gz && \
     cd swig-4.0.0 && \
     ./configure && \
-    make && \
+    make -j$(nproc) && \
     make install
 
 
@@ -47,6 +47,7 @@ RUN cd bison-3.0.5 && \
     make -j$(nproc) && \
     make install
 
+RUN yum -y install bzip2
 # Installing boost for build dependency
 RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
     tar -xf download && \
@@ -55,7 +56,7 @@ RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.
     ./b2 install --with-iostreams --with-test link=shared -j $(nproc)
 
 # download public key for github.com
-RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
+#RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 RUN git clone https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute_26102020 \
 	&& cd TritonRoute_26102020 \

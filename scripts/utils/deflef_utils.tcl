@@ -133,4 +133,28 @@ proc zeroize_origin_lef {args} {
   exec mv  $arg_values(-file).zeroized $arg_values(-file)
 }
 
+proc remove_nets {args} {
+  set options {{-input required}}
+  set flags {}
+  parse_key_args "remove_nets" args arg_values $options flags_map $flags
+  try_catch $::env(SCRIPTS_DIR)/remove_nets.sh $arg_values(-input)
+}
+
+proc remove_components {args} {
+  set options {{-input required}}
+  set flags {}
+  parse_key_args "remove_components" args arg_values $options flags_map $flags
+  try_catch $::env(SCRIPTS_DIR)/remove_components.sh $arg_values(-input)
+}
+
+proc remove_component {args} {
+  set options {
+      {-input required}
+      {-instance_name required}
+  }
+  set flags {}
+  parse_key_args "remove_component" args arg_values $options flags_map $flags
+  try_catch $::env(SCRIPTS_DIR)/remove_def_component.sh $arg_values(-instance_name) $arg_values(-input)
+}
+
 package provide openlane_utils 0.9

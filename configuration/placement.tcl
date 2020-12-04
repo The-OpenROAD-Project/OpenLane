@@ -13,9 +13,10 @@
 # limitations under the License.
 
 # Placement defaults
-set ::env(PL_TARGET_DENSITY) 0.4
+set ::env(PL_TARGET_DENSITY) 0.55
 set ::env(PL_ROUTABILITY_DRIVEN) 0
 set ::env(PL_TIME_DRIVEN) 0
+set ::env(PL_RANDOM_GLB_PLACEMENT) 0
 set ::env(PL_BASIC_PLACEMENT) 0
 set ::env(PL_SKIP_INITIAL_PLACEMENT) 0
 set ::env(MAX_WIRE_LENGTH) 50

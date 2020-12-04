@@ -42,6 +42,20 @@ proc global_placement_or {args} {
     set_def $::env(SAVE_DEF)
 }
 
+proc random_global_placement {args} {
+    puts_warn "Performing Random Global Placement..."
+    TIMER::timer_start
+    set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
+
+    try_catch python3 $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
+        --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
+        |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
+    set_def $::env(SAVE_DEF)
+}
+
 proc detailed_placement {args} {
     puts_info "Running Detailed Placement..."
     TIMER::timer_start
@@ -68,9 +82,9 @@ proc manual_macro_placement {args} {
     puts_info " Manual Macro Placement..."
     set var "f"
     if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -i $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     }
     set_def $::env(CURRENT_DEF).macro_placement.def
 }
@@ -127,7 +141,22 @@ proc run_placement {args} {
 # |----------------------------------------------------|
 	set ::env(CURRENT_STAGE) placement
 
-	global_placement_or
+    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
+        set old_pl_target_density $::env(PL_TARGET_DENSITY)
+        set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
+    }
+
+    if { $::env(PL_RANDOM_GLB_PLACEMENT) } {
+        # useful for very tiny designs
+        random_global_placement
+    } else {
+        global_placement_or
+    }
+
+    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
+        set ::env(PL_TARGET_DENSITY) $old_pl_target_density
+    }
+
     if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
 		repair_wire_length
 	}
@@ -135,7 +164,7 @@ proc run_placement {args} {
 	    run_openPhySyn
     }
 
-	detailed_placement
+	detailed_placement_or
 }
 
 proc repair_wire_length {args} {

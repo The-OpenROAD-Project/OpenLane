@@ -33,6 +33,36 @@ parser.add_argument('--outputLef', '-o', required=True,
                     help='Output Lef')
 args = parser.parse_args()
 
+def get_delimited_blocks(data):
+    # MACRO and SITE blocks
+    # assumes correctly indented LEF; otherwise, assertions should fail
+    blocks = []
+
+    current_block_name = None
+    block_content = []
+    for line in data.splitlines():
+        if line.startswith("MACRO") or line.startswith("SITE"):
+            assert current_block_name is None, (current_block_name, line)
+            assert not block_content, block_content
+            tokens = line.split()
+            assert len(tokens) == 2, line
+            current_block_name = tokens[1]
+            block_content.append(line)
+        elif current_block_name is not None:
+            block_content.append(line)
+            if line.startswith("END"):
+                assert line != "END LIBRARY", current_block_name
+                tokens = line.split()
+                assert len(tokens) == 2, line
+                assert tokens[1] == current_block_name, (line, current_block_name)
+                blocks.append("\n".join(block_content))
+                current_block_name = None
+                block_content = []
+
+    assert not current_block_name, current_block_name
+    assert not block_content, block_content
+    return blocks
+
 
 print(os.path.basename(__file__),": Merging LEFs")
 
@@ -43,37 +73,39 @@ f.close()
 # Remove Last line ending the library
 content = re.sub("END LIBRARY","",content)
 
+content = content.splitlines()
+
 lefs = args.inputLef[1:]
 if len(lefs) == 1:
-	lefs = lefs[0].split()
+    lefs = lefs[0].split()
 
 # Iterate through additional lefs
 for lefFile in lefs:
-  f = open(lefFile)
-  snippet = f.read()
-  f.close()
+    f = open(lefFile)
+    snippet = f.read()
+    f.close()
 
-  snippet = re.sub("END LIBRARY","",snippet)
+    snippet = snippet.replace("END LIBRARY", "")
 
-  # Match the sites
-  pattern = r"^SITE.*?^END\s\S+"
-  m = re.findall(pattern, snippet, re.M | re.DOTALL)
+    blocks = get_delimited_blocks(snippet)
+    site_cnt = 0
+    macro_cnt = 0
+    for block in blocks:
+        if block.startswith("MACRO"):
+            macro_cnt += 1
+        else:
+            assert block.startswith("SITE"), block
+            site_cnt += 1
 
-  print(os.path.basename(lefFile) + ": SITEs matched found: " + str(len(m)))
-  content += "\n".join(m)
+    print(os.path.basename(lefFile) + ": SITEs matched found:", site_cnt)
+    print(os.path.basename(lefFile) + ": MACROs matched found:", macro_cnt)
 
-  # Match the macros
-  pattern = r"^MACRO.*?^END\s\S+"
-  m = re.findall(pattern, snippet, re.M | re.DOTALL)
+    content.extend(blocks)
 
-  print(os.path.basename(lefFile) + ": MACROs matched found: " + str(len(m)))
-  content += "\n" + "\n".join(m)
-
-
-content += "\nEND LIBRARY"
+content.append("END LIBRARY")
 
 f = open(args.outputLef, "w")
-f.write(content)
+f.write("\n".join(content))
 f.close()
 
 print(os.path.basename(__file__),": Merging LEFs complete")

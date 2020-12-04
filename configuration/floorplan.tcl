@@ -43,3 +43,5 @@ set ::env(RIGHT_MARGIN_MULT) 12
 
 set ::env(FP_HORIZONTAL_HALO) 10
 set ::env(FP_VERTICAL_HALO) $::env(FP_HORIZONTAL_HALO)
+
+set ::env(DESIGN_IS_CORE) 1

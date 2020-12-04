@@ -23,6 +23,19 @@ set gl_ext      ".gl.v"
 set timing_ext  ".timing.txt"
 set abc_ext     ".abc"
 
+if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
+	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
+}
+
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+	}
+}
+
+
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {
 		verilog_defines -D$define
@@ -34,14 +47,15 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE)
-}
 
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
   read_verilog  [lindex $::env(VERILOG_FILES) $i]
 }
+
+select -module $vtop
+show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+select -clear
 
 hierarchy -check -top $vtop
 if { $::env(SYNTH_FLAT_TOP) } {
@@ -59,4 +73,4 @@ splitnets
 opt_clean -purge
 tee -o "$::env(yosys_report_file_tag)_$chk_ext" check
 tee -o "$::env(yosys_report_file_tag)$stat_ext" stat -top $vtop -liberty $sclib
-write_verilog -noattr -noexpr -nohex -nodec "$::env(SAVE_NETLIST)"
+write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"

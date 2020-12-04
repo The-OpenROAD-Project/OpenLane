@@ -40,6 +40,11 @@ diodes_log=${path}/logs/placement/diodes.log
 #old magic directory
 magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
+fr_antenna_log=${path}/logs/routing/fastroute.log
+fr_log=${path}/logs/routing/fastroute_post_antenna.log
+if ! [ -f "$fr_log" ]; then
+    fr_log=${path}/logs/routing/fastroute.log
+fi
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.log
@@ -64,7 +69,7 @@ cellperum=-1
 #if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
-opendpUtil=$(grep "design util" $openDP_log -s | tail -1 | sed -E 's/.*: (\S+).*/\1/')
+opendpUtil=$(grep "utilization" $openDP_log -s | head -1 | sed -E 's/.* (\S+).*%/\1/')
 if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
@@ -111,7 +116,7 @@ fi
 # Extracting Antenna Violations
 if [ -f $arc_antenna_report ]; then
         #arc check
-        antenna_violations=$(grep "Number of nets violated:" $arc_antenna_report -s | tail -1 | sed -r 's/.*[^0-9]//')
+        antenna_violations=$(grep "Number of pins violated:" $arc_antenna_report -s | tail -1 | sed -r 's/.*[^0-9]//')
         if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
 else
         if [ -f $magic_antenna_report ]; then
@@ -212,6 +217,19 @@ if ! [[ $input_output ]]; then input_output="-1 -1"; fi
 level=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/.*lev.*[^0-9]([0-9]+)$/\1/')
 if ! [[ $level ]]; then level=-1; fi
 
+#Extracting layer usage percentage
+layer1=$(grep "Layer 1 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 1 use percentage: (\S+)%/\1/')
+if ! [[ $layer1 ]]; then layer1=-1; fi
+layer2=$(grep "Layer 2 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 2 use percentage: (\S+)%/\1/')
+if ! [[ $layer2 ]]; then layer2=-1; fi
+layer3=$(grep "Layer 3 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 3 use percentage: (\S+)%/\1/')
+if ! [[ $layer3 ]]; then layer3=-1; fi
+layer4=$(grep "Layer 4 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 4 use percentage: (\S+)%/\1/')
+if ! [[ $layer4 ]]; then layer4=-1; fi
+layer5=$(grep "Layer 5 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 5 use percentage: (\S+)%/\1/')
+if ! [[ $layer5 ]]; then layer5=-1; fi
+layer6=$(grep "Layer 6 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 6 use percentage: (\S+)%/\1/')
+if ! [[ $layer6 ]]; then layer6=-1; fi
 
 #Extracting Endcaps and TapCells
 endcaps=$(grep "#Endcaps inserted:" $tapcell_log -s | tail -1 | sed -r 's/[^0-9]*//g')
@@ -224,8 +242,7 @@ if ! [[ $tapcells ]]; then tapcells=0; fi
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log -s | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
 if ! [[ $diodes ]]; then
-        # A temporary solution until FR reports the number of diodes added.
-        diodes=$(grep "diode" $tritonRoute_def -s | wc -l)
+        diodes=$(grep "diodes inserted" $fr_antenna_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted/\1/')
         if ! [[ $diodes ]]; then diodes=0; fi
 fi
 
@@ -238,7 +255,7 @@ if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
 
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done

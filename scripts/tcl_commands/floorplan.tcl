@@ -23,6 +23,7 @@ proc init_floorplan {args} {
 
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).openroad.log
 		check_floorplan_missing_lef
+		check_floorplan_missing_pins
 
 		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
 		set core_area_file [open $::env(verilog2def_report_file_tag).core_area.rpt]
@@ -65,8 +66,10 @@ proc place_io_ol {args} {
 				{-horizontal_layer optional}
 				{-vertical_layer optional}
 				{-horizontal_mult optional}
+				{-horizontal_ext optional}
 				{-vertical_layer optional}
 				{-vertical_mult optional}
+				{-vertical_ext optional}
 				{-length optional}
 				{-output_def optional}
 				{-extra_args optional}
@@ -78,13 +81,17 @@ proc place_io_ol {args} {
 		set_if_unset arg_values(-lef) $::env(MERGED_LEF)
 		set_if_unset arg_values(-def) $::env(CURRENT_DEF)
 
-		set_if_unset arg_values(-cfg) ""
+		set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
 		set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HMETAL)
 		set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VMETAL)
 
 		set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
 		set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
+
+		set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VEXTEND)
+		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
+
 		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
 		set_if_unset arg_values(-output_def) $::env(ioPlacer_tmp_file_tag).def
 
@@ -98,7 +105,9 @@ proc place_io_ol {args} {
 				--ver-layer $arg_values(-vertical_layer)\
 				--ver-width-mult $arg_values(-vertical_mult)\
 				--hor-width-mult $arg_values(-horizontal_mult)\
-				--length-mult $arg_values(-length)\
+				--hor-extension $arg_values(-horizontal_ext)\
+				--ver-extension $arg_values(-vertical_ext)\
+				--length $arg_values(-length)\
 				-o $arg_values(-output_def)\
 				{*}$arg_values(-extra_args) |& tee $::env(LOG_DIR)/floorplan/place_io_ol.log $::env(TERMINAL_OUTPUT)
 
@@ -141,8 +150,8 @@ proc place_contextualized_io {args} {
 				puts_info "Custom floorplan created"
 
 				set_def $::env(ioPlacer_tmp_file_tag).context.def
-				set ::env(SAVE_DEF) $::env(CURRENT_DEF)
 
+				set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
@@ -150,7 +159,7 @@ proc place_contextualized_io {args} {
 				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
 				set ::env(FP_IO_MODE) $old_mode
 
-				move_pins -from $::env(CURRENT_DEF) -to $prev_def
+				move_pins -from $::env(SAVE_DEF) -to $prev_def
 				set_def $prev_def
 
 				TIMER::timer_stop
@@ -192,6 +201,15 @@ proc chip_floorplan {args} {
 		remove_empty_nets -input $::env(CURRENT_DEF)
 }
 
+proc apply_def_template {args} {
+	if { [info exists ::env(FP_DEF_TEMPLATE)] } {		
+		puts_info "Applying DEF template..."
+		try_catch python3 $::env(SCRIPTS_DIR)/apply_def_template.py -t $::env(FP_DEF_TEMPLATE) -u $::env(CURRENT_DEF) -s $::env(SCRIPTS_DIR)
+	}
+
+
+}
+
 proc run_floorplan {args} {
 		puts_info "Running Floorplanning..."
 		# |----------------------------------------------------|
@@ -204,17 +222,27 @@ proc run_floorplan {args} {
 
 		# place io
 		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
-				place_io_ol -cfg $::env(FP_PIN_ORDER_CFG)
+				place_io_ol
 		} else {
+			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
 				place_io
+				global_placement_or
+				place_contextualized_io \
+					-lef $::env(FP_CONTEXT_LEF) \
+					-def $::env(FP_CONTEXT_DEF)
+			} else {
+				place_io
+			}
 		}
+		
+		apply_def_template
 
 		if { [info exist ::env(EXTRA_LEFS)] } {
-			global_placement_or
 			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
 				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
 				manual_macro_placement f
 			} else {
+				global_placement_or
 				basic_macro_placement
 			}
 		}
@@ -223,6 +251,8 @@ proc run_floorplan {args} {
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} { 
 				tap_decap_or
 		}
+
+		gen_pdn
 }
 
 package provide openlane 0.9

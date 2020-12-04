@@ -83,6 +83,8 @@ MACRO_TOP_PLACEMENT_X = 0
 MACRO_TOP_PLACEMENT_Y = 0
 MACRO_TOP_PLACEMENT_ORIENT = 0
 
+assert macro_design_name in [inst.getMaster().getName() for inst in block_top.getInsts()], "%s not found in %s" % (macro_design_name, top_design_name)
+
 for net in nets_top:
     iterms = net.getITerms()  # asssumption: no pins (bterms) on top level
     block_net_name = None
