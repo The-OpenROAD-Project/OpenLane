@@ -1,5 +1,5 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
-DOCKER_BUILD_OPTS ?= --rm --progress plain
+DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= openlane:rc5
 #ROOT = sudo
