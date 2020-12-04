@@ -15,7 +15,7 @@
 # syntax = docker/dockerfile:1.0-experimental
 FROM centos:centos7 as build
 
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install curl libffi-devel readline-devel tcl tcl-devel graphviz xdot
 

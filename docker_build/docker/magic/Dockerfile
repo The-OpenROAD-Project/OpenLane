@@ -16,7 +16,7 @@
 FROM centos:centos7 as build
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install devtoolset-8 devtoolset-8-libatomic-devel
 
@@ -29,11 +29,11 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN yum install -y mesa-libGLU-devel csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone magic components
-RUN git clone git://opencircuitdesign.com/magic magic_23112020
+RUN git clone git://opencircuitdesign.com/magic magic_04122020
 
-WORKDIR magic_23112020
+WORKDIR magic_04122020
 
-RUN git checkout 0ad9ac91e35c6e7b29b9bdc78e1a97ad0cb8bd8d
+RUN git checkout 414f4a8ccb1a0a352a90fbefdc088667dc3243bb
 
 # build
 RUN ./configure --prefix=/build && \

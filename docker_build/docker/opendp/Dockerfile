@@ -26,7 +26,7 @@ ENV CC=/opt/rh/devtoolset-7/root/usr/bin/gcc \
     LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:/opt/rh/devtoolset-7/root/usr/lib64/dyninst:/opt/rh/devtoolset-7/root/usr/lib/dyninst:/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 
 RUN yum -y install wget zlib-devel
 
