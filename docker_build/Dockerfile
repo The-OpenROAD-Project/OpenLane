@@ -56,6 +56,9 @@ RUN pip install --no-cache-dir \
 		install \
 		XlsxWriter
 
+# for magic
+RUN yum install -y mesa-libGLU-devel
+
 ENV OPENLANE_ROOT=/openLANE_flow
 ENV OPENROAD=/build/
 ENV OPENROADOS=Linux-x86_64

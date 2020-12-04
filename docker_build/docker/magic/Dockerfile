@@ -26,9 +26,7 @@ RUN yum install -y python36u python36u-libs python36u-devel python36u-pip python
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
 # magic dependencies
-RUN yum install -y libglu csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
-
-RUN yum install gcc-c++ -y
+RUN yum install -y mesa-libGLU-devel csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone magic components
 RUN git clone git://opencircuitdesign.com/magic magic_23112020
@@ -39,7 +37,7 @@ RUN git checkout 0ad9ac91e35c6e7b29b9bdc78e1a97ad0cb8bd8d
 
 # build
 RUN ./configure --prefix=/build && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install
 
 RUN mkdir -p /build/version/
