@@ -497,6 +497,7 @@ proc prep {args} {
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_BASIC_PLACEMENT) $::env(PL_BASIC_PLACEMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_SKIP_INITIAL_PLACEMENT) $::env(PL_SKIP_INITIAL_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_RANDOM_GLB_PLACEMENT) $::env(PL_RANDOM_GLB_PLACEMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(GLB_CFG_FILE) 1
     set_log ::env(PSN_ENABLE_RESIZING) $::env(PSN_ENABLE_RESIZING) $::env(GLB_CFG_FILE) 1
     set_log ::env(PSN_ENABLE_PIN_SWAP) $::env(PSN_ENABLE_PIN_SWAP) $::env(GLB_CFG_FILE) 1
