@@ -16,7 +16,7 @@
 FROM centos:centos7 as build
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install devtoolset-8 devtoolset-8-libatomic-devel
 
