@@ -53,7 +53,7 @@ proc run_magic {args} {
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic/mag.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).mag.log
 
 			# copy GDS properties from the MAG view into the MAGLEF view
 			set gds_properties [list]
