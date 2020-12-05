@@ -45,6 +45,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
+		git checkout master && git pull && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -74,6 +75,7 @@ $(PDK_ROOT)/open_pdks:
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
+		git checkout master && git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
 .PHONY: build-pdk
