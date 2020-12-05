@@ -244,6 +244,8 @@ proc prep {args} {
         return -code error
     } else {
         puts_info "PDK: $::env(PDK)"
+        puts_info "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
+        set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
 
     if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
