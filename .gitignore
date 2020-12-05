@@ -16,3 +16,6 @@ macrocell.list
 
 # Mac
 .DS_Store
+
+# doc
+doc/_build
