@@ -48,7 +48,7 @@ For more details about the docker container and its process, the [following inst
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
     cd openlane/
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
@@ -85,7 +85,7 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     cd openlane/
     git checkout master
     git pull
-    git checkout rc5
+    git checkout rc6
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
@@ -156,7 +156,7 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
     cd openlane/docker_build
     make merge
     cd ..
@@ -169,8 +169,8 @@ Alternatively, you can use the auto-built openlane docker images available throu
 **Note:** You may need to have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
-    docker pull efabless/openlane:rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
+    docker pull efabless/openlane:rc6
 ```
 
 ## Running OpenLANE
@@ -180,14 +180,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc6
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc5
+    export IMAGE_NAME=efabless/openlane:rc6
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
