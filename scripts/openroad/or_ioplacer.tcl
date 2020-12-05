@@ -29,11 +29,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 ioPlacer::set_rand_seed 42
-if { $::env(FP_IO_MODE) == 1 } {
-	ioPlacer::set_random_mode 2; # 1 and 3 have different groupings
-} else {
-	ioPlacer::set_random_mode 0
-}
 
 ioPlacer::set_min_distance 5
 ioPlacer::set_hor_length $::env(FP_IO_HLENGTH)
@@ -43,7 +38,12 @@ ioPlacer::set_ver_length_extend $::env(FP_IO_HEXTEND)
 ioPlacer::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
 ioPlacer::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
 
-place_ios\
+set opts ""
+if { $::env(FP_IO_MODE) == 1 } {
+    set opts "-random"
+}
+
+place_ios $opts\
 	-hor_layer $::env(FP_IO_HMETAL)\
 	-ver_layer $::env(FP_IO_VMETAL)
 

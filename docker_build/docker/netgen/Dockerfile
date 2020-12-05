@@ -13,10 +13,10 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install devtoolset-8 devtoolset-8-libatomic-devel
 
@@ -24,16 +24,18 @@ RUN yum -y install centos-release-scl && \
 RUN yum install -y csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone netgen components
-# RUN git clone https://github.com/RTimothyEdwards/netgen
-RUN git clone git://opencircuitdesign.com/netgen netgen_08102020
+RUN git clone git://opencircuitdesign.com/netgen netgen_05122020
 
-WORKDIR netgen_08102020
+WORKDIR netgen_05122020
 
-RUN git checkout d2c356f9e21a4552be4088a50cec8adba2162757
+RUN git checkout b9769b9f55cb55602594ce5eece21e03de9299c4
+
 
 # build
-RUN ./configure --prefix=/build && \
-    make -j4 && \
+RUN ./configure --prefix=/build
+
+RUN make clean && \
+    make && \
     make install
 
 RUN mkdir -p /build/version/

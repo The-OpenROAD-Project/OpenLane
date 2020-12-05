@@ -13,9 +13,9 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install curl libffi-devel readline-devel tcl tcl-devel graphviz xdot
 
@@ -34,7 +34,7 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
 
 
 
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
 RUN yum install -y python36u python36u-pip
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 

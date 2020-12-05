@@ -120,7 +120,7 @@ for design in designs:
     configFileToUpdateOpener.write(newData)
     if update_clock_period:
         if design in designClockDict and float(designClockDict[design]) > 0:
-            clockLine = "\n# Suggested Clock Period:\n set ::env(CLOCK_PERIOD) \"" + str(round(float(designClockDict[design]),2)) + "\"\n"
+            clockLine = "\n# Suggested Clock Period:\nset ::env(CLOCK_PERIOD) \"" + str(round(float(designClockDict[design]),2)) + "\"\n"
             configFileToUpdateOpener.write(clockLine)
     configFileToUpdateOpener.close()
 

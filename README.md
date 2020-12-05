@@ -10,6 +10,7 @@
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+- [Updating OpenLANE](#updating-openlane)
 - [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Building the OpenLANE Docker](#building-the-openlane-docker)
@@ -21,6 +22,8 @@
     - [OpenLANE Output](#openlane-output)
     - [Flow configuration](#flow-configuration)
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
+- [Hardening Macros](#hardening-macros)
+- [Chip Integration](#chip-integration)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane)
 
@@ -33,17 +36,20 @@ Join the community on [slack](https://invite.skywater.tools)!
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
- - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60
+ - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60*
+
+ > \* Note: You can avoid the need for the magic prerequisite by using the openlane docker to do the installation step in open_pdks. This [file](./travisCI/travisBuild.sh) shows how.
 
 For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
+
 
 # Quick Start:
 
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc4
-    cd openlane
+    git clone https://github.com/efabless/openlane.git --branch rc5
+    cd openlane/
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make
     make test # This is to test that the flow and the pdk were properly installed
@@ -71,21 +77,39 @@ After running you'll find a directory added under [./regression_results/](./regr
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
+# Updating OpenLANE
+
+If you already have the repo locally, then no need to re-clone it. You can directly run the following:
+
+```bash
+    cd openlane/
+    git checkout master
+    git pull
+    git checkout rc5
+    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    make
+    make test # This is to test that the flow and the pdk were properly installed
+```
+
+This should install the latest openlane docker, and re-install the pdk for the latest used version. If you want to only update the openlane docker check this [section](#building-the-openlane-docker) after updating the repo.
+
 **DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
 
 # Setting up the PDK: skywater-pdk
 
-- Clone and build at least one skywater-pdk standard cell Library inside the pdks directory:
+- Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
     - To setup one standard cell library only
 
     ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
         cd  $PDK_ROOT
-        git clone git@github.com:google/skywater-pdk.git
+        git clone https://github.com/google/skywater-pdk.git
         cd skywater-pdk
-        git checkout 5cd70ed19fee8ea37c4e8dbd5c5c3eaa9886dd23
+        git checkout 3d7617a1acb92ea883539bcf22a632d6361a5de4
         git submodule update --init libraries/sky130_fd_sc_hd/latest
-        make sky130_fd_sc_hd
+        git submodule update --init libraries/sky130_fd_sc_hvl/latest
+        git submodule update --init libraries/sky130_fd_io/latest
+        make timing
     ```
     - To setup other SCLs:
         - replace sky130_fd_sc_hd with any of the following list:
@@ -98,9 +122,9 @@ After running you'll find a directory added under [./regression_results/](./regr
 
     ```bash
         cd $PDK_ROOT
-	    git clone git@github.com:RTimothyEdwards/open_pdks.git
+	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 48db3e1a428ae16f5d4c86e0b7679656cf8afe3d
+        git checkout b184e85de7629b8c87087a46b79eb45e7f7cd383
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
@@ -132,7 +156,7 @@ Refer to [this][24] for more details on the structure.
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc4
+    git clone https://github.com/efabless/openlane.git --branch rc5
     cd openlane/docker_build
     make merge
     cd ..
@@ -142,12 +166,11 @@ To setup openlane you can build the docker container locally following these ins
 
 Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
 
-**Note:** Make sure you have an account on dockerhub to execute the following step.
+**Note:** You may need to have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone git@github.com:efabless/openlane --branch rc4
-    cd openlane
-    docker pull efabless/openlane:rc4
+    git clone https://github.com/efabless/openlane.git --branch rc5
+    docker pull efabless/openlane:rc5
 ```
 
 ## Running OpenLANE
@@ -157,14 +180,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc4
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc4
+    export IMAGE_NAME=efabless/openlane:rc5
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
@@ -465,6 +488,17 @@ For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
+# Hardening Macros:
+
+This is discussed in more detail [here][29].
+
+# Chip Integration
+
+The first step of chip integration is hardening the macros. To learn more about this check this [file][29].
+
+Using openlane, you can produce a GDSII from a chip RTL. This is done by applying a certain methodology that we follow using our custom scripts and the integrated tools.
+
+To learn more about Chip Integration. Check this [file][26]
 
 
 [1]: ./docker_build/README.md
@@ -494,3 +528,4 @@ For more information on design configurations, how to update them, and the need 
 [26]: ./doc/chip_integration.md
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
+[29]: ./doc/hardening_macros.md

@@ -21,11 +21,14 @@ import sys
 
 ARGV = sys.argv
 if len(ARGV) < 4:
-    print("Usage " + ARGV[0] + " threshold_y_pos extra_width_left extra_width_right")
+    print("Usage " + ARGV[0] + " threshold_y_pos extra_width_left extra_width_right [macro_names]")
     sys.exit(-1)
 MAX_Y = float(ARGV[1])
 EXTRA_WIDTH_LEFT = float(ARGV[2])
 EXTRA_WIDTH_RIGHT = float(ARGV[3])
+macro_name = None
+if len(ARGV) > 4:
+    macro_name = ARGV[4:]
 SIZE_X, SIZE_Y = -1, -1
 ORIGIN_X, ORIGIN_Y = -1, -1
 LAYER_LIST = ["li1", "met1", "met2", "met3", "met4", "met5"]
@@ -34,16 +37,31 @@ ORIGIN_REGEX = r"^\s*ORIGIN\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+;$"
 
 
 
+enable = macro_name is None
 obs_section = False
 for line in sys.stdin:
     if line.isspace():
+        print(line, end='')
         continue
 
     origin_match = re.search(ORIGIN_REGEX, line)
     if origin_match:
         ORIGIN_X, ORIGIN_Y = float(origin_match.group(1)), float(origin_match.group(2))
-    if line.find("MACRO") != -1:
+
+    if line.startswith("MACRO"):
+        tokens = line.split()
+        assert len(tokens) == 2, line
+        if macro_name and tokens[1] in macro_name:
+            enable = True
         LAYERS = {layer:False for layer in LAYER_LIST}
+
+    if macro_name and line.startswith("END"):
+        tokens = line.split()
+        if len(tokens) > 1:
+            assert len(tokens) == 2, line
+            if tokens[1] in macro_name:
+                enable = False
+
     size_match = re.search(SIZE_REGEX, line)
     if size_match:
         SIZE_X, SIZE_Y = float(size_match.group(1)), float(size_match.group(2))
@@ -51,14 +69,16 @@ for line in sys.stdin:
         obs_section = True
     elif obs_section and line.find("END") != -1:
         obs_section = False
-        for layer in LAYERS:  # draw remaining obs on layers that didn't appear
-            if not LAYERS[layer]:
-                print("     LAYER %s ;" % (layer))
-                print("       RECT %.3f %.3f %.3f %.3f ;" % (-ORIGIN_X-EXTRA_WIDTH_LEFT, MAX_Y, SIZE_X-ORIGIN_X+EXTRA_WIDTH_RIGHT, SIZE_Y-ORIGIN_Y))
+        if enable:
+            for layer in LAYERS:  # draw remaining obs on layers that didn't appear
+                if not LAYERS[layer]:
+                    print("     LAYER %s ;" % (layer))
+                    print("       RECT %.3f %.3f %.3f %.3f ;" % (-ORIGIN_X-EXTRA_WIDTH_LEFT, MAX_Y, SIZE_X-ORIGIN_X+EXTRA_WIDTH_RIGHT, SIZE_Y-ORIGIN_Y))
 
     print(line, end='')
     if obs_section and line.find("LAYER") != -1:
         line = line.split()
-        LAYERS[line[1]] = True
-        print("       RECT %.3f %.3f %.3f %.3f ;" % (-ORIGIN_X-EXTRA_WIDTH_LEFT, MAX_Y, SIZE_X-ORIGIN_X+EXTRA_WIDTH_RIGHT, SIZE_Y-ORIGIN_Y))
+        if enable:
+            LAYERS[line[1]] = True
+            print("       RECT %.3f %.3f %.3f %.3f ;" % (-ORIGIN_X-EXTRA_WIDTH_LEFT, MAX_Y, SIZE_X-ORIGIN_X+EXTRA_WIDTH_RIGHT, SIZE_Y-ORIGIN_Y))
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 # Copyright 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,16 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set magicrc $::env(TMP_DIR)/magic_drc.magicrc
-set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-# the following MAGTYPE has to be maglef for the purpose of DRC checking
-set ::env(MAGTYPE) maglef
-set ::env(MAGPATH) "$::env(PDKPATH)/libs.ref/$::env(MAGTYPE)"
-exec envsubst < $::env(MAGIC_MAGICRC) > $magicrc
-exec magic \
-        -noconsole \
-        -dnull \
-        -rcfile $magicrc \
-        $::env(SCRIPTS_DIR)/magic_drc.tcl \
-	</dev/null \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
+if [[ $# -lt 2 ]]; then
+    echo "usage $0 instance_name file.def"
+    exit
+fi
+
+# uses same-line syntax
+sed -i -E "/^.*- $1 [^[:space:]]+ .*;$/d" $2

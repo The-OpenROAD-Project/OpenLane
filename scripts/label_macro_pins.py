@@ -39,9 +39,6 @@ parser.add_argument('--lef', '-l',
 parser.add_argument('--input-def', '-id', required=True,
                     help='DEF view of the design that needs to be labeled')
 
-# parser.add_argument('--input-lef', '-il', required=True,
-#                     help='LEF file needed to have a proper view of the input DEF')
-
 parser.add_argument('--output', '-o', required=False,
                     help='Output labeled def file. Defaults to the input def')
 
@@ -87,8 +84,6 @@ else:
     output_def_file_name = input_def_file_name
 
 mapping_db = odb.dbDatabase.create()
-# odb.read_lef(mapping_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/openlane/runs/striVe2_connectivity/tmp/merged_unpadded.lef")
-# odb.read_def(mapping_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/openlane/runs/striVe2_connectivity/tmp/floorplan/verilog2def_openroad.def")
 for lef in netlist_lef_file_names:
     odb.read_lef(mapping_db, lef)
 odb.read_def(mapping_db, netlist_def_file_name)
@@ -114,9 +109,6 @@ for net in mapping_nets:
             if VERBOSE: print(pin_name, "handled by an external mapping; skipping...")
             continue
 
-        # warning: no \ in names
-        # '\[' and '\]' are common DEF names
-
         pad_name = None
         pad_pin_name = None
         for iterm in iterms:
@@ -125,6 +117,8 @@ for net in mapping_nets:
                 pad_name = iterm.getInst().getName()
                 pad_pin_name = iterm_pin_name
                 break
+
+        # '\[' and '\]' are common DEF names
 
         if pad_name is None:
             print ("Warning: net", net.getName(), "has a BTerm but no ITerms that match PAD_PIN_NAME")
@@ -146,15 +140,9 @@ for mapping in extra_mappings:
     pad_pin_map.setdefault(mapping[0], [])
     pad_pin_map[mapping[0]].append((mapping[1], mapping[2], mapping[3]))
 
-# outdated:
-# pad_pin_map.update({
-#     "vdd3v3hclamp[0]": ("vdda", "vdd", "INOUT"),
-#     "vdd1v8hclamp[0]": ("vccd", "vdd1v8", "INOUT"),
-#     "vsshclamp[0]"   : ("vssa", "vss", "INOUT")
-# })
-
 pad_pins_to_label_count = len([mapping for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist])
 bterms = mapping_block.getBTerms()
+print(set([bterm.getName() for bterm in bterms]) - set([mapping[1] for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist]))
 assert pad_pins_to_label_count == len(bterms), "Some pins were not going to be labeled %d/%d" % (pad_pins_to_label_count, len(bterms))
 print("Labeling", len(pad_pin_map), "pads")
 print("Labeling", pad_pins_to_label_count, "pad pins")
@@ -162,15 +150,13 @@ if VERBOSE: print(pad_pin_map)
 
 ##############
 
-# odb.read_lef(chip_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/openlane/runs/striVe2_connectivity/tmp/merged_unpadded.lef")
-# odb.read_def(chip_db, "/home/xrex/usr/devel/openlane_dev/designs/strive2/def/striVe2.def")
-
 chip_chip = chip_db.getChip()
 chip_block = chip_chip.getBlock()
 chip_insts = chip_block.getInsts()
 chip_tech = chip_db.getTech()
 
 labeled_count = 0
+labeled = []
 for inst in chip_insts:
     inst_name = inst.getName()
     if inst_name in pad_pin_map:
@@ -218,7 +204,7 @@ for inst in chip_insts:
                 net = odb.dbNet_create(chip_block, net_name)
 
             pin_bterm = chip_block.findBTerm(pin_name)
-            if pin_name is None:
+            if pin_bterm is None:
                 pin_bterm = odb.dbBTerm_create(net, pin_name)
 
             assert pin_bterm is not None, "Failed to create or find " + pin_name
@@ -240,8 +226,10 @@ for inst in chip_insts:
 
             odb.dbITerm_connect(pad_iterm, net)
             pin_bterm.connect(net)
+            labeled.append(inst_name)
 
-assert labeled_count == pad_pins_to_label_count, "Didn't label what I set out to label %d/%d" % (labeled_count, pad_pins_to_label_count)
+assert labeled_count == pad_pins_to_label_count, ("Didn't label what I set out to label %d/%d" % (labeled_count, pad_pins_to_label_count),
+                                                  set(pad_pin_map.keys())-set(labeled))
 
 print("Writing", output_def_file_name)
 odb.write_def(chip_block, output_def_file_name)

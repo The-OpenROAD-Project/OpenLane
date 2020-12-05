@@ -26,7 +26,7 @@ git:
 services:
   - docker
 
-os: 
+os:
   - linux
 
 jobs:
@@ -76,4 +76,4 @@ install:
   - sh travisCI/travisBuild.sh
 
 script:
-  - bash travisCI/travisTest.sh $TEST_SET
+  - bash travisCI/travisTest.sh

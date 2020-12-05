@@ -61,9 +61,12 @@ proc prep_lefs {args} {
         puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
 
-    try_catch $::env(SCRIPTS_DIR)/padLefMacro.py -s $::env(PLACE_SITE) -r $::env(CELL_PAD) -i $::env(CELLS_LEF_UNPADDED) -o $::env(TMP_DIR)/merged.lef -e "$::env(CELL_PAD_EXCLUDE)" |& tee $::env(TERMINAL_OUTPUT)
+    file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
     if { $::env(USE_GPIO_PADS) } {
+        if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
+            set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
+        }
         puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
 
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
@@ -211,7 +214,7 @@ proc prep {args} {
     }
 
     if { ! [file exists $::env(DESIGN_CONFIG)] } {
-        puts_err "No design configuration found"
+        puts_err "No design configuration found at $::env(DESIGN_CONFIG)"
         return -code error
     }
 
@@ -241,6 +244,8 @@ proc prep {args} {
         return -code error
     } else {
         puts_info "PDK: $::env(PDK)"
+        puts_info "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
+        set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
 
     if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
@@ -336,6 +341,10 @@ proc prep {args} {
         } else {
             puts_info "Sourcing $::env(GLB_CFG_FILE)\nAny changes to the DESIGN config file will NOT be applied"
             source $::env(GLB_CFG_FILE)
+            if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
+                puts_info "Current DEF: $::env(CURRENT_DEF)."
+                puts_info "Use 'set_def file_name.def' if you'd like to change it."
+            }
             after 1000
         }
     }
@@ -387,8 +396,6 @@ proc prep {args} {
         set ::env(${key}_tmp_file_tag) $value
     }
 
-
-
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
@@ -399,6 +406,13 @@ proc prep {args} {
             $::env(TMP_DIR)/$stage  \
             $::env(LOG_DIR)/$stage \
             $::env(REPORTS_DIR)/$stage
+
+        if { ! [file exists $::env(TMP_DIR)/$stage/merged_unpadded.lef] } {
+            file link -symbolic $::env(TMP_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
+        if { ! [file exists $::env(RESULTS_DIR)/$stage/merged_unpadded.lef] } {
+            file link -symbolic $::env(RESULTS_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
     }
 
     # Fill config file
@@ -416,6 +430,14 @@ proc prep {args} {
     # Design
     exec echo "# Design config" >> $::env(GLB_CFG_FILE)
     set_log ::env(CLOCK_PERIOD) $::env(CLOCK_PERIOD) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DESIGN_NAME) $::env(DESIGN_NAME) $::env(GLB_CFG_FILE) 1
+    set_log ::env(DESIGN_DIR) $::env(DESIGN_DIR) $::env(GLB_CFG_FILE) 1
+    if { [info exists ::env(CLOCK_PORT)] } {
+        set_log ::env(CLOCK_PORT) $::env(CLOCK_PORT) $::env(GLB_CFG_FILE) 1
+    }
+    if { [info exists ::env(CLOCK_NET)] } {
+        set_log ::env(CLOCK_NET) $::env(CLOCK_NET) $::env(GLB_CFG_FILE) 1
+    }
     # Synthesis
     exec echo "# Synthesis config" >> $::env(GLB_CFG_FILE)
     set_log ::env(LIB_SYNTH) $::env(LIB_SYNTH) $::env(GLB_CFG_FILE) 1
@@ -464,6 +486,9 @@ proc prep {args} {
     set_log ::env(FP_PDN_HOFFSET) $::env(FP_PDN_HOFFSET) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_PDN_HPITCH) $::env(FP_PDN_HPITCH) $::env(GLB_CFG_FILE) 1
     set_log ::env(FP_TAPCELL_DIST) $::env(FP_TAPCELL_DIST) $::env(GLB_CFG_FILE) 1
+    if { [info exists ::env(CELL_PAD_EXCLUDE)] } {
+        set_log ::env(CELL_PAD_EXCLUDE) $::env(CELL_PAD_EXCLUDE) $::env(GLB_CFG_FILE) 1
+    }
 
     # Placement
     exec echo "# Placement config" >> $::env(GLB_CFG_FILE)
@@ -474,6 +499,7 @@ proc prep {args} {
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_BASIC_PLACEMENT) $::env(PL_BASIC_PLACEMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_SKIP_INITIAL_PLACEMENT) $::env(PL_SKIP_INITIAL_PLACEMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PL_RANDOM_GLB_PLACEMENT) $::env(PL_RANDOM_GLB_PLACEMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(GLB_CFG_FILE) 1
     set_log ::env(PSN_ENABLE_RESIZING) $::env(PSN_ENABLE_RESIZING) $::env(GLB_CFG_FILE) 1
     set_log ::env(PSN_ENABLE_PIN_SWAP) $::env(PSN_ENABLE_PIN_SWAP) $::env(GLB_CFG_FILE) 1
@@ -583,6 +609,7 @@ proc save_views {args} {
     set options {
         {-lef_path optional}
         {-mag_path optional}
+        {-maglef_path optional}
         {-def_path optional}
         {-gds_path optional}
         {-verilog_path optional}
@@ -593,7 +620,8 @@ proc save_views {args} {
 
     set flags {}
     parse_key_args "save_views" args arg_values $options flags_map $flags
-    if { [info exists arg_values(-save_path)] } {
+    if { [info exists arg_values(-save_path)]\
+        && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
     } else {
         set path $::env(DESIGN_DIR)
@@ -613,6 +641,14 @@ proc save_views {args} {
         file mkdir $destination
         if { [file exists $arg_values(-mag_path)] } {
             file copy -force $arg_values(-mag_path) $destination/$arg_values(-tag).mag
+        }
+    }
+
+    if { [info exists arg_values(-maglef_path)] } {
+        set destination $path/maglef
+        file mkdir $destination
+        if { [file exists $arg_values(-maglef_path)] } {
+            file copy -force $arg_values(-maglef_path) $destination/$arg_values(-tag).mag
         }
     }
 
@@ -658,7 +694,7 @@ proc heal_antenna_violators {args} {
 	# => fixes the routed def
 	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-			#ARC specific		
+			#ARC specific
 			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
 		} else {
             #Magic Specific

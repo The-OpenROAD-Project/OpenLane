@@ -2393,7 +2393,7 @@ class SoCFloorplanner(ttk.Frame):
                 if lparse[0] == '+':
                     if lparse[1] == 'PLACED':
                         lparse[1] = 'FIXED'
-                        neworient = self.rotate_orientation(lparse[6])
+                        neworient = lparse[6]
                         lparse[6] = neworient
                         line = ' '.join(lparse)
 

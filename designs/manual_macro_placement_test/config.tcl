@@ -11,6 +11,7 @@ set ::env(MACRO_PLACEMENT_CFG) $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)
 
 set ::env(PL_TARGET_DENSITY) 0.35
 set ::env(PL_BASIC_PLACEMENT) 1
+set ::env(CELL_PAD) 0
 
 set ::env(CLOCK_PERIOD) "100"
 set ::env(CLOCK_PORT) "clk1 clk2"

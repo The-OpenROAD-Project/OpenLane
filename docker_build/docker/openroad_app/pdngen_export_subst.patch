@@ -1,0 +1,45 @@
+diff --git a/src/OpenDB b/src/OpenDB
+--- a/src/OpenDB
++++ b/src/OpenDB
+@@ -1 +1 @@
+-Subproject commit 548af54ca3fa0523921592022ccc6b86b2ebdb29
++Subproject commit 548af54ca3fa0523921592022ccc6b86b2ebdb29-dirty
+diff --git a/src/pdngen/src/PdnGen.tcl b/src/pdngen/src/PdnGen.tcl
+index 6412b850..f60291e2 100644
+--- a/src/pdngen/src/PdnGen.tcl
++++ b/src/pdngen/src/PdnGen.tcl
+@@ -2845,14 +2845,14 @@ proc get {args} {
+ proc get_macro_power_pins {inst_name} {
+   set specification [select_instance_specification $inst_name]
+   if {[dict exists $specification power_pins]} {
+-    return [dict get $specification power_pins]
++    return [subst [dict get $specification power_pins]]
+   }
+   return "VDDPE VDDCE"
+ }
+ proc get_macro_ground_pins {inst_name} {
+   set specification [select_instance_specification $inst_name]
+   if {[dict exists $specification ground_pins]} {
+-    return [dict get $specification ground_pins]
++    return [subst [dict get $specification ground_pins]]
+   }
+   return "VSSE"
+ }
+@@ -3959,7 +3959,7 @@ proc get_macro_blockage_layers {instance} {
+   
+   set specification [select_instance_specification $instance]
+   if {[dict exists $specification blockages]} {
+-    return [dict get $specification blockages]
++    return [subst [dict get $specification blockages]]
+   }
+   return $metal_layers
+ }
+@@ -4587,7 +4587,7 @@ proc opendb_update_grid {} {
+   information 15 "Writing to database"
+   export_opendb_vias
+   export_opendb_specialnets
+-  # export_opendb_power_pins
++  export_opendb_power_pins
+ }
+   
+ proc apply_pdn {config is_verbose} {
