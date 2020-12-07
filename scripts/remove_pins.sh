@@ -21,9 +21,9 @@ fi
 file=$1
 
 # remove the PINS section
-sed -ie "/PINS.*;/,/END PINS/d" $file
+sed -i "/PINS.*;/,/END PINS/d" $file
 # remove ( PIN xxx ) in the nets section
-sed -ie "s/(\sPIN\s[^[:space:]]*\s)\s//g" $file
+sed -i "s/(\sPIN\s[^[:space:]]*\s)\s//g" $file
 # remove empty nets
-sed -ie "/NETS/,/END NETS/ s/^-\s.[^[:space:]]\+\s\+;$//g" $file
+sed -i "/NETS/,/END NETS/ s/^-\s.[^[:space:]]\+\s\+;$//g" $file
 
