@@ -20,6 +20,10 @@ proc get_yosys_bin {} {
     return $synth_bin
 }
 
+proc convert_pg_pins {lib_in lib_out} {
+	try_catch sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
+}
+
 proc run_yosys {args} {
     set ::env(CURRENT_STAGE) synthesis
 
@@ -36,6 +40,14 @@ proc run_yosys {args} {
     } else {
 	set ::env(SAVE_NETLIST) $::env(yosys_result_file_tag).v
     }
+
+    set _lib_synth_complete_no_pg [list]
+	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+		set fbasename [file rootname [file tail $lib]]
+		convert_pg_pins $lib $::env(TMP_DIR)/$fbasename.no_pg.lib
+		lappend _lib_synth_complete_no_pg $::env(TMP_DIR)/$fbasename.no_pg.lib
+	}
+	set ::env(LIB_SYNTH_COMPLETE) $_lib_synth_complete_no_pg
 
 	if { [file exists $::env(SAVE_NETLIST)] } {
 		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
