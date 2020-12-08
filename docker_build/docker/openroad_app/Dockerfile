@@ -102,6 +102,9 @@ RUN cd /OpenROAD_23112020/src/OpenDB/src/swig/python && git apply setup_local.pa
 COPY pdngen_export_subst.patch /OpenROAD_23112020/
 RUN git apply pdngen_export_subst.patch
 
+COPY ignore_obs_outside.patch /OpenROAD_23112020/
+RUN git apply ignore_obs_outside.patch
+
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
