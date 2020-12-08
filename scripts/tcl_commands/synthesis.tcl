@@ -20,36 +20,48 @@ proc get_yosys_bin {} {
     return $synth_bin
 }
 
+proc convert_pg_pins {lib_in lib_out} {
+	try_catch sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
+}
+
 proc run_yosys {args} {
-    set ::env(CURRENT_STAGE) synthesis
+	set ::env(CURRENT_STAGE) synthesis
 
-    TIMER::timer_start
+	TIMER::timer_start
 
-    set options {
-	{-output optional}
-    }
-    set flags {}
+	set options {
+		{-output optional}
+	}
+	set flags {
+		-no_set_netlist
+	}
+  
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
     if { [info exists arg_values(-output)] } {
-	set ::env(SAVE_NETLIST) $arg_values(-output)
+		set ::env(SAVE_NETLIST) $arg_values(-output)
     } else {
-	set ::env(SAVE_NETLIST) $::env(yosys_result_file_tag).v
+		set ::env(SAVE_NETLIST) $::env(yosys_result_file_tag).v
     }
 
-	if { [file exists $::env(SAVE_NETLIST)] } {
-		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
-		puts_warn "Skipping synthesis"
-	} else {
-		try_catch [get_yosys_bin] \
-			-c $::env(SYNTH_SCRIPT) \
-			-l $::env(yosys_log_file_tag).log \
-			|& tee $::env(TERMINAL_OUTPUT)
+    set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]
+	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+		set fbasename [file rootname [file tail $lib]]
+		convert_pg_pins $lib $::env(TMP_DIR)/$fbasename.no_pg.lib
+		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
 	}
 
-    set_netlist $::env(SAVE_NETLIST)
+	try_catch [get_yosys_bin] \
+		-c $::env(SYNTH_SCRIPT) \
+		-l $::env(yosys_log_file_tag).log \
+		|& tee $::env(TERMINAL_OUTPUT)
+
+	if { ! [info exists flags_map(-no_set_netlist)] } {
+    	set_netlist $::env(SAVE_NETLIST)
+	}
+
     if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
     # The following is a naive workaround to the defparam issue.. it should be handled with
@@ -57,7 +69,7 @@ proc run_yosys {args} {
     if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
         puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
     } else {
-        try_catch sed -ie {/defparam/d} $::env(CURRENT_NETLIST)
+        try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(yosys_log_file_tag)_runtime.txt
@@ -88,7 +100,12 @@ proc run_synth_exploration {args} {
 proc run_synthesis {args} {
     puts_info "Running Synthesis..."
     # in-place insertion
-    run_yosys
+	if { [file exists $::env(yosys_result_file_tag).v] } {
+		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
+		puts_warn "Skipping synthesis"
+	} else {
+		run_yosys
+	}
 
     run_sta
 
@@ -115,6 +132,16 @@ proc run_synthesis {args} {
     if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
 	check_synthesis_failure
     }
+
+	if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
+		puts_info "Creating a synthesis netlist with PG pins."
+		if { ! [info exists ::env(SYNTH_DEFINES)] } {
+			set ::env(SYNTH_DEFINES) [list]
+		}
+		lappend ::env(SYNTH_DEFINES) {*}$::env(SYNTH_USE_PG_PINS_DEFINES)
+		run_yosys -output $::env(yosys_tmp_file_tag).pg_define.v -no_set_netlist
+	}
+
 }
 
 proc verilog_elaborate {args} {
@@ -144,12 +171,13 @@ proc yosys_rewrite_verilog {filename} {
 
 
 proc logic_equiv_check {args} {
-    set options {
-	{-lhs required}
-	{-rhs required}
-    }
+	set options {
+		{-lhs required}
+		{-rhs required}
+	}
 
-    set flags {}
+    set flags {
+	}
 
     set args_copy $args
     parse_key_args "logic_equiv_check" args arg_values $options flags_map $flags

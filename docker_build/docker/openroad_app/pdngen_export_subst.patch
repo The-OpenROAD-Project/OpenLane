@@ -5,10 +5,44 @@ diff --git a/src/OpenDB b/src/OpenDB
 -Subproject commit 548af54ca3fa0523921592022ccc6b86b2ebdb29
 +Subproject commit 548af54ca3fa0523921592022ccc6b86b2ebdb29-dirty
 diff --git a/src/pdngen/src/PdnGen.tcl b/src/pdngen/src/PdnGen.tcl
-index 6412b850..f60291e2 100644
+index 6412b850..4bb25924 100644
 --- a/src/pdngen/src/PdnGen.tcl
 +++ b/src/pdngen/src/PdnGen.tcl
-@@ -2845,14 +2845,14 @@ proc get {args} {
+@@ -2741,11 +2741,14 @@ proc export_opendb_power_pin {net_name signal_type} {
+   
+   set net [$block findNet $net_name]
+   set bterm [odb::dbBTerm_create $net "${net_name}"]
+-
+-  set bpin [odb::dbBPin_create $bterm]
+-  $bpin setPlacementStatus "FIRM"
++  $bterm setSpecial
++  $bterm setSigType $signal_type
++  $bterm setIoType "INOUT"
+ 
+   foreach lay [lreverse $metal_layers] {
++	if { [is_rails_layer $lay] } { 
++		continue
++	}
+     if {[array names stripe_locs "$lay,$signal_type"] == ""} {continue}
+     foreach shape [::odb::getPolygons $stripe_locs($lay,$signal_type)] {
+       set points [::odb::getPoints $shape]
+@@ -2759,11 +2762,14 @@ proc export_opendb_power_pin {net_name signal_type} {
+       set yMax [expr max([[lindex $points 0] getY], [[lindex $points 1] getY], [[lindex $points 2] getY], [[lindex $points 3] getY])]
+ 
+       set layer [$tech findLayer $lay]
++
++	  set bpin [odb::dbBPin_create $bterm]
++	  $bpin setPlacementStatus "FIRM"
+       odb::dbBox_create $bpin $layer $xMin $yMin $xMax $yMax
+     }
+     # debug "created $count pins on $net_name (layer:$lay)"
+     # Only promote metal on top layers to be pins
+-    break
++    # break
+   }
+ }
+ 
+@@ -2845,14 +2851,14 @@ proc get {args} {
  proc get_macro_power_pins {inst_name} {
    set specification [select_instance_specification $inst_name]
    if {[dict exists $specification power_pins]} {
@@ -25,7 +59,7 @@ index 6412b850..f60291e2 100644
    }
    return "VSSE"
  }
-@@ -3959,7 +3959,7 @@ proc get_macro_blockage_layers {instance} {
+@@ -3959,7 +3965,7 @@ proc get_macro_blockage_layers {instance} {
    
    set specification [select_instance_specification $instance]
    if {[dict exists $specification blockages]} {
@@ -34,7 +68,7 @@ index 6412b850..f60291e2 100644
    }
    return $metal_layers
  }
-@@ -4587,7 +4587,7 @@ proc opendb_update_grid {} {
+@@ -4587,7 +4593,7 @@ proc opendb_update_grid {} {
    information 15 "Writing to database"
    export_opendb_vias
    export_opendb_specialnets

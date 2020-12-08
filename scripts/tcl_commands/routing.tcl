@@ -239,6 +239,15 @@ proc run_routing {args} {
     # detailed routing
     add_route_obs
     detailed_routing
+
+	# pdngen-related hack
+	# remove .extra\d+ "pins" so that magic
+	# generates shapes for each stripes without the ".extra" postfix
+	# until OpenDB can understand this syntax...
+	exec sed \
+		-i -E {/^PINS/,/^END PINS/ s/\.extra[[:digit:]]+(.*USE (GROUND|POWER))/\1/g} \
+		$::env(CURRENT_DEF)
+
     run_spef_extraction
 
     ## TIMER END

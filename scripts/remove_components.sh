@@ -21,4 +21,4 @@ fi
 file=$1
 
 # remove the COMPONENTS section
-sed -ie "/^COMPONENTS.*;/,/^END COMPONENTS/d" $file
+sed -i "/^COMPONENTS.*;/,/^END COMPONENTS/d" $file

@@ -21,5 +21,5 @@ fi
 file=$1
 
 # remove empty nets
-sed -ie "/NETS/,/END NETS/ s/^\s*-\s\+[^[:space:]]\+\s\+\((\s\+[^[:space:]]\+\s\+[^[:space:]]\+\s\+)\s\+\)\{0,1\}\(+ USE SIGNAL\s\+\)\{0,1\};$//g" $file
+sed -i "/NETS/,/END NETS/ s/^\s*-\s\+[^[:space:]]\+\s\+\((\s\+[^[:space:]]\+\s\+[^[:space:]]\+\s\+)\s\+\)\{0,1\}\(+ USE SIGNAL\s\+\)\{0,1\};$//g" $file
 
