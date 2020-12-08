@@ -24,7 +24,7 @@ set timing_ext  ".timing.txt"
 set abc_ext     ".abc"
 
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-	foreach lib $::env(LIB_SYNTH_COMPLETE) {
+	foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
 		read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
 	}
 }
