@@ -30,15 +30,15 @@ os:
 jobs:
   include:
     - name: "Base Test"
-      env: TEST_SET=spm
+      env: TEST_SET=spm EXTRA_FLAGS=-so
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
       env: TEST_SET=typicalTestSet1
     - name: "aes_cipher"
-      env: TEST_SET=aes_cipher
+      env: TEST_SET=aes_cipher EXTRA_FLAGS=-so
     - name: "des"
-      env: TEST_SET=des
+      env: TEST_SET=des EXTRA_FLAGS=-so
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
 
