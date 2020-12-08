@@ -96,6 +96,13 @@ proc run_magic_drc {args} {
 				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
+		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
+			puts_info "Converting DRC Violations to Klayout RDB Format..."
+			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
+				--magic_drc_in $::env(magic_log_file_tag).drc \
+				--rdb_out $::env(magic_result_file_tag).drc.rdb
+			puts_info "Converted DRC Violations to Klayout RDB Format"
+		}
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 }
 
