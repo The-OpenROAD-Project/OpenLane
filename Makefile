@@ -57,16 +57,16 @@ skywater-pdk: $(PDK_ROOT)/skywater-pdk
 		git checkout master && git pull && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
-.PHONY: submodule-skywater-library
-submodule-skywater-library: $(PDK_ROOT)/skywater-pdk
+.PHONY: skywater-library
+skywater-library: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
 		$(MAKE) -j$(THREADS) timing
 
-.PHONY: submodule-all-skywater-libraries
-submodule-all-skywater-libraries: skywater-pdk
+.PHONY: all-skywater-libraries
+all-skywater-libraries: skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
 		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
 		git submodule update --init libraries/sky130_fd_sc_hs/latest && \
