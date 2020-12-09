@@ -34,10 +34,19 @@ endif
 .DEFAULT_GOAL := all
 
 .PHONY: all
-all: pdk openlane
+all: openlane pdk
 
 .PHONY: pdk
 pdk: skywater-pdk skywater-library open_pdks build-pdk
+
+.PHONY: native-pdk
+native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk
+
+.PHONY: full-pdk
+full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk
+
+.PHONY: native-full-pdk
+native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
 
 $(PDK_ROOT)/skywater-pdk:
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
@@ -80,6 +89,20 @@ open_pdks: $(PDK_ROOT)/open_pdks
 
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
+	[ -d $(PDK_ROOT)/sky130A ] && \
+		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
+		sleep 5 && \
+		rm -rf $(PDK_ROOT)/sky130A) || \
+		true
+	docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
+		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		cd sky130 && \
+		$(MAKE) veryclean && \
+		$(MAKE) && \
+		$(MAKE) install-local"
+
+.PHONE: native-build-pdk
+native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
 		sleep 5 && \

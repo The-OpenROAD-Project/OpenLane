@@ -38,7 +38,7 @@ done
 # Section End
 
 make open_pdks
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME bash -c "make build-pdk"
+make build-pdk
 echo "done installing"
 cd $RUN_ROOT
 exit 0

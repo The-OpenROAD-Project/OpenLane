@@ -57,7 +57,7 @@ proc run_non_interactive_mode {args} {
 			-def_path $::env(tritonRoute_result_file_tag).def \
 			-gds_path $::env(magic_result_file_tag).gds \
 			-mag_path $::env(magic_result_file_tag).mag \
-			-mag_path $::env(magic_result_file_tag).lef.mag \
+			-maglef_path $::env(magic_result_file_tag).lef.mag \
 			-spice_path $::env(magic_result_file_tag).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
