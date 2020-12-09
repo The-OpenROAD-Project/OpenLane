@@ -20,21 +20,20 @@ echo $PDK_ROOT
 echo $RUN_ROOT
 make openlane
 make skywater-pdk
-make submodule-skywater-library
+
 # The following section is for running on the CI.
 # If you're running locally you should replace them with: `make skywater-library`
 # This is because sometimes while setting up the conda env (skywater's make timing) it fails to fetch something
 # Then it exits without retrying. So, here we're retrying, and if something goes wrong it will exit after 5 retries.
 # Section Begin
 cnt=0
-until make build-skywater-timing; do
+until make skywater-library; do
 cnt=$((cnt+1))
 if [ $cnt -eq 5 ]; then
 	exit 2
 fi
 rm -rf $PDK_ROOT/skywater-pdk
 make skywater-pdk
-make submodule-skywater-library
 done
 # Section End
 
