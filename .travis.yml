@@ -64,7 +64,7 @@ jobs:
     - name: "aes"
       env: TEST_SET=aes
     - name: "sha512"
-      env: TEST_SET=sha512 EXTRA_FLAGS=-so
+      env: TEST_SET=sha512
     - name: "genericfir"
       env: TEST_SET=genericfir EXTRA_FLAGS=-so
     - name: "aes128"
