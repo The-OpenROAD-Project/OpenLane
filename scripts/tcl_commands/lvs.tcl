@@ -144,7 +144,7 @@ BEGIN {  # Print power and standard_input definitions
     exec awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
         > $::env(cvc_result_file_tag).cdl
     exec cvc $::env(SCRIPTS_DIR)/cvcrc.sky130 \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_result_file_tag)_screen.log
+        |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
     } else {
         puts_info "Skipping CVC"
     }
