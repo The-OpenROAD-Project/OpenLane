@@ -308,16 +308,17 @@ proc run_floorplan {args} {
 
 			set ::env(FP_PDN_ENABLE_RAILS) 0
 
-			set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]
-			set ::env(FP_PDN_HOFFSET) [expr $::env(FP_PDN_HOFFSET)+$::env(FP_PDN_HWIDTH)+$::env(FP_PDN_HSPACING)]
+			# allow failure until open_pdks is up to date...
+			catch {set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]}
+			catch {set ::env(FP_PDN_HOFFSET) [expr $::env(FP_PDN_HOFFSET)+$::env(FP_PDN_HWIDTH)+$::env(FP_PDN_HSPACING)]}
 
-			set ::env(FP_PDN_CORE_RING_VOFFSET) \
+			catch {set ::env(FP_PDN_CORE_RING_VOFFSET) \
 				[expr $::env(FP_PDN_CORE_RING_VOFFSET)\
 				+2*($::env(FP_PDN_CORE_RING_VWIDTH)\
-				+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
-			set ::env(FP_PDN_CORE_RING_HOFFSET) [expr $::env(FP_PDN_CORE_RING_HOFFSET)\
+				+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
+			catch {set ::env(FP_PDN_CORE_RING_HOFFSET) [expr $::env(FP_PDN_CORE_RING_HOFFSET)\
 				+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
-				max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
+				max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
 		}
 		set ::env(FP_PDN_ENABLE_RAILS) 1
 }
