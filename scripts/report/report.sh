@@ -42,7 +42,7 @@ magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
 fr_antenna_log=${path}/logs/routing/fastroute.log
 fr_log=${path}/logs/routing/fastroute_post_antenna.log
-cvc_log=${path}/logs/cvc/${designName}\_screen.log
+cvc_log=${path}/logs/cvc/cvc_screen.log
 if ! [ -f "$fr_log" ]; then
     fr_log=${path}/logs/routing/fastroute.log
 fi

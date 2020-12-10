@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:centos6 AS base-dependencies
+FROM centos:centos7 AS base-dependencies
 
 # Install Development Environment
 RUN yum groupinstall -y "Development Tools"
@@ -42,15 +42,15 @@ RUN cd bison-3.0.5 && \
     make install
 
 # Install epel repo
-RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
-RUN yum install -y epel-release-latest-6.noarch.rpm
+RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+RUN yum install -y epel-release-latest-7.noarch.rpm
 
 # Install dev and runtime dependencies
 # Tcl 8.5
 RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel 
 
 # Install python dev
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
 RUN yum install -y python36u python36u-libs python36u-devel python36u-pip
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
