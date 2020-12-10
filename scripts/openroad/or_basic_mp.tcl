@@ -16,7 +16,9 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-read_liberty $::env(LIB_SYNTH)
+foreach lib $::env(LIB_SYNTH) {
+    read_liberty $lib
+}
 
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg

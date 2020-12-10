@@ -20,6 +20,11 @@ import re
 argv = sys.argv
 argc = len(argv)
 
+ANTENNA = True
+CLASS = True
+DIRECTION = True
+USE = True
+
 if argc < 4:
     print("Usage: antenna_info_copy.py from.lef to.lef output.lef <macro_mappings: <name in from.lef> <name in to.lef> ... >  ")
     sys.exit(-1)
@@ -86,7 +91,7 @@ with open(argv[2], 'r') as to_lef_file,\
                 if cell in antenna_dict:
                     cur_cell = cell
         elif line.strip().startswith("CLASS"):
-            if cur_cell in class_dict:
+            if cur_cell in class_dict and CLASS:
                 line = class_dict[cur_cell]
         elif re.search(r"END %s" % (re.escape(cur_cell)), line):
             cur_cell = None
@@ -97,17 +102,17 @@ with open(argv[2], 'r') as to_lef_file,\
                 pin = match.group(1)
                 cur_pin = pin
 
-                if pin in direction_dict[cur_cell]:
+                if pin in direction_dict[cur_cell] and DIRECTION:
                     info = direction_dict[cur_cell][cur_pin]
                     assert len(info) == 1, info
                     line = line + info[0]
 
-                if pin in use_dict[cur_cell]:
+                if pin in use_dict[cur_cell] and USE:
                     info = use_dict[cur_cell][cur_pin]
                     assert len(info) == 1, info
                     line = line + info[0]
 
-                if pin in antenna_dict[cur_cell]:
+                if pin in antenna_dict[cur_cell] and ANTENNA:
                     for info in antenna_dict[cur_cell][cur_pin]:
                         line = line + info
         elif re.search(r"END %s" % (re.escape(cur_pin)), line):

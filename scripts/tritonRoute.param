@@ -8,3 +8,4 @@ outputDRC:${tritonRoute_report_file_tag}.drc
 outputMaze:${tritonRoute_tmp_file_tag}_maze.log
 threads:${ROUTING_CORES}
 verbose:1
+drouteEndIterNum:${ROUTING_OPT_ITERS}

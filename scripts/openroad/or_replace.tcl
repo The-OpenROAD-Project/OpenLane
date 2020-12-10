@@ -87,20 +87,23 @@ replace_reset_cmd
 
 write_def $::env(SAVE_DEF)
 
-if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
+if {[info exists ::env(CLOCK_PORT)]} {
+	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
 
-    read_liberty -max $::env(LIB_SLOWEST)
-    read_liberty -min $::env(LIB_FASTEST)
-    read_sdc -echo $::env(BASE_SDC_FILE)
+		read_liberty -max $::env(LIB_SLOWEST)
+		read_liberty -min $::env(LIB_FASTEST)
+		read_sdc -echo $::env(BASE_SDC_FILE)
 
-	set_wire_rc -layer $::env(WIRE_RC_LAYER)
-	estimate_parasitics -placement
+		set_wire_rc -layer $::env(WIRE_RC_LAYER)
+		estimate_parasitics -placement
 
-	report_checks -unique -slack_max -0.0 -group_count 100 > $::env(replaceio_report_file_tag).timing.rpt
-    report_checks -path_delay min_max > $::env(replaceio_report_file_tag).min_max.rpt
-    report_checks -group_count 100  -slack_max -0.01 > $::env(replaceio_report_file_tag).rpt
+		report_checks -unique -slack_max -0.0 -group_count 100 > $::env(replaceio_report_file_tag).timing.rpt
+		report_checks -path_delay min_max > $::env(replaceio_report_file_tag).min_max.rpt
+		report_checks -group_count 100  -slack_max -0.01 > $::env(replaceio_report_file_tag).rpt
 
-    report_wns > $::env(replaceio_report_file_tag)_wns.rpt
-    report_tns > $::env(replaceio_report_file_tag)_tns.rpt
-
+		report_wns > $::env(replaceio_report_file_tag)_wns.rpt
+		report_tns > $::env(replaceio_report_file_tag)_tns.rpt
+	}
+} else {
+    puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
 }

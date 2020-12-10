@@ -9,8 +9,8 @@ This page describes configuration variables and their default values.
 | `DESIGN_NAME`   | The name of the top level module of the design        |
 | `VERILOG_FILES` | The path of the design's verilog files |
 | `CLOCK_PERIOD`  | The clock period for the design in ns       |
-| `CLOCK_NET` | The name of the Net input to root clock buffer. |
-| `CLOCK_PORT`    | The name of the design's clock port    |
+| `CLOCK_NET` | The name of the Net input to root clock buffer used in Clock Tree Synthesis. |
+| `CLOCK_PORT`    | The name of the design's clock port used in Static Timing Analysis.   |
 
 ## Optional variables
 
@@ -164,9 +164,9 @@ These variables are optional that can be specified in the design configuration f
 | `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default `1` |
 | `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> Default `L` |
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> Default `1` |
-| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report` <br> Default `1` |
+| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default `1` |
+| `MAGIC_CONVERT_DRC_TO_RDB` | Specifies whether or not generate a Klayout RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default `1`|
 | `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. Thus, it controls the command `run_lef_cvc`. 1=Enabled, 0=Disabled. <br> Default `1` |
-
 ### Checkers
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|

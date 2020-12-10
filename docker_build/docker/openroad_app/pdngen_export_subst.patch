@@ -1,0 +1,497 @@
+diff --git a/src/pdngen/src/PdnGen.tcl b/src/pdngen/src/PdnGen.tcl
+index 6412b850..28658d17 100644
+--- a/src/pdngen/src/PdnGen.tcl
++++ b/src/pdngen/src/PdnGen.tcl
+@@ -208,7 +208,7 @@ proc get_rails_layers {} {
+     foreach type [dict keys [dict get $design_data grid]] {
+       dict for {name specification} [dict get $design_data grid $type] {
+         if {[dict exists $specification rails]} {
+-          return [dict keys [dict get $specification rails]]
++          return [dict keys [subst [dict get $specification rails]]]
+         }
+       }
+     }
+@@ -1713,11 +1713,11 @@ proc get_grid_channel_layers {} {
+   variable grid_data
+ 
+   set channel_layers {}
+-  foreach layer_name [dict keys [dict get $grid_data straps]] {
++  foreach layer_name [dict keys [subst [dict get $grid_data straps]]] {
+     if {[dict exists $grid_data straps $layer_name channel_spacing]} {
+       lappend channel_layers $layer_name
+     } elseif {[dict exists $grid_data straps $layer_name] && [dict exists $grid_data template names]} {
+-      set template_name [lindex [dict get $grid_data template names] 0]
++      set template_name [lindex [subst [dict get $grid_data template names]] 0]
+       if {[dict exists $grid_data straps $layer_name $template_name channel_spacing]} {
+         lappend channel_layers $layer_name
+       }
+@@ -1732,11 +1732,11 @@ proc get_grid_channel_spacing {layer_name} {
+   variable def_units
+   
+   if {[dict exists $grid_data straps $layer_name channel_spacing]} {
+-    return [expr round([dict get $grid_data straps $layer_name channel_spacing] * $def_units)]
++    return [expr round([subst [dict get $grid_data straps $layer_name channel_spacing]] * $def_units)]
+   } elseif {[dict exists $grid_data straps $layer_name] && [dict exists $grid_data template names]} {
+-    set template_name [lindex [dict get $grid_data template names] 0]
++    set template_name [lindex [subst [dict get $grid_data template names]] 0]
+     if {[dict exists $grid_data straps $layer_name $template_name channel_spacing]} {
+-      return [expr round([dict get $grid_data straps $layer_name $template_name channel_spacing]]
++      return [expr round([subst [dict get $grid_data straps $layer_name $template_name channel_spacing]]]
+     }
+   }
+ 
+@@ -1750,17 +1750,17 @@ proc get_grid_wire_width {layer_name} {
+ 
+   if {[info exists grid_data]} {
+     if {[dict exists $grid_data rails $layer_name width]} {
+-      set width [dict get $grid_data rails $layer_name width]
++      set width [subst [dict get $grid_data rails $layer_name width]]
+       return $width
+     } elseif {[dict exists $grid_data straps $layer_name width]} {
+-      set width [dict get $grid_data straps $layer_name width]
++      set width [subst [dict get $grid_data straps $layer_name width]]
+       return $width
+     } elseif {[dict exists $grid_data straps $layer_name] && [dict exists $grid_data template names]} {
+-      set template_name [lindex [dict get $grid_data template names] 0]
+-      set width [dict get $grid_data straps $layer_name $template_name width]
++      set template_name [lindex [subst [dict get $grid_data template names]] 0]
++      set width [subst [dict get $grid_data straps $layer_name $template_name width]]
+       return $width
+     } elseif {[dict exists $grid_data core_ring $layer_name width]} {
+-      set width [dict get $grid_data core_ring $layer_name width]
++      set width [subst [dict get $grid_data core_ring $layer_name width]]
+       return $width
+     }
+   } 
+@@ -1787,12 +1787,12 @@ proc get_grid_wire_pitch {layer_name} {
+   variable design_data
+ 
+   if {[dict exists $grid_data rails $layer_name pitch]} {
+-    set pitch [dict get $grid_data rails $layer_name pitch]
++    set pitch [subst [dict get $grid_data rails $layer_name pitch]]
+   } elseif {[dict exists $grid_data straps $layer_name pitch]} {
+-    set pitch [dict get $grid_data straps $layer_name pitch]
++    set pitch [subst [dict get $grid_data straps $layer_name pitch]]
+   } elseif {[dict exists $grid_data straps $layer_name] && [dict exists $grid_data template names]} {
+-    set template_name [lindex [dict get $grid_data template names] 0]
+-    set pitch [dict get $grid_data straps $layer_name $template_name pitch]
++    set template_name [lindex [subst [dict get $grid_data template names]] 0]
++    set pitch [subst [dict get $grid_data straps $layer_name $template_name pitch]]
+   } elseif {[dict exists $default_grid_data straps $layer_name pitch]} {
+     set pitch [dict get $default_grid_data straps $layer_name pitch]
+   } elseif {[dict exists $default_grid_data straps $layer_name] && [dict exists $default_grid_data template names]} {
+@@ -1812,9 +1812,9 @@ proc generate_via_stacks {l1 l2 tag constraints} {
+   variable def_units
+   variable grid_data
+   
+-  set area [dict get $grid_data area]
++  set area [subst [dict get $grid_data area]]
+   if {[dict exists $grid_data core_ring_area combined]} {
+-    set grid_area [dict get $grid_data core_ring_area combined]
++    set grid_area [subst [dict get $grid_data core_ring_area combined]]
+     set factor [expr max([lindex $area 2] - [lindex $area 0], [lindex $area 3] - [lindex $area 1]) * 2]
+     set grid_area [odb::shrinkSet [odb::bloatSet $grid_area $factor] $factor]
+     # debug "Old area ($area)"
+@@ -1938,7 +1938,7 @@ proc get_core_ring_vertical_layer_name {} {
+     return ""
+   }
+ 
+-  foreach layer_name [dict keys [dict get $grid_data core_ring]] {
++  foreach layer_name [dict keys [subst [dict get $grid_data core_ring]]] {
+     if {[get_dir $layer_name] == "ver"} {
+       return $layer_name
+     }
+@@ -1953,7 +1953,7 @@ proc is_extend_to_core_ring {layer_name} {
+   if {![dict exists $grid_data rails $layer_name extend_to_core_ring]} {
+     return 0
+   }
+-  if {![dict get $grid_data rails $layer_name extend_to_core_ring]} {
++  if {![subst [dict get $grid_data rails $layer_name extend_to_core_ring]]} {
+     return 0
+   }
+   if {[get_core_ring_vertical_layer_name] == ""} {
+@@ -2018,7 +2018,7 @@ proc generate_lower_metal_followpin_rails {} {
+         }
+         # debug "Extended  to core_ring - adjustment $ring_adjustment ($xMin/$xMax)"
+       }
+-      set width [dict get $grid_data rails $lay width]
++      set width [subst [dict get $grid_data rails $lay width]]
+       # debug "VDD: $xMin [expr $vdd_y - $width / 2] $xMax [expr $vdd_y + $width / 2]"
+       set vdd_box [::odb::newSetFromRect $xMin [expr $vdd_y - $width / 2] $xMax [expr $vdd_y + $width / 2]]
+       set vss_box [::odb::newSetFromRect $xMin [expr $vss_y - $width / 2] $xMax [expr $vss_y + $width / 2]]
+@@ -2079,7 +2079,7 @@ proc adjust_area_for_core_rings {layer area} {
+   # When core_rings overlap with the stdcell area, we need to block out the area
+   # where the core rings have been placed.
+   if {[dict exists $grid_data core_ring_area $layer]} {
+-    set core_ring_area [dict get $grid_data core_ring_area $layer]
++    set core_ring_area [subst [dict get $grid_data core_ring_area $layer]]
+     set grid_area [odb::newSetFromRect {*}$area]
+     set grid_area [odb::subtractSet $grid_area $core_ring_area]
+     set area [get_extent $grid_area]
+@@ -2088,17 +2088,17 @@ proc adjust_area_for_core_rings {layer area} {
+   # Calculate how far to extend the grid to meet with the core rings
+   if {[dict exists $grid_data core_ring $layer pad_offset]} {
+     set pad_area [find_pad_offset_area]
+-    set width [dict get $grid_data core_ring $layer width]
++    set width [subst [dict get $grid_data core_ring $layer width]]
+     set offset [expr [dict get $grid_data core_ring $layer pad_offset]]
+-    set spacing [dict get $grid_data core_ring $layer spacing]
++    set spacing [subst [dict get $grid_data core_ring $layer spacing]]
+     set xMin [expr [lindex $pad_area 0] + $offset]
+     set yMin [expr [lindex $pad_area 1] + $offset]
+     set xMax [expr [lindex $pad_area 2] - $offset]
+     set yMax [expr [lindex $pad_area 3] - $offset]
+   } elseif {[dict exists $grid_data core_ring $layer core_offset]} {
+-    set offset [dict get $grid_data core_ring $layer core_offset] 
+-    set width [dict get $grid_data core_ring $layer width]
+-    set spacing [dict get $grid_data core_ring $layer spacing]
++    set offset [subst [dict get $grid_data core_ring $layer core_offset]] 
++    set width [subst [dict get $grid_data core_ring $layer width]]
++    set spacing [subst [dict get $grid_data core_ring $layer spacing]]
+     # debug "Area: $area"
+     # debug "Offset: $offset, Width $width, Spacing $spacing"
+ 
+@@ -2126,23 +2126,23 @@ proc generate_stripes {tag} {
+   variable grid_data
+ 
+   if {![dict exists $grid_data straps]} {return}
+-  foreach lay [dict keys [dict get $grid_data straps]] {
++  foreach lay [dict keys [subst [dict get $grid_data straps]]] {
+     # debug "    Layer $lay ..."
+ 
+     #Upper layer stripes
+     if {[dict exists $grid_data straps $lay width]} {
+-      set area [dict get $grid_data area]
++      set area [subst [dict get $grid_data area]]
+       # debug "Area $area"
+       if {[dict exists $grid_data core_ring] && [dict exists $grid_data core_ring $lay]} {
+         set area [adjust_area_for_core_rings $lay $area]
+       }
+       # debug "area=$area (spec area=[dict get $grid_data area])"
+-      generate_upper_metal_mesh_stripes $tag $lay [dict get $grid_data straps $lay] $area
++      generate_upper_metal_mesh_stripes $tag $lay [subst [dict get $grid_data straps $lay]] $area
+     } else {
+       foreach x [lsort -integer [dict keys $plan_template]] {
+         foreach y [lsort -integer [dict keys [dict get $plan_template $x]]] {
+           set template_name [dict get $plan_template $x $y]
+-          set layer_info [dict get $grid_data straps $lay $template_name]
++          set layer_info [subst [dict get $grid_data straps $lay $template_name]]
+           set area [list $x $y [expr $x + [dict get $template width]] [expr $y + [dict get $template height]]]
+           # debug "Adding straps for $area"
+           generate_upper_metal_mesh_stripes $tag $lay $layer_info $area
+@@ -2158,7 +2158,7 @@ proc cut_blocked_areas {tag} {
+   
+   if {![dict exists  $grid_data straps]} {return}
+ 
+-  foreach layer_name [dict keys [dict get $grid_data straps]] {
++  foreach layer_name [dict keys [subst [dict get $grid_data straps]]] {
+     set width [get_grid_wire_width $layer_name]
+ 
+     set blockages [get_blockages]
+@@ -2181,7 +2181,7 @@ proc generate_grid_vias {tag net_name} {
+   # debug "grid_data $grid_data"
+   if {[dict exists $grid_data connect]} {
+     # debug "Adding vias for $net_name ([llength [dict get $grid_data connect]] connections)..."
+-    foreach connection [dict get $grid_data connect] {
++    foreach connection [subst [dict get $grid_data connect]] {
+         set l1 [lindex $connection 0]
+         set l2 [lindex $connection 1]
+         # debug "    $l1 to $l2"
+@@ -2275,10 +2275,10 @@ proc find_pad_offset_area {} {
+   }
+ 
+   set pad_names {}
+-  dict for {pin_name pads} [dict get $grid_data pwr_pads] {
++  dict for {pin_name pads} [subst [dict get $grid_data pwr_pads]] {
+     set pad_names [concat $pad_names $pads]
+   }
+-  dict for {pin_name pads} [dict get $grid_data gnd_pads] {
++  dict for {pin_name pads} [subst [dict get $grid_data gnd_pads]] {
+     set pad_names [concat $pad_names $pads]
+   }
+   set pad_names [lsort -unique $pad_names]
+@@ -2456,8 +2456,8 @@ proc generate_core_rings {core_ring_data} {
+     }
+   }
+   set ring_areas {}
+-  foreach layer [dict keys [dict get $grid_data core_ring_area]] {
+-    lappend ring_areas [dict get $grid_data core_ring_area $layer]
++  foreach layer [dict keys [subst [dict get $grid_data core_ring_area]]] {
++    lappend ring_areas [subst [dict get $grid_data core_ring_area $layer]]
+   }
+   dict set grid_data core_ring_area combined [odb::orSets $ring_areas]
+ }
+@@ -2741,11 +2741,14 @@ proc export_opendb_power_pin {net_name signal_type} {
+   
+   set net [$block findNet $net_name]
+   set bterm [odb::dbBTerm_create $net "${net_name}"]
+-
+-  set bpin [odb::dbBPin_create $bterm]
+-  $bpin setPlacementStatus "FIRM"
++  $bterm setSpecial
++  $bterm setSigType $signal_type
++  $bterm setIoType "INOUT"
+ 
+   foreach lay [lreverse $metal_layers] {
++	if { [is_rails_layer $lay] } { 
++		continue
++	}
+     if {[array names stripe_locs "$lay,$signal_type"] == ""} {continue}
+     foreach shape [::odb::getPolygons $stripe_locs($lay,$signal_type)] {
+       set points [::odb::getPoints $shape]
+@@ -2759,11 +2762,14 @@ proc export_opendb_power_pin {net_name signal_type} {
+       set yMax [expr max([[lindex $points 0] getY], [[lindex $points 1] getY], [[lindex $points 2] getY], [[lindex $points 3] getY])]
+ 
+       set layer [$tech findLayer $lay]
++
++	  set bpin [odb::dbBPin_create $bterm]
++	  $bpin setPlacementStatus "FIRM"
+       odb::dbBox_create $bpin $layer $xMin $yMin $xMax $yMax
+     }
+     # debug "created $count pins on $net_name (layer:$lay)"
+     # Only promote metal on top layers to be pins
+-    break
++    # break
+   }
+ }
+ 
+@@ -2845,14 +2851,14 @@ proc get {args} {
+ proc get_macro_power_pins {inst_name} {
+   set specification [select_instance_specification $inst_name]
+   if {[dict exists $specification power_pins]} {
+-    return [dict get $specification power_pins]
++    return [subst [dict get $specification power_pins]]
+   }
+   return "VDDPE VDDCE"
+ }
+ proc get_macro_ground_pins {inst_name} {
+   set specification [select_instance_specification $inst_name]
+   if {[dict exists $specification ground_pins]} {
+-    return [dict get $specification ground_pins]
++    return [subst [dict get $specification ground_pins]]
+   }
+   return "VSSE"
+ }
+@@ -3167,13 +3173,13 @@ proc specify_grid {type specification} {
+   set spec_name [dict get $spec name]
+   
+   if {[dict exists $specification core_ring]} {
+-    dict for {layer data} [dict get $specification core_ring] {
++    dict for {layer data} [subst [dict get $specification core_ring]] {
+       dict set spec core_ring $layer [convert_layer_spec_to_def_units $data]
+     }
+   }
+   
+   if {[dict exists $specification rails]} {
+-    dict for {layer data} [dict get $specification rails] {
++    dict for {layer data} [subst [dict get $specification rails]] {
+       dict set spec rails $layer [convert_layer_spec_to_def_units $data]
+       if {[dict exists $specification template]} {
+         foreach template [dict get $specification template names] {
+@@ -3186,7 +3192,7 @@ proc specify_grid {type specification} {
+   }
+   
+   if {[dict exists $specification straps]} {
+-    dict for {layer data} [dict get $specification straps] {
++    dict for {layer data} [subst [dict get $specification straps]] {
+       dict set spec straps $layer [convert_layer_spec_to_def_units $data]
+       if {[dict exists $specification template]} {
+         foreach template [dict get $specification template names] {
+@@ -3327,45 +3333,45 @@ proc connect_pads_to_core_ring {type pin_name pads} {
+         set required_direction "hor"
+       }
+     }
+-    foreach non_pref_layer [dict keys [dict get $grid_data core_ring]] {
++    foreach non_pref_layer [dict keys [subst [dict get $grid_data core_ring]]] {
+       if {[get_dir $non_pref_layer] != $required_direction} {
+-        set non_pref_layer_info [dict get $grid_data core_ring $non_pref_layer]
++        set non_pref_layer_info [subst [dict get $grid_data core_ring $non_pref_layer]]
+         break
+       }
+     }
+     # debug "find_layer"
+-    foreach pref_layer [dict keys [dict get $grid_data core_ring]] {
++    foreach pref_layer [dict keys [subst [dict get $grid_data core_ring]]] {
+       if {[get_dir $pref_layer] == $required_direction} {
+         break
+       }
+     }
+     switch $side {
+       "t" {
+-        set y_min [expr [get_core_ring_centre $type $side $non_pref_layer_info] - [dict get $grid_data core_ring $non_pref_layer width] / 2]
+-        set y_min_blk [expr $y_min - [dict get $grid_data core_ring $non_pref_layer spacing]]
++        set y_min [expr [get_core_ring_centre $type $side $non_pref_layer_info] - [subst [dict get $grid_data core_ring $non_pref_layer width]] / 2]
++        set y_min_blk [expr $y_min - [subst [dict get $grid_data core_ring $non_pref_layer spacing]]]
+         set y_max [dict get $instance ymin]
+         # debug "t: [dict get $instance xmin] $y_min_blk [dict get $instance xmax] [dict get $instance ymax]"
+         add_padcell_blockage $pref_layer [odb::newSetFromRect [dict get $instance xmin] $y_min_blk [dict get $instance xmax] [dict get $instance ymax]]
+       }
+       "b" {
+-        # debug "[get_core_ring_centre $type $side $non_pref_layer_info] + [dict get $grid_data core_ring $non_pref_layer width] / 2"
+-        set y_max [expr [get_core_ring_centre $type $side $non_pref_layer_info] + [dict get $grid_data core_ring $non_pref_layer width] / 2]
+-        set y_max_blk [expr $y_max + [dict get $grid_data core_ring $non_pref_layer spacing]]
++        # debug "[get_core_ring_centre $type $side $non_pref_layer_info] + [subst [dict get $grid_data core_ring $non_pref_layer width]] / 2"
++        set y_max [expr [get_core_ring_centre $type $side $non_pref_layer_info] + [subst [dict get $grid_data core_ring $non_pref_layer width]] / 2]
++        set y_max_blk [expr $y_max + [subst [dict get $grid_data core_ring $non_pref_layer spacing]]]
+         set y_min [dict get $instance ymax]
+         # debug "b: [dict get $instance xmin] [dict get $instance ymin] [dict get $instance xmax] $y_max"
+         add_padcell_blockage $pref_layer [odb::newSetFromRect [dict get $instance xmin] [dict get $instance ymin] [dict get $instance xmax] $y_max_blk]
+         # debug "end b"
+       }
+       "l" {
+-        set x_max [expr [get_core_ring_centre $type $side $non_pref_layer_info] + [dict get $grid_data core_ring $non_pref_layer width] / 2]
+-        set x_max_blk [expr $x_max + [dict get $grid_data core_ring $non_pref_layer spacing]]
++        set x_max [expr [get_core_ring_centre $type $side $non_pref_layer_info] + [subst [dict get $grid_data core_ring $non_pref_layer width]] / 2]
++        set x_max_blk [expr $x_max + [subst [dict get $grid_data core_ring $non_pref_layer spacing]]]
+         set x_min [dict get $instance xmax]
+         # debug "l: [dict get $instance xmin] [dict get $instance ymin] $x_max [dict get $instance ymax]"
+         add_padcell_blockage $pref_layer [odb::newSetFromRect [dict get $instance xmin] [dict get $instance ymin] $x_max_blk [dict get $instance ymax]]
+       }
+       "r" {
+-        set x_min [expr [get_core_ring_centre $type $side $non_pref_layer_info] - [dict get $grid_data core_ring $non_pref_layer width] / 2]
+-        set x_min_blk [expr $x_min - [dict get $grid_data core_ring $non_pref_layer spacing]]
++        set x_min [expr [get_core_ring_centre $type $side $non_pref_layer_info] - [subst [dict get $grid_data core_ring $non_pref_layer width]] / 2]
++        set x_min_blk [expr $x_min - [subst [dict get $grid_data core_ring $non_pref_layer spacing]]]
+         set x_max [dict get $instance xmin]
+         # debug "r: $x_min_blk [dict get $instance ymin] [dict get $instance xmax] [dict get $instance ymax]"
+         add_padcell_blockage $pref_layer [odb::newSetFromRect $x_min_blk [dict get $instance ymin] [dict get $instance xmax] [dict get $instance ymax]]
+@@ -3741,16 +3747,16 @@ proc add_grid {} {
+   variable grid_data
+   
+   if {[dict exists $grid_data core_ring]} {
+-    set area [dict get $grid_data area]
++    set area [subst [dict get $grid_data area]]
+     # debug "Area $area"
+-    generate_core_rings [dict get $grid_data core_ring]
++    generate_core_rings [subst [dict get $grid_data core_ring]]
+     if {[dict exists $grid_data gnd_pads]} {
+-      dict for {pin_name cells} [dict get $grid_data gnd_pads] {
++      dict for {pin_name cells} [subst [dict get $grid_data gnd_pads]] {
+         connect_pads_to_core_ring "GROUND" $pin_name $cells
+       }
+     }
+     if {[dict exists $grid_data pwr_pads]} {
+-      dict for {pin_name cells} [dict get $grid_data pwr_pads] {
++      dict for {pin_name cells} [subst [dict get $grid_data pwr_pads]] {
+         connect_pads_to_core_ring "POWER" $pin_name $cells
+       }
+     }
+@@ -3766,12 +3772,12 @@ proc add_grid {} {
+     apply_padcell_blockages
+   }
+  
+-    set area [dict get $grid_data area]
++    set area [subst [dict get $grid_data area]]
+     # debug "Area $area"
+   # debug "Adding stdcell rails"
+-  # debug "area: [dict get $grid_data area]"
++  # debug "area: [subst [dict get $grid_data area]]"
+   if {[dict exists $grid_data rails]} {
+-    set area [dict get $grid_data area]
++    set area [subst [dict get $grid_data area]]
+     # debug "Area $area"
+     generate_lower_metal_followpin_rails
+   }
+@@ -3809,8 +3815,8 @@ proc add_grid {} {
+ 
+   if {[dict exists $grid_data obstructions]} {
+     information 32 "Generating blockages for TritonRoute"
+-    # debug "Obstructions: [dict get $grid_data obstructions]"
+-    foreach layer_name [dict get $grid_data obstructions] {
++    # debug "Obstructions: [subst [dict get $grid_data obstructions]]"
++    foreach layer_name [subst [dict get $grid_data obstructions]] {
+       generate_obstructions $layer_name
+     }
+   }
+@@ -3827,7 +3833,7 @@ proc select_instance_specification {instance} {
+     # If there is a specifcation that matches this instance name, use that
+     dict for {name specification} $macro_specifications {
+       if {![dict exists $specification instance]} {continue}
+-      if {[dict get $specification instance] == $instance} {
++      if {[subst [dict get $specification instance]] == $instance} {
+         # debug "instname found, end"
+         return $specification
+       }
+@@ -3959,7 +3965,7 @@ proc get_macro_blockage_layers {instance} {
+   
+   set specification [select_instance_specification $instance]
+   if {[dict exists $specification blockages]} {
+-    return [dict get $specification blockages]
++    return [subst [dict get $specification blockages]]
+   }
+   return $metal_layers
+ }
+@@ -3978,13 +3984,13 @@ proc report_layer_details {layer} {
+ 
+ proc print_strategy {type specification} {
+   if {[dict exists $specification name]} {
+-    puts "Type: ${type}, [dict get $specification name]"
++    puts "Type: ${type}, [subst [dict get $specification name]]"
+   } else {
+     puts "Type: $type"
+   }
+   if {[dict exists $specification core_ring]} {
+     puts "    Core Rings"
+-    dict for {layer_name layer} [dict get $specification core_ring] {
++    dict for {layer_name layer} [subst [dict get $specification core_ring]] {
+       puts -nonewline "      Layer: $layer_name"
+       if {[dict exists $layer width]} {
+         set str [report_layer_details $layer]
+@@ -4001,7 +4007,7 @@ proc print_strategy {type specification} {
+   }
+   if {[dict exists $specification rails]} {
+     puts "    Stdcell Rails"
+-    dict for {layer_name layer} [dict get $specification rails] {
++    dict for {layer_name layer} [subst [dict get $specification rails]] {
+       puts -nonewline "      Layer: $layer_name"
+       if {[dict exists $layer width]} {
+         set str [report_layer_details $layer]
+@@ -4017,17 +4023,17 @@ proc print_strategy {type specification} {
+     }
+   }
+   if {[dict exists $specification instance]} {
+-    puts "    Instance: [dict get $specification instance]"
++    puts "    Instance: [subst [dict get $specification instance]]"
+   }
+   if {[dict exists $specification macro]} {
+-    puts "    Macro: [dict get $specification macro]"
++    puts "    Macro: [subst [dict get $specification macro]]"
+   }
+   if {[dict exists $specification orient]} {
+-    puts "    Macro orientation: [dict get $specification orient]"
++    puts "    Macro orientation: [subst [dict get $specification orient]]"
+   }
+   if {[dict exists $specification straps]} {
+     puts "    Straps"
+-    dict for {layer_name layer} [dict get $specification straps] {
++    dict for {layer_name layer} [subst [dict get $specification straps]] {
+       puts -nonewline "      Layer: $layer_name"
+       if {[dict exists $layer width]} {
+         set str [report_layer_details $layer]
+@@ -4043,7 +4049,7 @@ proc print_strategy {type specification} {
+     }
+   }
+   if {[dict exists $specification connect]} {
+-    puts "    Connect: [dict get $specification connect]"
++    puts "    Connect: [subst [dict get $specification connect]]"
+   }
+ }
+ 
+@@ -4509,7 +4515,7 @@ proc add_macro_based_grids {} {
+       }
+       # debug "$instance [get_instance_specification $instance]"
+       set grid_data [get_instance_specification $instance]
+-      # debug "area=[dict get $grid_data area]"
++      # debug "area=[subst [dict get $grid_data area]]"
+       add_grid 
+   
+       # debug "Generate vias for [dict get $design_data power_nets] [dict get $design_data ground_nets]"
+@@ -4587,7 +4593,7 @@ proc opendb_update_grid {} {
+   information 15 "Writing to database"
+   export_opendb_vias
+   export_opendb_specialnets
+-  # export_opendb_power_pins
++  export_opendb_power_pins
+ }
+   
+ proc apply_pdn {config is_verbose} {

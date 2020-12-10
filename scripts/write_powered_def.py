@@ -94,6 +94,9 @@ modified_cells = 0
 cells = block.getInsts()
 for cell in cells:
     iterms = cell.getITerms()
+    if len(iterms) == 0:
+        continue
+
     VDD_ITERMS = []
     GND_ITERMS = []
     VDD_ITERM_BY_NAME = None

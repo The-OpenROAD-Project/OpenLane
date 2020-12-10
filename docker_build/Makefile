@@ -1,7 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
-DOCKER_BUILD_OPTS ?= --rm 
+DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./Dockerfile
-IMAGE_NAME ?= openlane:rc5
+IMAGE_NAME ?= openlane:rc6
 #ROOT = sudo
 
 TOOLS = replace opendp route opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
@@ -16,7 +16,7 @@ build-all: $(TOOL_BUILD_TARGETS) export-all
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 	mkdir -p logs/docker
-	export DOCKER_BUILDKIT=1; ${ROOT} docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
+	docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
 	${MAKE} export-$*
 
 # ==============================================================================
@@ -42,7 +42,7 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 
 tar/openLANE_flow.tar.gz: FORCE
 	find ../ -name '*.tcl' -exec chmod +x {} \;
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
 FORCE:
 

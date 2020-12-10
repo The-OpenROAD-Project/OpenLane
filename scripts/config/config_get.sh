@@ -20,7 +20,7 @@ for arg in "$@"; do
 	args+=("$arg")
 done
 for config_name in "${args[@]:1}"; do
-	val=$(grep $config_name $config_file | tail -1 |sed  "s/set *::env(${config_name}) *//")
+	val=$(grep "($config_name)" $config_file | tail -1 |sed  "s/set *::env(${config_name}) *//")
 	if ! [[ $val ]]; then val=-1; fi
 	printf "##$val"
 done
