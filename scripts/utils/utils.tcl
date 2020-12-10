@@ -62,6 +62,13 @@ proc is_keyword_arg { arg } {
   }
 }
 
+proc extract_pins_from_yosys_netlist {netlist_file} {
+    return [list [exec sed -E -n {/^module/ s/module[[:space:]]+[^[:space:]]+[[:space:]]*\((.*)\);/\1/pg}\
+        $netlist_file \
+        | tr -d ',']]
+
+}
+
 # parse arguments
 # adopted from https://github.com/The-OpenROAD-Project/OpenSTA/blob/77f22e482e8d48d29f2810d871a22847f1bdd74a/tcl/Util.tcl#L31
 
