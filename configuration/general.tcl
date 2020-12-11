@@ -36,6 +36,7 @@ set ::env(CLOCK_PERIOD) "10"
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 
 set ::env(FILL_INSERTION) 1
+set ::env(TAP_DECAP_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
 set ::env(WIDEN_SITE_IS_FACTOR) 1 

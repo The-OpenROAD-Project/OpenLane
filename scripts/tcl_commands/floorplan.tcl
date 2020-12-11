@@ -250,8 +250,10 @@ proc run_floorplan {args} {
 		}
 
 		# tapcell
-		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
-				tap_decap_or
+		if { $::env(TAP_DECAP_INSERTION) } {
+			if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
+					tap_decap_or
+			}
 		}
 
 		if { [info exists ::env(VDD_NETS)] || [info exists ::env(GND_NETS)] } {
