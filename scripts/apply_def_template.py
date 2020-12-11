@@ -56,10 +56,10 @@ def remove_power_pins(DEF):
     templateDEFOpener.close()
     
 
-command = 'cp {templateDEF} {newtemplateDEF}'.format(templateDEF=templateDEF, newtemplateDEF=templateDEF+".template.tmp")
+command = 'cp {templateDEF} {newtemplateDEF}'.format(templateDEF=templateDEF, newtemplateDEF=userDEF+".template.tmp")
 subprocess.check_output(command.split(), stderr=subprocess.PIPE) 
 
-templateDEF = templateDEF+".template.tmp"
+templateDEF = userDEF+".template.tmp"
 remove_power_pins(templateDEF)
 
 
