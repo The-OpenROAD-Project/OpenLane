@@ -30,6 +30,7 @@ author = 'efabless'
 extensions = [
   'sphinx.ext.todo',
   'recommonmark',
+  'sphinx_markdown_tables',
 ]
 
 # Expand source suffixes
