@@ -13,7 +13,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+from recommonmark.parser import CommonMarkParser
 
 # -- Project information -----------------------------------------------------
 
@@ -28,8 +28,23 @@ author = 'efabless'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-  'sphinx.ext.todo'
+  'sphinx.ext.todo',
+  'recommonmark',
 ]
+
+# Expand source suffixes
+
+source_parsers = {
+    '.md': CommonMarkParser,
+}
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+}
+
+
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
