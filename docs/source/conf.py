@@ -40,7 +40,8 @@ source_parsers = {
 
 source_suffix = {
     '.rst': 'restructuredtext',
-    '.md': 'markdown',
+    '.md' : 'markdown',
+    #'.tcl': 'markdown', 
 }
 
 
