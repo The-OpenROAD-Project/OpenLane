@@ -12,7 +12,15 @@ SoC design examples that have been sent to SkyWater for fabrication.
 .. toctree::
    :maxdepth: 2
 
-   doc/advanced_readme.md
-   doc/chip_integration.md
+   openlane.md
 
+.. toctree::
+   :hidden:
+
+   /doc/advanced_readme.md
+   /doc/OpenLANE_commands.md
+   /doc/hardening_macros.md
+   /doc/chip_integration.md
+   /doc/PDK_STRUCTURE.md
+   configuration/README.md
 
