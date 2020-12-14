@@ -109,8 +109,8 @@ proc run_netgen {args} {
 package provide openlane 0.9
 
 proc run_lef_cvc {args} {
+    if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
     puts_info "Running CVC"
-    if {$::env(RUN_CVC) == 1 } {
     set cvc_power_awk "\
 BEGIN {  # Print power and standard_input definitions
     print \"$::env(VDD_PIN) power 1.8\";
@@ -147,11 +147,11 @@ BEGIN {  # Print power and standard_input definitions
 }"
 
     # Create power file
-    exec awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+    try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
     # Create cdl file by combining cdl library with lef spice
-    exec awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
+    try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
         > $::env(cvc_result_file_tag).cdl
-    exec cvc $::env(SCRIPTS_DIR)/cvcrc.sky130 \
+    try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
         |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
     } else {
         puts_info "Skipping CVC"
