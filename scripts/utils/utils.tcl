@@ -214,14 +214,16 @@ proc generate_final_summary_report {args} {
     puts_info "Generating Final Summary Report..."
 	set options {
         {-output optional}
+		{-man_report optional}
     }
     set flags {}
     parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
     
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
+    set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manfucturability_report.rpt
 
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
-        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -r $::env(RUN_DIR)
+        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -m $arg_values(-man_report) -r $::env(RUN_DIR)
     }
 }
 
