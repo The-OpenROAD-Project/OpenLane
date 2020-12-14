@@ -42,6 +42,7 @@ magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
 fr_antenna_log=${path}/logs/routing/fastroute.log
 fr_log=${path}/logs/routing/fastroute_post_antenna.log
+cvc_log=${path}/logs/cvc/cvc_screen.log
 if ! [ -f "$fr_log" ]; then
     fr_log=${path}/logs/routing/fastroute.log
 fi
@@ -253,9 +254,12 @@ physical_cells=$(((endcaps+tapcells)+diodes));
 lvs_total_errors=$(grep "Total errors =" $lvs_report -s | tail -1 | sed -r 's/[^0-9]*//g')
 if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
 
+#Extracting the total number of cvc errors
+cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*//g')
+if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done

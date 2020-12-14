@@ -159,6 +159,7 @@ feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
 				$magic_export \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_spice.log
+                exec cp $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 }
 
 proc export_magic_view {args} {

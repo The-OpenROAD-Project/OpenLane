@@ -167,7 +167,7 @@ These variables are optional that can be specified in the design configuration f
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> Default `1` |
 | `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default `1` |
 | `MAGIC_CONVERT_DRC_TO_RDB` | Specifies whether or not generate a Klayout RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default `1`|
-
+| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. Thus, it controls the command `run_lef_cvc`. 1=Enabled, 0=Disabled. <br> Default `1` |
 ### Checkers
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
