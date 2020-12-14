@@ -48,6 +48,7 @@ proc write_powered_verilog {args} {
       {-lef optional}
       {-power optional}
       {-ground optional}
+      {-powered_netlist optional}
     }
     set flags {}
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
@@ -59,11 +60,18 @@ proc write_powered_verilog {args} {
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
 
 
+    if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
+        set_if_unset arg_values(-powered_netlist) $::env(yosys_tmp_file_tag).pg_define.v
+    } else {
+        set_if_unset arg_values(-powered_netlist) ""
+    }
+
     try_catch python3 $::env(SCRIPTS_DIR)/write_powered_def.py \
       -d $arg_values(-def) \
       -l $arg_values(-lef) \
-      -v $arg_values(-power) \
-      -g $arg_values(-ground) \
+      --power-port $arg_values(-power) \
+      --ground-port $arg_values(-ground) \
+      --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
 
