@@ -32,7 +32,8 @@ extensions = [
   'sphinx.ext.todo',
   'recommonmark',
   'sphinx_markdown_tables',
-  'image_links'
+  'image_links',
+  'code_links',
 ]
 
 # Expand source suffixes
