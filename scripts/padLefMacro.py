@@ -44,7 +44,6 @@ parser.add_argument('--site_width', '-sw', required=False,
 parser.add_argument('--site_height', '-sh', required=False,
                     default='0')
 parser.add_argument('--exclude', '-e', required=False,
-                    default='ENDCAPTIE* CNRCAP* INCNR* TBCAP* FILL* WELLTAP* tsmc65lp_* gf14_* fakeram45_*',
                     help='exclude')
 parser.add_argument('--inputLef', '-i', required=True,
                     help='Input LEF')
