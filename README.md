@@ -203,7 +203,7 @@ The following are arguments that can be passed to `flow.tcl`
             <code>-config_tag &lt;name&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2.tcl</code> <br> By default <code>config.tcl</code> is used.
+            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2</code> <br> By default <code>config</code> is used.
         </td>
     </tr>
     <tr>

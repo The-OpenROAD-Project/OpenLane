@@ -4,7 +4,7 @@ DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= openlane:rc6
 #ROOT = sudo
 
-TOOLS = replace opendp route opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn
+TOOLS = replace opendp route opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
@@ -42,7 +42,7 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 
 tar/openLANE_flow.tar.gz: FORCE
 	find ../ -name '*.tcl' -exec chmod +x {} \;
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs/*/runs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
 FORCE:
 

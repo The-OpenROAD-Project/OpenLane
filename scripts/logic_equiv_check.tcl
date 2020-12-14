@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if { [info exists ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
+	set well_tap_cell "$::env(FP_WELLTAP_CELL)"
+}
+set decap_cell_wildcard "$::env(DECAP_CELL)*"
+set fill_cell_wildcard "$::env(FILL_CELL)*"
 
 yosys -import
 set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
-
-set well_tap_cell "$::env(FP_WELLTAP_CELL)"
-set decap_cell_wildcard "$::env(DECAP_CELL)*"
-set fill_cell_wildcard "$::env(FILL_CELL)*"
-
-
 
 # LHS
 if { [info exists ::env(SYNTH_DEFINES) ] } {
@@ -35,13 +34,15 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
 	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
 }
 
 read_verilog $::env(LEC_LHS_NETLIST)
 rmports
-hierarchy -generate $well_tap_cell
+if { [info exists well_tap_cell] } {
+	hierarchy -generate $well_tap_cell
+}
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
@@ -68,13 +69,15 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
 	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
 }
 
 read_verilog $::env(LEC_RHS_NETLIST)
 rmports
-hierarchy -generate $well_tap_cell
+if { [info exists well_tap_cell] } {
+	hierarchy -generate $well_tap_cell
+}
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
@@ -103,12 +106,14 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
 	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
 }
 
 equiv_make gold gate equiv
-hierarchy -generate $well_tap_cell
+if { [info exists well_tap_cell] } {
+	hierarchy -generate $well_tap_cell
+}
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 setattr -set keep 1
