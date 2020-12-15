@@ -72,7 +72,7 @@ arc_antenna_report=str(run_path)+"/reports/routing/antenna.rpt"
 printArr = []
 
 printArr.append("Design Name: " + design_name)
-printArr.append("Design Directory: " + design)
+printArr.append("Run Directory: " + run_path)
 
 
 # Summarizing Magic DRC

@@ -694,7 +694,7 @@ proc heal_antenna_violators {args} {
 	# that need the real diode in place of the fake diode:
 	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
 	# => fixes the routed def
-	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
 			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
