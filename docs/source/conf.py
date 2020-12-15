@@ -34,6 +34,7 @@ extensions = [
   'sphinx_markdown_tables',
   'image_links',
   'markdown_code_links',
+  'toc_from_markdown'
 ]
 
 # Expand source suffixes
@@ -136,5 +137,10 @@ todo_include_todos = True
 numfig = True
 markdown_code_links_githubrepo   = 'https://github.com/efabless/openlane'
 markdown_code_links_githubbranch = 'blob/master'
-markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '/']
+markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '/', '.json', 'Makefile']
 
+suppress_warnings = ['misc.highlighting_failure'] # supress json highlight warnings
+
+
+def setup(app):
+    app.emit("toc_from_markdown", 'index.md', '.autotoc.rst')
