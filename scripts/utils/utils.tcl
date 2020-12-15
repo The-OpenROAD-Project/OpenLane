@@ -224,6 +224,7 @@ proc generate_final_summary_report {args} {
 
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
         try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -m $arg_values(-man_report) -r $::env(RUN_DIR)
+        puts_info [read [open $arg_values(-man_report) r]]
     }
 }
 
