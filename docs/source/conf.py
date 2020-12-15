@@ -33,7 +33,7 @@ extensions = [
   'recommonmark',
   'sphinx_markdown_tables',
   'image_links',
-  'code_links',
+  'markdown_code_links',
 ]
 
 # Expand source suffixes
@@ -45,7 +45,6 @@ source_parsers = {
 source_suffix = {
     '.rst': 'restructuredtext',
     '.md' : 'markdown',
-    #'.tcl': 'markdown', 
 }
 
 
@@ -135,3 +134,7 @@ html_static_path = ['_static']
 
 todo_include_todos = True
 numfig = True
+markdown_code_links_githubrepo   = 'https://github.com/efabless/openlane'
+markdown_code_links_githubbranch = 'blob/master'
+markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '/']
+
