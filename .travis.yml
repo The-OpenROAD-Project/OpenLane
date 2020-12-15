@@ -32,33 +32,33 @@ os:
 jobs:
   include:
     - name: "Base Test"
-      env: TEST_SET=spm
+      env: TEST_SET=spm EXTRA_FLAGS=-so
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
       env: TEST_SET=typicalTestSet1
     - name: "aes_cipher"
-      env: TEST_SET=aes_cipher
+      env: TEST_SET=aes_cipher EXTRA_FLAGS=-so
     - name: "des"
-      env: TEST_SET=des
+      env: TEST_SET=des EXTRA_FLAGS=-so
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
     - name: "BM64"
-      env: TEST_SET=BM64
+      env: TEST_SET=BM64 EXTRA_FLAGS=-so
     - name: "picorv32a"
-      env: TEST_SET=picorv32a
+      env: TEST_SET=picorv32a EXTRA_FLAGS=-so
     - name: "chacha"
-      env: TEST_SET=chacha
+      env: TEST_SET=chacha EXTRA_FLAGS=-so
     - name: "PPU"
-      env: TEST_SET=PPU
+      env: TEST_SET=PPU EXTRA_FLAGS=-so
     - name: "y_huff"
-      env: TEST_SET=y_huff
+      env: TEST_SET=y_huff EXTRA_FLAGS=-so
     - name: "blabla"
-      env: TEST_SET=blabla
+      env: TEST_SET=blabla EXTRA_FLAGS=-so
     - name: "ldpcenc"
-      env: TEST_SET=ldpcenc
+      env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
     - name: "salsa20"
-      env: TEST_SET=salsa20
+      env: TEST_SET=salsa20 EXTRA_FLAGS=-so
     - name: "aes_core"
       env: TEST_SET=aes_core
     - name: "aes"
@@ -66,7 +66,11 @@ jobs:
     - name: "sha512"
       env: TEST_SET=sha512
     - name: "genericfir"
-      env: TEST_SET=genericfir
+      env: TEST_SET=genericfir EXTRA_FLAGS=-so
+    - name: "aes128"
+      env: TEST_SET=aes128
+    - name: "aes192"
+      env: TEST_SET=aes192
 
 install:
   - sh travisCI/travisBuild.sh

@@ -21,4 +21,4 @@ fi
 file=$1
 
 # remove the NETS section
-sed -ie "/^NETS.*;/,/^END NETS/d" $file
+sed -i "/^NETS.*;/,/^END NETS/d" $file

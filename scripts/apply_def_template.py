@@ -35,6 +35,34 @@ userDEF = args.userDEF
 scriptsDir = args.scriptsDir
 
 
+def remove_power_pins(DEF):
+    templateDEFOpener = open(DEF,"r")
+    if templateDEFOpener.mode == 'r':
+        templateDEFSections =templateDEFOpener.read().split("PINS")
+    templateDEFOpener.close()
+    PINS = templateDEFSections[1].split("- ")
+    OUT_PINS=[" ;"]
+    cnt = 0
+    for pin in PINS[1:]:
+        if pin.find("USE GROUND") + pin.find("USE POWER") == -2:
+            cnt+=1 
+            OUT_PINS.append(pin)
+    OUT_PINS[0] = " "+str(cnt) + OUT_PINS[0] + PINS[0].split(";")[1]
+    OUT_PINS[-1] = OUT_PINS[-1].replace("END ", "")
+    OUT_PINS[-1] = OUT_PINS[-1] + "END "
+    templateDEFSections[1] = "- ".join(OUT_PINS)
+    templateDEFOpener = open(DEF,"w")
+    templateDEFOpener.write("PINS".join(templateDEFSections))
+    templateDEFOpener.close()
+    
+
+command = 'cp {templateDEF} {newtemplateDEF}'.format(templateDEF=templateDEF, newtemplateDEF=userDEF+".template.tmp")
+subprocess.check_output(command.split(), stderr=subprocess.PIPE) 
+
+templateDEF = userDEF+".template.tmp"
+remove_power_pins(templateDEF)
+
+
 command = 'sh {scriptsDir}/mv_pins.sh {templateDEF} {userDEF}'.format(scriptsDir=scriptsDir,templateDEF=templateDEF, userDEF=userDEF)
 subprocess.check_output(command.split(), stderr=subprocess.PIPE)   
 

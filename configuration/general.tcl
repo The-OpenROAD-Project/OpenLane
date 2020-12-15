@@ -28,6 +28,7 @@ set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
+set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"
@@ -35,6 +36,7 @@ set ::env(CLOCK_PERIOD) "10"
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 
 set ::env(FILL_INSERTION) 1
+set ::env(TAP_DECAP_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
 set ::env(WIDEN_SITE_IS_FACTOR) 1 
@@ -42,6 +44,8 @@ set ::env(WIDEN_SITE_IS_FACTOR) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(SPEF_WIRE_MODEL) "L"
 set ::env(SPEF_EDGE_CAP_FACTOR) 1
+
+set ::env(RUN_CVC) 1
 
 set ::env(WIRE_RC_LAYER) "met1"; # Used for estimate_parasitics
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1

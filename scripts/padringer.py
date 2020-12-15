@@ -130,7 +130,7 @@ def invoke_padring(config_file_name, output_file_name):
     print(output[0].strip())
 
     print("Padring exit code:", p.returncode)
-    assert p.returncode == 0
+    assert p.returncode == 0, p.returncode
     assert os.path.exists(output_file_name)
 
 # hard requirement of a user netlist either as a DEF or verilog
@@ -168,7 +168,7 @@ if verilog_netlist is not None:
     print("STDERR:")
     print(output[1].strip())
     print("openroad exit code:", p.returncode)
-    assert p.returncode == 0
+    assert p.returncode == 0, p.returncode
     # TODO: check for errors
 else:
     assert def_netlist is not None

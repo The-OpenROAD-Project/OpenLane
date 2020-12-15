@@ -35,7 +35,7 @@ proc run_non_interactive_mode {args} {
 	run_cts
 	run_routing
 
-	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		run_antenna_check
 		heal_antenna_violators; # modifies the routed DEF
 	}
@@ -57,7 +57,7 @@ proc run_non_interactive_mode {args} {
 			-def_path $::env(tritonRoute_result_file_tag).def \
 			-gds_path $::env(magic_result_file_tag).gds \
 			-mag_path $::env(magic_result_file_tag).mag \
-			-mag_path $::env(magic_result_file_tag).lef.mag \
+			-maglef_path $::env(magic_result_file_tag).lef.mag \
 			-spice_path $::env(magic_result_file_tag).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
@@ -71,6 +71,8 @@ proc run_non_interactive_mode {args} {
 	run_lvs; # requires run_magic_spice_export
 
 	run_antenna_check
+
+	run_lef_cvc
 
 	generate_final_summary_report
 

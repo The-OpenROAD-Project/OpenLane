@@ -10,8 +10,8 @@
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
+    - [Installation Notes](#installation-notes) 
 - [Updating OpenLANE](#updating-openlane)
-- [Setting up the PDK: skywater-pdk](#setting-up-the-pdk-skywater-pdk)
 - [Setting up OpenLANE](#setting-up-openlane)
     - [Building the OpenLANE Docker](#building-the-openlane-docker)
     - [Running OpenLANE](#running-openlane)
@@ -36,32 +36,19 @@ Join the community on [slack](https://invite.skywater.tools)!
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
- - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60*
-
- > \* Note: You can avoid the need for the magic prerequisite by using the openlane docker to do the installation step in open_pdks. This [file](./travisCI/travisBuild.sh) shows how.
-
-For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow.
-
 
 # Quick Start:
 
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
     cd openlane/
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make
+    make openlane
+    make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
-
-the Makefile should do the following when you run the above command:
-- Clone Skywater-pdk and the specified STD_CELL_LIBRARY and build it.
-- Clone open_pdks and set up the STD_CELL_LIBRARY for OpenLANE use.
-- Build the OpenLANE docker.
-- Test the whole setup with a complete run on a small design `spm`.
-
-**Note**: the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that inside the [Makefile](./Makefile).
 
 This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
 
@@ -77,6 +64,34 @@ After running you'll find a directory added under [./regression_results/](./regr
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
+## Installation Notes:
+
+- The Makefile should do the following when you run the above command:
+    - Clone Skywater-pdk and the specified STD_CELL_LIBRARY, SPECIAL_VOLTAGE_LIBRARY, and IO_LIBRARY and build it.
+    - Clone open_pdks and set up the pdk for OpenLANE use.
+    - Build the OpenLANE docker.
+    - Test the whole setup with a complete run on a small design `spm`.
+
+- You can use dockerhub instead of building the docker locally. Check [this section](#pulling-an-auto-built-docker-image-from-dockerhub) for more details.
+
+- the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that by running:
+```bash
+    export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls> 
+```
+- Other options are:
+    - sky130_fd_sc_hs
+    - sky130_fd_sc_ms
+    - sky130_fd_sc_ls
+    - sky130_fd_sc_hdll
+
+- You can install the full pdk by running `make full-pdk` instead of `make pdk`
+
+- You can install the pdk manually -outside of the Makefile- by following the instructions provided [here][30].
+
+- Refer to [this][24] for more details on the structure.
+
+- For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow. **You Don't Need To Re-Build The Tools.**
+
 # Updating OpenLANE
 
 If you already have the repo locally, then no need to re-clone it. You can directly run the following:
@@ -85,78 +100,28 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     cd openlane/
     git checkout master
     git pull
-    git checkout rc5
+    git checkout rc6
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make
+    make openlane
+    make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
 This should install the latest openlane docker, and re-install the pdk for the latest used version. If you want to only update the openlane docker check this [section](#building-the-openlane-docker) after updating the repo.
-
-**DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
-
-# Setting up the PDK: skywater-pdk
-
-- Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
-    - To setup one standard cell library only
-
-    ```bash
-        export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-        cd  $PDK_ROOT
-        git clone https://github.com/google/skywater-pdk.git
-        cd skywater-pdk
-        git checkout 3d7617a1acb92ea883539bcf22a632d6361a5de4
-        git submodule update --init libraries/sky130_fd_sc_hd/latest
-        git submodule update --init libraries/sky130_fd_sc_hvl/latest
-        git submodule update --init libraries/sky130_fd_io/latest
-        make timing
-    ```
-    - To setup other SCLs:
-        - replace sky130_fd_sc_hd with any of the following list:
-            - sky130_fd_sc_hs
-            - sky130_fd_sc_ms
-            - sky130_fd_sc_ls
-            - sky130_fd_sc_hdll
-
-- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
-
-    ```bash
-        cd $PDK_ROOT
-	    git clone https://github.com/RTimothyEdwards/open_pdks.git
-        cd open_pdks
-        git checkout b184e85de7629b8c87087a46b79eb45e7f7cd383
-        ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
-		cd sky130
-		make
-		make install-local
-    ```
-
-**Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
-
-**WARNING**: Please, don't move `sk130A` from the installed directory because the generated .mag files contain absolute paths. Moving it will result in producing an invalid GDS.
-
- - To set the STD_CELL_LIBRARY (the default value is set to sky130_fd_sc_hd)
-    - Open [configuration/general.tcl](./configuration/general.tcl)
-    - set STD_CELL_LIBRARY to one of the following:
-
-            - sky130_fd_sc_hs
-            - sky130_fd_sc_ms
-            - sky130_fd_sc_ls
-            - sky130_fd_sc_hdll
-
-Refer to [this][24] for more details on the structure.
 
 
 # Setting up OpenLANE
 
 ## Building the OpenLANE Docker
 
+**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make openlane`**
+
 ### Building the Docker Image Locally
 
 To setup openlane you can build the docker container locally following these instructions:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
     cd openlane/docker_build
     make merge
     cd ..
@@ -169,8 +134,8 @@ Alternatively, you can use the auto-built openlane docker images available throu
 **Note:** You may need to have an account on dockerhub to execute the following step.
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch rc5
-    docker pull efabless/openlane:rc5
+    git clone https://github.com/efabless/openlane.git --branch rc6
+    docker pull efabless/openlane:rc6
 ```
 
 ## Running OpenLANE
@@ -180,14 +145,14 @@ Alternatively, you can use the auto-built openlane docker images available throu
 Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc5
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc6
 ```
 
 ### Running the Pulled Auto-Built Docker Image
 If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc5
+    export IMAGE_NAME=efabless/openlane:rc6
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
@@ -238,7 +203,7 @@ The following are arguments that can be passed to `flow.tcl`
             <code>-config_tag &lt;name&gt;</code> <br> (Optional)
         </td>
         <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2.tcl</code> <br> By default <code>config.tcl</code> is used.
+            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2</code> <br> By default <code>config</code> is used.
         </td>
     </tr>
     <tr>
@@ -529,3 +494,4 @@ To learn more about Chip Integration. Check this [file][26]
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
 [29]: ./doc/hardening_macros.md
+[30]: ./doc/Manual_PDK_installation.md

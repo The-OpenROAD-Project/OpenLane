@@ -155,7 +155,7 @@ proc gen_pdn {args} {
 }
 
 
-proc ins_diode_cells {args} {
+proc ins_diode_cells_1 {args} {
     puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/diodes.def
 
@@ -165,7 +165,34 @@ proc ins_diode_cells {args} {
     write_verilog $::env(yosys_result_file_tag)_diodes.v
     set_netlist $::env(yosys_result_file_tag)_diodes.v
     if { $::env(LEC_ENABLE) } {
-	logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+		        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    }
+}
+
+proc ins_diode_cells_4 {args} {
+    puts_info "Running Diode Insertion..."
+    set ::env(SAVE_DEF) $::env(TMP_DIR)/placement/diodes.def
+
+    # Select diode cell
+	if { $::env(DIODE_INSERTION_STRATEGY) == 5 && [info exists ::env(FAKEDIODE_CELL)]} {
+		set ::antenna_cell_name $::env(FAKEDIODE_CELL)
+	} else {
+		set ::antenna_cell_name $::env(DIODE_CELL)
+	}
+
+	# Custom script
+	try_catch python3 $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/diodes.log
+
+	set_def $::env(TMP_DIR)/placement/diodes.def
+
+	# Legalize
+	detailed_placement_or
+
+	# Update netlist
+	write_verilog $::env(yosys_result_file_tag)_diodes.v
+	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	if { $::env(LEC_ENABLE) } {
+		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 }
 
@@ -216,10 +243,13 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-    if { $::env(DIODE_INSERTION_STRATEGY) != 0 &&  $::env(DIODE_INSERTION_STRATEGY) != 3  && [info exists ::env(DIODE_CELL)] } {
-	    if { $::env(DIODE_CELL) ne "" } {
-		    ins_diode_cells
-	    }
+	if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+		if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
+			ins_diode_cells_1
+		}
+		if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+			ins_diode_cells_4
+		}
     }
     use_original_lefs
 
@@ -239,6 +269,15 @@ proc run_routing {args} {
     # detailed routing
     add_route_obs
     detailed_routing
+
+	# pdngen-related hack
+	# remove .extra\d+ "pins" so that magic
+	# generates shapes for each stripes without the ".extra" postfix
+	# until OpenDB can understand this syntax...
+	exec sed \
+		-i -E {/^PINS/,/^END PINS/ s/\.extra[[:digit:]]+(.*USE (GROUND|POWER))/\1/g} \
+		$::env(CURRENT_DEF)
+
     run_spef_extraction
 
     ## TIMER END
