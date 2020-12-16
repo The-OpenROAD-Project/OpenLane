@@ -16,6 +16,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+import os
+import os.path as path
 
 def setup(app):
     app.add_config_value('markdown_code_links_githubrepo', 'https://github.com/name/repo', 'html')
@@ -23,7 +25,7 @@ def setup(app):
     app.add_config_value('markdown_code_links_codefileextensions', ['.c','.cpp'], 'html')
     app.connect('source-read', process_image_links)
     return {'version': '1.0',
-            'parallel_read_safe': True}
+            'parallel_read_safe': False}
 
 
 def local_link_to_github (link, docname, githublink):
@@ -61,6 +63,8 @@ def process_image_links(app, docname, source):
     githublink          =  app.config.markdown_code_links_githubrepo.rstrip('/') + '/'
     githublink          += app.config.markdown_code_links_githubbranch.rstrip('/')
     codefileextensions  =  app.config.markdown_code_links_codefileextensions
+    fulldocname         = path.join (app.srcdir, docname)
+    fulldocdir          = path.dirname (fulldocname)
 
     # case 1 [name](./dir/file) or [name](../dir/file)
     linknameexp1    = '\[[\/\.\w]*\]'
@@ -69,6 +73,10 @@ def process_image_links(app, docname, source):
     # case 2 [tag] 
     linknameexp2    = '\[[0-9]*\]\:\s*'
     linktargetexp2  = '\.[\/\.\w]*{fileext}\s*\n'
+
+    # directory links don't need to end with '/', but will be verified as dirs
+    if '/' in codefileextensions:
+        codefileextensions.append('')
 
     for fileext in codefileextensions:
         if fileext.startswith('.') or fileext.startswith('/'):
@@ -79,21 +87,24 @@ def process_image_links(app, docname, source):
                 printv (verb, 1, f"Code link conv {docname} : {m.group(0)}")
                 # strip link
                 link = m.group(0).partition('(')[2].rpartition(')')[0]
-                link = local_link_to_github (link, docname, githublink)               
-                # combine with rest of markdown link
-                link = m.group(0).partition('(')[0] + '(' + link + ')'
-                printv (verb, 2, link)
-                source[0] = source[0][:m.start()] + link + source[0][m.end():]
+                # dirs require verification
+                if fileext not in ('\\/', '') or path.isdir(path.join(fulldocdir,link)):
+                    link = local_link_to_github (link, docname, githublink)
+                    # combine with rest of markdown link
+                    link = m.group(0).partition('(')[0] + '(' + link + ')'
+                    printv (verb, 2, link)
+                    source[0] = source[0][:m.start()] + link + source[0][m.end():]
 
         linkexp = linknameexp2 + linktargetexp2.format(fileext=fileext)
         for m in reversed(list( re.finditer(linkexp, source[0]) )):
                 printv (verb, 1, f"Code link conv {docname} : {m.group(0).strip()}")
                 # strip link
-                link = m.group(0).rpartition(':')[2].lstrip()
-                link = local_link_to_github (link, docname, githublink)               
-                # combine with rest of markdown link
-                link = m.group(0).partition(':')[0] + ': ' + link
-                printv (verb, 2, link)
-                source[0] = source[0][:m.start()] + link + source[0][m.end():]
- 
+                link = m.group(0).rpartition(':')[2].strip()
+                # dirs require verification
+                if fileext not in ('\\/', '') or path.isdir(path.join(fulldocdir,link)):
+                    link = local_link_to_github (link, docname, githublink)
+                    # combine with rest of markdown link
+                    link = m.group(0).partition(':')[0] + ': ' + link
+                    printv (verb, 2, link)
+                    source[0] = source[0][:m.start()] + link + source[0][m.end():]
 

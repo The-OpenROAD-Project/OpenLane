@@ -216,6 +216,6 @@ If you want to create further tweaks in the flow that the abundant configuration
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
 [4]: ./chip_integration.md
 [5]: ./../designs/README.md
-[6]: ./../regression_results/README.md5
+[6]: ./../regression_results/README.md
 [7]: ./../designs/spm/pin_order.cfg
 [8]: ./PDK_STRUCTURE.md
