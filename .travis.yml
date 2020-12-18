@@ -72,6 +72,9 @@ jobs:
     - name: "aes192"
       env: TEST_SET=aes192
 
+before_install:
+  - sh travisCI/travisAutoMerge.sh
+
 install:
   - sh travisCI/travisBuild.sh
 
