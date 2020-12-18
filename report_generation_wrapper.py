@@ -97,7 +97,7 @@ if os.path.exists(magic_drc_report):
         drcSections = drcContent.split(splitLine)
         if (len(drcSections) > 2):
             for i in range(1, len(drcSections) - 1, 2):
-                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n"))
+                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n")) - 2
             for key in drcVioDict:
                 val = drcVioDict[key]
                 cnt += val
