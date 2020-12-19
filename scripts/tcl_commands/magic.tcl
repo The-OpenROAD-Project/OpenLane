@@ -174,7 +174,7 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_$extract_type.log
 		if { $extract_type == "spice" } {
-                	file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
+			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 		}
 }
 
