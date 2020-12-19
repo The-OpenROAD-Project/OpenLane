@@ -92,6 +92,8 @@ This section defines the necessary variables to configure a standard cell librar
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
 | `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |
+| `SYNTH_LATCH_MAP` | A pointer for the file contianing the latch mapping for yosys. |
+| `TRISTATE_BUFFER_MAP` | A pointer for the file contianing the tri-state buffer mapping for yosys. |
 
 ## Tracks Info File
 

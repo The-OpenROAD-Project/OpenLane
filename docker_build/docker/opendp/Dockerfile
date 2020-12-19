@@ -13,20 +13,20 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 
 # install gcc 6
 RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-6 devtoolset-6-libatomic-devel
-ENV CC=/opt/rh/devtoolset-6/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-6/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-6/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-6/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-6/root/usr/lib64:/opt/rh/devtoolset-6/root/usr/lib:/opt/rh/devtoolset-6/root/usr/lib64/dyninst:/opt/rh/devtoolset-6/root/usr/lib/dyninst:/opt/rh/devtoolset-6/root/usr/lib64:/opt/rh/devtoolset-6/root/usr/lib:$LD_LIBRARY_PATH
+    yum -y install devtoolset-7 devtoolset-7-libatomic-devel
+ENV CC=/opt/rh/devtoolset-7/root/usr/bin/gcc \
+    CPP=/opt/rh/devtoolset-7/root/usr/bin/cpp \
+    CXX=/opt/rh/devtoolset-7/root/usr/bin/g++ \
+    PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:/opt/rh/devtoolset-7/root/usr/lib64/dyninst:/opt/rh/devtoolset-7/root/usr/lib/dyninst:/opt/rh/devtoolset-7/root/usr/lib64:/opt/rh/devtoolset-7/root/usr/lib:$LD_LIBRARY_PATH
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 
 RUN yum -y install wget zlib-devel
 

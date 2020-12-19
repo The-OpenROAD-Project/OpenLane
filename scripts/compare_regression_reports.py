@@ -66,7 +66,9 @@ tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violation
 
 critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations','lvs_total_errors']
 
-note_worthy_statistics = ['Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations' ,'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','cell_count','wire_length', 'vias', 'wns', 'optimized_wns', 'spef_wns', 'tns', 'optimized_tns', 'spef_tns', 'HPWL', 'wires_count','wire_bits','public_wires_count', 'public_wire_bits','memories_count','memory_bits', 'processes_count' ,'cells_pre_abc', 'AND','DFF','NAND', 'NOR' ,'OR', 'XOR', 'XNOR', 'MUX','inputs', 'outputs', 'level','EndCaps', 'TapCells', 'Diodes', 'Total_Physical_Cells']
+note_worthy_statistics = []
+
+ignore_list = ['', 'design', 'design_name', 'config']
 
 def compare_vals(benchmark_value, regression_value,param):
     if str(benchmark_value) == "-1":
@@ -88,12 +90,19 @@ def findIdx(header, label):
     else:
         return -1
 
+def diff_list(l1, l2):
+    return [x for x in l1 if x not in l2]
+
 def parseCSV(csv_file, isBenchmark):
+    global note_worthy_statistics
     map_out = dict()
     csvOpener = open(csv_file, 'r')
     csvData = csvOpener.read().split("\n")
     headerInfo = csvData[0].split(",")
     designNameIdx = findIdx(headerInfo, "design")
+    if isBenchmark:
+        note_worthy_statistics=diff_list(diff_list(diff_list(headerInfo,ignore_list),critical_statistics),base_configs)
+        #list(((set(headerInfo)-set(ignore_list))-set(critical_statistics))-set(base_configs))
 
     remover = 0
     size = len(base_configs)

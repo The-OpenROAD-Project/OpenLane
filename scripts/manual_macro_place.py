@@ -76,6 +76,10 @@ def gridify(n, f):
 macros = {}
 with open(config_file_name, 'r') as config_file:
     for line in config_file:
+        # Discard comments and empty lines
+        line = line.split('#')[0].strip()
+        if not line:
+            continue
         line = line.split()
         macros[line[0]] = [str(int(float(line[1])*1000)), str(int(float(line[2])*1000)), line[3]]
 

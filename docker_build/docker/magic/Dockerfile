@@ -13,31 +13,31 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 # Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools" "Development Libraries"
+RUN yum groupinstall -y "Development Tools"
 RUN yum -y install centos-release-scl && \
     yum -y install devtoolset-8 devtoolset-8-libatomic-devel
 
 # python 3.6
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
 RUN yum install -y python36u python36u-libs python36u-devel python36u-pip python36u-tkinter
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
 # magic dependencies
-RUN yum install -y csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
+RUN yum install -y mesa-libGLU-devel csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
 
 # git clone magic components
-RUN git clone git://opencircuitdesign.com/magic magic_08102020
+RUN git clone git://opencircuitdesign.com/magic magic_18122020
 
-WORKDIR magic_08102020
+WORKDIR magic_18122020
 
-RUN git checkout a066f01bb274f38ade68abb6f8e2682c828649b2
+RUN git checkout 5f64c2b3d706dfa5139e536ab43f9a3b100807ec
 
 # build
 RUN ./configure --prefix=/build && \
-    make -j4 && \
+    make -j$(nproc) && \
     make install
 
 RUN mkdir -p /build/version/

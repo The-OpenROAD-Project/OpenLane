@@ -13,7 +13,7 @@
 # limitations under the License.
 
 proc run_magic {args} {
-		puts_info "Running Magic..."
+		puts_info "Running Magic to generate various views..."
 		# |----------------------------------------------------|
 		# |----------------   6. TAPE-OUT ---------------------|
 		# |----------------------------------------------------|
@@ -24,15 +24,73 @@ proc run_magic {args} {
 		# the following MAGTYPE better be mag for clean GDS generation
 		# use load -dereference to ignore it later if needed
 		set ::env(MAGTYPE) mag
+		# Generate GDS and MAG views
 		try_catch magic \
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic.tcl \
+				$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
 		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+
+		set ::env(MAGTYPE) maglef
+		# Generate LEF view
+		try_catch magic \
+				-noconsole \
+				-dnull \
+				-rcfile $::env(MAGIC_MAGICRC) \
+				$::env(SCRIPTS_DIR)/magic/lef.tcl \
+				</dev/null \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).lef.log
+
+		# Generate MAGLEF view
+		try_catch magic \
+				-noconsole \
+				-dnull \
+				-rcfile $::env(MAGIC_MAGICRC) \
+				$::env(SCRIPTS_DIR)/magic/maglef.tcl \
+			 	</dev/null \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).maglef.log
+
+		if { [info exists ::env(MAGIC_INCLUDE_GDS_POINTERS)] \
+			&& $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+			set ::env(MAGTYPE) mag
+			try_catch magic \
+				-noconsole \
+				-dnull \
+				-rcfile $::env(MAGIC_MAGICRC) \
+				$::env(SCRIPTS_DIR)/magic/mag.tcl \
+				</dev/null \
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).mag.log
+
+			# copy GDS properties from the MAG view into the MAGLEF view
+			set gds_properties [list]
+			set fp [open $::env(magic_result_file_tag).mag r]
+			set mag_lines [split [read $fp] "\n"]
+			foreach line $mag_lines {
+				if { [string first "string GDS_" $line] != -1 } {
+					lappend gds_properties $line
+				}
+			}
+			close $fp
+
+			set fp [open $::env(magic_result_file_tag).lef.mag r]
+			set mag_lines [split [read $fp] "\n"]
+			set new_mag_lines [list]
+			foreach line $mag_lines {
+				if { [string first "<< end >>" $line] != -1 } {
+					lappend new_mag_lines [join $gds_properties "\n"]
+				}
+				lappend new_mag_lines $line
+			}
+			close $fp
+
+			set fp [open $::env(magic_result_file_tag).lef.mag w]
+			puts $fp [join $new_mag_lines "\n"]
+			close $fp
+		}
 }
 
 
@@ -45,9 +103,16 @@ proc run_magic_drc {args} {
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic_drc.tcl \
+				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
+		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
+			puts_info "Converting DRC Violations to Klayout RDB Format..."
+			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
+				--magic_drc_in $::env(magic_log_file_tag).drc \
+				--rdb_out $::env(magic_result_file_tag).drc.rdb
+			puts_info "Converted DRC Violations to Klayout RDB Format"
+		}
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 }
 
@@ -72,6 +137,7 @@ extract no capacitance
 extract no coupling
 extract no resistance
 extract no adjust
+extract unique
 # extract warn all
 extract
 
@@ -94,6 +160,7 @@ feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
 				$magic_export \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_spice.log
+                file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 }
 
 proc export_magic_view {args} {
@@ -155,6 +222,7 @@ if { ! \[file exists \$::env(DESIGN_NAME).ext\] } {
 	extract no coupling
 	extract no resistance
 	extract no adjust
+	extract unique
 	# extract warn all
 	extract
 	feedback save $::env(magic_log_file_tag)_ext2spice.antenna.feedback.txt

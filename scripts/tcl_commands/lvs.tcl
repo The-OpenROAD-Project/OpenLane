@@ -48,6 +48,7 @@ proc write_powered_verilog {args} {
       {-lef optional}
       {-power optional}
       {-ground optional}
+      {-powered_netlist optional}
     }
     set flags {}
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
@@ -59,11 +60,18 @@ proc write_powered_verilog {args} {
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
 
 
+    if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
+        set_if_unset arg_values(-powered_netlist) $::env(yosys_tmp_file_tag).pg_define.v
+    } else {
+        set_if_unset arg_values(-powered_netlist) ""
+    }
+
     try_catch python3 $::env(SCRIPTS_DIR)/write_powered_def.py \
       -d $arg_values(-def) \
       -l $arg_values(-lef) \
-      -v $arg_values(-power) \
-      -g $arg_values(-ground) \
+      --power-port $arg_values(-power) \
+      --ground-port $arg_values(-ground) \
+      --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
 
@@ -99,3 +107,53 @@ proc run_netgen {args} {
     handle_deprecated_command run_lvs
 }
 package provide openlane 0.9
+
+proc run_lef_cvc {args} {
+    if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
+    puts_info "Running CVC"
+    set cvc_power_awk "\
+BEGIN {  # Print power and standard_input definitions
+    print \"$::env(VDD_PIN) power 1.8\";
+    print \"$::env(GND_PIN) power 0.0\";
+    print \"#define std_input min@$::env(GND_PIN) max@$::env(VDD_PIN)\";
+}
+\$1 == \"input\" {  # Print input nets
+    gsub(/;/, \"\"); 
+    if ( \$2 == \"$::env(VDD_PIN)\" || \$2 == \"$::env(GND_PIN)\" ) {  # ignore power nets
+        next;
+    }
+    if ( NF == 3 ) {  # print buses as net\[range\]
+        \$2 = \$3 \$2;
+    }
+    print \$2, \"input std_input\";
+}"
+
+    set cvc_cdl_awk "\
+/Black-box entry subcircuit/ {  # remove black-box defintions
+    while ( \$1 != \".ends\" ) {
+        getline;
+    }
+    getline;
+}
+/^\\\*/ {  # remove comments
+    next;
+}
+/^.ENDS .*/ {  # remove name from ends lines
+    print \$1;
+    next;
+}
+ {
+    print \$0;
+}"
+
+    # Create power file
+    try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+    # Create cdl file by combining cdl library with lef spice
+    try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
+        > $::env(cvc_result_file_tag).cdl
+    try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
+        |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
+    } else {
+        puts_info "Skipping CVC"
+    }
+}

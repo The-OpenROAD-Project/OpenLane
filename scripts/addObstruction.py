@@ -100,13 +100,13 @@ lefFileOpener.close()
 printedString = "MACRO obs_"+str(obs)+"\n \
   CLASS BLOCK ;\n \
   FOREIGN obs_"+str(obs)+" ;\n \
-  ORIGIN "+str(float(X))+" "+str(float(Y))+" ;\n \
+  ORIGIN 0.000 0.000 ;\n \
   SIZE "+ str(float(W)) +" BY "+ str(float(H)) +" ;\n \
   OBS\n"
 
 for lname in layerNames:
     printedString+="        LAYER "+lname+" ;\n \
-            RECT "+str(float(X))+" "+str(float(Y))+" "+str(float(W)+float(X)) +" "+str(float(H)+float(Y)) +" ;\n"
+            RECT 0.000 0.000 "+str(float(W)) +" "+str(float(H)) +" ;\n"
 
 printedString+="   END\n \
 END obs_"+str(obs)

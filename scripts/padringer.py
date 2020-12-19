@@ -130,7 +130,7 @@ def invoke_padring(config_file_name, output_file_name):
     print(output[0].strip())
 
     print("Padring exit code:", p.returncode)
-    assert p.returncode == 0
+    assert p.returncode == 0, p.returncode
     assert os.path.exists(output_file_name)
 
 # hard requirement of a user netlist either as a DEF or verilog
@@ -168,7 +168,7 @@ if verilog_netlist is not None:
     print("STDERR:")
     print(output[1].strip())
     print("openroad exit code:", p.returncode)
-    assert p.returncode == 0
+    assert p.returncode == 0, p.returncode
     # TODO: check for errors
 else:
     assert def_netlist is not None
@@ -200,8 +200,13 @@ for lib in libs:
         if m.isPad():
             assert any(name.startswith(p) for p in pad_name_prefixes), name
             print("Found pad:", name)
-            # classify here
-            pads[name] = 'other'
+            pad_type = m.getType()
+            pads[name] = pad_type
+            if  pad_type == "PAD_SPACER":
+                print("Found PAD_SPACER:", name)
+            elif pad_type == "PAD_AREAIO":
+                # using this for special bus fillers...
+                print("Found PAD_AREAIO", name)
         if m.isEndCap():
             # FIXME: regular endcaps
             assert any(name.startswith(p) for p in pad_name_prefixes), name
@@ -303,7 +308,8 @@ if config_file_name is not None:
             tokens = line.split()
             assert len(tokens) == 5, tokens
             inst_name, master_name = tokens[1], tokens[3]
-            user_config_pads.append((inst_name, master_name))
+            if not pads[master_name] == "PAD_SPACER" and not pads[master_name] == "PAD_AREAIO":
+                user_config_pads.append((inst_name, master_name))
         elif line.startswith("AREA"):
             tokens = line.split()
             assert len(tokens) == 4, tokens

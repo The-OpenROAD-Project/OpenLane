@@ -27,6 +27,13 @@ proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
+
+    # random initial placement
+    if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
+        random_global_placement
+        set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
+    }
+
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed

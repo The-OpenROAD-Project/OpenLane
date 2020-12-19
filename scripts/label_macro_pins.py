@@ -142,6 +142,7 @@ for mapping in extra_mappings:
 
 pad_pins_to_label_count = len([mapping for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist])
 bterms = mapping_block.getBTerms()
+print(set([bterm.getName() for bterm in bterms]) - set([mapping[1] for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist]))
 assert pad_pins_to_label_count == len(bterms), "Some pins were not going to be labeled %d/%d" % (pad_pins_to_label_count, len(bterms))
 print("Labeling", len(pad_pin_map), "pads")
 print("Labeling", pad_pins_to_label_count, "pad pins")

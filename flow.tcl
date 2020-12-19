@@ -33,37 +33,35 @@ proc run_non_interactive_mode {args} {
 	run_floorplan
 	run_placement
 	run_cts
-	gen_pdn
 	run_routing
 
-	if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		run_antenna_check
 		heal_antenna_violators; # modifies the routed DEF
 	}
+
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+		write_powered_verilog
+		set_netlist $::env(lvs_result_file_tag).powered.v
+    }
 
 	run_magic
 
 	run_magic_spice_export
 
 	if {  [info exists flags_map(-save) ] } {
-		if { [info exists arg_values(-save_path)] } {
-			save_views 	-lef_path $::env(magic_result_file_tag).lef \
-				-def_path $::env(tritonRoute_result_file_tag).def \
-				-gds_path $::env(magic_result_file_tag).gds \
-				-mag_path $::env(magic_result_file_tag).mag \
-				-spice_path $::env(magic_result_file_tag).spice \
-				-verilog_path $::env(CURRENT_NETLIST) \
-				-save_path $arg_values(-save_path) \
-				-tag $::env(RUN_TAG)
-		} else  {
-			save_views 	-lef_path $::env(magic_result_file_tag).lef \
-				-def_path $::env(tritonRoute_result_file_tag).def \
-				-mag_path $::env(magic_result_file_tag).mag \
-				-gds_path $::env(magic_result_file_tag).gds \
-				-spice_path $::env(magic_result_file_tag).spice \
-				-verilog_path $::env(CURRENT_NETLIST) \
-				-tag $::env(RUN_TAG)
+		if { ! [info exists arg_values(-save_path)] } {
+			set arg_values(-save_path) ""
 		}
+		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+			-def_path $::env(tritonRoute_result_file_tag).def \
+			-gds_path $::env(magic_result_file_tag).gds \
+			-mag_path $::env(magic_result_file_tag).mag \
+			-maglef_path $::env(magic_result_file_tag).lef.mag \
+			-spice_path $::env(magic_result_file_tag).spice \
+			-verilog_path $::env(CURRENT_NETLIST) \
+			-save_path $arg_values(-save_path) \
+			-tag $::env(RUN_TAG)
 	}
 
 	# Physical verification
@@ -73,6 +71,8 @@ proc run_non_interactive_mode {args} {
 	run_lvs; # requires run_magic_spice_export
 
 	run_antenna_check
+
+	run_lef_cvc
 
 	generate_final_summary_report
 
@@ -119,20 +119,20 @@ proc run_magic_drc_batch {args} {
 			-noconsole \
 			-dnull \
 			-rcfile $magicrc \
-			$::env(OPENLANE_ROOT)/scripts/magic_drc_batch.tcl \
+			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
 			</dev/null |& tee /dev/tty
 	} else {
 		exec magic \
 			-noconsole \
 			-dnull \
-			$::env(OPENLANE_ROOT)/scripts/magic_drc_batch.tcl \
+			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
 			</dev/null |& /dev/tty
 	}
 }
 
 proc run_file {args} {
 	set ::env(TCLLIBPATH) $::auto_path
-	exec tclsh $args >&@stdout
+	exec tclsh {*}$args >&@stdout
 }
 
 set options {
@@ -164,7 +164,7 @@ puts_info "Version: $::env(OPENLANE_VERSION)"
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"
 	if { [info exists arg_values(-file)] } {
-		run_file [file normalize $arg_values(-file)]
+		run_file [file normalize $arg_values(-file)] {*}$argv
 	} else {
 		run_interactive_mode {*}$argv
 	}

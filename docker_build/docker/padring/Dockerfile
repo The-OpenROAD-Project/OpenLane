@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos6 as build
+FROM centos:centos7 as build
 
 
 # install gcc 7
@@ -34,8 +34,8 @@ ENV CC=/opt/rh/devtoolset-7/root/usr/bin/gcc \
 
 
 RUN yum install -y wget && \
-	wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm && \
-	yum install -y epel-release-latest-6.noarch.rpm && \
+	wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+	yum install -y epel-release-latest-7.noarch.rpm && \
 	yum -y install ninja-build
 
 # Install CMake

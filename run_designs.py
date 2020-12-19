@@ -194,7 +194,6 @@ def run_design(designs_queue):
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 else:
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
-
                 try:
                         if show_log_output:
                                 process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)

@@ -1,1 +1,1 @@
-digital_pll_sky130_fd_sc_hd APU xtea usb_cdc_core zipdiv usb wbqspiflash cic_decimator inverter s44
+digital_pll_sky130_fd_sc_hd APU xtea usb_cdc_core zipdiv usb wbqspiflash cic_decimator inverter s44 manual_macro_placement_test
