@@ -54,6 +54,8 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
 # 3: use FR Antenna Avoidance flow
+# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
+# 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
 # psn
