@@ -153,6 +153,8 @@ feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_spice.log
                 file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
+
+		file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
 }
 
 proc export_magic_view {args} {
