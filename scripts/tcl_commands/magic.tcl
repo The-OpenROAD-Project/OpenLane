@@ -54,42 +54,26 @@ proc run_magic {args} {
 			 	</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).maglef.log
 
+		# Generate mag file that includes GDS pointers
+		set ::env(MAGTYPE) mag
+		try_catch magic \
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).mag.gds_ptrs.log
+
+		# Only keep the properties section in the file
+		try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(magic_tmp_file_tag)_gds_ptrs.mag
+
+		# By default, copy the GDS properties into the maglef/ view
+		copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).lef.mag
+
+		# If desired, do the same for the mag/ view
 		if { [info exists ::env(MAGIC_INCLUDE_GDS_POINTERS)] \
 			&& $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
-			set ::env(MAGTYPE) mag
-			try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/mag.tcl \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).mag.log
-
-			# copy GDS properties from the MAG view into the MAGLEF view
-			set gds_properties [list]
-			set fp [open $::env(magic_result_file_tag).mag r]
-			set mag_lines [split [read $fp] "\n"]
-			foreach line $mag_lines {
-				if { [string first "string GDS_" $line] != -1 } {
-					lappend gds_properties $line
-				}
-			}
-			close $fp
-
-			set fp [open $::env(magic_result_file_tag).lef.mag r]
-			set mag_lines [split [read $fp] "\n"]
-			set new_mag_lines [list]
-			foreach line $mag_lines {
-				if { [string first "<< end >>" $line] != -1 } {
-					lappend new_mag_lines [join $gds_properties "\n"]
-				}
-				lappend new_mag_lines $line
-			}
-			close $fp
-
-			set fp [open $::env(magic_result_file_tag).lef.mag w]
-			puts $fp [join $new_mag_lines "\n"]
-			close $fp
+			copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).mag
 		}
 }
 
@@ -248,6 +232,34 @@ antennacheck
 		# process the log
 		try_catch awk "/Cell:/ {print \$2}" $::env(magic_log_file_tag)_antenna.log \
 				> $::env(magic_report_file_tag).antenna_violators.rpt
+}
+
+proc copy_gds_properties {from to} {
+	# copy GDS properties from $from to $to
+	set gds_properties [list]
+	set fp [open $from r]
+	set mag_lines [split [read $fp] "\n"]
+	foreach line $mag_lines {
+		if { [string first "string GDS_" $line] != -1 } {
+			lappend gds_properties $line
+		}
+	}
+	close $fp
+
+	set fp [open $to r]
+	set mag_lines [split [read $fp] "\n"]
+	set new_mag_lines [list]
+	foreach line $mag_lines {
+		if { [string first "<< end >>" $line] != -1 } {
+			lappend new_mag_lines [join $gds_properties "\n"]
+		}
+		lappend new_mag_lines $line
+	}
+	close $fp
+
+	set fp [open $to w]
+	puts $fp [join $new_mag_lines "\n"]
+	close $fp
 }
 
 package provide openlane 0.9
