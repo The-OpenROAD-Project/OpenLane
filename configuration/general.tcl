@@ -40,7 +40,7 @@ set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
-set ::env(WIDEN_SITE_IS_FACTOR) 1 
+set ::env(WIDEN_SITE_IS_FACTOR) 1
 
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(SPEF_WIRE_MODEL) "L"
