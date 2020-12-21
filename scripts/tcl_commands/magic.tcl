@@ -110,18 +110,31 @@ proc run_magic_drc {args} {
 
 
 proc run_magic_spice_export {args} {
-		puts_info "Running Magic Spice Export..."
-		set magic_export $::env(TMP_DIR)/magic_spice.tcl
+		if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
+			set extract_type "gds.spice"
+			puts_info "Running Magic Spice Export from GDS..."
+			# GDS extracted file design.gds.spice, log file magic_gds.spice.log 
+		} else {
+			set extract_type "spice"
+			puts_info "Running Magic Spice Export from LEF..."
+			# LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
+		}
+		set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).$extract_type
+		set magic_export $::env(TMP_DIR)/magic_$extract_type.tcl
 		set commands \
 "
-lef read $::env(TECH_LEF)
-if {  \[info exist ::env(EXTRA_LEFS)\] } {
-	set lefs_in \$::env(EXTRA_LEFS)
-	foreach lef_file \$lefs_in {
-		lef read \$lef_file
+if { \[info exist ::env(MAGIC_EXT_USE_GDS)\] && \$::env(MAGIC_EXT_USE_GDS) } {
+	gds read \$::env(CURRENT_GDS)
+} else {
+	lef read $::env(TECH_LEF)
+	if {  \[info exist ::env(EXTRA_LEFS)\] } {
+		set lefs_in \$::env(EXTRA_LEFS)
+		foreach lef_file \$lefs_in {
+			lef read \$lef_file
+		}
 	}
+	def read $::env(CURRENT_DEF)
 }
-def read $::env(CURRENT_DEF)
 load $::env(DESIGN_NAME) -dereference
 cd $::env(RESULTS_DIR)/magic/
 extract do local
@@ -134,8 +147,8 @@ extract unique
 extract
 
 ext2spice lvs
-ext2spice $::env(DESIGN_NAME).ext
-feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
+ext2spice -o $::env(EXT_NETLIST) $::env(DESIGN_NAME).ext
+feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 # exec cp $::env(DESIGN_NAME).spice $::env(magic_result_file_tag).spice
 "
 		set magic_export_file [open $magic_export w]
@@ -151,10 +164,11 @@ feedback save $::env(magic_log_file_tag)_ext2spice.feedback.txt
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$magic_export \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_spice.log
-                file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
-
-		file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_$extract_type.log
+		if { $extract_type == "spice" } {
+			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
+		}
+    file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
 }
 
 proc export_magic_view {args} {
