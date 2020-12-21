@@ -100,8 +100,9 @@ proc run_synthesis {args} {
     puts_info "Running Synthesis..."
     # in-place insertion
 	if { [file exists $::env(yosys_result_file_tag).v] } {
-		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
+		puts_warn "A netlist at $::env(yosys_result_file_tag).v already exists..."
 		puts_warn "Skipping synthesis"
+		set_netlist $::env(yosys_result_file_tag).v
 	} else {
 		run_yosys
 	}
