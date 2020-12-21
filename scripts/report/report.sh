@@ -251,8 +251,13 @@ fi
 physical_cells=$(((endcaps+tapcells)+diodes));
 
 #Extracting the total number of lvs errors
-lvs_total_errors=$(grep "Total errors =" $lvs_report -s | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
+if ! [[ -f "$lvs_report" ]]; then
+        lvs_total_errors=$(grep "Total errors =" $lvs_report -s | tail -1 | sed -r 's/[^0-9]*//g')
+        if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
+else
+        lvs_total_errors=-1;
+fi
+
 
 #Extracting the total number of cvc errors
 cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*//g')
