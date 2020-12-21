@@ -48,7 +48,7 @@ if ! [ -f "$fr_log" ]; then
 fi
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log
-lvs_report=${path}/results/lvs/${designName}.lvs_parsed.log
+lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
 if ! [[ $cell_count ]]; then cell_count=-1; fi

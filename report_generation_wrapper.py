@@ -65,7 +65,9 @@ utils.addComputedStatistics(output_file)
 
 # Tracking Magic DRC, LVS, Antenna Logs:
 magic_drc_report=str(run_path)+"/logs/magic/magic.drc"
-lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.log"
+lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.lef.log"
+if not os.path.exists(lvs_report):
+    lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.gds.log"
 magic_antenna_report=str(run_path)+"/reports/magic/magic.antenna_violators.rpt"
 arc_antenna_report=str(run_path)+"/reports/routing/antenna.rpt"
 
