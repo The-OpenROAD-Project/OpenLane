@@ -31,7 +31,6 @@ ifeq (, $(strip $(NPROC)))
     NPROC := 1
   endif
 
-  NPROC := $(shell echo $$(($(NPROC) + 1)))
 endif
 
 THREADS ?= $(NPROC)
