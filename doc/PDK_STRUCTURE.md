@@ -27,7 +27,7 @@ This is the expected folder structure for a PDK:
 - `<standard cell library>/no_synth.cells` that should contain the list of newline-separated cell names to trim during synthesis (to not use them in synthesis). More in this [section](#no-synthesis-cells-file).
 
 
-## PDK Variables 
+## PDK Variables
 
 This section defines the neccessary variables for PDK configuration file
 
@@ -114,6 +114,6 @@ More on the structure of the file [here](https://github.com/The-OpenROAD-Project
 
 There are some cell types that you don't want to use in synthesis like, for example, delay cells and clock buffers (since CTS is a separate step that would insert the clock buffers).
 
-Also, some of the cells, back when this list was created, had hard-to-access pin shapes, so the detailed router didn't manage to do routing cleanly. 
+Also, some of the cells, back when this list was created, had hard-to-access pin shapes, so the detailed router didn't manage to do routing cleanly.
 
 However, this list is likely over-constraining, and if you have done experiments allowing smaller sizes incrementally and still got clean routed layouts, please let us know your findings, or better yet, submit a pull request at [open_pdks](https://github.com/RTimothyEdwards/open_pdks) with a suggested no_synth list.

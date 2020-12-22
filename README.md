@@ -287,6 +287,33 @@ The following are arguments that can be passed to `flow.tcl`
             Passes a script of interactive commands in interactive mode
         </td>
     </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>-synth_explore</code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>-lvs</code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -net DESIGN_NETLIST.
+        </td>
+    </tr>
+    <tr>
+        </tr>
+        <td align="center">
+            <code>-drc</code> <br> (Boolean)
+        </td>
+        <td align="justify">
+            If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -report OUTPUT_REPORT_PATH -magicrc MAGICRC.
+        </td>
+    </tr>
 </table>
 
 
