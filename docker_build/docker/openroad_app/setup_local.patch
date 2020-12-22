@@ -1,9 +1,9 @@
-diff --git a/src/swig/python/CMakeLists.txt b/src/swig/python/CMakeLists.txt
-index 22822b1..a440783 100644
---- a/src/swig/python/CMakeLists.txt
-+++ b/src/swig/python/CMakeLists.txt
-@@ -28,8 +28,8 @@ swig_link_libraries(opendbpy
-
+diff --git a/src/OpenDB/src/swig/python/CMakeLists.txt b/src/OpenDB/src/swig/python/CMakeLists.txt
+index 74f6cba..5cd0022 100644
+--- a/src/OpenDB/src/swig/python/CMakeLists.txt
++++ b/src/OpenDB/src/swig/python/CMakeLists.txt
+@@ -35,8 +35,8 @@ swig_link_libraries(opendbpy
+ 
  # Files to install with Python
  set(PYTHON_INSTALL_FILES
 -    ${CMAKE_CURRENT_BINARY_DIR}/opendbpy.py
@@ -11,6 +11,5 @@ index 22822b1..a440783 100644
 +    ./opendbpy.py
 +    ./_opendbpy.so
  )
-
+ 
  # Configure setup.py and copy to output directory
-
