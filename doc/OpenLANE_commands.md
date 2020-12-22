@@ -104,9 +104,10 @@ Most of the following commands' implementation exists in this [file][9]
 |---------------|------------------------|-----------------------------------------|
 | `get_yosys_bin` | | Returns the used binary for yosys. |
 | `run_yosys` | | Runs yosys synthesis on the design processed in the flow (the design is set by the `prep` command). if `LEC_ENABLE` is set to 1, a logic verification will be run after generating the new netlist vs the previous netlist if it exists. |
-|    | `[-output <output_file>]` | Sets the outputfile from yosys synthesis. Defaults to `/<run_path>/results/synthesis/<design_name>.synthesis.v`  <br> Optional flag.       |
+|    | `[-output <output_file>]` | Sets the outputfile from yosys synthesis. <br> Defaults to `/<run_path>/results/synthesis/<design_name>.synthesis.v`  <br> Optional flag.       |
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/synthesis/` and timing reports under `/<run_path>/reports/synthesis/`. |
 | `run_synthesis` | | Runs yosys synthesis on the current design as well as OpenSTA timing analysis on the generated netlist. The logs are produced under `/<run_path>/logs/synthesis/`, the timing reports are under `/<run_path>/reports/synthesis/`, and the synthesized netlist under `/<run_path>/results/synthesis/`. |
+| `run_synth_exploration` | | Runs synthesis exploration, which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under `<run_path>/results/synthesis` and a summary report under `<run_path>/reports` that compares the 4 outputs. |
 | `verilog_elaborate <optional args>` | | Runs on structural verilog (top-level netlists) and elaborates it. The `<optional args>` are used to control what is passed to `run_yosys` |
 | `yosys_rewrite_verilog <filename>` | | Runs yosys to rewrite the verilog given in `<filename>` into the already set environment variable `SAVE_NETLIST`.  Mainly used to generate explicit wire declarations |
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
@@ -118,7 +119,7 @@ Most of the following commands' implementation exists in this [file][9]
 |    | `-lef <lef_file>` | The LEF view with the power pins information. |
 |    | `-power <power_pin>` | The name of the power pin. |
 |    | `-ground <ground_pin>` | The name of the ground pin. |
-| `write_powered_verilog` | | writes a verilog file that contains the power pins and connections from a DEF file. |
+| `write_powered_verilog` | | writes a verilog file that contains the power pins and connections from a DEF file. It stores the result in `/<run_path>/results/lvs` |
 |    | `[-def <def_file>]` | The input DEF file. <br> Defaults to the `CURRENT_DEF` of the processed design. |
 |    | `[-output_def <def_file>]` | The output DEF file. <br> Defaults to `/<run_path>/tmp/routing/<design_name>.powered.def` |
 |    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. <br> Defaults to `/<run_path>/results/lvs/<design_name>.powered.v` |
@@ -137,17 +138,17 @@ Most of the following commands' implementation exists in this [file][3]
 | `init_floorplan` | | Runs floorplanning on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_io` | | Runs io placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `place_io_ol` | | Runs IO placement based on an input configuration file to place the pins in the orientation and order requiered by the user. |
-|    | `[-lef <lef_file>]` | LEF file to be used. It must also include the technology information. Defaults to `::env(MERGED_LEF)`. |
-|    | `[-def <def_file>]` | DEF file to be used. Defaults to `::env(CURRENT_DEF)`.       |
-|    | `[-cfg <cfg_file>]` | configuration file containing the list of desired pin order. An example could be found [here][14]. The file should contain `#orientation` followed by the pin names each in a new line in the desired order. Between each orientation section there should be a new empty line. Defaults to `::env(FP_PIN_ORDER_CFG)`.       |
-|    | `[-horizontal_layer <val>]` |  The metal layer on which to place the io pins horizontally (top and bottom of the die). Defaults to `::env(FP_IO_HMETAL)`.       |
-|    | `[-vertical_layer <val>]` |  The metal layer on which to place the io pins vertically (left and right of the die). Defaults to `::env(FP_IO_VMETAL)`.       |
-|    | `[-vertical_mult <val>]` | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth. Defaults to `::env(FP_IO_VTHICKNESS_MULT)`.       |
-|    | `[-horizontal_mult <val>]` | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth. Defaults to `::env(FP_IO_HTHICKNESS_MULT)`.   |
-|    | `[-vertical_ext <val>]` |  Extends the vertical io pins outside of the die by the specified units. Defaults to `::env(FP_IO_VEXTEND)`.       |
-|    | `[-horizontal_ext <val>]` |  Extends the horizontal io pins outside of the die by the specified units. Defaults to `::env(FP_IO_HEXTEND)`.       |
-|    | `[-length <val>]` | IO length to be used. Defaults to maximum of `::env(FP_IO_VLENGTH)` and `::env(FP_IO_HLENGTH)`.       |
-|    | `[-output_def <def_file>]` | output DEF file to be written. Defaults to `<run_path>/tmp/floorplan/ioplacer.def`.       |
+|    | `[-lef <lef_file>]` | LEF file to be used. It must also include the technology information. <br> Defaults to `::env(MERGED_LEF)`. |
+|    | `[-def <def_file>]` | DEF file to be used. <br> Defaults to `::env(CURRENT_DEF)`.       |
+|    | `[-cfg <cfg_file>]` | configuration file containing the list of desired pin order. An example could be found [here][14]. The file should contain `#orientation` followed by the pin names each in a new line in the desired order. Between each orientation section there should be a new empty line. <br> Defaults to `::env(FP_PIN_ORDER_CFG)`.       |
+|    | `[-horizontal_layer <val>]` |  The metal layer on which to place the io pins horizontally (top and bottom of the die). <br> Defaults to `::env(FP_IO_HMETAL)`.       |
+|    | `[-vertical_layer <val>]` |  The metal layer on which to place the io pins vertically (left and right of the die). <br> Defaults to `::env(FP_IO_VMETAL)`.       |
+|    | `[-vertical_mult <val>]` | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_VTHICKNESS_MULT)`.       |
+|    | `[-horizontal_mult <val>]` | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_HTHICKNESS_MULT)`.   |
+|    | `[-vertical_ext <val>]` |  Extends the vertical io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_VEXTEND)`.       |
+|    | `[-horizontal_ext <val>]` |  Extends the horizontal io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_HEXTEND)`.       |
+|    | `[-length <val>]` | IO length to be used. <br> Defaults to maximum of `::env(FP_IO_VLENGTH)` and `::env(FP_IO_HLENGTH)`.       |
+|    | `[-output_def <def_file>]` | output DEF file to be written. <br> Defaults to `<run_path>/tmp/floorplan/ioplacer.def`.       |
 | `place_contextualized_io` | | contextualizes io placement on a given macro (the processed design) with the context of the higher macro that contains it. This allows the io pins to be placed in location closer to what they will be connected with on the bigger macro. The resuls are saved under `/<run_path>/tmp/floorplan/` . |
 |    | `-lef <lef_file>` | LEF file needed to have a proper view of the top-level DEF |
 |    | `-def <def_file>` | DEF view of the top-level design where the macro is instantiated.       |
@@ -164,14 +165,15 @@ Most of the following commands' implementation exists in this [file][7]
 |---------------|------------------------|-----------------------------------------|
 | `global_placement_or` | | Runs global placement  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/placement/` . |
 | `global_placement` | | Runs global placement on the processed design using RePlace. The resulting file is under `/<run_path>/tmp/placement/` . |
+| `random_global_placement` | | Runs random global placement using a custom opendp based script. Useful in designs that contains a very few cells or macros only. The resulting file is under `/<run_path>/tmp/placement/`. |
 | `detailed_placement_or` | | Runs detailed placement on the processed design using the openroad app. The resulting file is under `/<run_path>/results/placement/` . |
 | `detailed_placement` | | Runs detailed placement on the processed design using OpenDP. The resulting file is under `/<run_path>/results/placement/` . |
 | `add_macro_placement <macro_name> <x_coordinate> <y_coordinate> [<orientation>]` | | Writes a configuration file to be processed by `manual_macro_placement` by setting the initial placement of the macro `<macro_name>` to location (`<x_coordinate>`,`<y_coordinate>`) on the chip with the option of specifying the `<orientation>` as well. The line written will be appened to this configuration file `/run_path/tmp/macro_placements.cfg`. |
 | `manual_macro_placement [f]` | | Uses the configuration file generated by `add_macro_placement` (`/run_path/tmp/macro_placements.cfg`) to manually initialize the placement of the macros to the locations determined in the file. It works on the currently processed design and it overwrites the `CURRENT_DEF`. if `f` is passed as the first argument, the placement will be fixed and final, and the placement tools will not be allowed to change it.|
-| `basic_macro_placement` | | Runs basic macro placement on the chip level using the openroad app, and it overwrites the `CURRENT_DEF`. |
+| `basic_macro_placement` | | Runs basic macro placement on the chip level using the openroad app, and it writes into `::env(CURRENT_DEF).macro_placement.def`. |
 | `repair_wire_length`| | Runs resizer overbuffering to limit the wire length given in `MAX_WIRE_LENGTH` using the openroad app. |
 | `run_openPhySyn` | | Runs OpenPhySyn timing optimizations: capacitance_violations, transition_violations, fanout_violations, and negative_slack_violations. |
-| `run_placement`| | Runs global placement, then applies the optional optimizations, then runs the detailed placement. |
+| `run_placement`| | Runs global placement (`global_placement_or` or `random_global_placement` based on the value of `PL_RANDOM_GLB_PLACEMENT`), then applies the optional optimizations `repair_wire_length` followed by `run_openPhySyn` if enabled, then runs the detailed placement (`detailed_placement_or`). |
 
 ## CTS Commands
 
@@ -198,9 +200,9 @@ Most of the following commands' implementation exists in this [file][8]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `ins_fill_cells_or` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `ins_fill_cells` | | Runs fill insertion on the processed design using addspacers. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `ins_diode_cells` | | Runs diode insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
+| `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `ins_diode_cells_4` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
 | `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs only if `DIODE_INSERTION_STRATEGY` is set to `2`|
 
 
@@ -210,8 +212,13 @@ Most of the following commands' implementation exists in this [file][8]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `gen_pdn` | | Runs power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
-
+| `gen_pdn` | | Runs power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
+| `power_routing` | | Performs power routing on a chip level design. More details in [Chip Integration][15]. |
+|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF`. |
+|    | `[-lef <lef_file>]` | The input LEF file. <br> Defaults to `MERGED_LEF`. |
+|    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
+|    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
+|    | `[-output_def <output_def_file>]` | The output DEF file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.def` |
 
 ## Routing Commands
 
@@ -219,12 +226,10 @@ Most of the following commands' implementation exists in this [file][8]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `global_routing_or` | | Runs global routing  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
+| `global_routing` | | Runs global routing  on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute. The resulting file is under `/<run_path>/results/routing/` . |
 | `add_route_obs`| | Uses `GLB_RT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GLB_RT_OBS` in the configurations documentation for more details.|
-| `run_routing` | | Runs global routing, fill insertion, diode insertion, detailed routing, and SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist and a powered netlist using yosys and stores the results under `/<run_path>/results/synthesis` and `/<run_path>/results/lvs` respectively, and it runs yosys logic verification if enabled.|
-
-
+| `run_routing` | | Runs diode insertion based on the strategy, followed by `global_routing`, then `ins_fill_cells`, `detailed_routing`, and finally SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist using yosys and stores the results under `/<run_path>/results/synthesis`, and it runs yosys logic verification if enabled. |
 
 ## Magic Commands
 
@@ -305,4 +310,4 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [12]:./../scripts/utils/utils.tcl
 [13]: ./../configuration/README.md
 [14]: ./../designs/spm/pin_order.cfg
-
+[15]: ./chip_integration.md
