@@ -33,7 +33,7 @@
         cd $PDK_ROOT
 	    git clone https://github.com/RTimothyEdwards/open_pdks.git
         cd open_pdks
-        git checkout 6ead3cfcc5c51ad4a6e3230313835f7358c6295a
+        git checkout 5dca478ed1bda21f790fcfa76e668b5969e3632e
         ./configure --with-sky130-source=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
 		cd sky130
 		make
