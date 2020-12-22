@@ -28,9 +28,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ppl::set_rand_seed 42
+#ppl::set_rand_seed 42
 
-ppl::set_min_distance 5
+#ppl::set_min_distance 5
 ppl::set_hor_length $::env(FP_IO_HLENGTH)
 ppl::set_ver_length $::env(FP_IO_VLENGTH)
 ppl::set_hor_length_extend $::env(FP_IO_VEXTEND)
@@ -44,7 +44,9 @@ if { $::env(FP_IO_MODE) == 1 } {
 }
 
 place_pins $opts\
-	-hor_layer $::env(FP_IO_HMETAL)\
-	-ver_layer $::env(FP_IO_VMETAL)
+	-random_seed 42 \
+	-min_distance 5 \
+	-hor_layers $::env(FP_IO_HMETAL)\
+	-ver_layers $::env(FP_IO_VMETAL)
 
 write_def $::env(SAVE_DEF)
