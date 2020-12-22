@@ -121,10 +121,11 @@ Most of the following commands' implementation exists in this [file][9]
 | `write_powered_verilog` | | writes a verilog file that contains the power pins and connections from a DEF file. |
 |    | `[-def <def_file>]` | The input DEF file. <br> Defaults to the `CURRENT_DEF` of the processed design. |
 |    | `[-output_def <def_file>]` | The output DEF file. <br> Defaults to `/<run_path>/tmp/routing/<design_name>.powered.def` |
-|    | `[-output_verilog] <verilog_netlist_file>` | The output verilog file. <br> Defaults to `/<run_path>/results/lvs/<design_name>.powered.v` |
+|    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. <br> Defaults to `/<run_path>/results/lvs/<design_name>.powered.v` |
 |    | `[-lef <lef_file>]` | The LEF view with the power pins information. <br> Defaults to the `MERGED_LEF` |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
+|    | `[-powered_netlist <verilog_netlist_file>]` | The verilog netlist parsed from yosys that contains the internal power connections in case the design has internal macros file. <br> Defaults to `/<run_path>/tmp/synthesis/synthesis.pg_define.v` if `::env(SYNTH_USE_PG_PINS_DEFINES)` is defined, and to empty string otherwise. |
 
 
 ## Floorplan Commands
@@ -233,7 +234,7 @@ Most of the following commands' implementation exists in this [file][6]
 |---------------|------------------------|-----------------------------------------|
 | `run_magic` | | Streams the final GDS and a mag view. The resulting file is under `/<run_path>/results/magic/` . |
 | `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
-| `run_magic_spice_export` | | Runs spice extractions on the processed design. The resulting file is under `/<run_path>/results/magic/` . |
+| `run_magic_spice_export` | | Runs spice extractions on the processed design. Based on the value of `MAGIC_EXT_USE_GDS` either the GDS or the DEF/LEF is used for the extraction. The resulting file is under `/<run_path>/results/magic/` . |
 | `export_magic_view` | | Export a mag view of a given def file. |
 |    | `-def <def_file>` | The input DEF file. |
 |    | `-output <output_file>` | The output mag file path. |
@@ -245,7 +246,7 @@ Most of the following commands' implementation exists in this [file][5]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_lvs` | | Runs an lvs check between an extracted spice netlist (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. |
+| `run_lvs` | | Runs an lvs check between an extracted spice netlist `EXT_NETLIST` (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. The LVS could be on the block/cell level or on the device/transistor level, this is controlled by the extraction type set by `MAGIC_EXT_USE_GDS`. If the GDS is used in extraction then the LVS will be run down to the device/transistor level, otherwise it will be run on the block/cell level which is the default behavior in OpenLANE. |
 
 
 ## Utility Commands
@@ -285,6 +286,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_success <text>` | | Prints `[SUCCESS]: ` followed by the `<text>` in green. |
 | `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
+| `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
 
 
 
