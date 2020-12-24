@@ -41,6 +41,7 @@ RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && 
 		tcl \
 		tcllib \
 		tk \
+		wget \
 		Xvfb && \
 	yum clean all && \
 	rm -rf /var/cache/yum
