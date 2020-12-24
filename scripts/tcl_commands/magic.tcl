@@ -142,7 +142,9 @@ extract no capacitance
 extract no coupling
 extract no resistance
 extract no adjust
-extract unique
+if { ! $::env(LVS_CONNECT_BY_LABEL) } {
+	extract unique
+}
 # extract warn all
 extract
 
@@ -230,7 +232,9 @@ if { ! \[file exists \$::env(DESIGN_NAME).ext\] } {
 	extract no coupling
 	extract no resistance
 	extract no adjust
-	extract unique
+	if { ! $::env(LVS_CONNECT_BY_LABEL) } {
+		extract unique
+	}
 	# extract warn all
 	extract
 	feedback save $::env(magic_log_file_tag)_ext2spice.antenna.feedback.txt
