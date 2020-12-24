@@ -24,8 +24,10 @@ set ::env(MAGIC_PAD) 0
 set ::env(MAGIC_ZEROIZE_ORIGIN) 1
 set ::env(MAGIC_GENERATE_GDS) 1
 set ::env(MAGIC_GENERATE_LEF) 1
+set ::env(MAGIC_GENERATE_MAGLEF) 1
 set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
+set ::env(MAGIC_EXT_USE_GDS) 0
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
@@ -39,13 +41,13 @@ set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
-set ::env(WIDEN_SITE_IS_FACTOR) 1 
+set ::env(WIDEN_SITE_IS_FACTOR) 1
 
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(SPEF_WIRE_MODEL) "L"
 set ::env(SPEF_EDGE_CAP_FACTOR) 1
 
-set ::env(RUN_CVC) 1
+set ::env(RUN_CVC) 0
 
 set ::env(WIRE_RC_LAYER) "met1"; # Used for estimate_parasitics
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
@@ -53,6 +55,8 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
 # 3: use FR Antenna Avoidance flow
+# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
+# 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
 # psn

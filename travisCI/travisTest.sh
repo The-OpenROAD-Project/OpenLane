@@ -15,7 +15,7 @@
 
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=openlane:rc6
+export IMAGE_NAME=openlane:rc7
 echo $PDK_ROOT
 echo $RUN_ROOT
 

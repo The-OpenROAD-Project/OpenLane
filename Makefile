@@ -13,19 +13,39 @@
 # limitations under the License.
 
 OPENLANE_DIR ?= $(shell pwd)
-THREADS ?= $(shell nproc)
+
+ifeq (, $(strip $(NPROC)))
+  # Linux (utility program)
+  NPROC := $(shell nproc 2>/dev/null)
+
+  ifeq (, $(strip $(NPROC)))
+    # Linux (generic)
+    NPROC := $(shell grep -c ^processor /proc/cpuinfo 2>/dev/null)
+  endif
+  ifeq (, $(strip $(NPROC)))
+    # BSD (at least FreeBSD and Mac OSX)
+    NPROC := $(shell sysctl -n hw.ncpu 2>/dev/null)
+  endif
+  ifeq (, $(strip $(NPROC)))
+    # Fallback
+    NPROC := 1
+  endif
+
+endif
+
+THREADS ?= $(NPROC)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= openlane:rc6
+IMAGE_NAME ?= openlane:rc7
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= 3d7617a1acb92ea883539bcf22a632d6361a5de4
-OPEN_PDKS_COMMIT ?= 32cdb2097fd9a629c91e8ea33e1f6de08ab25946
+OPEN_PDKS_COMMIT ?= 5dca478ed1bda21f790fcfa76e668b5969e3632e
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -99,7 +119,9 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local"
+		$(MAKE) install-local && \
+		touch $(PDK_ROOT)/sky130A/SOURCES && \
+		echo 'Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES"
 
 .PHONE: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk

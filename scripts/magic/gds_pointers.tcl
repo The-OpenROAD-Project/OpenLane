@@ -11,28 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
 
-foreach lib $::env(LIB_SYNTH) {
-    read_liberty $lib
-}
+drc off
 
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}  
+gds readonly true
+gds rescale false
 
-set glb_cfg_file [open $::env(TMP_DIR)/glb.cfg w]
-    puts $glb_cfg_file \
-"set ::HALO_WIDTH_V 0
-set ::HALO_WIDTH_H 0
-set ::CHANNEL_WIDTH_V 0
-set ::CHANNEL_WIDTH_H 0"
-close $glb_cfg_file
+# This comes afterwards, so that it would contain GDS pointers
+# And yes, we need to re-read the GDS we just generated...
+gds read $::env(magic_result_file_tag).gds
+cellname filepath $::env(DESIGN_NAME) $::env(TMP_DIR)/magic
+save
 
-macro_placement -global_config $::env(TMP_DIR)/glb.cfg
+file rename -force $::env(TMP_DIR)/magic/$::env(DESIGN_NAME).mag $::env(magic_tmp_file_tag)_gds_ptrs.mag
 
-write_def $::env(SAVE_DEF)
+puts "\[INFO\]: Wrote $::env(magic_tmp_file_tag)_gds_ptrs.mag including GDS pointers."
+exit 0

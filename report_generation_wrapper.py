@@ -65,7 +65,9 @@ utils.addComputedStatistics(output_file)
 
 # Tracking Magic DRC, LVS, Antenna Logs:
 magic_drc_report=str(run_path)+"/logs/magic/magic.drc"
-lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.log"
+lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.lef.log"
+if not os.path.exists(lvs_report):
+    lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.gds.log"
 magic_antenna_report=str(run_path)+"/reports/magic/magic.antenna_violators.rpt"
 arc_antenna_report=str(run_path)+"/reports/routing/antenna.rpt"
 
@@ -97,7 +99,7 @@ if os.path.exists(magic_drc_report):
         drcSections = drcContent.split(splitLine)
         if (len(drcSections) > 2):
             for i in range(1, len(drcSections) - 1, 2):
-                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n"))
+                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n")) - 2
             for key in drcVioDict:
                 val = drcVioDict[key]
                 cnt += val
