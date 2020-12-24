@@ -7,7 +7,7 @@ You may run the flow interactively by using the `-interactive` option:
 
 A tcl shell will be opened where the openlane package is automatically sourced:
 ```
-% package require openlane 0.9
+% package require openlane
 ```
 
 Then, you should be able to run the following main commands:
@@ -37,7 +37,7 @@ A more detailed list of all the commands supported by openlane could be found [h
 
 **Note 1:** Currently, configuration variables have higher priority over the above commands so if `RUN_MAGIC` is 0, command `run_magic` will have no effect.
 
-**Note 2:** Currently, all these commands must be run in the flow sequence and no steps should be skipped.
+**Note 2:** Currently, most of these commands must be run in the flow sequence and no steps should be skipped.
 
 **Note 3:** You can pass the -design, -tag, etc.. flags to ```./flow.tcl -interactive``` directly without the need of entering the interactive mode and then executing the prep command.
 
