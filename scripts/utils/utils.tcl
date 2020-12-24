@@ -63,6 +63,8 @@ proc is_keyword_arg { arg } {
 }
 
 proc extract_pins_from_yosys_netlist {netlist_file} {
+    # This sed command works because the module herader in a
+    # yosys-generated netlist is on one line.
     return [list [exec sed -E -n {/^module/ s/module[[:space:]]+[^[:space:]]+[[:space:]]*\((.*)\);/\1/pg}\
         $netlist_file \
         | tr -d ',']]

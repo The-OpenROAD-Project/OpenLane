@@ -269,8 +269,6 @@ proc run_floorplan {args} {
 			# get the pins that are in $yosys_tmp_file_tag.pg_define.v
 			# that are not in $yosys_result_file_tag.v
 			#
-			# This sed command works because the module herader in a
-			# yosys-generated netlist is on one line.
 			set full_pins {*}[extract_pins_from_yosys_netlist $::env(yosys_tmp_file_tag).pg_define.v]
 			puts_info $full_pins
 
