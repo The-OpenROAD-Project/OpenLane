@@ -17,3 +17,9 @@ default.cvcrc
 
 # Mac
 .DS_Store
+
+# VScode
+**/.vscode/
+
+# Local docs Build
+**/_build/

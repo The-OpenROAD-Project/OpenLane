@@ -28,7 +28,9 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Hardening Macros](#hardening-macros)
 - [Chip Integration](#chip-integration)
-
+- [Commands and Configurations](#commands-and-configurations)
+- [How To Contribute](#how-to-contribute)
+- [Authors](#authors)
 # Overview
 
 OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
@@ -488,7 +490,7 @@ For more information on how to run this script, refer to this [file][21]
 
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
-# Hardening Macros:
+# Hardening Macros
 
 This is discussed in more detail [here][29].
 
@@ -500,6 +502,18 @@ Using openlane, you can produce a GDSII from a chip RTL. This is done by applyin
 
 To learn more about Chip Integration. Check this [file][26]
 
+# Commands and Configurations
+
+To get a full list of the openlane commands, first introduce yourself to the interactive mode of openlane [here][25]. Then check the full documentation of the OpenLANE commands [here][34].
+
+The full documentation of OpenLANE run configurations could be found [here][2].
+# How To Contribute
+
+We discuss the details of how to contribute to OpenLANE in [this documentation][32].
+
+# Authors
+
+To check the original author list of OpenLANE, check [this][33].
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
@@ -531,3 +545,6 @@ To learn more about Chip Integration. Check this [file][26]
 [29]: ./doc/hardening_macros.md
 [30]: ./doc/Manual_PDK_installation.md
 [31]: https://github.com/d-m-bailey/cvc
+[32]: ./CONTRIBUTING.md
+[33]: ./AUTHORS.md
+[34]: ./doc/OpenLANE_commands.md
