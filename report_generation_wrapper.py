@@ -147,7 +147,11 @@ elif os.path.exists(magic_antenna_report):
     if antFileOpener.mode == 'r':
         antContent = antFileOpener.read().split("\n")
     antFileOpener.close()
-    printArr.append("Number of pins violated: " + str(len(antContent)))
+    tot_cnt = 0
+    for ant in antContent:
+        if len(str(ant).strip()):
+            tot_cnt+=1
+    printArr.append("Number of pins violated: " + str(tot_cnt))
 else:
     printArr.append("No antenna report found.")
 
