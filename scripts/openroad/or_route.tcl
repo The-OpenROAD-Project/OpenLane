@@ -30,28 +30,28 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
-FastRoute::check_routing_layer $::env(GLB_RT_MINLAYER)
-FastRoute::set_min_layer $::env(GLB_RT_MINLAYER)
+grt::check_routing_layer $::env(GLB_RT_MINLAYER)
+grt::set_min_layer $::env(GLB_RT_MINLAYER)
 
-FastRoute::check_routing_layer $::env(GLB_RT_MAXLAYER)
-FastRoute::set_max_layer $::env(GLB_RT_MAXLAYER)
+grt::check_routing_layer $::env(GLB_RT_MAXLAYER)
+grt::set_max_layer $::env(GLB_RT_MAXLAYER)
 
-FastRoute::set_verbose 3
+grt::set_verbose 3
 
-FastRoute::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
+grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
-FastRoute::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
+grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
 
-FastRoute::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
+grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
 
-FastRoute::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
+grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
-FastRoute::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
+grt::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
 
-FastRoute::set_tile_size $::env(GLB_RT_TILES)
+grt::set_tile_size $::env(GLB_RT_TILES)
 
-FastRoute::run_fastroute
+grt::run_fastroute 0
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)"

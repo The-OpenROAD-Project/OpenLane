@@ -83,7 +83,7 @@ proc write_powered_verilog {args} {
 proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)"}} {
     # LEF LVS output to lvs.lef.log, design.lvs_parsed.lef.log, design.lvs.lef.json, design.lvs.lef.log
     # GDS LVS output to lvs.gds.log, design.lvs_parsed.gds.log, design.lvs.gds.json, design.lvs.gds.log
-    # GDS LVS uses STD_CELL_LIBRARY spice and 
+    # GDS LVS uses STD_CELL_LIBRARY spice and
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type gds
@@ -144,16 +144,22 @@ proc run_netgen {args} {
 package provide openlane 0.9
 
 proc run_lef_cvc {args} {
-    if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
-    puts_info "Running CVC"
-    set cvc_power_awk "\
+    if { [info exists ::env(EXTRA_LEFS)] } {
+        puts_info "Your design contains macros, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
+    } else {
+        if { $::env(VDD_PIN) != $::env(VDD_NETS) || $::env(GND_PIN) != $::env(GND_NETS)} {
+            puts_info "Your design uses the advanced power settings, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
+        } else {
+            if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
+            puts_info "Running CVC"
+            set cvc_power_awk "\
 BEGIN {  # Print power and standard_input definitions
     print \"$::env(VDD_PIN) power 1.8\";
     print \"$::env(GND_PIN) power 0.0\";
     print \"#define std_input min@$::env(GND_PIN) max@$::env(VDD_PIN)\";
 }
 \$1 == \"input\" {  # Print input nets
-    gsub(/;/, \"\"); 
+    gsub(/;/, \"\");
     if ( \$2 == \"$::env(VDD_PIN)\" || \$2 == \"$::env(GND_PIN)\" ) {  # ignore power nets
         next;
     }
@@ -181,14 +187,16 @@ BEGIN {  # Print power and standard_input definitions
     print \$0;
 }"
 
-    # Create power file
-    try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
-    # Create cdl file by combining cdl library with lef spice
-    try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
-        > $::env(cvc_result_file_tag).cdl
-    try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
-    } else {
-        puts_info "Skipping CVC"
+            # Create power file
+            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+            # Create cdl file by combining cdl library with lef spice
+            try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
+                > $::env(cvc_result_file_tag).cdl
+            try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
+                |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
+            } else {
+                puts_info "Skipping CVC"
+            }
+        }
     }
 }

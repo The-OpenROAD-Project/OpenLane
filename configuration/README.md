@@ -153,7 +153,7 @@ These variables are optional that can be specified in the design configuration f
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `LVS_INSERT_POWER_PINS` |  Enables power pins insertion before running lvs. 1 = Enabled, 0 = Disabled <br> (Default: `1` )|
-
+| `LVS_CONNECT_BY_LABEL` | Enables connections by label in LVS by skipping `extract unique` in magic extractions. <br> Default: `0` |
 
 ### Misc
 | Variable      | Description                                                   |

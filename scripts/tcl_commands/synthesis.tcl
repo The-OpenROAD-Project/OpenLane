@@ -35,7 +35,7 @@ proc run_yosys {args} {
 	set flags {
 		-no_set_netlist
 	}
-  
+
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
     if { [info exists arg_values(-output)] } {

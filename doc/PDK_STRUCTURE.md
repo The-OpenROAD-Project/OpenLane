@@ -108,7 +108,7 @@ The tracks files defines the metal layers pitches and offsets. This information 
 
 A sample PDN configuration file exists [here](https://github.com/RTimothyEdwards/open_pdks/blob/master/sky130/openlane/common_pdn.tcl).
 
-More on the structure of the file [here](https://github.com/The-OpenROAD-Project/OpenROAD/blob/openroad/src/pdngen/doc/PDN.md)
+More on the structure of the file [here](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md)
 
 ## No Synthesis Cells File
 
