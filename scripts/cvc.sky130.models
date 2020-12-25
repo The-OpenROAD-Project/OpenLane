@@ -1,4 +1,0 @@
-MN nfet_01v8 Vth=0.2 Vgs=1.8 Vds=1.8
-MP pfet_01v8_hvt Vth=-0.2 Vgs=1.8 Vds=1.8
-
-R short model=switch_on
