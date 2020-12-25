@@ -5,6 +5,10 @@
     |     ||  | |   [_ |  |  ||     ||  _  ||  |  ||   [_
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
+# OpenLANE
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=develop-applied_sphinx)](https://openlane.readthedocs.io/en/develop-applied_sphinx/?badge=develop-applied_sphinx)
+
+This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/en/develop-applied_sphinx/).
 
 # Table of contents
 - [Overview](#overview)
@@ -24,8 +28,6 @@
 - [Regression And Design Configurations Exploration](#regression-and-design-configurations-exploration)
 - [Hardening Macros](#hardening-macros)
 - [Chip Integration](#chip-integration)
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane)
 
 # Overview
 
