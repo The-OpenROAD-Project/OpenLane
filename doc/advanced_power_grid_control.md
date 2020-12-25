@@ -96,7 +96,7 @@ All values above are given in microns.
 At this stage you have automated the power grid generation for the Core Module.
 
 
-# Macro Level
+## Macro Level
 
 For the skywater libraries the hierarchy typically can go one level down at most otherwise you will only have two routing layers, which is usually not recommended. Therefore, although it's supported, your macros will typically have no nested macros inside them.
 

@@ -238,7 +238,7 @@ If you want to create further tweaks in the flow that the abundant configuration
 [4]: ./chip_integration.md
 [5]: ./../designs/README.md
 [6]: ./../regression_results/README.md
-[7]: ./../designs/spm/pin_order.cfg
+[7]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
 [8]: ./PDK_STRUCTURE.md
 [9]: ./advanced_power_grid_control.md
 [10]: ./../regression_results/columns_defintions.md

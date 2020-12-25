@@ -132,6 +132,6 @@ When you use the `power_routing` command in the chip interactive script, the pow
 [6]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/padframe.cfg
 [7]: ./../scripts/topModuleGen/README.md
 [8]: ./hardening_macros.md
-[9]: ./../designs/manual_macro_placement_test/
+[9]: https://github.com/efabless/openlane/tree/master/designs/manual_macro_placement_test
 [10]: ./advanced_power_grid_control.md
 [11]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.lvs.tcl
