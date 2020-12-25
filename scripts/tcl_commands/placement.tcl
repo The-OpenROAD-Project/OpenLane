@@ -164,46 +164,48 @@ proc run_placement {args} {
         set ::env(PL_TARGET_DENSITY) $old_pl_target_density
     }
 
-    if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
-		repair_wire_length
-	}
-	if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
-	    run_openPhySyn
-    }
+    repair_wire_length
+
+	run_openPhySyn
 
 	detailed_placement_or
 }
 
 proc repair_wire_length {args} {
-    puts_info "Repairing Wire Length By Inserting Buffers..."
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF)
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
-    set_def $::env(SAVE_DEF)
+    if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
+        puts_info "Repairing Wire Length By Inserting Buffers..."
+        set ::env(SAVE_DEF) $::env(CURRENT_DEF)
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+        set_def $::env(SAVE_DEF)
+    }
 }
 
 proc run_openPhySyn {args} {
-    puts_info "Running OpenPhySyn Timing Optimization..."
-    TIMER::timer_start
-    set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-    trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+    if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
+        puts_info "Running OpenPhySyn Timing Optimizations..."
+        TIMER::timer_start
+        set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+        trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
 
-    set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
-    try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
-	set_def $::env(SAVE_DEF)
+        set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
+        try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
+        set_def $::env(SAVE_DEF)
 
-    write_verilog $::env(yosys_result_file_tag)_optimized.v
-    set_netlist $::env(yosys_result_file_tag)_optimized.v
-    set report_tag_holder $::env(opensta_report_file_tag)
-    set log_tag_holder $::env(opensta_log_file_tag)
-    set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
-    set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_openphysyn
-    run_sta
-    set ::env(opensta_report_file_tag) $report_tag_holder
-    set ::env(opensta_log_file_tag) $log_tag_holder
+        write_verilog $::env(yosys_result_file_tag)_optimized.v
+        set_netlist $::env(yosys_result_file_tag)_optimized.v
+        set report_tag_holder $::env(opensta_report_file_tag)
+        set log_tag_holder $::env(opensta_log_file_tag)
+        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_openphysyn
+        run_sta
+        set ::env(opensta_report_file_tag) $report_tag_holder
+        set ::env(opensta_log_file_tag) $log_tag_holder
 
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
-
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
+    } else {
+        puts_info "Skipping OpenPhySyn Timing Optimizations."
+    }
 }
 
 package provide openlane 0.9

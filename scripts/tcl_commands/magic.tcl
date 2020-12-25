@@ -113,7 +113,7 @@ proc run_magic_spice_export {args} {
 		if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
 			set extract_type "gds.spice"
 			puts_info "Running Magic Spice Export from GDS..."
-			# GDS extracted file design.gds.spice, log file magic_gds.spice.log 
+			# GDS extracted file design.gds.spice, log file magic_gds.spice.log
 		} else {
 			set extract_type "spice"
 			puts_info "Running Magic Spice Export from LEF..."
