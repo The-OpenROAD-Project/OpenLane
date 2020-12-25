@@ -212,13 +212,14 @@ Most of the following commands' implementation exists in this [file][8]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `gen_pdn` | | Runs power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
+| `gen_pdn` | | Runs basic power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `power_routing` | | Performs power routing on a chip level design. More details in [Chip Integration][15]. |
 |    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF`. |
 |    | `[-lef <lef_file>]` | The input LEF file. <br> Defaults to `MERGED_LEF`. |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-output_def <output_def_file>]` | The output DEF file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.def` |
+| `run_power_grid_generation` | | Runs power grid generation with the advanced control options, `VDD_NETS`, `GND_NETS`, etc... This proc is capable of generating multiple power grid. Check [this documentation][16] for more details about controlling this command.
 
 ## Routing Commands
 
@@ -311,3 +312,4 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [13]: ./../configuration/README.md
 [14]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
 [15]: ./chip_integration.md
+[16]: ./advanced_power_grid_control.md
