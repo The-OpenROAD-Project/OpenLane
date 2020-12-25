@@ -3,6 +3,7 @@
 ***NOTE:** The value `-1`, if not meaningful, indicates that the report/log from which the information is extracted wasn't found (the stage responsible for it was skipped or failed).
 
 ## Default Printed Information Variables
+
 | Variable      | Description                                           |
 |---------------|-------------------------------------------------------|
 | `design`   | The directory of the design        |
