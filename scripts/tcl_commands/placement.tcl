@@ -193,6 +193,11 @@ proc run_openPhySyn {args} {
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
         set report_tag_holder $::env(opensta_report_file_tag)
         set log_tag_holder $::env(opensta_log_file_tag)
         set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
