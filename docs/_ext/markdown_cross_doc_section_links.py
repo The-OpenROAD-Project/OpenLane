@@ -32,7 +32,7 @@ def process_markdown_crosslinks(app, docname, source):
     Requires:
       recommonmark
       sphinx.ext.autosectionlabel
-      autosectionlabel_prefix_document = True 
+      autosectionlabel_prefix_document = True
     """
 
     # MD cross-section tag [tag](./dir/file.md#section)

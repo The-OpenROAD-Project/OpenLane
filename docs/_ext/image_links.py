@@ -25,13 +25,13 @@ def setup(app):
 def process_image_links(app, docname, source):
     """
     Converts image links in markdown files
-    from ./..../imagename.png to _static/imagename.png 
-    This function is called by sphinx for each document. 
-    `source` is a 1-item list. 
+    from ./..../imagename.png to _static/imagename.png
+    This function is called by sphinx for each document.
+    `source` is a 1-item list.
     """
 
     linkexp = '<img src=\".*\"\s*>'
-    
+
     for m in re.finditer(linkexp,source[0]):
             print (f" IMAGE_LINKS {docname}")
             link = m.group(0).split('"')
@@ -39,6 +39,5 @@ def process_image_links(app, docname, source):
                 link[1] = '_static/' + link[1].rpartition('/')[2]
                 link    = '"'.join(link)
                 print (f" {docname}: img link: {link}")
-                
-                source[0] = source[0][:m.start()] + link + source[0][m.end():]
 
+                source[0] = source[0][:m.start()] + link + source[0][m.end():]

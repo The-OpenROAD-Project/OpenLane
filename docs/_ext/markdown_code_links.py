@@ -39,12 +39,12 @@ def local_link_to_github (link, docname, githublink):
        link = link.partition('/')[2]
        path = path.rpartition('/')[0]
     # combine with repo path
-    if len(path): 
+    if len(path):
        link = path.rstrip('/') + '/' + link.lstrip('/')
     # combine with repo link
     link = githublink.rstrip('/') + '/' + link.lstrip('/')
     return link
-    
+
 def printv (verb, lvl, arg):
     ''' Print depending on verbose level '''
     if verb >= lvl: print (arg)
@@ -55,8 +55,8 @@ def process_image_links(app, docname, source):
     to github links to the same repo
     from: [link_name](./dir1/dir2.../file.ext)
     to:   [link_name(https:gihtub.com/repo/dir1/dir2.../file.ext)
-    This function is called by sphinx for each document. 
-    `source` is a 1-item list. 
+    This function is called by sphinx for each document.
+    `source` is a 1-item list.
     """
     verb = 1 # verbosity level (debug)
 
@@ -70,7 +70,7 @@ def process_image_links(app, docname, source):
     linknameexp1    = '\[[\/\.\w]*\]'
     linktargetexp1  = '\(\.[\/\.\w]*{fileext}\)'
 
-    # case 2 [tag] 
+    # case 2 [tag]
     linknameexp2    = '\[[0-9]*\]\:\s*'
     linktargetexp2  = '\.[\/\.\w]*{fileext}\s*\n'
 

@@ -15,7 +15,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import re 
+import re
 import os
 import os.path as path
 
@@ -34,7 +34,7 @@ def after_build_cleanup (app, exception):
     for f in cleanup_on_finish_files:
         os.remove (path.join (app.srcdir, f))
         print (f'Deleted {f}')
- 
+
 def extract_markdown_links (file):
     ''' Extracts list of local markdown links from markdown file'''
     # two formats for local markdown file links
@@ -42,7 +42,7 @@ def extract_markdown_links (file):
     linktargetexp1  = '\(\.[\/\.\w]*{fileext}\)'
     linkexp1        = linknameexp1 + linktargetexp1.format(fileext='\.md')
 
-    # case 2 [tag] link 
+    # case 2 [tag] link
     linknameexp2    = '\[[0-9]*\]\:\s*'
     linktargetexp2  = '\.[\/\.\w]*{fileext}\s*\n'
     linkexp2       = linknameexp2 + linktargetexp2.format(fileext='\.md')
@@ -93,7 +93,7 @@ def auto_generate_toc (app, master, tocname, cleanup = False, hidden = True, max
         indent = '   '
         f.write (':orphan:\n\n')
         f.write ('.. toctree::\n')
-        if (hidden): 
+        if (hidden):
             f.write( indent + ':hidden:\n' )
         f.write('\n')
         for l in links:
@@ -102,7 +102,7 @@ def auto_generate_toc (app, master, tocname, cleanup = False, hidden = True, max
 def index_softlink (app, master, cleanup = False):
     global cleanup_on_finish_files
 
-    softlink = 'index.' + master.rpartition('.')[2] 
+    softlink = 'index.' + master.rpartition('.')[2]
     if cleanup:
        cleanup_on_finish_files.append(softlink)
 
@@ -114,7 +114,3 @@ def index_softlink (app, master, cleanup = False):
     except FileExistsError:
         os.remove  (softlink)
         os.symlink (master, softlink)
-    
-       
-        
-
