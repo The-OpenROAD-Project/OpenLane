@@ -71,12 +71,14 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_symbiflow_theme'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
+# artifact sphinx_symbiflow_theme configs
+"""
 html_theme_options = {
     # Specify a list of menu in Header.
     # Tuples forms:
@@ -128,7 +130,7 @@ html_theme_options = {
     'hide_symbiflow_links': True,
     'license_url' : 'https://www.apache.org/licenses/LICENSE-2.0',
 }
-
+"""
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
