@@ -104,7 +104,7 @@ def process_image_links(app, docname, source):
                 if fileext not in ('\\/', '') or path.isdir(path.join(fulldocdir,link)):
                     link = local_link_to_github (link, docname, githublink)
                     # combine with rest of markdown link
-                    link = m.group(0).partition(':')[0] + ': ' + link
+                    link = m.group(0).partition(':')[0] + ': ' + link.strip() + '\n'
                     printv (verb, 2, link)
                     source[0] = source[0][:m.start()] + link + source[0][m.end():]
 
