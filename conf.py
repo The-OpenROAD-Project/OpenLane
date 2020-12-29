@@ -62,6 +62,8 @@ templates_path = ['_templates']
 exclude_patterns = [
     '_build',
     'Thumbs.db',
+    'scripts/tcl_commands/README.md',
+    'scripts/spef_extractor/README.md',
     # Files included in other rst files.
 ]
 
