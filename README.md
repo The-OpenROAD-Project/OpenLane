@@ -332,7 +332,7 @@ This [file](./designs/README.md) also includes useful information about the desi
 
 <table>
   <tr>
-    <td  align="center"><img src="./doc/openlane.flow.1.png" ></td>
+    <td  align="center"><img src="./docs/_static/openlane.flow.1.png" ></td>
   </tr>
 
 </table>
@@ -518,7 +518,6 @@ To check the original author list of OpenLANE, check [this][33].
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
-[3]: ./doc/flow.png
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/init_fp
 [6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/ioPlacer
