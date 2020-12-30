@@ -6,9 +6,9 @@
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 # OpenLANE
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=develop-applied_sphinx)](https://openlane.readthedocs.io/en/develop-applied_sphinx/?badge=develop-applied_sphinx)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=develop)](https://openlane.readthedocs.io/en/develop/?badge=develop)
 
-This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/en/develop-applied_sphinx/).
+This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/en/develop/).
 
 # Table of contents
 - [Overview](#overview)
@@ -31,6 +31,7 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
 - [Commands and Configurations](#commands-and-configurations)
 - [How To Contribute](#how-to-contribute)
 - [Authors](#authors)
+
 # Overview
 
 OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
@@ -54,7 +55,7 @@ You can start setting up the skywater-pdk and openlane by running:
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
-This should produce a clean run for the spm. The final layout will be generated here: [./designs/spm/runs/openlane_test/results/magic/spm.gds](./designs/spm/runs/openlane_test/results/magic/).
+This should produce a clean run for the spm. The final layout will be generated here: `./designs/spm/runs/openlane_test/results/magic/spm.gds`.
 
 To run the regression test, which tests the flow against all available designs under [./designs/](./designs/) vs the the benchmark results, run the following command:
 
@@ -331,7 +332,7 @@ This [file](./designs/README.md) also includes useful information about the desi
 
 <table>
   <tr>
-    <td  align="center"><img src="./doc/openlane.flow.1.png" ></td>
+    <td  align="center"><img src="./docs/_static/openlane.flow.1.png" ></td>
   </tr>
 
 </table>
@@ -478,7 +479,6 @@ A list of all available variables can be found [here][17].
 As mentioned earlier, everytime a new design or a new (PDK,STD_CELL_LIBRARY) pair is added, or any update happens in the flow tools, a re-configuration for the designs is needed. The reconfiguration is methodical and so an exploration script was developed to aid the designer in reconfiguring his designs if needed.
 As explained [here](#adding-a-design) that each design has multiple configuration files for each (PDK,STD_CELL_LIBRARY) pair.
 
-## Overview
 OpenLANE provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s).
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
@@ -517,7 +517,6 @@ To check the original author list of OpenLANE, check [this][33].
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
-[3]: ./doc/flow.png
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/init_fp
 [6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/ioPlacer
@@ -537,14 +536,14 @@ To check the original author list of OpenLANE, check [this][33].
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./regression_results/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
-[24]: ./doc/PDK_STRUCTURE.md
-[25]: ./doc/advanced_readme.md
-[26]: ./doc/chip_integration.md
+[24]: ./docs/source/PDK_STRUCTURE.md
+[25]: ./docs/source/advanced_readme.md
+[26]: ./docs/source/chip_integration.md
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
-[29]: ./doc/hardening_macros.md
-[30]: ./doc/Manual_PDK_installation.md
+[29]: ./docs/source/hardening_macros.md
+[30]: ./docs/source/Manual_PDK_installation.md
 [31]: https://github.com/d-m-bailey/cvc
 [32]: ./CONTRIBUTING.md
 [33]: ./AUTHORS.md
-[34]: ./doc/OpenLANE_commands.md
+[34]: ./docs/source/OpenLANE_commands.md

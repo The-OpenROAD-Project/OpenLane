@@ -17,6 +17,10 @@ set ::env(ROUTING_CORES) 4
 set ::env(GLB_RT_ADJUSTMENT) 0
 set ::env(GLB_RT_L1_ADJUSTMENT) 0; # more like pdk-specific (e.g., when L1 = li)
 set ::env(GLB_RT_L2_ADJUSTMENT) 0
+set ::env(GLB_RT_L3_ADJUSTMENT) 0
+set ::env(GLB_RT_L4_ADJUSTMENT) 0
+set ::env(GLB_RT_L5_ADJUSTMENT) 0
+set ::env(GLB_RT_L6_ADJUSTMENT) 0; # We go up to 6 here because the lowest met layer we've dealt with was met5, starting from li1. This might need to be adjusted.
 set ::env(GLB_RT_UNIDIRECTIONAL) 1
 set ::env(GLB_RT_ALLOW_CONGESTION) 0
 set ::env(GLB_RT_OVERFLOW_ITERS) 50

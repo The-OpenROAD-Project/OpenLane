@@ -123,14 +123,14 @@ When you use the `power_routing` command in the chip interactive script, the pow
 
 [This][1] has a description for all OpenLANE commands.
 
-[0]: ./../configuration/README.md
+[0]: ./../../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
 [4]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/interactive.tcl
 [5]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.tcl
 [6]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/padframe.cfg
-[7]: ./../scripts/topModuleGen/README.md
+[7]: ./../../scripts/topModuleGen/README.md
 [8]: ./hardening_macros.md
 [9]: https://github.com/efabless/openlane/tree/master/designs/manual_macro_placement_test
 [10]: ./advanced_power_grid_control.md

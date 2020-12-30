@@ -261,7 +261,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manfucturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
+| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
 |    | `[-output_file <output_file_path>]` | The ouput file path. <br> Defaults to being generated under `<run_path>/reports/`. |
 | `remove_pins` | | Removes the pins' section from a given DEF file. |
 |    | `-input <def_file>` | The input DEF file. |
@@ -296,20 +296,20 @@ Most of the following commands' implementation exists in these files: [deflef][1
 
 
 
-[0]: ./../scripts/tcl_commands/all.tcl
-[1]: ./../scripts/tcl_commands/checkers.tcl
-[2]: ./../scripts/tcl_commands/cts.tcl
-[3]: ./../scripts/tcl_commands/floorplan.tcl
-[4]: ./../scripts/tcl_commands/init_design.tcl
-[5]: ./../scripts/tcl_commands/lvs.tcl
-[6]: ./../scripts/tcl_commands/magic.tcl
-[7]: ./../scripts/tcl_commands/placement.tcl
-[8]: ./../scripts/tcl_commands/routing.tcl
-[9]: ./../scripts/tcl_commands/synthesis.tcl
-[10]: ./../scripts/utils/deflef_utils.tcl
-[11]: ./../scripts/utils/fake_display_buffer.tcl
-[12]: ./../scripts/utils/utils.tcl
-[13]: ./../configuration/README.md
+[0]: ./../../scripts/tcl_commands/all.tcl
+[1]: ./../../scripts/tcl_commands/checkers.tcl
+[2]: ./../../scripts/tcl_commands/cts.tcl
+[3]: ./../../scripts/tcl_commands/floorplan.tcl
+[4]: ./../../scripts/tcl_commands/init_design.tcl
+[5]: ./../../scripts/tcl_commands/lvs.tcl
+[6]: ./../../scripts/tcl_commands/magic.tcl
+[7]: ./../../scripts/tcl_commands/placement.tcl
+[8]: ./../../scripts/tcl_commands/routing.tcl
+[9]: ./../../scripts/tcl_commands/synthesis.tcl
+[10]: ./../../scripts/utils/deflef_utils.tcl
+[11]: ./../../scripts/utils/fake_display_buffer.tcl
+[12]: ./../../scripts/utils/utils.tcl
+[13]: ./../../configuration/README.md
 [14]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
 [15]: ./chip_integration.md
 [16]: ./advanced_power_grid_control.md
