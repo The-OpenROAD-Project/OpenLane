@@ -125,7 +125,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		$(MAKE) && \
 		$(MAKE) install-local && \
 		touch $(PDK_ROOT)/sky130A/SOURCES && \
-		echo 'Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES"
+		echo 'Built by: OpenLANE rc7 Makefile\n Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES"
 
 .PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
@@ -135,11 +135,13 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local
+		$(MAKE) install-local && \
+		touch $(PDK_ROOT)/sky130A/SOURCES && \
+		echo 'Built by: OpenLANE rc7 Makefile\n Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
