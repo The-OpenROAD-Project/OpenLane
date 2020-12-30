@@ -23,3 +23,6 @@ default.cvcrc
 
 # Local docs Build
 **/_build/
+
+# Regression artifacts
+*.config
