@@ -127,7 +127,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		touch $(PDK_ROOT)/sky130A/SOURCES && \
 		echo 'Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES"
 
-.PHONE: native-build-pdk
+.PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
