@@ -48,6 +48,8 @@ set_replace_verbose_level_cmd 1
 
 set_replace_density_cmd $::env(PL_TARGET_DENSITY)
 
+set_replace_pad_right_cmd $::env(CELL_PAD)
+
 if { $::env(PL_BASIC_PLACEMENT) } {
 	set_replace_overflow_cmd 0.9
 	set_replace_init_density_penalty_factor_cmd 0.0001
