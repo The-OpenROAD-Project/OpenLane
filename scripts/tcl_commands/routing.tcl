@@ -253,6 +253,8 @@ proc run_routing {args} {
     }
     use_original_lefs
 
+    add_route_obs
+
     global_routing
 
     # insert fill_cells
@@ -267,7 +269,6 @@ proc run_routing {args} {
 
 
     # detailed routing
-    add_route_obs
     detailed_routing
 
 	# pdngen-related hack
