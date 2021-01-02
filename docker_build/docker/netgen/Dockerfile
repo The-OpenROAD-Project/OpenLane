@@ -32,7 +32,7 @@ RUN git checkout 920c6e69283f9bef5d3aa67776b868696e438c2d
 
 
 # build
-RUN ./configure --prefix=/build
+RUN ./configure CFLAGS="-O2 -g" --prefix=/build
 
 RUN make clean && \
     make && \
