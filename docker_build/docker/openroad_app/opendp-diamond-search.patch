@@ -1,0 +1,26 @@
+commit dccf4a96cff86331c10e4930b520025184dfb501
+Author: Anton Blanchard <anton@linux.ibm.com>
+Date:   Mon Dec 28 21:15:21 2020 +1100
+
+    [opendp] Restore diamond_search_height_ to 400
+    
+    diamond_search_height_ was originally 400 but has since been changed
+    to 100. On a design with large macros, the openroad version of opendp
+    fails but the standalone version works. Changing diamond_search_height_
+    back to 400 fixes it.
+    
+    We should probably expose this option so it can be configured.
+
+diff --git a/src/opendp/src/Opendp.cpp b/src/opendp/src/Opendp.cpp
+index f5809a52..3099c10e 100644
+--- a/src/opendp/src/Opendp.cpp
++++ b/src/opendp/src/Opendp.cpp
+@@ -135,7 +135,7 @@ Opendp::Opendp() :
+ {
+   dummy_cell_.is_placed_ = true;
+   // magic number alert
+-  diamond_search_height_ = 100;
++  diamond_search_height_ = 400;
+   diamond_search_width_ = diamond_search_height_ * 5;
+   max_displacement_constraint_ = 0;
+ }
