@@ -520,6 +520,10 @@ proc prep {args} {
     set_log ::env(GLB_RT_ADJUSTMENT) $::env(GLB_RT_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_L2_ADJUSTMENT) $::env(GLB_RT_L2_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_L3_ADJUSTMENT) $::env(GLB_RT_L3_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_L4_ADJUSTMENT) $::env(GLB_RT_L4_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_L5_ADJUSTMENT) $::env(GLB_RT_L5_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(GLB_RT_L6_ADJUSTMENT) $::env(GLB_RT_L6_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_MINLAYER) $::env(GLB_RT_MINLAYER) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_MAXLAYER) $::env(GLB_RT_MAXLAYER) $::env(GLB_CFG_FILE) 1
     set_log ::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_CFG_FILE) 1
