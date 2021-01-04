@@ -1,4 +1,4 @@
-name: caravel-docs
+name: openlane-docs
 channels:
 - defaults
 dependencies:
