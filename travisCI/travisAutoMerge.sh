@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+echo "Current branch is $TRAVIS_BRANCH"
 git checkout develop
-git checkout staging
+git checkout $TRAVIS_BRANCH
+echo "Current branch is $TRAVIS_BRANCH"
 git merge develop --no-commit 
