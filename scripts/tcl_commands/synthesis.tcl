@@ -87,6 +87,7 @@ proc run_sta {args} {
 
 proc run_synth_exploration {args} {
     puts_info "Running Synthesis Exploration..."
+
     set ::env(SYNTH_EXPLORE) 1
 
     run_yosys

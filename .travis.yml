@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: minimal
+language: shell
+os: linux
+dist: xenial
 
 branches:
   only:
@@ -20,12 +22,11 @@ branches:
     - master
     - staging
     - /^(?i:develop)-.*$/
+git:
+  depth: false
 
 services:
-    - docker
-
-os:
-  - linux
+  - docker
 
 jobs:
   include:
@@ -41,9 +42,60 @@ jobs:
       env: TEST_SET=des EXTRA_FLAGS=-so
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
+    - name: "BM64"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=BM64 EXTRA_FLAGS=-so
+    - name: "picorv32a"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=picorv32a EXTRA_FLAGS=-so
+    - name: "chacha"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=chacha EXTRA_FLAGS=-so
+    - name: "PPU"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=PPU EXTRA_FLAGS=-so
+    - name: "y_huff"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=y_huff EXTRA_FLAGS=-so
+    - name: "blabla"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=blabla EXTRA_FLAGS=-so
+    - name: "ldpcenc"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
+    - name: "salsa20"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=salsa20 EXTRA_FLAGS=-so
+    - name: "aes_core"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=aes_core
+    - name: "aes"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=aes
+    - name: "sha512"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=sha512
+    - name: "genericfir"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=genericfir EXTRA_FLAGS=-so
+    - name: "aes128"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=aes128
+    - name: "aes192"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk
+      env: TEST_SET=aes192
+
+before_install:
+  - if [ $TRAVIS_BRANCH == "staging" || $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
+      sh travisCI/travisAutoMerge.sh;
+    fi
 
 install:
-  - sh travisCI/travisBuild.sh
+  - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
+      sh travisCI/travisBuildLatestPDK.sh;
+    else
+      sh travisCI/travisBuild.sh;
+    fi
 
 script:
   - bash travisCI/travisTest.sh
