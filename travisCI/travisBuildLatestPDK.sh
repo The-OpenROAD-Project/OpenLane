@@ -47,7 +47,7 @@ until make -j$(nproc) timing; do
 done
 cd  $PDK_ROOT
 rm -rf open_pdks
-git clone https://github.com/RTimothyEdwards/open_pdks.git open_pdks
+git clone git://opencircuitdesign.com/open_pdks open_pdks
 cd $RUN_ROOT
 make build-pdk
 echo "done installing"

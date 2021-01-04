@@ -31,7 +31,7 @@
 
     ```bash
         cd $PDK_ROOT
-	    git clone https://github.com/RTimothyEdwards/open_pdks.git
+	    git clone git://opencircuitdesign.com/open_pdks
         cd open_pdks
         git checkout debc0a49b00d93416e0efd82f26f7604ae1e7a3a
         ./configure --enable-sky130-pdk=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
