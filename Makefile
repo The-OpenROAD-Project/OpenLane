@@ -74,7 +74,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git pull && \
+		git checkout master && git submodule init && git pull && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -83,8 +83,6 @@ skywater-library: $(PDK_ROOT)/skywater-pdk
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
-		rm -rf third_party/make-env && \
-		git checkout -qf third_party/make-env && \
 		$(MAKE) -j$(THREADS) timing
 
 .PHONY: all-skywater-libraries
@@ -97,8 +95,6 @@ all-skywater-libraries: skywater-pdk
 		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
 		git submodule update --init libraries/sky130_fd_sc_hvl/latest && \
 		git submodule update --init libraries/sky130_fd_io/latest && \
-		rm -rf third_party/make-env && \
-		git checkout -qf third_party/make-env && \
 		$(MAKE) -j$(THREADS) timing
 
 ### OPEN_PDKS
