@@ -15,7 +15,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(
-    description='Creates and obstruction in def and lef files.')
+    description='Creates an obstruction in def and lef files.')
 
 parser.add_argument('--defFile', '-d',required=True,
                     help='Input DEF')
