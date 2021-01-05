@@ -147,7 +147,7 @@ else:
         report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 
 if os.path.exists(store_dir) == False:
-    os.mkdir(store_dir)
+    os.makedirs(store_dir, exist_ok=True)
 
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
