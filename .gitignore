@@ -26,3 +26,6 @@ default.cvcrc
 
 # Regression artifacts
 *.config
+
+# PDK
+pdks/

@@ -14,6 +14,8 @@
 
 OPENLANE_DIR ?= $(shell pwd)
 
+PDK_ROOT ?= $(shell pwd)/pdks
+
 ifeq (, $(strip $(NPROC)))
   # Linux (utility program)
   NPROC := $(shell nproc 2>/dev/null)
@@ -69,7 +71,7 @@ full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk
 native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
 
 $(PDK_ROOT)/:
-	mkdir $(PDK_ROOT)
+	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk: $(PDK_ROOT)/
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
@@ -147,6 +149,11 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 openlane:
 	cd $(OPENLANE_DIR)/docker_build && \
 		$(MAKE) merge
+
+.PHONY: mount
+mount:
+	cd $(OPENLANE_DIR) && \
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME)
 
 .PHONY: regression
 regression:
