@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 echo "Running the latest pdk installation process..."
+mkdir pdks
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 export IMAGE_NAME=openlane:rc7
