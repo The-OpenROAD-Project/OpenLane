@@ -17,7 +17,7 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
     - [Installation Notes](#installation-notes)
 - [Updating OpenLANE](#updating-openlane)
 - [Setting up OpenLANE](#setting-up-openlane)
-    - [Building the OpenLANE Docker](#building-the-openlane-docker)
+    - [Building the OpenLANE Docker Container](#building-the-openlane-docker-container)
     - [Running OpenLANE](#running-openlane)
     - [Command line arguments](#command-line-arguments)
     - [Adding a design](#adding-a-design)
@@ -70,15 +70,17 @@ After running you'll find a directory added under [./regression_results/](./regr
 
 **Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
+Now you can skip forward to [running openlane](#running-openlane).
+
 ## Installation Notes:
 
 - The Makefile should do the following when you run the above command:
     - Clone Skywater-pdk and the specified STD_CELL_LIBRARY, SPECIAL_VOLTAGE_LIBRARY, and IO_LIBRARY and build it.
     - Clone open_pdks and set up the pdk for OpenLANE use.
-    - Build the OpenLANE docker.
+    - Build the OpenLANE docker container.
     - Test the whole setup with a complete run on a small design `spm`.
 
-- You can use dockerhub instead of building the docker locally. Check [this section](#pulling-an-auto-built-docker-image-from-dockerhub) for more details.
+- You can use dockerhub instead of building the docker container locally. Check [this section](#pulling-an-auto-built-docker-image-from-dockerhub) for more details.
 
 - the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that by running:
 ```bash
@@ -113,12 +115,12 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
-This should install the latest openlane docker, and re-install the pdk for the latest used version. If you want to only update the openlane docker check this [section](#building-the-openlane-docker) after updating the repo.
+This should install the latest openlane docker container, and re-install the pdk for the latest used version. If you want to only update the openlane docker container check this [section](#building-the-openlane-docker-container) after updating the repo.
 
 
 # Setting up OpenLANE
 
-## Building the OpenLANE Docker
+## Building the OpenLANE Docker Container
 
 **DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make openlane`**
 
@@ -150,40 +152,40 @@ The generated IMAGE_NAME is efabless/openlane:rc7
 
 ## Running OpenLANE
 
-### Mounting The Docker
+### Starting The Docker Container
 
 You have one of two options:
 
-#### Option 1: Mounting The Docker with the Makefile
 
-The easiest way to mount docker would be to rely on the Makefile:
+The easiest way to mount the proper directories into the docker container would be to rely on the Makefile:
 
 ```bash
-    # Default PDK_ROOT is $(pwd)/pdks. If you want to install the PDK at a differnt location, uncomment the next line.
-    # export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    # Default IMAGE_NAME is openlane:rc7. If you want to use a different version, uncomment the next line.
-    # If you're using Dockerhub, then export it to efabless/openlane:rc7
-    #export IMAGE_NAME=<docker image name>
     make mount
 ```
 
-#### Option 2: Avoiding The Makefile
+* **Note:**
+    - Default PDK_ROOT is `$(pwd)/pdks`. If you want to install the PDK at a differnt location, run the following before `make mount`:
+        ```bash
+        export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
+        ```
+    - Default IMAGE_NAME is openlane:rc7. If you want to use a different version, run the following before `make mount`:
+        ```bash
+        export IMAGE_NAME=<docker image name>
+        ```
+    - If you're using Dockerhub, then export it to efabless/openlane:rc7
 
-If you don't want to use the Makefile to mount, then the following is what runs under the hood:
+
+The following is roughly what happens under the hood when you run `make mount`:
 
 ```bash
-    # If you used the Makefile to run the installation without exporting PDK_ROOT
-    # Then the default location is $(pwd)/pdks
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    # Default IMAGE_NAME is openlane:rc7. If you want to use a different version, uncomment the next line.
-    # If you're using Dockerhub, then export it to efabless/openlane:rc7
     export IMAGE_NAME=<docker image name>
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
-**Note: this will mount the openlane directory inside the container.**
+**Note: this will mount the openlane directory and the pdk root inside the container.**
 
-### Running inside the Docker
+### Running inside the Docker Container
 
 Use the following example to check the overall setup:
 
@@ -450,11 +452,11 @@ designs/<design_name>
 ```
 
 To delete all generated runs under all designs:
-- inside the docker:
+- inside the docker container:
     ```bash
         ./clean_runs.tcl
     ```
-- outside the docker:
+- outside the docker container:
     ```bash
         make clean_runs
     ```
