@@ -25,7 +25,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_verilog $::env(CURRENT_NETLIST)
-read_sdc $::env(SCRIPTS_DIR)/base.sdc
+read_sdc $::env(BASE_SDC_FILE)
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
