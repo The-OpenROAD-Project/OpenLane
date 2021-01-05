@@ -68,7 +68,10 @@ full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk
 .PHONY: native-full-pdk
 native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
 
-$(PDK_ROOT)/skywater-pdk:
+$(PDK_ROOT)/:
+	mkdir $(PDK_ROOT)
+
+$(PDK_ROOT)/skywater-pdk: $(PDK_ROOT)/
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
@@ -98,7 +101,7 @@ all-skywater-libraries: skywater-pdk
 		$(MAKE) -j$(THREADS) timing
 
 ### OPEN_PDKS
-$(PDK_ROOT)/open_pdks:
+$(PDK_ROOT)/open_pdks: $(PDK_ROOT)/
 	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
