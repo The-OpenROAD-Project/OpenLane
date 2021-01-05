@@ -131,6 +131,9 @@ RUN git apply pdngen_export_subst.patch
 COPY ignore_obs_outside.patch /OpenROAD_22122020/
 RUN git apply ignore_obs_outside.patch
 
+COPY opendp-diamond-search.patch /OpenROAD_22122020/
+RUN git apply opendp-diamond-search.patch
+
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
