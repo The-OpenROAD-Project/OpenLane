@@ -79,7 +79,7 @@ $(PDK_ROOT)/skywater-pdk: $(PDK_ROOT)/
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git submodule init && git pull && \
+		git checkout master && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
