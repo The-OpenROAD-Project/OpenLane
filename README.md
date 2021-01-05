@@ -49,7 +49,8 @@ You can start setting up the skywater-pdk and openlane by running:
 ```bash
     git clone https://github.com/efabless/openlane.git --branch rc7
     cd openlane/
-    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    # Default PDK_ROOT is $(pwd)/pdks. If you want to install the PDK at a differnt location, uncomment the next line.
+    #export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make openlane
     make pdk
     make test # This is to test that the flow and the pdk were properly installed
@@ -132,6 +133,8 @@ To setup openlane you can build the docker container locally following these ins
     cd ..
 ```
 
+The generated IMAGE_NAME is openlane:rc7
+
 ### Pulling an Auto-Built Docker Image from Dockerhub
 
 Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
@@ -143,26 +146,44 @@ Alternatively, you can use the auto-built openlane docker images available throu
     docker pull efabless/openlane:rc7
 ```
 
+The generated IMAGE_NAME is efabless/openlane:rc7
+
 ## Running OpenLANE
 
-### Running the Locally Built Docker Image
+### Mounting The Docker
 
-Issue the following command to open the docker container from /path/to/openlane to ensure that the output files persist after exiting the container:
+You have one of two options:
+
+#### Option 1: Mounting The Docker with the Makefile
+
+The easiest way to mount docker would be to rely on the Makefile:
 
 ```bash
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) openlane:rc7
+    # Default PDK_ROOT is $(pwd)/pdks. If you want to install the PDK at a differnt location, uncomment the next line.
+    # export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    # Default IMAGE_NAME is openlane:rc7. If you want to use a different version, uncomment the next line.
+    # If you're using Dockerhub, then export it to efabless/openlane:rc7
+    #export IMAGE_NAME=<docker image name>
+    make mount
 ```
 
-### Running the Pulled Auto-Built Docker Image
-If you pulled the docker image from dockerhub instead of building it locally, then run the following command:
+#### Option 2: Avoiding The Makefile
+
+If you don't want to use the Makefile to mount, then the following is what runs under the hood:
 
 ```bash
-    export IMAGE_NAME=efabless/openlane:rc7
+    # If you used the Makefile to run the installation without exporting PDK_ROOT
+    # Then the default location is $(pwd)/pdks
+    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
+    # Default IMAGE_NAME is openlane:rc7. If you want to use a different version, uncomment the next line.
+    # If you're using Dockerhub, then export it to efabless/openlane:rc7
+    export IMAGE_NAME=<docker image name>
     docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
 ```
 
 **Note: this will mount the openlane directory inside the container.**
 
+### Running inside the Docker
 
 Use the following example to check the overall setup:
 
