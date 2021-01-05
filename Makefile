@@ -73,11 +73,11 @@ native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
 $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
 
-$(PDK_ROOT)/skywater-pdk: $(PDK_ROOT)/
+$(PDK_ROOT)/skywater-pdk:
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
-skywater-pdk: $(PDK_ROOT)/skywater-pdk
+skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
 		git checkout master && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
@@ -103,11 +103,11 @@ all-skywater-libraries: skywater-pdk
 		$(MAKE) -j$(THREADS) timing
 
 ### OPEN_PDKS
-$(PDK_ROOT)/open_pdks: $(PDK_ROOT)/
+$(PDK_ROOT)/open_pdks:
 	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
-open_pdks: $(PDK_ROOT)/open_pdks
+open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
 		git checkout master && git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
