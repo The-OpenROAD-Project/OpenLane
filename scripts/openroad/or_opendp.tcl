@@ -26,7 +26,7 @@ set_placement_padding -global -right $::env(CELL_PAD)
 
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 
-detailed_placement
+detailed_placement -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
 
 if { [check_placement -verbose] } {
 	exit 1
