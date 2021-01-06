@@ -164,7 +164,7 @@ The easiest way to mount the proper directories into the docker container would 
 ```
 
 * **Note:**
-    - Default PDK_ROOT is `$(pwd)/pdks`. If you want to install the PDK at a differnt location, run the following before `make mount`:
+    - Default PDK_ROOT is `$(pwd)/pdks`. If you have installed the PDK at a different location, run the following before `make mount`:
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
@@ -172,10 +172,12 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export IMAGE_NAME=<docker image name>
         ```
-    - If you're using Dockerhub, then export it to efabless/openlane:rc7
+    - If you're using Dockerhub, then run the follwing before `make mount`:
+        ```bash
+        export IMAGE_NAME=efabless/openlane:rc7
+        ```
 
-
-The following is roughly what happens under the hood when you run `make mount`:
+The following is roughly what happens under the hood when you run `make mount` + the required exports:
 
 ```bash
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
