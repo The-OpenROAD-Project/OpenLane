@@ -45,6 +45,8 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
 
+4. You may want to write a custom SDC file to be used in STA and CTS. The default SDC file in the flow is [this file][11]. However, you can change that by pointing to a new file with the environment variable `BASE_SDC_FILE`. More about that [here][0].
+
 Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here][0].
 
 Static Timing Analysis are done after:
@@ -242,3 +244,4 @@ If you want to create further tweaks in the flow that the abundant configuration
 [8]: ./PDK_STRUCTURE.md
 [9]: ./advanced_power_grid_control.md
 [10]: ./../../regression_results/columns_defintions.md
+[11]: ./../../scripts/base.sdc

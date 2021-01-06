@@ -158,7 +158,7 @@ todo_include_todos = True
 numfig = True
 markdown_code_links_githubrepo   = 'https://github.com/efabless/openlane'
 markdown_code_links_githubbranch = 'blob/master'
-markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '/', '.json', 'Makefile']
+markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '.sdc', '/', '.json', 'Makefile']
 autosectionlabel_prefix_document = True
 
 suppress_warnings = ['misc.highlighting_failure'] # supress json highlight warnings
