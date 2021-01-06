@@ -50,7 +50,7 @@ write_def $::env(SAVE_DEF)
 set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)" 
 set_placement_padding -masters $buffers -left $::env(CELL_PAD)
 puts "\[INFO\]: Legalizing..."
-detailed_placement
+detailed_placement -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
 write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1

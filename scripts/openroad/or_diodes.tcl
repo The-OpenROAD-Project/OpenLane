@@ -84,7 +84,7 @@ foreach net $::nets {
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
-detailed_placement
+detailed_placement  -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
 write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1
