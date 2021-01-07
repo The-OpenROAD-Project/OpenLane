@@ -18,7 +18,7 @@
 path=$1
 designName=$2
 # This assumes that all these files exist
-tritonRoute_log="${path}/logs/routing/tritonRoute.log"
+tritonRoute_log="${path}/logs/routing/*.tritonRoute.log"
 tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
 yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
@@ -32,19 +32,19 @@ pl_tns_rpt=${path}/reports/placement/replace_tns.rpt
 opt_tns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_tns.rpt
 fr_tns_rpt=${path}/reports/routing/fastroute_tns.rpt
 spef_tns_rpt=${path}/reports/synthesis/opensta_spef_tns.rpt
-HPWL_rpt=${path}/logs/placement/replace.log
-yosys_log=${path}/logs/synthesis/yosys.log
+HPWL_rpt=${path}/logs/placement/*.replace.log
+yosys_log=${path}/logs/synthesis/*.yosys.log
 magic_drc=${path}/logs/magic/magic.drc
-tapcell_log=${path}/logs/floorplan/tapcell.log
-diodes_log=${path}/logs/placement/diodes.log
+tapcell_log=${path}/logs/floorplan/*.tapcell.log
+diodes_log=${path}/logs/placement/*.diodes.log
 #old magic directory
 magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
-fr_antenna_log=${path}/logs/routing/fastroute.log
-fr_log=${path}/logs/routing/fastroute_post_antenna.log
-cvc_log=${path}/logs/cvc/cvc_screen.log
+fr_antenna_log=${path}/logs/routing/*.fastroute.log
+fr_log=${path}/logs/routing/*.fastroute_post_antenna.log
+cvc_log=${path}/logs/cvc/*.cvc_screen.log
 if ! [ -f "$fr_log" ]; then
-    fr_log=${path}/logs/routing/fastroute.log
+    fr_log=${path}/logs/routing/*.fastroute.log
 fi
 tritonRoute_def="${path}/results/routing/${designName}.def"
 openDP_log=${path}/logs/placement/opendp.log

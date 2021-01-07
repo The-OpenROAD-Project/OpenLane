@@ -16,7 +16,7 @@ proc global_placement {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
     try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
-
+    index_file $::env(replaceio_log_file_tag).log
     try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -35,6 +35,7 @@ proc global_placement_or {args} {
     }
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
+    index_file $::env(replaceio_log_file_tag).log
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -57,7 +58,7 @@ proc random_global_placement {args} {
     try_catch python3 $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
         --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
         |& tee $::env(TERMINAL_OUTPUT) $::env(replaceio_log_file_tag).log
-
+    index_file $::env(replaceio_log_file_tag).log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
     set_def $::env(SAVE_DEF)
@@ -71,6 +72,7 @@ proc detailed_placement {args} {
 	-def $::env(CURRENT_DEF) \
 	-output_def $::env(opendp_result_file_tag).def \
 	|& tee $::env(TERMINAL_OUTPUT) $::env(opendp_log_file_tag).log
+    index_file $::env(opendp_log_file_tag).log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(opendp_log_file_tag)_runtime.txt
     set_def $::env(opendp_result_file_tag).def
@@ -93,6 +95,7 @@ proc manual_macro_placement {args} {
     } else {
         try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/macro_placement.log
     }
+    index_file $::env(LOG_DIR)/macro_placement.log
     set_def $::env(CURRENT_DEF).macro_placement.def
 }
 
@@ -102,20 +105,21 @@ proc detailed_placement_or {args} {
     set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(opendp_log_file_tag).log
+    index_file $::env(opendp_log_file_tag).log
     set_def $::env(SAVE_DEF)
 
-    if {[catch {exec grep -q -i "fail" $::env(opendp_log_file_tag).log}] == 0}  {
+    if {[catch {exec grep -q -i "fail" $::env(INDEX_FILE_RET_VAL)}] == 0}  {
 	puts_info "Error in detailed placement"
 	puts_info "Retrying detailed placement"
 	set ::env(SAVE_DEF) $::env(opendp_result_file_tag).1.def
 
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(opendp_log_file_tag).log
-
+    index_file $::env(opendp_log_file_tag).log
     }
 
-    if {[catch {exec grep -q -i "fail" $::env(opendp_log_file_tag).log}] == 0}  {
-	puts "Error: Check $::env(opendp_log_file_tag).log"
-	puts stderr "\[ERROR\]: Check $::env(opendp_log_file_tag).log"
+    if {[catch {exec grep -q -i "fail" $::env(INDEX_FILE_RET_VAL)}] == 0}  {
+	puts "Error: Check $::env(INDEX_FILE_RET_VAL)"
+	puts stderr "\[ERROR\]: Check $::env(INDEX_FILE_RET_VAL)"
 	exit 1
     }
 
@@ -132,7 +136,7 @@ proc basic_macro_placement {args} {
     set ::env(SAVE_DEF) $::env(CURRENT_DEF).macro_placement.def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/basic_mp.log
-
+    index_file $::env(LOG_DIR)/placement/basic_mp.log
     check_macro_placer_num_solns
 
 
@@ -176,6 +180,7 @@ proc repair_wire_length {args} {
         puts_info "Repairing Wire Length By Inserting Buffers..."
         set ::env(SAVE_DEF) $::env(CURRENT_DEF)
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/placement/resizer.log
+        index_file $::env(LOG_DIR)/placement/resizer.log
         set_def $::env(SAVE_DEF)
     }
 }
@@ -189,6 +194,7 @@ proc run_openPhySyn {args} {
 
         set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
         try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(openphysyn_log_file_tag).log
+        index_file $::env(openphysyn_log_file_tag).log
         set_def $::env(SAVE_DEF)
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v

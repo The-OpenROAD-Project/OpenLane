@@ -38,7 +38,7 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" $::env(verilog2def_log_file_tag).openroad.log} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" $::env(INDEX_FILE_RET_VAL)} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -52,7 +52,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" $::env(verilog2def_log_file_tag).openroad.log} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" $::env(INDEX_FILE_RET_VAL)} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]
@@ -65,7 +65,7 @@ proc check_floorplan_missing_pins {args} {
 }
 
 proc check_cts_clock_nets {args} {
-    set checker [catch {exec grep -E -o "Error: No clock nets have been found." $::env(cts_log_file_tag).log} error]
+    set checker [catch {exec grep -E -o "Error: No clock nets have been found." $::env(INDEX_FILE_RET_VAL)} error]
 
     if { ! $checker } {
         puts_err "Clock Tree Synthesis failed"
@@ -78,7 +78,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" $::env(replaceio_log_file_tag).log} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" $::env(INDEX_FILE_RET_VAL)} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -90,7 +90,7 @@ proc check_replace_divergence {args} {
 }
 
 proc check_macro_placer_num_solns {args} {
-    set checker [catch {exec grep -E -o "NumFinalSols = 0" $::env(LOG_DIR)/placement/basic_mp.log} error]
+    set checker [catch {exec grep -E -o "NumFinalSols = 0" $::env(INDEX_FILE_RET_VAL)} error]
 
     if { ! $checker } {
         puts_err "Macro placement failed"

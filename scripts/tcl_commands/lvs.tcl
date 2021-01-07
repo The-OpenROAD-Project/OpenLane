@@ -74,7 +74,7 @@ proc write_powered_verilog {args} {
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
-
+    index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
 }
 
@@ -98,8 +98,6 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
 
     set setup_file $::env(NETGEN_SETUP_FILE)
     set module_name $::env(DESIGN_NAME)
-    set output $::env(lvs_result_file_tag).$extract_type.log
-
     #writes setup_file_*_lvs to tmp directory.
     set lvs_file [open $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs w]
     if { "$extract_type" == "gds" } {
@@ -126,16 +124,16 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
             }
         }
     }
-    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $output -json"
+    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(lvs_result_file_tag).$extract_type.log -json"
     close $lvs_file
-
     puts_info "$layout against $schematic"
 
     try_catch netgen -batch source $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs \
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_log_file_tag).$extract_type.log
-
+    index_file $::env(lvs_log_file_tag).$extract_type.log
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).$extract_type.json \
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
+    index_file $::env(lvs_result_file_tag)_parsed.$extract_type.log
 }
 
 proc run_netgen {args} {
@@ -194,6 +192,7 @@ BEGIN {  # Print power and standard_input definitions
                 > $::env(cvc_result_file_tag).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
                 |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
+            index_file $::env(cvc_log_file_tag)_screen.log
             } else {
                 puts_info "Skipping CVC"
             }
