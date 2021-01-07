@@ -17,8 +17,9 @@
 
 path=$1
 designName=$2
+scriptDir=$3
 # This assumes that all these files exist
-tritonRoute_log="${path}/logs/routing/*.tritonRoute.log"
+tritonRoute_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o tritonRoute.log 2>&1)
 tritonRoute_drc="${path}/reports/routing/tritonRoute.drc"
 yosys_rprt=${path}/reports/synthesis/yosys_*.stat.rpt
 runtime_rpt=${path}/reports/runtime.txt
@@ -33,21 +34,17 @@ opt_tns_rpt=${path}/reports/synthesis/opensta_post_openphysyn_tns.rpt
 fr_tns_rpt=${path}/reports/routing/fastroute_tns.rpt
 spef_tns_rpt=${path}/reports/synthesis/opensta_spef_tns.rpt
 HPWL_rpt=${path}/logs/placement/*.replace.log
-yosys_log=${path}/logs/synthesis/*.yosys.log
+yosys_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o yosys.log 2>&1)
 magic_drc=${path}/logs/magic/magic.drc
-tapcell_log=${path}/logs/floorplan/*.tapcell.log
-diodes_log=${path}/logs/placement/*.diodes.log
+tapcell_log=$(python3 $3/get_file_name.py -p ${path}/logs/floorplan/ -o tapcell.log 2>&1)
+diodes_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o diodes.log 2>&1)
 #old magic directory
 magic_antenna_report=${path}/reports/magic/magic.antenna_violators.rpt
 arc_antenna_report=${path}/reports/routing/antenna.rpt
-fr_antenna_log=${path}/logs/routing/*.fastroute.log
-fr_log=${path}/logs/routing/*.fastroute_post_antenna.log
-cvc_log=${path}/logs/cvc/*.cvc_screen.log
-if ! [ -f "$fr_log" ]; then
-    fr_log=${path}/logs/routing/*.fastroute.log
-fi
+fr_log=${path}/logs/routing/fastroute.log
+cvc_log=$(python3 $3/get_file_name.py -p ${path}/logs/cvc/ -o cvc_screen.log 2>&1)
 tritonRoute_def="${path}/results/routing/${designName}.def"
-openDP_log=${path}/logs/placement/*.opendp.log
+openDP_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o opendp.log 2>&1)
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
@@ -243,7 +240,7 @@ if ! [[ $tapcells ]]; then tapcells=0; fi
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log -s | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
 if ! [[ $diodes ]]; then
-        diodes=$(grep "diodes inserted" $fr_antenna_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted/\1/')
+        diodes=$(grep "diodes inserted" $fr_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted/\1/')
         if ! [[ $diodes ]]; then diodes=0; fi
 fi
 

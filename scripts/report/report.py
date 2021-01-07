@@ -27,10 +27,11 @@ class Report:
         self.report_script = os.path.join(self.current_directory, 'report.sh')
         if run_path is None:
             run_path=get_run_path(design=design, tag=tag)
-        self.report_command = '{script} {path} {design_name}'.format(
+        self.report_command = '{script} {path} {design_name} {script_dir}'.format(
                 script=self.report_script,
                 path=run_path,
-                design_name=self.design_name
+                design_name=self.design_name,
+                script_dir=self.current_directory
             )
         self.configuration = params
         self.raw_report = None

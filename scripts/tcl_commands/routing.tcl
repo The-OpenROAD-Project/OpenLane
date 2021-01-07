@@ -21,46 +21,57 @@ proc global_routing {args} {
     TIMER::timer_start
     set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag).guide]
     set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag).def 0]
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(fastroute_log_file_tag).log 0]
-    set_def $::env(SAVE_DEF)
-    set_guide $::env(SAVE_GUIDE)
+    set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+        set_def $::env(SAVE_DEF)
+        set_guide $::env(SAVE_GUIDE)
         set iter 2
         set prevDEF1 $::env(SAVE_DEF)
 	    set prevDEF2 $::env(SAVE_DEF)
         set prevGUIDE1 $::env(SAVE_GUIDE)
 	    set prevGUIDE2 $::env(SAVE_GUIDE)
+        set prevLOG1 $saveLOG
+        set prevLOG2 $saveLOG
 	    set prevAntennaVal [exec grep "#Antenna violations:" [index_file $::env(fastroute_log_file_tag).log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 	while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag)_$iter.def]
             set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag)_$iter.guide 0]
+            set saveLOG [index_file $::env(fastroute_log_file_tag)_$iter.log 0]
             set replaceWith "INSDIODE$iter"
             try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
-            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(fastroute_log_file_tag)_$iter.log 0]
-            set currAntennaVal [exec grep "#Antenna violations:"  [index_file $::env(fastroute_log_file_tag)_$iter.log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+            try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+            set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
                 set iter [expr $iter - 1]
                 set ::env(SAVE_DEF) $prevDEF1
                 set ::env(SAVE_GUIDE) $prevGUIDE1
+                set saveLOG $prevLOG1
                 break
             } else {
                 set prevAntennaVal $currAntennaVal
                 set iter [expr $iter + 1]
                 set prevDEF1 $prevDEF2
                 set prevGUIDE1 $prevGUIDE2
- 	            set prevDEF2 $::env(SAVE_DEF)
+                set prevLOG1 $prevLOG2
+                set prevDEF2 $::env(SAVE_DEF)
                 set prevGUIDE2 $::env(SAVE_GUIDE)
+                set prevLOG2 $saveLOG
             }
 	        set_def $::env(SAVE_DEF)
             set_guide $::env(SAVE_GUIDE)
         }
     }
+    file copy -force $saveLOG $::env(fastroute_log_file_tag).log
+    set_def $::env(SAVE_DEF)
+    set_guide $::env(SAVE_GUIDE)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
 	puts_info "Current Def is $::env(CURRENT_DEF)"
+    puts_info "Current Guide is $::env(CURRENT_GUIDE)"
 }
 
 proc detailed_routing {args} {
