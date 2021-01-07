@@ -1,6 +1,6 @@
 lef:${MERGED_LEF_UNPADDED}
 def:${CURRENT_DEF}
-guide:${fastroute_tmp_file_tag}.guide
+guide:${CURRENT_GUIDE}
 output:${tritonRoute_result_file_tag}.def
 outputTA:${tritonRoute_tmp_file_tag}_TA.def
 outputguide:${tritonRoute_tmp_file_tag}.guide

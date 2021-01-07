@@ -25,7 +25,7 @@ proc global_placement {args} {
 proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
+    set ::env(SAVE_DEF) [index_file $::env(replaceio_tmp_file_tag).def]
 
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
@@ -33,7 +33,7 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log]
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
 
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
@@ -52,11 +52,11 @@ proc global_placement_or {args} {
 proc random_global_placement {args} {
     puts_warn "Performing Random Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(replaceio_tmp_file_tag).def
+    set ::env(SAVE_DEF) [index_file $::env(replaceio_tmp_file_tag).def]
 
     try_catch python3 $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
         --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
@@ -187,8 +187,8 @@ proc run_openPhySyn {args} {
         set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
         trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
 
-        set ::env(SAVE_DEF) $::env(openphysyn_tmp_file_tag).def
-        try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(openphysyn_log_file_tag).log]
+        set ::env(SAVE_DEF) [index_file $::env(openphysyn_tmp_file_tag).def]
+        try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(openphysyn_log_file_tag).log 0]
         set_def $::env(SAVE_DEF)
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v

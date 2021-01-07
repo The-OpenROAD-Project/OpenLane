@@ -48,6 +48,13 @@ proc set_def {def} {
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
+proc set_guide {guide} {
+    puts_info "Changing layout from $::env(CURRENT_GUIDE) to $guide"
+    set ::env(CURRENT_GUIDE) $guide
+    set replace [string map {/ \\/} $guide]
+    exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
@@ -446,6 +453,11 @@ proc prep {args} {
     if { ! [info exists ::env(CURRENT_DEF)] } {
         set ::env(CURRENT_DEF) 0
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
+    }
+
+    if { ! [info exists ::env(CURRENT_GUIDE)] } {
+        set ::env(CURRENT_GUIDE) 0
+        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_INDEX)] } {

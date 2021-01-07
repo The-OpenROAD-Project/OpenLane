@@ -20,7 +20,7 @@ proc set_core_dims {args} {
 	set options {{-log_path required}}
 	parse_key_args "set_core_dims" args values $options
 	set log_path $values(-log_path)
-	set FpOutDef $::env(ioPlacer_tmp_file_tag).def
+	set FpOutDef $::env(CURRENT_DEF)
 	set def_units $::env(DEF_UNITS_PER_MICRON)
 	set coreinfo [join [exec $::env(SCRIPTS_DIR)/extract_coreinfo.sh $FpOutDef] " "]
 	set sites_per_row [lindex $coreinfo 8]

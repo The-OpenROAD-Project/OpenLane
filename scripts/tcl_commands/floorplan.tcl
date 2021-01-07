@@ -19,9 +19,9 @@ proc init_floorplan_or {args} {
 proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
-		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
+		set ::env(SAVE_DEF) [index_file $::env(verilog2def_tmp_file_tag)_openroad.def]
 
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log]
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
 
@@ -56,7 +56,7 @@ proc init_floorplan {args} {
 
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> $::env(verilog2def_log_file_tag)_openroad_runtime.txt
-		set_def $::env(verilog2def_tmp_file_tag)_openroad.def
+		set_def $::env(SAVE_DEF)
 }
 
 
@@ -95,7 +95,7 @@ proc place_io_ol {args} {
 		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
 		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-		set_if_unset arg_values(-output_def) $::env(ioPlacer_tmp_file_tag).def
+		set_if_unset arg_values(-output_def) [index_file $::env(ioPlacer_tmp_file_tag).def]
 
 		set_if_unset arg_values(-extra_args) ""
 
@@ -111,16 +111,16 @@ proc place_io_ol {args} {
 				--ver-extension $arg_values(-vertical_ext)\
 				--length $arg_values(-length)\
 				-o $arg_values(-output_def)\
-				{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/floorplan/place_io_ol.log] $::env(TERMINAL_OUTPUT)
+				{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/floorplan/place_io_ol.log 0] $::env(TERMINAL_OUTPUT)
 		set_def $arg_values(-output_def)
 }
 
 proc place_io {args} {
 		puts_info "Running IO Placement..."
 		TIMER::timer_start
-		set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
+		set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
 
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log]
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> $::env(ioPlacer_log_file_tag)_runtime.txt
 		set_def $::env(SAVE_DEF)
@@ -140,22 +140,22 @@ proc place_contextualized_io {args} {
 
 
 				set prev_def $::env(CURRENT_DEF)
-
+				set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).context.def]
 				try_catch python3 $::env(SCRIPTS_DIR)/contextualize.py \
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
 						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
-						-o $::env(ioPlacer_tmp_file_tag).context.def |& \
-						tee [index_file $::env(ioPlacer_log_file_tag).contextualize.log]
+						-o $::env(SAVE_DEF) |& \
+						tee [index_file $::env(ioPlacer_log_file_tag).contextualize.log 0]
 				puts_info "Custom floorplan created"
 
-				set_def $::env(ioPlacer_tmp_file_tag).context.def
+				set_def $::env(SAVE_DEF)
 
-				set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
+				set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
 				set ::env(CONTEXTUAL_IO_FLAG_) 1
-				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log]
+				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
 				set ::env(FP_IO_MODE) $old_mode
 
 				move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -181,7 +181,7 @@ proc tap_decap_or {args} {
 				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
 				TIMER::timer_stop
 				exec echo "[TIMER::get_runtime]" >> $::env(tapcell_log_file_tag)_runtime.txt
-				set_def $::env(tapcell_result_file_tag).def
+				set_def $::env(SAVE_DEF)
 			} else {
 				puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
 			}

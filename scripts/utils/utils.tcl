@@ -184,7 +184,9 @@ proc index_file {args} {
 		set index_increment [lindex $args 1]
 	}
 	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
-	puts_info "current step index: $::env(CURRENT_INDEX)"
+	if { $index_increment } {
+		puts_info "current step index: $::env(CURRENT_INDEX)"
+	}
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX).$fbasename"
