@@ -483,8 +483,7 @@ proc padframe_gen {args} {
 
     exec $pfg_exec -nogui -tech-path=$::env(PDK_ROOT)/$::env(PDK) \
         -project-path=$pf_src_tmp -cfg \
-        |& tee $::env(TERMINAL_OUTPUT) $pf_src_tmp/pfg.log
-    index_file $pf_src_tmp/pfg.log
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $pf_src_tmp/pfg.log]
     kill_display_buffer
 }
 
@@ -498,8 +497,7 @@ proc padframe_gen_legacy {args} {
 
     exec $pfg_exec -nogui -tech-path=$::env(PDK_ROOT)/$::env(PDK) \
         -project-path=$pf_src_tmp -cfg \
-        |& tee $::env(TERMINAL_OUTPUT) $pf_src_tmp/pfg.log
-    index_file $pf_src_tmp/pfg.log
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $pf_src_tmp/pfg.log]
     kill_display_buffer
 }
 
@@ -689,8 +687,7 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee $::env(LOG_DIR)/label_macro_pins.log $::env(TERMINAL_OUTPUT)
-    index_file $::env(LOG_DIR)/label_macro_pins.log
+        {*}$extra_args |& tee [index_file $::env(LOG_DIR)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
 }
 
 
@@ -710,8 +707,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
-    index_file $::env(LOG_DIR)/write_verilog.log
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
     if { [info exists flags_map(-canonical)] } {
         yosys_rewrite_verilog $filename
     }
@@ -775,8 +771,7 @@ proc set_layer_tracks {args} {
 
 proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/or_antenna.log
-    index_file $::env(LOG_DIR)/routing/or_antenna.log
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
 }
 
 proc run_antenna_check {args} {

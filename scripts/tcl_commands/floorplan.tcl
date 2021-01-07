@@ -21,8 +21,7 @@ proc init_floorplan {args} {
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(verilog2def_tmp_file_tag)_openroad.def
 
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(verilog2def_log_file_tag).openroad.log
-		index_file $::env(verilog2def_log_file_tag).openroad.log
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
 
@@ -112,8 +111,7 @@ proc place_io_ol {args} {
 				--ver-extension $arg_values(-vertical_ext)\
 				--length $arg_values(-length)\
 				-o $arg_values(-output_def)\
-				{*}$arg_values(-extra_args) |& tee $::env(LOG_DIR)/floorplan/place_io_ol.log $::env(TERMINAL_OUTPUT)
-		index_file $::env(LOG_DIR)/floorplan/place_io_ol.log
+				{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/floorplan/place_io_ol.log] $::env(TERMINAL_OUTPUT)
 		set_def $arg_values(-output_def)
 }
 
@@ -122,8 +120,7 @@ proc place_io {args} {
 		TIMER::timer_start
 		set ::env(SAVE_DEF) $::env(ioPlacer_tmp_file_tag).def
 
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
-		index_file $::env(ioPlacer_log_file_tag).log
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log]
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> $::env(ioPlacer_log_file_tag)_runtime.txt
 		set_def $::env(SAVE_DEF)
@@ -148,8 +145,7 @@ proc place_contextualized_io {args} {
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
 						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
 						-o $::env(ioPlacer_tmp_file_tag).context.def |& \
-						tee $::env(ioPlacer_log_file_tag).contextualize.log
-				index_file $::env(ioPlacer_log_file_tag).contextualize.log
+						tee [index_file $::env(ioPlacer_log_file_tag).contextualize.log]
 				puts_info "Custom floorplan created"
 
 				set_def $::env(ioPlacer_tmp_file_tag).context.def
@@ -159,8 +155,7 @@ proc place_contextualized_io {args} {
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
 				set ::env(CONTEXTUAL_IO_FLAG_) 1
-				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(ioPlacer_log_file_tag).log
-				index_file $::env(ioPlacer_log_file_tag).log
+				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log]
 				set ::env(FP_IO_MODE) $old_mode
 
 				move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -183,8 +178,7 @@ proc tap_decap_or {args} {
 				puts_info "Running Tap/Decap Insertion..."
 				TIMER::timer_start
 				set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
-				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(tapcell_log_file_tag).log
-				index_file $::env(tapcell_log_file_tag).log
+				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
 				TIMER::timer_stop
 				exec echo "[TIMER::get_runtime]" >> $::env(tapcell_log_file_tag)_runtime.txt
 				set_def $::env(tapcell_result_file_tag).def

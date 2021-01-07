@@ -73,8 +73,7 @@ proc write_powered_verilog {args} {
       --ground-port $arg_values(-ground) \
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/lvs/write_powered_verilog.log
-    index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log]
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
 }
 
@@ -129,11 +128,9 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     puts_info "$layout against $schematic"
 
     try_catch netgen -batch source $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_log_file_tag).$extract_type.log
-    index_file $::env(lvs_log_file_tag).$extract_type.log
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_log_file_tag).$extract_type.log]
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).$extract_type.json \
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
-    index_file $::env(lvs_result_file_tag)_parsed.$extract_type.log
 }
 
 proc run_netgen {args} {
@@ -191,8 +188,7 @@ BEGIN {  # Print power and standard_input definitions
             try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
                 > $::env(cvc_result_file_tag).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
-                |& tee $::env(TERMINAL_OUTPUT) $::env(cvc_log_file_tag)_screen.log
-            index_file $::env(cvc_log_file_tag)_screen.log
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cvc_log_file_tag)_screen.log]
             } else {
                 puts_info "Skipping CVC"
             }

@@ -53,10 +53,9 @@ proc run_yosys {args} {
 
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l $::env(yosys_log_file_tag).log \
+		-l [index_file $::env(yosys_log_file_tag).log] \
 		|& tee $::env(TERMINAL_OUTPUT)
 
-	index_file $::env(yosys_log_file_tag).log
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
     	set_netlist $::env(SAVE_NETLIST)
@@ -81,8 +80,7 @@ proc run_sta {args} {
     puts_info "Running Static Timing Analysis..."
     if {[info exists ::env(CLOCK_PORT)]} {
         try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag)
-		index_file $::env(opensta_log_file_tag)
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag)]
     } else {
         puts_warn "No CLOCK_PORT found. Skipping STA..."
     }
@@ -169,9 +167,8 @@ proc yosys_rewrite_verilog {filename} {
 
     try_catch [get_yosys_bin] \
 	-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
-	-l $::env(yosys_log_file_tag)_rewrite_verilog.log; # \
+	-l [ index_file $::env(yosys_log_file_tag)_rewrite_verilog.log ]; # \
 	|& tee $::env(TERMINAL_OUTPUT)
-	index_file $::env(yosys_log_file_tag)_rewrite_verilog.log
 }
 
 
@@ -194,13 +191,12 @@ proc logic_equiv_check {args} {
 
     if { [catch {exec [get_yosys_bin] \
 	-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
-	-l $::env(yosys_log_file_tag).equiv.log \
+	-l [index_file $::env(yosys_log_file_tag).equiv.log] \
 	|& tee $::env(TERMINAL_OUTPUT)}] } {
-		index_file $::env(yosys_log_file_tag).equiv.log
+		
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
 	    return -code error
 	}
-	index_file $::env(yosys_log_file_tag).equiv.log
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
     return -code ok
 }

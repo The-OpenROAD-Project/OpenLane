@@ -184,14 +184,14 @@ proc index_file {args} {
 		set index_increment [lindex $args 1]
 	}
 	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
+	puts_info "current step index: $::env(CURRENT_INDEX)"
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX).$fbasename"
 	set new_file_full_name "$file_path/$fbasename"
-	try_catch mv -f $file_full_name $new_file_full_name
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-	set ::env(INDEX_FILE_RET_VAL) $new_file_full_name
+	return $new_file_full_name
 }
 
 # Value	Color
