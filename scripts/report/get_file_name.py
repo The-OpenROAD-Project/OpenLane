@@ -27,7 +27,7 @@ parser.add_argument('--output_file', '-o', required=True,
                     help='File name to search for, i.e. 1.X 2.X 3.X, then the script will return <path>/3.X')
 
 args = parser.parse_args()
-run_path=args.run_path
+run_path=args.path
 output_file = args.output_file
 neededfile = sorted([(int(f.split('.',1)[0]),f.split('.',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('.',1)) > 1 and f.split('.',1)[1] == output_file])[0]
 print(str(run_path)+'/'+str(neededfile[0])+'.'+str(neededfile[1]))
