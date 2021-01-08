@@ -38,7 +38,6 @@ yosys_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o yosys.log 
 magic_drc=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.drc 2>&1)
 tapcell_log=$(python3 $3/get_file_name.py -p ${path}/logs/floorplan/ -o tapcell.log 2>&1)
 diodes_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o diodes.log 2>&1)
-#old magic directory
 magic_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.antenna_violators.rpt 2>&1)
 arc_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o antenna.rpt 2>&1)
 fr_log=${path}/logs/routing/fastroute.log
