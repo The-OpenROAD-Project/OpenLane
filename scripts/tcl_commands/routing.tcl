@@ -251,14 +251,26 @@ proc run_routing {args} {
 			ins_diode_cells_4
 		}
     }
+
+	# if diode insertion does *not* happen as part of global routing, then
+	# we can insert fill cells early on
+	if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+		ins_fill_cells
+	}
+
     use_original_lefs
 
     add_route_obs
 
     global_routing
 
-    # insert fill_cells
-    ins_fill_cells
+	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+		# Doing this here can be problematic and is something that needs to be
+		# addressed in FastRoute since fill cells *might* occupy some of the 
+		# resources that were already used during global routing causing the
+		# detailed router to suffer later.
+		ins_fill_cells
+	}
 
     # for LVS
     write_verilog $::env(yosys_result_file_tag)_preroute.v
