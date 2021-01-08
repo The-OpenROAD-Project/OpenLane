@@ -53,7 +53,7 @@ proc write_powered_verilog {args} {
     set flags {}
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
-    set_if_unset arg_values(-output_def) $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).powered.def
+    set_if_unset arg_values(-output_def) [index_file $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).powered.def]
     set_if_unset arg_values(-output_verilog) $::env(lvs_result_file_tag).powered.v
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
@@ -73,7 +73,7 @@ proc write_powered_verilog {args} {
       --ground-port $arg_values(-ground) \
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log]
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log 0]
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
 }
 

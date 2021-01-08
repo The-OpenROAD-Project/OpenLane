@@ -189,7 +189,7 @@ proc index_file {args} {
 	}
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
-	set fbasename "$::env(CURRENT_INDEX).$fbasename"
+	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
 	set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"

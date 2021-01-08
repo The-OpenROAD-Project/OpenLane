@@ -19,8 +19,8 @@ import os
 
 def get_name(run_path, output_file):
     try:
-        neededfile = sorted([(int(f.split('.',1)[0]),f.split('.',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('.',1)) > 1 and f.split('.',1)[1] == output_file], reverse=True)[0]
-        return str(run_path)+'/'+str(neededfile[0])+'.'+str(neededfile[1])
+        neededfile = sorted([(int(f.split('-',1)[0]),f.split('-',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('-',1)) > 1 and f.split('-',1)[1] == output_file], reverse=True)[0]
+        return str(run_path)+'/'+str(neededfile[0])+'-'+str(neededfile[1])
     except Exception:
         return str(run_path)+'/'+str(output_file)
 
