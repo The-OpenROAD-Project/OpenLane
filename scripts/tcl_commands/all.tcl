@@ -659,7 +659,7 @@ proc label_macro_pins {args} {
     set options {
         {-lef required}
         {-netlist_def required}
-        {-pad_pin_name required}
+        {-pad_pin_name optional}
         {-output optional}
         {-extra_args optional}
     }
@@ -677,6 +677,7 @@ proc label_macro_pins {args} {
         set extra_args $arg_values(-extra_args)
     }
 
+    set_if_unset arg_values(-pad_pin_name) ""
 
     try_catch python3 $::env(SCRIPTS_DIR)/label_macro_pins.py\
         --lef $arg_values(-lef)\
