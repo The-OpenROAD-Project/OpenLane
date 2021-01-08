@@ -51,11 +51,15 @@ proc run_yosys {args} {
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
 	}
 
+	set report_tag_saver $::env(yosys_report_file_tag)
+	set ::env(yosys_report_file_tag) [index_file $::env(yosys_report_file_tag)]
+
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l [index_file $::env(yosys_log_file_tag).log] \
+		-l [index_file $::env(yosys_log_file_tag).log 0] \
 		|& tee $::env(TERMINAL_OUTPUT)
 
+	set ::env(yosys_report_file_tag) $report_tag_saver
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
     	set_netlist $::env(SAVE_NETLIST)
@@ -79,8 +83,13 @@ proc run_yosys {args} {
 proc run_sta {args} {
     puts_info "Running Static Timing Analysis..."
     if {[info exists ::env(CLOCK_PORT)]} {
+		set report_tag_saver $::env(opensta_report_file_tag)
+		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
+
         try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag)]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
+		
+		set ::env(opensta_report_file_tag) $report_tag_saver
     } else {
         puts_warn "No CLOCK_PORT found. Skipping STA..."
     }

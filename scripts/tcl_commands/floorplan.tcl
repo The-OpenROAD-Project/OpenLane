@@ -20,7 +20,8 @@ proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) [index_file $::env(verilog2def_tmp_file_tag)_openroad.def]
-
+		set report_tag_saver $::env(verilog2def_report_file_tag)
+		set ::env(verilog2def_report_file_tag) [index_file $::env(verilog2def_report_file_tag) 0]
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
@@ -53,7 +54,7 @@ proc init_floorplan {args} {
 					set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
 				}
 		}
-
+		set ::env(verilog2def_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> $::env(verilog2def_log_file_tag)_openroad_runtime.txt
 		set_def $::env(SAVE_DEF)

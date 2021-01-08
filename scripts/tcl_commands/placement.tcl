@@ -33,8 +33,10 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
+    set report_tag_saver $::env(replaceio_report_file_tag)
+    set ::env(replaceio_report_file_tag) [index_file $::env(replaceio_report_file_tag) 0]
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
-
+    set ::env(replaceio_report_file_tag) $report_tag_saver
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -186,10 +188,13 @@ proc run_openPhySyn {args} {
         TIMER::timer_start
         set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
         trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        set report_tag_saver $::env(openphysyn_report_file_tag)
+        set ::env(openphysyn_report_file_tag) [index_file $::env(openphysyn_report_file_tag)]
 
-        set ::env(SAVE_DEF) [index_file $::env(openphysyn_tmp_file_tag).def]
+        set ::env(SAVE_DEF) [index_file $::env(openphysyn_tmp_file_tag).def 0]
         try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(openphysyn_log_file_tag).log 0]
         set_def $::env(SAVE_DEF)
+        set ::env(openphysyn_report_file_tag) $report_tag_saver
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v

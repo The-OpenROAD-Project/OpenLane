@@ -87,6 +87,8 @@ proc run_magic_drc {args} {
 		puts_info "Running Magic DRC..."
 		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 		# the following MAGTYPE has to be maglef for the purpose of DRC checking
+		set report_tag_saver $::env(magic_report_file_tag)
+		set ::env(magic_report_file_tag) [index_file $::env(magic_report_file_tag)]
 		set ::env(MAGTYPE) maglef
 		try_catch magic \
 				-noconsole \
@@ -94,14 +96,15 @@ proc run_magic_drc {args} {
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log]
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log 0]
 		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
 			puts_info "Converting DRC Violations to Klayout RDB Format..."
 			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
-				--magic_drc_in $::env(magic_log_file_tag).drc \
+				--magic_drc_in $::env(magic_report_file_tag).drc \
 				--rdb_out $::env(magic_result_file_tag).drc.rdb
 			puts_info "Converted DRC Violations to Klayout RDB Format"
 		}
+		set ::env(magic_log_file_tag) $report_tag_saver
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 }
 
@@ -255,7 +258,7 @@ antennacheck
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_antenna.log]
 		# process the log
 		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
-				> $::env(magic_report_file_tag).antenna_violators.rpt
+				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
 }
 
 proc copy_gds_properties {from to} {

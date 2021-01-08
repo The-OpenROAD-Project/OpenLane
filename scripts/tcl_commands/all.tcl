@@ -604,17 +604,17 @@ proc heal_antenna_violators {args} {
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
+			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
 		} else {
             #Magic Specific
-			set report_file [open $::env(magic_report_file_tag).antenna_violators.rpt r]
+			set report_file [open [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
-			exec echo $violators >> $::env(TMP_DIR)/vios.txt
+			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v $::env(TMP_DIR)/vios.txt -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
 	}
 }
@@ -784,6 +784,7 @@ proc set_layer_tracks {args} {
 proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
+    try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
 }
 
 proc run_antenna_check {args} {

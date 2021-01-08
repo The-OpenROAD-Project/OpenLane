@@ -26,7 +26,7 @@ proc check_assign_statements {args} {
 }
 
 proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" $::env(yosys_report_file_tag)_2.stat.rpt}]
+    set checker [catch {exec grep "\\\$" [index_file $::env(yosys_report_file_tag)_2.stat.rpt 0]}]
 
 
     if { ! $checker } {

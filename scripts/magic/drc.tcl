@@ -26,7 +26,7 @@ if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 	def read $::env(CURRENT_DEF)
 }
 
-set fout [open $::env(magic_log_file_tag).drc w]
+set fout [open $::env(magic_report_file_tag).drc w]
 set oscale [cif scale out]
 set cell_name $::env(DESIGN_NAME)
 magic::suspendall
@@ -66,7 +66,7 @@ close $fout
 
 puts stdout "\[INFO\]: COUNT: $count"
 puts stdout "\[INFO\]: Should be divided by 3 or 4"
-puts stdout "\[INFO\]: DRC Checking DONE ($::env(magic_log_file_tag).drc)"
+puts stdout "\[INFO\]: DRC Checking DONE ($::env(magic_report_file_tag).drc)"
 flush stdout
 
 puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_result_file_tag).drc.mag)"
