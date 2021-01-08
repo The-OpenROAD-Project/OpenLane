@@ -712,47 +712,6 @@ proc write_verilog {filename args} {
     }
 }
 
-proc add_macro_obs {args} {
-    puts_info "Adding Macro Obstruction..."
-    set options {
-        {-defFile required}
-        {-lefFile required}
-        {-obstruction required}
-        {-placementX optional}
-        {-placementY optional}
-        {-sizeWidth required}
-        {-sizeHeight required}
-        {-fixed required}
-        {-dbunit optional}
-        {-layerNames required}
-    }
-    set flags {}
-    parse_key_args "add_macro_obs" args arg_values $options flags_map $flags
-
-    set px 0
-    set py 0
-    set db 1000
-
-    if {[info exists arg_values(-placementX)]} {
-        set px $arg_values(-placementX)
-    }
-
-    if {[info exists arg_values(-placementY)]} {
-        set py $arg_values(-placementY)
-    }
-
-    if {[info exists arg_values(-dbunit)]} {
-        set db $arg_values(-dbunit)
-    }
-
-    if { $arg_values(-fixed) == 1 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/addObstruction.py -d $arg_values(-defFile) -l $arg_values(-lefFile) -obs $arg_values(-obstruction) -ln {*}$arg_values(-layerNames) -px $px -py $py -sw $arg_values(-sizeWidth) -sh $arg_values(-sizeHeight) -db $db -f
-    } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/addObstruction.py -d $arg_values(-defFile) -l $arg_values(-lefFile) -obs $arg_values(-obstruction) -ln {*}$arg_values(-layerNames) -px $px -py $py -sw $arg_values(-sizeWidth) -sh $arg_values(-sizeHeight) -db $db
-    }
-
-}
-
 proc set_layer_tracks {args} {
     puts_info "Setting Layer Tracks..."
     set options {
