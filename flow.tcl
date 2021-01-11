@@ -76,6 +76,10 @@ proc run_non_interactive_mode {args} {
 
 	generate_final_summary_report
 
+	if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
+		file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)
+	}
+
 	puts_success "Flow Completed Without Fatal Errors."
 }
 
