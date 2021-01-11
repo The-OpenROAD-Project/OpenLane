@@ -59,16 +59,16 @@ endif
 all: openlane pdk
 
 .PHONY: pdk
-pdk: skywater-pdk skywater-library open_pdks build-pdk
+pdk: skywater-pdk skywater-library open_pdks build-pdk gen-sources
 
 .PHONY: native-pdk
-native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk
+native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk gen-sources
 
 .PHONY: full-pdk
-full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk
+full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk gen-sources
 
 .PHONY: native-full-pdk
-native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
+native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk gen-sources
 
 $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
@@ -124,9 +124,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local && \
-		touch $(PDK_ROOT)/sky130A/SOURCES && \
-		echo 'Built by: OpenLANE rc7 Makefile\n Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES"
+		$(MAKE) install-local"
 
 .PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
@@ -140,9 +138,17 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local && \
-		touch $(PDK_ROOT)/sky130A/SOURCES && \
-		echo 'Built by: OpenLANE rc7 Makefile\n Skywater Commit: $(SKYWATER_COMMIT)\n open_pdks Commit: $(OPEN_PDKS_COMMIT)' > $(PDK_ROOT)/sky130A/SOURCES
+		$(MAKE) install-local
+
+gen-sources: $(PDK_ROOT)/sky130A
+	touch $(PDK_ROOT)/sky130A/SOURCES
+	OPENLANE_COMMIT=$(git rev-parse HEAD)
+	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
+	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
