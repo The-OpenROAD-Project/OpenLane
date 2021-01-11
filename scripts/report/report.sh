@@ -233,10 +233,10 @@ layer6=$(grep "Layer 6 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 6
 if ! [[ $layer6 ]]; then layer6=-1; fi
 
 #Extracting Endcaps and TapCells
-endcaps=$(grep "#Endcaps inserted:" $tapcell_log -s | tail -1 | sed -r 's/[^0-9]*//g')
+endcaps=$(grep "Endcaps inserted:" $tapcell_log -s | tail -1 | sed -E 's/.*Endcaps inserted: (\S+)/\1/')
 if ! [[ $endcaps ]]; then endcaps=0; fi
 
-tapcells=$(grep "#Tapcells inserted:" $tapcell_log -s | tail -1 | sed -r 's/[^0-9]*//g')
+tapcells=$(grep "Tapcells inserted:" $tapcell_log -s | tail -1 | sed -E 's/.*Tapcells inserted: (\S+)/\1/')
 if ! [[ $tapcells ]]; then tapcells=0; fi
 
 
