@@ -231,22 +231,17 @@ proc add_route_obs {args} {
     }
 
     puts_info "Adding routing obstructions..."
+	# keep a warning for a while
+	puts_warn "Specifying a routing obstruction is now done using the coordinates"
+	puts_warn "of its bounding box instead of the now deprecated (x, y, size_x, size_y)."
 
-    set obs_list [split $::env(GLB_RT_OBS) ","]
-    set obs_idx 0
-    foreach obs $obs_list {
-        add_macro_obs \
-            -defFile $::env(CURRENT_DEF) \
-            -lefFile $::env(MERGED_LEF_UNPADDED) \
-            -obstruction "core_obs_${obs_idx}" \
-            -placementX [lindex $obs 1] \
-            -placementY [lindex $obs 2] \
-            -sizeWidth  [lindex $obs 3] \
-            -sizeHeight [lindex $obs 4] \
-            -fixed 1 \
-            -layerNames [lindex $obs 0]
-        incr obs_idx
-    }
+	try_catch python3 $::env(SCRIPTS_DIR)/add_def_obstructions.py \
+		--input-def $::env(CURRENT_DEF) \
+		--lef $::env(MERGED_LEF) \
+		--obstructions $::env(GLB_RT_OBS) \
+		--output [file rootname $::env(CURRENT_DEF)].obs.def |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/obs.log
+
+	set_def [file rootname $::env(CURRENT_DEF)].obs.def
 }
 
 proc run_spef_extraction {args} {
@@ -280,14 +275,26 @@ proc run_routing {args} {
 			ins_diode_cells_4
 		}
     }
+
+	# if diode insertion does *not* happen as part of global routing, then
+	# we can insert fill cells early on
+	if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+		ins_fill_cells
+	}
+
     use_original_lefs
 
     add_route_obs
 
     global_routing
 
-    # insert fill_cells
-    ins_fill_cells
+	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+		# Doing this here can be problematic and is something that needs to be
+		# addressed in FastRoute since fill cells *might* occupy some of the 
+		# resources that were already used during global routing causing the
+		# detailed router to suffer later.
+		ins_fill_cells
+	}
 
     # for LVS
     write_verilog $::env(yosys_result_file_tag)_preroute.v

@@ -65,6 +65,8 @@ outputFileOpener.close()
 utils.addComputedStatistics(output_file)
 
 # Tracking Magic DRC, LVS, Antenna Logs:
+if run_path is None:
+    run_path = utils.get_run_path(design, tag)
 magic_drc_report=get_name(str(run_path)+"/reports/magic/", "magic.drc")
 lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.lef.log"
 if not os.path.exists(lvs_report):
@@ -75,7 +77,7 @@ arc_antenna_report=get_name(str(run_path)+"/reports/routing/","antenna.rpt")
 printArr = []
 
 printArr.append("Design Name: " + design_name)
-printArr.append("Run Directory: " + run_path)
+printArr.append("Run Directory: " + str(run_path))
 
 splitLine = '----------------------------------------'
 
@@ -87,7 +89,6 @@ if os.path.exists(magic_drc_report):
     if drcFileOpener.mode == 'r':
         drcContent = drcFileOpener.read()
     drcFileOpener.close()
-
 
     # design name
     # violation message
