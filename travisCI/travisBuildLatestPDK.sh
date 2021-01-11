@@ -53,6 +53,6 @@ cd $RUN_ROOT
 make build-pdk
 make gen-sources
 echo "done installing"
-echo $PDK_ROOT/sky130A/SOURCES
+cat $PDK_ROOT/sky130A/SOURCES
 cd $RUN_ROOT
 exit 0

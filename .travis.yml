@@ -36,8 +36,6 @@ jobs:
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
       env: TEST_SET=typicalTestSet1
-    - name: "aes_cipher"
-      env: TEST_SET=aes_cipher EXTRA_FLAGS=-so
     - name: "des"
       env: TEST_SET=des EXTRA_FLAGS=-so
     - name: "Fastest Test Set"
@@ -45,6 +43,8 @@ jobs:
     - name: "BM64"
       if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
       env: TEST_SET=BM64 EXTRA_FLAGS=-so
+    - name: "aes_cipher"
+      env: TEST_SET=aes_cipher
     - name: "picorv32a"
       if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
       env: TEST_SET=picorv32a EXTRA_FLAGS=-so
