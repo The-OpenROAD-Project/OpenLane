@@ -21,7 +21,7 @@ scriptDir=$3
 # This assumes that all these files exist
 tritonRoute_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o tritonRoute.log 2>&1)
 tritonRoute_drc=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o tritonRoute.drc 2>&1)
-yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o yosys_2.stat.rpt 2>&1)
+yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.rpt -io 2>&1)
 runtime_rpt=${path}/reports/runtime.txt
 wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1)
 pl_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1)
