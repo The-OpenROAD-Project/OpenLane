@@ -41,9 +41,9 @@ jobs:
     - name: "Fastest Test Set"
       env: TEST_SET=fastestTestSet
     - name: "BM64"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
       env: TEST_SET=BM64 EXTRA_FLAGS=-so
     - name: "aes_cipher"
+      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
       env: TEST_SET=aes_cipher
     - name: "picorv32a"
       if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
