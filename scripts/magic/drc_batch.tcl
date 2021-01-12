@@ -53,7 +53,7 @@ proc custom_drc_save_report {{cellname ""} {outfile ""}} {
 	    set blly [expr {$oscale * [lindex $coord 1]}]
 	    set burx [expr {$oscale * [lindex $coord 2]}]
 	    set bury [expr {$oscale * [lindex $coord 3]}]
-	    set coords [format " %.3f %.3f %.3f %.3f" $bllx $blly $burx $bury]
+	    set coords [format " %.3fum %.3fum %.3fum %.3fum" $bllx $blly $burx $bury]
 	    puts $fout "$coords"
 	}
 	puts $fout "----------------------------------------"
