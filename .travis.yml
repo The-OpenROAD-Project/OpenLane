@@ -32,6 +32,12 @@ jobs:
   include:
     - name: "Base Test"
       env: TEST_SET=spm EXTRA_FLAGS=-so
+      install:
+        - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
+            bash travisCI/travisBuildLatestPDK.sh;
+          else
+            bash travisCI/travisBuild.sh;
+          fi
     - name: "Typical Test Set 2"
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
@@ -94,9 +100,9 @@ before_install:
 
 install:
   - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
-      sh travisCI/travisBuildLatestPDK.sh;
+      bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildLatestPDK.sh;
     else
-      sh travisCI/travisBuild.sh;
+      bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuild.sh;
     fi
 
 script:
