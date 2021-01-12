@@ -23,31 +23,13 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
     LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
 
-RUN yum install -y wget git pcre-devel tcl-devel tk-devel bison flex \
-                   python-devel libxml2-devel libxslt-devel zlib-static glibc-static
-
-RUN wget http://prdownloads.sourceforge.net/swig/swig-4.0.0.tar.gz && \
-    tar -xf swig-4.0.0.tar.gz && \
-    cd swig-4.0.0 && \
-    ./configure && \
-    make -j$(nproc) && \
-    make install
-
+RUN yum install -y git python-devel glibc-static
 
 # Installing cmake for build dependency
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
-RUN yum -y remove bison
-RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
-    tar -xvzf bison-3.0.5.tar.gz
-RUN cd bison-3.0.5 && \
-    ./configure --prefix=/usr && \
-    make -j$(nproc) && \
-    make install
-
-RUN yum -y install bzip2
 # Installing boost for build dependency
 RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
     tar -xf download
@@ -55,14 +37,17 @@ RUN cd boost_1_72_0 && \
     ./bootstrap.sh && \
     ./b2 install --with-system --with-filesystem --with-program_options link=static -j $(nproc)
 
-RUN git clone https://github.com/cuhk-eda/cu-gr cugr_11012021 \
-	&& cd cugr_11012021 \
-	&& git checkout 4c08cf5e5bb7d79c7259cd3bb6aa9228c9642987
+# needed to get the xxd binaries needed to package the *.dat files
+# into C arrays to be linked directly into the executable
+RUN yum -y install vim-common
 
-WORKDIR cugr_11012021
+RUN git clone https://github.com/ax3ghazy/cu-gr cugr_12012021 \
+	&& cd cugr_12012021 \
+	&& git checkout 1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
 
-RUN sed -i "s/# set(Boost_USE_STATIC_LIBS ON)/set(Boost_USE_STATIC_LIBS ON)/g" src/CMakeLists.txt && \
-        python scripts/build.py -o release
+WORKDIR cugr_12012021
+
+RUN python scripts/build.py -o release
 
 RUN mkdir -p /build/bin/ && \
     cp run/iccad19gr /build/bin/cugr
@@ -71,4 +56,3 @@ RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cugr.version
 RUN git rev-parse HEAD >> /build/version/cugr.version
 RUN tar -czf /build.tar.gz /build
-
