@@ -1,5 +1,5 @@
 # SCL Configs
-set ::env(SYNTH_STRATEGY) 2
+
 set ::env(SYNTH_MAX_FANOUT) 9
 set ::env(CELL_PAD) 4
 # Regression

@@ -1,6 +1,6 @@
 # SCL Configs
 set ::env(GLB_RT_ADJUSTMENT) 0.1
-set ::env(SYNTH_STRATEGY) 2
+
 set ::env(FP_CORE_UTIL) 25
 set ::env(SYNTH_MAX_FANOUT) 9
 set ::env(CLOCK_PERIOD) "12.37"
