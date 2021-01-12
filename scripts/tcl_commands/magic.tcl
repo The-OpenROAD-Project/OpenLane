@@ -97,6 +97,20 @@ proc run_magic_drc {args} {
 				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log 0]
+
+		try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
+			-i $::env(magic_report_file_tag).drc \
+			-o $::env(magic_report_file_tag).drc.tcl
+
+		try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
+			-i $::env(magic_report_file_tag).drc \
+			-o $::env(magic_report_file_tag).tr.drc
+
+		try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
+			-i $::env(magic_report_file_tag).tr.drc \
+			-o $::env(magic_report_file_tag).drc.klayout.xml \
+			--design-name $::env(DESIGN_NAME)
+
 		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
 			puts_info "Converting DRC Violations to Klayout RDB Format..."
 			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
