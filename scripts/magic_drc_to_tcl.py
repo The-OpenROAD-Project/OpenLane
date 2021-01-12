@@ -12,13 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The only purpose of this file is to create a wrapper around report.py and config.py and make them usable by flow.tcl
-
 import argparse
 import os
 
 parser = argparse.ArgumentParser(
-    description='Creates a csv report for a given design.')
+    description='Converts a magic.drc file to a magic readable tcl file.')
 
 parser.add_argument('--input_file', '-i', required=True,
                     help='input magic.drc')

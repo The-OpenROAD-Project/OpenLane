@@ -12,19 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The only purpose of this file is to create a wrapper around report.py and config.py and make them usable by flow.tcl
-
 import argparse
 import os
 import re
 parser = argparse.ArgumentParser(
-    description='Creates a csv report for a given design.')
+    description='Converts a magic.drc file to a TritonRoute DRC format file.')
 
 parser.add_argument('--input_file', '-i', required=True,
                     help='input magic.drc')
 
 parser.add_argument('--output_file', '-o', required=True,
-                    help='output magic.drc.tcl')
+                    help='output magic.tr.drc')
 
 args = parser.parse_args()
 input_file = args.input_file
