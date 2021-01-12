@@ -32,7 +32,7 @@ proc run_magic {args} {
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).log
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).log]
 		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 
@@ -45,8 +45,7 @@ proc run_magic {args} {
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).mag.gds_ptrs.log
-
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).mag.gds_ptrs.log]
 			# Only keep the properties section in the file
 			try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(magic_tmp_file_tag)_gds_ptrs.mag
 		}
@@ -65,8 +64,7 @@ proc run_magic {args} {
 					-rcfile $::env(MAGIC_MAGICRC) \
 					$::env(SCRIPTS_DIR)/magic/lef.tcl \
 					</dev/null \
-					|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).lef.log
-
+					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).lef.log]
 			if { $::env(MAGIC_GENERATE_MAGLEF) } {
 				# Generate MAGLEF view
 				set ::env(MAGTYPE) maglef
@@ -76,8 +74,7 @@ proc run_magic {args} {
 						-rcfile $::env(MAGIC_MAGICRC) \
 						$::env(SCRIPTS_DIR)/magic/maglef.tcl \
 						</dev/null \
-						|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).maglef.log
-
+						|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).maglef.log]
 				# By default, copy the GDS properties into the maglef/ view
 				copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).lef.mag
 			}
@@ -90,6 +87,8 @@ proc run_magic_drc {args} {
 		puts_info "Running Magic DRC..."
 		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 		# the following MAGTYPE has to be maglef for the purpose of DRC checking
+		set report_tag_saver $::env(magic_report_file_tag)
+		set ::env(magic_report_file_tag) [index_file $::env(magic_report_file_tag)]
 		set ::env(MAGTYPE) maglef
 		try_catch magic \
 				-noconsole \
@@ -97,14 +96,15 @@ proc run_magic_drc {args} {
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$::env(SCRIPTS_DIR)/magic/drc.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag).drc.log
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log 0]
 		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
 			puts_info "Converting DRC Violations to Klayout RDB Format..."
 			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
-				--magic_drc_in $::env(magic_log_file_tag).drc \
+				--magic_drc_in $::env(magic_report_file_tag).drc \
 				--rdb_out $::env(magic_result_file_tag).drc.rdb
 			puts_info "Converted DRC Violations to Klayout RDB Format"
 		}
+		set ::env(magic_log_file_tag) $report_tag_saver
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 }
 
@@ -166,7 +166,7 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$magic_export \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_$extract_type.log
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_$extract_type.log]
 		if { $extract_type == "spice" } {
 			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 		}
@@ -204,7 +204,7 @@ puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$script_dir \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_save_mag.log
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_save_mag.log]
 }
 
 proc run_magic_antenna_check {args} {
@@ -255,11 +255,10 @@ antennacheck
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$magic_export \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_antenna.log
-
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_antenna.log]
 		# process the log
-		try_catch awk "/Cell:/ {print \$2}" $::env(magic_log_file_tag)_antenna.log \
-				> $::env(magic_report_file_tag).antenna_violators.rpt
+		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
+				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
 }
 
 proc copy_gds_properties {from to} {

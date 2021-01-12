@@ -70,11 +70,11 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 }
 
 
-write_guides $::env(fastroute_tmp_file_tag).guide
+write_guides $::env(SAVE_GUIDE)
 write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
-    if {  $::env(DIODE_INSERTION_STRATEGY) != 3 && $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
+    if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
         read_liberty -max $::env(LIB_SLOWEST)
         read_liberty -min $::env(LIB_FASTEST)
         read_sdc -echo $::env(BASE_SDC_FILE)

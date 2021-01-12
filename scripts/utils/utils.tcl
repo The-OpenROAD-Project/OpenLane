@@ -177,6 +177,25 @@ proc make_array {pesudo_dict prefix} {
 	return [array get returned_array]
 }
 
+proc index_file {args} {
+	set file_full_name [lindex $args 0]
+	set index_increment 1; # Default increment is 1
+	if { [llength $args] == 2} {
+		set index_increment [lindex $args 1]
+	}
+	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
+	if { $index_increment } {
+		puts_info "current step index: $::env(CURRENT_INDEX)"
+	}
+	set file_path [file dirname $file_full_name]
+	set fbasename [file tail $file_full_name]
+	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
+	set new_file_full_name "$file_path/$fbasename"
+    set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
+    exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+	return $new_file_full_name
+}
+
 # Value	Color
 # 0	Black
 # 1	Red *******
@@ -213,20 +232,21 @@ proc puts_info {txt} {
 }
 
 proc generate_final_summary_report {args} {
-    puts_info "Generating Final Summary Report..."
-	set options {
-        {-output optional}
-		{-man_report optional}
-    }
-    set flags {}
-    parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
-    
-    set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
-    set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
-
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
+		puts_info "Generating Final Summary Report..."
+		set options {
+			{-output optional}
+			{-man_report optional}
+		}
+		set flags {}
+		parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
+		
+		set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
+		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
+
         try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -m $arg_values(-man_report) -r $::env(RUN_DIR)
         puts_info [read [open $arg_values(-man_report) r]]
+		puts_info "check full report here: $arg_values(-output)"
     }
 }
 
