@@ -51,6 +51,8 @@ rm -rf open_pdks
 git clone git://opencircuitdesign.com/open_pdks open_pdks
 cd $RUN_ROOT
 make build-pdk
+make gen-sources
 echo "done installing"
+cat $PDK_ROOT/sky130A/SOURCES
 cd $RUN_ROOT
 exit 0

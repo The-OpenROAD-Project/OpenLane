@@ -21,6 +21,20 @@ proc global_routing {args} {
     TIMER::timer_start
     set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag).guide]
     set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag).def 0]
+    if { $::env(GLOBAL_ROUTER) == "cugr" } {
+		if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+			puts_err "DIODE_INSERTION_STRATEGY 3 is only valid when FastRoute is used in global routing."
+			puts_err "Please try a different strategy."
+			return -code error
+		}
+		try_catch cugr \
+			-lef $::env(MERGED_LEF_UNPADDED) \
+			-def $::env(CURRENT_DEF) \
+			-output $::env(SAVE_GUIDE) \
+			-threads $::env(ROUTING_CORES) \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(fastroute_log_file_tag).log 0]
+		file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
+	} else {
     set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
     set report_tag_saver $::env(fastroute_report_file_tag)
     set ::env(fastroute_report_file_tag) [index_file $::env(fastroute_report_file_tag) 0]
@@ -70,6 +84,7 @@ proc global_routing {args} {
     }
     set ::env(fastroute_report_file_tag) $report_tag_saver
     file copy -force $saveLOG $::env(fastroute_log_file_tag).log
+    }
     set_def $::env(SAVE_DEF)
     set_guide $::env(SAVE_GUIDE)
     TIMER::timer_stop
@@ -290,7 +305,7 @@ proc run_routing {args} {
 
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 		# Doing this here can be problematic and is something that needs to be
-		# addressed in FastRoute since fill cells *might* occupy some of the 
+		# addressed in FastRoute since fill cells *might* occupy some of the
 		# resources that were already used during global routing causing the
 		# detailed router to suffer later.
 		ins_fill_cells

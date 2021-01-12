@@ -475,6 +475,13 @@ proc prep {args} {
         set_log ::env(PREV_NETLIST) $::env(PREV_NETLIST) $::env(GLB_CFG_FILE) 1
     }
 
+    if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
+		file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
+	}
+    if { [info exists ::env(OPENLANE_VERSION) ] } {
+        try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
+    }
+
     puts_info "Preparation complete"
     return -code ok
 }
