@@ -277,7 +277,6 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
 	log "\[INFO\]: ABC: WireLoad : S_$strategy"
 
-	log [lindex $all_scripts $strategy]
 	abc -D $clock_period \
 		-constr "$sdc_file" \
 		-liberty $sclib  \
