@@ -50,7 +50,7 @@ jobs:
       env: TEST_SET=picorv32a EXTRA_FLAGS=-so
     - name: "chacha"
       if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
-      env: TEST_SET=chacha EXTRA_FLAGS=-so
+      env: TEST_SET=chacha
     - name: "PPU"
       if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
       env: TEST_SET=PPU EXTRA_FLAGS=-so
