@@ -70,6 +70,7 @@ ENV LD_LIBRARY_PATH=$OPENROAD/lib:$OPENROAD/lib/Linux-x86_64:$LD_LIBRARY_PATH
 ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
 # install klayout
+RUN yum install -y which
 ADD ./klayout.tar.gz /
 RUN yum localinstall -y /build/klayout-*.rpm
 

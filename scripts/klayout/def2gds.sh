@@ -13,17 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export KLAYOUT_SKY130_TECH=/home/xrex/.klayout/tech/SKY130/SKY130.lyt
+set -e
 
-: ${1?"Usage: $0 input.def design_name prereq1.gds prereq2.gds ...."}
-: ${2?"Usage: $0 input.def design_name prereq1.gds prereq2.gds ...."}
-: ${3?"Usage: $0 input.def design_name prereq1.gds prereq2.gds ...."}
+: ${1?"Usage: $0 tech_file input.def design_name out_gds.gds prereq1.gds prereq2.gds ...."}
+: ${2?"Usage: $0 tech_file input.def design_name out_gds.gds prereq1.gds prereq2.gds ...."}
+: ${3?"Usage: $0 tech_file input.def design_name out_gds.gds prereq1.gds prereq2.gds ...."}
+: ${4?"Usage: $0 tech_file input.def design_name out_gds.gds prereq1.gds prereq2.gds ...."}
+: ${5?"Usage: $0 tech_file input.def design_name out_gds.gds prereq1.gds prereq2.gds ...."}
 
-xvfb-run klayout -z -rd design_name=$2 \
-        -rd in_def=$1 \
-        -rd in_gds="${@:3}" \
+echo "Using Techfile: $1"
+echo "Using DEF file: $2"
+echo "Design Name: $3"
+echo "Output GDS will be: $4"
+echo "Extra GDSes:"
+echo $5
+
+xvfb-run klayout -z -rd design_name=$3 \
+        -rd in_def=$2 \
+        -rd in_gds="${@:5}" \
         -rd config_file="" \
         -rd seal_gds="" \
-        -rd out_gds=$(dirname $1)/$2.gds \
-        -rd tech_file=$KLAYOUT_SKY130_TECH \
+        -rd out_gds=$4 \
+        -rd tech_file=$1 \
         -rm $(dirname $0)/def2gds.py
+exit 0

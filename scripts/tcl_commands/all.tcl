@@ -376,6 +376,7 @@ proc prep {args} {
         {cts cts/cts}
         {lvs lvs/lvs}
         {cvc cvc/cvc}
+        {klayout klayout/klayout}
     }
 
     set final_output \
@@ -388,6 +389,7 @@ proc prep {args} {
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
         [list cvc cvc/$::env(DESIGN_NAME)] \
+        [list klayout klayout/$::env(DESIGN_NAME)] 
         ]
 
     array set results_file_name [make_array $final_output $::env(RESULTS_DIR)/]
@@ -411,7 +413,7 @@ proc prep {args} {
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
-    set stages {synthesis floorplan placement cts routing magic lvs cvc}
+    set stages {synthesis floorplan placement cts routing magic lvs cvc klayout}
     foreach stage $stages {
         file mkdir\
             $::env(RESULTS_DIR)/$stage \
@@ -761,6 +763,17 @@ proc run_antenna_check {args} {
 	} else {
 		run_magic_antenna_check
 	}
+}
+
+proc run_klayout {args} {
+    set ::env(CURRENT_STAGE) klayout
+    if {[info exists ::env(RUN_KLAYOUT)] && $::env(RUN_KLAYOUT)} {
+		puts_info "Running Klayout to re-generate GDS-II..."
+		puts_info "Streaming out GDS II..."
+        set ::env(GDS_FILES)  "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/gds/$::env(STD_CELL_LIBRARY).gds"
+		set ::env(KLAYOUT_TECH) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/klayout/$::env(PDK).lyt
+        try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds $::env(GDS_FILES) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
+    }
 }
 
 package provide openlane 0.9
