@@ -770,9 +770,13 @@ proc run_klayout {args} {
     if {[info exists ::env(RUN_KLAYOUT)] && $::env(RUN_KLAYOUT)} {
 		puts_info "Running Klayout to re-generate GDS-II..."
 		puts_info "Streaming out GDS II..."
-        set ::env(GDS_FILES)  "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/gds/$::env(STD_CELL_LIBRARY).gds"
+        set ::env(GDS_FILES)  [glob "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/gds/*.gds"]
+		set gds_files_in ""
+        if {  [info exist ::env(EXTRA_GDS_FILES)] } {
+            set gds_files_in $::env(EXTRA_GDS_FILES)
+        }
 		set ::env(KLAYOUT_TECH) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/klayout/$::env(PDK).lyt
-        try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds $::env(GDS_FILES) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
+        try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds "$::env(GDS_FILES) $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
     }
 }
 
