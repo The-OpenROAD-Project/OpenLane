@@ -102,7 +102,6 @@ def parseCSV(csv_file, isBenchmark):
     designNameIdx = findIdx(headerInfo, "design")
     if isBenchmark:
         note_worthy_statistics=diff_list(diff_list(diff_list(headerInfo,ignore_list),critical_statistics),base_configs)
-        #list(((set(headerInfo)-set(ignore_list))-set(critical_statistics))-set(base_configs))
 
     remover = 0
     size = len(base_configs)

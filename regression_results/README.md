@@ -61,10 +61,10 @@ The script can be used in two ways
         The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
 
         ```
-        GLB_RT_ADJUSTMENT=(0.1 0.15)
-        FP_CORE_UTIL=(40 50)
+        GLB_RT_ADJUSTMENT=(0.1,0.15)
+        FP_CORE_UTIL=(40,50)
         PL_TARGET_DENSITY=(0.4)
-        SYNTH_STRATEGY=(1 3)
+        SYNTH_STRATEGY=(1,3)
         FP_PDN_VPITCH=(153.6)
         FP_PDN_HPITCH=(153.18)
         FP_ASPECT_RATIO=(1)
@@ -77,8 +77,8 @@ The script can be used in two ways
         In addition, `extra` is appended to every configuration file generated. So it is used to add some configurations specific to this regression run. The file could also contain non-white-space-separated expressions of one or more configuration variables or alternatively this could be specified in the extra section:
         
         ```
-        FP_CORE_UTIL=(40 50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1 0.4)
+        FP_CORE_UTIL=(40,50)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1,0.4)
     
         extra="
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
@@ -90,8 +90,8 @@ The script can be used in two ways
         You can use this section to specify information that you would like to be sourced before sourcing SCL-specific information:
 
         ```
-        FP_CORE_UTIL=(40 50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1 0.4)
+        FP_CORE_UTIL=(40,50)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1,0.4)
     
         extra="
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }

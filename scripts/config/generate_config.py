@@ -54,7 +54,7 @@ def readContent(regressionFile):
                     keysList.append(line.split("=")[0])
                     vals = line.split("=")[1]
                     vals = vals[1:-1]
-                    valuesList.append(vals.split(" "))
+                    valuesList.append(vals.split(","))
                 i+=1
     except  OSError:
         print ("Could not open/read file:", regressionFile)
@@ -64,7 +64,11 @@ def readContent(regressionFile):
 def resolveExpression(valExpression,expressionKeeper):
     for i in expressionKeeper.keys():
         valExpression= valExpression.replace(i,expressionKeeper[i])
-    return eval(valExpression)
+    try:
+        ret = eval(valExpression)
+        return ret
+    except Exception:
+        return valExpression
 
 
 def insertSCL(configs):
@@ -85,14 +89,17 @@ def insertSCL(configs):
         return configs
 
 def Generator(i,j, regression_config, expressionKeeper):
-    if (i+1 == len(keysList)):
+    if (i == len(keysList)-1):
         outFileName = outputPrefix+str(idx[0])+".tcl"
         outFile = open(outFileName, "w")
         outFile.write("\n# Design\n")
         baseConfigFileRead = open(baseConfigFile,"r")
         outFile.write(insertSCL(baseConfigFileRead.read()))
         outFile.write("\n# Regression\n")
-        outFile.write(regression_config+"set ::env("+keysList[i]+") "+valuesList[i][j]+"\n")
+        newVal = valuesList[i][j]
+        if newVal.isupper() or newVal.islower():
+            newVal = str(resolveExpression(newVal, expressionKeeper))
+        outFile.write(regression_config+"set ::env("+keysList[i]+") \""+newVal+"\"\n")
         outFile.write("\n# Extra\n")
         for x in extra:
             outFile.write(x+"\n")
@@ -105,7 +112,7 @@ def Generator(i,j, regression_config, expressionKeeper):
                 newVal = str(resolveExpression(newVal, expressionKeeper))
 
             expressionKeeper[keysList[i]]=newVal
-            Generator(i+1,k,regression_config+"set ::env("+keysList[i]+") "+newVal+"\n",expressionKeeper)
+            Generator(i+1,k,regression_config+"set ::env("+keysList[i]+") \""+newVal+"\"\n",expressionKeeper)
             expressionKeeper.pop(keysList[i])
 
 
