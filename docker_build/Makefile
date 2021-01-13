@@ -4,7 +4,7 @@ DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= openlane:rc7
 #ROOT = sudo
 
-TOOLS = replace opendp route cugr opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
+TOOLS = klayout replace opendp route cugr opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
