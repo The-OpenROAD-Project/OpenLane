@@ -194,4 +194,4 @@ if seal_gds:
 print("[INFO] Writing out GDS '{0}'".format(out_gds))
 top_only_layout.write(out_gds)
 print("Done")
-sys.exit(0)
+pya.Application.instance().exit(0)
