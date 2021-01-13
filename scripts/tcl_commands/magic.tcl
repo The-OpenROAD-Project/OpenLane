@@ -98,10 +98,12 @@ proc run_magic_drc {args} {
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log 0]
 
+		puts_info "Converting Magic DRC Violations to Magic Readable Format..."
 		try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
 			-i $::env(magic_report_file_tag).drc \
 			-o $::env(magic_report_file_tag).drc.tcl
 
+		puts_info "Converting Magic DRC Violations to Klayout XML Database..."
 		try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
 			-i $::env(magic_report_file_tag).drc \
 			-o $::env(magic_report_file_tag).tr.drc
@@ -112,11 +114,11 @@ proc run_magic_drc {args} {
 			--design-name $::env(DESIGN_NAME)
 
 		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
-			puts_info "Converting DRC Violations to Klayout RDB Format..."
+			puts_info "Converting DRC Violations to RDB Format..."
 			try_catch python3 $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
 				--magic_drc_in $::env(magic_report_file_tag).drc \
-				--rdb_out $::env(magic_result_file_tag).drc.rdb
-			puts_info "Converted DRC Violations to Klayout RDB Format"
+				--rdb_out $::env(magic_report_file_tag).drc.rdb
+			puts_info "Converted DRC Violations to RDB Format"
 		}
 		set ::env(magic_log_file_tag) $report_tag_saver
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
