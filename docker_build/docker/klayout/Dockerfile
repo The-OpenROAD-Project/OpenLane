@@ -11,47 +11,23 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# Common development tools and libraries (kitchen sink approach)
 FROM centos:centos7 as build
 
-# Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools"
-RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-8 devtoolset-8-libatomic-devel && \
-    yum clean -y all
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
+# wget
+RUN yum install -y wget && \
+	yum clean all && \
+	rm -rf /var/cache/yum
 
-# python 3.6
-RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
-RUN yum install -y python36u python36u-libs python36u-devel python36u-pip python36u-tkinter
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
-RUN yum install -y qt4 qt4-devel && \
-    yum clean -y all
-#RUN yum install -y qt5-qtbase-devel
-#RUN yum install -y qt5-qtbase qt5-qtbase-common qt5-qtbase-gui qt5-qtscript xcb-util-renderutil xcb-util-wm
-
-#RUN yum install -y qt5-qtsvg
-#RUN yum install -y qt5-qtsvg-devel
-#RUN yum install -y qt5-qtmultimedia qt5-qtmultimedia-devel
 # klayout
-RUN git clone https://github.com/KLayout/klayout.git klayout_11012020
+RUN mkdir /build
+WORKDIR /build
+RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-0.26.9-0.x86_64.rpm
 
-WORKDIR klayout_11012020
-
-RUN mkdir -p /build_dir
-RUN ./build.sh -noruby -without-qt -bin /build -options -j8
 
 RUN mkdir -p /build/version/
 
-RUN ls /build
-#RUN ls /build_dir
-
-#RUN rm -rf /build_dir
- 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/klayout.version
-RUN git rev-parse HEAD >> /build/version/klayout.version
+RUN echo "klayout-0.26.9-0.x86_64" >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 
