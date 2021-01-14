@@ -26,7 +26,7 @@ DESIGNS_LIST=$TEST_SET
 file_path=$RUN_ROOT/travisCI/test_sets/$TEST_SET
 if [ -f $file_path ]; then DESIGNS_LIST=$(cat $file_path); fi
 
-docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME  bash -c "python3 run_designs.py -d $DESIGNS_LIST -t TEST_$TEST_SET -dl -dt -th 2 -b regression_results/benchmark_results/SW_HD.csv -p 30 $EXTRA_FLAGS"
+docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME  bash -c "python3 run_designs.py -d $DESIGNS_LIST -t TEST_$TEST_SET -dl -dt -th 10 -b regression_results/benchmark_results/SW_HD.csv -p 30 $EXTRA_FLAGS"
 
 FILE=$RUN_ROOT/regression_results/TEST_$TEST_SET/TEST_${TEST_SET}_design_test_report.csv
 echo "Verbose Differences with the Benchmark"
