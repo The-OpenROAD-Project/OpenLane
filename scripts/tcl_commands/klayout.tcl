@@ -28,8 +28,8 @@ proc run_klayout {args} {
 			} else {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
-			scrot_klayout -gds $::env(klayout_result_file_tag).gds
 			puts_info "Back-up GDS-II streamed out."
+			scrot_klayout -gds $::env(klayout_result_file_tag).gds
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
