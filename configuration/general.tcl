@@ -35,6 +35,7 @@ set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"
 set ::env(RUN_KLAYOUT) 1
+set ::env(TAKE_GDS_SCROT) 1
 
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 

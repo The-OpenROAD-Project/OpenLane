@@ -28,12 +28,34 @@ proc run_klayout {args} {
 			} else {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
+			scrot_klayout -gds $::env(klayout_result_file_tag).gds
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
 			puts_warn "This warning can be turned of by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 		}
     }
+}
+
+proc scrot_klayout {args} {
+    if {[info exists ::env(TAKE_GDS_SCROT)] && $::env(TAKE_GDS_SCROT)} {
+		puts_info "Taking a Screenshot of the Layout Using Klayout..."
+		if {[ info exists ::env(KLAYOUT_TECH)] } {
+			set options {
+				{-gds optional}
+			}
+			parse_key_args "scrot_klayout" args values $options
+			if {[info exists ::env(CURRENT_GDS)]} {
+				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
+			}
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-gds)
+			puts_info "Screenshot taken."
+		} else {
+			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the GDS-II."
+			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
+			puts_warn "This warning can be turned of by setting ::env(TAKE_GDS_SCROT) to 0, or defining a tech file."
+		}
+	}
 }
 
 package provide openlane 0.9
