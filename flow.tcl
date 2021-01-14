@@ -47,6 +47,8 @@ proc run_non_interactive_mode {args} {
 
 	run_magic
 
+	run_klayout
+
 	run_magic_spice_export
 
 	if {  [info exists flags_map(-save) ] } {

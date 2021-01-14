@@ -246,6 +246,16 @@ Most of the following commands' implementation exists in this [file][6]
 |    | `-output <output_file>` | The output mag file path. |
 | `run_magic_antenna_check` | | Runs spice extractions on the processed design and performs antenna checks. The resulting file is under `/<run_path>/results/magic/` and `/<run_path>/reports/magic/` . |
 
+## Klayout Commands
+
+Most of the following commands' implementation exists in this [file][17]
+
+| Command      | Flags                   | Description                                           |
+|---------------|------------------------|-----------------------------------------|
+| `run_klayout` | | Streams the back-up final GDS-II. The resulting file is under `/<run_path>/results/klayout/` . |
+| `scrot_klayout` | | Export a PNG view of a given GDS-II file. |
+|    | `[-gds <def_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
+
 ## LVS Commands
 
 Most of the following commands' implementation exists in this [file][5]
@@ -313,3 +323,4 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [14]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
 [15]: ./chip_integration.md
 [16]: ./advanced_power_grid_control.md
+[17]: ./../../scripts/tcl_commands/klayout.tcl

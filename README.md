@@ -34,7 +34,7 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
 
 # Overview
 
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor, CU-GR and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor, CU-GR, Klayout and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
 Join the community on [slack](https://invite.skywater.tools)!
 
@@ -390,6 +390,7 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
     4. `SPEF-Extractor` - Performs SPEF extraction
 6. **GDSII Generation**
     1. `Magic` - Streams out the final GDSII layout file from the routed def
+    2. `Klayout` - Streams out the final GDSII layout file from the routed def as a back-up.
 7. **Checks**
     1. `Magic` - Performs DRC Checks & Antenna Checks
     2. `Netgen` - Performs LVS Checks
@@ -404,7 +405,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] or [CU-GR][36] (Global) and [TritonRoute][13] (Detailed)
 - SPEF Extraction: [SPEF-Extractor][27]
-- GDSII Streaming out: [Magic][14]
+- GDSII Streaming out: [Magic][14] and [Klayout][35]
 - DRC Checks: [Magic][14]
 - LVS check: [Netgen][22]
 - Antenna Checks: [Magic][14]
@@ -424,6 +425,7 @@ designs/<design_name>
 │   │   │   ├── cts
 │   │   │   ├── cvc
 │   │   │   ├── floorplan
+│   │   │   ├── klayout
 │   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
@@ -432,6 +434,7 @@ designs/<design_name>
 │   │   │   ├── cts
 │   │   │   ├── cvc
 │   │   │   ├── floorplan
+│   │   │   ├── klayout
 │   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
@@ -440,6 +443,7 @@ designs/<design_name>
 │   │   │   ├── cts
 │   │   │   ├── cvc
 │   │   │   ├── floorplan
+│   │   │   ├── klayout
 │   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
@@ -448,6 +452,7 @@ designs/<design_name>
 │   │       ├── cts
 │   │       ├── cvc
 │   │       ├── floorplan
+│   │       ├── klayout
 │   │       ├── magic
 │   │       ├── placement
 │   │       ├── routing
@@ -573,4 +578,5 @@ To check the original author list of OpenLANE, check [this][33].
 [32]: ./CONTRIBUTING.md
 [33]: ./AUTHORS.md
 [34]: ./docs/source/OpenLANE_commands.md
+[35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr

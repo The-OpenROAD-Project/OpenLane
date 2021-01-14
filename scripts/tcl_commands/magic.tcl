@@ -35,6 +35,8 @@ proc run_magic {args} {
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).log]
 		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+		# Take a PNG screenshot
+		scrot_klayout
 
 		if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
 			# Generate mag file that includes GDS pointers
