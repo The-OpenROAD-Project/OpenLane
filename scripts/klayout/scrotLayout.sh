@@ -21,8 +21,11 @@ set -e
 echo "Using Techfile: $1"
 echo "Using GDS file: $2"
 
-
-xvfb-run klayout -z \
+# The -a here is necessary to handle race conditions.
+# This limits the max number of possible jobs to 100.
+xvfb-run -a klayout -z \
     -rd input_layout=$2 \
     -rd tech_file=$1 \
     -rm $(dirname $0)/scrotLayout.py
+
+exit 0

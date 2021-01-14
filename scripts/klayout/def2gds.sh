@@ -28,7 +28,9 @@ echo "Output GDS will be: $4"
 echo "Extra GDSes:"
 echo $5
 
-xvfb-run klayout -z -rd design_name=$3 \
+# The -a here is necessary to handle race conditions.
+# This limits the max number of possible jobs to 100.
+xvfb-run -a klayout -z -rd design_name=$3 \
         -rd in_def=$2 \
         -rd in_gds="${@:5}" \
         -rd config_file="" \
@@ -36,4 +38,5 @@ xvfb-run klayout -z -rd design_name=$3 \
         -rd out_gds=$4 \
         -rd tech_file=$1 \
         -rm $(dirname $0)/def2gds.py
+
 exit 0
