@@ -39,7 +39,10 @@ This section defines the neccessary variables for PDK configuration file
 | `TRACKS_INFO_FILE` | Points to the path of the tracks file. Used by the floorplanner to generate tracks |
 | `TECH_LEF` | Points to the path of the tech lef. |
 | `CELLS_LEF` | A list of paths to the cells lef views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/lef/*.lef"]` |
+| `GDS_FILES` | A list of paths to the cells GDS-II views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/gds/*.gds"]` |
 | `MAGIC_TECH_FILE` | Points to the magic tech file which mainly has drc rules. |
+| `KLAYOUT_TECH` | Points to the klayout tech file (.lyt). |
+| `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |
