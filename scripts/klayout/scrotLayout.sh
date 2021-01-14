@@ -23,6 +23,6 @@ echo "Using GDS file: $2"
 
 
 xvfb-run klayout -z \
-    -rd input_layout=$1 \
-    -rd tech_file=$2 \
+    -rd input_layout=$2 \
+    -rd tech_file=$1 \
     -rm $(dirname $0)/scrotLayout.py

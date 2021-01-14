@@ -14,8 +14,8 @@
 
 proc run_klayout {args} {
     if {[info exists ::env(RUN_KLAYOUT)] && $::env(RUN_KLAYOUT)} {
-			set ::env(CURRENT_STAGE) klayout
-			puts_info "Running Klayout to re-generate GDS-II..."
+		set ::env(CURRENT_STAGE) klayout
+		puts_info "Running Klayout to re-generate GDS-II..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			puts_info "Streaming out GDS II..."
 			set gds_files_in ""
@@ -29,6 +29,7 @@ proc run_klayout {args} {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
 			scrot_klayout -gds $::env(klayout_result_file_tag).gds
+			puts_info "Back-up GDS-II streamed out."
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
@@ -44,7 +45,7 @@ proc scrot_klayout {args} {
 			set options {
 				{-gds optional}
 			}
-			parse_key_args "scrot_klayout" args values $options
+			parse_key_args "scrot_klayout" args arg_values $options
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
 			}
