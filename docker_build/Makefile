@@ -1,6 +1,6 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm
-DOCKERFILE_PATH ?= ./Dockerfile
+DOCKERFILE_PATH ?= ./Dockerfile_ubuntu_bionic
 IMAGE_NAME ?= openlane:rc7
 SCRIPTS_PATH ?= ../scripts
 
