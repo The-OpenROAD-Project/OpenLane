@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos7 as build
+FROM swift:5.3.2-bionic
 
 # RUN useradd -m openlane
 # RUN usermod -aG wheel openlane
@@ -21,32 +21,37 @@ FROM centos:centos7 as build
 
 # install base dependencies
 # including python 3.6
-RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && \
-	yum install -y \
+RUN apt-get update
+RUN apt-get install -y apt-utils
+
+RUN	apt-get install -y \
 		make \
-		cairo \
+		libcairo2-dev libjpeg-dev libpango1.0-dev libreadline-dev libgif-dev build-essential \
 		gettext \
 		gdb \
 		git \
-		libffi \
-		libgomp \
-		libjpeg \
-		libSM \
-		libXext \
-		libXft \
-		python36u \
-		python36u-pip \
-		python36u-tkinter \
+		libffi-dev \
+		libgomp1 \
+		libjpeg-dev \
+		libsm-dev \
+		libxext-dev\
+		libxft-dev \
+		python python-dev python-pip \
+        python3 python3-dev python3-pip \
+		python-tk \
 		strace \
-		tcl \
+		tcl-dev \
 		tcllib \
 		tk \
+		libtcl8.5 \ 
+		libtk8.5 \
+		libglu1-mesa \
+		libgl1-mesa-glx \
 		wget \
-		Xvfb && \
-	yum clean all && \
-	rm -rf /var/cache/yum
-
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
+		vim \
+		curl \
+		xvfb && \
+	 apt-get clean
 
 # Install python dependencies
 RUN pip3.6 install --no-cache-dir --upgrade pip
@@ -58,7 +63,7 @@ RUN pip install --no-cache-dir \
 		XlsxWriter
 
 # for magic
-RUN yum install -y mesa-libGLU-devel
+RUN apt-get install mesa-libGLU-devel
 
 
 ENV OPENLANE_ROOT=/openLANE_flow
@@ -70,9 +75,9 @@ ENV LD_LIBRARY_PATH=$OPENROAD/lib:$OPENROAD/lib/Linux-x86_64:$LD_LIBRARY_PATH
 ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
 # install klayout
-RUN yum install -y which
-ADD ./klayout.tar.gz /
-RUN yum localinstall -y /build/klayout-*.rpm
+# RUN yum install -y which
+# ADD ./klayout.tar.gz /
+# RUN yum localinstall -y /build/klayout-*.rpm
 
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
