@@ -54,7 +54,7 @@ FORCE:
  shebang_perl_files: $(shell find $(SCRIPTS_PATH) -type f -name *.pl -exec sed -i '1s/^#!\/usr\/bin\/perl/#!\/usr\/local\/bin\/perl/' {} \;)
         
 .PHONY: merge
-merge: shebang_perl_files tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
+merge:  tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz shebang_perl_files
 	mkdir -p logs/docker/tar
 	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
