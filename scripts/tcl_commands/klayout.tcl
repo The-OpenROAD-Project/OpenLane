@@ -30,7 +30,7 @@ proc run_klayout {args} {
 			}
 			puts_info "Back-up GDS-II streamed out."
 			scrot_klayout -gds $::env(klayout_result_file_tag).gds
-			run_klayout_drc -gds $::env(klayout_result_file_tag).gds -log [index_file $::env(klayout_log_file_tag).klayout.drc.log]
+			run_klayout_drc -gds $::env(klayout_result_file_tag).gds -stage klayout
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
@@ -66,15 +66,15 @@ proc run_klayout_drc {args} {
 		if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] } {
 			set options {
 				{-gds optional}
-				{-log optional}
+				{-stage optional}
 			}
-			parse_key_args "scrot_klayout" args arg_values $options
+			parse_key_args "run_klayout_drc" args arg_values $options
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
 			}
-			set_if_unset arg_values(-log) [index_file $::env(klayout_log_file_tag).magic.drc.log]
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
-			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).lydrc 0]
+			set_if_unset arg_values(-stage) magic
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).$arg_values(-stage).drc.log]
+			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).$arg_values(-stage).lydrc 0]
 			puts_info "Klayout DRC Complete"
 		} else {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, we won't be able to run klayout drc on the GDS-II."

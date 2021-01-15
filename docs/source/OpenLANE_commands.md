@@ -256,7 +256,7 @@ Most of the following commands' implementation exists in this [file][17]
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
 | `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
-|    | `[-log <log_file>]` | The output log file, the default is an indexed `<run_path>/logs/klayout/<design>.gds.magic.log`. The `magic` part refers that the drc was run on the default GDS which is produced by magic. |
+|    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` part refers that the drc was run on the default GDS which is produced by magic. |
 
 ## LVS Commands
 
