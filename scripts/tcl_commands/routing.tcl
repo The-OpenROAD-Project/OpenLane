@@ -120,6 +120,8 @@ proc detailed_routing {args} {
 		-o $::env(tritonRoute_report_file_tag).klayout.xml \
 		--design-name $::env(DESIGN_NAME)
 
+    quit_on_tr_drc
+
     set ::env(tritonRoute_report_file_tag) $report_tag_saver
     set ::env(tritonRoute_tmp_file_tag) $tmp_tag_saver
 }

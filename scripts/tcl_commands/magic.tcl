@@ -122,8 +122,11 @@ proc run_magic_drc {args} {
 				--rdb_out $::env(magic_report_file_tag).drc.rdb
 			puts_info "Converted DRC Violations to RDB Format"
 		}
-		set ::env(magic_log_file_tag) $report_tag_saver
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+
+		quit_on_magic_drc
+
+		set ::env(magic_report_file_tag) $report_tag_saver
 }
 
 

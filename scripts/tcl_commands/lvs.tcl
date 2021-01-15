@@ -131,6 +131,8 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
       |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_log_file_tag).$extract_type.log]
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).$extract_type.json \
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
+
+    quit_on_lvs_error -log $::env(lvs_result_file_tag)_parsed.$extract_type.log
 }
 
 proc run_netgen {args} {

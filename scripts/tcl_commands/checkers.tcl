@@ -19,7 +19,7 @@ proc check_assign_statements {args} {
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
-        return -code error
+        flow_fail
     } else {
         puts_info "No assign statement in netlist"
     }
@@ -31,7 +31,7 @@ proc check_synthesis_failure {args} {
 
     if { ! $checker } {
         puts_err "Synthesis failed"
-        return -code error
+        flow_fail
     } else {
         puts_info "Synthesis was successful"
     }
@@ -47,7 +47,7 @@ proc check_floorplan_missing_lef {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately"
-        return -code error
+        flow_fail
     }
 }
 
@@ -60,7 +60,7 @@ proc check_floorplan_missing_pins {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately and if they have the referenced pins."
-        return -code error
+        flow_fail
     }
 }
 
@@ -71,7 +71,7 @@ proc check_cts_clock_nets {args} {
         puts_err "Clock Tree Synthesis failed"
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
-        return -code error
+        flow_fail
     } else {
         puts_info "Clock Tree Synthesis was successful"
     }
@@ -83,7 +83,7 @@ proc check_replace_divergence {args} {
     if { ! $checker } {
         puts_err "Global placement failed"
         puts_err $error
-        return -code error
+        flow_fail
     } else {
         puts_info "Global placement was successful"
     }
@@ -95,9 +95,54 @@ proc check_macro_placer_num_solns {args} {
     if { ! $checker } {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
-        return -code error
+        flow_fail
     } else {
         puts_info "Macro placement was successful"
+    }
+}
+
+proc quit_on_tr_drc {args} {
+    if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(tritonRoute_report_file_tag).drc ]
+
+        if { $checker != 0 } {
+            puts_err "There are violations in the design after detailed routing."
+            puts_err "Total Number of violations is $checker"
+            flow_fail
+        } else {
+            puts_info "No DRC violations after detailed routing."
+        }
+    }
+}
+
+proc quit_on_magic_drc {args} {
+    if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(magic_report_file_tag).tr.drc ]
+
+        if { $checker != 0 } {
+            puts_err "There are violations in the design after Magic DRC."
+            puts_err "Total Number of violations is $checker"
+            flow_fail
+        } else {
+            puts_info "No DRC violations after GDS streaming out."
+        }
+    }
+}
+
+proc quit_on_lvs_error {args} {
+    if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
+        set options {
+				{-log required}
+			}
+		parse_key_args "quit_on_lvs_error" args arg_values $options
+        set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
+
+        if { $checker != 0 } {
+            puts_err "There are LVS errors in the design according to Netgen LVS."
+            flow_fail
+        } else {
+            puts_info "No LVS mismatches."
+        }
     }
 }
 
