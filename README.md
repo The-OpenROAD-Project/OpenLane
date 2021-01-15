@@ -383,18 +383,19 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
     4. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
 4. **CTS**
     1. `TritonCTS` - Synthesizes the clock distribution network (the clock tree)
-5. **Routing** *
+5. **Routing**
     1. `FastRoute` - Performs global routing to generate a guide file for the detailed router
     2. `CU-GR` - Another option for performing global routing.
     3. `TritonRoute` - Performs detailed routing
     4. `SPEF-Extractor` - Performs SPEF extraction
 6. **GDSII Generation**
     1. `Magic` - Streams out the final GDSII layout file from the routed def
-    2. `Klayout` - Streams out the final GDSII layout file from the routed def as a back-up.
+    2. `Klayout` - Streams out the final GDSII layout file from the routed def as a back-up
 7. **Checks**
     1. `Magic` - Performs DRC Checks & Antenna Checks
-    2. `Netgen` - Performs LVS Checks
-    3. `CVC` - Performs Circuit Validity Checks
+    2. `Klayout` - Performs DRC Checks
+    3. `Netgen` - Performs LVS Checks
+    4. `CVC` - Performs Circuit Validity Checks
 
 OpenLANE integrated several key open source tools over the execution stages:
 - RTL Synthesis, Technology Mapping, and Formal Verification : [yosys + abc][4]
@@ -406,7 +407,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 - Routing: [FastRoute][12] or [CU-GR][36] (Global) and [TritonRoute][13] (Detailed)
 - SPEF Extraction: [SPEF-Extractor][27]
 - GDSII Streaming out: [Magic][14] and [Klayout][35]
-- DRC Checks: [Magic][14]
+- DRC Checks: [Magic][14] and [Klayout][35]
 - LVS check: [Netgen][22]
 - Antenna Checks: [Magic][14]
 - Circuit Validity Checker: [CVC][31]
