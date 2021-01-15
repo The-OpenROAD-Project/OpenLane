@@ -163,8 +163,7 @@ proc try_catch {args} {
             puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
             close $error_log_file
         }
-
-        return -code error
+		flow_fail
     }
 }
 
@@ -194,6 +193,12 @@ proc index_file {args} {
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 	return $new_file_full_name
+}
+
+proc flow_fail {args} {
+	generate_final_summary_report
+	puts_err "Flow Failed."
+	return -code error
 }
 
 # Value	Color
