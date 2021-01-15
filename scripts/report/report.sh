@@ -36,6 +36,7 @@ spef_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o open
 HPWL_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 yosys_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o yosys.log 2>&1)
 magic_drc=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.drc 2>&1)
+klayout_drc=$(python3 $3/get_file_name.py -p ${path}/reports/klayout/ -o magic.lydrc -io 2>&1)
 tapcell_log=$(python3 $3/get_file_name.py -p ${path}/logs/floorplan/ -o tapcell.log 2>&1)
 diodes_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o diodes.log 2>&1)
 magic_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.antenna_violators.rpt 2>&1)
@@ -108,6 +109,15 @@ if [ -f $magic_drc ]; then
         if [ $Magic_violations -ne -1 ]; then Magic_violations=$(((Magic_violations+3)/4)); fi
 else
         Magic_violations=-1;
+fi
+
+
+#Extracting Klayout DRC Violations from magic.lydrc
+if [ -f "$klayout_drc" ]; then
+        klayout_violations=$(grep "<item>" $klayout_drc -s | wc -l)
+        if ! [[ $klayout_violations ]]; then klayout_violations=0; fi
+else
+        klayout_violations=-1;
 fi
 
 # Extracting Antenna Violations
@@ -260,7 +270,7 @@ cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*
 if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
+result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done
