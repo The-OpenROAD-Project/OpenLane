@@ -105,7 +105,11 @@ ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 WORKDIR $OPENROAD/OpenDB_python/ 
 RUN	python3 setup.py install && \
     rm -rf $OPENROAD/OpenDB_python
-	
+
+# Symbolic Links
+WORKDIR /lib/x86_64-linux-gnu
+RUN ln -s libreadline.so.7.0 libreadline.so.6
+RUN ln -s libhistory.so.7.0 libhistory.so.6
 
 WORKDIR $OPENLANE_ROOT
 
