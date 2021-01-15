@@ -59,4 +59,26 @@ proc scrot_klayout {args} {
 	}
 }
 
+proc run_klayout_drc {args} {
+    if {[info exists ::env(RUN_KLAYOUT_DRC)] && $::env(RUN_KLAYOUT_DRC)} {
+		puts_info "Running DRC on the layout using Klayout..."
+		if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] } {
+			set options {
+				{-gds optional}
+			}
+			parse_key_args "scrot_klayout" args arg_values $options
+			if {[info exists ::env(CURRENT_GDS)]} {
+				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
+			}
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).drc.log]
+			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).lydrc 0]
+			puts_info "Klayout DRC Complete"
+		} else {
+			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, we won't be able to run klayout drc on the GDS-II."
+			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
+			puts_warn "This warning can be turned of by setting ::env(RUN_KLAYOUT_DRC) to 0, or defining a tech file."
+		}
+	}
+}
+
 package provide openlane 0.9
