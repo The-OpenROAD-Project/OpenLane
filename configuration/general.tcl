@@ -19,6 +19,7 @@ set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
 set ::env(LEC_ENABLE) 0
+set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(RUN_MAGIC) 1
 set ::env(MAGIC_PAD) 0
 set ::env(MAGIC_ZEROIZE_ORIGIN) 1

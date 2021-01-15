@@ -164,20 +164,23 @@ proc verilog_elaborate {args} {
 }
 
 proc yosys_rewrite_verilog {filename} {
-    if { ! [file exists $filename] } {
-	puts_err "$filename does not exist to be re-written"
-	return -code error
-    }
+	if { $::env(LEC_ENABLE) || ! [info exists ::env(YOSYS_REWRITE_VERILOG)] || $::env(YOSYS_REWRITE_VERILOG) } {
+		if { ! [file exists $filename] } {
+			puts_err "$filename does not exist to be re-written"
+			return -code error
+		}
 
+		set ::env(SAVE_NETLIST) $filename
 
-    set ::env(SAVE_NETLIST) $filename
+		puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
 
-    puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
+		try_catch [get_yosys_bin] \
+		-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
+		-l [index_file $::env(yosys_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
-    try_catch [get_yosys_bin] \
-	-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
-	-l [ index_file $::env(yosys_log_file_tag)_rewrite_verilog.log ]; # \
-	|& tee $::env(TERMINAL_OUTPUT)
+	} else {
+		puts_info "Yosys won't attempt to rewrite verilog, and the OpenROAD output will be used as is." 
+	}
 }
 
 
