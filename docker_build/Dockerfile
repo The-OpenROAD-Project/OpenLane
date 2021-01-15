@@ -23,7 +23,6 @@ FROM swift:5.3.2-bionic
 # including python 3.6
 RUN apt-get update
 RUN apt-get install -y apt-utils
-
 RUN	apt-get install -y \
 		make \
 		libcairo2-dev libjpeg-dev libpango1.0-dev libreadline-dev libgif-dev build-essential \
@@ -54,7 +53,7 @@ RUN	apt-get install -y \
 	 apt-get clean
 
 # Install python dependencies
-RUN pip3.6 install --no-cache-dir --upgrade pip
+RUN pip3 install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir \
 		matplotlib \
 		jinja2 \
@@ -106,7 +105,7 @@ WORKDIR $OPENROAD/OpenDB_python/
 RUN	python3 setup.py install && \
     rm -rf $OPENROAD/OpenDB_python
 
-# Symbolic Links
+# Symbolic Links 
 WORKDIR /lib/x86_64-linux-gnu
 RUN ln -s libreadline.so.7.0 libreadline.so.6
 RUN ln -s libhistory.so.7.0 libhistory.so.6

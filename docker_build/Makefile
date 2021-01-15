@@ -2,6 +2,8 @@
 DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= openlane:rc7
+SCRIPTS_PATH ?= ../scripts
+
 #ROOT = sudo
 
 TOOLS = klayout replace opendp route cugr opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
@@ -45,9 +47,14 @@ tar/openLANE_flow.tar.gz: FORCE
 	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
 FORCE:
-
+# ==============================================================================
+# Shebang replacement for PERL 5.16.3 
+# ==============================================================================
+.PHONY: shebang_perl_files
+ shebang_perl_files: $(shell find $(SCRIPTS_PATH) -type f -name *.pl -exec sed -i '1s/^#!\/usr\/bin\/perl/#!\/usr\/local\/bin\/perl/' {} \;)
+        
 .PHONY: merge
-merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
+merge: shebang_pl tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
 	mkdir -p logs/docker/tar
 	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
