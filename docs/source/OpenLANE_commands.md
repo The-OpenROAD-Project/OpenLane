@@ -94,8 +94,8 @@ Most of the following commands' implementation exists in this [file][1]
 | `check_replace_divergence` | | Catches replace divergence and exits the flow because global placement failed. |
 | `check_macro_placer_num_solns` | | Checks if macro placment was successful using basic placement. |
 | `quit_on_tr_drc` | | Checks for DRC violations after routing and exits the flow if any was found. Controlled by `QUIT_ON_TR_DRC`. |
-| `quit_on_tr_drc` | | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. Controlled by `QUIT_ON_MAGIC_DRC`. |
-| `quit_on_tr_drc` | | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. Controlled by `QUIT_ON_LVS_ERROR`. |
+| `quit_on_magic_drc` | | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. Controlled by `QUIT_ON_MAGIC_DRC`. |
+| `quit_on_lvs_error` | | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. Controlled by `QUIT_ON_LVS_ERROR`. |
 |    | `-log <file_parsed.log>` |  The parsed LVS log, generated at the end of running LVS. The reason why this is passed over is because there are two types of LVS and each produces a different report, and this might be expanded later. |
 
 
@@ -318,7 +318,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
 | `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
 | `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
-
+| `flow_fail` | | Calls `generate_final_summary_report`, prints `Flow Failed`, and exists with non-zero code. |
 
 
 [0]: ./../../scripts/tcl_commands/all.tcl
