@@ -63,7 +63,7 @@ RUN pip install --no-cache-dir \
 		XlsxWriter
 
 # for magic
-RUN apt-get install mesa-libGLU-devel
+#RUN apt-get install mesa-libGLU-devel
 
 
 ENV OPENLANE_ROOT=/openLANE_flow
