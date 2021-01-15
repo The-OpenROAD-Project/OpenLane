@@ -252,9 +252,12 @@ Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDS-II. The resulting file is under `/<run_path>/results/klayout/` . |
-| `scrot_klayout` | | Export a PNG view of a given GDS-II file. |
-|    | `[-gds <def_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
+| `run_klayout` | | Streams the back-up final GDS-II and runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT` and `RUN_KLAYOUT_DRC`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `scrot_klayout` | | Export a PNG view of a given GDS-II file. This is controlled by `TAKE_GDS_SCROT`. |
+|    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
+| `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
+|    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
+|    | `[-log <log_file>]` | The output log file, the default is an indexed `<run_path>/logs/klayout/<design>.gds.magic.log`. The `magic` part refers that the drc was run on the default GDS which is produced by magic. |
 
 ## LVS Commands
 
@@ -303,6 +306,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
 | `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
+| `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
 
 
 
