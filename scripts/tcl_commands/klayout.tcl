@@ -30,10 +30,11 @@ proc run_klayout {args} {
 			}
 			puts_info "Back-up GDS-II streamed out."
 			scrot_klayout -gds $::env(klayout_result_file_tag).gds
+			run_klayout_drc -gds $::env(klayout_result_file_tag).gds -log [index_file $::env(klayout_log_file_tag).klayout.drc.log]
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
-			puts_warn "This warning can be turned of by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
+			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 		}
     }
 }
@@ -54,7 +55,7 @@ proc scrot_klayout {args} {
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the GDS-II."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
-			puts_warn "This warning can be turned of by setting ::env(TAKE_GDS_SCROT) to 0, or defining a tech file."
+			puts_warn "This warning can be turned off by setting ::env(TAKE_GDS_SCROT) to 0, or defining a tech file."
 		}
 	}
 }
@@ -65,18 +66,20 @@ proc run_klayout_drc {args} {
 		if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] } {
 			set options {
 				{-gds optional}
+				{-log optional}
 			}
 			parse_key_args "scrot_klayout" args arg_values $options
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).drc.log]
+			set_if_unset arg_values(-log) [index_file $::env(klayout_log_file_tag).magic.drc.log]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).lydrc 0]
 			puts_info "Klayout DRC Complete"
 		} else {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, we won't be able to run klayout drc on the GDS-II."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
-			puts_warn "This warning can be turned of by setting ::env(RUN_KLAYOUT_DRC) to 0, or defining a tech file."
+			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or defining a tech file."
 		}
 	}
 }

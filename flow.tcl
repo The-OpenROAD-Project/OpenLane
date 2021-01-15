@@ -48,7 +48,6 @@ proc run_non_interactive_mode {args} {
 	run_magic
 
 	run_klayout
-	run_klayout_drc
 
 	run_magic_spice_export
 
@@ -70,6 +69,7 @@ proc run_non_interactive_mode {args} {
 	# Physical verification
 
 	run_magic_drc
+	run_klayout_drc
 
 	run_lvs; # requires run_magic_spice_export
 
