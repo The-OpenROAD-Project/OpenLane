@@ -238,6 +238,8 @@ proc puts_info {txt} {
 
 proc generate_final_summary_report {args} {
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
+		# Avoid recursively calling generate_final_summary_report
+		set ::env(GENERATE_FINAL_SUMMARY_REPORT) 0
 		puts_info "Generating Final Summary Report..."
 		set options {
 			{-output optional}
