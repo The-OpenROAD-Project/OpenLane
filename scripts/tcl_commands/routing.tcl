@@ -105,34 +105,55 @@ proc global_routing {args} {
 	puts_info "Current Guide is $::env(CURRENT_GUIDE)"
 }
 
-proc detailed_routing {args} {
-    puts_info "Running Detailed Routing..."
-    TIMER::timer_start
-    set report_tag_saver $::env(tritonRoute_report_file_tag)
-    set ::env(tritonRoute_report_file_tag) [index_file $::env(tritonRoute_report_file_tag)]
-    set tmp_tag_saver $::env(tritonRoute_tmp_file_tag)
-    set ::env(tritonRoute_tmp_file_tag) [index_file $::env(tritonRoute_tmp_file_tag) 0]
-    if {$::env(RUN_ROUTING_DETAILED)} {
+proc detailed_routing_tritonroute {args} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-    try_catch TritonRoute \
-    $::env(tritonRoute_tmp_file_tag).param \
-    |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
-
-    } else {
-	exec echo "SKIPPED!" >> [index_file $::env(tritonRoute_log_file_tag).log 0]
-    }
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(tritonRoute_log_file_tag)_runtime.txt
-    set_def $::env(tritonRoute_result_file_tag).def
+	try_catch TritonRoute \
+		$::env(tritonRoute_tmp_file_tag).param \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
 
 	try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
 		-i $::env(tritonRoute_report_file_tag).drc \
 		-o $::env(tritonRoute_report_file_tag).klayout.xml \
 		--design-name $::env(DESIGN_NAME)
 
-    quit_on_tr_drc
+	quit_on_tr_drc
+}
+
+proc detailed_routing_drcu {args} {
+	try_catch drcu \
+		-lef $::env(MERGED_LEF_UNPADDED) \
+		-def $::env(CURRENT_DEF) \
+		-guide $::env(CURRENT_GUIDE) \
+		-threads $::env(ROUTING_CORES) \
+		-tat 99999999 \
+		-output $::env(tritonRoute_result_file_tag).def \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+}
+
+proc detailed_routing {args} {
+	puts_info "Running Detailed Routing..."
+    TIMER::timer_start
+    set report_tag_saver $::env(tritonRoute_report_file_tag)
+    set ::env(tritonRoute_report_file_tag) [index_file $::env(tritonRoute_report_file_tag)]
+    set tmp_tag_saver $::env(tritonRoute_tmp_file_tag)
+	set ::env(tritonRoute_tmp_file_tag) [index_file $::env(tritonRoute_tmp_file_tag) 0]
+	if {$::env(RUN_ROUTING_DETAILED)} {
+		if { $::env(DETAILED_ROUTER) == "drcu" } {
+			detailed_routing_drcu
+
+		} else {
+			detailed_routing_tritonroute
+		}
+	} else {
+		exec echo "SKIPPED!" >> [index_file $::env(tritonRoute_log_file_tag).log 0]
+	}
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> $::env(tritonRoute_log_file_tag)_runtime.txt
+
+    set_def $::env(tritonRoute_result_file_tag).def
+
 
     set ::env(tritonRoute_report_file_tag) $report_tag_saver
     set ::env(tritonRoute_tmp_file_tag) $tmp_tag_saver

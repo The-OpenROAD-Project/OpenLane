@@ -41,3 +41,4 @@ set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 1
 set ::env(ROUTING_OPT_ITERS) 64
 
 set ::env(GLOBAL_ROUTER) fastroute
+set ::env(DETAILED_ROUTER) tritonroute
