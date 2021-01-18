@@ -30,7 +30,12 @@ proc run_klayout {args} {
 			}
 			puts_info "Back-up GDS-II streamed out."
 			scrot_klayout -gds $::env(klayout_result_file_tag).gds
-			run_klayout_drc -gds $::env(klayout_result_file_tag).gds -stage klayout
+			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
+				set conf_save $::env(RUN_KLAYOUT_DRC)
+				set ::env(RUN_KLAYOUT_DRC) 1
+				run_klayout_drc -gds $::env(klayout_result_file_tag).gds -stage klayout
+				set ::env(RUN_KLAYOUT_DRC) $conf_save
+			}
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
