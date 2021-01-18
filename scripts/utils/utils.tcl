@@ -27,6 +27,14 @@ proc handle_deprecated_config {old new} {
   }
 }
 
+proc find_all {ext} {
+    if { ! [info exists ::env(RUN_DIR)] } {
+        puts_err "You are not currently running a design. Perhaps you forgot to run 'prep'?"
+        return -code error
+    }
+    return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
+}
+
 proc handle_deprecated_command {new} {
   set invocation [info level -1]
   set caller [lindex $invocation 0]
