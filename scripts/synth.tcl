@@ -82,9 +82,9 @@ set abc_ext     ".abc"
 # get old sdc, add library specific stuff for abc scripts
 set sdc_file $::env(yosys_tmp_file_tag).sdc
 set outfile [open ${sdc_file} w]
-#log $outfile $sdc_data
-log "set_driving_cell ${driver}"
-log $outfile "set_load ${cload}"
+#puts $outfile $sdc_data
+puts $outfile "set_driving_cell ${driver}"
+puts $outfile "set_load ${cload}"
 close $outfile
 
 
