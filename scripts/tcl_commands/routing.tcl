@@ -35,7 +35,7 @@ proc global_routing_fastroute {args} {
 	set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
 	set report_tag_saver $::env(fastroute_report_file_tag)
 	set ::env(fastroute_report_file_tag) [index_file $::env(fastroute_report_file_tag) 0]
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 		set_def $::env(SAVE_DEF)
 		set_guide $::env(SAVE_GUIDE)
@@ -56,7 +56,7 @@ proc global_routing_fastroute {args} {
 			puts_info "FastRoute Iteration $iter"
 			puts_info "Antenna Violations Previous: $prevAntennaVal"
 			set ::env(fastroute_report_file_tag) [index_file $report_tag_saver 0]
-			try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_route.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+			try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 			set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 			puts_info "Antenna Violations Current: $currAntennaVal"
 			if { $currAntennaVal >= $prevAntennaVal } {
@@ -108,9 +108,7 @@ proc global_routing {args} {
 proc detailed_routing_tritonroute {args} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-	try_catch TritonRoute \
-		$::env(tritonRoute_tmp_file_tag).param \
-		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
 
 	try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
 		-i $::env(tritonRoute_report_file_tag).drc \
@@ -134,6 +132,7 @@ proc detailed_routing_drcu {args} {
 proc detailed_routing {args} {
 	puts_info "Running Detailed Routing..."
     TIMER::timer_start
+	set ::env(SAVE_DEF) [index_file $::env(tritonRoute_result_file_tag).def 0]
     set report_tag_saver $::env(tritonRoute_report_file_tag)
     set ::env(tritonRoute_report_file_tag) [index_file $::env(tritonRoute_report_file_tag)]
     set tmp_tag_saver $::env(tritonRoute_tmp_file_tag)
