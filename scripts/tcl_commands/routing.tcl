@@ -108,7 +108,14 @@ proc global_routing {args} {
 proc detailed_routing_tritonroute {args} {
 	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
 
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+	if { $::env(DETAILED_ROUTER) == "tritonroute" } {
+		try_catch TritonRoute \
+			$::env(tritonRoute_tmp_file_tag).param \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+	} else {
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+	}
+
 
 	try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
 		-i $::env(tritonRoute_report_file_tag).drc \
@@ -140,7 +147,6 @@ proc detailed_routing {args} {
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		if { $::env(DETAILED_ROUTER) == "drcu" } {
 			detailed_routing_drcu
-
 		} else {
 			detailed_routing_tritonroute
 		}
