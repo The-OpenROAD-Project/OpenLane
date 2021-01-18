@@ -318,7 +318,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
 | `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
 | `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
-| `flow_fail` | | Calls `generate_final_summary_report`, prints `Flow Failed`, and exists with non-zero code. |
+| `flow_fail` | | Calls `generate_final_summary_report` and prints `Flow Failed`. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
 
 

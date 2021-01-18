@@ -172,6 +172,7 @@ proc try_catch {args} {
             close $error_log_file
         }
 		flow_fail
+		return -code error
     }
 }
 
@@ -204,9 +205,11 @@ proc index_file {args} {
 }
 
 proc flow_fail {args} {
-	generate_final_summary_report
-	puts_err "Flow Failed."
-	return -code error
+	if { ! [info exists ::env(FLOW_FAILED)] || ! $::env(FLOW_FAILED) } {
+		set ::env(FLOW_FAILED) 1
+		generate_final_summary_report
+		puts_err "Flow Failed."
+	}
 }
 
 # Value	Color
