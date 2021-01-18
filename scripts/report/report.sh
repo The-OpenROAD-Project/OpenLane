@@ -51,16 +51,24 @@ cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
 if ! [[ $cell_count ]]; then cell_count=-1; fi
 
 #Extracting runtime info
-runtime=$(sed 's/.*in //' $runtime_rpt)
-if ! [[ $runtime ]]; then runtime=-1; fi
+if [ -f $runtime_rpt ]; then
+        runtime=$(sed 's/.*in //' $runtime_rpt)
+        if ! [[ $runtime ]]; then runtime=-1; fi
+else
+        runtime=-1;
+fi
 
 #Extracting Die Area info
-tmpa=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 1)
-tmpb=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 2)
-tmpc=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 3)
-tmpd=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 4)
-diearea=$(( (($tmpc-$tmpa)/1000)*(($tmpd-$tmpb)/1000) ))
-if ! [[ $diearea ]]; then diearea=-1;fi
+if [ -f $tritonRoute_def ]; then
+        tmpa=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 1)
+        tmpb=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 2)
+        tmpc=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 3)
+        tmpd=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 4)
+        diearea=$(( (($tmpc-$tmpa)/1000)*(($tmpd-$tmpb)/1000) ))
+        if ! [[ $diearea ]]; then diearea=-1;fi
+else
+        diearea=-1;
+fi
 
 #Place Holder for cell per um
 cellperum=-1
