@@ -263,19 +263,35 @@ proc color_text {color txt} {
 }
 
 proc puts_err {txt} {
-  puts "[color_text 1 "\[ERROR\]: $txt"]"
+  set message "\[ERROR\]: $txt"
+  puts "[color_text 1 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_success {txt} {
-  puts "[color_text 2 "\[SUCCESS\]: $txt"]"
+  set message "\[SUCCESS\]: $txt"
+  puts "[color_text 2 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_warn {txt} {
-  puts "[color_text 3 "\[WARNING\]: $txt"]"
+  set message "\[WARNING\]: $txt"
+  puts "[color_text 3 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_info {txt} {
-  puts "[color_text 6 "\[INFO\]: $txt"]"
+  set message "\[INFO\]: $txt"
+  puts "[color_text 6 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc generate_final_summary_report {args} {

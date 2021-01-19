@@ -302,8 +302,6 @@ proc prep {args} {
 
     set skip_basic_prep 0
 
-    puts_info "Current run directory is $::env(RUN_DIR)"
-
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_warn "Removing exisiting run $::env(RUN_DIR)"
@@ -320,6 +318,8 @@ proc prep {args} {
 
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOG_DIR) $::env(REPORTS_DIR)
+
+    puts_info "Current run directory is $::env(RUN_DIR)"
 
     if { ! $skip_basic_prep } {
         prep_lefs
