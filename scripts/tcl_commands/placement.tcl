@@ -171,6 +171,7 @@ proc run_placement {args} {
 	run_openPhySyn
 
 	detailed_placement_or
+    scrot_klayout -layout $::env(CURRENT_DEF)
 }
 
 proc repair_wire_length {args} {

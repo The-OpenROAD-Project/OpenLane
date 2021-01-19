@@ -95,6 +95,7 @@ proc run_cts {args} {
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
+		scrot_klayout -layout $::env(CURRENT_DEF)
 	} else {
 		exec echo "SKIPPED!" >> [index_file $::env(cts_log_file_tag).log]
 	}

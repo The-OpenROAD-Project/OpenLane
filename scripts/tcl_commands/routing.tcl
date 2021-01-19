@@ -372,7 +372,7 @@ proc run_routing {args} {
 
     # detailed routing
     detailed_routing
-
+	scrot_klayout -layout $::env(CURRENT_DEF)
 	# pdngen-related hack
 	# remove .extra\d+ "pins" so that magic
 	# generates shapes for each stripes without the ".extra" postfix
