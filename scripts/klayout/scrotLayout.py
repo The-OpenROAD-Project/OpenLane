@@ -14,6 +14,7 @@
 
 import pya
 import re
+import os
 
 WIDTH = 2048
 HEIGHT = 2048
@@ -25,12 +26,15 @@ win = app.main_window()
 print('[INFO] Reading tech file: ' + str(tech_file))
 tech = pya.Technology()
 tech.load(tech_file)
+
 layoutOptions = tech.load_layout_options
 
 # Load def file in the main window
 print('[INFO] Reading Layout file: ' + str(input_layout))
 cell_view = win.load_layout(input_layout, layoutOptions, 0)
 layout_view = cell_view.view()
+
+layout_view.load_layer_props(os.path.splitext(tech_file)[0]+'.lyp')
 
 layout_view.max_hier()
 # layout_view.clear_layers()

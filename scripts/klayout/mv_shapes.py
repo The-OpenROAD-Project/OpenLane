@@ -14,6 +14,7 @@
 
 import pya
 from time import sleep
+import os
 
 try:
     if output_layout == "":
@@ -37,6 +38,7 @@ layoutOptions = tech.load_layout_options
 # Load def/gds file in the main window
 cell_view = win.load_layout(input_layout, layoutOptions, 0)
 layout_view = cell_view.view()
+layout_view.load_layer_props(os.path.splitext(tech_file)[0]+'.lyp')
 layout_view.max_hier()
 
 # gets the corresponding layout object
