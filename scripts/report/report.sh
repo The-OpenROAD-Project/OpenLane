@@ -22,7 +22,8 @@ scriptDir=$3
 tritonRoute_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o tritonRoute.log 2>&1)
 tritonRoute_drc=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o tritonRoute.drc 2>&1)
 yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.rpt -io 2>&1)
-runtime_rpt=${path}/reports/runtime.txt
+routed_runtime_rpt=${path}/reports/routed_runtime.txt
+total_runtime_rpt=${path}/reports/total_runtime.txt
 wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1)
 pl_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1)
 opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_openphysyn_wns.rpt 2>&1)
@@ -50,12 +51,27 @@ lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
 if ! [[ $cell_count ]]; then cell_count=-1; fi
 
-#Extracting runtime info
-if [ -f $runtime_rpt ]; then
-        runtime=$(sed 's/.*in //' $runtime_rpt)
-        if ! [[ $runtime ]]; then runtime=-1; fi
+#Extracting routed_runtime info
+if [ -f $routed_runtime_rpt ]; then
+        routed_runtime=$(sed 's/.*in //' $routed_runtime_rpt)
+        if ! [[ $routed_runtime ]]; then routed_runtime=-1; fi
 else
-        runtime=-1;
+        routed_runtime=-1;
+fi
+
+#Extracting total_runtime info
+if [ -f $total_runtime_rpt ]; then
+        total_runtime=$(sed 's/.*in //' $total_runtime_rpt)
+        if ! [[ $total_runtime ]]; then total_runtime=-1; fi
+        flow_status=$(sed 's/ for .*//' $total_runtime_rpt)
+        if ! [[ $flow_status ]]; then
+                flow_status="unknown_no_content_in_file"; 
+        else
+                flow_status="${flow_status// /_}"
+        fi
+else
+        total_runtime=-1;
+        flow_status="unknown_no_total_runtime_file";
 fi
 
 #Extracting Die Area info
@@ -278,7 +294,7 @@ cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*
 if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 
-result="$runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
+result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done

@@ -37,7 +37,7 @@ class Report:
         self.raw_report = None
         self.formatted_report = None
 
-    values = ['design', 'design_name','config', 'runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','Peak_Memory_Usage_MB','cell_count',
+    values = ['design', 'design_name','config', 'flow_status', 'total_runtime', 'routed_runtime','DIEAREA_mm^2','CellPer_mm^2' ,'OpenDP_Util','Peak_Memory_Usage_MB','cell_count',
             'tritonRoute_violations', 'Short_violations','MetSpc_violations','OffGrid_violations','MinHole_violations','Other_violations',
             'Magic_violations', 'antenna_violations', 'lvs_total_errors', 'cvc_total_errors', 'klayout_violations', 'wire_length', 'vias',
             'wns', 'pl_wns', 'optimized_wns', 'fastroute_wns', 'spef_wns', 'tns', 'pl_tns', 'optimized_tns', 'fastroute_tns' , 'spef_tns',

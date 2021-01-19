@@ -35,7 +35,7 @@ magic_violations_idx = 0
 antenna_violations_idx = 0
 wire_length_idx = 0
 via_idx = 0
-runtime_idx= 0
+flow_status_idx= 0
 design_idx=0
 
 def get_header(report_file):
@@ -154,7 +154,7 @@ def get_best_violation(results_vector):
     remover = 0
     n = len(results_vector)
     while(remover != n and n != 1):
-        if str(results_vector[remover][runtime_idx]).startswith("-"):
+        if "fail" in str(results_vector[remover][flow_status_idx]):
             results_vector.pop(remover)
             remover-=1
             n = len(results_vector)
@@ -226,7 +226,7 @@ magic_violations_idx = findIdx(headerSplit, 'Magic_violations')-(design_idx+1)
 antenna_violations_idx = findIdx(headerSplit, 'antenna_violations')-(design_idx+1)
 wire_length_idx = findIdx(headerSplit, 'wire_length')-(design_idx+1)
 via_idx = findIdx(headerSplit, 'vias')-(design_idx+1)
-runtime_idx = findIdx(headerSplit, 'runtime')-(design_idx+1)
+flow_status_idx = findIdx(headerSplit, 'flow_status')-(design_idx+1)
 best_results = get_best_results(results_dictionary)
 
 save_top_results(best_results, output_file, ",".join(headerSplit[design_idx:]))
