@@ -289,8 +289,10 @@ Most of the following commands' implementation exists in these files: [deflef][1
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
-|    | `[-output_file <output_file_path>]` | The ouput file path. <br> Defaults to being generated under `<run_path>/reports/`. |
+| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations along with a new report `runtime_summary_report.rpt` which includes the runtime summary of each major step of the flow. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
+|    | `[-output_file <output_file>]` | The ouput final summary csv report file path. <br> Defaults to being generated under `<run_path>/reports/final_summary_report.csv`. |
+|    | `[-man_report <man_report>]` | The ouput manufacturability report file path. <br> Defaults to being generated under `<run_path>/reports/manufacturability_report.rpt`. |
+|    | `[-runtime_summary_<runtime_summary>]` | The ouput runtime summary report file path. <br> Defaults to being generated under `<run_path>/reports/runtime_summary_report.rpt`. |
 | `remove_pins` | | Removes the pins' section from a given DEF file. |
 |    | `-input <def_file>` | The input DEF file. |
 | `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
@@ -322,7 +324,10 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
 | `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
 | `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
-| `flow_fail` | | Calls `generate_final_summary_report` and prints `Flow Failed`. |
+| `calc_total_runtime` | | Creates a `<-report>` file with `<-status>` for the design followed by the total runtime from the beginning of the flow. |
+|    | `[-report <report_file>]` | The ouput total runtime file path. <br> Defaults to being generated under `<run_path>/reports/total_runtime.txt`. |
+|    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `Flow completed`. |
+| `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `Flow failed`, and finally prints `Flow Failed` to the terminal. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
 
 

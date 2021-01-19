@@ -77,6 +77,7 @@ proc run_non_interactive_mode {args} {
 
 	run_lef_cvc
 
+	calc_total_runtime
 	generate_final_summary_report
 
 

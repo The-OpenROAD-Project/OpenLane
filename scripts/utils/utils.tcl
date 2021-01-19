@@ -207,8 +207,39 @@ proc index_file {args} {
 proc flow_fail {args} {
 	if { ! [info exists ::env(FLOW_FAILED)] || ! $::env(FLOW_FAILED) } {
 		set ::env(FLOW_FAILED) 1
+		calc_total_runtime -status "Flow failed"
 		generate_final_summary_report
 		puts_err "Flow Failed."
+	}
+}
+
+proc calc_total_runtime {args} {
+	## Calculate Total Runtime
+	if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
+		puts_info "Calculating Runtime From the Start..."
+		set options {
+			{-report optional}
+			{-status optional}
+		}
+		parse_key_args "calc_total_runtime" args arg_values $options
+		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
+		set_if_unset arg_values(-status) "Flow completed"
+		set timer_end [clock seconds]
+		set timer_start $::env(timer_start)
+		set datetime $::env(datetime)
+
+		set runtime_s [expr {($timer_end - $timer_start)}]
+		set runtime_h [expr {$runtime_s/3600}]
+
+		set runtime_s [expr {$runtime_s-$runtime_h*3600}]
+		set runtime_m [expr {$runtime_s/60}]
+
+		set runtime_s [expr {$runtime_s-$runtime_m*60}]
+		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
+		puts_info total_time
+		set runtime_log [open $arg_values(-report) w]
+		puts $runtime_log $total_time
+		close $runtime_log
 	}
 }
 
@@ -253,14 +284,23 @@ proc generate_final_summary_report {args} {
 		set options {
 			{-output optional}
 			{-man_report optional}
+			{-runtime_summary optional}
 		}
 		set flags {}
 		parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
 		
 		set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
+		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
 
-        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -m $arg_values(-man_report) -r $::env(RUN_DIR)
+        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) \
+			-dn $::env(DESIGN_NAME) \
+			-t $::env(RUN_TAG) \
+			-o $arg_values(-output) \
+			-m $arg_values(-man_report) \
+			-rs $arg_values(-runtime_summary) \
+			-r $::env(RUN_DIR)
+
         puts_info [read [open $arg_values(-man_report) r]]
 		puts_info "check full report here: $arg_values(-output)"
     }

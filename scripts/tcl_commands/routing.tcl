@@ -384,7 +384,7 @@ proc run_routing {args} {
     run_spef_extraction
 
     ## Calculate Runtime To Routing
-	runtime_from_start -status "Routing completed" -report $::env(REPORTS_DIR)/runtime.txt
+	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/runtime.txt
 }
 
 package provide openlane 0.9
