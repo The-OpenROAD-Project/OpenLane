@@ -236,7 +236,7 @@ proc calc_total_runtime {args} {
 
 		set runtime_s [expr {$runtime_s-$runtime_m*60}]
 		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-		puts_info total_time
+		puts_info $total_time
 		set runtime_log [open $arg_values(-report) w]
 		puts $runtime_log $total_time
 		close $runtime_log
