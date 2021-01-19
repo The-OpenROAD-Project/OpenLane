@@ -232,9 +232,13 @@ Most of the following commands' implementation exists in this [file][8]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `global_routing` | | Runs global routing  on the processed design using either the openroad app's fastroute or cugr based on the value of `GLOBAL_ROUTER`. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute. The resulting file is under `/<run_path>/results/routing/` . |
+| `global_routing_fastroute` | | Runs global routing  on the processed design using the openroad app's fastroute. The resulting file is under `/<run_path>/tmp/routing/` . |
+| `global_routing_cugr` | | Runs global routing  on the processed design using cugr. The resulting file is under `/<run_path>/tmp/routing/` . |
+| `detailed_routing` | | Runs detailed routing on the processed design using TritonRoute (standalone), TritonRoute (OpenROAD), or DRCU based onthe value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
+| `detailed_routing_tritonroute` | | Runs detailed routing on the processed design using TritonRoute: standalone or OpenROAD based on the value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
+| `detailed_routing_drcu` | | Runs detailed routing on the processed design using DRCU. The resulting file is under `/<run_path>/results/routing/` . |
 | `add_route_obs`| | Uses `GLB_RT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GLB_RT_OBS` in the configurations documentation for more details.|
-| `run_routing` | | Runs diode insertion based on the strategy, followed by `global_routing`, then `ins_fill_cells`, `detailed_routing`, and finally SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist using yosys and stores the results under `/<run_path>/results/synthesis`, and it runs yosys logic verification if enabled. |
+| `run_routing` | | Runs diode insertion based on the strategy, then adds the routing obstructions, followed by `global_routing`, then `ins_fill_cells`, `detailed_routing`, and finally SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist using yosys and stores the results under `/<run_path>/results/synthesis`, and it runs yosys logic verification if enabled. |
 
 ## Magic Commands
 
@@ -242,8 +246,8 @@ Most of the following commands' implementation exists in this [file][6]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_magic` | | Streams the final GDS and a mag view. The resulting file is under `/<run_path>/results/magic/` . |
-| `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
+| `run_magic` | | Streams the final GDS and a mag view + a PNG screenshot of the layout. This is controlled by `RUN_MAGIC` and `TAKE_GDS_SCROT`. The resulting file is under `/<run_path>/results/magic/` . |
+| `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF` or the `CURRENT_GDS` based on the value of `MAGIC_DRC_USE_GDS`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
 | `run_magic_spice_export` | | Runs spice extractions on the processed design. Based on the value of `MAGIC_EXT_USE_GDS` either the GDS or the DEF/LEF is used for the extraction. The resulting file is under `/<run_path>/results/magic/` . |
 | `export_magic_view` | | Export a mag view of a given def file. |
 |    | `-def <def_file>` | The input DEF file. |
@@ -256,12 +260,12 @@ Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDS-II and runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT` and `RUN_KLAYOUT_DRC`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_GDS_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
 | `scrot_klayout` | | Export a PNG view of a given GDS-II file. This is controlled by `TAKE_GDS_SCROT`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
 | `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
-|    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` part refers that the drc was run on the default GDS which is produced by magic. |
+|    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` implies that the drc was run on the default GDS which is produced by magic. |
 
 ## LVS Commands
 
