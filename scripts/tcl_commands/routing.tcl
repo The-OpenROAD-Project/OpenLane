@@ -100,7 +100,7 @@ proc global_routing {args} {
 
 	TIMER::timer_stop
 
-	exec echo "[TIMER::get_runtime]" >> $::env(fastroute_log_file_tag)_runtime.txt
+	exec echo "[TIMER::get_runtime]" >> [index_file $::env(fastroute_log_file_tag)_runtime.txt 0]
 	puts_info "Current Def is $::env(CURRENT_DEF)"
 	puts_info "Current Guide is $::env(CURRENT_GUIDE)"
 }
@@ -155,7 +155,7 @@ proc detailed_routing {args} {
 	}
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(tritonRoute_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(tritonRoute_log_file_tag)_runtime.txt 0]
 
     set_def $::env(tritonRoute_result_file_tag).def
 
@@ -186,7 +186,7 @@ proc ins_fill_cells {args} {
     }
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(addspacers_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(addspacers_log_file_tag)_runtime.txt 0]
 
 }
 
@@ -221,6 +221,8 @@ proc power_routing {args} {
 	{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/routing/power_routed.log 0] $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/power_routed_runtime.txt 0]
 }
 
 proc gen_pdn {args} {
@@ -234,13 +236,14 @@ proc gen_pdn {args} {
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(pdn_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(pdn_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
 }
 
 
 proc ins_diode_cells_1 {args} {
     puts_info "Running Diode Insertion..."
+	TIMER::timer_start
     set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
@@ -248,6 +251,8 @@ proc ins_diode_cells_1 {args} {
     set_def $::env(SAVE_DEF)
     write_verilog $::env(yosys_result_file_tag)_diodes.v
     set_netlist $::env(yosys_result_file_tag)_diodes.v
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/diodes_runtime.txt 0]
     if { $::env(LEC_ENABLE) } {
 		        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -255,6 +260,7 @@ proc ins_diode_cells_1 {args} {
 
 proc ins_diode_cells_4 {args} {
     puts_info "Running Diode Insertion..."
+	TIMER::timer_start
     set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
 
     # Select diode cell
@@ -275,6 +281,8 @@ proc ins_diode_cells_4 {args} {
 	# Update netlist
 	write_verilog $::env(yosys_result_file_tag)_diodes.v
 	set_netlist $::env(yosys_result_file_tag)_diodes.v
+	TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/diodes_runtime.txt 0]
 	if { $::env(LEC_ENABLE) } {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -302,9 +310,12 @@ proc add_route_obs {args} {
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
         puts_info "Running SPEF Extraction..."
+		TIMER::timer_start
 	    set ::env(MPLCONFIGDIR) /tmp
         try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
         set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
         # Static Timing Analysis using the extracted SPEF
         set report_tag_holder $::env(opensta_report_file_tag)
         set log_tag_holder $::env(opensta_log_file_tag)
@@ -372,23 +383,8 @@ proc run_routing {args} {
 
     run_spef_extraction
 
-    ## TIMER END
-    set timer_end [clock seconds]
-    set timer_start $::env(timer_start)
-    set datetime $::env(datetime)
-
-    set runtime_s [expr {($timer_end - $timer_start)}]
-    set runtime_h [expr {$runtime_s/3600}]
-
-    set runtime_s [expr {$runtime_s-$runtime_h*3600}]
-    set runtime_m [expr {$runtime_s/60}]
-
-    set runtime_s [expr {$runtime_s-$runtime_m*60}]
-    set routing_status  "Routing completed for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-    puts_info $routing_status
-    set runtime_log [open $::env(REPORTS_DIR)/runtime.txt w]
-    puts $runtime_log $routing_status
-    close $runtime_log
+    ## Calculate Runtime To Routing
+	runtime_from_start -status "Routing completed" -report $::env(REPORTS_DIR)/runtime.txt
 }
 
 package provide openlane 0.9

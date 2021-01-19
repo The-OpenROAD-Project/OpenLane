@@ -14,6 +14,7 @@
 
 proc run_klayout {args} {
     if {[info exists ::env(RUN_KLAYOUT)] && $::env(RUN_KLAYOUT)} {
+		TIMER::timer_start
 		set ::env(CURRENT_STAGE) klayout
 		puts_info "Running Klayout to re-generate GDS-II..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
@@ -29,6 +30,8 @@ proc run_klayout {args} {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
 			puts_info "Back-up GDS-II streamed out."
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_runtime.txt 0]
 			scrot_klayout -gds $::env(klayout_result_file_tag).gds
 			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
 				set conf_save $::env(RUN_KLAYOUT_DRC)
@@ -46,6 +49,7 @@ proc run_klayout {args} {
 
 proc scrot_klayout {args} {
     if {[info exists ::env(TAKE_GDS_SCROT)] && $::env(TAKE_GDS_SCROT)} {
+		TIMER::timer_start
 		puts_info "Taking a Screenshot of the Layout Using Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			set options {
@@ -57,6 +61,8 @@ proc scrot_klayout {args} {
 			}
 			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-gds) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).scrot.log]
 			puts_info "Screenshot taken."
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_scrot_runtime.txt 0]
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the GDS-II."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
@@ -67,6 +73,7 @@ proc scrot_klayout {args} {
 
 proc run_klayout_drc {args} {
     if {[info exists ::env(RUN_KLAYOUT_DRC)] && $::env(RUN_KLAYOUT_DRC)} {
+		TIMER::timer_start
 		puts_info "Running DRC on the layout using Klayout..."
 		if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] } {
 			set options {
@@ -81,6 +88,8 @@ proc run_klayout_drc {args} {
 			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).$arg_values(-stage).drc.log]
 			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).$arg_values(-stage).lydrc 0]
 			puts_info "Klayout DRC Complete"
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_$arg_values(-stage)\_drc_runtime.txt 0]
 		} else {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, we won't be able to run klayout drc on the GDS-II."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."

@@ -145,7 +145,7 @@ proc prep {args} {
 
     set ::env(timer_start) [clock seconds]
     set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
-
+    TIMER::timer_start
     set options {
         {-design required}
         {-tag optional}
@@ -485,6 +485,8 @@ proc prep {args} {
     }
 
     puts_info "Preparation complete"
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/prep_runtime.txt 0]
     return -code ok
 }
 
@@ -605,12 +607,13 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-	puts_info "Healing Antenna Violators..."
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
 	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        TIMER::timer_start
+        puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
 			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
@@ -625,6 +628,8 @@ proc heal_antenna_violators {args} {
 		#replace violating cells with real diodes
 		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/antenna_heal_runtime.txt 0]
 	}
 }
 
@@ -679,6 +684,7 @@ proc use_original_lefs {args} {
 
 
 proc label_macro_pins {args} {
+    TIMER::timer_start
     puts_info "Labeling macro pins..."
     set options {
         {-lef required}
@@ -710,10 +716,13 @@ proc label_macro_pins {args} {
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
         {*}$extra_args |& tee [index_file $::env(LOG_DIR)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/label_macro_pins_runtime.txt 0]
 }
 
 
 proc write_verilog {filename args} {
+    TIMER::timer_start
     puts_info "Writing Verilog..."
     set ::env(SAVE_NETLIST) $filename
 
@@ -730,6 +739,8 @@ proc write_verilog {filename args} {
     set ::env(INPUT_DEF) $arg_values(-def)
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/write_verilog_runtime.txt 0]
     if { [info exists flags_map(-canonical)] } {
         yosys_rewrite_verilog $filename
     }
@@ -751,9 +762,13 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
+    TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
 	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
     try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/or_antenna_runtime.txt 0]
+
 }
 
 proc run_antenna_check {args} {

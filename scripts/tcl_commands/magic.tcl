@@ -13,13 +13,13 @@
 # limitations under the License.
 
 proc run_magic {args} {
+		TIMER::timer_start
 		puts_info "Running Magic to generate various views..."
 		# |----------------------------------------------------|
 		# |----------------   6. TAPE-OUT ---------------------|
 		# |----------------------------------------------------|
 		puts_info "Streaming out GDS II..."
 		set ::env(CURRENT_STAGE) finishing
-
 		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 		# the following MAGTYPE better be mag for clean GDS generation
 		# use load -dereference to ignore it later if needed
@@ -81,11 +81,13 @@ proc run_magic {args} {
 				copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).lef.mag
 			}
 		}
-
+		TIMER::timer_stop
+	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_gen_runtime.txt 0]
 }
 
 
 proc run_magic_drc {args} {
+		TIMER::timer_start
 		puts_info "Running Magic DRC..."
 		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
 		# the following MAGTYPE has to be maglef for the purpose of DRC checking
@@ -123,7 +125,8 @@ proc run_magic_drc {args} {
 			puts_info "Converted DRC Violations to RDB Format"
 		}
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
-
+		TIMER::timer_stop
+	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_drc_runtime.txt 0]
 		quit_on_magic_drc
 
 		set ::env(magic_report_file_tag) $report_tag_saver
@@ -131,6 +134,7 @@ proc run_magic_drc {args} {
 
 
 proc run_magic_spice_export {args} {
+		TIMER::timer_start
 		if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
 			set extract_type "gds.spice"
 			puts_info "Running Magic Spice Export from GDS..."
@@ -192,9 +196,12 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 		}
     file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_ext_$extract_type\_runtime.txt 0]
 }
 
 proc export_magic_view {args} {
+		TIMER::timer_start
 		set options {
 				{-def required}
 				{-output required}
@@ -226,9 +233,12 @@ puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 				$script_dir \
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_save_mag.log]
+		TIMER::timer_stop
+	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_save_mag_runtime.txt 0]
 }
 
 proc run_magic_antenna_check {args} {
+		TIMER::timer_start
 		puts_info "Running Magic Antenna Checks..."
 		set magic_export $::env(TMP_DIR)/magic_antenna.tcl
 		set commands \
@@ -280,6 +290,9 @@ antennacheck
 		# process the log
 		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
 				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
+		TIMER::timer_stop
+	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_antenna_runtime.txt 0]
+
 }
 
 proc copy_gds_properties {from to} {

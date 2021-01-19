@@ -56,7 +56,7 @@ proc init_floorplan {args} {
 		}
 		set ::env(verilog2def_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(verilog2def_log_file_tag)_openroad_runtime.txt
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(verilog2def_log_file_tag)_openroad_runtime.txt 0]
 		set_def $::env(SAVE_DEF)
 }
 
@@ -123,7 +123,7 @@ proc place_io {args} {
 
 		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(ioPlacer_log_file_tag)_runtime.txt
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(ioPlacer_log_file_tag)_runtime.txt 0]
 		set_def $::env(SAVE_DEF)
 }
 
@@ -164,7 +164,7 @@ proc place_contextualized_io {args} {
 
 				TIMER::timer_stop
 
-				exec echo "[TIMER::get_runtime]" >> $::env(ioPlacer_log_file_tag)_runtime.txt
+				exec echo "[TIMER::get_runtime]" >> [index_file $::env(ioPlacer_log_file_tag)_runtime.txt 0]
 
 		} else {
 				puts_err "Contextual IO placement: def/lef files don't exist, exiting"
@@ -181,7 +181,7 @@ proc tap_decap_or {args} {
 				set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
 				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
 				TIMER::timer_stop
-				exec echo "[TIMER::get_runtime]" >> $::env(tapcell_log_file_tag)_runtime.txt
+				exec echo "[TIMER::get_runtime]" >> [index_file $::env(tapcell_log_file_tag)_runtime.txt 0]
 				set_def $::env(SAVE_DEF)
 			} else {
 				puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."

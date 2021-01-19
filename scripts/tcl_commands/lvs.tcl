@@ -84,6 +84,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     # GDS LVS output to lvs.gds.log, design.lvs_parsed.gds.log, design.lvs.gds.json, design.lvs.gds.log
     # GDS LVS uses STD_CELL_LIBRARY spice and
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
+    TIMER::timer_start
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type gds
         puts_info "Running GDS LVS..."
@@ -132,6 +133,8 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).$extract_type.json \
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
 
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(lvs_log_file_tag)_runtime.txt 0]
     quit_on_lvs_error -log $::env(lvs_result_file_tag)_parsed.$extract_type.log
 }
 

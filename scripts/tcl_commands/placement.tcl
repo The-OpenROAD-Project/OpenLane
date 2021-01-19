@@ -61,7 +61,7 @@ proc random_global_placement {args} {
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
 }
 
@@ -75,7 +75,7 @@ proc detailed_placement {args} {
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(opendp_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
     set_def $::env(opendp_result_file_tag).def
 }
 
@@ -124,7 +124,7 @@ proc detailed_placement_or {args} {
 
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(opendp_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
 }
 
@@ -139,7 +139,7 @@ proc basic_macro_placement {args} {
 
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(LOG_DIR)/placement/basic_mp_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/basic_mp_runtime.txt 0]
     set_def $::env(SAVE_DEF)
 }
 
@@ -212,7 +212,7 @@ proc run_openPhySyn {args} {
         set ::env(opensta_log_file_tag) $log_tag_holder
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> $::env(openphysyn_log_file_tag)_runtime.txt
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(openphysyn_log_file_tag)_runtime.txt 0]
     } else {
         puts_info "Skipping OpenPhySyn Timing Optimizations."
     }

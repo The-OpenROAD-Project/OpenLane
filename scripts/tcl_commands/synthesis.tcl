@@ -77,22 +77,25 @@ proc run_yosys {args} {
         try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(yosys_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_runtime.txt 0]
 }
 
 proc run_sta {args} {
     puts_info "Running Static Timing Analysis..."
+	TIMER::timer_start
     if {[info exists ::env(CLOCK_PORT)]} {
 		set report_tag_saver $::env(opensta_report_file_tag)
 		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
 
         try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
-		
+
 		set ::env(opensta_report_file_tag) $report_tag_saver
     } else {
         puts_warn "No CLOCK_PORT found. Skipping STA..."
     }
+	TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opensta_log_file_tag)_runtime.txt 0]
 }
 
 proc run_synth_exploration {args} {
@@ -165,6 +168,7 @@ proc verilog_elaborate {args} {
 
 proc yosys_rewrite_verilog {filename} {
 	if { $::env(LEC_ENABLE) || ! [info exists ::env(YOSYS_REWRITE_VERILOG)] || $::env(YOSYS_REWRITE_VERILOG) } {
+		TIMER::timer_start
 		if { ! [file exists $filename] } {
 			puts_err "$filename does not exist to be re-written"
 			return -code error
@@ -178,13 +182,16 @@ proc yosys_rewrite_verilog {filename} {
 		-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
 		-l [index_file $::env(yosys_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_rewrite_verilog_runtime.txt 0]
 	} else {
-		puts_info "Yosys won't attempt to rewrite verilog, and the OpenROAD output will be used as is." 
+		puts_info "Yosys won't attempt to rewrite verilog, and the OpenROAD output will be used as is."
 	}
 }
 
 
 proc logic_equiv_check {args} {
+	TIMER::timer_start
 	set options {
 		{-lhs required}
 		{-rhs required}
@@ -205,11 +212,14 @@ proc logic_equiv_check {args} {
 	-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
 	-l [index_file $::env(yosys_log_file_tag).equiv.log] \
 	|& tee $::env(TERMINAL_OUTPUT)}] } {
-		
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
 	    return -code error
 	}
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
+	TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
     return -code ok
 }
 

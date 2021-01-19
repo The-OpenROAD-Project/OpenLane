@@ -87,7 +87,7 @@ proc run_cts {args} {
 		check_cts_clock_nets
 
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(cts_log_file_tag)_runtime.txt 0]
 
 		set_def $::env(SAVE_DEF)
 		write_verilog $::env(yosys_result_file_tag)_cts.v
@@ -96,7 +96,7 @@ proc run_cts {args} {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
 	} else {
-		exec echo "SKIPPED!" >> [index_file $::env(cts_log_file_tag).log]	
+		exec echo "SKIPPED!" >> [index_file $::env(cts_log_file_tag).log]
 	}
 
 }

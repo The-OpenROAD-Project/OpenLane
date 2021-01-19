@@ -22,6 +22,7 @@ proc run_lef_cvc {args} {
         } else {
             if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
             puts_info "Running CVC"
+            TIMER::timer_start
             set cvc_power_awk "\
 BEGIN {  # Print power and standard_input definitions
     print \"$::env(VDD_PIN) power 1.8\";
@@ -64,6 +65,8 @@ BEGIN {  # Print power and standard_input definitions
                 > $::env(cvc_result_file_tag).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
                 |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cvc_log_file_tag)_screen.log]
+            TIMER::timer_stop
+		    exec echo "[TIMER::get_runtime]" >> [index_file $::env(cvc_log_file_tag)_runtime.txt 0]
             } else {
                 puts_info "Skipping CVC"
             }
