@@ -68,7 +68,7 @@ Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efables
 
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
 
-**Note**: if runtime is `-1`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
+**Note**: if `flow_status` is `flow_failed`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
 
 Now you can skip forward to [running openlane](#running-openlane).
 

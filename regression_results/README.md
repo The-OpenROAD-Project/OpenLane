@@ -20,7 +20,7 @@ You can view the results of the run against some designs (more [here](#usage)) a
 - [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.html)
 - [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.html)
 
-**Note**: `-1` under `runtime` implies that the run had failed.
+**Note**: `flow_failed` under `flow_status` implies that the run had failed.
 
 To replicate these sheets, run the following command inside the docker after setting the proper standard cell library in [../configuration/general.tcl](../configuration/general.tcl):
 

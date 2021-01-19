@@ -9,7 +9,9 @@
 | `design`   | The directory of the design        |
 | `design_name`   | The name of the top level module of the design        |
 | `config`   | The name of the configurations file of the design        |
-| `runtime`   | The runtime of running the process on the design. Extracted from runtime.txt       |
+| `flow_status`   | The status of the flow at the end of the run. Extracted from total_runtime.txt       |
+| `total_runtime`   | The total runtime of running the process on the design. Extracted from total_runtime.txt       |
+| `routed_runtime`   | The runtime of running the process up to (including) detailed routing on the design. Extracted from routed_runtime.txt       |
 | `DIEAREA_mm^2`   | The diearea in mm<sup>2</sup> as reported from the def file.        |
 | `CellPer_mm^2`   | The number of cells in the design as reported by yosys divided by the diearea in mm<sup>2</sup>.      |
 | `(Cell/mm^2)/Core_Util`   | The number of cells in the design as reported by yosys divided by the diearea in mm<sup>2</sup>, all divided by the FP_CORE_UTIL configuration parameter.     |
