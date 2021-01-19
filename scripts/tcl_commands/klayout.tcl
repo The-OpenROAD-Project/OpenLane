@@ -32,7 +32,7 @@ proc run_klayout {args} {
 			puts_info "Back-up GDS-II streamed out."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_runtime.txt 0]
-			scrot_klayout -gds $::env(klayout_result_file_tag).gds
+			scrot_klayout -layout $::env(klayout_result_file_tag).gds
 			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
 				set conf_save $::env(RUN_KLAYOUT_DRC)
 				set ::env(RUN_KLAYOUT_DRC) 1
@@ -48,25 +48,25 @@ proc run_klayout {args} {
 }
 
 proc scrot_klayout {args} {
-    if {[info exists ::env(TAKE_GDS_SCROT)] && $::env(TAKE_GDS_SCROT)} {
+    if {[info exists ::env(TAKE_LAYOUT_SCROT)] && $::env(TAKE_LAYOUT_SCROT)} {
 		TIMER::timer_start
 		puts_info "Taking a Screenshot of the Layout Using Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			set options {
-				{-gds optional}
+				{-layout optional}
 			}
 			parse_key_args "scrot_klayout" args arg_values $options
 			if {[info exists ::env(CURRENT_GDS)]} {
-				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
+				set_if_unset arg_values(-layout) $::env(CURRENT_GDS)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-gds) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).scrot.log]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).scrot.log]
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_scrot_runtime.txt 0]
 		} else {
-			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the GDS-II."
+			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the Layout."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
-			puts_warn "This warning can be turned off by setting ::env(TAKE_GDS_SCROT) to 0, or defining a tech file."
+			puts_warn "This warning can be turned off by setting ::env(TAKE_LAYOUT_SCROT) to 0, or defining a tech file."
 		}
 	}
 }

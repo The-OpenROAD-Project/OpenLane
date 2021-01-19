@@ -15,11 +15,11 @@
 
 set -e
 
-: ${1?"Usage: $0 tech_file input.gds"}
-: ${2?"Usage: $0 tech_file input.gds"}
+: ${1?"Usage: $0 tech_file input"}
+: ${2?"Usage: $0 tech_file input"}
 
 echo "Using Techfile: $1"
-echo "Using GDS file: $2"
+echo "Using layout file: $2"
 
 # The -a here is necessary to handle race conditions.
 # This limits the max number of possible jobs to 100.

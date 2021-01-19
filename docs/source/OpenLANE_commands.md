@@ -246,7 +246,7 @@ Most of the following commands' implementation exists in this [file][6]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_magic` | | Streams the final GDS and a mag view + a PNG screenshot of the layout. This is controlled by `RUN_MAGIC` and `TAKE_GDS_SCROT`. The resulting file is under `/<run_path>/results/magic/` . |
+| `run_magic` | | Streams the final GDS and a mag view + a PNG screenshot of the layout. This is controlled by `RUN_MAGIC` and `TAKE_LAYOUT_SCROT`. The resulting file is under `/<run_path>/results/magic/` . |
 | `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF` or the `CURRENT_GDS` based on the value of `MAGIC_DRC_USE_GDS`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
 | `run_magic_spice_export` | | Runs spice extractions on the processed design. Based on the value of `MAGIC_EXT_USE_GDS` either the GDS or the DEF/LEF is used for the extraction. The resulting file is under `/<run_path>/results/magic/` . |
 | `export_magic_view` | | Export a mag view of a given def file. |
@@ -260,9 +260,9 @@ Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_GDS_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
-| `scrot_klayout` | | Export a PNG view of a given GDS-II file. This is controlled by `TAKE_GDS_SCROT`. |
-|    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
+| `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `scrot_klayout` | | Export a PNG view of a given GDS-II or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
+|    | `[-layout <layout_file>]` | The input GDS or DEF file, the default is `::env(CURRENT_GDS)`. |
 | `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
 |    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` implies that the drc was run on the default GDS which is produced by magic. |

@@ -36,7 +36,7 @@ set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"
 set ::env(RUN_KLAYOUT) 1
-set ::env(TAKE_GDS_SCROT) 1
+set ::env(TAKE_LAYOUT_SCROT) 1
 set ::env(RUN_KLAYOUT_DRC) 1
 set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 
