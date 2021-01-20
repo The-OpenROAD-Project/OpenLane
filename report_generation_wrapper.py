@@ -189,9 +189,9 @@ def getListOfFiles(dirName):
     return allFiles
 
 def conver_to_seconds(runtime):
-    pattern = re.compile(r'\s*(\d)+h(\d)+m(\d)+s(\d)+ms')
+    pattern = re.compile(r'\s*([\d+]+)h([\d+]+)m([\d+]+)s([\d+]+)+ms')
     m = pattern.match(runtime)
-    time = int(m.group(1))*60*60 + int(m.group(2))*60 + int(m.group(3)) + int(m.group(4))/1000
+    time = int(m.group(1))*60*60 + int(m.group(2))*60 + int(m.group(3)) + int(m.group(4))/1000.0
     return str(time)
 
 # Creating a runtime summary report
