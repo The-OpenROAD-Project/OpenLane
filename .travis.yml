@@ -31,6 +31,7 @@ services:
 jobs:
   include:
     - name: "Base Test"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=spm EXTRA_FLAGS=-so
       install:
         - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
@@ -39,63 +40,230 @@ jobs:
             bash travisCI/travisBuild.sh;
           fi
     - name: "Typical Test Set 2"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=typicalTestSet1
     - name: "des"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=des EXTRA_FLAGS=-so
     - name: "Fastest Test Set"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=fastestTestSet
     - name: "BM64"
+      if: branch != develop-latest_tools_x
       env: TEST_SET=BM64 EXTRA_FLAGS=-so
     - name: "aes_cipher"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=aes_cipher
     - name: "picorv32a"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=picorv32a EXTRA_FLAGS=-so
     - name: "chacha"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=chacha
     - name: "PPU"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=PPU EXTRA_FLAGS=-so
     - name: "y_huff"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=y_huff EXTRA_FLAGS=-so
     - name: "blabla"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=blabla EXTRA_FLAGS=-so
     - name: "ldpcenc"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
     - name: "salsa20"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=salsa20 EXTRA_FLAGS=-so
     - name: "aes_core"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=aes_core
     - name: "aes"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=aes
     - name: "sha512"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=sha512
     - name: "genericfir"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=genericfir EXTRA_FLAGS=-so
     - name: "aes128"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=aes128
     - name: "aes192"
-      if: branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=aes192
+    - name: "Base Test Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=spm TOOL=magic EXTRA_FLAGS=-so
+      before_install: bash travisCI/travisPreBuild.sh;
+    - name: "Fastest Test Set Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=fastestTestSet TOOL=magic EXTRA_FLAGS=-so
+    - name: "Typical Test Set 1 Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet1 TOOL=magic EXTRA_FLAGS=-so
+    - name: "Typical Test Set 2 Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet2 TOOL=magic EXTRA_FLAGS=-so
+    - name: "BM64 Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=BM64 TOOL=magic EXTRA_FLAGS=-so
+    - name: "picorv32a Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=picorv32a TOOL=magic EXTRA_FLAGS=-so
+    - name: "chacha Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=chacha TOOL=magic EXTRA_FLAGS=-so
+    - name: "des Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=des TOOL=magic EXTRA_FLAGS=-so
+    - name: "blabla Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=blabla TOOL=magic EXTRA_FLAGS=-so
+    - name: "PPU Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=PPU TOOL=magic EXTRA_FLAGS=-so
+    - name: "aes_cipher Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=aes_cipher TOOL=magic EXTRA_FLAGS=-so
+    - name: "y_huff Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=y_huff TOOL=magic EXTRA_FLAGS=-so
+    - name: "ldpcenc Magic"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=ldpcenc TOOL=magic EXTRA_FLAGS=-so
+    - name: "Base Test OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=spm TOOL=openroad_app EXTRA_FLAGS=-so
+      before_install: bash travisCI/travisPreBuild.sh;
+    - name: "Fastest Test Set OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=fastestTestSet TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "Typical Test Set 1 OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet1 TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "Typical Test Set 2 OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet2 TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "BM64 OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=BM64 TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "picorv32a OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=picorv32a TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "chacha OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=chacha TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "des OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=des TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "blabla OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=blabla TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "PPU OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=PPU TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "aes_cipher OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=aes_cipher TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "y_huff OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=y_huff TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "ldpcenc OpenROAD"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=ldpcenc TOOL=openroad_app EXTRA_FLAGS=-so
+    - name: "Base Test Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=spm TOOL=yosys EXTRA_FLAGS=-so
+      before_install: bash travisCI/travisPreBuild.sh;
+    - name: "Fastest Test Set Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=fastestTestSet TOOL=yosys EXTRA_FLAGS=-so
+    - name: "Typical Test Set 1 Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet1 TOOL=yosys EXTRA_FLAGS=-so
+    - name: "Typical Test Set 2 Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet2 TOOL=yosys EXTRA_FLAGS=-so
+    - name: "BM64 Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=BM64 TOOL=yosys EXTRA_FLAGS=-so
+    - name: "picorv32a Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=picorv32a TOOL=yosys EXTRA_FLAGS=-so
+    - name: "chacha Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=chacha TOOL=yosys EXTRA_FLAGS=-so
+    - name: "des Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=des TOOL=yosys EXTRA_FLAGS=-so
+    - name: "blabla Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=blabla TOOL=yosys EXTRA_FLAGS=-so
+    - name: "PPU Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=PPU TOOL=yosys EXTRA_FLAGS=-so
+    - name: "aes_cipher Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=aes_cipher TOOL=yosys EXTRA_FLAGS=-so
+    - name: "y_huff Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=y_huff TOOL=yosys EXTRA_FLAGS=-so
+    - name: "ldpcenc Yosys"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=ldpcenc TOOL=yosys EXTRA_FLAGS=-so
+    - name: "Base Test Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=spm TOOL=netgen EXTRA_FLAGS=-so
+      before_install: bash travisCI/travisPreBuild.sh;
+    - name: "Fastest Test Set Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=fastestTestSet TOOL=netgen EXTRA_FLAGS=-so
+    - name: "Typical Test Set 1 Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet1 TOOL=netgen EXTRA_FLAGS=-so
+    - name: "Typical Test Set 2 Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=typicalTestSet2 TOOL=netgen EXTRA_FLAGS=-so
+    - name: "BM64 Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=BM64 TOOL=netgen EXTRA_FLAGS=-so
+    - name: "picorv32a Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=picorv32a TOOL=netgen EXTRA_FLAGS=-so
+    - name: "chacha Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=chacha TOOL=netgen EXTRA_FLAGS=-so
+    - name: "des Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=des TOOL=netgen EXTRA_FLAGS=-so
+    - name: "blabla Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=blabla TOOL=netgen EXTRA_FLAGS=-so
+    - name: "PPU Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=PPU TOOL=netgen EXTRA_FLAGS=-so
+    - name: "aes_cipher Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=aes_cipher TOOL=netgen EXTRA_FLAGS=-so
+    - name: "y_huff Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=y_huff TOOL=netgen EXTRA_FLAGS=-so
+    - name: "ldpcenc Netgen"
+      if: branch = develop-latest_tools_x
+      env: TEST_SET=y_huff TOOL=netgen EXTRA_FLAGS=-so
 
 before_install:
   - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
       sh travisCI/travisAutoMerge.sh;
-    else
-      echo "No before_install for this branch.";
+    fi
+  - if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+      sh travisCI/travisAutoMerge.sh;
+      bash travisCI/utils/bash_run_wrapper.sh travisCI/travisPreBuild.sh;
     fi
 
 install:
