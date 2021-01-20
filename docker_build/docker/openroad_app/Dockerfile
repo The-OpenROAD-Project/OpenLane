@@ -55,7 +55,7 @@ RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
 
 # Install dev and runtime dependencies
 # Tcl 8.5
-RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel 
+RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel
 
 # build boost
 RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
@@ -90,10 +90,10 @@ RUN git clone https://gitlab.com/libeigen/eigen.git --branch=3.3 \
 RUN cd / && wget http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz \
     && tar -xf lemon-1.3.1.tar.gz \
     && cd lemon-1.3.1 \
-    && cmake -B build . \ 
+    && cmake -B build . \
     && cmake --build build -j $(nproc) --target install
 
-    
+
 RUN yum install -y gettext-devel help2man texinfo \
     && git clone https://github.com/westes/flex \
     && cd flex \
@@ -116,8 +116,8 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog.git \
 
 RUN git clone --recursive https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_10012020
 WORKDIR /OpenROAD_10012020/
-RUN git checkout 1415572a73d43dfc91ba4501170fe6a245729e87 \
-	&& git submodule update --init --recursive
+RUN git checkout 1415572a73d43dfc91ba4501170fe6a245729e87
+RUN git submodule update --init --recursive
 
 COPY rails.patch /OpenROAD_10012020/
 RUN git apply rails.patch
