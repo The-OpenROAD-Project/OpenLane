@@ -16,6 +16,7 @@
 
 import argparse
 import os
+import re
 from scripts.report.report import Report
 from scripts.config.config import ConfigHandler
 import scripts.utils.utils as utils
@@ -187,10 +188,17 @@ def getListOfFiles(dirName):
             allFiles.append(fullPath)
     return allFiles
 
+def conver_to_seconds(runtime):
+    pattern = re.compile(r'\s*(\d)+h(\d)+m(\d)+s(\d)+ms')
+    m = pattern.match(runtime)
+    time = int(m.group(1))*60*60 + int(m.group(2))*60 + int(m.group(3)) + int(m.group(4))/1000
+    return str(time)
+
 # Creating a runtime summary report
 logs_path=run_path+"/logs"
 neededfiles = sorted([(int(os.path.basename(f).split("-",1)[0]),f) for f in getListOfFiles(logs_path) if os.path.isfile(os.path.join(logs_path, f)) and len(f.split('_')) > 1 and f.split('_')[-1] == "runtime.txt" and len(os.path.basename(f).split('-')) > 1 and os.path.basename(f).split('-')[0].isnumeric()])
 runtimeArr = []
+prasableRuntimeArr= []
 for (idx,f) in neededfiles:
     stagename = os.path.basename(f).split("_runtime.txt")[0]
     runtimeFileOpener = open(f, "r")
@@ -198,8 +206,13 @@ for (idx,f) in neededfiles:
         runtimeContent = runtimeFileOpener.read().strip()
     runtimeFileOpener.close()
     runtimeArr.append(str(stagename)+ " "+ str(runtimeContent))
+    prasableRuntimeArr.append(str(stagename)+ " "+ conver_to_seconds(runtimeContent))
 
 # write into file
 outputFileOpener = open(runtime_summary,"w")
 outputFileOpener.write("\n".join(runtimeArr))
+outputFileOpener.close()
+
+outputFileOpener = open(runtime_summary+".parsable","w")
+outputFileOpener.write("\n".join(prasableRuntimeArr))
 outputFileOpener.close()
