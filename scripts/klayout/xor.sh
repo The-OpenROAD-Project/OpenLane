@@ -13,8 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: ${1?"Usage: $0 file1.gds file2.gds <top_level_module_name>"}
-: ${2?"Usage: $0 file1.gds file2.gds <top_level_module_name>"}
-: ${3?"Usage: $0 file1.gds file2.gds <top_level_module_name>"}
+: ${1?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
+: ${2?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
+: ${3?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
+: ${4?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
 
-klayout -r $(dirname $0)/xor.drc -rd top_cell=$3 -rd a=$1 -rd b=$2 -rd thr=$(nproc) -rd ol=xor.gds -zz
+
+echo "First Layout: $1"
+echo "Second Layout: $2"
+echo "Design Name: $3"
+echo "Output GDS will be: $4"
+
+xvfb-run -a klayout -r $(dirname $0)/xor.drc \
+    -rd top_cell=$3 \
+    -rd a=$1 \
+    -rd b=$2 \
+    -rd thr=$(nproc) \
+    -rd ol=$4 \
+    -zz

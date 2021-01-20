@@ -98,4 +98,26 @@ proc run_klayout_drc {args} {
 	}
 }
 
+proc run_klayout_gds_xor {args} {
+    if {[info exists ::env(RUN_KLAYOUT_XOR)] && $::env(RUN_KLAYOUT_XOR)} {
+		TIMER::timer_start
+		puts_info "Running XOR on the layouts using Klayout..."
+			set options {
+				{-layout1 optional}
+				{-layout2 optional}
+				{-output optional}
+			}
+			parse_key_args "run_klayout_gds_xor" args arg_values $options
+			set_if_unset arg_values(-layout1) $::env(magic_result_file_tag).gds
+			set_if_unset arg_values(-layout2) $::env(klayout_result_file_tag).gds
+			set_if_unset arg_values(-output) $::env(klayout_result_file_tag).xor.gds
+
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh $arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) $arg_values(-output) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+			try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py -l [index_file $::env(klayout_log_file_tag).xor.log 0] -o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+			puts_info "Klayout XOR Complete"
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_xor_runtime.txt 0]
+	}
+}
+
 package provide openlane 0.9
