@@ -53,7 +53,7 @@ def read_csv(csv_file):
 
 
 def create_output_html(csv_file, html_file):
-    colms = ['design','config','runtime','DIEAREA_mm^2','OpenDP_Util','cell_count','tritonRoute_violations',
+    colms = ['design','config','total_runtime','DIEAREA_mm^2','OpenDP_Util','cell_count','tritonRoute_violations',
             'Short_violations',	'Magic_violations', 'antenna_violations', 'wns', 'CLOCK_PERIOD']
 
     allData = pd.read_csv(csv_file, error_bad_lines=False)
