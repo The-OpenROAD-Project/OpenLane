@@ -13,10 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-: ${1?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
-: ${2?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
-: ${3?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
-: ${4?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds"}
+: ${1?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds|markers.xml"}
+: ${2?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds|markers.xml"}
+: ${3?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds|markers.xml"}
+: ${4?"Usage: $0 file1.gds file2.gds <top_level_module_name> output.gds|markers.xml"}
 
 
 echo "First Layout: $1"
@@ -30,4 +30,6 @@ xvfb-run -a klayout -r $(dirname $0)/xor.drc \
     -rd b=$2 \
     -rd thr=$(nproc) \
     -rd ol=$4 \
+    -rd o=$4 \
+    -rd ext=${4##*.} \
     -zz

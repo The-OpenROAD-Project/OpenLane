@@ -105,16 +105,36 @@ proc run_klayout_gds_xor {args} {
 			set options {
 				{-layout1 optional}
 				{-layout2 optional}
-				{-output optional}
+				{-output_xml optional}
+				{-output_gds optional}
 			}
 			parse_key_args "run_klayout_gds_xor" args arg_values $options
 			set_if_unset arg_values(-layout1) $::env(magic_result_file_tag).gds
 			set_if_unset arg_values(-layout2) $::env(klayout_result_file_tag).gds
-			set_if_unset arg_values(-output) $::env(klayout_result_file_tag).xor.gds
+			set_if_unset arg_values(-output_xml) $::env(klayout_result_file_tag).xor.xml
+			set_if_unset arg_values(-output_gds) $::env(klayout_result_file_tag).xor.gds
 			if { [file exists $arg_values(-layout1)]} {
 				if { [file exists $arg_values(-layout2)] } {
-					try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh $arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) $arg_values(-output) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
-					try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py -l [index_file $::env(klayout_log_file_tag).xor.log 0] -o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+
+					if { $::env(KLAYOUT_XOR_GDS) } {
+						try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
+							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
+							$arg_values(-output_gds) \
+							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+						scrot_klayout -layout $arg_values(-output_gds)
+					}
+
+					if { $::env(KLAYOUT_XOR_XML) } {
+						try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
+							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
+							$arg_values(-output_xml) \
+							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+					}
+
+					try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
+						-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
+						-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+
 					puts_info "Klayout XOR Complete"
 				} else {
 					puts_warn "$arg_values(-layout2) wasn't found. Skipping GDS XOR."	
