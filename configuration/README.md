@@ -192,6 +192,8 @@ These variables are optional that can be specified in the design configuration f
 | `RUN_KLAYOUT_DRC` | Enables running Klayout DRC on GDS-II produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running Klayout DRC on GDS-II produced by Klayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_KLAYOUT_XOR` | Enables running Klayout XOR on 2 GDS-IIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_XOR_GDS` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running Klayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | Enables inserting simple clock tree after synthesis .1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `FILL_INSERTION` | Enables fill cells insertion after cts (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`)|
