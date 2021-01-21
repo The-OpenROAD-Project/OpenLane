@@ -26,9 +26,9 @@ if len(ARGV) < 4:
 MAX_Y = float(ARGV[1])
 EXTRA_WIDTH_LEFT = float(ARGV[2])
 EXTRA_WIDTH_RIGHT = float(ARGV[3])
-macro_name = None
+macro_names = None
 if len(ARGV) > 4:
-    macro_name = ARGV[4:]
+    macro_names = ARGV[4:]
 SIZE_X, SIZE_Y = -1, -1
 ORIGIN_X, ORIGIN_Y = -1, -1
 LAYER_LIST = ["li1", "met1", "met2", "met3", "met4", "met5"]
@@ -37,7 +37,7 @@ ORIGIN_REGEX = r"^\s*ORIGIN\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+;$"
 
 
 
-enable = macro_name is None
+enable = macro_names is None
 obs_section = False
 for line in sys.stdin:
     if line.isspace():
@@ -51,15 +51,15 @@ for line in sys.stdin:
     if line.startswith("MACRO"):
         tokens = line.split()
         assert len(tokens) == 2, line
-        if macro_name and tokens[1] in macro_name:
+        if macro_names and tokens[1] in macro_names:
             enable = True
         LAYERS = {layer:False for layer in LAYER_LIST}
 
-    if macro_name and line.startswith("END"):
+    if macro_names and line.startswith("END"):
         tokens = line.split()
         if len(tokens) > 1:
             assert len(tokens) == 2, line
-            if tokens[1] in macro_name:
+            if tokens[1] in macro_names:
                 enable = False
 
     size_match = re.search(SIZE_REGEX, line)
