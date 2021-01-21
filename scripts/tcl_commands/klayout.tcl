@@ -111,10 +111,17 @@ proc run_klayout_gds_xor {args} {
 			set_if_unset arg_values(-layout1) $::env(magic_result_file_tag).gds
 			set_if_unset arg_values(-layout2) $::env(klayout_result_file_tag).gds
 			set_if_unset arg_values(-output) $::env(klayout_result_file_tag).xor.gds
-
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh $arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) $arg_values(-output) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
-			try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py -l [index_file $::env(klayout_log_file_tag).xor.log 0] -o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
-			puts_info "Klayout XOR Complete"
+			if { [file exists $arg_values(-layout1)]} {
+				if { [file exists $arg_values(-layout2)] } {
+					try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh $arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) $arg_values(-output) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+					try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py -l [index_file $::env(klayout_log_file_tag).xor.log 0] -o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+					puts_info "Klayout XOR Complete"
+				} else {
+					puts_warn "$arg_values(-layout2) wasn't found. Skipping GDS XOR."	
+				}
+			} else {
+				puts_warn "$arg_values(-layout1) wasn't found. Skipping GDS XOR."
+			}
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_xor_runtime.txt 0]
 	}
