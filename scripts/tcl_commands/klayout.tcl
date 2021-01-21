@@ -121,6 +121,9 @@ proc run_klayout_gds_xor {args} {
 							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
 							$arg_values(-output_gds) \
 							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+						try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
+							-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
+							-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
 						scrot_klayout -layout $arg_values(-output_gds)
 					}
 
@@ -129,15 +132,14 @@ proc run_klayout_gds_xor {args} {
 							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
 							$arg_values(-output_xml) \
 							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+						try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
+							-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
+							-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
 					}
-
-					try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
-						-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
-						-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
 
 					puts_info "Klayout XOR Complete"
 				} else {
-					puts_warn "$arg_values(-layout2) wasn't found. Skipping GDS XOR."	
+					puts_warn "$arg_values(-layout2) wasn't found. Skipping GDS XOR."
 				}
 			} else {
 				puts_warn "$arg_values(-layout1) wasn't found. Skipping GDS XOR."
