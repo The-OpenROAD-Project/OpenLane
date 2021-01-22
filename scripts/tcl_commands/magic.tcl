@@ -144,6 +144,8 @@ proc run_magic_spice_export {args} {
 			puts_info "Running Magic Spice Export from LEF..."
 			# LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
 		}
+		set log_tag_saver $::env(magic_log_file_tag)
+		set ::env(magic_log_file_tag) [index_file $::env(magic_log_file_tag)]
 		set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).$extract_type
 		set magic_export $::env(TMP_DIR)/magic_$extract_type.tcl
 		set commands \
@@ -191,7 +193,8 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$magic_export \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_$extract_type.log]
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_$extract_type.log
+		set ::env(magic_log_file_tag) $log_tag_saver
 		if { $extract_type == "spice" } {
 			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
 		}
@@ -199,7 +202,7 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_ext_$extract_type\_runtime.txt 0]
 
-	quit_on_illegal_overlaps -log $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
+	quit_on_illegal_overlaps -log [index_file $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt 0]
 }
 
 proc export_magic_view {args} {
@@ -243,6 +246,8 @@ proc run_magic_antenna_check {args} {
 		TIMER::timer_start
 		puts_info "Running Magic Antenna Checks..."
 		set magic_export $::env(TMP_DIR)/magic_antenna.tcl
+		set log_tag_saver $::env(magic_log_file_tag)
+		set ::env(magic_log_file_tag) [index_file $::env(magic_log_file_tag)]
 		set commands \
 "
 lef read \$::env(TECH_LEF)
@@ -288,8 +293,9 @@ antennacheck
 				-rcfile $::env(MAGIC_MAGICRC) \
 				$magic_export \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_antenna.log]
+				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_antenna.log
 		# process the log
+		set ::env(magic_log_file_tag) $log_tag_saver
 		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
 				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
 		TIMER::timer_stop
