@@ -198,6 +198,8 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
     file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_ext_$extract_type\_runtime.txt 0]
+
+	quit_on_illegal_overlaps -log $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 }
 
 proc export_magic_view {args} {

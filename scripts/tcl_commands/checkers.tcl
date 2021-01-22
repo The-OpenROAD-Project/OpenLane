@@ -155,4 +155,23 @@ proc quit_on_lvs_error {args} {
     }
 }
 
+proc quit_on_illegal_overlaps {args} {
+    if { [info exists ::env(QUIT_ON_ILLEGAL_OVERLAPS)] && $::env(QUIT_ON_ILLEGAL_OVERLAPS) } {
+        set options {
+            {-log required}
+        }
+        parse_key_args "quit_on_illegal_overlaps" args arg_values $options
+
+        set checker [catch {exec grep -E -o "Illegal overlap" $arg_values(-log)} error]
+        if { ! $checker } {
+            puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
+            puts_err "See $arg_values(-log) for more."
+            flow_fail
+            return -code error
+        } else {
+            puts_info "No Illegal overlaps detected during extraction."
+        }
+    }
+}
+
 package provide openlane 0.9
