@@ -97,7 +97,8 @@ Most of the following commands' implementation exists in this [file][1]
 | `quit_on_magic_drc` | | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. Controlled by `QUIT_ON_MAGIC_DRC`. |
 | `quit_on_lvs_error` | | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. Controlled by `QUIT_ON_LVS_ERROR`. |
 |    | `-log <file_parsed.log>` |  The parsed LVS log, generated at the end of running LVS. The reason why this is passed over is because there are two types of LVS and each produces a different report, and this might be expanded later. |
-
+| `quit_on_illegal_overlaps` | | Checks for illegal overlaps during magic extraction. In some cases, these imply existing undetected shorts in the design. It also exits the flow if any was found. Controlled by `QUIT_ON_ILLEGAL_OVERLAPS`. |
+|    | `-log <magic_ext_feedback.log>` |  The magic extraction feedback log, generated at the end of running Magic extractions. |
 
 
 ## Synthesis/Verilog Commands
