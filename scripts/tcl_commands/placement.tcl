@@ -91,12 +91,13 @@ proc add_macro_placement {args} {
 proc manual_macro_placement {args} {
     puts_info " Manual Macro Placement..."
     set var "f"
+    set fbasename [file rootname $::env(CURRENT_DEF)]
     if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
     } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(CURRENT_DEF).macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
     }
-    set_def $::env(CURRENT_DEF).macro_placement.def
+    set_def ${fbasename}.macro_placement.def
 }
 
 proc detailed_placement_or {args} {
@@ -131,7 +132,8 @@ proc detailed_placement_or {args} {
 proc basic_macro_placement {args} {
     puts_info "Running Basic Macro Placement"
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(CURRENT_DEF).macro_placement.def
+    set fbasename [file rootname $::env(CURRENT_DEF)]
+    set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
 
