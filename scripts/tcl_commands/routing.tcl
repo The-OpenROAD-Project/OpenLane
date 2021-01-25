@@ -288,12 +288,8 @@ proc ins_diode_cells_4 {args} {
     }
 }
 
-proc add_route_obs {args} {
-    if {![info exists ::env(GLB_RT_OBS)]} {
-        return
-    }
-
-    puts_info "Adding routing obstructions..."
+proc apply_route_obs {args} {
+	puts_info "Adding routing obstructions..."
 	# keep a warning for a while
 	puts_warn "Specifying a routing obstruction is now done using the coordinates"
 	puts_warn "of its bounding box instead of the now deprecated (x, y, size_x, size_y)."
@@ -303,8 +299,40 @@ proc add_route_obs {args} {
 		--lef $::env(MERGED_LEF) \
 		--obstructions $::env(GLB_RT_OBS) \
 		--output [file rootname $::env(CURRENT_DEF)].obs.def |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/obs.log
-
+	puts_info "Obstructions added over $::env(GLB_RT_OBS)"
 	set_def [file rootname $::env(CURRENT_DEF)].obs.def
+}
+
+proc add_route_obs {args} {
+    if {[info exists ::env(GLB_RT_OBS)]} {
+        apply_route_obs
+    }
+	if {[info exists ::env(GLB_RT_MAXLAYER)] && [info exists ::env(MAX_METAL_LAYER)] && [info exists ::env(TECH_METAL_LAYERS)] && $::env(GLB_RT_MAXLAYER) < $::env(MAX_METAL_LAYER)} {
+		set cnt 0
+		set obs ""
+		foreach layer $::env(TECH_METAL_LAYERS) {
+			set cnt [expr $cnt + 1]
+			if { $cnt == $::env(GLB_RT_MAXLAYER) + 1 } {
+				set obs "$layer $::env(DIE_AREA)"
+			} else {
+				if { $cnt > $::env(GLB_RT_MAXLAYER) } {
+					set new_obs ",$layer $::env(DIE_AREA)"
+					append obs $new_obs
+				}
+			}
+		}
+		set obs  [join $obs " "]
+		puts_info "Obstructions will be added over the whole die area: $obs"
+		if {[info exists ::env(GLB_RT_OBS)]} {
+			set store_obs $::env(GLB_RT_OBS)
+		}
+
+		set ::env(GLB_RT_OBS) $obs
+		apply_route_obs
+		if {[info exists store_obs]} {
+			set ::env(GLB_RT_OBS) $store_obs
+		}
+    }
 }
 
 proc run_spef_extraction {args} {
