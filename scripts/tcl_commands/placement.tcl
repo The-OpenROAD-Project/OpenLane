@@ -171,7 +171,7 @@ proc run_placement {args} {
     repair_wire_length
 
 	run_openPhySyn
-
+    run_resizer_design
 	detailed_placement_or
     scrot_klayout -layout $::env(CURRENT_DEF)
 }
@@ -189,8 +189,10 @@ proc run_openPhySyn {args} {
     if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
         puts_info "Running OpenPhySyn Timing Optimizations..."
         TIMER::timer_start
-        set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-        trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        if { ! [info exists ::env(LIB_OPT)]} {
+            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        }
         set report_tag_saver $::env(openphysyn_report_file_tag)
         set ::env(openphysyn_report_file_tag) [index_file $::env(openphysyn_report_file_tag)]
 
@@ -221,4 +223,73 @@ proc run_openPhySyn {args} {
     }
 }
 
+
+proc run_resizer_timing {args} {
+    if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
+        puts_info "Running Resizer Timing Optimizations..."
+        TIMER::timer_start
+        if { ! [info exists ::env(LIB_OPT)]} {
+            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        }
+        set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
+        set_def $::env(SAVE_DEF)
+
+        write_verilog $::env(yosys_result_file_tag)_optimized.v
+        set_netlist $::env(yosys_result_file_tag)_optimized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
+        set report_tag_holder $::env(opensta_report_file_tag)
+        set log_tag_holder $::env(opensta_log_file_tag)
+        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer_timing
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer_timing
+        run_sta
+        set ::env(opensta_report_file_tag) $report_tag_holder
+        set ::env(opensta_log_file_tag) $log_tag_holder
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
+    } else {
+        puts_info "Skipping Resizer Timing Optimizations."
+    }
+}
+
+
+proc run_resizer_design {args} {
+    if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
+        puts_info "Running Resizer Design Optimizations..."
+        TIMER::timer_start
+        if { ! [info exists ::env(LIB_OPT)]} {
+            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        }
+        set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
+        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
+        set_def $::env(SAVE_DEF)
+
+        write_verilog $::env(yosys_result_file_tag)_optimized.v
+        set_netlist $::env(yosys_result_file_tag)_optimized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
+        set report_tag_holder $::env(opensta_report_file_tag)
+        set log_tag_holder $::env(opensta_log_file_tag)
+        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer
+        run_sta
+        set ::env(opensta_report_file_tag) $report_tag_holder
+        set ::env(opensta_log_file_tag) $log_tag_holder
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_runtime.txt 0]
+    } else {
+        puts_info "Skipping Resizer Timing Optimizations."
+    }
+}
 package provide openlane 0.9

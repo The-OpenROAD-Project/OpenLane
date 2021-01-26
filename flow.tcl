@@ -33,6 +33,7 @@ proc run_non_interactive_mode {args} {
 	run_floorplan
 	run_placement
 	run_cts
+	run_resizer_timing
 	run_routing
 
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {

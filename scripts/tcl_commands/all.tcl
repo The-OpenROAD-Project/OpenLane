@@ -377,6 +377,7 @@ proc prep {args} {
         {tapcell floorplan/tapcell}
         {replaceio placement/replace}
         {openphysyn placement/openphysyn}
+        {resizer placement/resizer}
         {opendp placement/opendp}
         {addspacers routing/addspacers}
         {fastroute routing/fastroute}
