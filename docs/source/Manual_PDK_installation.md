@@ -31,13 +31,13 @@
 
     ```bash
         cd $PDK_ROOT
-	git clone git://opencircuitdesign.com/open_pdks
+        git clone git://opencircuitdesign.com/open_pdks
         cd open_pdks
-        git checkout d6807dc23a1bdd385f46b8ffbde19c8d55c94123
+        git checkout ec43817ed9f58ff83c9d260ce981818023cb6d77
         ./configure --enable-sky130-pdk=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT
-		cd sky130
-		make
-		make install-local
+        cd sky130
+        make
+        make install-local
     ```
 
 **Note**: You can use different directories for sky130-source and local-path. However, in the instructions we are using $PDK_ROOT to facilitate the installation process
