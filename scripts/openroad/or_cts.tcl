@@ -29,6 +29,11 @@ read_sdc $::env(BASE_SDC_FILE)
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
+# Clone clock tree inverters next to register loads
+# so cts does not try to buffer the inverted clocks.
+set_wire_rc -layer $::env(WIRE_RC_LAYER)
+estimate_parasitics -placement
+repair_clock_inverters
 
 puts "\[INFO\]: Configuring cts characterization..."
 configure_cts_characterization\
@@ -44,6 +49,9 @@ clock_tree_synthesis\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\
     -clk_nets $::env(CLOCK_NET)
+
+# CTS leaves a long wire from the pad to the clock tree root.
+repair_clock_nets
 
 write_def $::env(SAVE_DEF)
 
