@@ -201,6 +201,9 @@ proc run_openPhySyn {args} {
         set_def $::env(SAVE_DEF)
         set ::env(openphysyn_report_file_tag) $report_tag_saver
 
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(openphysyn_log_file_tag)_runtime.txt 0]
+
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
 
@@ -216,8 +219,6 @@ proc run_openPhySyn {args} {
         set ::env(opensta_report_file_tag) $report_tag_holder
         set ::env(opensta_log_file_tag) $log_tag_holder
 
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(openphysyn_log_file_tag)_runtime.txt 0]
     } else {
         puts_info "Skipping OpenPhySyn Timing Optimizations."
     }
@@ -236,6 +237,9 @@ proc run_resizer_timing {args} {
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
         set_def $::env(SAVE_DEF)
 
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
+
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
 
@@ -250,9 +254,6 @@ proc run_resizer_timing {args} {
         run_sta
         set ::env(opensta_report_file_tag) $report_tag_holder
         set ::env(opensta_log_file_tag) $log_tag_holder
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }
@@ -271,6 +272,9 @@ proc run_resizer_design {args} {
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
         set_def $::env(SAVE_DEF)
 
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_runtime.txt 0]
+
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
 
@@ -285,9 +289,6 @@ proc run_resizer_design {args} {
         run_sta
         set ::env(opensta_report_file_tag) $report_tag_holder
         set ::env(opensta_log_file_tag) $log_tag_holder
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_runtime.txt 0]
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }
