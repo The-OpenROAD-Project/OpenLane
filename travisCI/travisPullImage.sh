@@ -15,10 +15,14 @@
 echo "Pulling The Docker Image..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+if [[ $TRAVIS_BRANCH == "develop-latest_tools_x" ]]; then
 	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL
 else
-	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+    if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
+        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TRAVIS_PULL_REQUEST
+    else
+        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+    fi
 fi
 echo $PDK_ROOT
 echo $RUN_ROOT
