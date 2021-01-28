@@ -16,7 +16,11 @@ echo "Running the latest pdk installation process..."
 mkdir pdks
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-latest-$TOOL
+else
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+fi
 export STD_CELL_LIBRARY=sky130_fd_sc_hd
 export SPECIAL_VOLTAGE_LIBRARY=sky130_fd_sc_hvl
 export IO_LIBRARY=sky130_fd_io

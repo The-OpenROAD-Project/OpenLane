@@ -15,7 +15,11 @@
 
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-latest-$TOOL
+else
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+fi
 echo $PDK_ROOT
 echo $RUN_ROOT
 
@@ -36,6 +40,7 @@ cat $RUN_ROOT/regression_results/TEST_$TEST_SET/TEST_$TEST_SET.csv
 echo "Fail/Pass report:"
 echo "Design,Status,Reason"
 cat $FILE
+exit 2
 crashSignal=$(find $FILE)
 if ! [[ $crashSignal ]]; then exit -1; fi
 val=$(grep "FAILED" $FILE | wc -l)

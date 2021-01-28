@@ -15,11 +15,15 @@
 echo "Running the standard installation process..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-latest-$TOOL
+else
+	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
+fi
 echo $PDK_ROOT
 echo $RUN_ROOT
 
 cd docker_build/
 make merge
-docker push $IMAGE_NAME
+
 exit 0
