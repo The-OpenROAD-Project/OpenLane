@@ -15,32 +15,11 @@
 echo "Running the standard installation process..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:rc7
+export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
 echo $PDK_ROOT
 echo $RUN_ROOT
-make openlane
-make skywater-pdk
 
-# The following section is for running on the CI.
-# If you're running locally you should replace them with: `make skywater-library`
-# This is because sometimes while setting up the conda env (skywater's make timing) it fails to fetch something
-# Then it exits without retrying. So, here we're retrying, and if something goes wrong it will exit after 5 retries.
-# Section Begin
-cnt=0
-until make skywater-library; do
-cnt=$((cnt+1))
-if [ $cnt -eq 5 ]; then
-	exit 2
-fi
-rm -rf $PDK_ROOT/skywater-pdk
-make skywater-pdk
-done
-# Section End
-
-make open_pdks
-make build-pdk
-make gen-sources
-echo "done installing"
-cat $PDK_ROOT/sky130A/SOURCES
-cd $RUN_ROOT
+cd docker_build/
+make merge
+docker push $IMAGE_NAME
 exit 0

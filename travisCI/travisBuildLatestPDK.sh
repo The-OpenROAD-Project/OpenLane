@@ -16,7 +16,7 @@ echo "Running the latest pdk installation process..."
 mkdir pdks
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:rc7
+export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
 export STD_CELL_LIBRARY=sky130_fd_sc_hd
 export SPECIAL_VOLTAGE_LIBRARY=sky130_fd_sc_hvl
 export IO_LIBRARY=sky130_fd_io

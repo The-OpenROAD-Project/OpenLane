@@ -15,7 +15,7 @@
 
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-export IMAGE_NAME=efabless/openlane:rc7
+export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
 echo $PDK_ROOT
 echo $RUN_ROOT
 
