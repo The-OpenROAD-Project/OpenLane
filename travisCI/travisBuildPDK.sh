@@ -13,11 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 echo "Running the standard PDK installation process..."
-export PDK_ROOT=$(pwd)/pdks
-export RUN_ROOT=$(pwd)
 echo "IMAGE NAME: $IMAGE_NAME"
-echo $PDK_ROOT
-echo $RUN_ROOT
+echo "PDK ROOT: $PDK_ROOT"
+echo "RUN ROOT: $RUN_ROOT"
 make skywater-pdk
 
 # The following section is for running on the CI.

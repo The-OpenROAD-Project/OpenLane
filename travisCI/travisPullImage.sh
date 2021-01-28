@@ -13,10 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 echo "Pulling The Docker Image..."
-export PDK_ROOT=$(pwd)/pdks
-export RUN_ROOT=$(pwd)
 echo "IMAGE NAME: $IMAGE_NAME"
-echo $PDK_ROOT
-echo $RUN_ROOT
+echo "RUN ROOT: $RUN_ROOT"
 make openlane
 exit 0

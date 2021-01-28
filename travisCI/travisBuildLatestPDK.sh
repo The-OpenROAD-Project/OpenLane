@@ -14,14 +14,12 @@
 # limitations under the License.
 echo "Running the latest PDK installation process..."
 mkdir pdks
-export PDK_ROOT=$(pwd)/pdks
-export RUN_ROOT=$(pwd)
 echo "IMAGE NAME: $IMAGE_NAME"
 export STD_CELL_LIBRARY=sky130_fd_sc_hd
 export SPECIAL_VOLTAGE_LIBRARY=sky130_fd_sc_hvl
 export IO_LIBRARY=sky130_fd_io
-echo $PDK_ROOT
-echo $RUN_ROOT
+echo "PDK ROOT: $PDK_ROOT"
+echo "RUN ROOT: $RUN_ROOT"
 
 cd  $PDK_ROOT
 

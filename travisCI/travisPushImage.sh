@@ -15,23 +15,8 @@
 echo "Pushing The Docker Image..."
 echo "TRAVIS BRANCH: $TRAVIS_BRANCH"
 echo "TRAVIS PULL REQUEST: $TRAVIS_PULL_REQUEST"
-export PDK_ROOT=$(pwd)/pdks
-export RUN_ROOT=$(pwd)
 echo "IMAGE NAME: $IMAGE_NAME"
-echo $PDK_ROOT
-echo $RUN_ROOT
-if [[ -z "$TRAVIS_TEST_RESULT" ]]; then
-    echo "Script Status $TRAVIS_TEST_RESULT"
-    if [[ $TRAVIS_TEST_RESULT -eq 0 ]]; then
-        docker push $IMAGE_NAME
-    else
-        echo "TRAVIS_TEST_RESULT indicates test failure. The Image won't be pushed."
-        exit 2
-    fi
-else
-    echo "TRAVIS_TEST_RESULT isn't defined. The Image won't be pushed."
-    exit 2
-fi
-
+echo "RUN ROOT: $RUN_ROOT"
+docker push $IMAGE_NAME
 
 exit 0

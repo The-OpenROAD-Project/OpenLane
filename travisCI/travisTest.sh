@@ -14,11 +14,9 @@
 # limitations under the License.
 
 echo "Running The Standard Test Process..."
-export PDK_ROOT=$(pwd)/pdks
-export RUN_ROOT=$(pwd)
 echo "IMAGE NAME: $IMAGE_NAME"
-echo $PDK_ROOT
-echo $RUN_ROOT
+echo "PDK ROOT: $PDK_ROOT"
+echo "RUN ROOT: $RUN_ROOT"
 if [ -z "$EXTRA_FLAGS" ]; then EXTRA_FLAGS=""; fi
 
 DESIGNS_LIST=$TEST_SET
