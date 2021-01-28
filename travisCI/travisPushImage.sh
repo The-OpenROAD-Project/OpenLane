@@ -17,26 +17,19 @@ echo "TRAVIS BRANCH: $TRAVIS_BRANCH"
 echo "TRAVIS PULL REQUEST: $TRAVIS_PULL_REQUEST"
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
-if [[ $TRAVIS_BRANCH == "develop-latest_tools_x" ]]; then
-	export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL
-else
-    if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
-        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TRAVIS_PULL_REQUEST
-    else
-        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
-    fi
-fi
+echo "IMAGE NAME: $IMAGE_NAME"
 echo $PDK_ROOT
 echo $RUN_ROOT
-if [[ -z "$TEST_STATUS" ]]; then
-    if [[ $TEST_STATUS -eq 0 ]]; then
+if [[ -z "$TRAVIS_TEST_RESULT" ]]; then
+    echo "Script Status $TRAVIS_TEST_RESULT"
+    if [[ $TRAVIS_TEST_RESULT -eq 0 ]]; then
         docker push $IMAGE_NAME
     else
-        echo "TEST_STATUS indicates test failure. The Image won't be pushed."
+        echo "TRAVIS_TEST_RESULT indicates test failure. The Image won't be pushed."
         exit 2
     fi
 else
-    echo "TEST_STATUS isn't defined. The Image won't be pushed."
+    echo "TRAVIS_TEST_RESULT isn't defined. The Image won't be pushed."
     exit 2
 fi
 
