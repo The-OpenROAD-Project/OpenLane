@@ -39,20 +39,32 @@ jobs:
           else
             bash travisCI/travisBuild.sh;
           fi
-    - name: "Typical Test Set 2"
+    - name: "Fastest Test Set 1"
       if: branch != develop-latest_tools_x
+      env: TEST_SET=fastestTestSet1
+    - name: "Fastest Test Set 2"
+      if: branch != develop-latest_tools_x
+      env: TEST_SET=fastestTestSet2
+    - name: "Fastest Test Set 3"
+      if: branch != develop-latest_tools_x
+      env: TEST_SET=fastestTestSet3
+    - name: "Fastest Test Set 4"
+      if: branch != develop-latest_tools_x
+      env: TEST_SET=fastestTestSet4
+    - name: "Fastest Test Set 5"
+      if: branch != develop-latest_tools_x
+      env: TEST_SET=fastestTestSet5
+    - name: "Typical Test Set 2"
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=typicalTestSet2
     - name: "Typical Test Set 1"
-      if: branch != develop-latest_tools_x
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=typicalTestSet1
     - name: "des"
-      if: branch != develop-latest_tools_x
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=des EXTRA_FLAGS=-so
-    - name: "Fastest Test Set"
-      if: branch != develop-latest_tools_x
-      env: TEST_SET=fastestTestSet
     - name: "BM64"
-      if: branch != develop-latest_tools_x
+      if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
       env: TEST_SET=BM64 EXTRA_FLAGS=-so
     - name: "aes_cipher"
       if: (branch = master OR branch = staging OR branch = develop-latest_pdk OR type = cron) AND branch != develop-latest_tools_x
