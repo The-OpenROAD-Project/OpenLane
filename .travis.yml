@@ -382,13 +382,13 @@ jobs:
 before_install:
   - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
   - if [[ $TRAVIS_BRANCH == "develop-latest_tools_x" ]]; then
-      export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL
+      export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL;
     else
-        if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
-            export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST
-        else
-            export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH
-        fi
+      if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
+          export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST;
+      else
+          export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
+      fi
     fi
   - if [ $TRAVIS_BRANCH == "develop-latest_pdk" || $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
       sh travisCI/travisAutoMerge.sh;
