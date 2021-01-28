@@ -40,7 +40,7 @@ STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= openlane:rc7
+IMAGE_NAME ?= efabless/openlane:rc7
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -154,8 +154,7 @@ gen-sources: $(PDK_ROOT)/sky130A
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	cd $(OPENLANE_DIR)/docker_build && \
-		$(MAKE) merge
+	docker pull $(IMAGE_NAME)
 
 .PHONY: mount
 mount:
