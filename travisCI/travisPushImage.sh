@@ -22,6 +22,17 @@ else
 fi
 echo $PDK_ROOT
 echo $RUN_ROOT
+if [ -z "$TEST_STATUS" ]; then
+    if [ $TEST_STATUS -eq 0]; then
+        docker push $IMAGE_NAME
+    else
+        echo "TEST_STATUS indicates test failure. The Image won't be pushed."
+        exit 2
+    fi
+else
+    echo "TEST_STATUS isn't defined. The Image won't be pushed."
+    exit 2
+fi
 
-docker push $IMAGE_NAME
+
 exit 0
