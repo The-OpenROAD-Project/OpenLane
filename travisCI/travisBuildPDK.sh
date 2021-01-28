@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Running the standard installation process..."
+echo "Running the standard PDK installation process..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then

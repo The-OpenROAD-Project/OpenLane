@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+echo "Running The Standard Test Process..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
@@ -22,8 +23,7 @@ else
 fi
 echo $PDK_ROOT
 echo $RUN_ROOT
-export TEST_STATUS=0
-exit 2
+
 if [ -z "$EXTRA_FLAGS" ]; then EXTRA_FLAGS=""; fi
 
 DESIGNS_LIST=$TEST_SET

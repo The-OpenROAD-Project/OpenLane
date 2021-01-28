@@ -32,6 +32,8 @@ jobs:
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
     - bash travisCI/travisBuildImage.sh;
+    - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then bash travisCI/travisBuildLatestPDK.sh;
+      else bash travisCI/travisBuildPDK.sh; fi
     after_script:
       - bash travisCI/travisPushImage.sh
   - name: Fastest Test Set 1

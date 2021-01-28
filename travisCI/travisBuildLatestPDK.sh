@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Running the latest pdk installation process..."
+echo "Running the latest PDK installation process..."
 mkdir pdks
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
@@ -26,7 +26,7 @@ export SPECIAL_VOLTAGE_LIBRARY=sky130_fd_sc_hvl
 export IO_LIBRARY=sky130_fd_io
 echo $PDK_ROOT
 echo $RUN_ROOT
-make openlane
+
 cd  $PDK_ROOT
 
 rm -rf skywater-pdk
@@ -35,21 +35,7 @@ cd $PDK_ROOT/skywater-pdk
 git submodule update --init libraries/$STD_CELL_LIBRARY/latest
 git submodule update --init libraries/$IO_LIBRARY/latest
 git submodule update --init libraries/$SPECIAL_VOLTAGE_LIBRARY/latest
-cnt=0
-until make -j$(nproc) timing; do
-	cnt=$((cnt+1))
-	if [ $cnt -eq 5 ]; then
-		exit 2
-	fi
-	cd  $PDK_ROOT
-	rm -rf skywater-pdk
-	git clone https://github.com/google/skywater-pdk.git skywater-pdk
-	cd $PDK_ROOT/skywater-pdk
-	git submodule update --init libraries/$STD_CELL_LIBRARY/latest
-	git submodule update --init libraries/$IO_LIBRARY/latest
-	git submodule update --init libraries/$SPECIAL_VOLTAGE_LIBRARY/latest
-	make -j$(nproc) timing
-done
+make timing
 cd  $PDK_ROOT
 rm -rf open_pdks
 git clone git://opencircuitdesign.com/open_pdks open_pdks

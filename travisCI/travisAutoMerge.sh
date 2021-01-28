@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+echo "Merging Branches"
 echo "Current branch is $TRAVIS_BRANCH"
 git checkout develop
 git checkout $TRAVIS_BRANCH

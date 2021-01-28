@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Running the standard installation process..."
+echo "Pushing The Docker Image..."
 export PDK_ROOT=$(pwd)/pdks
 export RUN_ROOT=$(pwd)
 if [ $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
@@ -23,7 +23,7 @@ fi
 echo $PDK_ROOT
 echo $RUN_ROOT
 if [ -z "$TEST_STATUS" ]; then
-    if [ $TEST_STATUS -eq 0]; then
+    if [ $TEST_STATUS -eq 0 ]; then
         docker push $IMAGE_NAME
     else
         echo "TEST_STATUS indicates test failure. The Image won't be pushed."
