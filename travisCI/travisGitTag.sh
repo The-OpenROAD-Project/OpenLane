@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
+echo "Getting Date & Month..."
+dateAndMonth=`date "+%b %Y"`
 echo "Configureing git info..."
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
@@ -40,7 +42,7 @@ if ! [[ $new_tag ]]; then
     exit 2;
 fi
 echo "Commiting new tag $new_tag"
-git tag -a $new_tag
+git tag -a $new_tag -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) Creating New Soft Tag"
 echo "Pushing to Github..."
 git push --set-upstream origin-ci --tags
 
