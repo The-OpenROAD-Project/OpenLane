@@ -1,16 +1,6 @@
 language: shell
 os: linux
 dist: xenial
-branches:
-  only:
-  - develop
-  - master
-  - staging
-  - "/^(?i:develop)-.*$/"
-  - "/^(?i:CI)-.*$/"
-
-git:
-  depth: false
 
 services:
 - docker
@@ -31,374 +21,129 @@ jobs:
     if: branch != develop-latest_tools_x
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
+    - if [ $TRAVIS_BRANCH == "CID-latest-tools-*" ]; then
+        bash travisCI/travisPreBuild.sh;
+      fi
     - bash travisCI/travisBuildImage.sh;
-    - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then bash travisCI/travisBuildLatestPDK.sh;
-      else bash travisCI/travisBuildPDK.sh; fi
+    - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+        bash travisCI/travisBuildLatestPDK.sh;
+      else
+        bash travisCI/travisBuildPDK.sh;
+      fi
     after_success:
       - bash travisCI/travisPushImage.sh
   - name: Fastest Test Set 1
     stage: test
-    if: branch != develop-latest_tools_x
     env: TEST_SET=fastestTestSet1
   - name: Fastest Test Set 2
     stage: test
-    if: branch != develop-latest_tools_x
     env: TEST_SET=fastestTestSet2
   - name: Fastest Test Set 3
     stage: test
-    if: branch != develop-latest_tools_x
     env: TEST_SET=fastestTestSet3
   - name: Fastest Test Set 4
     stage: test
-    if: branch != develop-latest_tools_x
     env: TEST_SET=fastestTestSet4
   - name: Fastest Test Set 5
     stage: test
-    if: branch != develop-latest_tools_x
     env: TEST_SET=fastestTestSet5
+    after_script:
+      - bash travisCI/travisDeleteImage.sh
   - name: Typical Test Set 2
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=typicalTestSet2
   - name: Typical Test Set 1
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=typicalTestSet1
   - name: des
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=des EXTRA_FLAGS=-so
   - name: BM64
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=BM64 EXTRA_FLAGS=-so
   - name: aes_cipher
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=aes_cipher
   - name: picorv32a
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=picorv32a EXTRA_FLAGS=-so
   - name: chacha
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=chacha
   - name: PPU
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=PPU EXTRA_FLAGS=-so
   - name: y_huff
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=y_huff EXTRA_FLAGS=-so
   - name: blabla
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=blabla EXTRA_FLAGS=-so
   - name: ldpcenc
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
   - name: salsa20
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=salsa20 EXTRA_FLAGS=-so
   - name: aes_core
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=aes_core
   - name: aes
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=aes
   - name: sha512
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=sha512
   - name: genericfir
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=genericfir EXTRA_FLAGS=-so
   - name: aes128
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=aes128
   - name: aes192
     stage: test
-    if: "(branch = master OR branch = staging OR branch = develop-latest_pdk OR type
-      = cron) AND branch != develop-latest_tools_x AND type != pull_request"
+    if: type = cron OR type = api
     env: TEST_SET=aes192
-  - name: Base Test Magic
-    stage: docker-build
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=spm TOOL=magic EXTRA_FLAGS=-so
-    install:
-    - bash travisCI/travisPreBuild.sh;
-    - bash travisCI/travisBuildImage.sh;
-    - bash travisCI/travisBuildPDK.sh;
-    after_script:
-      - bash travisCI/travisPushImage.sh
-  - name: Fastest Test Set Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=fastestTestSet TOOL=magic EXTRA_FLAGS=-so
-  - name: Typical Test Set 1 Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet1 TOOL=magic EXTRA_FLAGS=-so
-  - name: Typical Test Set 2 Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet2 TOOL=magic EXTRA_FLAGS=-so
-  - name: BM64 Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=BM64 TOOL=magic EXTRA_FLAGS=-so
-  - name: picorv32a Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=picorv32a TOOL=magic EXTRA_FLAGS=-so
-  - name: chacha Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=chacha TOOL=magic EXTRA_FLAGS=-so
-  - name: des Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=des TOOL=magic EXTRA_FLAGS=-so
-  - name: blabla Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=blabla TOOL=magic EXTRA_FLAGS=-so
-  - name: PPU Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=PPU TOOL=magic EXTRA_FLAGS=-so
-  - name: aes_cipher Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=aes_cipher TOOL=magic EXTRA_FLAGS=-so
-  - name: y_huff Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=y_huff TOOL=magic EXTRA_FLAGS=-so
-  - name: ldpcenc Magic
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=ldpcenc TOOL=magic EXTRA_FLAGS=-so
-  - name: Base Test OpenROAD
-    stage: docker-build
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=spm TOOL=openroad_app EXTRA_FLAGS=-so
-    install:
-      - bash travisCI/travisPreBuild.sh;
-      - bash travisCI/travisBuildImage.sh;
-      - bash travisCI/travisBuildPDK.sh;
-    after_script:
-      - bash travisCI/travisPushImage.sh
-  - name: Fastest Test Set OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=fastestTestSet TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: Typical Test Set 1 OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet1 TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: Typical Test Set 2 OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet2 TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: BM64 OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=BM64 TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: picorv32a OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=picorv32a TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: chacha OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=chacha TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: des OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=des TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: blabla OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=blabla TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: PPU OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=PPU TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: aes_cipher OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=aes_cipher TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: y_huff OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=y_huff TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: ldpcenc OpenROAD
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=ldpcenc TOOL=openroad_app EXTRA_FLAGS=-so
-  - name: Base Test Yosys
-    stage: docker-build
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=spm TOOL=yosys EXTRA_FLAGS=-so
-    install:
-      - bash travisCI/travisPreBuild.sh;
-      - bash travisCI/travisBuildImage.sh;
-      - bash travisCI/travisBuildPDK.sh;
-    after_script:
-      - bash travisCI/travisPushImage.sh
-  - name: Fastest Test Set Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=fastestTestSet TOOL=yosys EXTRA_FLAGS=-so
-  - name: Typical Test Set 1 Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet1 TOOL=yosys EXTRA_FLAGS=-so
-  - name: Typical Test Set 2 Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet2 TOOL=yosys EXTRA_FLAGS=-so
-  - name: BM64 Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=BM64 TOOL=yosys EXTRA_FLAGS=-so
-  - name: picorv32a Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=picorv32a TOOL=yosys EXTRA_FLAGS=-so
-  - name: chacha Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=chacha TOOL=yosys EXTRA_FLAGS=-so
-  - name: des Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=des TOOL=yosys EXTRA_FLAGS=-so
-  - name: blabla Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=blabla TOOL=yosys EXTRA_FLAGS=-so
-  - name: PPU Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=PPU TOOL=yosys EXTRA_FLAGS=-so
-  - name: aes_cipher Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=aes_cipher TOOL=yosys EXTRA_FLAGS=-so
-  - name: y_huff Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=y_huff TOOL=yosys EXTRA_FLAGS=-so
-  - name: ldpcenc Yosys
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=ldpcenc TOOL=yosys EXTRA_FLAGS=-so
-  - name: Base Test Netgen
-    stage: docker-build
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=spm TOOL=netgen EXTRA_FLAGS=-so
-    install:
-      - bash travisCI/travisPreBuild.sh;
-      - bash travisCI/travisBuildImage.sh;
-      - bash travisCI/travisBuildPDK.sh;
-    after_script:
-      - bash travisCI/travisPushImage.sh
-  - name: Fastest Test Set Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=fastestTestSet TOOL=netgen EXTRA_FLAGS=-so
-  - name: Typical Test Set 1 Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet1 TOOL=netgen EXTRA_FLAGS=-so
-  - name: Typical Test Set 2 Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=typicalTestSet2 TOOL=netgen EXTRA_FLAGS=-so
-  - name: BM64 Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=BM64 TOOL=netgen EXTRA_FLAGS=-so
-  - name: picorv32a Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=picorv32a TOOL=netgen EXTRA_FLAGS=-so
-  - name: chacha Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=chacha TOOL=netgen EXTRA_FLAGS=-so
-  - name: des Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=des TOOL=netgen EXTRA_FLAGS=-so
-  - name: blabla Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=blabla TOOL=netgen EXTRA_FLAGS=-so
-  - name: PPU Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=PPU TOOL=netgen EXTRA_FLAGS=-so
-  - name: aes_cipher Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=aes_cipher TOOL=netgen EXTRA_FLAGS=-so
-  - name: y_huff Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=y_huff TOOL=netgen EXTRA_FLAGS=-so
-  - name: ldpcenc Netgen
-    stage: test
-    if: branch = develop-latest_tools_x
-    env: TEST_SET=y_huff TOOL=netgen EXTRA_FLAGS=-so
 
 before_install:
-  - echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+  - if [[ -z "$DOCKERHUB_USER" ]]; then
+      echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+    fi
   - export PDK_ROOT=$(pwd)/pdks
   - export RUN_ROOT=$(pwd)
-  - if [[ $TRAVIS_BRANCH == "develop-latest_tools_x" ]]; then
+  - if [[ $TRAVIS_BRANCH == "CID-latest-tools-*" ]]; then
       export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL;
     else
-      if [[ $TRAVIS_PULL_REQUEST != "false" ]]; then
+      if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
           export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST;
       else
           export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
       fi
     fi
-  - if [ $TRAVIS_BRANCH == "develop-latest_pdk" || $TRAVIS_BRANCH == "develop-latest_tools_x" ]; then
+  - if [ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == "CID-latest-tools-*" ]; then
       sh travisCI/travisAutoMerge.sh;
     fi
 
 install:
   - sh travisCI/travisPullImage.sh;
-  - if [ $TRAVIS_BRANCH == "develop-latest_pdk" ]; then
+  - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
       bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildLatestPDK.sh;
     else
       bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildPDK.sh;

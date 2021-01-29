@@ -12,15 +12,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-echo "Running the tool prebuild step installation process..."
+echo "Checking If I Should Delete The Docker Image..."
+echo "TRAVIS BRANCH: $TRAVIS_BRANCH"
+echo "TRAVIS PULL REQUEST: $TRAVIS_PULL_REQUEST"
+echo "IMAGE NAME: $IMAGE_NAME"
 echo "RUN ROOT: $RUN_ROOT"
-TOOL=$(echo "$TRAVIS_BRANCH"| sed 's/\<CID-latest-tools-\>//g')
-echo "Modifying Docker for $TOOL"
-bash $RUN_ROOT/travisCI/utils/remove_line_from_file.sh $RUN_ROOT/docker_build/docker/$TOOL/Dockerfile  "RUN git checkout"
-cd $RUN_ROOT/docker_build
-echo "Re-building $TOOL"
-make build-$TOOL
-echo "done pre-build"
-cd $RUN_ROOT
+if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
+    export ORGANIZATION=efabless
+    export REPOSITORY=openlane
+    export TAG=$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST
+    curl -u $DOCKERHUB_USER:$DOCKERHUB_PASSWORD -X "DELETE" https://cloud.docker.com/v2/repositories/$ORGANIZATION/$REPOSITORY/tags/$TAG/
+else
+    echo "IMAGE $IMAGE_NAME won't be deleted."
+fi
+
 exit 0
