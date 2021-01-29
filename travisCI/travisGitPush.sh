@@ -22,7 +22,7 @@ git config --global user.name "Travis CI"
 echo "Adding remote tracker..."
 git remote add origin-ci https://${MY_GITHUB_TOKEN}@github.com/efabless/openlane.git > /dev/null 2>&1
 echo "Pushing to Github..."
-git push --quiet --set-upstream origin-ci ${TRAVIS_BRANCH} > /dev/null 2>&1
+git push --set-upstream origin-ci ${TRAVIS_BRANCH}
 
 echo "Push successful"
 exit 0
