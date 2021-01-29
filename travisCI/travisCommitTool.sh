@@ -26,5 +26,5 @@ git add docker_build/
 
 git update-index --refresh
 
-git diff-index --cached --quiet HEAD -- || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update $TOOL" > /dev/null 2>&1
+git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update $TOOL"
 

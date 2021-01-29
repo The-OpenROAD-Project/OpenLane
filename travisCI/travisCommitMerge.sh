@@ -25,5 +25,5 @@ echo "Committing merge result"
 
 git update-index --refresh
 
-git diff-index --cached --quiet HEAD -- || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge develop-restructure into $TRAVIS_BRANCH" > /dev/null 2>&1
+git diff-index --cached --quiet HEAD -- && exit 0 || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge develop-restructure into $TRAVIS_BRANCH"
 
