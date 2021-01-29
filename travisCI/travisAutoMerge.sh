@@ -18,4 +18,4 @@ echo "Merge branch is $MERGE_BRANCH"
 git remote set-branches --add origin $MERGE_BRANCH
 git fetch
 echo "Current branch is $TRAVIS_BRANCH"
-git merge $MERGE_BRANCH --no-commit
+git merge origin/$MERGE_BRANCH --no-commit
