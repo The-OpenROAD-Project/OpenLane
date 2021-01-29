@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
-echo "RUN ROOT: $RUN_ROOT"
-cd $RUN_ROOT
 echo "Configureing git info..."
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
