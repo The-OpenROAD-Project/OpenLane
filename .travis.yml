@@ -141,6 +141,13 @@ jobs:
         fi
     after_success:
         - bash travisCI/travisGitPush.sh;
+  - name: Create Soft Github Tag
+    stage: github-deploy
+    if: branch = develop-restructure
+    before_install: skip
+    install: skip
+    script:
+      - bash travisCI/travisGitTag.sh;
 
 before_install:
   - echo "$TRAVIS_BRANCH"
