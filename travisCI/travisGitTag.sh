@@ -33,7 +33,7 @@ else
         p1=$(echo "$latest_tag" | cut -d"." -f1 )
         p2=$(echo "$latest_tag" | cut -d"." -f2 )
         n_p2=$((${p2} + 1))
-        new_tag="$p1.$p_d2"
+        new_tag="$p1.$n_p2"
     fi
 fi
 
@@ -42,7 +42,7 @@ if ! [[ $new_tag ]]; then
     exit 2;
 fi
 echo "Commiting new tag $new_tag"
-git tag -a $new_tag -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) Creating New Soft Tag"
+git tag $new_tag
 echo "Pushing to Github..."
 git push --set-upstream origin-ci --tags
 
