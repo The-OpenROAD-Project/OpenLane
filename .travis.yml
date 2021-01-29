@@ -55,75 +55,75 @@ jobs:
         fi
   - name: Typical Test Set 2
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=typicalTestSet2
   - name: Typical Test Set 1
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=typicalTestSet1
   - name: des
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=des EXTRA_FLAGS=-so
   - name: BM64
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=BM64 EXTRA_FLAGS=-so
   - name: aes_cipher
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=aes_cipher
   - name: picorv32a
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=picorv32a EXTRA_FLAGS=-so
   - name: chacha
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=chacha
   - name: PPU
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=PPU EXTRA_FLAGS=-so
   - name: y_huff
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=y_huff EXTRA_FLAGS=-so
   - name: blabla
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=blabla EXTRA_FLAGS=-so
   - name: ldpcenc
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
   - name: salsa20
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=salsa20 EXTRA_FLAGS=-so
   - name: aes_core
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=aes_core
   - name: aes
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=aes
   - name: sha512
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=sha512
   - name: genericfir
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=genericfir EXTRA_FLAGS=-so
   - name: aes128
     stage: test
-    if: type = cron OR type = api
+    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=aes128
   - name: Push to Github
     stage: github-deploy
-    if: (type = cron OR type = api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
+    if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
     install:
       - if [ $TRAVIS_BRANCH == CID-latest-tools-* ]; then
           bash travisCI/travisUpdateTool.sh;
