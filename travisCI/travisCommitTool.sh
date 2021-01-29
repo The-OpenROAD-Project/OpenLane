@@ -24,5 +24,7 @@ git config --global user.name "Travis CI"
 echo "Committing changes in docker_build/"
 git add docker_build/
 
-git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update $TOOL" > /dev/null 2>&1
+git update-index --refresh
+
+git diff-index --cached --quiet HEAD -- || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update $TOOL" > /dev/null 2>&1
 

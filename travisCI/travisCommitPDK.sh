@@ -24,5 +24,7 @@ git config --global user.name "Travis CI"
 echo "Committing changes in Makefile & docs/source/"
 git add Makefile docs/source/
 
-git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update PDK" > /dev/null 2>&1
+git update-index --refresh
+
+git diff-index --cached --quiet HEAD -- || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) update PDK" > /dev/null 2>&1
 

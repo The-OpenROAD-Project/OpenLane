@@ -159,7 +159,7 @@ before_install:
     else
         export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
     fi
-  - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == "CID-latest-tools-*" ]]; then
+  - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
      bash travisCI/travisAutoMerge.sh;
     fi
 

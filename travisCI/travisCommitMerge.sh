@@ -22,5 +22,8 @@ echo "Configureing git info..."
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
 echo "Committing merge result"
-git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge develop-restructure into $TRAVIS_BRANCH" > /dev/null 2>&1
+
+git update-index --refresh
+
+git diff-index --cached --quiet HEAD -- || git commit -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge develop-restructure into $TRAVIS_BRANCH" > /dev/null 2>&1
 
