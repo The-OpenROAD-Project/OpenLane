@@ -26,10 +26,9 @@ jobs:
       fi
     - bash travisCI/travisBuildImage.sh;
     - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
-        bash travisCI/travisBuildLatestPDK.sh;
-      else
-        bash travisCI/travisBuildPDK.sh;
+        bash travisCI/travisUpdatePDK.sh;
       fi
+    - bash travisCI/travisBuildPDK.sh;
     after_success:
       - bash travisCI/travisPushImage.sh
   - name: Fastest Test Set 1
@@ -117,14 +116,10 @@ jobs:
     stage: test
     if: type = cron OR type = api
     env: TEST_SET=aes128
-  - name: aes192
-    stage: test
-    if: type = cron OR type = api
-    env: TEST_SET=aes192
 
 before_install:
   - if [[ -z "$DOCKERHUB_USER" ]]; then
-      echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin
+      echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin;
     fi
   - export PDK_ROOT=$(pwd)/pdks
   - export RUN_ROOT=$(pwd)
@@ -144,10 +139,9 @@ before_install:
 install:
   - sh travisCI/travisPullImage.sh;
   - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
-      bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildLatestPDK.sh;
-    else
-      bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildPDK.sh;
+      bash travisCI/travisUpdatePDK.sh;
     fi
+  - bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildPDK.sh;
 
 script:
   - bash travisCI/travisTest.sh
