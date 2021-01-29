@@ -264,7 +264,12 @@ proc ins_diode_cells_4 {args} {
     set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
 
     # Select diode cell
-	if { $::env(DIODE_INSERTION_STRATEGY) == 5 && [info exists ::env(FAKEDIODE_CELL)]} {
+	if { $::env(DIODE_INSERTION_STRATEGY) == 5 } {
+		if { ! [info exists ::env(FAKEDIODE_CELL)] } {
+			puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
+			puts_err "Please try a different strategy."
+			return -code error
+		}
 		set ::antenna_cell_name $::env(FAKEDIODE_CELL)
 	} else {
 		set ::antenna_cell_name $::env(DIODE_CELL)

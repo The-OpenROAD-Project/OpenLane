@@ -28,7 +28,11 @@ set ::block [[[::ord::get_db] getChip] getBlock]
 set ::antenna_pin_name $::env(DIODE_CELL_PIN)
 set ::nets [$::block getNets]
 
-if { $::env(DIODE_INSERTION_STRATEGY) == 2 && [info exists ::env(FAKEDIODE_CELL)]} {
+if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+	if { ! [info exists ::env(FAKEDIODE_CELL)] } {
+		puts "\[ERROR\]: FAKEDIODE_CELL is undefined. Try a different DIODE_INSERTION_STRATEGY."
+		exit 1
+	}
 	set ::antenna_cell_name $::env(FAKEDIODE_CELL)
 } else {
 	set ::antenna_cell_name $::env(DIODE_CELL)
