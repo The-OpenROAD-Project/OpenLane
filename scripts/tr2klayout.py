@@ -60,7 +60,7 @@ cnt = 0
 vio_dict  = {}
 for match in RE_VIOLATION.finditer(content):
     cnt += 1
-    type_ = match.group('type')
+    type_ = "'"+match.group('type')+"'"
     src1 = match.group('src1')
     src2 = match.group('src2')
     llx = match.group('llx')
