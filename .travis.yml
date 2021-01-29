@@ -125,7 +125,6 @@ jobs:
     stage: github-deploy
     if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
     install:
-      - bash travisCI/travisCommitMerge.sh
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash travisCI/travisUpdateTool.sh;
           bash travisCI/travisBuildTool.sh;

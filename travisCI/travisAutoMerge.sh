@@ -18,4 +18,10 @@ echo "Merge branch is $MERGE_BRANCH"
 git remote set-branches --add origin $MERGE_BRANCH
 git fetch
 echo "Current branch is $TRAVIS_BRANCH"
-git merge origin/$MERGE_BRANCH --no-commit
+echo "Getting Date & Month..."
+dateAndMonth=`date "+%b %Y"`
+echo "Configureing git info..."
+git config --global user.email "travis@travis-ci.org"
+git config --global user.name "Travis CI"
+echo "Committing merge result"
+git merge origin/$MERGE_BRANCH -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge $MERGE_BRANCH into $TRAVIS_BRANCH" || exit 0
