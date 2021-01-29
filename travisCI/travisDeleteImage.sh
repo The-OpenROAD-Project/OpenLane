@@ -17,7 +17,7 @@ echo "TRAVIS BRANCH: $TRAVIS_BRANCH"
 echo "TRAVIS PULL REQUEST: $TRAVIS_PULL_REQUEST"
 echo "IMAGE NAME: $IMAGE_NAME"
 echo "RUN ROOT: $RUN_ROOT"
-if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
+if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
     export ORGANIZATION=efabless
     export REPOSITORY=openlane
     export TAG=$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST

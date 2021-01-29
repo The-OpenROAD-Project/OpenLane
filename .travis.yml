@@ -23,12 +23,12 @@ jobs:
     if: branch != develop-latest_tools_x
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
-      - if [ $TRAVIS_BRANCH == CID-latest-tools-* ]; then
+      - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash travisCI/travisUpdateTool.sh;
           bash travisCI/travisBuildTool.sh;
         fi
       - bash travisCI/travisBuildImage.sh;
-      - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+      - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
           bash travisCI/travisUpdatePDK.sh;
         fi
       - bash travisCI/travisBuildPDK.sh;
@@ -50,7 +50,7 @@ jobs:
     stage: test
     env: TEST_SET=fastestTestSet5
     after_script:
-      - if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
+      - if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
           bash travisCI/travisDeleteImage.sh;
         fi
   - name: Typical Test Set 2
@@ -125,47 +125,44 @@ jobs:
     stage: github-deploy
     if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
     install:
-      - if [ $TRAVIS_BRANCH == CID-latest-tools-* ]; then
+      - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash travisCI/travisUpdateTool.sh;
           bash travisCI/travisBuildTool.sh;
         fi
-      - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+      - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
           bash travisCI/travisUpdatePDK.sh;
         fi
     script:
       - bash travisCI/travisCommitMerge.sh
-      - if [ $TRAVIS_BRANCH == CID-latest-tools-* ]; then
+      - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash travisCI/travisCommitTool.sh;
         fi
-      - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+      - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
           bash travisCI/travisCommitPDK.sh;
         fi
     after_success:
         - bash travisCI/travisGitPush.sh;
 
 before_install:
-  - if [[ -z "$DOCKERHUB_USER" ]]; then
+  - echo "$TRAVIS_BRANCH"
+  - echo "$TRAVIS_PULL_REQUEST"
+  - if [[ ! -z "$DOCKERHUB_USER" ]]; then
       echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USER" --password-stdin;
     fi
   - export PDK_ROOT=$(pwd)/pdks
   - export RUN_ROOT=$(pwd)
-  - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-      export TOOL=$(echo "$TRAVIS_BRANCH" | sed 's/CID-latest-tools-//g')
-      export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL;
+  - if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
+        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST;
     else
-      if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
-          export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST;
-      else
-          export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
-      fi
+        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
     fi
-  - if [ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == "CID-latest-tools-*" ]; then
-      sh travisCI/travisAutoMerge.sh;
+  - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == "CID-latest-tools-*" ]]; then
+     bash travisCI/travisAutoMerge.sh;
     fi
 
 install:
-  - sh travisCI/travisPullImage.sh;
-  - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+  - bash travisCI/travisPullImage.sh;
+  - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
       bash travisCI/travisUpdatePDK.sh;
     fi
   - bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildPDK.sh;

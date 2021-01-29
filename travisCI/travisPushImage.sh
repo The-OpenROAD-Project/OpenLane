@@ -17,7 +17,7 @@ echo "TRAVIS BRANCH: $TRAVIS_BRANCH"
 echo "TRAVIS PULL REQUEST: $TRAVIS_PULL_REQUEST"
 echo "IMAGE NAME: $IMAGE_NAME"
 echo "RUN ROOT: $RUN_ROOT"
-if [[ -z "$DOCKERHUB_USER" ]]; then
+if [[ ! -z "$DOCKERHUB_USER" ]]; then
     docker push $IMAGE_NAME
 else
     echo "Docker credentials are not provided in external PRs. So, we won't be able to push the image"
