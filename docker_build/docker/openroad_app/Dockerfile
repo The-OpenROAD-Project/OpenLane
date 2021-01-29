@@ -114,9 +114,11 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog.git \
     && cmake .. \
     && make install -j
 
-RUN git clone --recursive https://github.com/The-OpenROAD-Project/OpenROAD OpenROAD_10012020
+ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
+ARG OPENROAD_APP_COMMIT=1415572a73d43dfc91ba4501170fe6a245729e87
+RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_10012020
 WORKDIR /OpenROAD_10012020/
-RUN git checkout 1415572a73d43dfc91ba4501170fe6a245729e87
+RUN git checkout ${OPENROAD_APP_COMMIT}
 RUN git submodule update --init --recursive
 
 COPY rails.patch /OpenROAD_10012020/
