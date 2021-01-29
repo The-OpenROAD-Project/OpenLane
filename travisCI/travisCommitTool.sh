@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
+echo "Commiting $TOOL..."
 echo "RUN ROOT: $RUN_ROOT"
 cd $RUN_ROOT
 echo "Getting Date & Month..."

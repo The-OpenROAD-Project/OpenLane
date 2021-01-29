@@ -15,7 +15,6 @@
 set -e
 echo "Checking the tool version against latest tool..."
 echo "RUN ROOT: $RUN_ROOT"
-TOOL=$(echo "$TRAVIS_BRANCH" | sed 's/CID-latest-tools-//g')
 echo "TOOL: $TOOL"
 docker_file=$RUN_ROOT/docker_build/docker/$TOOL/Dockerfile
 echo "Dockerfile: $docker_file"
