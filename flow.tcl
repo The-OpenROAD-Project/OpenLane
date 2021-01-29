@@ -23,6 +23,9 @@ proc run_non_interactive_mode {args} {
 	set options {
 		{-design required}
 		{-save_path optional}
+		{-no_lvs optional}
+	    {-no_drc optional}
+	    {-no_antennacheck optional}
 	}
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
@@ -51,7 +54,9 @@ proc run_non_interactive_mode {args} {
 
 	run_klayout_gds_xor
 
-	run_magic_spice_export
+	if { ! [info exists flags_map(-no_lvs)] } {
+		run_magic_spice_export
+	}
 
 	if {  [info exists flags_map(-save) ] } {
 		if { ! [info exists arg_values(-save_path)] } {
@@ -69,19 +74,23 @@ proc run_non_interactive_mode {args} {
 	}
 
 	# Physical verification
+	if { ! [info exists flags_map(-no_lvs)] } {
+		run_lvs; # requires run_magic_spice_export
+	}
 
-	run_magic_drc
-	run_klayout_drc
+	if { ! [info exists flags_map(-no_drc)] } {
+		run_magic_drc
+		run_klayout_drc
+	}
 
-	run_lvs; # requires run_magic_spice_export
-
-	run_antenna_check
+	if {  ! [info exists flags_map(-no_antennacheck) ] } {
+		run_antenna_check
+	}
 
 	run_lef_cvc
 
 	calc_total_runtime
 	generate_final_summary_report
-
 
 	puts_success "Flow Completed Without Fatal Errors."
 }
