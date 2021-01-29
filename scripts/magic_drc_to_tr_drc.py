@@ -30,7 +30,7 @@ output_file = args.output_file
 
 
 def cleanup(vio_type):
-    return str(vio_type).replace(" ","_")#.replace(">","_greater_than_").replace("<","_less_than_").replace("=","_equal_").replace("!","_not_").replace("^","_power_").replace(".","_dot_").replace("-","_dash_").replace("+","_plus_").replace("(","").replace(")","")
+    return str(vio_type).replace(" ","_").replace(">","gt").replace("<","lt").replace("=","eq").replace("!","not").replace("^","pow").replace(".","dot").replace("-","_").replace("+","plus").replace("(","").replace(")","")
 
 printArr = []
 
