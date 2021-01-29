@@ -16,27 +16,7 @@ echo "Running the standard PDK installation process..."
 echo "IMAGE NAME: $IMAGE_NAME"
 echo "PDK ROOT: $PDK_ROOT"
 echo "RUN ROOT: $RUN_ROOT"
-make skywater-pdk
-
-# The following section is for running on the CI.
-# If you're running locally you should replace them with: `make skywater-library`
-# This is because sometimes while setting up the conda env (skywater's make timing) it fails to fetch something
-# Then it exits without retrying. So, here we're retrying, and if something goes wrong it will exit after 5 retries.
-# Section Begin
-cnt=0
-until make skywater-library; do
-cnt=$((cnt+1))
-if [ $cnt -eq 5 ]; then
-	exit 2
-fi
-rm -rf $PDK_ROOT/skywater-pdk
-make skywater-pdk
-done
-# Section End
-
-make open_pdks
-make build-pdk
-make gen-sources
+make pdk
 echo "done installing"
 cat $PDK_ROOT/sky130A/SOURCES
 cd $RUN_ROOT

@@ -12,13 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-set -ev
+set -e
 echo "Checking the PDK version against latest pdk..."
-mkdir pdks
-echo "IMAGE NAME: $IMAGE_NAME"
 echo "RUN ROOT: $RUN_ROOT"
-skywater_commit=$(grep "SKYWATER_COMMIT ?= " Makefile | sed 's/\<SKYWATER_COMMIT ?= \>//g')
-open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " Makefile | sed 's/\<OPEN_PDKS_COMMIT ?= \>//g')
+makefile=$RUN_ROOT/Makefile
+doc_source=$RUN_ROOT/docs/source/Manual_PDK_installation.md
+skywater_commit=$(grep "SKYWATER_COMMIT ?= " $makefile | sed 's/SKYWATER_COMMIT ?= //g')
+open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " $makefile | sed 's/OPEN_PDKS_COMMIT ?= //g')
 skywater_repo="https://github.com/google/skywater-pdk.git"
 open_pdks_repo="git://opencircuitdesign.com/open_pdks"
 latest_skywater_commit=$(bash $RUN_ROOT/travisCI/utils/get_commit.sh $skywater_repo)
@@ -27,16 +27,16 @@ cd $RUN_ROOT
 status=0
 
 if [[ $latest_open_pdks_commit != $open_pdks_commit ]]; then
-  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" Makefile;
-  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" docs/source/Manual_PDK_installation.md;
+  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $makefile;
+  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $doc_source;
   status=1;
 else
   echo "latest open_pdks commit identical to current commit";
 fi
 
 if [[ $latest_skywater_commit != $skywater_commit ]]; then
-  sed -i "s/$skywater_commit/$latest_skywater_commit/" Makefile;
-  sed -i "s/$skywater_commit/$latest_skywater_commit/" docs/source/Manual_PDK_installation.md;
+  sed -i "s/$skywater_commit/$latest_skywater_commit/" $makefile;
+  sed -i "s/$skywater_commit/$latest_skywater_commit/" $doc_source;
   status=1;
 else
   echo "latest skywater-pdk commit identical to current commit";

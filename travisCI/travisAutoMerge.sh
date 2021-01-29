@@ -13,7 +13,7 @@
 # limitations under the License.
 echo "Merging Branches"
 echo "Current branch is $TRAVIS_BRANCH"
-git checkout develop
+git checkout develop-restructure
 git checkout $TRAVIS_BRANCH
 echo "Current branch is $TRAVIS_BRANCH"
-git merge develop --no-commit 
+git merge develop-restructure --no-commit

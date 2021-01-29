@@ -21,14 +21,15 @@ jobs:
     if: branch != develop-latest_tools_x
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
-    - if [ $TRAVIS_BRANCH == "CID-latest-tools-*" ]; then
-        bash travisCI/travisPreBuild.sh;
-      fi
-    - bash travisCI/travisBuildImage.sh;
-    - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
-        bash travisCI/travisUpdatePDK.sh;
-      fi
-    - bash travisCI/travisBuildPDK.sh;
+      - if [ $TRAVIS_BRANCH == CID-latest-tools-* ]; then
+          bash travisCI/travisUpdateTool.sh;
+          bash travisCI/travisBuildTool.sh;
+        fi
+      - bash travisCI/travisBuildImage.sh;
+      - if [ $TRAVIS_BRANCH == "CID-latest-pdk" ]; then
+          bash travisCI/travisUpdatePDK.sh;
+        fi
+      - bash travisCI/travisBuildPDK.sh;
     after_success:
       - bash travisCI/travisPushImage.sh
   - name: Fastest Test Set 1
@@ -47,7 +48,9 @@ jobs:
     stage: test
     env: TEST_SET=fastestTestSet5
     after_script:
-      - bash travisCI/travisDeleteImage.sh
+      - if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
+          bash travisCI/travisDeleteImage.sh;
+        fi
   - name: Typical Test Set 2
     stage: test
     if: type = cron OR type = api
@@ -123,7 +126,8 @@ before_install:
     fi
   - export PDK_ROOT=$(pwd)/pdks
   - export RUN_ROOT=$(pwd)
-  - if [[ $TRAVIS_BRANCH == "CID-latest-tools-*" ]]; then
+  - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
+      export TOOL=$(echo "$TRAVIS_BRANCH" | sed 's/CID-latest-tools-//g')
       export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-$TOOL;
     else
       if [[ $TRAVIS_PULL_REQUEST != "false" && -z "$DOCKERHUB_USER" ]]; then
