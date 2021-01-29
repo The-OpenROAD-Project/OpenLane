@@ -13,7 +13,9 @@
 # limitations under the License.
 echo "Merging Branches"
 echo "Current branch is $TRAVIS_BRANCH"
-git checkout develop-restructure
-git checkout $TRAVIS_BRANCH
+MERGE_BRANCH=develop-restructure
+echo "Merge branch is $MERGE_BRANCH"
+git remote set-branches --add origin $MERGE_BRANCH
+git fetch
 echo "Current branch is $TRAVIS_BRANCH"
-git merge develop-restructure --no-commit
+git merge $MERGE_BRANCH --no-commit
