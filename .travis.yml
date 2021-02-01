@@ -123,7 +123,7 @@ jobs:
     env: TEST_SET=aes128
   - name: Push to Github
     stage: github-deploy
-    if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
+    if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master AND NOT commit_message =~ /^[skip-deploy-stage].*$/ 
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash .travisCI/travisUpdateTool.sh; 1
@@ -161,7 +161,8 @@ before_install:
   - export PDK_ROOT=$(pwd)/pdks
   - export RUN_ROOT=$(pwd)
   - if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
-        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST;
+        export COMMIT_SHA_5=$(echo "$TRAVIS_PULL_REQUEST_SHA" | awk '{print substr($0,0,5)}');
+        export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST-$COMMIT_SHA_5;
     else
         export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
     fi
