@@ -27,10 +27,10 @@ jobs:
           bash .travisCI/travisUpdateTool.sh;
           bash .travisCI/travisBuildTool.sh;
         fi
-      - bash .travisCI/travisBuildImage.sh;
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
           bash .travisCI/travisUpdatePDK.sh;
         fi
+      - bash .travisCI/travisBuildImage.sh;
       - bash .travisCI/travisBuildPDK.sh;
     after_success:
       - bash .travisCI/travisPushImage.sh
