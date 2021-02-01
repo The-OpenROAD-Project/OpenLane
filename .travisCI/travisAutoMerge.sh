@@ -13,7 +13,7 @@
 # limitations under the License.
 echo "Merging Branches"
 echo "Current branch is $TRAVIS_BRANCH"
-MERGE_BRANCH=develop-restructure
+MERGE_BRANCH=master
 echo "Merge branch is $MERGE_BRANCH"
 git remote set-branches --add origin $MERGE_BRANCH
 git fetch
