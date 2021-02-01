@@ -23,4 +23,4 @@ export WORKDIR=$(pwd)
 export TEST_SCRIPT=$WORKDIR/$1
 export TAILING_LINES=${2:-500}
 
-bash $WORKDIR/travisCI/utils/run_wrapper.sh "bash $TEST_SCRIPT" "$TAILING_LINES"
+bash $WORKDIR/.travisCI/utils/run_wrapper.sh "bash $TEST_SCRIPT" "$TAILING_LINES"

@@ -23,7 +23,7 @@ tool_repo=$(grep "ARG ${TOOL^^}_REPO=" $docker_file | sed "s/ARG ${TOOL^^}_REPO=
 tool_commit=$(grep "ARG ${TOOL^^}_COMMIT=" $docker_file | sed "s/ARG ${TOOL^^}_COMMIT=//g")
 echo "$tool_repo"
 echo "$tool_commit"
-latest_commit=$(bash $RUN_ROOT/travisCI/utils/get_commit.sh $tool_repo)
+latest_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $tool_repo)
 if [[ $latest_commit != $tool_commit ]]; then
   sed -i "s/$tool_commit/$latest_commit/" $docker_file;
   exit 0

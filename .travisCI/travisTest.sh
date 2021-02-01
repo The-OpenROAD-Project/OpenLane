@@ -21,7 +21,7 @@ if [ -z "$EXTRA_FLAGS" ]; then EXTRA_FLAGS=""; fi
 
 DESIGNS_LIST=$TEST_SET
 
-file_path=$RUN_ROOT/travisCI/test_sets/$TEST_SET
+file_path=$RUN_ROOT/.travisCI/test_sets/$TEST_SET
 if [ -f $file_path ]; then DESIGNS_LIST=$(cat $file_path); fi
 
 docker run -it -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME  bash -c "python3 run_designs.py -d $DESIGNS_LIST -t TEST_$TEST_SET -dl -dt -th $(nproc) -b regression_results/benchmark_results/SW_HD.csv -p 30 $EXTRA_FLAGS"
