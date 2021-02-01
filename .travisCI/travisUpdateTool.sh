@@ -15,7 +15,7 @@
 set -e
 exit_on_no_update=${1:-0}
 if [[ $TRAVIS_EVENT_TYPE ]]; then
-  if [[ $TRAVIS_EVENT_TYPE == "api" || $TRAVIS_EVENT_TYPE == "cron" ]];
+  if [[ $TRAVIS_EVENT_TYPE == "api" || $TRAVIS_EVENT_TYPE == "cron" ]]; then
     exit_on_no_update=1
   fi
 fi
