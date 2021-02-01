@@ -1,0 +1,24 @@
+# Workflow name
+name: Auto-PR workflow
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push  only for the develop-restructur branch
+  push:
+    branches: CID-latest-*
+
+
+# This is a basic workflow that auto creates a PR to the base branch for the CI branches
+jobs:
+  create-pr-on-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@1.0.0
+    
+    - name: Create pull request
+      uses: thomaseizinger/create-pull-request@master
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        head: ${{ github.ref }}
+        base: master
+        title: "An automatically created PR from ${{ github.ref }}, Workflow Run ID: ${{ github.run_id }}"

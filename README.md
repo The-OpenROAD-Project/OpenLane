@@ -6,9 +6,9 @@
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 # OpenLANE
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=develop)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=develop)](https://openlane.readthedocs.io/en/master/?badge=develop)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master)
 
-This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/en/develop/).
+This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/).
 
 # Table of contents
 - [Overview](#overview)
@@ -17,7 +17,7 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
     - [Installation Notes](#installation-notes)
 - [Updating OpenLANE](#updating-openlane)
 - [Setting up OpenLANE](#setting-up-openlane)
-    - [Building the OpenLANE Docker Container](#building-the-openlane-docker-container)
+    - [Pulling the OpenLANE Docker Container](#pulling-the-openlane-docker-container)
     - [Running OpenLANE](#running-openlane)
     - [Command line arguments](#command-line-arguments)
     - [Adding a design](#adding-a-design)
@@ -31,6 +31,9 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
 - [Commands and Configurations](#commands-and-configurations)
 - [How To Contribute](#how-to-contribute)
 - [Authors](#authors)
+- [Additional Material](#additional-material)
+    - [Papers](#papers)
+    - [Videos And Tutorials](#videos-and-tutorials)
 
 # Overview
 
@@ -77,10 +80,8 @@ Now you can skip forward to [running openlane](#running-openlane).
 - The Makefile should do the following when you run the above command:
     - Clone Skywater-pdk and the specified STD_CELL_LIBRARY, SPECIAL_VOLTAGE_LIBRARY, and IO_LIBRARY and build it.
     - Clone open_pdks and set up the pdk for OpenLANE use.
-    - Build the OpenLANE docker container.
+    - Pull the OpenLANE docker container.
     - Test the whole setup with a complete run on a small design `spm`.
-
-- You can use dockerhub instead of building the docker container locally. Check [this section](#pulling-an-auto-built-docker-image-from-dockerhub) for more details.
 
 - the default STD_CELL_LIBRARY is sky130_fd_sc_hd. You can change that by running:
 ```bash
@@ -98,7 +99,7 @@ Now you can skip forward to [running openlane](#running-openlane).
 
 - Refer to [this][24] for more details on the structure.
 
-- For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow. **You Don't Need To Re-Build The Tools.**
+- For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLANE flow. **You Don't Need To Re-Build It.**
 
 # Updating OpenLANE
 
@@ -115,33 +116,16 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     make test # This is to test that the flow and the pdk were properly installed
 ```
 
-This should install the latest openlane docker container, and re-install the pdk for the latest used version. If you want to only update the openlane docker container check this [section](#building-the-openlane-docker-container) after updating the repo.
+This should install the latest openlane docker container, and re-install the pdk for the latest used version.
 
 
 # Setting up OpenLANE
 
-## Building the OpenLANE Docker Container
+## Pulling the OpenLANE Docker Container
 
 **DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make openlane`**
 
-### Building the Docker Image Locally
-
-To setup openlane you can build the docker container locally following these instructions:
-
-```bash
-    git clone https://github.com/efabless/openlane.git --branch rc7
-    cd openlane/docker_build
-    make merge
-    cd ..
-```
-
-The generated IMAGE_NAME is openlane:rc7
-
-### Pulling an Auto-Built Docker Image from Dockerhub
-
-Alternatively, you can use the auto-built openlane docker images available through [dockerhub](https://hub.docker.com/r/efabless/openlane/tags).
-
-**Note:** You may need to have an account on dockerhub to execute the following step.
+To setup openlane you can pull the docker container following these instructions:
 
 ```bash
     git clone https://github.com/efabless/openlane.git --branch rc7
@@ -168,13 +152,9 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
-    - Default IMAGE_NAME is openlane:rc7. If you want to use a different version, run the following before `make mount`:
+    - Default IMAGE_NAME is efabless/openlane:rc7. If you want to use a different version, run the following before `make mount`:
         ```bash
         export IMAGE_NAME=<docker image name>
-        ```
-    - If you're using Dockerhub, then run the follwing before `make mount`:
-        ```bash
-        export IMAGE_NAME=efabless/openlane:rc7
         ```
 
 The following is roughly what happens under the hood when you run `make mount` + the required exports:
@@ -546,6 +526,29 @@ We discuss the details of how to contribute to OpenLANE in [this documentation][
 # Authors
 
 To check the original author list of OpenLANE, check [this][33].
+
+# Additional Material
+
+## Papers
+
+- Ahmed Ghazy and Mohamed Shalan, "OpenLane: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
+- M. Shalan and T. Edwards, "Building OpenLANE: A 130nm OpenROAD-based Tapeout- Proven Flow : Invited Paper," 2020 IEEE/ACM International Conference On Computer Aided Design (ICCAD), San Diego, CA, USA, 2020, pp. 1-6.
+- R. Timothy Edwards, M. Shalan and M. Kassem, "Real Silicon using Open Source EDA," in IEEE Design & Test, doi: 10.1109/MDAT.2021.3050000.
+
+## Videos and Tutorials
+
+### OpenLane Specific
+
+- [FOSSi Dial-Up - OpenLane, A Digital ASIC Flow for SkyWater 130nm Open PDK, Mohamed Shalan](https://www.youtube.com/watch?v=Vhyv0eq_mLU)
+- [Openlane Overview, Ahmed Ghazy](https://www.youtube.com/watch?v=d0hPdkYg5QI)
+- [Free VLSI Tutorial - VSD - A complete guide to install Openlane and Sky130nm PDK](https://www.udemy.com/course/vsd-a-complete-guide-to-install-openlane-and-sky130nm-pdk)
+- [Sky130 - Exploring OpenLANE and OpenDB to create a register file , Sylvain Munaut](https://www.youtube.com/watch?v=AT_LcmaCZmw)
+- [VLSI SoC EDA openLANE with Skywater 130 PDK, Gary Huang](https://www.youtube.com/watch?v=QnJzoJjC7RQ)
+
+### Caravel & SkyWater PDK
+- [Aboard Caravel, Ahmed Ghazy](https://www.youtube.com/watch?v=9QV8SDelURk)
+- [FOSSi Dial-Up - Skywater PDK: Fully open source manufacturable PDK for a 130nm process, Tim Ansell](https://www.youtube.com/watch?v=EczW2IWdnOM&)
+- [Skywater 130nm PDK - Initial Discovery, Sylvain Munaut](https://www.youtube.com/watch?v=gRYBdTXbxiU)
 
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
