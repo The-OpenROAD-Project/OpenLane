@@ -20,7 +20,6 @@ jobs:
   include:
   - name: Base Test
     stage: docker-build
-    if: branch != develop-latest_tools_x
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
