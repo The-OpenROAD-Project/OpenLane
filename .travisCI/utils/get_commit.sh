@@ -18,12 +18,5 @@
 # Abort on Error
 set -e
 repo=$1
-run_root=$(pwd)
-cd ..
-if [[ -d "tmp_compare_commit_dir/" ]]; then
-    rm -rf tmp_compare_commit_dir/;
-fi
-git clone -q $repo tmp_compare_commit_dir --depth=1
-cd tmp_compare_commit_dir
-new_commit=$(git rev-parse HEAD)
+new_commit=$(git ls-remote $repo | grep "HEAD" | awk '{print $1;}')
 echo "$new_commit";
