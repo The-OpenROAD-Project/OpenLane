@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
+exit_on_no_update=${1:-0}
 echo "Checking the tool version against latest tool..."
 echo "RUN ROOT: $RUN_ROOT"
 echo "TOOL: $TOOL"
@@ -28,7 +29,9 @@ if [[ $latest_commit != $tool_commit ]]; then
   exit 0
 else
   echo "latest $TOOL commit is identical to the current commit";
-  exit 2
+  if [[ $exit_on_no_update -eq 1 ]]; then
+    exit 2;
+  fi
 fi
 
 

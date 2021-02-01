@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
+exit_on_no_update=${1:-0}
 echo "Checking the PDK version against latest pdk..."
 echo "RUN ROOT: $RUN_ROOT"
 makefile=$RUN_ROOT/Makefile
@@ -42,6 +43,8 @@ else
   echo "latest skywater-pdk commit identical to current commit";
 fi
 
-if [[ $status -eq 0 ]]; then exit 2; fi
+if [[ $exit_on_no_update -eq 1 ]]; then
+  if [[ $status -eq 0 ]]; then exit 2; fi
+fi
 
 exit 0

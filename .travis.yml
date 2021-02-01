@@ -126,11 +126,11 @@ jobs:
     if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-          bash travisCI/travisUpdateTool.sh;
+          bash travisCI/travisUpdateTool.sh; 1
           bash travisCI/travisBuildTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-          bash travisCI/travisUpdatePDK.sh;
+          bash travisCI/travisUpdatePDK.sh; 1
         fi
     script:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
