@@ -171,6 +171,15 @@ regression_test:
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
+.PHONY: fastest_test_set
+fastest_test_set:
+	cd $(OPENLANE_DIR) && \
+		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export TEST_SET=fastestTestSet && \
+		export IMAGE_NAME=$(IMAGE_NAME) && \
+		export PDK_ROOT=$(PDK_ROOT) && \
+		bash .travisCI/travisTest.sh
+
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
