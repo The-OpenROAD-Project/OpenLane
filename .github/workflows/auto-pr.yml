@@ -21,4 +21,4 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         head: ${{ github.ref }}
         base: develop-restructure
-        title: "An automatically created PR from ${{ github.ref }}"
+        title: "An automatically created PR from ${{ github.ref }}, Workflow Run ID: ${{ github.run_id }}"
