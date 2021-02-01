@@ -21,14 +21,23 @@ git config --global user.name "Travis CI"
 
 echo "Adding remote tracker..."
 git remote add origin-ci https://${MY_GITHUB_TOKEN}@github.com/efabless/openlane.git > /dev/null 2>&1
+latest_tag_line=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | tail -n1)
+latest_tag=$(echo "$latest_tag_line" | awk '{ print $NF }' | cut -d"/" -f3)
+latest_tag_commit=$(echo "$latest_tag_line" | awk '{print $1;}')
+current_commit=$(git rev-parse HEAD)
+if [[ $latest_tag_commit ]]; then
+    if [[ $current_commit == $latest_tag_commit ]]; then
+        echo "The current commit is already tagged. We won't tag it again."
+        exit 0
+    fi
+fi
 
-latest_tag=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3)
 if ! [[ $latest_tag ]]; then 
-    new_tag="v0.0";
+    new_tag="v0.1";
 else
     if [[ $latest_tag != v* ]]; then
         echo "last tag: $latest_tag"
-        new_tag="v0.0";
+        new_tag="v0.1";
     else
         p1=$(echo "$latest_tag" | cut -d"." -f1 )
         p2=$(echo "$latest_tag" | cut -d"." -f2 )

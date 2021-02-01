@@ -21,7 +21,13 @@ if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
     export ORGANIZATION=efabless
     export REPOSITORY=openlane
     export TAG=$TRAVIS_BRANCH-pull_request-$TRAVIS_PULL_REQUEST
-    curl -u $DOCKERHUB_USER:$DOCKERHUB_PASSWORD -X "DELETE" https://cloud.docker.com/v2/repositories/$ORGANIZATION/$REPOSITORY/tags/$TAG/
+    sudo apt update
+    sudo apt install jq
+    HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKERHUB_USER}'", "password": "'${DOCKERHUB_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
+    curl -i -X DELETE \
+        -H "Accept: application/json" \
+        -H "Authorization: JWT $HUB_TOKEN" \
+        https://hub.docker.com/v2/repositories/$ORGANIZATION/$REPOSITORY/tags/${TAG}/  > /dev/null 2>&1
 else
     echo "IMAGE $IMAGE_NAME won't be deleted."
 fi

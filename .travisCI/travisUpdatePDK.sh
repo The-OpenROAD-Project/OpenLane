@@ -13,6 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
+exit_on_no_update=${1:-0}
+if [[ $TRAVIS_EVENT_TYPE ]]; then
+  if [[ $TRAVIS_EVENT_TYPE == "api" || $TRAVIS_EVENT_TYPE == "cron" ]];
+    exit_on_no_update=1
+  fi
+fi
 echo "Checking the PDK version against latest pdk..."
 echo "RUN ROOT: $RUN_ROOT"
 makefile=$RUN_ROOT/Makefile
@@ -21,8 +27,8 @@ skywater_commit=$(grep "SKYWATER_COMMIT ?= " $makefile | sed 's/SKYWATER_COMMIT 
 open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " $makefile | sed 's/OPEN_PDKS_COMMIT ?= //g')
 skywater_repo="https://github.com/google/skywater-pdk.git"
 open_pdks_repo="git://opencircuitdesign.com/open_pdks"
-latest_skywater_commit=$(bash $RUN_ROOT/travisCI/utils/get_commit.sh $skywater_repo)
-latest_open_pdks_commit=$(bash $RUN_ROOT/travisCI/utils/get_commit.sh $open_pdks_repo)
+latest_skywater_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $skywater_repo)
+latest_open_pdks_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $open_pdks_repo)
 cd $RUN_ROOT
 status=0
 
@@ -42,6 +48,8 @@ else
   echo "latest skywater-pdk commit identical to current commit";
 fi
 
-if [[ $status -eq 0 ]]; then exit 2; fi
+if [[ $exit_on_no_update -eq 1 ]]; then
+  if [[ $status -eq 0 ]]; then exit 2; fi
+fi
 
 exit 0

@@ -24,16 +24,16 @@ jobs:
     env: TEST_SET=spm EXTRA_FLAGS=-so
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-          bash travisCI/travisUpdateTool.sh;
-          bash travisCI/travisBuildTool.sh;
+          bash .travisCI/travisUpdateTool.sh;
+          bash .travisCI/travisBuildTool.sh;
         fi
-      - bash travisCI/travisBuildImage.sh;
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-          bash travisCI/travisUpdatePDK.sh;
+          bash .travisCI/travisUpdatePDK.sh;
         fi
-      - bash travisCI/travisBuildPDK.sh;
+      - bash .travisCI/travisBuildImage.sh;
+      - bash .travisCI/travisBuildPDK.sh;
     after_success:
-      - bash travisCI/travisPushImage.sh
+      - bash .travisCI/travisPushImage.sh
   - name: Fastest Test Set 1
     stage: test
     env: TEST_SET=fastestTestSet1
@@ -51,7 +51,7 @@ jobs:
     env: TEST_SET=fastestTestSet5
     after_script:
       - if [[ $TRAVIS_PULL_REQUEST != "false" && ! -z "$DOCKERHUB_USER" ]]; then
-          bash travisCI/travisDeleteImage.sh;
+          bash .travisCI/travisDeleteImage.sh;
         fi
   - name: Typical Test Set 2
     stage: test
@@ -126,28 +126,28 @@ jobs:
     if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-          bash travisCI/travisUpdateTool.sh;
-          bash travisCI/travisBuildTool.sh;
+          bash .travisCI/travisUpdateTool.sh; 1
+          bash .travisCI/travisBuildTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-          bash travisCI/travisUpdatePDK.sh;
+          bash .travisCI/travisUpdatePDK.sh; 1
         fi
     script:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-          bash travisCI/travisCommitTool.sh;
+          bash .travisCI/travisCommitTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-          bash travisCI/travisCommitPDK.sh;
+          bash .travisCI/travisCommitPDK.sh;
         fi
     after_success:
-        - bash travisCI/travisGitPush.sh;
+        - bash .travisCI/travisGitPush.sh;
   - name: Create Soft Github Tag
     stage: github-deploy
     if: type IN (cron, api) AND branch = develop-restructure
     before_install: skip
     install: skip
     script:
-      - bash travisCI/travisGitTag.sh;
+      - bash .travisCI/travisGitTag.sh;
 
 before_install:
   - echo "$TRAVIS_BRANCH"
@@ -166,15 +166,15 @@ before_install:
         export IMAGE_NAME=efabless/openlane:$TRAVIS_BRANCH;
     fi
   - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-     bash travisCI/travisAutoMerge.sh;
+     bash .travisCI/travisAutoMerge.sh;
     fi
 
 install:
-  - bash travisCI/travisPullImage.sh;
+  - bash .travisCI/travisPullImage.sh;
   - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-      bash travisCI/travisUpdatePDK.sh;
+      bash .travisCI/travisUpdatePDK.sh;
     fi
-  - bash travisCI/utils/bash_run_wrapper.sh travisCI/travisBuildPDK.sh;
+  - bash .travisCI/utils/bash_run_wrapper.sh .travisCI/travisBuildPDK.sh;
 
 script:
-  - bash travisCI/travisTest.sh
+  - bash .travisCI/travisTest.sh
