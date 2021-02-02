@@ -41,11 +41,15 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 
 Join the community on [slack](https://invite.skywater.tools)!
 
+To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
+
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
 
 # Quick Start:
+
+To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
 
 You can start setting up the skywater-pdk and openlane by running:
 
