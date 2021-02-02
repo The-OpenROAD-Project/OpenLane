@@ -3,7 +3,7 @@ name: Auto-PR workflow
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push  only for the develop-restructur branch
+  # Triggers the workflow on push  only for the CID-latest-* branches
   push:
     branches: CID-latest-*
 
