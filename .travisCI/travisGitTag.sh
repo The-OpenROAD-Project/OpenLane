@@ -21,7 +21,17 @@ git config --global user.name "Travis CI"
 
 echo "Adding remote tracker..."
 git remote add origin-ci https://${MY_GITHUB_TOKEN}@github.com/efabless/openlane.git > /dev/null 2>&1
-latest_tag_line=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | tail -n1)
+echo "Getting Latest Release Index..."
+latest_release_idx=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | grep "refs/tags/release-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f2 | cut -d"." -f1)
+
+if [[ $latest_release_idx ]]; then
+    prefix="v$latest_release_idx";
+else
+    prefix="v0";
+fi
+echo "Tag prefix is $prefix"
+echo "Getting latest tag with the same prefix..."
+latest_tag_line=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | grep "refs/tags/$prefix" | tail -n1)
 latest_tag=$(echo "$latest_tag_line" | awk '{ print $NF }' | cut -d"/" -f3)
 latest_tag_commit=$(echo "$latest_tag_line" | awk '{print $1;}')
 current_commit=$(git rev-parse HEAD)
@@ -33,19 +43,18 @@ if [[ $latest_tag_commit ]]; then
 fi
 
 if ! [[ $latest_tag ]]; then 
-    new_tag="v0.1";
+    echo "No tag with prefix $prefix found. Resetting the tag IDs to 1."
+    new_tag="$prefix.1";
 else
     if [[ $latest_tag != v* ]]; then
         echo "last tag: $latest_tag"
-        new_tag="v0.1";
+        new_tag="$prefix.1";
     else
-        p1=$(echo "$latest_tag" | cut -d"." -f1 )
-        p2=$(echo "$latest_tag" | cut -d"." -f2 )
-        n_p2=$((${p2} + 1))
-        new_tag="$p1.$n_p2"
+        cur_idx=$(echo "$latest_tag" | cut -d"." -f2 )
+        new_idx=$((${cur_idx} + 1))
+        new_tag="$prefix.$new_idx"
     fi
 fi
-
 if ! [[ $new_tag ]]; then 
     echo "No new tag to push!";
     exit 2;
@@ -53,7 +62,7 @@ fi
 echo "Commiting new tag $new_tag"
 git tag $new_tag
 echo "Pushing to Github..."
-git push --set-upstream origin-ci --tags
+git push --set-upstream origin-ci --tags > /dev/null 2>&1
 
 echo "Push successful"
 exit 0
