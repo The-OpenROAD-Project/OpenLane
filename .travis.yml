@@ -122,14 +122,14 @@ jobs:
     env: TEST_SET=aes128
   - name: Push to Github
     stage: github-deploy
-    if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/ AND branch != master AND NOT commit_message =~ /^[skip-deploy-stage].*$/ 
+    if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
-          bash .travisCI/travisUpdateTool.sh; 1
+          bash .travisCI/travisUpdateTool.sh;
           bash .travisCI/travisBuildTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
-          bash .travisCI/travisUpdatePDK.sh; 1
+          bash .travisCI/travisUpdatePDK.sh;
         fi
     script:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then

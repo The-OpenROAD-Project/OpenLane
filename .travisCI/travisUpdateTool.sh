@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
-exit_on_no_update=${1:-0}
+exit_on_no_update=0
 if [[ $TRAVIS_EVENT_TYPE ]]; then
   if [[ $TRAVIS_EVENT_TYPE == "api" || $TRAVIS_EVENT_TYPE == "cron" ]]; then
     exit_on_no_update=1
