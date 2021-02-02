@@ -1,6 +1,5 @@
-
 #!/bin/bash
-# SPDX-FileCopyrightText: 2020 Efabless Corporation
+# Copyright 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,14 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# SPDX-License-Identifier: Apache-2.0
-
-# Abort on Error
-set -e
-
-# Test script is provided as a relative path
-export WORKDIR=$(pwd)
-export TEST_SCRIPT=$WORKDIR/$1
-export TAILING_LINES=${2:-500}
-
-bash $WORKDIR/travisCI/utils/run_wrapper.sh "bash $TEST_SCRIPT" "$TAILING_LINES"
+echo "Pulling The Docker Image..."
+echo "IMAGE NAME: $IMAGE_NAME"
+echo "RUN ROOT: $RUN_ROOT"
+make openlane
+exit 0

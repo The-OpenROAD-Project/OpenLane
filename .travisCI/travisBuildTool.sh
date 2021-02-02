@@ -13,10 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-echo "Running the tool prebuild step installation process..."
-export RUN_ROOT=$(pwd)
-echo "Modifying Docker for $TOOL"
-bash $RUN_ROOT/travisCI/utils/remove_line_from_file.sh $RUN_ROOT/docker_build/docker/$TOOL/Dockerfile  "RUN git checkout"
+echo "Running the tool build step installation process..."
+echo "RUN ROOT: $RUN_ROOT"
+echo "TOOL: $TOOL"
 cd $RUN_ROOT/docker_build
 echo "Re-building $TOOL"
 make build-$TOOL

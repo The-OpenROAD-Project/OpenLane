@@ -40,7 +40,7 @@ STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= openlane:rc7
+IMAGE_NAME ?= efabless/openlane:rc7
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -154,8 +154,7 @@ gen-sources: $(PDK_ROOT)/sky130A
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	cd $(OPENLANE_DIR)/docker_build && \
-		$(MAKE) merge
+	docker pull $(IMAGE_NAME)
 
 .PHONY: mount
 mount:
@@ -171,6 +170,15 @@ regression:
 regression_test:
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+
+.PHONY: fastest_test_set
+fastest_test_set:
+	cd $(OPENLANE_DIR) && \
+		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export TEST_SET=fastestTestSet && \
+		export IMAGE_NAME=$(IMAGE_NAME) && \
+		export PDK_ROOT=$(PDK_ROOT) && \
+		bash .travisCI/travisTest.sh
 
 .PHONY: test
 test:
