@@ -23,10 +23,14 @@ set ::env(CHECK_UNMAPPED_CELLS) 1
 
 
 # Routing
-
+set ::env(QUIT_ON_TR_DRC) 1
 
 # Magic
-
+# This is disabled by default for now until we are 100% sure we want to make this
+# shift in flow dynamics, as it will affect the current benchmarks.
+set ::env(QUIT_ON_MAGIC_DRC) 0
+set ::env(QUIT_ON_ILLEGAL_OVERLAPS) 1
 
 # NetGen
-
+# This is disabled by default as it's the stage before the last, so why not do the last stage anyways.
+set ::env(QUIT_ON_LVS_ERROR) 0

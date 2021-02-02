@@ -20,7 +20,7 @@ proc set_core_dims {args} {
 	set options {{-log_path required}}
 	parse_key_args "set_core_dims" args values $options
 	set log_path $values(-log_path)
-	set FpOutDef $::env(ioPlacer_tmp_file_tag).def
+	set FpOutDef $::env(CURRENT_DEF)
 	set def_units $::env(DEF_UNITS_PER_MICRON)
 	set coreinfo [join [exec $::env(SCRIPTS_DIR)/extract_coreinfo.sh $FpOutDef] " "]
 	set sites_per_row [lindex $coreinfo 8]
@@ -83,12 +83,11 @@ proc run_cts {args} {
 		}
 
 		set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(cts_log_file_tag).log
-
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_log_file_tag).log]
 		check_cts_clock_nets
 
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> $::env(cts_log_file_tag)_runtime.txt
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(cts_log_file_tag)_runtime.txt 0]
 
 		set_def $::env(SAVE_DEF)
 		write_verilog $::env(yosys_result_file_tag)_cts.v
@@ -96,8 +95,9 @@ proc run_cts {args} {
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
+		scrot_klayout -layout $::env(CURRENT_DEF)
 	} else {
-		exec echo "SKIPPED!" >> $::env(cts_log_file_tag).log
+		exec echo "SKIPPED!" >> [index_file $::env(cts_log_file_tag).log]
 	}
 
 }

@@ -35,7 +35,7 @@ proc run_yosys {args} {
 	set flags {
 		-no_set_netlist
 	}
-  
+
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
     if { [info exists arg_values(-output)] } {
@@ -51,10 +51,15 @@ proc run_yosys {args} {
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
 	}
 
+	set report_tag_saver $::env(yosys_report_file_tag)
+	set ::env(yosys_report_file_tag) [index_file $::env(yosys_report_file_tag)]
+
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l $::env(yosys_log_file_tag).log \
+		-l [index_file $::env(yosys_log_file_tag).log 0] \
 		|& tee $::env(TERMINAL_OUTPUT)
+
+	set ::env(yosys_report_file_tag) $report_tag_saver
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
     	set_netlist $::env(SAVE_NETLIST)
@@ -72,17 +77,25 @@ proc run_yosys {args} {
         try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(yosys_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_runtime.txt 0]
 }
 
 proc run_sta {args} {
     puts_info "Running Static Timing Analysis..."
+	TIMER::timer_start
     if {[info exists ::env(CLOCK_PORT)]} {
+		set report_tag_saver $::env(opensta_report_file_tag)
+		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
+
         try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(opensta_log_file_tag).log
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
+
+		set ::env(opensta_report_file_tag) $report_tag_saver
     } else {
         puts_warn "No CLOCK_PORT found. Skipping STA..."
     }
+	TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opensta_log_file_tag)_runtime.txt 0]
 }
 
 proc run_synth_exploration {args} {
@@ -101,8 +114,9 @@ proc run_synthesis {args} {
     puts_info "Running Synthesis..."
     # in-place insertion
 	if { [file exists $::env(yosys_result_file_tag).v] } {
-		puts_warn "A netlist at $::env(SAVE_NETLIST) already exists..."
+		puts_warn "A netlist at $::env(yosys_result_file_tag).v already exists..."
 		puts_warn "Skipping synthesis"
+		set_netlist $::env(yosys_result_file_tag).v
 	} else {
 		run_yosys
 	}
@@ -153,24 +167,31 @@ proc verilog_elaborate {args} {
 }
 
 proc yosys_rewrite_verilog {filename} {
-    if { ! [file exists $filename] } {
-	puts_err "$filename does not exist to be re-written"
-	return -code error
-    }
+	if { $::env(LEC_ENABLE) || ! [info exists ::env(YOSYS_REWRITE_VERILOG)] || $::env(YOSYS_REWRITE_VERILOG) } {
+		TIMER::timer_start
+		if { ! [file exists $filename] } {
+			puts_err "$filename does not exist to be re-written"
+			return -code error
+		}
 
+		set ::env(SAVE_NETLIST) $filename
 
-    set ::env(SAVE_NETLIST) $filename
+		puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
 
-    puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
+		try_catch [get_yosys_bin] \
+		-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
+		-l [index_file $::env(yosys_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
-    try_catch [get_yosys_bin] \
-	-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
-	-l $::env(yosys_log_file_tag)_rewrite_verilog.log; # \
-	|& tee $::env(TERMINAL_OUTPUT)
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_rewrite_verilog_runtime.txt 0]
+	} else {
+		puts_info "Yosys won't attempt to rewrite verilog, and the OpenROAD output will be used as is."
+	}
 }
 
 
 proc logic_equiv_check {args} {
+	TIMER::timer_start
 	set options {
 		{-lhs required}
 		{-rhs required}
@@ -189,13 +210,16 @@ proc logic_equiv_check {args} {
 
     if { [catch {exec [get_yosys_bin] \
 	-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
-	-l $::env(yosys_log_file_tag).equiv.log \
+	-l [index_file $::env(yosys_log_file_tag).equiv.log] \
 	|& tee $::env(TERMINAL_OUTPUT)}] } {
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
 	    return -code error
-    }
-
+	}
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
+	TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
     return -code ok
 }
 

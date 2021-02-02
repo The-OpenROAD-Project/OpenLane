@@ -1,5 +1,5 @@
 # SCL Configs
-set ::env(SYNTH_STRATEGY) 2
+
 set ::env(CLOCK_PERIOD) "17.0"
 set ::env(FP_CORE_UTIL) 35
 set ::env(SYNTH_MAX_FANOUT) 6

@@ -62,7 +62,7 @@ missing_configs = []
 base_configs = ['CLOCK_PERIOD', 'SYNTH_STRATEGY', 'SYNTH_MAX_FANOUT','FP_CORE_UTIL', 'FP_ASPECT_RATIO',
                 'FP_PDN_VPITCH', 'FP_PDN_HPITCH', 'PL_TARGET_DENSITY', 'GLB_RT_ADJUSTMENT', 'STD_CELL_LIBRARY', 'CELL_PAD', 'DIODE_INSERTION_STRATEGY']
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5,'lvs_total_errors':0}
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':10,'lvs_total_errors':0}
 
 critical_statistics = ['tritonRoute_violations','Magic_violations',  'antenna_violations','lvs_total_errors']
 
@@ -102,7 +102,6 @@ def parseCSV(csv_file, isBenchmark):
     designNameIdx = findIdx(headerInfo, "design")
     if isBenchmark:
         note_worthy_statistics=diff_list(diff_list(diff_list(headerInfo,ignore_list),critical_statistics),base_configs)
-        #list(((set(headerInfo)-set(ignore_list))-set(critical_statistics))-set(base_configs))
 
     remover = 0
     size = len(base_configs)

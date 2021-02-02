@@ -67,12 +67,22 @@ if { $::env(PL_TIME_DRIVEN) } {
 if { !$::env(PL_ROUTABILITY_DRIVEN) } {
 	set_replace_disable_routability_driven_mode_cmd
 } else {
-	FastRoute::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
-	FastRoute::set_max_layer $::env(GLB_RT_MAXLAYER)
-	FastRoute::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
-	FastRoute::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
-	FastRoute::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
-	FastRoute::set_overflow_iterations 150
+	grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
+	grt::set_max_layer $::env(GLB_RT_MAXLAYER)
+	grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
+	grt::add_layer_adjustment 2 $::env(GLB_RT_L2_ADJUSTMENT)
+	grt::add_layer_adjustment 3 $::env(GLB_RT_L3_ADJUSTMENT)
+	if { $::env(GLB_RT_MAXLAYER) > 3 } {
+	   grt::add_layer_adjustment 4 $::env(GLB_RT_L4_ADJUSTMENT)
+	    if { $::env(GLB_RT_MAXLAYER) > 4 } {
+	        grt::add_layer_adjustment 5 $::env(GLB_RT_L5_ADJUSTMENT)
+	        if { $::env(GLB_RT_MAXLAYER) > 5 } {
+	            grt::add_layer_adjustment 6 $::env(GLB_RT_L6_ADJUSTMENT)
+	        }
+	    }
+	}
+	grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
+	grt::set_overflow_iterations 150
 	set_replace_routability_max_density_cmd [expr $::env(PL_TARGET_DENSITY) + 0.1]
 	set_replace_routability_max_inflation_iter_cmd 10
 }

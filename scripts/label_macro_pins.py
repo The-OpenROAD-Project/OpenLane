@@ -44,8 +44,10 @@ parser.add_argument('--output', '-o', required=False,
 
 parser.add_argument('--verbose', '-v', action='store_true', required=False)
 
+parser.add_argument('--all-shapes-flag', '-all', action='store_true', required=False)
+
 parser.add_argument('--pad-pin-name', '-ppn', required=False,
-                    default='pad',
+                    default='PAD',
                     help='Name of the pin of the pad as it appears in the netlist def')
 
 parser.add_argument('--pin-size', '-ps', required=False, type=int,
@@ -60,7 +62,7 @@ parser.add_argument('--map', '-m', action='append',
                     nargs=4,
                     required=False,
                     default=[],
-                    help='Extra mappins that are hard to infer from the netlist def. Format: -extra pad_instance_name pad_pin block_pin (INPUT|OUTPUT|INOUT)')
+                    help='Extra mappings that are hard to infer from the netlist def. Format: -extra pad_instance_name pad_pin block_pin (INPUT|OUTPUT|INOUT)')
 
 args = parser.parse_args()
 
@@ -69,6 +71,7 @@ PAD_PIN_NAME = args.pad_pin_name
 BLOCK_PIN_SIZE = args.pin_size
 DEF_UNITS_PER_MICRON = args.db_microns
 
+all_shapes_flag = args.all_shapes_flag
 netlist_def_file_name = args.netlist_def
 netlist_lef_file_names = args.lef
 input_def_file_name = args.input_def
@@ -82,6 +85,106 @@ if args.output is not None:
 else:
     print("Warning: The input DEF file will be overwritten")
     output_def_file_name = input_def_file_name
+
+def getBiggestBox(iterm):
+    inst = iterm.getInst()
+    px, py = inst.getOrigin()
+    orient = inst.getOrient()
+    transform = odb.dbTransform(orient, odb.Point(px, py))
+
+    mterm = iterm.getMTerm()
+    mpins = mterm.getMPins()
+
+    # label biggest mpin
+    biggest_mpin = None
+    biggest_size = -1
+    for i in range(len(mpins)):
+        mpin = mpins[i]
+        box = mpin.getGeometry()[0] #assumes there's only one; to extend and get biggest
+
+        llx, lly = box.xMin(), box.yMin()
+        urx, ury = box.xMax(), box.yMax()
+        area = (urx-llx)*(ury-lly)
+        if area > biggest_size:
+            biggest_size = area
+            biggest_mpin = mpin
+
+    main_mpin = biggest_mpin
+    box = main_mpin.getGeometry()[0]
+    ll = odb.Point(box.xMin(), box.yMin())
+    ur = odb.Point(box.xMax(), box.yMax())
+    # x = (ll.getX() + ur.getX())//2
+    # y = (ll.getY() + ur.getY())//2
+    # if VERBOSE: print(x, y)
+    transform.apply(ll)
+    transform.apply(ur)
+
+    layer = box.getTechLayer()
+
+    return [(layer, ll, ur)]
+
+def getAllBoxes(iterm):
+    inst = iterm.getInst()
+    px, py = inst.getOrigin()
+    orient = inst.getOrient()
+    transform = odb.dbTransform(orient, odb.Point(px, py))
+
+    mterm = iterm.getMTerm()
+    mpins = mterm.getMPins()
+
+    boxes = []
+
+    for i in range(len(mpins)):
+        mpin = mpins[i]
+        geometries = mpin.getGeometry()
+        for box in geometries:
+            llx, lly = box.xMin(), box.yMin()
+            urx, ury = box.xMax(), box.yMax()
+            ll = odb.Point(box.xMin(), box.yMin())
+            ur = odb.Point(box.xMax(), box.yMax())
+            transform.apply(ll)
+            transform.apply(ur)
+            layer = box.getTechLayer()
+            boxes.append((layer, ll, ur))
+
+    return boxes
+
+
+def labelITerm(iterm, pin_name, iotype, all_shapes_flag=False):
+    net_name = pin_name
+    net = chip_block.findNet(net_name)
+    if net is None:
+        net = odb.dbNet_create(chip_block, net_name)
+
+    pin_bterm = chip_block.findBTerm(pin_name)
+    if pin_bterm is None:
+        pin_bterm = odb.dbBTerm_create(net, pin_name)
+
+    assert pin_bterm is not None, "Failed to create or find " + pin_name
+
+    pin_bterm.setIoType(iotype)
+
+    pin_bpin = odb.dbBPin_create(pin_bterm)
+    pin_bpin.setPlacementStatus("PLACED")
+
+    if not all_shapes_flag:
+        boxes = getBiggestBox(pad_iterm)
+    else:
+        boxes = getAllBoxes(pad_iterm)
+
+    for box in boxes:
+        layer, ll, ur = box
+        odb.dbBox_create(pin_bpin,
+                         layer,
+                         ll.getX(),
+                         ll.getY(),
+                         ur.getX(),
+                         ur.getY())
+
+
+    odb.dbITerm_connect(pad_iterm, net)
+    pin_bterm.connect(net)
+
 
 mapping_db = odb.dbDatabase.create()
 for lef in netlist_lef_file_names:
@@ -123,9 +226,7 @@ for net in mapping_nets:
         if pad_name is None:
             print ("Warning: net", net.getName(), "has a BTerm but no ITerms that match PAD_PIN_NAME")
 
-            print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            print ("Warning: will label the first ITerm on the net!!!")
-            print ("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print ("Warning: will label the first ITerm on the net!!!!!!!")
 
             pad_name = iterms[0].getInst().getName()
             pad_pin_name = iterms[0].getMTerm().getName()
@@ -165,67 +266,12 @@ for inst in chip_insts:
             pad_pin_name = mapping[0]
             pin_name = mapping[1]
             iotype = mapping[2]
-            net_name = pin_name
             if VERBOSE: print("Found: ", inst_name, pad_pin_name, pin_name)
 
             pad_iterm = inst.findITerm(pad_pin_name)
-            pad_mterm = pad_iterm.getMTerm()
-            px, py = inst.getOrigin()
-            orient = inst.getOrient()
-            transform = odb.dbTransform(orient, odb.Point(px, py))
-            mpins = pad_mterm.getMPins()
-            biggest_mpin = None
-            biggest_size = -1
-            for i in range(len(mpins)):
-                mpin = mpins[i]
-                box = mpin.getGeometry()[0] #assumes there's only one; to extend and get biggest
 
-                llx, lly = box.xMin(), box.yMin()
-                urx, ury = box.xMax(), box.yMax()
-                area = (urx-llx)*(ury-lly)
-                if area > biggest_size:
-                    biggest_size = area
-                    biggest_mpin = mpin
+            labelITerm(pad_iterm, pin_name, iotype, all_shapes_flag=all_shapes_flag)
 
-            main_mpin = biggest_mpin
-            box = main_mpin.getGeometry()[0]
-            ll = odb.Point(box.xMin(), box.yMin())
-            ur = odb.Point(box.xMax(), box.yMax())
-            transform.apply(ll)
-            transform.apply(ur)
-            x = (ll.getX() + ur.getX())//2
-            y = (ll.getY() + ur.getY())//2
-            pad_pin_layer = box.getTechLayer()
-
-            if VERBOSE: print(x, y)
-
-            net = chip_block.findNet(net_name)
-            if net is None:
-                net = odb.dbNet_create(chip_block, net_name)
-
-            pin_bterm = chip_block.findBTerm(pin_name)
-            if pin_bterm is None:
-                pin_bterm = odb.dbBTerm_create(net, pin_name)
-
-            assert pin_bterm is not None, "Failed to create or find " + pin_name
-
-            pin_bterm.setIoType(iotype)
-
-            # x = odb.new_intp(); y = odb.new_intp()
-            # pad_iterm.getAvgXY(x, y); # crashes with clamps
-            # x = odb.intp_value(x); y = odb.intp_value(y)
-
-            pin_bpin = odb.dbBPin_create(pin_bterm)
-            pin_bpin.setPlacementStatus("PLACED")
-            odb.dbBox_create(pin_bpin,
-                             pad_pin_layer,
-                             ll.getX(),
-                             ll.getY(),
-                             ur.getX(),
-                             ur.getY())
-
-            odb.dbITerm_connect(pad_iterm, net)
-            pin_bterm.connect(net)
             labeled.append(inst_name)
 
 assert labeled_count == pad_pins_to_label_count, ("Didn't label what I set out to label %d/%d" % (labeled_count, pad_pins_to_label_count),

@@ -13,19 +13,41 @@
 # limitations under the License.
 
 OPENLANE_DIR ?= $(shell pwd)
-THREADS ?= $(shell nproc)
+
+PDK_ROOT ?= $(shell pwd)/pdks
+
+ifeq (, $(strip $(NPROC)))
+  # Linux (utility program)
+  NPROC := $(shell nproc 2>/dev/null)
+
+  ifeq (, $(strip $(NPROC)))
+    # Linux (generic)
+    NPROC := $(shell grep -c ^processor /proc/cpuinfo 2>/dev/null)
+  endif
+  ifeq (, $(strip $(NPROC)))
+    # BSD (at least FreeBSD and Mac OSX)
+    NPROC := $(shell sysctl -n hw.ncpu 2>/dev/null)
+  endif
+  ifeq (, $(strip $(NPROC)))
+    # Fallback
+    NPROC := 1
+  endif
+
+endif
+
+THREADS ?= $(NPROC)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= openlane:rc6
+IMAGE_NAME ?= efabless/openlane:rc7
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= 3d7617a1acb92ea883539bcf22a632d6361a5de4
-OPEN_PDKS_COMMIT ?= 32cdb2097fd9a629c91e8ea33e1f6de08ab25946
+SKYWATER_COMMIT ?= f6f76f3dc99526c6fc2cfede19b5b1227d4ebde7
+OPEN_PDKS_COMMIT ?= ec43817ed9f58ff83c9d260ce981818023cb6d77
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -37,24 +59,27 @@ endif
 all: openlane pdk
 
 .PHONY: pdk
-pdk: skywater-pdk skywater-library open_pdks build-pdk
+pdk: skywater-pdk skywater-library open_pdks build-pdk gen-sources
 
 .PHONY: native-pdk
-native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk
+native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk gen-sources
 
 .PHONY: full-pdk
-full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk
+full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk gen-sources
 
 .PHONY: native-full-pdk
-native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk
+native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk gen-sources
+
+$(PDK_ROOT)/:
+	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk:
 	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
-skywater-pdk: $(PDK_ROOT)/skywater-pdk
+skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git pull && \
+		git checkout master && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -63,7 +88,7 @@ skywater-library: $(PDK_ROOT)/skywater-pdk
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
-		$(MAKE) -j$(THREADS) timing
+		$(MAKE) timing
 
 .PHONY: all-skywater-libraries
 all-skywater-libraries: skywater-pdk
@@ -79,10 +104,10 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone https://github.com/RTimothyEdwards/open_pdks.git $(PDK_ROOT)/open_pdks
+	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
-open_pdks: $(PDK_ROOT)/open_pdks
+open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
 		git checkout master && git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
@@ -95,13 +120,14 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
-		$(MAKE) veryclean && \
-		$(MAKE) && \
-		$(MAKE) install-local"
+		make veryclean && \
+		make && \
+		make install-local && \
+		make clean"
 
-.PHONE: native-build-pdk
+.PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
@@ -109,17 +135,31 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --with-sky130-source=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
 		$(MAKE) install-local
 
+gen-sources: $(PDK_ROOT)/sky130A
+	touch $(PDK_ROOT)/sky130A/SOURCES
+	OPENLANE_COMMIT=$(git rev-parse HEAD)
+	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
+	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	cd $(OPENLANE_DIR)/docker_build && \
-		$(MAKE) merge
+	docker pull $(IMAGE_NAME)
+
+.PHONY: mount
+mount:
+	cd $(OPENLANE_DIR) && \
+		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME)
 
 .PHONY: regression
 regression:
@@ -130,6 +170,15 @@ regression:
 regression_test:
 	cd $(OPENLANE_DIR) && \
 		docker run -it -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+
+.PHONY: fastest_test_set
+fastest_test_set:
+	cd $(OPENLANE_DIR) && \
+		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export TEST_SET=fastestTestSet && \
+		export IMAGE_NAME=$(IMAGE_NAME) && \
+		export PDK_ROOT=$(PDK_ROOT) && \
+		bash .travisCI/travisTest.sh
 
 .PHONY: test
 test:

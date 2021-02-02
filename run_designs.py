@@ -147,7 +147,7 @@ else:
         report_file_name = "{store_dir}/{tag}_{date}".format(store_dir=store_dir,tag=tag, date=datetime.datetime.now().strftime('%d_%m_%Y_%H_%M'))
 
 if os.path.exists(store_dir) == False:
-    os.mkdir(store_dir)
+    os.makedirs(store_dir, exist_ok=True)
 
 log = logging.getLogger("log")
 log_formatter = logging.Formatter('[%(asctime)s - %(levelname)5s] %(message)s')
@@ -211,6 +211,12 @@ def run_design(designs_queue):
                         with open(run_path + "error.txt", "w") as error_file:
                                 error_file.write(error_msg)
 
+                if print_rem_time is not None:
+                        if design in rem_designs.keys():
+                                rem_designs[design]-=1
+                                if rem_designs[design] == 0:
+                                        rem_designs.pop(design)
+
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)
 
@@ -222,34 +228,40 @@ def run_design(designs_queue):
                         report_file.write("\n")
                         report_file.write(report)
 
-
                 if args.benchmark is not None:
-                        log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
-                        design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design} -rp {run_path}".format(
-                                benchmark=args.benchmark,
-                                this_run=report_file_name + ".csv",
-                                output_report=report_file_name + "_design_test_report.csv",
-                                design=design,
-                                run_path=run_path
-                        )
-                        subprocess.check_output(design_benchmark_comp_cmd.split())
+                        try:
 
-
+                                log.info('{design} {tag} Comparing vs benchmark results..'.format(design=design, tag=tag))
+                                design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design} -rp {run_path}".format(
+                                        benchmark=args.benchmark,
+                                        this_run=report_file_name + ".csv",
+                                        output_report=report_file_name + "_design_test_report.csv",
+                                        design=design,
+                                        run_path=run_path
+                                )
+                                subprocess.check_output(design_benchmark_comp_cmd.split())
+                        except subprocess.CalledProcessError as e:
+                                error_msg = e.stderr.decode(sys.getfilesystemencoding())
+                                log.error('{design} {tag} failed to compare with benchmark: {error_msg}'.format(design=design, tag=tag, error_msg=error_msg))
 
                 if args.clean:
-                        log.info('{design} {tag} Cleaning tmp Directory..'.format(design=design, tag=tag))
-                        moveUnPadded_cmd = "cp {run_path}/tmp/merged_unpadded.lef {run_path}/results/".format(
-                                run_path=run_path,
-                                tag=tag
-                        )
-                        subprocess.check_output(moveUnPadded_cmd.split())
+                        try:
+                                log.info('{design} {tag} Cleaning tmp Directory..'.format(design=design, tag=tag))
+                                moveUnPadded_cmd = "cp {run_path}/tmp/merged_unpadded.lef {run_path}/results/".format(
+                                        run_path=run_path,
+                                        tag=tag
+                                )
+                                subprocess.check_output(moveUnPadded_cmd.split())
 
-                        clean_cmd = "rm -rf {run_path}/tmp/".format(
-                                run_path=run_path,
-                                tag=tag
-                        )
-                        subprocess.check_output(clean_cmd.split())
-                        log.info('{design} {tag} Cleaning tmp Directory Finished'.format(design=design, tag=tag))
+                                clean_cmd = "rm -rf {run_path}/tmp/".format(
+                                        run_path=run_path,
+                                        tag=tag
+                                )
+                                subprocess.check_output(clean_cmd.split())
+                                log.info('{design} {tag} Cleaning tmp Directory Finished'.format(design=design, tag=tag))
+                        except subprocess.CalledProcessError as e:
+                                error_msg = e.stderr.decode(sys.getfilesystemencoding())
+                                log.error('{design} {tag} failed to clean the tmp directory: {error_msg}'.format(design=design, tag=tag, error_msg=error_msg))
 
                 if tarList[0] != "":
                         log.info('{design} {tag} Compressing Run Directory..'.format(design=design, tag=tag))
@@ -274,20 +286,19 @@ def run_design(designs_queue):
                                 log.info('{design} {tag} Compressing Run Directory Finished'.format(design=design, tag=tag))
                         except subprocess.CalledProcessError as e:
                                 log.info('{design} {tag} Compressing Run Directory Failed'.format(design=design, tag=tag))
+
                 if args.delete:
-                        log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
-                        deleteDirectory = "rm -rf {run_path}".format(
-                                run_path=run_path
-                        )
-                        subprocess.check_output(deleteDirectory.split())
+                        try:
+                                log.info('{design} {tag} Deleting Run Directory..'.format(design=design, tag=tag))
+                                deleteDirectory = "rm -rf {run_path}".format(
+                                        run_path=run_path
+                                )
+                                subprocess.check_output(deleteDirectory.split())
 
-                        log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
-
-                if print_rem_time is not None:
-                        if design in rem_designs.keys():
-                                rem_designs[design]-=1
-                                if rem_designs[design] == 0:
-                                        rem_designs.pop(design)
+                                log.info('{design} {tag} Deleting Run Directory Finished..'.format(design=design, tag=tag))
+                        except subprocess.CalledProcessError as e:
+                                error_msg = e.stderr.decode(sys.getfilesystemencoding())
+                                log.error('{design} {tag} failed to delete the run directory: {error_msg}'.format(design=design, tag=tag, error_msg=error_msg))
 
 
 

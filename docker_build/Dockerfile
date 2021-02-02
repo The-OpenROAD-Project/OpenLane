@@ -41,6 +41,7 @@ RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && 
 		tcl \
 		tcllib \
 		tk \
+		wget \
 		Xvfb && \
 	yum clean all && \
 	rm -rf /var/cache/yum
@@ -59,6 +60,7 @@ RUN pip install --no-cache-dir \
 # for magic
 RUN yum install -y mesa-libGLU-devel
 
+
 ENV OPENLANE_ROOT=/openLANE_flow
 ENV OPENROAD=/build/
 ENV OPENROADOS=Linux-x86_64
@@ -67,6 +69,10 @@ ENV PATH=$OPENLANE_ROOT:$OPENLANE_ROOT/scripts:$OPENROAD/bin:$OPENROAD/bin/Linux
 ENV LD_LIBRARY_PATH=$OPENROAD/lib:$OPENROAD/lib/Linux-x86_64:$LD_LIBRARY_PATH
 ENV MANPATH=$OPENROAD/share/man:$MANPATH
 
+# install klayout
+RUN yum install -y which patch
+ADD ./klayout.tar.gz /
+RUN yum localinstall -y /build/klayout-*.rpm
 
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
@@ -76,6 +82,7 @@ COPY ./.tclshrc /
 COPY ./.tclshrc /root
 
 ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
+
 
 # install opendb python
 RUN cd $OPENROAD/OpenDB_python/ && \

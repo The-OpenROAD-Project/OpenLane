@@ -16,12 +16,15 @@
 
 import argparse
 import os
+import re
 from scripts.report.report import Report
 from scripts.config.config import ConfigHandler
 import scripts.utils.utils as utils
+from scripts.report.get_file_name import get_name
 
 parser = argparse.ArgumentParser(
-    description='Creates a csv report for a given design.')
+    description='Creates a final summary csv report for a given design \
+        + a manufacturability report + a runtime summary report.')
 
 parser.add_argument('--design', '-d', required=True,
                     help='Design Path')
@@ -36,10 +39,13 @@ parser.add_argument('--run_path', '-r', default=None,
                     help='Run Path')
 
 parser.add_argument('--output_file', '-o', required=True,
-                    help='Final Summary Report')
+                    help='Output Final Summary Report')
 
 parser.add_argument('--man_report', '-m', required=True,
-                    help='Manufacturability Reports')
+                    help='Output Manufacturability Reports')
+
+parser.add_argument('--runtime_summary', '-rs', required=True,
+                    help='Output Runtime Summary Reports')
 
 args = parser.parse_args()
 design = args.design
@@ -48,6 +54,7 @@ tag = args.tag
 run_path=args.run_path
 output_file = args.output_file
 man_report = args.man_report
+runtime_summary = args.runtime_summary
 
 # Extracting Configurations
 params = ConfigHandler.get_config(design, tag, run_path)
@@ -64,16 +71,21 @@ outputFileOpener.close()
 utils.addComputedStatistics(output_file)
 
 # Tracking Magic DRC, LVS, Antenna Logs:
-magic_drc_report=str(run_path)+"/logs/magic/magic.drc"
-lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.log"
-magic_antenna_report=str(run_path)+"/reports/magic/magic.antenna_violators.rpt"
-arc_antenna_report=str(run_path)+"/reports/routing/antenna.rpt"
+if run_path is None:
+    run_path = utils.get_run_path(design, tag)
+magic_drc_report=get_name(str(run_path)+"/reports/magic/", "magic.drc")
+lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.lef.log"
+if not os.path.exists(lvs_report):
+    lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.gds.log"
+magic_antenna_report=get_name(str(run_path)+"/reports/magic/","magic.antenna_violators.rpt")
+arc_antenna_report=get_name(str(run_path)+"/reports/routing/","antenna.rpt")
 
 printArr = []
 
 printArr.append("Design Name: " + design_name)
-printArr.append("Run Directory: " + run_path)
+printArr.append("Run Directory: " + str(run_path))
 
+splitLine = '----------------------------------------'
 
 # Summarizing Magic DRC
 drcVioDict = dict()
@@ -83,8 +95,6 @@ if os.path.exists(magic_drc_report):
     if drcFileOpener.mode == 'r':
         drcContent = drcFileOpener.read()
     drcFileOpener.close()
-
-    splitLine = '----------------------------------------'
 
     # design name
     # violation message
@@ -97,7 +107,7 @@ if os.path.exists(magic_drc_report):
         drcSections = drcContent.split(splitLine)
         if (len(drcSections) > 2):
             for i in range(1, len(drcSections) - 1, 2):
-                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n"))
+                drcVioDict[drcSections[i]] = len(drcSections[i + 1].split("\n")) - 2
             for key in drcVioDict:
                 val = drcVioDict[key]
                 cnt += val
@@ -145,7 +155,11 @@ elif os.path.exists(magic_antenna_report):
     if antFileOpener.mode == 'r':
         antContent = antFileOpener.read().split("\n")
     antFileOpener.close()
-    printArr.append("Number of pins violated: " + str(len(antContent)))
+    tot_cnt = 0
+    for ant in antContent:
+        if len(str(ant).strip()):
+            tot_cnt+=1
+    printArr.append("Number of pins violated: " + str(tot_cnt))
 else:
     printArr.append("No antenna report found.")
 
@@ -153,4 +167,52 @@ else:
 # write into file
 outputFileOpener = open(man_report,"w")
 outputFileOpener.write("\n".join(printArr))
+outputFileOpener.close()
+
+
+
+
+def getListOfFiles(dirName):
+    # create a list of file and sub directories
+    # names in the given directory
+    allFiles = list()
+    listOfFile = os.listdir(dirName)
+    # Iterate over all the entries
+    for entry in listOfFile:
+        # Create full path
+        fullPath = os.path.join(dirName, entry)
+        # If entry is a directory then get the list of files in this directory
+        if os.path.isdir(fullPath):
+            allFiles = allFiles + getListOfFiles(fullPath)
+        else:
+            allFiles.append(fullPath)
+    return allFiles
+
+def conver_to_seconds(runtime):
+    pattern = re.compile(r'\s*([\d+]+)h([\d+]+)m([\d+]+)s([\d+]+)+ms')
+    m = pattern.match(runtime)
+    time = int(m.group(1))*60*60 + int(m.group(2))*60 + int(m.group(3)) + int(m.group(4))/1000.0
+    return str(time)
+
+# Creating a runtime summary report
+logs_path=run_path+"/logs"
+neededfiles = sorted([(int(os.path.basename(f).split("-",1)[0]),f) for f in getListOfFiles(logs_path) if os.path.isfile(os.path.join(logs_path, f)) and len(f.split('_')) > 1 and f.split('_')[-1] == "runtime.txt" and len(os.path.basename(f).split('-')) > 1 and os.path.basename(f).split('-')[0].isnumeric()])
+runtimeArr = []
+prasableRuntimeArr= []
+for (idx,f) in neededfiles:
+    stagename = os.path.basename(f).split("_runtime.txt")[0]
+    runtimeFileOpener = open(f, "r")
+    if runtimeFileOpener.mode == 'r':
+        runtimeContent = runtimeFileOpener.read().strip()
+    runtimeFileOpener.close()
+    runtimeArr.append(str(stagename)+ " "+ str(runtimeContent))
+    prasableRuntimeArr.append(str(stagename)+ " "+ conver_to_seconds(runtimeContent))
+
+# write into file
+outputFileOpener = open(runtime_summary,"w")
+outputFileOpener.write("\n".join(runtimeArr))
+outputFileOpener.close()
+
+outputFileOpener = open(runtime_summary+".parsable","w")
+outputFileOpener.write("\n".join(prasableRuntimeArr))
 outputFileOpener.close()

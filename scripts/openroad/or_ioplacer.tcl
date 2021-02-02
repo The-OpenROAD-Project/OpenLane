@@ -14,7 +14,7 @@
 
 if { [info exists ::env(CONTEXTUAL_IO_FLAG_)] } {
 	read_lef $::env(TMP_DIR)/top_level.lef
-	ioPlacer::set_num_slots 2
+	#ppl::set_num_slots 2
 }
 
 
@@ -28,23 +28,25 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ioPlacer::set_rand_seed 42
+#ppl::set_rand_seed 42
 
-ioPlacer::set_min_distance 5
-ioPlacer::set_hor_length $::env(FP_IO_HLENGTH)
-ioPlacer::set_ver_length $::env(FP_IO_VLENGTH)
-ioPlacer::set_hor_length_extend $::env(FP_IO_VEXTEND)
-ioPlacer::set_ver_length_extend $::env(FP_IO_HEXTEND)
-ioPlacer::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
-ioPlacer::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
+#ppl::set_min_distance 5
+ppl::set_hor_length $::env(FP_IO_HLENGTH)
+ppl::set_ver_length $::env(FP_IO_VLENGTH)
+ppl::set_hor_length_extend $::env(FP_IO_VEXTEND)
+ppl::set_ver_length_extend $::env(FP_IO_HEXTEND)
+ppl::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+ppl::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
 
 set opts ""
 if { $::env(FP_IO_MODE) == 1 } {
     set opts "-random"
 }
 
-place_ios $opts\
-	-hor_layer $::env(FP_IO_HMETAL)\
-	-ver_layer $::env(FP_IO_VMETAL)
+place_pins $opts\
+	-random_seed 42 \
+	-min_distance 5 \
+	-hor_layers $::env(FP_IO_HMETAL)\
+	-ver_layers $::env(FP_IO_VMETAL)
 
 write_def $::env(SAVE_DEF)

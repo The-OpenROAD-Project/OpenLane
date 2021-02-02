@@ -3,12 +3,15 @@
 ***NOTE:** The value `-1`, if not meaningful, indicates that the report/log from which the information is extracted wasn't found (the stage responsible for it was skipped or failed).
 
 ## Default Printed Information Variables
+
 | Variable      | Description                                           |
 |---------------|-------------------------------------------------------|
 | `design`   | The directory of the design        |
 | `design_name`   | The name of the top level module of the design        |
 | `config`   | The name of the configurations file of the design        |
-| `runtime`   | The runtime of running the process on the design. Extracted from runtime.txt       |
+| `flow_status`   | The status of the flow at the end of the run. Extracted from total_runtime.txt       |
+| `total_runtime`   | The total runtime of running the process on the design. Extracted from total_runtime.txt       |
+| `routed_runtime`   | The runtime of running the process up to (including) detailed routing on the design. Extracted from routed_runtime.txt       |
 | `DIEAREA_mm^2`   | The diearea in mm<sup>2</sup> as reported from the def file.        |
 | `CellPer_mm^2`   | The number of cells in the design as reported by yosys divided by the diearea in mm<sup>2</sup>.      |
 | `(Cell/mm^2)/Core_Util`   | The number of cells in the design as reported by yosys divided by the diearea in mm<sup>2</sup>, all divided by the FP_CORE_UTIL configuration parameter.     |
@@ -24,6 +27,8 @@
 | `Magic_violations`   | The total number of magic drc violations in the design. Extracted from Magic drc.        |
 | `antenna_violations`   | The total number of antenna violations in the design. Extracted from Magic antenna check or OpenROAD ARC.        |
 | `lvs_total_errors`   | The total number of mismatches and differences between the final layout and the netlist of the design. Extracted from Netgen LVS report.        |
+| `cvc_total_errors`   | The total number of electric errors detected by CVC. Extracted from CVC report.        |
+| `klayout_violations`   | The total number of klayout drc violations in the design. Extracted from klayout drc report ran on the magic generated GDS-II.        |
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
@@ -74,15 +79,14 @@
 | Variable      | Description                                           |
 |---------------|-------------------------------------------------------|
 | `CLOCK_PERIOD`  | The clock period for the design in ns       |
-| `SYNTH_STRATEGY` | Strategies for abc logic synthesis and technology mapping <br> Possible values are 0, 1 (delay), 2, and 3 (area)<br> (Default: `2`)|
+| `SYNTH_STRATEGY` | Strategies for abc logic synthesis and technology mapping <br> Possible values are "DELAY|AREA 0-3|0-2"; the first part refers to the optimization target of the synthesis strategy (area vs. delay) and the second one is an index. <br> (Default: `AREA 0`)|
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `5` cells) |
 | `FP_CORE_UTIL`  | The core utilization percentage. <br> (Default: `50` percent)|
-| `FP_CORE_MARGIN`  | The length of the margin surrounding the core area. <br> (Default: `3.36` microns)|
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
 | `FP_PDN_VPITCH`  | The pitch of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `153.6`) |
 | `FP_PDN_HPITCH`  | The pitch of the horizontal power stripes on the metal layer 5 in the power distribution network <br> (Default: `153.18`) |
-| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `0.4`)|
-| `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.15`)|
+| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `0.55`)|
+| `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
 | `STD_CELL_LIBRARY` | Specifies the standard cell library used. <br> (Default: `sky130_fd_sc_hd` )|
 | `CELL_PAD` | Cell padding; increases the width of cells. <br> (Default: `2` microns -- 2 sites)|
 

@@ -7,7 +7,7 @@ set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/s44/src/*.v]
 set ::env(CLOCK_PORT) "config_clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 # Synthesis config
-set ::env(SYNTH_STRATEGY) 1
+
 # Floorplan config
 set ::env(FP_CORE_UTIL) 5
 # Placement config

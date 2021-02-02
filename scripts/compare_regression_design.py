@@ -45,7 +45,7 @@ output_report_file = args.output_report
 design = args.design
 run_path = args.run_path
 
-tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':5, 'lvs_total_errors':0}
+tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':10, 'lvs_total_errors':0}
 
 critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations','lvs_total_errors']
 
@@ -103,6 +103,15 @@ def criticalMistmatch(benchmark, regression_result):
                 return True, "The results of " +stat+" mismatched with the benchmark"
     return False, "The test passed"
 
+def compareStatus(benchmark,regression_result):
+    if len(benchmark) == 0 or len(regression_result) == 0:
+        return False, "Nothing to compare with"
+    elif "fail" in str(benchmark["flow_status"]):
+        return False, "The test passed"
+    elif "fail" in str(regression_result["flow_status"]):
+        return True, "The flow didn't complete for the user design after magic drc."
+    else:
+        return False, "The test passed"
 
 def missingResultingFiles(design):
     searchPrefix = str(run_path) + '/results/magic/' + str(design['design_name'])
@@ -125,7 +134,11 @@ else:
     if testFail:
         report += ",FAILED,"+reasonWhy+"\n"
     else:
-        report += ",PASSED,"+reasonWhy+"\n"
+        testFail, reasonWhy = compareStatus(benchmark,regression_result)
+        if testFail:
+            report += ",FAILED,"+reasonWhy+"\n"
+        else:
+            report += ",PASSED,"+reasonWhy+"\n"
 
 
 outputReportOpener = open(output_report_file, 'a+')

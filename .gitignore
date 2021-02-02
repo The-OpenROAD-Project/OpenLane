@@ -8,6 +8,7 @@ dummy.guide
 lefRWarning.log
 run.param
 macrocell.list
+default.cvcrc
 *.log
 ./docker_build/build/
 ./docker_build/logs/
@@ -16,3 +17,15 @@ macrocell.list
 
 # Mac
 .DS_Store
+
+# VScode
+**/.vscode/
+
+# Local docs Build
+**/_build/
+
+# Regression artifacts
+*.config
+
+# PDK
+pdks/

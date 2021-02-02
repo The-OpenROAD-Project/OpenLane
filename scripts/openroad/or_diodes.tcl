@@ -28,7 +28,11 @@ set ::block [[[::ord::get_db] getChip] getBlock]
 set ::antenna_pin_name $::env(DIODE_CELL_PIN)
 set ::nets [$::block getNets]
 
-if { $::env(DIODE_INSERTION_STRATEGY) == 2 && [info exists ::env(FAKEDIODE_CELL)]} {
+if { $::env(DIODE_INSERTION_STRATEGY) == 2 } {
+	if { ! [info exists ::env(FAKEDIODE_CELL)] } {
+		puts "\[ERROR\]: FAKEDIODE_CELL is undefined. Try a different DIODE_INSERTION_STRATEGY."
+		exit 1
+	}
 	set ::antenna_cell_name $::env(FAKEDIODE_CELL)
 } else {
 	set ::antenna_cell_name $::env(DIODE_CELL)
@@ -84,7 +88,7 @@ foreach net $::nets {
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
-detailed_placement
+detailed_placement  -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
 write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1

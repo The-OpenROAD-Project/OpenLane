@@ -48,8 +48,24 @@ proc set_def {def} {
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
+proc set_guide {guide} {
+    puts_info "Changing layout from $::env(CURRENT_GUIDE) to $guide"
+    set ::env(CURRENT_GUIDE) $guide
+    set replace [string map {/ \\/} $guide]
+    exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
+    puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
+    try_catch python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py -t $::env(TECH_LEF) -o $::env(TMP_DIR)/met_layers_list.txt
+    set tech_metal_layers_string [exec cat $::env(TMP_DIR)/met_layers_list.txt]
+    set tech_metal_layers_string_strip [join $tech_metal_layers_string " "]
+    set ::env(TECH_METAL_LAYERS) [split $tech_metal_layers_string_strip]
+    set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
+    puts_info "The number of available metal layers is $::env(MAX_METAL_LAYER)"
+    puts_info "The available metal layers are $tech_metal_layers_string_strip"
+    puts_info "Merging LEF Files..."
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
 
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
@@ -138,7 +154,7 @@ proc prep {args} {
 
     set ::env(timer_start) [clock seconds]
     set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
-
+    TIMER::timer_start
     set options {
         {-design required}
         {-tag optional}
@@ -156,6 +172,9 @@ proc prep {args} {
 
     set args_copy $args
     parse_key_args "prep" args arg_values $options flags_map $flags
+
+    # Storing the current state of environment variables
+    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
 
     if { [info exists arg_values(-config_tag)] } {
         if { [info exists arg_values(-config_file)] } {
@@ -292,8 +311,6 @@ proc prep {args} {
 
     set skip_basic_prep 0
 
-    puts_info "Current run directory is $::env(RUN_DIR)"
-
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_warn "Removing exisiting run $::env(RUN_DIR)"
@@ -310,6 +327,8 @@ proc prep {args} {
 
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOG_DIR) $::env(REPORTS_DIR)
+
+    puts_info "Current run directory is $::env(RUN_DIR)"
 
     if { ! $skip_basic_prep } {
         prep_lefs
@@ -366,6 +385,7 @@ proc prep {args} {
         {cts cts/cts}
         {lvs lvs/lvs}
         {cvc cvc/cvc}
+        {klayout klayout/klayout}
     }
 
     set final_output \
@@ -378,6 +398,7 @@ proc prep {args} {
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
         [list cvc cvc/$::env(DESIGN_NAME)] \
+        [list klayout klayout/$::env(DESIGN_NAME)] 
         ]
 
     array set results_file_name [make_array $final_output $::env(RESULTS_DIR)/]
@@ -401,7 +422,7 @@ proc prep {args} {
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
-    set stages {synthesis floorplan placement cts routing magic lvs cvc}
+    set stages {synthesis floorplan placement cts routing magic lvs cvc klayout}
     foreach stage $stages {
         file mkdir\
             $::env(RESULTS_DIR)/$stage \
@@ -418,155 +439,63 @@ proc prep {args} {
     }
 
     # Fill config file
-    #General
-    exec echo "# General config" > $::env(GLB_CFG_FILE)
-    set_log ::env(PDK) $::env(PDK) $::env(GLB_CFG_FILE) 1
-    set_log ::env(STD_CELL_LIBRARY) $::env(STD_CELL_LIBRARY) $::env(GLB_CFG_FILE) 1
-    # set_log ::env(PDK_VARIANT) $::env(PDK_VARIANT) $::env(GLB_CFG_FILE) 1; # DEPRECATED
+    puts_info "Storing configs into config.tcl ..."
+    exec echo "# Run configs" > $::env(GLB_CFG_FILE)
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CELL_PAD) $::env(CELL_PAD) $::env(GLB_CFG_FILE) 1
-    set_log ::env(MERGED_LEF) $::env(MERGED_LEF) $::env(GLB_CFG_FILE) 1
-    set_log ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED) $::env(GLB_CFG_FILE) 1
-    set_log ::env(TRACKS_INFO_FILE) $::env(TRACKS_INFO_FILE) $::env(GLB_CFG_FILE) 1
-    set_log ::env(TECH_LEF) $::env(TECH_LEF) $::env(GLB_CFG_FILE) 1
-    # Design
-    exec echo "# Design config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(CLOCK_PERIOD) $::env(CLOCK_PERIOD) $::env(GLB_CFG_FILE) 1
-    set_log ::env(DESIGN_NAME) $::env(DESIGN_NAME) $::env(GLB_CFG_FILE) 1
-    set_log ::env(DESIGN_DIR) $::env(DESIGN_DIR) $::env(GLB_CFG_FILE) 1
-    if { [info exists ::env(CLOCK_PORT)] } {
-        set_log ::env(CLOCK_PORT) $::env(CLOCK_PORT) $::env(GLB_CFG_FILE) 1
+    foreach index [lsort [array names ::env]] {
+        if { $index != "INIT_ENV_VAR_ARRAY" } {
+            if { $index ni $::env(INIT_ENV_VAR_ARRAY) } {
+                set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+            }
+        }
     }
-    if { [info exists ::env(CLOCK_NET)] } {
-        set_log ::env(CLOCK_NET) $::env(CLOCK_NET) $::env(GLB_CFG_FILE) 1
-    }
-    # Synthesis
-    exec echo "# Synthesis config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(LIB_SYNTH) $::env(LIB_SYNTH) $::env(GLB_CFG_FILE) 1
-    set_log ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH_COMPLETE) $::env(GLB_CFG_FILE) 1
-    set_log ::env(SYNTH_DRIVING_CELL) $::env(SYNTH_DRIVING_CELL) $::env(GLB_CFG_FILE) 1
-    set_log ::env(SYNTH_CAP_LOAD) $::env(SYNTH_CAP_LOAD) $::env(GLB_CFG_FILE) 1; # femtofarad
-    set_log ::env(SYNTH_MAX_FANOUT) $::env(SYNTH_MAX_FANOUT)  $::env(GLB_CFG_FILE) 1
-    set_log ::env(SYNTH_NO_FLAT) $::env(SYNTH_NO_FLAT) $::env(GLB_CFG_FILE) 1;
-    if { [info exists ::env(SYNTH_MAX_TRAN)] } {
-        set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
-    } else {
+
+    # Fill config file with special cases
+    if { ! [info exists ::env(SYNTH_MAX_TRAN)] } {
         set_log ::env(SYNTH_MAX_TRAN) "\[\expr {0.1*$::env(CLOCK_PERIOD)}\]" $::env(GLB_CFG_FILE) 1
     }
-    # set_log ::env(LIB_MIN) $::env(LIB_MIN) $::env(GLB_CFG_FILE) 1; # DEPRECATED
-    # set_log ::env(LIB_MAX) $::env(LIB_MAX) $::env(GLB_CFG_FILE) 1; # DEPRECATED
-    set_log ::env(LIB_FASTEST) $::env(LIB_FASTEST) $::env(GLB_CFG_FILE) 1
-    set_log ::env(LIB_SLOWEST) $::env(LIB_SLOWEST) $::env(GLB_CFG_FILE) 1
-    set_log ::env(LIB_TYPICAL) $::env(LIB_TYPICAL) $::env(GLB_CFG_FILE) 1
     if { $::env(SYNTH_TOP_LEVEL) } {
         set_log ::env(SYNTH_SCRIPT) "$::env(OPENLANE_ROOT)/scripts/synth_top.tcl" $::env(GLB_CFG_FILE) 0
-    } else {
-        set_log ::env(SYNTH_SCRIPT) $::env(SYNTH_SCRIPT) $::env(GLB_CFG_FILE) 1
     }
-    set_log ::env(SYNTH_STRATEGY) $::env(SYNTH_STRATEGY) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CLOCK_BUFFER_FANOUT) $::env(CLOCK_BUFFER_FANOUT) $::env(GLB_CFG_FILE) 1
     set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
-    set_log ::env(BASE_SDC_FILE) $::env(BASE_SDC_FILE) $::env(GLB_CFG_FILE) 1
-
-    # Floorplan
-    exec echo "# Floorplan config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(FP_SIZING) $::env(FP_SIZING) $::env(GLB_CFG_FILE) 0; # absolute, relative
-    set_log ::env(FP_CORE_UTIL) $util $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_ASPECT_RATIO) $::env(FP_ASPECT_RATIO) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_CORE_MARGIN) $::env(FP_CORE_MARGIN) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_IO_HMETAL) $::env(FP_IO_HMETAL) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_IO_VMETAL) $::env(FP_IO_VMETAL) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_IO_MODE) $::env(FP_IO_MODE) $::env(GLB_CFG_FILE) 0; #0 (default, disabled) 1 fully random, 2 evenly distributed, 3 group on the middle of core edge
-    if {[info exists  ::env(FP_WELLTAP_CELL)]} {
-        set_log ::env(FP_WELLTAP_CELL) $::env(FP_WELLTAP_CELL) $::env(GLB_CFG_FILE) 1
-    }
-    if {[info exists ::env(FP_ENDCAP_CELL)] } {
-        set_log ::env(FP_ENDCAP_CELL) $::env(FP_ENDCAP_CELL) $::env(GLB_CFG_FILE) 1
-    }
-    set_log ::env(FP_PDN_VOFFSET) $::env(FP_PDN_VOFFSET) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_PDN_VPITCH) $::env(FP_PDN_VPITCH) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_PDN_HOFFSET) $::env(FP_PDN_HOFFSET) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_PDN_HPITCH) $::env(FP_PDN_HPITCH) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FP_TAPCELL_DIST) $::env(FP_TAPCELL_DIST) $::env(GLB_CFG_FILE) 1
-    if { [info exists ::env(CELL_PAD_EXCLUDE)] } {
-        set_log ::env(CELL_PAD_EXCLUDE) $::env(CELL_PAD_EXCLUDE) $::env(GLB_CFG_FILE) 1
-    }
-
-    # Placement
-    exec echo "# Placement config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(PL_TARGET_DENSITY) $density $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_TIME_DRIVEN) $::env(PL_TIME_DRIVEN) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PL_LIB) $::env(PL_LIB) $::env(GLB_CFG_FILE) 1
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_BASIC_PLACEMENT) $::env(PL_BASIC_PLACEMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PL_SKIP_INITIAL_PLACEMENT) $::env(PL_SKIP_INITIAL_PLACEMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PL_RANDOM_GLB_PLACEMENT) $::env(PL_RANDOM_GLB_PLACEMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(PL_OPENPHYSYN_OPTIMIZATIONS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PSN_ENABLE_RESIZING) $::env(PSN_ENABLE_RESIZING) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PSN_ENABLE_PIN_SWAP) $::env(PSN_ENABLE_PIN_SWAP) $::env(GLB_CFG_FILE) 1
-    set_log ::env(PL_RESIZER_OVERBUFFER) $::env(PL_RESIZER_OVERBUFFER) $::env(GLB_CFG_FILE) 1
 
-    # CTS
-    exec echo "# CTS config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(CTS_TARGET_SKEW) $::env(CTS_TARGET_SKEW) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CTS_ROOT_BUFFER) $::env(CTS_ROOT_BUFFER) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CTS_TECH_DIR) $::env(CTS_TECH_DIR) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CTS_TOLERANCE) $::env(CTS_TOLERANCE) $::env(GLB_CFG_FILE) 1
-
-    # ROUTING
-    exec echo "# Routing config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(GLB_RT_MAXLAYER) $::env(GLB_RT_MAXLAYER) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_ADJUSTMENT) $::env(GLB_RT_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_RT_L1_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_L2_ADJUSTMENT) $::env(GLB_RT_L2_ADJUSTMENT) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_MINLAYER) $::env(GLB_RT_MINLAYER) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_MAXLAYER) $::env(GLB_RT_MAXLAYER) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_RT_UNIDIRECTIONAL) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_RT_ALLOW_CONGESTION) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_RT_OVERFLOW_ITERS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_TILES) $::env(GLB_RT_TILES) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_RT_ESTIMATE_PARASITICS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_RT_MAX_DIODE_INS_ITERS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(DIODE_PADDING) $::env(DIODE_PADDING) $::env(GLB_CFG_FILE) 1
-    set_log ::env(SPEF_WIRE_MODEL) $::env(SPEF_WIRE_MODEL) $::env(GLB_CFG_FILE) 1
-    set_log ::env(SPEF_EDGE_CAP_FACTOR) $::env(SPEF_EDGE_CAP_FACTOR) $::env(GLB_CFG_FILE) 1
-
-    # Flow control
-    exec echo "# Flow control config" >> $::env(GLB_CFG_FILE)
-    set_log ::env(RUN_SIMPLE_CTS) $::env(RUN_SIMPLE_CTS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(RUN_ROUTING_DETAILED) $::env(RUN_ROUTING_DETAILED) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CLOCK_TREE_SYNTH) $::env(CLOCK_TREE_SYNTH) $::env(GLB_CFG_FILE) 1
-    set_log ::env(LEC_ENABLE) $::env(LEC_ENABLE) $::env(GLB_CFG_FILE) 1
-    set_log ::env(FILL_INSERTION) $::env(FILL_INSERTION) $::env(GLB_CFG_FILE) 1
-    set_log ::env(DIODE_INSERTION_STRATEGY) $::env(DIODE_INSERTION_STRATEGY) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CHECK_ASSIGN_STATEMENTS) $::env(CHECK_ASSIGN_STATEMENTS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(CHECK_UNMAPPED_CELLS) $::env(CHECK_UNMAPPED_CELLS) $::env(GLB_CFG_FILE) 1
-    set_log ::env(USE_ARC_ANTENNA_CHECK) $::env(USE_ARC_ANTENNA_CHECK) $::env(GLB_CFG_FILE) 1
-    set_log ::env(RUN_SPEF_EXTRACTION) $::env(RUN_SPEF_EXTRACTION) $::env(GLB_CFG_FILE) 1
-
-    if { [info exists ::env(CURRENT_DEF)] } {
-        set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
-    } else {
+    if { ! [info exists ::env(CURRENT_DEF)] } {
         set ::env(CURRENT_DEF) 0
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
     }
 
-    if { [info exists ::env(CURRENT_NETLIST)] } {
-        set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
-    } else {
+    if { ! [info exists ::env(CURRENT_GUIDE)] } {
+        set ::env(CURRENT_GUIDE) 0
+        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
+    }
+
+    if { ! [info exists ::env(CURRENT_INDEX)] } {
+        set ::env(CURRENT_INDEX) 0
+        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+    }
+
+    if { ! [info exists ::env(CURRENT_NETLIST)] } {
         set ::env(CURRENT_NETLIST) 0
         set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
     }
 
-    if { [info exists ::env(PREV_NETLIST)] } {
-        set_log ::env(PREV_NETLIST) $::env(PREV_NETLIST) $::env(GLB_CFG_FILE) 1
-    } else {
+    if { ! [info exists ::env(PREV_NETLIST)] } {
         set ::env(PREV_NETLIST) 0
         set_log ::env(PREV_NETLIST) $::env(PREV_NETLIST) $::env(GLB_CFG_FILE) 1
     }
 
+    if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
+		file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
+	}
+    if { [info exists ::env(OPENLANE_VERSION) ] } {
+        try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
+    }
+
     puts_info "Preparation complete"
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/prep_runtime.txt 0]
     return -code ok
 }
 
@@ -586,8 +515,7 @@ proc padframe_gen {args} {
 
     exec $pfg_exec -nogui -tech-path=$::env(PDK_ROOT)/$::env(PDK) \
         -project-path=$pf_src_tmp -cfg \
-        |& tee $::env(TERMINAL_OUTPUT) $pf_src_tmp/pfg.log
-
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $pf_src_tmp/pfg.log]
     kill_display_buffer
 }
 
@@ -601,8 +529,7 @@ proc padframe_gen_legacy {args} {
 
     exec $pfg_exec -nogui -tech-path=$::env(PDK_ROOT)/$::env(PDK) \
         -project-path=$pf_src_tmp -cfg \
-        |& tee $::env(TERMINAL_OUTPUT) $pf_src_tmp/pfg.log
-
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $pf_src_tmp/pfg.log]
     kill_display_buffer
 }
 
@@ -689,26 +616,29 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-	puts_info "Healing Antenna Violators..."
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
 	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        TIMER::timer_start
+        puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(REPORTS_DIR)/routing/antenna.rpt -o $::env(TMP_DIR)/vios.txt
+			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
 		} else {
             #Magic Specific
-			set report_file [open $::env(magic_report_file_tag).antenna_violators.rpt r]
+			set report_file [open [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
-			exec echo $violators >> $::env(TMP_DIR)/vios.txt
+			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v $::env(TMP_DIR)/vios.txt -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/antenna_heal_runtime.txt 0]
 	}
 }
 
@@ -763,11 +693,12 @@ proc use_original_lefs {args} {
 
 
 proc label_macro_pins {args} {
+    TIMER::timer_start
     puts_info "Labeling macro pins..."
     set options {
         {-lef required}
         {-netlist_def required}
-        {-pad_pin_name required}
+        {-pad_pin_name optional}
         {-output optional}
         {-extra_args optional}
     }
@@ -785,6 +716,7 @@ proc label_macro_pins {args} {
         set extra_args $arg_values(-extra_args)
     }
 
+    set_if_unset arg_values(-pad_pin_name) ""
 
     try_catch python3 $::env(SCRIPTS_DIR)/label_macro_pins.py\
         --lef $arg_values(-lef)\
@@ -792,11 +724,14 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee $::env(LOG_DIR)/label_macro_pins.log $::env(TERMINAL_OUTPUT)
+        {*}$extra_args |& tee [index_file $::env(LOG_DIR)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/label_macro_pins_runtime.txt 0]
 }
 
 
 proc write_verilog {filename args} {
+    TIMER::timer_start
     puts_info "Writing Verilog..."
     set ::env(SAVE_NETLIST) $filename
 
@@ -812,52 +747,12 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/write_verilog.log
-
+    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/write_verilog_runtime.txt 0]
     if { [info exists flags_map(-canonical)] } {
         yosys_rewrite_verilog $filename
     }
-}
-
-proc add_macro_obs {args} {
-    puts_info "Adding Macro Obstruction..."
-    set options {
-        {-defFile required}
-        {-lefFile required}
-        {-obstruction required}
-        {-placementX optional}
-        {-placementY optional}
-        {-sizeWidth required}
-        {-sizeHeight required}
-        {-fixed required}
-        {-dbunit optional}
-        {-layerNames required}
-    }
-    set flags {}
-    parse_key_args "add_macro_obs" args arg_values $options flags_map $flags
-
-    set px 0
-    set py 0
-    set db 1000
-
-    if {[info exists arg_values(-placementX)]} {
-        set px $arg_values(-placementX)
-    }
-
-    if {[info exists arg_values(-placementY)]} {
-        set py $arg_values(-placementY)
-    }
-
-    if {[info exists arg_values(-dbunit)]} {
-        set db $arg_values(-dbunit)
-    }
-
-    if { $arg_values(-fixed) == 1 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/addObstruction.py -d $arg_values(-defFile) -l $arg_values(-lefFile) -obs $arg_values(-obstruction) -ln {*}$arg_values(-layerNames) -px $px -py $py -sw $arg_values(-sizeWidth) -sh $arg_values(-sizeHeight) -db $db -f
-    } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/addObstruction.py -d $arg_values(-defFile) -l $arg_values(-lefFile) -obs $arg_values(-obstruction) -ln {*}$arg_values(-layerNames) -px $px -py $py -sw $arg_values(-sizeWidth) -sh $arg_values(-sizeHeight) -db $db
-    }
-
 }
 
 proc set_layer_tracks {args} {
@@ -876,8 +771,12 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
+    TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/routing/or_antenna.log
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
+    try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/or_antenna_runtime.txt 0]
 
 }
 

@@ -28,4 +28,4 @@ if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
     exit 1
 }
 
-write_def $::env(pdn_tmp_file_tag).def
+write_def $::env(SAVE_DEF)

@@ -17,8 +17,8 @@ a = source($a, $top_cell)
 # set up input b
 b = source($b, $top_cell)
 
-$o && report("XOR #{$a} vs. #{$b}", $o)
-$ol && target($ol, $co || "XOR")
+$o && $ext != "gds" && report("XOR #{$a} vs. #{$b}", $o)
+$ol && $ext == "gds" && target($ol, $co || "XOR")
 
 $thr && threads($thr) || threads(2)
 
@@ -37,6 +37,6 @@ layers.keys.sort.each do |l|
   info("--- Running XOR for #{l} ---")
   x = a.input(l) ^ b.input(l)
   info("XOR differences: #{x.data.size}")
-  $o && x.output(l, "XOR results for layer #{l}")
-  $ol && x.output(i.layer, i.datatype, i.name)
+  $o && $ext != "gds" && x.output(l, "XOR results for layer #{l} #{i.name}")
+  $ol && $ext == "gds" && x.output(i.layer, i.datatype, i.name)
 end

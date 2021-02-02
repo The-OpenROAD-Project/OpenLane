@@ -19,27 +19,39 @@ set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
 set ::env(LEC_ENABLE) 0
+set ::env(YOSYS_REWRITE_VERILOG) 0
+
 set ::env(RUN_MAGIC) 1
 set ::env(MAGIC_PAD) 0
-set ::env(MAGIC_ZEROIZE_ORIGIN) 1
+set ::env(MAGIC_ZEROIZE_ORIGIN) 0
 set ::env(MAGIC_GENERATE_GDS) 1
 set ::env(MAGIC_GENERATE_LEF) 1
+set ::env(MAGIC_GENERATE_MAGLEF) 1
 set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
+set ::env(MAGIC_EXT_USE_GDS) 0
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
+
+set ::env(KLAYOUT_XOR_GDS) 1
+set ::env(KLAYOUT_XOR_XML) 1
+
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"
-
+set ::env(RUN_KLAYOUT) 1
+set ::env(TAKE_LAYOUT_SCROT) 1
+set ::env(RUN_KLAYOUT_DRC) 1
+set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
+set ::env(RUN_KLAYOUT_XOR) 1
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 
 set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
 
 set ::env(WIDEN_SITE) 1
-set ::env(WIDEN_SITE_IS_FACTOR) 1 
+set ::env(WIDEN_SITE_IS_FACTOR) 1
 
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(SPEF_WIRE_MODEL) "L"
@@ -53,6 +65,8 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
 # 3: use FR Antenna Avoidance flow
+# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
+# 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
 # psn

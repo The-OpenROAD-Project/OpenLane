@@ -22,4 +22,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded openlane 0.9 [list source [file join $dir all.tcl]]\n[list source [file join $dir checkers.tcl]]\n[list source [file join $dir cts.tcl]]\n[list source [file join $dir floorplan.tcl]]\n[list source [file join $dir init_design.tcl]]\n[list source [file join $dir lvs.tcl]]\n[list source [file join $dir magic.tcl]]\n[list source [file join $dir placement.tcl]]\n[list source [file join $dir routing.tcl]]\n[list source [file join $dir synthesis.tcl]]
+package ifneeded openlane 0.9 [list source [file join $dir all.tcl]]\n[list source [file join $dir checkers.tcl]]\n[list source [file join $dir cts.tcl]]\n[list source [file join $dir floorplan.tcl]]\n[list source [file join $dir init_design.tcl]]\n[list source [file join $dir lvs.tcl]]\n[list source [file join $dir magic.tcl]]\n[list source [file join $dir placement.tcl]]\n[list source [file join $dir routing.tcl]]\n[list source [file join $dir synthesis.tcl]]\n[list source [file join $dir klayout.tcl]]\n[list source [file join $dir cvc.tcl]]

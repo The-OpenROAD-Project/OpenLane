@@ -23,6 +23,9 @@ proc run_non_interactive_mode {args} {
 	set options {
 		{-design required}
 		{-save_path optional}
+		{-no_lvs optional}
+	    {-no_drc optional}
+	    {-no_antennacheck optional}
 	}
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
@@ -47,7 +50,13 @@ proc run_non_interactive_mode {args} {
 
 	run_magic
 
-	run_magic_spice_export
+	run_klayout
+
+	run_klayout_gds_xor
+
+	if { ! [info exists flags_map(-no_lvs)] } {
+		run_magic_spice_export
+	}
 
 	if {  [info exists flags_map(-save) ] } {
 		if { ! [info exists arg_values(-save_path)] } {
@@ -65,15 +74,22 @@ proc run_non_interactive_mode {args} {
 	}
 
 	# Physical verification
+	if { ! [info exists flags_map(-no_lvs)] } {
+		run_lvs; # requires run_magic_spice_export
+	}
 
-	run_magic_drc
+	if { ! [info exists flags_map(-no_drc)] } {
+		run_magic_drc
+		run_klayout_drc
+	}
 
-	run_lvs; # requires run_magic_spice_export
-
-	run_antenna_check
+	if {  ! [info exists flags_map(-no_antennacheck) ] } {
+		run_antenna_check
+	}
 
 	run_lef_cvc
 
+	calc_total_runtime
 	generate_final_summary_report
 
 	puts_success "Flow Completed Without Fatal Errors."
@@ -130,6 +146,48 @@ proc run_magic_drc_batch {args} {
 	}
 }
 
+proc run_lvs_batch {args} {
+	# runs device level lvs on -gds/CURRENT_GDS and -net/CURRENT_NETLIST
+	# extracts gds only if EXT_NETLIST does not exist
+	set options {
+		{-design required}
+		{-gds optional}
+		{-net optional}
+	}
+	set flags {}
+	parse_key_args "run_lvs_batch" args arg_values $options flags_lvs $flags -no_consume
+
+	prep {*}$args
+
+	if { [info exists arg_values(-gds)] } {
+		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
+	} else {
+		set ::env(CURRENT_GDS) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds
+	}
+	if { [info exists arg_values(-net)] } {
+		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
+	}
+	if { ! [file exists $::env(CURRENT_GDS) ] } {
+		puts_err "Could not find GDS file \"$::env(CURRENT_GDS)\""
+		exit 1
+	}
+	if { ! [file exists $::env(CURRENT_NETLIST) ] } {
+		puts_err "Could not find NET file \"$::env(CURRENT_NETLIST)\""
+		exit 1
+	}
+
+	set ::env(MAGIC_EXT_USE_GDS) 1
+	set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds.spice
+	if { [file exists $::env(EXT_NETLIST)] } {
+		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
+	} else {
+		run_magic_spice_export
+	}
+
+	run_lvs; # requires run_magic_spice_export
+}
+
+
 proc run_file {args} {
 	set ::env(TCLLIBPATH) $::auto_path
 	exec tclsh {*}$args >&@stdout
@@ -139,7 +197,7 @@ set options {
 	{-file optional}
 }
 
-set flags {-interactive -it -drc -synth_explore}
+set flags {-interactive -it -drc -lvs -synth_explore}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
@@ -170,6 +228,8 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	}
 } elseif { [info exists flags_map(-drc)] } {
 	run_magic_drc_batch {*}$argv
+} elseif { [info exists flags_map(-lvs)] } {
+	run_lvs_batch {*}$argv
 } elseif { [info exists flags_map(-synth_explore)] } {
 	prep {*}$argv
 	run_synth_exploration

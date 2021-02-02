@@ -26,7 +26,7 @@ Finally, we merge all the tools in a single docker image.
 make merge
 ```
 
-## Additional information 
+## Additional information
 
 ### Building and exporting a specific tool
 
@@ -39,7 +39,7 @@ make build-<tool>
 The following are the available tools:
 
 ```bash
-replace opendp route opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
+klayout replace opendp route cugr drcu opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
 ```
 
 ### Rebuilding
@@ -52,6 +52,3 @@ make merge
 ```
 
 This should you remove the existing tarballs. Then, build and export specific tool(s).
-
-
-

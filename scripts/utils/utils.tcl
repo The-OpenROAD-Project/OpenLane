@@ -27,6 +27,14 @@ proc handle_deprecated_config {old new} {
   }
 }
 
+proc find_all {ext} {
+    if { ! [info exists ::env(RUN_DIR)] } {
+        puts_err "You are not currently running a design. Perhaps you forgot to run 'prep'?"
+        return -code error
+    }
+    return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
+}
+
 proc handle_deprecated_command {new} {
   set invocation [info level -1]
   set caller [lindex $invocation 0]
@@ -63,6 +71,8 @@ proc is_keyword_arg { arg } {
 }
 
 proc extract_pins_from_yosys_netlist {netlist_file} {
+    # This sed command works because the module herader in a
+    # yosys-generated netlist is on one line.
     return [list [exec sed -E -n {/^module/ s/module[[:space:]]+[^[:space:]]+[[:space:]]*\((.*)\);/\1/pg}\
         $netlist_file \
         | tr -d ',']]
@@ -161,8 +171,8 @@ proc try_catch {args} {
             puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
             close $error_log_file
         }
-
-        return -code error
+		flow_fail
+		return -code error
     }
 }
 
@@ -173,6 +183,64 @@ proc make_array {pesudo_dict prefix} {
 		set returned_array($key) ${prefix}${value}
 	}
 	return [array get returned_array]
+}
+
+proc index_file {args} {
+	set file_full_name [lindex $args 0]
+	set index_increment 1; # Default increment is 1
+	if { [llength $args] == 2} {
+		set index_increment [lindex $args 1]
+	}
+	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
+	if { $index_increment } {
+		puts_info "current step index: $::env(CURRENT_INDEX)"
+	}
+	set file_path [file dirname $file_full_name]
+	set fbasename [file tail $file_full_name]
+	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
+	set new_file_full_name "$file_path/$fbasename"
+    set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
+    exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+	return $new_file_full_name
+}
+
+proc flow_fail {args} {
+	if { ! [info exists ::env(FLOW_FAILED)] || ! $::env(FLOW_FAILED) } {
+		set ::env(FLOW_FAILED) 1
+		calc_total_runtime -status "Flow failed"
+		generate_final_summary_report
+		puts_err "Flow Failed."
+	}
+}
+
+proc calc_total_runtime {args} {
+	## Calculate Total Runtime
+	if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
+		puts_info "Calculating Runtime From the Start..."
+		set options {
+			{-report optional}
+			{-status optional}
+		}
+		parse_key_args "calc_total_runtime" args arg_values $options
+		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
+		set_if_unset arg_values(-status) "Flow completed"
+		set timer_end [clock seconds]
+		set timer_start $::env(timer_start)
+		set datetime $::env(datetime)
+
+		set runtime_s [expr {($timer_end - $timer_start)}]
+		set runtime_h [expr {$runtime_s/3600}]
+
+		set runtime_s [expr {$runtime_s-$runtime_h*3600}]
+		set runtime_m [expr {$runtime_s/60}]
+
+		set runtime_s [expr {$runtime_s-$runtime_m*60}]
+		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
+		puts_info $total_time
+		set runtime_log [open $arg_values(-report) w]
+		puts $runtime_log $total_time
+		close $runtime_log
+	}
 }
 
 # Value	Color
@@ -195,36 +263,62 @@ proc color_text {color txt} {
 }
 
 proc puts_err {txt} {
-  puts "[color_text 1 "\[ERROR\]: $txt"]"
+  set message "\[ERROR\]: $txt"
+  puts "[color_text 1 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_success {txt} {
-  puts "[color_text 2 "\[SUCCESS\]: $txt"]"
+  set message "\[SUCCESS\]: $txt"
+  puts "[color_text 2 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_warn {txt} {
-  puts "[color_text 3 "\[WARNING\]: $txt"]"
+  set message "\[WARNING\]: $txt"
+  puts "[color_text 3 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc puts_info {txt} {
-  puts "[color_text 6 "\[INFO\]: $txt"]"
+  set message "\[INFO\]: $txt"
+  puts "[color_text 6 "$message"]"
+  if { [info exists ::env(LOG_DIR)] } {
+    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  }
 }
 
 proc generate_final_summary_report {args} {
-    puts_info "Generating Final Summary Report..."
-	set options {
-        {-output optional}
-		{-man_report optional}
-    }
-    set flags {}
-    parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
-    
-    set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
-    set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manfucturability_report.rpt
-
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
-        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) -dn $::env(DESIGN_NAME) -t $::env(RUN_TAG) -o $arg_values(-output) -m $arg_values(-man_report) -r $::env(RUN_DIR)
+		puts_info "Generating Final Summary Report..."
+		set options {
+			{-output optional}
+			{-man_report optional}
+			{-runtime_summary optional}
+		}
+		set flags {}
+		parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
+		
+		set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
+		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
+		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
+
+        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) \
+			-dn $::env(DESIGN_NAME) \
+			-t $::env(RUN_TAG) \
+			-o $arg_values(-output) \
+			-m $arg_values(-man_report) \
+			-rs $arg_values(-runtime_summary) \
+			-r $::env(RUN_DIR)
+
         puts_info [read [open $arg_values(-man_report) r]]
+		puts_info "check full report here: $arg_values(-output)"
     }
 }
 
