@@ -117,6 +117,7 @@ proc trim_lib {args} {
         set ::env(NO_SYNTH_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
     }
     if { [file exists $::env(NO_SYNTH_LIST)] } {
+        file copy -force $::env(NO_SYNTH_LIST) $::env(TMP_DIR)/no_synth.cells
         try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $::env(NO_SYNTH_LIST) > $arg_values(-output)
     } else {
         file copy -force $arg_values(-input) $arg_values(-output)
