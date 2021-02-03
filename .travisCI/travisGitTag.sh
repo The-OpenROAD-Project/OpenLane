@@ -39,6 +39,13 @@ if [[ $latest_tag_commit ]]; then
     if [[ $current_commit == $latest_tag_commit ]]; then
         echo "The current commit is already tagged. We won't tag it again."
         exit 0
+    else
+        commit_cnt=$(git rev-list --count $latest_tag_commit..$current_commit)
+        if [[ $commit_cnt ]]; then
+            if [[ $commit_cnt -eq 1 ]]; then
+                echo "The difference between this tag and the previous one is only 1. We won't create a tag for a single commit."
+            fi
+        fi
     fi
 fi
 
