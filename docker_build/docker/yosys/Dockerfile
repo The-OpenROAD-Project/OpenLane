@@ -50,7 +50,7 @@ RUN yum install -y wget autoconf && \
 
 # git clone yosys
 ARG YOSYS_REPO=https://github.com/YosysHQ/yosys
-ARG YOSYS_COMMIT=84e9fa764803e93c59aff9f10bcc1a5ae2f9f120
+ARG YOSYS_COMMIT=beeaad19045f017acb27e38eb452457726932a8f
 RUN git clone ${YOSYS_REPO} yosys
 WORKDIR yosys
 RUN git checkout ${YOSYS_COMMIT}
