@@ -92,6 +92,8 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 		cif *array write disable
 	}
 
+	gds nodatestamp yes
+
 	gds write $::env(magic_result_file_tag).gds
 	puts "\[INFO\]: GDS Write Complete"
 }
