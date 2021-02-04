@@ -238,6 +238,19 @@ if { $tbuf_map } {
         simplemap
 }
 
+# handle technology mapping of 4-MUX, and tell Yosys to infer 4-muxes
+if { [info exists ::env(SYNTH_MUX4_MAP)] && [file exists $::env(SYNTH_MUX4_MAP)] } {
+  muxcover -mux4 
+  techmap -map $::env(SYNTH_MUX4_MAP)
+  simplemap
+}
+
+# handle technology mapping of 2-MUX
+if { [info exists ::env(SYNTH_MUX_MAP)] && [file exists $::env(SYNTH_MUX_MAP)] } {
+  techmap -map $::env(SYNTH_MUX_MAP)
+  simplemap
+}
+
 # handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
 	techmap -map $::env(SYNTH_LATCH_MAP)
