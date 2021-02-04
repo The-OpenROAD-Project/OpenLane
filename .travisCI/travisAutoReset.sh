@@ -11,17 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Merging Branches"
+echo "Resetting Branch"
 echo "Current branch is $TRAVIS_BRANCH"
-MERGE_BRANCH=master
-echo "Merge branch is $MERGE_BRANCH"
-git remote set-branches --add origin $MERGE_BRANCH
+RESET_BRANCH=master
+echo "Merge branch is $RESET_BRANCH"
+git remote set-branches --add origin $RESET_BRANCH
 git fetch
 echo "Current branch is $TRAVIS_BRANCH"
-echo "Getting Date & Month..."
-dateAndMonth=`date "+%b %Y"`
 echo "Configureing git info..."
 git config --global user.email "travis@travis-ci.org"
 git config --global user.name "Travis CI"
-echo "Committing merge result"
-git merge origin/$MERGE_BRANCH -m "Travis update: $dateAndMonth (Build $TRAVIS_BUILD_NUMBER) auto-merge $MERGE_BRANCH into $TRAVIS_BRANCH" || exit 0
+echo "Reseting branch to $RESET_BRANCH"
+git reset --hard origin/$RESET_BRANCH
