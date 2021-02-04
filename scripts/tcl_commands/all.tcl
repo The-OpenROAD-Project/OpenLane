@@ -112,9 +112,13 @@ proc trim_lib {args} {
     set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
-    set scl_no_synth_lib $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
-    if { [file exists $scl_no_synth_lib] } {
-        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $scl_no_synth_lib > $arg_values(-output)
+    # For backward compatibility
+    if {![info exists ::env(NO_SYNTH_LIST)]} {
+        set ::env(NO_SYNTH_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
+    }
+    if { [file exists $::env(NO_SYNTH_LIST)] } {
+        file copy -force $::env(NO_SYNTH_LIST) $::env(TMP_DIR)/no_synth.cells
+        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $::env(NO_SYNTH_LIST) > $arg_values(-output)
     } else {
         file copy -force $arg_values(-input) $arg_values(-output)
     }
