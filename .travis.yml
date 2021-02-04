@@ -2,6 +2,10 @@ language: shell
 os: linux
 dist: xenial
 
+branches:
+  except:
+  - create-pull-request/green-tag-update
+
 services:
 - docker
 
