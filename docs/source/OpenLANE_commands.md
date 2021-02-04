@@ -178,6 +178,8 @@ Most of the following commands' implementation exists in this [file][7]
 | `basic_macro_placement` | | Runs basic macro placement on the chip level using the openroad app, and it writes into `::env(CURRENT_DEF).macro_placement.def`. |
 | `repair_wire_length`| | Runs resizer overbuffering to limit the wire length given in `MAX_WIRE_LENGTH` using the openroad app. |
 | `run_openPhySyn` | | Runs OpenPhySyn timing optimizations: capacitance_violations, transition_violations, fanout_violations, and negative_slack_violations. |
+| `run_resizer_design` | | Runs resizer design optimizations to insert buffers on nets to repair max slew, max capacitance, max fanout violations, and on long wires to reduce RC delay in the wire. It also resizes cells. |
+| `run_resizer_timing` | | Runs resizer timing optimizations which repairs setup and hold violations.  |
 | `run_placement`| | Runs global placement (`global_placement_or` or `random_global_placement` based on the value of `PL_RANDOM_GLB_PLACEMENT`), then applies the optional optimizations `repair_wire_length` followed by `run_openPhySyn` if enabled, then runs the detailed placement (`detailed_placement_or`). |
 
 ## CTS Commands
