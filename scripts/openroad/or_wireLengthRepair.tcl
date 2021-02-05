@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_OPT) {
     read_liberty $lib
 }
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
