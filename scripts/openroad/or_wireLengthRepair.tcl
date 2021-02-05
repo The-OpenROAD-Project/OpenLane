@@ -27,6 +27,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 set_wire_rc -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
-repair_design -max_wire_length $::env(MAX_WIRE_LENGTH) -buffer_cell $::env(RE_BUFFER_CELL)
+repair_design -max_wire_length $::env(MAX_WIRE_LENGTH)
 #check_in_core
 write_def $::env(SAVE_DEF)
