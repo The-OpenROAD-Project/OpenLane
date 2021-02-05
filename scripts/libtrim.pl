@@ -25,6 +25,7 @@ open (CELLS,'<', $ARGV[1]) or die("Couldn't open $ARGV[1]");
 
 my @cells = ();
 while(<CELLS>){ #cells to remove
+  next if (/\#/);
   chop($_);
   push @cells, $_;
 }
