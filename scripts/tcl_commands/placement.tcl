@@ -179,6 +179,10 @@ proc run_placement {args} {
 proc repair_wire_length {args} {
     if { $::env(PL_RESIZER_OVERBUFFER) == 1} {
         puts_info "Repairing Wire Length By Inserting Buffers..."
+        if { ! [info exists ::env(LIB_OPT)]} {
+            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
+            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        }
         set ::env(SAVE_DEF) $::env(CURRENT_DEF)
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_wireLengthRepair.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/resizer.log]
         set_def $::env(SAVE_DEF)
