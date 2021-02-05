@@ -106,7 +106,7 @@ These variables are optional that can be specified in the design configuration f
 | `PSN_ENABLE_PIN_SWAP` | Enables pin swapping for timing optimization by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
 | `PL_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `0`) |
-| `PL_RESIZER_OVERBUFFER` | Enables inserting buffers to reduce the number of long wires.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `PL_RESIZER_OVERBUFFER` | Enables inserting buffers to reduce the number of long wires during resizer optimizations. If `PL_RESIZER_DESIGN_OPTIMIZATIONS` is set to `0`, then this configuration will be ignored. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer if `PL_RESIZER_OVERBUFFER` is set to 1. <br> (Default: `50`)|
 | `LIB_OPT` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during OpenPhySyn optimizations. This is usually a trimmed version of `LIB_SLOWEST`. <br> Default: `$::env(TMP_DIR)/opt.lib` |
 | `PL_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global placement using OpenROAD's estimate_parasitics -placement and generates reports under `reports/placement`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
