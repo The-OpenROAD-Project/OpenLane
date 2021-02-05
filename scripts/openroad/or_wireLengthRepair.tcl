@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_OPT) {
     read_liberty $lib
 }
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
@@ -27,6 +27,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 set_wire_rc -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
-repair_design -max_wire_length $::env(MAX_WIRE_LENGTH) -buffer_cell $::env(RE_BUFFER_CELL)
+repair_design -max_wire_length $::env(MAX_WIRE_LENGTH)
 #check_in_core
 write_def $::env(SAVE_DEF)
