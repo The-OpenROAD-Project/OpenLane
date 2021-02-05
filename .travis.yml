@@ -28,6 +28,8 @@ jobs:
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash .travisCI/travisUpdateTool.sh;
+        fi
+      - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash .travisCI/travisBuildTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
@@ -130,6 +132,8 @@ jobs:
     install:
       - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash .travisCI/travisUpdateTool.sh;
+        fi
+      - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]]; then
           bash .travisCI/travisBuildTool.sh;
         fi
       - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
@@ -175,10 +179,11 @@ before_install:
     fi
   - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" ]]; then
       bash .travisCI/travisUpdatePDK.sh;
-      bash .travisCI/travisAutoReset.sh;
     fi
   - if [[ $TRAVIS_BRANCH == CID-latest-tools-* ]];  then
       bash .travisCI/travisUpdateTool.sh;
+    fi
+  - if [[ $TRAVIS_BRANCH == "CID-latest-pdk" || $TRAVIS_BRANCH == CID-latest-tools-* ]];  then
       bash .travisCI/travisAutoReset.sh;
     fi
 
