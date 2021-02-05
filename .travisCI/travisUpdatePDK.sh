@@ -14,11 +14,10 @@
 # limitations under the License.
 set -e
 exit_on_no_update=0
-if [[ $TRAVIS_EVENT_TYPE ]]; then
-  if [[ $TRAVIS_EVENT_TYPE == "api" || $TRAVIS_EVENT_TYPE == "cron" ]]; then
-    exit_on_no_update=1
-  fi
+if [[ "$TRAVIS_EVENT_TYPE" == "api" || "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
+  exit_on_no_update=1
 fi
+
 echo "Checking the PDK version against latest pdk..."
 echo "RUN ROOT: $RUN_ROOT"
 makefile=$RUN_ROOT/Makefile
