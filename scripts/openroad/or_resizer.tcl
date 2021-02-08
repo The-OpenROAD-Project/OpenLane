@@ -36,6 +36,8 @@ if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WI
     repair_design
 }
 
+report_floating_nets -verbose
+
 set_placement_padding -global -right $::env(CELL_PAD)
 
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
