@@ -50,6 +50,7 @@ This section defines the neccessary variables for PDK configuration file
 | `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
 | `CTS_SQR_CAP` | Defines the capacitance per square micron, used in CTS. |
 | `CTS_SQR_RES` | Defines the resistance per square micron, used in CTS. |
+| `DEFAULT_MAX_TRAN` | Defines the default maximum transition value, used in CTS & synthesis. |
 | `FP_PDN_RAIL_OFFSET` | Defines the rail offset for met1 used in PDN. <br> Default: `0`. |
 | `FP_PDN_VWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
 | `FP_PDN_HWIDTH` | Defines the strap width for the horizontal layer used in PDN. <br> Default: `1.6`. |
