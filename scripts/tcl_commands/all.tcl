@@ -101,24 +101,74 @@ proc prep_lefs {args} {
 
 }
 
+proc gen_exclude_list {args} {
+    puts_info "Generating Exclude List..."
+    set options {
+        {-lib required}
+    }
+    set flags {
+        -drc_exclude_only
+        -create_dont_use_list
+    }
+    parse_key_args "gen_exclude_list" args arg_values $options flags_map $flags
+
+    # Set if unset for the two env vars:
+    if {![info exists ::env(NO_SYNTH_CELL_LIST)]} {
+        set ::env(NO_SYNTH_CELL_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
+    }
+
+    if {![info exists ::env(DRC_EXCLUDE_CELL_LIST)]} {
+        set ::env(DRC_EXCLUDE_CELL_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells
+    }
+
+    # Copy the drc exclude list into the run directory, if it exists.
+    if { [file exists $::env(DRC_EXCLUDE_CELL_LIST)] } {
+        file copy -force $::env(DRC_EXCLUDE_CELL_LIST) $arg_values(-lib).exclude.list
+    }
+
+    # If you're not told to only use the drc exclude list, and if the no_synth.cells exists, merge the two lists
+    if { (![info exists flags_map(-drc_exclude_only)]) && [file exists $::env(NO_SYNTH_CELL_LIST)] } {
+        set out [open $arg_values(-lib).exclude.list a]
+        set in [open $::env(NO_SYNTH_CELL_LIST)]
+        fcopy $in $out
+        close $in
+        close $out
+    }
+
+    if { [file exists $arg_values(-lib).exclude.list] && [info exists flags_map(-create_dont_use_list)] } {
+        puts_info "Creating ::env(DONT_USE_CELLS)..."
+        set fp [open "$arg_values(-lib).exclude.list" r]
+        set x [read $fp]
+        set y [split $x]
+        set ::env(DONT_USE_CELLS) [join $y " "]
+        close $fp
+    }
+
+
+}
+
 proc trim_lib {args} {
     puts_info "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
     }
-    set flags {}
+    set flags {
+        -drc_exclude_only
+    }
     parse_key_args "trim_lib" args arg_values $options flags_map $flags
     set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
-    # For backward compatibility
-    if {![info exists ::env(NO_SYNTH_LIST)]} {
-        set ::env(NO_SYNTH_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
+    if { [info exists flags_map(-drc_exclude_only)] } {
+        gen_exclude_list -lib $arg_values(-output) -drc_exclude_only
+    } else {
+        gen_exclude_list -lib $arg_values(-output)
     }
-    if { [file exists $::env(NO_SYNTH_LIST)] } {
-        file copy -force $::env(NO_SYNTH_LIST) $::env(TMP_DIR)/no_synth.cells
-        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $::env(NO_SYNTH_LIST) > $arg_values(-output)
+
+    # Trim the liberty with the generated list, if it exists.
+    if { [file exists $arg_values(-output).exclude.list] } {
+        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $arg_values(-output).exclude.list > $arg_values(-output)
     } else {
         file copy -force $arg_values(-input) $arg_values(-output)
     }
