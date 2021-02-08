@@ -225,7 +225,10 @@ if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop -flatten
 }
 
-share -aggressive
+if { $::env(SYNTH_SHARE_RESOURCES) } {
+	share -aggressive
+}
+
 opt
 opt_clean -purge
 
