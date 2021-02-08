@@ -30,8 +30,8 @@ set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
 
-if { $::env(PL_RESIZER_OVERBUFFER) } {
-    repair_design -max_wire_length $::env(MAX_WIRE_LENGTH)
+if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
+    repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
 } else {
     repair_design
 }
