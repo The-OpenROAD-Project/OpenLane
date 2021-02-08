@@ -30,10 +30,11 @@ set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
 
-repair_design
-
-#repair_tie_fanout -separation $tie_separation $tielo_port
-#repair_tie_fanout -separation $tie_separation $tiehi_port
+if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
+    repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
+} else {
+    repair_design
+}
 
 set_placement_padding -global -right $::env(CELL_PAD)
 
