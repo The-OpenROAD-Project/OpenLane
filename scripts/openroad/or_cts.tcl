@@ -49,7 +49,10 @@ puts "\[INFO]: Running Clock Tree Synthesis..."
 clock_tree_synthesis\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\
-    -clk_nets $::env(CLOCK_NET)
+    -clk_nets $::env(CLOCK_NET)\
+    -sink_clustering_enable\
+    -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)\
+    -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
 
 puts "\[INFO]: Repairing long wires on clock nets..."
 # CTS leaves a long wire from the pad to the clock tree root.
