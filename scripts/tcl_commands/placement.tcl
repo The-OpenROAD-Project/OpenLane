@@ -180,7 +180,7 @@ proc run_openPhySyn {args} {
         TIMER::timer_start
         if { ! [info exists ::env(LIB_OPT)]} {
             set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT) -drc_exclude_only
         }
         set report_tag_saver $::env(openphysyn_report_file_tag)
         set ::env(openphysyn_report_file_tag) [index_file $::env(openphysyn_report_file_tag)]
@@ -218,9 +218,12 @@ proc run_resizer_timing {args} {
     if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Timing Optimizations..."
         TIMER::timer_start
-        if { ! [info exists ::env(LIB_OPT)]} {
-            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
+            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
+            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+        }
+        if { ! [info exists ::env(DONT_USE_CELLS)] } {
+            gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
@@ -253,9 +256,12 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Design Optimizations..."
         TIMER::timer_start
-        if { ! [info exists ::env(LIB_OPT)]} {
-            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT)
+        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
+            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
+            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+        }
+        if { ! [info exists ::env(DONT_USE_CELLS)] } {
+            gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
         try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
