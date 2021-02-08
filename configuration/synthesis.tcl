@@ -16,6 +16,7 @@
 set ::env(SYNTH_BIN) yosys
 set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/synth.tcl
 set ::env(SYNTH_NO_FLAT) 0
+set ::env(SYNTH_SHARE_RESOURCES) 1
 set ::env(SYNTH_BUFFERING) 1
 set ::env(SYNTH_SIZING) 0
 set ::env(SYNTH_MAX_FANOUT) 5
