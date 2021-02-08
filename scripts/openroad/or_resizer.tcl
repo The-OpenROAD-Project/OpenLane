@@ -35,6 +35,8 @@ repair_design
 #repair_tie_fanout -separation $tie_separation $tielo_port
 #repair_tie_fanout -separation $tie_separation $tiehi_port
 
+report_floating_nets -verbose
+
 set_placement_padding -global -right $::env(CELL_PAD)
 
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
