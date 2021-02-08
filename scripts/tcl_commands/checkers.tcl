@@ -174,4 +174,20 @@ proc quit_on_illegal_overlaps {args} {
     }
 }
 
+proc quit_on_unconnected_pdn_nodes {args} {
+    set log_file [index_file $::env(pdn_log_file_tag).log 0]
+    set checker [catch {exec grep -E "Unconnected PDN node" $log_file} error]
+
+    if { ! $checker } {
+        puts_err "PDN generation failed."
+        puts_err "You may need to adjust your macro placements or PDN \
+            offsets/pitches to power all standard cell rails (or other PDN stripes) \
+            in your design."
+        flow_fail
+        return -code error
+    } else {
+        puts_info "PDN generation was successful."
+    }
+}
+
 package provide openlane 0.9

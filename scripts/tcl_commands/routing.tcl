@@ -235,8 +235,12 @@ proc gen_pdn {args} {
     try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_pdn.tcl \
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]
 
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(pdn_log_file_tag)_runtime.txt 0]
+
+	quit_on_unconnected_pdn_nodes
+
     set_def $::env(SAVE_DEF)
 }
 
