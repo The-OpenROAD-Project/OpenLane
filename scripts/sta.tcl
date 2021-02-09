@@ -32,7 +32,7 @@ report_wns > $::env(opensta_report_file_tag)_wns.rpt
 # report_power
 # report_power > $::env(opensta_report_file_tag)_power.rpt
 
-report_checks -unique -slack_max -0.0 -group_count 100 > $::env(opensta_report_file_tag).timing.rpt
-report_checks -path_delay min_max > $::env(opensta_report_file_tag).min_max.rpt
-report_checks -group_count 100  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(opensta_report_file_tag).timing.rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(opensta_report_file_tag).min_max.rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
 exit
