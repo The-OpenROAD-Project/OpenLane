@@ -1,4 +1,4 @@
-name: docker-build
+name: CI
 
 on: push
 
@@ -24,7 +24,7 @@ jobs:
 
       - name: Login to DockerHub
         if: ${{ github.event.workflow_run.event != 'pull_request' || github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
-        uses: docker/login-action@v1 
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
@@ -36,7 +36,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Docker Build
-        run: cd docker_build/ && make merge 
+        run: cd docker_build/ && make merge
 
       - name: Docker Push
         if: ${{ github.event.workflow_run.event != 'pull_request' || github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
@@ -47,3 +47,11 @@ jobs:
 
       - name: SPM Test
         run: cd ${GITHUB_WORKSPACE}/ && make IMAGE_NAME=${{ env.IMAGE_NAME }} test
+
+      - name: Fastest Test Set
+        env:
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          EXTRA_FLAGS: -so
+          TEST_SET: fastestTestSet
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh ${GITHUB_WORKSPACE}/pdks ${GITHUB_WORKSPACE}
+
