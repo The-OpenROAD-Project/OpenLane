@@ -92,6 +92,7 @@ show_log_output = args.show_output & (len(designs) == 1) & (args.regression is N
 
 if args.print_rem is not None and show_log_output == False:
         if float(args.print_rem) > 0:
+                mutex = threading.Lock()
                 print_rem_time = float(args.print_rem)
         else:
                 print_rem_time = None
@@ -178,6 +179,16 @@ def printRemDesignList():
         if len(rem_designs) == 0:
                 t.cancel()
 
+def rmDesignFromPrintList(design):
+        if design in rem_designs.keys():
+                mutex.acquire()
+                try:
+                        rem_designs[design]-=1        
+                        if rem_designs[design] == 0:
+                                rem_designs.pop(design)
+                finally:
+                        mutex.release()
+
 if print_rem_time is not None:
         printRemDesignList()
         allow_print_rem_designs = True
@@ -194,6 +205,7 @@ def run_design(designs_queue):
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 else:
                         command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                skip_rm_from_rems = False
                 try:
                         if show_log_output:
                                 process = subprocess.Popen(command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -206,16 +218,16 @@ def run_design(designs_queue):
                         else:
                                 subprocess.check_output(command.split(), stderr=subprocess.PIPE)
                 except subprocess.CalledProcessError as e:
+                        if print_rem_time is not None:
+                                rmDesignFromPrintList(design)
+                                skip_rm_from_rems = True
                         error_msg = e.stderr.decode(sys.getfilesystemencoding())
                         log.error('{design} {tag} failed check {run_path}error.txt'.format(design=design, run_path=run_path, tag=tag))
                         with open(run_path + "error.txt", "w") as error_file:
                                 error_file.write(error_msg)
 
-                if print_rem_time is not None:
-                        if design in rem_designs.keys():
-                                rem_designs[design]-=1
-                                if rem_designs[design] == 0:
-                                        rem_designs.pop(design)
+                if print_rem_time is not None and not skip_rm_from_rems:
+                        rmDesignFromPrintList(design)
 
                 log.info('{design} {tag} finished\t Writing report..'.format(design=design, tag=tag))
                 params = ConfigHandler.get_config(design, tag)

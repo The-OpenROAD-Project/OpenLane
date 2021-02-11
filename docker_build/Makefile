@@ -41,7 +41,6 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 	cd tar && tar -czf openroad_tools.tar.gz ../build
 
 tar/openLANE_flow.tar.gz: FORCE
-	find ../ -name '*.tcl' -exec chmod +x {} \;
 	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks/" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
 
 FORCE:

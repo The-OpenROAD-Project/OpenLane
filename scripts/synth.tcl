@@ -190,6 +190,13 @@ if { $strategy_type == "DELAY" } {
 	set strategy [expr {[llength $delay_scripts]+$strategy_type_idx}]
 }
 
+set adder_type $::env(SYNTH_ADDER_TYPE)
+if { !($adder_type in [list "YOSYS" "FA" "RCA"]) } {
+	log -stderr "\[ERROR] Misformatted SYNTH_ADDER_TYPE (\"$::env(SYNTH_ADDER_TYPE)\")."
+	log -stderr "\[ERROR] Correct format is \"YOSYS|FA|RCA\"."
+	exit 1
+}
+
 set vIdirsArgs ""
 if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
 	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
@@ -219,6 +226,13 @@ if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
         }
 }
 
+# handle technology mapping of rca-adder
+if { $adder_type == "RCA"} {
+	if { [info exists ::env(RIPPLE_CARRY_ADDER_MAP)] && [file exists $::env(RIPPLE_CARRY_ADDER_MAP)] } {
+		techmap -map $::env(RIPPLE_CARRY_ADDER_MAP)
+	}
+}
+
 if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop
 } else {
@@ -227,6 +241,15 @@ if { $::env(SYNTH_NO_FLAT) } {
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive
+}
+
+set fa_map false
+if { $adder_type == "FA" } {
+	if { [info exists ::env(FULL_ADDER_MAP)] && [file exists $::env(FULL_ADDER_MAP)] } {
+		extract_fa -fa -v
+		extract_fa -ha -v
+		set fa_map true
+	}
 }
 
 opt
@@ -239,6 +262,11 @@ if { $tbuf_map } {
         log {mapping tbuf}
         techmap -map $::env(TRISTATE_BUFFER_MAP)
         simplemap
+}
+
+# Map Full Adders.
+if { $fa_map } {
+	techmap -map $::env(FULL_ADDER_MAP)
 }
 
 # handle technology mapping of 4-MUX, and tell Yosys to infer 4-muxes
