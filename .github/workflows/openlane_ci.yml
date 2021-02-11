@@ -4,7 +4,7 @@ on: push
 
 jobs:
   docker-build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
 
@@ -21,11 +21,43 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Get Branch Name
+      - name: Export Branch Name To Environment
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Get Image Name
+      - name: Export Image Name To Environment
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export RUN Root To Environment
+        run: echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+
+      - name: Export Event Type
+        run: echo "ACTION_EVENT_TYPE=${{ github.event_name }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        run: echo "TOOL=$(echo "$BRANCH_NAME" | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
+
+      - name: Update PDK
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
+
+      - name: Update TOOL
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
+
+      - name: Reset Branch
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
+
+      - name: Update PDK
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
+
+      - name: Update & Build TOOL
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        run: |
+         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
+         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
 
       - name: Docker Build
         run: cd docker_build/ && make merge
@@ -36,7 +68,7 @@ jobs:
 
   test:
     needs: docker-build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
 
@@ -54,32 +86,51 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Login to DockerHub
-        if: ${{ github.event.workflow_run.event != 'pull_request' || github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Get Branch Name
+      - name: Export Branch Name To Environment
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Get Image Name
+      - name: Export Image Name To Environment
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
+      - name: Export PDK Root To Environment
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export RUN Root To Environment
+        run: echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+
+      - name: Export Event Type
+        run: echo "ACTION_EVENT_TYPE=${{ github.event_name }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        run: echo "TOOL=$(echo "$BRANCH_NAME" | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
+
+      - name: Reset Branch
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
+
+      - name: Update PDK
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
+
+      - name: Update & Build TOOL
+        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        run: |
+         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
+         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
+
       - name: Docker Pull
-        run: cd ${GITHUB_WORKSPACE}/ && make IMAGE_NAME=${{ env.IMAGE_NAME }} openlane
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
 
       - name: PDK installation
-        run: cd ${GITHUB_WORKSPACE}/ && make IMAGE_NAME=${{ env.IMAGE_NAME }} pdk
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
 
       - name: SPM Test
-        run: cd ${GITHUB_WORKSPACE}/ && make IMAGE_NAME=${{ env.IMAGE_NAME }} test
+        run: cd ${GITHUB_WORKSPACE}/ && make test
 
       - name: Fastest Test Set
         env:
-          IMAGE_NAME: ${{ env.IMAGE_NAME }}
           EXTRA_FLAGS: -so
           TEST_SET: fastestTestSet
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh ${GITHUB_WORKSPACE}/pdks ${GITHUB_WORKSPACE}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
