@@ -19,16 +19,16 @@ if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
 fi
 
 echo "Checking the PDK version against latest pdk..."
-echo "RUN ROOT: $RUN_ROOT"
-makefile=$RUN_ROOT/Makefile
-doc_source=$RUN_ROOT/docs/source/Manual_PDK_installation.md
+echo "RUN ROOT: $GITHUB_WORKSPACE"
+makefile=$GITHUB_WORKSPACE/Makefile
+doc_source=$GITHUB_WORKSPACE/docs/source/Manual_PDK_installation.md
 skywater_commit=$(grep "SKYWATER_COMMIT ?= " $makefile | sed 's/SKYWATER_COMMIT ?= //g')
 open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " $makefile | sed 's/OPEN_PDKS_COMMIT ?= //g')
 skywater_repo="https://github.com/google/skywater-pdk.git"
 open_pdks_repo="git://opencircuitdesign.com/open_pdks"
-latest_skywater_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $skywater_repo)
-latest_open_pdks_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $open_pdks_repo)
-cd $RUN_ROOT
+latest_skywater_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $skywater_repo)
+latest_open_pdks_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $open_pdks_repo)
+cd $GITHUB_WORKSPACE
 status=0
 
 if [[ $latest_open_pdks_commit != $open_pdks_commit ]]; then

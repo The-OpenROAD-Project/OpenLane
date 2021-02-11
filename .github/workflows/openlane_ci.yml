@@ -28,22 +28,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Sanity check
-        if: ${{ github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
-        run: echo "Yes True."
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
-      - name: Export Necessary Environment Variables
-        run: |
-          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
-          echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+      
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
 
       - name: Export Image Name To Environment Internal PR Case
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
-        run: |
-          echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
-          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
       - name: Export TOOL Name
         if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
@@ -90,19 +92,27 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Export Necessary Environment Variables
-        run: |
-          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
-          echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
-          echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+      
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
 
       - name: Export Image Name To Environment Internal PR Case
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
-        run: |
-          echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-          echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
-          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
       - name: Export TOOL Name
         if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}

@@ -16,21 +16,21 @@
 echo "Running The Standard Test Process..."
 echo "IMAGE NAME: $IMAGE_NAME"
 echo "PDK ROOT: $PDK_ROOT"
-echo "RUN ROOT: $RUN_ROOT"
+echo "RUN ROOT: $GITHUB_WORKSPACE"
 if [ -z "$EXTRA_FLAGS" ]; then EXTRA_FLAGS=""; fi
 
 DESIGNS_LIST=$TEST_SET
 
-file_path=$RUN_ROOT/.github/test_sets/$TEST_SET
+file_path=$GITHUB_WORKSPACE/.github/test_sets/$TEST_SET
 if [ -f $file_path ]; then DESIGNS_LIST=$(cat $file_path); fi
 
-docker run -v $RUN_ROOT:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME  bash -c "python3 run_designs.py -d $DESIGNS_LIST -t TEST_$TEST_SET -dl -dt -th $(nproc) -b regression_results/benchmark_results/SW_HD.csv -p 30 $EXTRA_FLAGS"
+docker run -v $GITHUB_WORKSPACE:/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME  bash -c "python3 run_designs.py -d $DESIGNS_LIST -t TEST_$TEST_SET -dl -dt -th $(nproc) -b regression_results/benchmark_results/SW_HD.csv -p 30 $EXTRA_FLAGS"
 
-FILE=$RUN_ROOT/regression_results/TEST_$TEST_SET/TEST_${TEST_SET}_design_test_report.csv
+FILE=$GITHUB_WORKSPACE/regression_results/TEST_$TEST_SET/TEST_${TEST_SET}_design_test_report.csv
 echo "Verbose Differences with the Benchmark"
-cat $RUN_ROOT/regression_results/TEST_$TEST_SET/TEST_$TEST_SET*.rpt
+cat $GITHUB_WORKSPACE/regression_results/TEST_$TEST_SET/TEST_$TEST_SET*.rpt
 echo "Full report:"
-cat $RUN_ROOT/regression_results/TEST_$TEST_SET/TEST_$TEST_SET.csv
+cat $GITHUB_WORKSPACE/regression_results/TEST_$TEST_SET/TEST_$TEST_SET.csv
 echo "Fail/Pass report:"
 echo "Design,Status,Reason"
 cat $FILE
