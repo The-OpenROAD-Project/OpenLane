@@ -42,7 +42,7 @@ set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10"
 set ::env(RUN_KLAYOUT) 1
 set ::env(TAKE_LAYOUT_SCROT) 1
-set ::env(RUN_KLAYOUT_DRC) 1
+set ::env(RUN_KLAYOUT_DRC) 0
 set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 set ::env(RUN_KLAYOUT_XOR) 1
 set ::env(USE_ARC_ANTENNA_CHECK) 1

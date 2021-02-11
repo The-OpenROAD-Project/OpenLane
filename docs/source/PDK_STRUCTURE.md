@@ -14,6 +14,7 @@ This is the expected folder structure for a PDK:
 				- config.tcl
 				- tracks.info
 				- no_synth.cells
+				- drc_exclude.cells
 	- libs.ref
 		- lef
 		- techLEF
@@ -99,6 +100,8 @@ This section defines the necessary variables to configure a standard cell librar
 | `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |
 | `SYNTH_LATCH_MAP` | A pointer for the file contianing the latch mapping for yosys. |
 | `TRISTATE_BUFFER_MAP` | A pointer for the file contianing the tri-state buffer mapping for yosys. |
+| `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
+| `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
 
 ## Tracks Info File
 
@@ -119,8 +122,28 @@ More on the structure of the file [here](https://github.com/The-OpenROAD-Project
 
 There are some cell types that you don't want to use in synthesis like, for example, delay cells and clock buffers (since CTS is a separate step that would insert the clock buffers).
 
-Also, some of the cells, back when this list was created, had hard-to-access pin shapes, so the detailed router didn't manage to do routing cleanly.
+Also, other cells don't have a default mapping in yosys, so they were excluded to reduce the liberty file size until we add a tech mapping file for each.
+
+The smallest sizes of the cells were also removed to prevent the synthesizer from using them, which allows for a larger floorplan. These cells however are accessible by the optimizer which will in turn replace the bigger cells with these smaller sizes when needed. Eventually, this process will produce clean routing without forcing the users of OpenLane to re-configure their designs with smaller `FP_CORE_UTIL` and `PL_TARGET_DENSITY` values. Nonetheless, this change will come some time in the future.
 
 However, this list is likely over-constraining, and if you have done experiments allowing smaller sizes incrementally and still got clean routed layouts, please let us know your findings, or better yet, submit a pull request at [open_pdks](https://github.com/RTimothyEdwards/open_pdks) with a suggested no_synth list.
 
-You can also point your custom no_synth.cells by setting the value for `NO_SYNTH_LIST` to point to it.
+
+This list is only used during synthesis.
+
+You can also point your custom no_synth.cells by setting the value for `NO_SYNTH_CELL_LIST` to point to it.
+
+
+## DRC Exclude Cells File
+
+Some of the cells, back when this list was created, had hard-to-access pin shapes, so the detailed router didn't manage to do routing cleanly.
+
+Others had DRC violations within the cell definitions.
+
+We excluded all cells of size _0 for the same reasons explained in the previous section.
+
+The lpflow cells were also excluded because the flow is still unable to deal with them and connect a KAPWR supply.
+
+This list is used for both synthesis and timing optimizations.
+
+You can also point your custom no_synth.cells by setting the value for `DRC_EXCLUDE_CELL_LIST` to point to it.

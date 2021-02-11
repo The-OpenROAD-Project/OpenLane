@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-foreach lib $::env(LIB_OPT) {
+foreach lib $::env(LIB_RESIZER_OPT) {
     read_liberty $lib
 }
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
@@ -28,6 +28,10 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
+
+if { [info exists ::env(DONT_USE_CELLS)] } {
+    set_dont_use $::env(DONT_USE_CELLS)
+}
 
 # CTS and detailed placement move instances, so update parastic estimates.
 estimate_parasitics -placement

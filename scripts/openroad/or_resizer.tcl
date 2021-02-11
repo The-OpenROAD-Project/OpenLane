@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-foreach lib $::env(LIB_OPT) {
+foreach lib $::env(LIB_RESIZER_OPT) {
     read_liberty $lib
 }
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
@@ -29,6 +29,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
+if { [info exists ::env(DONT_USE_CELLS)] } {
+    set_dont_use $::env(DONT_USE_CELLS)
+}
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
