@@ -1,6 +1,13 @@
 name: CI
 
-on: push
+on:
+    # Runs on Every Push
+    push:
+    # Runs on Pull Requests
+    pull_request:
+    # Runs every day at midnight UTC
+    schedule:
+      - cron:  '0 0 * * *'
 
 jobs:
   docker-build:
@@ -21,40 +28,45 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Export Branch Name To Environment
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Sanity check
+        if: ${{ github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "Yes True."
 
-      - name: Export Image Name To Environment
-        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+      - name: Export Necessary Environment Variables
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+          echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
 
-      - name: Export RUN Root To Environment
-        run: echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
-
-      - name: Export Event Type
-        run: echo "ACTION_EVENT_TYPE=${{ github.event_name }}" >> $GITHUB_ENV
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: |
+          echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
       - name: Export TOOL Name
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
-        run: echo "TOOL=$(echo "$BRANCH_NAME" | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
 
       - name: Update PDK
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
 
       - name: Update TOOL
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
 
       - name: Reset Branch
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
 
       - name: Update PDK
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
 
       - name: Update & Build TOOL
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
         run: |
          cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
          cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
@@ -78,35 +90,34 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Export Branch Name To Environment
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+      - name: Export Necessary Environment Variables
+        run: |
+          echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+          echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+          echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
 
-      - name: Export Image Name To Environment
-        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
-
-      - name: Export PDK Root To Environment
-        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
-
-      - name: Export RUN Root To Environment
-        run: echo "RUN_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
-
-      - name: Export Event Type
-        run: echo "ACTION_EVENT_TYPE=${{ github.event_name }}" >> $GITHUB_ENV
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: |
+          echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+          echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+          echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
       - name: Export TOOL Name
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
-        run: echo "TOOL=$(echo "$BRANCH_NAME" | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
 
       - name: Reset Branch
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
 
       - name: Update PDK
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-pdk') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
 
       - name: Update & Build TOOL
-        if: ${{ github.event_name != 'pull_request' && contains(github.ref, 'CID-latest-tool-') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
         run: |
          cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
          cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
@@ -117,12 +128,46 @@ jobs:
       - name: PDK installation
         run: cd ${GITHUB_WORKSPACE}/ && make pdk
 
-      - name: SPM Test
-        run: cd ${GITHUB_WORKSPACE}/ && make test
+      - name: Run SPM
+        env:
+          EXTRA_FLAGS: -so
+          TEST_SET: spm
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
       - name: Fastest Test Set
         env:
-          EXTRA_FLAGS: -so
           TEST_SET: fastestTestSet
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
+      - name: Complete Test Set
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+        env:
+          TEST_SET: completeTestSet
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+      - name: Delete Docker Image if needed
+        env:
+          SECRET_USER_NAME: ${{ secrets.DOCKERHUB_USER }}
+          SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME "$SECRET_PASSWORD" > /dev/null 2>&1
+
+      - name: Commit PDK Or Tool Updates
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          file_pattern: Makefile docs/source/*.md docker_build/docker/*/Dockerfile docker_build/tar/*.tar.gz
+          commit_message: Apply automatic changes to PDK Or Tool
+          # Optional commit user and author settings
+          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
+          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
+
+      - name: Export Tag If Possible
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
+
+      - name: Tag commit
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') && env.NEW_TAG != 'NO_NEW_TAG' }}
+        uses: tvdias/github-tagger@v0.0.1
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ env.NEW_TAG }}"
