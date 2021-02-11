@@ -14,7 +14,7 @@
 # limitations under the License.
 set -e
 exit_on_no_update=0
-if [[ "$ACTION_EVENT_TYPE" == "schedule" ]]; then
+if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
   exit_on_no_update=1
 fi
 
