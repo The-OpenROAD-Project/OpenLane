@@ -14,11 +14,11 @@
 # limitations under the License.
 
 echo "Running the tool build step installation process..."
-echo "RUN ROOT: $RUN_ROOT"
+echo "RUN ROOT: $GITHUB_WORKSPACE"
 echo "TOOL: $TOOL"
-cd $RUN_ROOT/docker_build
+cd $GITHUB_WORKSPACE/docker_build
 echo "Re-building $TOOL"
 make build-$TOOL
 echo "done pre-build"
-cd $RUN_ROOT
+cd $GITHUB_WORKSPACE
 exit 0

@@ -15,7 +15,6 @@
 echo "Checking If I Should Delete The Docker Image..."
 echo "BRANCH: $BRANCH_NAME"
 echo "IMAGE NAME: $IMAGE_NAME"
-echo "RUN ROOT: $RUN_ROOT"
 DOCKERHUB_USER=$1
 DOCKERHUB_PASSWORD=$2
 if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
