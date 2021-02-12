@@ -83,9 +83,11 @@ proc run_cts {args} {
 		}
 
 		set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_log_file_tag).log]
+		set report_tag_holder $::env(cts_report_file_tag)
+        set ::env(cts_report_file_tag) [ index_file $::env(cts_report_file_tag) ]
+		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_log_file_tag).log 0]
 		check_cts_clock_nets
-
+		set ::env(cts_report_file_tag) $report_tag_holder
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(cts_log_file_tag)_runtime.txt 0]
 
