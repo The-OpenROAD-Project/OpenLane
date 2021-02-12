@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '20 18 * * *'
+      - cron:  '10 19 * * *'
 
 jobs:
   create-cid-tools-branches:
@@ -36,6 +36,14 @@ jobs:
       - name: Update & Build TOOL
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
 
+      - name: Create Tool Branch
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'CID-latest-tools-${{ matrix.tools }}-${{ env.TOOL_COMMIT_HASH }}'
+
       - name: Commit Tool Updates
         if: ${{ env.NO_UPDATE == 'false' }}
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -59,7 +67,15 @@ jobs:
       - name: Update PDK
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
 
-      - name: Commit Tool Updates
+      - name: Create PDK Branch
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'CID-latest-pdk-${{ env.SKYWATER_COMMIT_HASH }}-${{ env.OPEN_PDKS_COMMIT_HASH }}'
+
+      - name: Commit PDK Updates
         if: ${{ env.NO_UPDATE == 'false' }}
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
