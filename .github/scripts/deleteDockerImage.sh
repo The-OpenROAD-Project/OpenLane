@@ -18,7 +18,7 @@ echo "IMAGE NAME: $IMAGE_NAME"
 DOCKERHUB_USER=$1
 DOCKERHUB_PASSWORD=$2
 if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-    export ORGANIZATION=efabless
+    export ORGANIZATION=agorararmard
     export REPOSITORY=openlane
     export TAG=$BRANCH_NAME-pull_request-$PULL_REQUEST_ID-$COMMIT_SHA_5
     sudo apt update

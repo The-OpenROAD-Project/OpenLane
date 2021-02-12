@@ -3,16 +3,16 @@ name: Update Latest Tag Reference
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push  only for the master branches
+  # Triggers the workflow on push  only for the actions-test-branch branches
   push:
     branches:
-      - master
+      - actions-test-branch
     tags:
       - "v*"
 
 jobs:
   createPullRequest:
-    if: github.event.base_ref == 'refs/heads/master' || github.ref == 'refs/heads/master'
+    if: github.event.base_ref == 'refs/heads/actions-test-branch' || github.ref == 'refs/heads/actions-test-branch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,7 @@ jobs:
           commit-message: Update Latest Green Tag
           title: 'Update Latest Green Tag'
           branch: create-pull-request/green-tag-update
-          base: master
+          base: actions-test-branch
           delete-branch: true
           body: This PR is auto-generated to update the latest stable tag referenced in the documentation and the Makefile.
           labels: update green tag, automated pr
