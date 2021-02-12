@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '55 16 * * *'
+      - cron:  '0 17 * * *'
 
 jobs:
   create-cid-tools-branches:
