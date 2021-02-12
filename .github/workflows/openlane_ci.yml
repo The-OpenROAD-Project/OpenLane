@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '10 19 * * *'
+      - cron:  '0 0 * * *'
 
 jobs:
   create-cid-tools-branches:
@@ -18,6 +18,9 @@ jobs:
         tools: [magic, netgen, yosys]
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -60,6 +63,8 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_TOKEN }}
 
       - name: Export Branch Name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
@@ -111,10 +116,14 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'agorararmard/openlane' }}
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'actions-test-branch' }}
+        run: echo "IMAGE_NAME=agorararmard/openlane:latest" >> $GITHUB_ENV
+
       - name: Export Pull Request ID Name To Environment
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-      
+
       - name: Export First 5 Digits of Commit Hash
         run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
 
@@ -151,10 +160,14 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'agorararmard/openlane' }}
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'actions-test-branch' }}
+        run: echo "IMAGE_NAME=agorararmard/openlane:latest" >> $GITHUB_ENV
+
       - name: Export Pull Request ID Name To Environment
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-      
+
       - name: Export First 5 Digits of Commit Hash
         run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
 
