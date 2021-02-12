@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '0 0 * * *'
+      - cron:  '35 14 * * *'
 
 jobs:
   docker-build:
@@ -156,6 +156,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
       - name: Delete Docker Image if needed
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
         env:
           SECRET_USER_NAME: ${{ secrets.DOCKERHUB_USER }}
           SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
