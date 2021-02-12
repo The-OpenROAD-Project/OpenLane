@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '50 16 * * *'
+      - cron:  '55 16 * * *'
 
 jobs:
   create-cid-tools-branches:
@@ -192,7 +192,7 @@ jobs:
           tag: "${{ env.NEW_TAG }}"
 
       - name: pull-request-action
-        if: ${{ contains(github.ref, 'CID-latest-')
+        if: ${{ contains(github.ref, 'CID-latest-') }}
         uses: vsoch/pull-request-action@1.0.13
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
