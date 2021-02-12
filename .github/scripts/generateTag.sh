@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
-echo "NEW_TAG='NO_NEW_TAG'" >> $GITHUB_ENV
+echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
 
 echo "Getting Latest Release Index..."
 latest_release_idx=$(git ls-remote --tags --sort="v:refname" git://github.com/agorararmard/openlane.git | grep "refs/tags/release-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f2 | cut -d"." -f1)

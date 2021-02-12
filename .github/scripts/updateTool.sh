@@ -35,26 +35,26 @@ if [[ $latest_commit != $tool_commit ]]; then
   if [[ $latest_cid_branch_commit ]]; then
     if [[ $latest_commit != $latest_cid_branch_commit ]]; then
       sed -i "s/$tool_commit/$latest_commit/" $docker_file;
-      echo "NO_UPDATE='false'" >> $GITHUB_ENV
+      echo "NO_UPDATE=false" >> $GITHUB_ENV
       exit 0
     else
       echo "latest $TOOL commit is identical to the current CID-latest-tools-$TOOL- commit";
       if [[ $exit_on_no_update -eq 1 ]]; then
-        echo "NO_UPDATE='true'" >> $GITHUB_ENV
+        echo "NO_UPDATE=true" >> $GITHUB_ENV
         exit 0;
       fi
     fi
   fi
   sed -i "s/$tool_commit/$latest_commit/" $docker_file;
-  echo "NO_UPDATE='false'" >> $GITHUB_ENV
+  echo "NO_UPDATE=false" >> $GITHUB_ENV
   exit 0
 else
   echo "latest $TOOL commit is identical to the current commit";
   if [[ $exit_on_no_update -eq 1 ]]; then
-    echo "NO_UPDATE='true'" >> $GITHUB_ENV
+    echo "NO_UPDATE=true" >> $GITHUB_ENV
     exit 0;
   fi
 fi
 
 
-echo "NO_UPDATE='true'" >> $GITHUB_ENV
+echo "NO_UPDATE=true" >> $GITHUB_ENV
