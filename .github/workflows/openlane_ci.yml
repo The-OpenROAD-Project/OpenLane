@@ -7,9 +7,69 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '40 15 * * *'
+      - cron:  '50 16 * * *'
 
 jobs:
+  create-cid-tools-branches:
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'actions-test-branch') }}
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        tools: [magic, netgen, yosys]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
+
+      - name: Update TOOL
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
+
+      - name: Update & Build TOOL
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
+
+      - name: Commit Tool Updates
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: CID-latest-tools-${{ matrix.tools }}-${{ env.TOOL_COMMIT_HASH }}
+          file_pattern: docker_build/docker/*/Dockerfile docker_build/tar/*.tar.gz
+          commit_message: Apply automatic changes to ${{ matrix.tools }}
+          # Optional commit user and author settings
+          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
+          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
+
+  create-cid-pdk-branch:
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'actions-test-branch') }}
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Update PDK
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
+
+      - name: Commit Tool Updates
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: CID-latest-pdk-${{ env.SKYWATER_COMMIT_HASH }}-${{ env.OPEN_PDKS_COMMIT_HASH }}
+          file_pattern: Makefile docs/source/*.md
+          commit_message: Apply automatic changes to PDK
+          # Optional commit user and author settings
+          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
+          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
+
   docker-build:
     runs-on: self-hosted
     steps:
@@ -22,7 +82,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Login to DockerHub
-        if: ${{ github.event.workflow_run.event != 'pull_request' || github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
@@ -35,7 +95,6 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'agorararmard/openlane' }}
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
-
       - name: Export Pull Request ID Name To Environment
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
@@ -47,37 +106,11 @@ jobs:
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
-      - name: Export TOOL Name
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
-        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
-
-      - name: Update PDK
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
-
-      - name: Update TOOL
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
-
-      - name: Reset Branch
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
-
-      - name: Update PDK
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
-
-      - name: Update & Build TOOL
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
-        run: |
-         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
-         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
-
       - name: Docker Build
         run: cd docker_build/ && make merge
 
       - name: Docker Push
-        if: ${{ github.event.workflow_run.event != 'pull_request' || github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
         run: docker push ${{ env.IMAGE_NAME }}
 
   test:
@@ -102,7 +135,6 @@ jobs:
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'agorararmard/openlane' }}
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
-
       - name: Export Pull Request ID Name To Environment
         if: ${{ github.event_name == 'pull_request' }}
         run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
@@ -115,22 +147,8 @@ jobs:
         run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
 
       - name: Export TOOL Name
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
-        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g')" >> $GITHUB_ENV
-
-      - name: Reset Branch
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/resetBranch.sh
-
-      - name: Update PDK
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-pdk') }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
-
-      - name: Update & Build TOOL
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-tool-') }}
-        run: |
-         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
-         cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
 
       - name: Docker Pull
         run: cd ${GITHUB_WORKSPACE}/ && make openlane
@@ -162,16 +180,6 @@ jobs:
           SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME "$SECRET_PASSWORD" > /dev/null 2>&1
 
-      - name: Commit PDK Or Tool Updates
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'CID-latest-') }}
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          file_pattern: Makefile docs/source/*.md docker_build/docker/*/Dockerfile docker_build/tar/*.tar.gz
-          commit_message: Apply automatic changes to PDK Or Tool
-          # Optional commit user and author settings
-          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
-          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
-
       - name: Export Tag If Possible
         if: ${{ github.event_name == 'schedule' && contains(github.ref, 'actions-test-branch') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
@@ -182,3 +190,14 @@ jobs:
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
           tag: "${{ env.NEW_TAG }}"
+
+      - name: pull-request-action
+        if: ${{ contains(github.ref, 'CID-latest-')
+        uses: vsoch/pull-request-action@1.0.13
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_PREFIX: "CID-latest-"
+          PULL_REQUEST_BRANCH: "actions-test-branch"
+          PULL_REQUEST_TITLE: "An automatically created PR from ${{ github.ref }}, Workflow Run ID: ${{ github.run_id }}"
+          PULL_REQUEST_BODY: "This PR is auto-generated by Github Action to invoke the update of this tool as it passed the initial CI tests and it's ready to be used in the flow."
+          PASS_IF_EXISTS: true
