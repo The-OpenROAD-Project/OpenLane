@@ -7,7 +7,7 @@ on:
     pull_request:
     # Runs every day at midnight UTC
     schedule:
-      - cron:  '0 0 * * *'
+      - cron:  '45 21 * * *'
 
 jobs:
   create-cid-tools-branches:
@@ -60,7 +60,7 @@ jobs:
 
   create-cid-pdk-branch:
     if: ${{ github.event_name == 'schedule' && contains(github.ref, 'actions-test-branch') }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
