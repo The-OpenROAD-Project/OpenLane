@@ -122,10 +122,6 @@ jobs:
     stage: test
     if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
     env: TEST_SET=genericfir EXTRA_FLAGS=-so
-  - name: aes128
-    stage: test
-    if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
-    env: TEST_SET=aes128
   - name: Push to Github
     stage: github-deploy
     if: type IN (cron, api) AND branch =~ /^(?i:CID-latest)-.*$/
