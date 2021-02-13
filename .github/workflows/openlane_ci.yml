@@ -129,7 +129,7 @@ jobs:
 
       - name: Export Image Name To Environment Internal PR Case
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
-        run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
 
       - name: Docker Build
         run: cd docker_build/ && make merge
@@ -173,7 +173,7 @@ jobs:
 
       - name: Export Image Name To Environment Internal PR Case
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
-        run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }} >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=agorararmard/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
 
       - name: Export TOOL Name
         if: ${{ contains(github.ref, 'CID-latest-tools-') }}
