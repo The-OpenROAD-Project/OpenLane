@@ -4,7 +4,7 @@ on: [delete]
 
 jobs:
   delete-docker-image:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
       
@@ -15,5 +15,5 @@ jobs:
         env:
           SECRET_USER_NAME: ${{ secrets.DOCKERHUB_USER }}
           SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD" > /dev/null 2>&1
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD"
 
