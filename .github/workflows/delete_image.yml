@@ -12,7 +12,6 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Delete Docker Image if needed
-        if: ${{ github.event.pull_request.head.repo.full_name == 'agorararmard/openlane' }}
         env:
           SECRET_USER_NAME: ${{ secrets.DOCKERHUB_USER }}
           SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
