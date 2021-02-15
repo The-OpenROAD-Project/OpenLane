@@ -43,6 +43,9 @@ proc run_yosys {args} {
     } else {
 		set ::env(SAVE_NETLIST) $::env(yosys_result_file_tag).v
     }
+	if { [ info exists ::env(SYNTH_ADDER_TYPE)] && $::env(SYNTH_ADDER_TYPE) == "RCA" } {
+		set ::env(SYNTH_READ_BLACKBOX_LIB) 1
+	}
 
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]
 	foreach lib $::env(LIB_SYNTH_COMPLETE) {
