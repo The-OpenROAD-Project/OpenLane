@@ -26,8 +26,8 @@ skywater_commit=$(grep "SKYWATER_COMMIT ?= " $makefile | sed 's/SKYWATER_COMMIT 
 open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " $makefile | sed 's/OPEN_PDKS_COMMIT ?= //g')
 skywater_repo="https://github.com/google/skywater-pdk.git"
 open_pdks_repo="git://opencircuitdesign.com/open_pdks"
-latest_skywater_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $skywater_repo)
-latest_open_pdks_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $open_pdks_repo)
+latest_skywater_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $skywater_repo)
+latest_open_pdks_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $open_pdks_repo)
 cd $GITHUB_WORKSPACE
 status=0
 echo "SKYWATER_COMMIT_HASH=$latest_skywater_commit" >> $GITHUB_ENV

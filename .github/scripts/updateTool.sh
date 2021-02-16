@@ -27,7 +27,7 @@ tool_repo=$(grep "ARG ${TOOL^^}_REPO=" $docker_file | sed "s/ARG ${TOOL^^}_REPO=
 tool_commit=$(grep "ARG ${TOOL^^}_COMMIT=" $docker_file | sed "s/ARG ${TOOL^^}_COMMIT=//g")
 echo "$tool_repo"
 echo "$tool_commit"
-latest_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $tool_repo)
+latest_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $tool_repo)
 echo "TOOL_COMMIT_HASH=$latest_commit" >> $GITHUB_ENV
 
 if [[ $latest_commit != $tool_commit ]]; then
