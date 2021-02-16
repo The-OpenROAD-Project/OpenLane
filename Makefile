@@ -175,11 +175,11 @@ regression_test:
 .PHONY: fastest_test_set
 fastest_test_set:
 	cd $(OPENLANE_DIR) && \
-		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export GITHUB_WORKSPACE=$(OPENLANE_DIR) && \
 		export TEST_SET=fastestTestSet && \
 		export IMAGE_NAME=$(IMAGE_NAME) && \
 		export PDK_ROOT=$(PDK_ROOT) && \
-		bash .travisCI/travisTest.sh
+		bash .github/scripts/test.sh
 
 .PHONY: test
 test:

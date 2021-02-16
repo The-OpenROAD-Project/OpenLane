@@ -13,7 +13,7 @@
 # limitations under the License.
 echo "Resetting Branch"
 echo "Current branch is $BRANCH_NAME"
-RESET_BRANCH=master
+RESET_BRANCH=github-actions-conversion
 echo "Merge branch is $RESET_BRANCH"
 git remote set-branches --add origin $RESET_BRANCH
 git fetch

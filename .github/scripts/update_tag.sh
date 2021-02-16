@@ -18,8 +18,7 @@
 # Abort on Error
 set -e
 
-old_predicted_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
-old_tag=$(grep 'git clone https://github.com/efabless/openlane.git --branch' README.md | head -1 | sed 's/.*--branch //g')
+old_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
 git fetch --prune --unshallow
 new_tag=$(git tag --list 'v*.*' | tail -1)
 
