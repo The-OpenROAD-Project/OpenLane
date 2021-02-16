@@ -16,7 +16,7 @@ echo "Checking If I Should Delete The Docker Image..."
 echo "BRANCH: $BRANCH_NAME"
 DOCKERHUB_USER=$1
 DOCKERHUB_PASSWORD=$2
-export ORGANIZATION=agorararmard
+export ORGANIZATION=efabless
 export REPOSITORY=openlane
 if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
     export TAG=$BRANCH_NAME-pull_request-$PULL_REQUEST_ID-$COMMIT_SHA_5

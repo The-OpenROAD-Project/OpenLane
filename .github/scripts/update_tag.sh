@@ -18,7 +18,7 @@
 # Abort on Error
 set -e
 
-old_tag=$(grep 'IMAGE_NAME ?= agorararmard/openlane:' Makefile | sed 's/IMAGE_NAME ?= agorararmard\/openlane://g')
+old_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
 git fetch --prune --unshallow
 new_tag=$(git tag --list 'v*.*' | tail -1)
 
