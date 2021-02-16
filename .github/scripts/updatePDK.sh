@@ -26,29 +26,59 @@ skywater_commit=$(grep "SKYWATER_COMMIT ?= " $makefile | sed 's/SKYWATER_COMMIT 
 open_pdks_commit=$(grep "OPEN_PDKS_COMMIT ?= " $makefile | sed 's/OPEN_PDKS_COMMIT ?= //g')
 skywater_repo="https://github.com/google/skywater-pdk.git"
 open_pdks_repo="git://opencircuitdesign.com/open_pdks"
-latest_skywater_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $skywater_repo)
-latest_open_pdks_commit=$(bash $GITHUB_WORKSPACE/.travisCI/utils/get_commit.sh $open_pdks_repo)
+latest_skywater_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $skywater_repo)
+latest_open_pdks_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $open_pdks_repo)
 cd $GITHUB_WORKSPACE
 status=0
+echo "SKYWATER_COMMIT_HASH=$latest_skywater_commit" >> $GITHUB_ENV
+echo "OPEN_PDKS_COMMIT_HASH=$latest_open_pdks_commit" >> $GITHUB_ENV
 
 if [[ $latest_open_pdks_commit != $open_pdks_commit ]]; then
-  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $makefile;
-  sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $doc_source;
-  status=1;
+  latest_cid_open_pdks_branch_commit=$(git ls-remote --heads git://github.com/agorararmard/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
+  if [[ $latest_cid_open_pdks_branch_commit ]]; then
+    if [[ $latest_open_pdks_commit != $latest_cid_open_pdks_branch_commit ]]; then
+      sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $makefile;
+      sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $doc_source;
+      status=1;
+    else
+      echo "latest open_pdks commit identical to current CID-latest-pdk commit";
+    fi
+  else
+    sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $makefile;
+    sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $doc_source;
+    status=1;
+  fi
 else
   echo "latest open_pdks commit identical to current commit";
 fi
 
 if [[ $latest_skywater_commit != $skywater_commit ]]; then
-  sed -i "s/$skywater_commit/$latest_skywater_commit/" $makefile;
-  sed -i "s/$skywater_commit/$latest_skywater_commit/" $doc_source;
-  status=1;
+  latest_cid_skywater_branch_commit=$(git ls-remote --heads git://github.com/agorararmard/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f4 )
+  if [[ $latest_cid_skywater_branch_commit ]]; then
+    if [[ $latest_skywater_commit != $latest_cid_skywater_branch_commit ]]; then
+      sed -i "s/$skywater_commit/$latest_skywater_commit/" $makefile;
+      sed -i "s/$skywater_commit/$latest_skywater_commit/" $doc_source;
+      status=1;
+    else
+      echo "latest skywater-pdk commit identical to current CID-latest-pdk commit";
+    fi
+  else
+    sed -i "s/$skywater_commit/$latest_skywater_commit/" $makefile;
+    sed -i "s/$skywater_commit/$latest_skywater_commit/" $doc_source;
+    status=1;
+  fi
 else
   echo "latest skywater-pdk commit identical to current commit";
 fi
 
 if [[ $exit_on_no_update -eq 1 ]]; then
   if [[ $status -eq 0 ]]; then exit 2; fi
+fi
+
+if [[ $status -eq 0 ]]; then 
+  echo "NO_UPDATE=true" >> $GITHUB_ENV
+else
+  echo "NO_UPDATE=false" >> $GITHUB_ENV
 fi
 
 exit 0

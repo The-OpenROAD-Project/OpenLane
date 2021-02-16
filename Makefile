@@ -40,7 +40,7 @@ STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= efabless/openlane:v0.2
+IMAGE_NAME ?= agorararmard/openlane:v0.2
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -174,11 +174,11 @@ regression_test:
 .PHONY: fastest_test_set
 fastest_test_set:
 	cd $(OPENLANE_DIR) && \
-		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export GITHUB_WORKSPACE=$(OPENLANE_DIR) && \
 		export TEST_SET=fastestTestSet && \
 		export IMAGE_NAME=$(IMAGE_NAME) && \
 		export PDK_ROOT=$(PDK_ROOT) && \
-		bash .travisCI/travisTest.sh
+		bash .github/scripts/test.sh
 
 .PHONY: test
 test:

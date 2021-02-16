@@ -14,15 +14,20 @@
 # limitations under the License.
 echo "Checking If I Should Delete The Docker Image..."
 echo "BRANCH: $BRANCH_NAME"
-echo "IMAGE NAME: $IMAGE_NAME"
 DOCKERHUB_USER=$1
 DOCKERHUB_PASSWORD=$2
+export ORGANIZATION=agorararmard
+export REPOSITORY=openlane
 if [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
-    export ORGANIZATION=efabless
-    export REPOSITORY=openlane
     export TAG=$BRANCH_NAME-pull_request-$PULL_REQUEST_ID-$COMMIT_SHA_5
-    sudo apt update
-    sudo apt install jq
+else
+    export TAG=$BRANCH_NAME
+fi
+if [[ $GITHUB_EVENT_NAME == "pull_request" || $GITHUB_EVENT_NAME == "delete" ]]; then
+    # The following commands are removed because we have this package installed in the self-hosted runner
+    # If it's not installed by default, you must install it separately before running the workflow
+    #sudo apt update
+    #sudo apt install jq
     HUB_TOKEN=$(curl -s -H "Content-Type: application/json" -X POST -d '{"username": "'${DOCKERHUB_USER}'", "password": "'${DOCKERHUB_PASSWORD}'"}' https://hub.docker.com/v2/users/login/ | jq -r .token)
     curl -i -X DELETE \
         -H "Accept: application/json" \
