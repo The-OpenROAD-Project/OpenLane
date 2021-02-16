@@ -18,7 +18,7 @@ proc global_placement {args} {
     try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log]
     try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
     set_def $::env(replaceio_tmp_file_tag).def
 }
 
@@ -47,7 +47,7 @@ proc global_placement_or {args} {
     check_replace_divergence
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> $::env(replaceio_log_file_tag)_runtime.txt
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
 }
 

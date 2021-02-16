@@ -25,20 +25,20 @@ yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.
 routed_runtime_rpt=${path}/reports/routed_runtime.txt
 total_runtime_rpt=${path}/reports/total_runtime.txt
 wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1)
-pl_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1)
+pl_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.log 2>&1)
 opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_openphysyn_wns.rpt 2>&1)
 if ! [ -f $opt_wns_rpt ]; then
         opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_wns.rpt 2>&1)
 fi
-fr_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1)
+fr_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o fastroute.log 2>&1)
 spef_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_wns.rpt 2>&1)
 tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_tns.rpt 2>&1)
-pl_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_tns.rpt 2>&1)
+pl_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.log 2>&1)
 opt_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_openphysyn_tns.rpt 2>&1)
 if ! [ -f $opt_tns_rpt ]; then
         opt_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_tns.rpt 2>&1)
 fi
-fr_tns_rpt=$(python3 $3/get_file_name.py -p  ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1)
+fr_tns_rpt=$(python3 $3/get_file_name.py -p  ${path}/reports/routing/ -o fastroute.log 2>&1)
 spef_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_tns.rpt 2>&1)
 HPWL_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 yosys_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o yosys.log 2>&1)
