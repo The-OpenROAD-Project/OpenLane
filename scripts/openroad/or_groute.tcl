@@ -82,9 +82,9 @@ if {[info exists ::env(CLOCK_PORT)]} {
         set_wire_rc -layer $::env(WIRE_RC_LAYER)
         estimate_parasitics -global_routing
 
-        report_checks -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt
-        report_checks -path_delay min_max > $::env(fastroute_report_file_tag).min_max.rpt
-        report_checks -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(fastroute_report_file_tag).min_max.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
 
         report_wns > $::env(fastroute_report_file_tag)_wns.rpt
         report_tns > $::env(fastroute_report_file_tag)_tns.rpt

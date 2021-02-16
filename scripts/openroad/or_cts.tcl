@@ -68,3 +68,22 @@ write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1
 }
+
+
+if {[info exists ::env(CLOCK_PORT)]} {
+	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
+
+        read_liberty -max $::env(LIB_SLOWEST)
+        read_liberty -min $::env(LIB_FASTEST)
+
+        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(cts_report_file_tag).timing.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(cts_report_file_tag).min_max.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(cts_report_file_tag).rpt
+
+        report_wns > $::env(cts_report_file_tag)_wns.rpt
+        report_tns > $::env(cts_report_file_tag)_tns.rpt
+        report_clock_skew > $::env(cts_report_file_tag)_clock_skew.rpt
+	}
+} else {
+    puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
+}
