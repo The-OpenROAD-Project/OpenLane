@@ -34,7 +34,7 @@ echo "SKYWATER_COMMIT_HASH=$latest_skywater_commit" >> $GITHUB_ENV
 echo "OPEN_PDKS_COMMIT_HASH=$latest_open_pdks_commit" >> $GITHUB_ENV
 
 if [[ $latest_open_pdks_commit != $open_pdks_commit ]]; then
-  latest_cid_open_pdks_branch_commit=$(git ls-remote --heads git://github.com/agorararmard/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
+  latest_cid_open_pdks_branch_commit=$(git ls-remote --heads git://github.com/efabless/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
   if [[ $latest_cid_open_pdks_branch_commit ]]; then
     if [[ $latest_open_pdks_commit != $latest_cid_open_pdks_branch_commit ]]; then
       sed -i "s/$open_pdks_commit/$latest_open_pdks_commit/" $makefile;
@@ -53,7 +53,7 @@ else
 fi
 
 if [[ $latest_skywater_commit != $skywater_commit ]]; then
-  latest_cid_skywater_branch_commit=$(git ls-remote --heads git://github.com/agorararmard/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f4 )
+  latest_cid_skywater_branch_commit=$(git ls-remote --heads git://github.com/efabless/openlane.git | grep "refs/heads/CID-latest-pdk-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f4 )
   if [[ $latest_cid_skywater_branch_commit ]]; then
     if [[ $latest_skywater_commit != $latest_cid_skywater_branch_commit ]]; then
       sed -i "s/$skywater_commit/$latest_skywater_commit/" $makefile;
