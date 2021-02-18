@@ -40,14 +40,14 @@ STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 
-IMAGE_NAME ?= efabless/openlane:v0.4
+IMAGE_NAME ?= efabless/openlane:v0.5
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= f6f76f3dc99526c6fc2cfede19b5b1227d4ebde7
-OPEN_PDKS_COMMIT ?= 2af86c746ac8933d9c50f92da287bab5e1ec6e62
+SKYWATER_COMMIT ?= db2e06709dc3d876aa6b74a5f3893fa5f1bc2a6e
+OPEN_PDKS_COMMIT ?= 546432e51838c4dd039025f3a4675e938d0d78de
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
