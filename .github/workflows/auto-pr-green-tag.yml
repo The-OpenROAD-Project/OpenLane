@@ -28,5 +28,6 @@ jobs:
           title: 'Update Latest Green Tag'
           branch: create-pull-request/green-tag-update
           base: master
+          delete-branch: true
           body: This PR is auto-generated to update the latest stable tag referenced in the documentation and the Makefile.
           labels: update green tag, automated pr

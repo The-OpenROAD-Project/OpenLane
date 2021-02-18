@@ -81,7 +81,7 @@ jobs:
   - name: picorv32a
     stage: test
     if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
-    env: TEST_SET=picorv32a EXTRA_FLAGS=-so
+    env: TEST_SET=picorv32a
   - name: chacha
     stage: test
     if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
@@ -101,7 +101,7 @@ jobs:
   - name: ldpcenc
     stage: test
     if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)
-    env: TEST_SET=ldpcenc EXTRA_FLAGS=-so
+    env: TEST_SET=ldpcenc
   - name: salsa20
     stage: test
     if: type IN (cron, api) AND (NOT branch =~ /^(?i:CID-latest)-.*$/)

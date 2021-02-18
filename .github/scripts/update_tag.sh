@@ -23,10 +23,17 @@ git fetch --prune --unshallow
 new_tag=$(git tag --list 'v*.*' | tail -1)
 
 if [[ $new_tag ]]; then
-    echo $old_tag
-    echo $new_tag
-    for f in Makefile README.md docker_build/Makefile
+    prefix=$(echo "$new_tag" | cut -d"." -f1 )
+    cur_idx=$(echo "$new_tag" | cut -d"." -f2 )
+    new_idx=$((${cur_idx} + 1))
+    predicted_new_tag="$prefix.$new_idx"
+    echo "Old Tag $old_tag"
+    echo "New Tag $new_tag"
+    echo "Predicted next tag $predicted_new_tag"
+    echo "Updating documentation referenced tag"
+    sed -i "s/${old_tag}/${new_tag}/" README.md;
+    for f in Makefile docker_build/Makefile
     do
-    sed -i "s/${old_tag}/${new_tag}/" $f;
+    sed -i "s/${old_tag}/${predicted_new_tag}/" $f;
     done
 fi
