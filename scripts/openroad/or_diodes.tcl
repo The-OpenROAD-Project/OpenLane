@@ -89,6 +89,9 @@ puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement  -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
+if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
+    optimize_mirroring
+}
 write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1
