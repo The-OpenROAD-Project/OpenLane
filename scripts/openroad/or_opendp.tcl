@@ -28,6 +28,8 @@ set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 
 detailed_placement -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
 
+optimize_mirroring
+
 if { [check_placement -verbose] } {
 	exit 1
 }
