@@ -64,6 +64,9 @@ set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)"
 set_placement_padding -masters $buffers -left $::env(CELL_PAD)
 puts "\[INFO\]: Legalizing..."
 detailed_placement -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
+if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
+    optimize_mirroring
+}
 write_def $::env(SAVE_DEF)
 if { [check_placement -verbose] } {
 	exit 1
