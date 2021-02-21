@@ -24,6 +24,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
+
+read_sdc -echo $::env(BASE_SDC_FILE)
+
 # Resize
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
@@ -32,6 +35,8 @@ estimate_parasitics -placement
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
+
+buffer_ports
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
