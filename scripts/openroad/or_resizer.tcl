@@ -36,7 +36,13 @@ if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
 
-buffer_ports
+if { [info exists ::env(PL_RESIZER_BUFFER_INPUT_PORTS)] && $::env(PL_RESIZER_BUFFER_INPUT_PORTS) } {
+    buffer_ports -inputs
+}
+
+if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) } {
+    buffer_ports -outputs
+}
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
