@@ -205,10 +205,17 @@ proc logic_equiv_check {args} {
 
     set args_copy $args
     parse_key_args "logic_equiv_check" args arg_values $options flags_map $flags
+	if { [file exists $arg_values(-lhs).without_power_pins.v] } {
+		set ::env(LEC_LHS_NETLIST) $arg_values(-lhs).without_power_pins.v
+	} else {
+		set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
+	}
 
-    set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
-    set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
-
+	if { [file exists $arg_values(-rhs).without_power_pins.v] } {
+		set ::env(LEC_RHS_NETLIST) $arg_values(-rhs).without_power_pins.v
+	} else {
+		set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
+	}
     puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
 
     if { [catch {exec [get_yosys_bin] \
