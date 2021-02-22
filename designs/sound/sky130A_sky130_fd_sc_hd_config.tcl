@@ -3,7 +3,7 @@
 set ::env(SYNTH_MAX_FANOUT) 9
 set ::env(CELL_PAD) 4
 # Regression
-set ::env(FP_CORE_UTIL) 25
+set ::env(FP_CORE_UTIL) 20
 
 # Extra
 set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
