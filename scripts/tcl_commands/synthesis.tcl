@@ -108,7 +108,7 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl $::env(yosys_log_file_tag).log > $::env(yosys_report_file_tag).exploration.html
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(yosys_log_file_tag).log 0] > $::env(yosys_report_file_tag).exploration.html
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(REPORTS_DIR)/synthesis
     file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(REPORTS_DIR)/synthesis
 }
