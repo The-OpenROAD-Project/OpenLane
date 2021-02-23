@@ -47,7 +47,7 @@ REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= db2e06709dc3d876aa6b74a5f3893fa5f1bc2a6e
-OPEN_PDKS_COMMIT ?= 546432e51838c4dd039025f3a4675e938d0d78de
+OPEN_PDKS_COMMIT ?= ce8e284d77e4334de0da20c0c77defa91426bea6
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
