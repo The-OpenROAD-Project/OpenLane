@@ -58,7 +58,7 @@ logFileOpener.close()
 headerInfo = logFileData[0].split(",")
 configIdx = 0
 designIdx = 0
-runtimeIdx = 0
+flow_statusIdx = 0
 clkPeriodIdx = -1
 for i in range(len(headerInfo)):
     if headerInfo[i] == "config":
@@ -67,8 +67,8 @@ for i in range(len(headerInfo)):
     if headerInfo[i] == "design":
         designIdx = i
         continue
-    if headerInfo[i] == "runtime":
-        runtimeIdx = i
+    if headerInfo[i] == "flow_status":
+        flow_statusIdx = i
         continue
     if headerInfo[i] == "suggested_clock_period":
         clkPeriodIdx = i
@@ -83,7 +83,7 @@ for line in logFileData:
     if line != "":
         splitLine = line.split(",")
         designConfigDict[str(splitLine[designIdx])] = str(splitLine[configIdx])
-        designFailDict[str(splitLine[designIdx])] = str(splitLine[runtimeIdx])
+        designFailDict[str(splitLine[designIdx])] = str(splitLine[flow_statusIdx]) == "Flow_completed"
         if clkPeriodIdx != -1:
             designClockDict[str(splitLine[designIdx])] = str(splitLine[clkPeriodIdx])
 
@@ -94,7 +94,7 @@ for design in designs:
     if design not in designConfigDict.keys():
         print(design + " Not Found in Sheet. Skipping...")
 
-    if designFailDict[design] == '-1':
+    if designFailDict[design] == False:
         print("Skipping " + design + " ...")
         continue
 

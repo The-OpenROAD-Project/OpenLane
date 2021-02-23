@@ -210,7 +210,7 @@ The following is the list of flags used with the script:
         <td align="justify">
             This is the log file containing the best run for each design in a specific exploration. The log file will be used to determine the name of the configuration file to update from.
             The csv file provided must one occurance of each design.
-            To tolerate custom log files, the script only exctracts the name of the design, its corresponding configuration file path, and whether the design passed or not by reading the runtime. If there were more than one occurance of the same design, the last occurance will override others. 
+            To tolerate custom log files, the script only exctracts the name of the design, its corresponding configuration file path, and whether the design passed or not by reading the flow_status. If there were more than one occurance of the same design, the last occurance will override others. 
         </td>
     </tr>
       <tr>
@@ -233,7 +233,7 @@ The following is the list of flags used with the script:
     </tr>
 </table>
 
-**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their runtime will be `-1`.
+**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their flow_status is not `Flow_completed`.
 
 **Important Note:** *The updateDesignsConfigs script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the replicateDesignsConfigs copies the whole file.*
 
