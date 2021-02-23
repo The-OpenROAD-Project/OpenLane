@@ -18,7 +18,8 @@
 # Abort on Error
 set -e
 
-old_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
+old_predicted_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
+old_tag=$(grep 'git clone https://github.com/efabless/openlane.git --branch' README.md | head -1 | sed 's/.*--branch //g')
 git fetch --prune --unshallow
 new_tag=$(git tag --list 'v*.*' | tail -1)
 
@@ -29,11 +30,13 @@ if [[ $new_tag ]]; then
     predicted_new_tag="$prefix.$new_idx"
     echo "Old Tag $old_tag"
     echo "New Tag $new_tag"
+    echo "Old predicted tag $old_predicted_tag"
     echo "Predicted next tag $predicted_new_tag"
     echo "Updating documentation referenced tag"
     sed -i "s/${old_tag}/${new_tag}/" README.md;
+    echo "Updating Makefiles"
     for f in Makefile docker_build/Makefile
     do
-    sed -i "s/${old_tag}/${predicted_new_tag}/" $f;
+        sed -i "s/${old_predicted_tag}/${predicted_new_tag}/" $f;
     done
 fi
