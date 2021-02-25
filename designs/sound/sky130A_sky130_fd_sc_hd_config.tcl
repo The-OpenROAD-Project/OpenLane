@@ -1,7 +1,7 @@
 # SCL Configs
 
 set ::env(SYNTH_MAX_FANOUT) 9
-set ::env(CELL_PAD) 4
+
 # Regression
 set ::env(FP_CORE_UTIL) 20
 

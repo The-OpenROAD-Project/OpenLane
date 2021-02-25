@@ -167,11 +167,11 @@ proc trim_lib {args} {
     }
 
     # Trim the liberty with the generated list, if it exists.
-    if { [file exists $arg_values(-output).exclude.list] } {
-        try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $arg_values(-output).exclude.list > $arg_values(-output)
-    } else {
-        file copy -force $arg_values(-input) $arg_values(-output)
+    if { ! [file exists $arg_values(-output).exclude.list] } {
+	set fid [open $arg_values(-output).exclude.list w]
+	close $fid
     }
+    try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $arg_values(-output).exclude.list > $arg_values(-output)
 }
 
 proc source_config {config_file} {
