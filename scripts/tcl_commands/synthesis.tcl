@@ -108,7 +108,7 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl $::env(yosys_log_file_tag).log > $::env(yosys_report_file_tag).exploration.html
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(yosys_log_file_tag).log 0] > $::env(yosys_report_file_tag).exploration.html
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(REPORTS_DIR)/synthesis
     file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(REPORTS_DIR)/synthesis
 }
@@ -205,10 +205,17 @@ proc logic_equiv_check {args} {
 
     set args_copy $args
     parse_key_args "logic_equiv_check" args arg_values $options flags_map $flags
+	if { [file exists $arg_values(-lhs).without_power_pins.v] } {
+		set ::env(LEC_LHS_NETLIST) $arg_values(-lhs).without_power_pins.v
+	} else {
+		set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
+	}
 
-    set ::env(LEC_LHS_NETLIST) $arg_values(-lhs)
-    set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
-
+	if { [file exists $arg_values(-rhs).without_power_pins.v] } {
+		set ::env(LEC_RHS_NETLIST) $arg_values(-rhs).without_power_pins.v
+	} else {
+		set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
+	}
     puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
 
     if { [catch {exec [get_yosys_bin] \

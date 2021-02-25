@@ -24,6 +24,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
+
+read_sdc -echo $::env(BASE_SDC_FILE)
+
 # Resize
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
@@ -31,6 +34,14 @@ set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
+}
+
+if { [info exists ::env(PL_RESIZER_BUFFER_INPUT_PORTS)] && $::env(PL_RESIZER_BUFFER_INPUT_PORTS) } {
+    buffer_ports -inputs
+}
+
+if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) } {
+    buffer_ports -outputs
 }
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
@@ -45,7 +56,9 @@ set_placement_padding -global -right $::env(CELL_PAD)
 
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 detailed_placement
-optimize_mirroring
+if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
+    optimize_mirroring
+}
 check_placement -verbose
 
 

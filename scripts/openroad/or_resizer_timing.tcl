@@ -24,6 +24,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
+read_sdc -echo $::env(BASE_SDC_FILE)
 # Resize
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
@@ -42,6 +43,9 @@ set_placement_padding -global -right $::env(CELL_PAD)
 
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 detailed_placement
+if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
+    optimize_mirroring
+}
 check_placement -verbose
 
 write_def $::env(SAVE_DEF)
