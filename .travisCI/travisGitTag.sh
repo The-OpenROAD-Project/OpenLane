@@ -44,12 +44,13 @@ if [[ $latest_tag_commit ]]; then
         if [[ $commit_cnt ]]; then
             if [[ $commit_cnt -eq 1 ]]; then
                 echo "The difference between this tag and the previous one is only 1. We won't create a tag for a single commit."
+                exit 0
             fi
         fi
     fi
 fi
 
-if ! [[ $latest_tag ]]; then 
+if ! [[ $latest_tag ]]; then
     echo "No tag with prefix $prefix found. Resetting the tag IDs to 1."
     new_tag="$prefix.1";
 else
@@ -62,7 +63,7 @@ else
         new_tag="$prefix.$new_idx"
     fi
 fi
-if ! [[ $new_tag ]]; then 
+if ! [[ $new_tag ]]; then
     echo "No new tag to push!";
     exit 2;
 fi
