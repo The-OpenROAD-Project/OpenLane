@@ -114,6 +114,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     failures = count_LVS_failures(args.file)
     total = failures[0]
+    failed = False
     if total > 0:
         failed = True
         print('LVS reports:')
