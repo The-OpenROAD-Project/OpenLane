@@ -67,6 +67,28 @@ if ! [[ $new_tag ]]; then
     echo "No new tag to push!";
     exit 2;
 fi
+
+
+echo "checking out to the new branch"
+git branch -D create-pull-request/green-tag-update || echo "Branch doesn't exist"
+git checkout -b create-pull-request/green-tag-update
+if [[ $new_tag ]]; then
+    old_tag=$(grep 'IMAGE_NAME ?= efabless/openlane:' Makefile | sed 's/IMAGE_NAME ?= efabless\/openlane://g')
+    echo "Latest Tag $latest_tag"
+    echo "Old Tag $old_tag"
+    echo "New Tag $new_tag"
+    echo "Updating documentation referenced tag and Makefile"
+    for f in Makefile docker_build/Makefile README.md
+    do
+        sed -i "s/${old_tag}/${new_tag}/" $f;
+        git add $f;
+    done
+fi
+git commit -m "Update Latest Green Tag to $new_tag"
+
+echo "Pushing to Github..."
+git push --force --set-upstream origin-ci HEAD:create-pull-request/green-tag-update > /dev/null 2>&1
+
 echo "Commiting new tag $new_tag"
 git tag $new_tag
 echo "Pushing to Github..."
