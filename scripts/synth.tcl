@@ -191,9 +191,9 @@ if { $strategy_type == "DELAY" } {
 }
 
 set adder_type $::env(SYNTH_ADDER_TYPE)
-if { !($adder_type in [list "YOSYS" "FA" "RCA"]) } {
+if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
 	log -stderr "\[ERROR] Misformatted SYNTH_ADDER_TYPE (\"$::env(SYNTH_ADDER_TYPE)\")."
-	log -stderr "\[ERROR] Correct format is \"YOSYS|FA|RCA\"."
+	log -stderr "\[ERROR] Correct format is \"YOSYS|FA|RCA|CSA\"."
 	exit 1
 }
 
@@ -226,10 +226,14 @@ if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
         }
 }
 
-# handle technology mapping of rca-adder
+# handle technology mapping of rca and csa adders
 if { $adder_type == "RCA"} {
 	if { [info exists ::env(RIPPLE_CARRY_ADDER_MAP)] && [file exists $::env(RIPPLE_CARRY_ADDER_MAP)] } {
 		techmap -map $::env(RIPPLE_CARRY_ADDER_MAP)
+	}
+} elseif { $adder_type == "CSA"} {
+	if { [info exists ::env(CARRY_SELECT_ADDER_MAP)] && [file exists $::env(CARRY_SELECT_ADDER_MAP)] } {
+		techmap -map $::env(CARRY_SELECT_ADDER_MAP)
 	}
 }
 
