@@ -1,7 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./Dockerfile
-IMAGE_NAME ?= efabless/openlane:v0.10
+IMAGE_NAME ?= efabless/openlane:v0.11
 #ROOT = sudo
 
 TOOLS = klayout replace opendp route cugr drcu opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
