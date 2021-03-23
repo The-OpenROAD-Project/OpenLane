@@ -4,6 +4,7 @@ set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
 puts "\[INFO\]: Setting input delay to: $input_delay_value"
 
+set_max_fanout $::env(SYNTH_MAX_FANOUT) [current_design]
 
 set clk_indx [lsearch [all_inputs] [get_port $::env(CLOCK_PORT)]]
 #set rst_indx [lsearch [all_inputs] [get_port resetn]]
