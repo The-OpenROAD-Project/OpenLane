@@ -3,31 +3,24 @@ name: Update Latest Tag Reference
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push  only for the master branches
+  # Triggers the workflow on push  only for the create-pull-request/green-tag-update branches
   push:
-    branches:
-      - master
-    tags:
-      - "v*"
+    branches: create-pull-request/green-tag-update
 
+# This is a basic workflow that auto creates a PR to the base branch for the CI/CD branches
 jobs:
-  createPullRequest:
-    if: github.event.base_ref == 'refs/heads/master' || github.ref == 'refs/heads/master'
+  auto-pull-request:
+    name: PullRequestAction
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Update Tag in All Files
-        run: bash ${GITHUB_WORKSPACE}/.github/scripts/update_tag.sh
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: Update Latest Green Tag
-          title: 'Update Latest Green Tag'
-          branch: create-pull-request/green-tag-update
-          base: master
-          delete-branch: true
-          body: This PR is auto-generated to update the latest stable tag referenced in the documentation and the Makefile.
-          labels: update green tag, automated pr
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: pull-request-action
+        uses: vsoch/pull-request-action@1.0.13
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_PREFIX: "create-pull-request/green-tag-update"
+          PULL_REQUEST_BRANCH: "master"
+          PULL_REQUEST_TITLE: "Update Latest Green Tag"
+          PULL_REQUEST_BODY: "This PR is auto-generated to update the latest stable tag referenced in the documentation and the Makefile."
+          PASS_IF_EXISTS: true

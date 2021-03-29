@@ -209,16 +209,9 @@ jobs:
           SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD" > /dev/null 2>&1
 
-      - name: Export Tag If Possible
+      - name: Create Tag If Possible
         if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
-
-      - name: Tag commit
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') && env.NEW_TAG != 'NO_NEW_TAG' }}
-        uses: tvdias/github-tagger@v0.0.1
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ env.NEW_TAG }}"
 
       - name: pull-request-action
         if: ${{ contains(github.ref, 'CID-latest-') }}

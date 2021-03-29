@@ -7,7 +7,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Export Deletion Ref
         run: echo "DELETION_REF=${{ github.event.ref }}" >> $GITHUB_ENV
 
