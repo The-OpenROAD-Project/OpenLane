@@ -1,5 +1,7 @@
 name: CI
 
+
+# To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
     # Runs on Every Push
     push:
@@ -92,7 +94,7 @@ jobs:
           commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
 
   docker-build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -140,7 +142,7 @@ jobs:
 
   test:
     needs: docker-build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
