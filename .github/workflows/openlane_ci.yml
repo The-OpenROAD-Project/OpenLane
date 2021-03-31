@@ -4,7 +4,7 @@ on:
     # Runs on Every Push
     push:
     # Runs on Pull Requests
-    #pull_request:
+    pull_request:
     # Runs every day at midnight UTC
     #schedule:
     #  - cron:  '50 21 * * *'
@@ -12,7 +12,7 @@ on:
 jobs:
   create-cid-tools-branches:
     if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         tools: [magic, netgen, yosys]
