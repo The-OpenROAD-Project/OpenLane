@@ -75,7 +75,7 @@ if [[ $exit_on_no_update -eq 1 ]]; then
   if [[ $status -eq 0 ]]; then exit 2; fi
 fi
 
-if [[ $status -eq 0 ]]; then 
+if [[ $status -eq 0 ]]; then
   echo "NO_UPDATE=true" >> $GITHUB_ENV
 else
   echo "NO_UPDATE=false" >> $GITHUB_ENV
