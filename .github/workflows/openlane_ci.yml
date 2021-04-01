@@ -8,8 +8,8 @@ on:
     # Runs on Pull Requests
     pull_request:
     # Runs every day at midnight UTC
-    #schedule:
-    #  - cron:  '50 21 * * *'
+    schedule:
+      - cron:  '50 21 * * *'
 
 jobs:
   create-cid-tools-branches:
