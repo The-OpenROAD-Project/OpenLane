@@ -1,0 +1,475 @@
+name: CI
+
+
+# To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
+on:
+    # Runs on Every Push
+    push:
+    # Runs on Pull Requests
+    pull_request:
+    # Runs every day at midnight UTC
+    #schedule:
+    #  - cron:  '50 21 * * *'
+
+jobs:
+  create-cid-tools-branches:
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tools: [magic, netgen, yosys]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
+
+      - name: Update TOOL
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updateTool.sh
+
+      - name: Update & Build TOOL
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/buildTool.sh
+
+      - name: Create Tool Branch
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'CID-latest-tools-${{ matrix.tools }}-${{ env.TOOL_COMMIT_HASH }}'
+
+      - name: Commit Tool Updates
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: CID-latest-tools-${{ matrix.tools }}-${{ env.TOOL_COMMIT_HASH }}
+          file_pattern: docker_build/docker/*/Dockerfile docker_build/tar/*.tar.gz
+          commit_message: Apply automatic changes to ${{ matrix.tools }}
+          # Optional commit user and author settings
+          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
+          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
+
+  create-cid-pdk-branch:
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Update PDK
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
+
+      - name: Create PDK Branch
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: 'CID-latest-pdk-${{ env.SKYWATER_COMMIT_HASH }}-${{ env.OPEN_PDKS_COMMIT_HASH }}'
+
+      - name: Commit PDK Updates
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: CID-latest-pdk-${{ env.SKYWATER_COMMIT_HASH }}-${{ env.OPEN_PDKS_COMMIT_HASH }}
+          file_pattern: Makefile docs/source/*.md
+          commit_message: Apply automatic changes to PDK
+          # Optional commit user and author settings
+          commit_user_name: My GitHub Actions Bot # defaults to "GitHub Actions"
+          commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
+
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Docker Build
+        run: cd docker_build/ && make merge
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Run SPM
+        env:
+          EXTRA_FLAGS: -so
+          TEST_SET: spm
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+      - name: Docker Push
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: docker push ${{ env.IMAGE_NAME }}
+
+  test1:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Docker Pull
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Fastest Test Set
+        env:
+          TEST_SET: fastestTestSet1
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+
+  test2:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Docker Pull
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Fastest Test Set
+        env:
+          TEST_SET: fastestTestSet2
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+  test3:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Docker Pull
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Fastest Test Set
+        env:
+          TEST_SET: fastestTestSet3
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+  test4:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Docker Pull
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Fastest Test Set
+        env:
+          TEST_SET: fastestTestSet4
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+  test5:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Docker Pull
+        run: cd ${GITHUB_WORKSPACE}/ && make openlane
+
+      - name: PDK installation
+        run: cd ${GITHUB_WORKSPACE}/ && make pdk
+
+      - name: Fastest Test Set
+        env:
+          TEST_SET: fastestTestSet5
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+      - name: Complete Test Set
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+        env:
+          TEST_SET: completeTestSet
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
+
+  deploy:
+      needs: [test1, test2, test3, test4, test5]
+      runs-on: ubuntu-latest
+      steps:
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Image Name General Case
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Export Image Name Latest Case
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
+
+      - name: Export Pull Request ID Name To Environment
+        if: ${{ github.event_name == 'pull_request' }}
+        run: echo "PULL_REQUEST_ID=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+
+      - name: Export First 5 Digits of Commit Hash
+        run: echo "COMMIT_SHA_5=$(echo ${{ github.sha }} | awk '{print substr($0,0,5)}')" >> $GITHUB_ENV
+
+      - name: Export Image Name To Environment Internal PR Case
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}-pull_request-${{ env.PULL_REQUEST_ID }}-${{ env.COMMIT_SHA_5 }}" >> $GITHUB_ENV
+
+      - name: Export TOOL Name
+        if: ${{ contains(github.ref, 'CID-latest-tools-') }}
+        run: echo "TOOL=$(echo $BRANCH_NAME | sed 's/CID-latest-tools-//g' | sed 's/-.*//g'  )" >> $GITHUB_ENV
+
+      - name: Delete Docker Image if needed
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == 'efabless/openlane' }}
+        env:
+          SECRET_USER_NAME: ${{ secrets.DOCKERHUB_USER }}
+          SECRET_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD" > /dev/null 2>&1
+
+      - name: Create Tag If Possible
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+        run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
+
+      - name: pull-request-action
+        if: ${{ contains(github.ref, 'CID-latest-') }}
+        uses: vsoch/pull-request-action@1.0.13
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
+          BRANCH_PREFIX: "CID-latest-"
+          PULL_REQUEST_BRANCH: "github-actions-conversion"
+          PULL_REQUEST_TITLE: "An automatically created PR from ${{ env.BRANCH_NAME }}, Workflow Run ID: ${{ github.run_id }}"
+          PULL_REQUEST_BODY: "This PR is auto-generated by Github Action to invoke the update of this tool or pdk as it passed the initial CI tests and it's ready to be used in the flow."
+          PASS_IF_EXISTS: true

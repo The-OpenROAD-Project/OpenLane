@@ -1,5 +1,6 @@
-#!/bin/sh
-# Copyright 2020 Efabless Corporation
+
+#!/bin/bash
+# SPDX-FileCopyrightText: 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +13,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+# SPDX-License-Identifier: Apache-2.0
+
+# Abort on Error
 set -e
-echo "RUN ROOT: $RUN_ROOT"
-cd $RUN_ROOT
-echo "Configureing git info..."
-git config --global user.email "travis@travis-ci.org"
-git config --global user.name "Travis CI"
 
-echo "Adding remote tracker..."
-git remote add origin-ci https://${MY_GITHUB_TOKEN}@github.com/efabless/openlane.git > /dev/null 2>&1
-echo "Pushing to Github..."
-git push --force --set-upstream origin-ci HEAD:${TRAVIS_BRANCH} > /dev/null 2>&1
+# Test script is provided as a relative path
+export WORKDIR=$(pwd)
+export TEST_SCRIPT=$WORKDIR/$1
+export TAILING_LINES=${2:-500}
 
-echo "Push successful"
-exit 0
+bash $WORKDIR/.github/scripts/utils/run_wrapper.sh "bash $TEST_SCRIPT" "$TAILING_LINES"

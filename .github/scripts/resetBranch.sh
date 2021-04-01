@@ -1,4 +1,3 @@
-#!/bin/bash
 # Copyright 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,8 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-echo "Pulling The Docker Image..."
-echo "IMAGE NAME: $IMAGE_NAME"
-echo "RUN ROOT: $RUN_ROOT"
-make openlane
-exit 0
+echo "Resetting Branch"
+echo "Current branch is $BRANCH_NAME"
+RESET_BRANCH=github-actions-conversion
+echo "Merge branch is $RESET_BRANCH"
+git remote set-branches --add origin $RESET_BRANCH
+git fetch
+echo "Current branch is $BRANCH_NAME"
+echo "Configureing git info..."
+echo "Reseting branch to $RESET_BRANCH"
+git reset --hard origin/$RESET_BRANCH

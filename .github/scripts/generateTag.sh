@@ -13,14 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -e
-echo "Getting Date & Month..."
-dateAndMonth=`date "+%b %Y"`
-echo "Configureing git info..."
-git config --global user.email "travis@travis-ci.org"
-git config --global user.name "Travis CI"
+echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
 
-echo "Adding remote tracker..."
-git remote add origin-ci https://${MY_GITHUB_TOKEN}@github.com/efabless/openlane.git > /dev/null 2>&1
 echo "Getting Latest Release Index..."
 latest_release_idx=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | grep "refs/tags/release-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f2 | cut -d"." -f1)
 
@@ -87,12 +81,12 @@ fi
 git commit -m "Update Latest Green Tag to $new_tag"
 
 echo "Pushing to Github..."
-git push --force --set-upstream origin-ci HEAD:create-pull-request/green-tag-update > /dev/null 2>&1
+git push --force --set-upstream origin HEAD:create-pull-request/green-tag-update > /dev/null 2>&1
 
 echo "Commiting new tag $new_tag"
 git tag $new_tag
 echo "Pushing to Github..."
-git push --set-upstream origin-ci --tags > /dev/null 2>&1
+git push --set-upstream origin --tags > /dev/null 2>&1
 
 echo "Push successful"
 exit 0

@@ -14,28 +14,47 @@
 # limitations under the License.
 set -e
 exit_on_no_update=0
-if [[ "$TRAVIS_EVENT_TYPE" == "api" || "$TRAVIS_EVENT_TYPE" == "cron" ]]; then
+if [[ "$GITHUB_EVENT_NAME" == "schedule" ]]; then
   exit_on_no_update=1
 fi
 
 echo "Checking the tool version against latest tool..."
-echo "RUN ROOT: $RUN_ROOT"
+echo "RUN ROOT: $GITHUB_WORKSPACE"
 echo "TOOL: $TOOL"
-docker_file=$RUN_ROOT/docker_build/docker/$TOOL/Dockerfile
+docker_file=$GITHUB_WORKSPACE/docker_build/docker/$TOOL/Dockerfile
 echo "Dockerfile: $docker_file"
 tool_repo=$(grep "ARG ${TOOL^^}_REPO=" $docker_file | sed "s/ARG ${TOOL^^}_REPO=//g")
 tool_commit=$(grep "ARG ${TOOL^^}_COMMIT=" $docker_file | sed "s/ARG ${TOOL^^}_COMMIT=//g")
 echo "$tool_repo"
 echo "$tool_commit"
-latest_commit=$(bash $RUN_ROOT/.travisCI/utils/get_commit.sh $tool_repo)
+latest_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $tool_repo)
+echo "TOOL_COMMIT_HASH=$latest_commit" >> $GITHUB_ENV
+
 if [[ $latest_commit != $tool_commit ]]; then
+  latest_cid_branch_commit=$(git ls-remote --heads git://github.com/efabless/openlane.git | grep "refs/heads/CID-latest-tools-$TOOL-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
+  if [[ $latest_cid_branch_commit ]]; then
+    if [[ $latest_commit != $latest_cid_branch_commit ]]; then
+      sed -i "s/$tool_commit/$latest_commit/" $docker_file;
+      echo "NO_UPDATE=false" >> $GITHUB_ENV
+      exit 0
+    else
+      echo "latest $TOOL commit is identical to the current CID-latest-tools-$TOOL- commit";
+      if [[ $exit_on_no_update -eq 1 ]]; then
+        echo "NO_UPDATE=true" >> $GITHUB_ENV
+        exit 0;
+      fi
+    fi
+  fi
   sed -i "s/$tool_commit/$latest_commit/" $docker_file;
+  echo "NO_UPDATE=false" >> $GITHUB_ENV
   exit 0
 else
   echo "latest $TOOL commit is identical to the current commit";
   if [[ $exit_on_no_update -eq 1 ]]; then
-    exit 2;
+    echo "NO_UPDATE=true" >> $GITHUB_ENV
+    exit 0;
   fi
 fi
 
 
+echo "NO_UPDATE=true" >> $GITHUB_ENV
