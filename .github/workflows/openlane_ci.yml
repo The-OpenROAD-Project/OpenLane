@@ -13,7 +13,7 @@ on:
 
 jobs:
   create-cid-tools-branches:
-    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,7 +61,7 @@ jobs:
           commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
 
   create-cid-pdk-branch:
-    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -122,7 +122,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -175,7 +175,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -228,7 +228,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -280,7 +280,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -332,7 +332,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -384,7 +384,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -414,7 +414,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
       - name: Complete Test Set
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
         env:
           TEST_SET: completeTestSet
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
@@ -434,7 +434,7 @@ jobs:
         run: echo "IMAGE_NAME=efabless/openlane:${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
       - name: Export Image Name Latest Case
-        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'github-actions-conversion' }}
+        if: ${{ github.event_name != 'pull_request' && env.BRANCH_NAME == 'master' }}
         run: echo "IMAGE_NAME=efabless/openlane:latest" >> $GITHUB_ENV
 
       - name: Export Pull Request ID Name To Environment
@@ -460,7 +460,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD" > /dev/null 2>&1
 
       - name: Create Tag If Possible
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'github-actions-conversion') }}
+        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
 
       - name: pull-request-action
@@ -469,7 +469,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.MY_TOKEN }}
           BRANCH_PREFIX: "CID-latest-"
-          PULL_REQUEST_BRANCH: "github-actions-conversion"
+          PULL_REQUEST_BRANCH: "master"
           PULL_REQUEST_TITLE: "An automatically created PR from ${{ env.BRANCH_NAME }}, Workflow Run ID: ${{ github.run_id }}"
           PULL_REQUEST_BODY: "This PR is auto-generated by Github Action to invoke the update of this tool or pdk as it passed the initial CI tests and it's ready to be used in the flow."
           PASS_IF_EXISTS: true
