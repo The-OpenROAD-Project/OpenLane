@@ -1,5 +1,6 @@
 name: CI
 
+# This is a trivial change to trigger CI.
 
 # To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
