@@ -11,10 +11,11 @@ on:
     # Runs every day at midnight UTC
     schedule:
       - cron:  '0 0 * * *'
+    workflow_dispatch:
 
 jobs:
   create-cid-tools-branches:
-    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+    if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && contains(github.ref, 'master') }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -62,7 +63,7 @@ jobs:
           commit_user_email: my-github-actions-bot@example.org # defaults to "actions@github.com"
 
   create-cid-pdk-branch:
-    if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+    if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && contains(github.ref, 'master') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -214,7 +215,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
       - name: Complete Test Set
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && contains(github.ref, 'master') }}
         env:
           TEST_SET: completeTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
@@ -260,7 +261,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/deleteDockerImage.sh "$SECRET_USER_NAME" "$SECRET_PASSWORD" > /dev/null 2>&1
 
       - name: Create Tag If Possible
-        if: ${{ github.event_name == 'schedule' && contains(github.ref, 'master') }}
+        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && contains(github.ref, 'master') }}
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/generateTag.sh
 
       - name: pull-request-action
