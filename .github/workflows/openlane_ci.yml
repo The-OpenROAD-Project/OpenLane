@@ -220,7 +220,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/test.sh
 
   deploy:
-      needs: [test1, test2, test3, test4, test5]
+      needs: test
       runs-on: ubuntu-latest
       steps:
       - name: Export PDK ROOT
