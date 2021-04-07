@@ -100,6 +100,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Log event Name
+        run: echo "${{ github.event_name }}"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
