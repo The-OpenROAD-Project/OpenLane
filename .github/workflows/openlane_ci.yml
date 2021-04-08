@@ -224,6 +224,8 @@ jobs:
       needs: test
       runs-on: ubuntu-latest
       steps:
+      - uses: actions/checkout@v2
+      
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
 
