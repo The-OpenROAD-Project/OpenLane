@@ -16,7 +16,7 @@ set -e
 echo "NEW_TAG=NO_NEW_TAG" >> $GITHUB_ENV
 
 echo "Getting Latest Release Index..."
-latest_release_idx=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | grep "refs/tags/release-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f2 | cut -d"." -f1)
+latest_release_idx=$(git ls-remote --tags --sort="v:refname" $REPO_URL | grep "refs/tags/release-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f2 | cut -d"." -f1)
 
 if [[ $latest_release_idx ]]; then
     prefix="v$latest_release_idx";
@@ -25,7 +25,7 @@ else
 fi
 echo "Tag prefix is $prefix"
 echo "Getting latest tag with the same prefix..."
-latest_tag_line=$(git ls-remote --tags --sort="v:refname" git://github.com/efabless/openlane.git | grep "refs/tags/$prefix" | tail -n1)
+latest_tag_line=$(git ls-remote --tags --sort="v:refname" $REPO_URL | grep "refs/tags/$prefix" | tail -n1)
 latest_tag=$(echo "$latest_tag_line" | awk '{ print $NF }' | cut -d"/" -f3)
 latest_tag_commit=$(echo "$latest_tag_line" | awk '{print $1;}')
 current_commit=$(git rev-parse HEAD)

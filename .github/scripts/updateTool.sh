@@ -31,7 +31,7 @@ latest_commit=$(bash $GITHUB_WORKSPACE/.github/scripts/utils/get_commit.sh $tool
 echo "TOOL_COMMIT_HASH=$latest_commit" >> $GITHUB_ENV
 
 if [[ $latest_commit != $tool_commit ]]; then
-  latest_cid_branch_commit=$(git ls-remote --heads git://github.com/efabless/openlane.git | grep "refs/heads/CID-latest-tools-$TOOL-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
+  latest_cid_branch_commit=$(git ls-remote --heads $REPO_URL | grep "refs/heads/CID-latest-tools-$TOOL-" | tail -n1 | awk '{ print $NF }' | cut -d"/" -f3 | cut -d"-" -f5 )
   if [[ $latest_cid_branch_commit ]]; then
     if [[ $latest_commit != $latest_cid_branch_commit ]]; then
       sed -i "s/$tool_commit/$latest_commit/" $docker_file;

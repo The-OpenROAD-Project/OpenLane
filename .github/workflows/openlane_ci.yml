@@ -25,6 +25,9 @@ jobs:
         with:
           token: ${{ github.token }}
 
+      - name: Export Repo URL
+        run: echo "REPO_URL=${{ github.event.repo.url }}" >> $GITHUB_ENV
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -72,6 +75,9 @@ jobs:
 
       - name: Export Branch Name
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Repo URL
+        run: echo "REPO_URL=${{ github.event.repo.url }}" >> $GITHUB_ENV
 
       - name: Update PDK
         run: cd ${GITHUB_WORKSPACE}/ && bash ${GITHUB_WORKSPACE}/.github/scripts/updatePDK.sh
@@ -225,6 +231,9 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - uses: actions/checkout@v2
+      
+      - name: Export Repo URL
+        run: echo "REPO_URL=${{ github.event.repo.url }}" >> $GITHUB_ENV
       
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
