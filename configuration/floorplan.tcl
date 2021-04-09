@@ -31,6 +31,8 @@ set ::env(FP_PDN_AUTO_ADJUST) 1
 set ::env(FP_PDN_CORE_RING) 0
 set ::env(FP_PDN_ENABLE_RAILS) 1
 
+set ::env(FP_PDN_CHECK_NODES) 1
+
 set ::env(FP_IO_MODE) 1; # 0 matching mode - 1 random equidistant mode
 set ::env(FP_IO_HLENGTH) 4
 set ::env(FP_IO_VLENGTH) 4
