@@ -243,6 +243,8 @@ if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop -flatten
 }
 
+show -format dot -prefix $::env(TMP_DIR)/synthesis/post_synth
+
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive
 }
