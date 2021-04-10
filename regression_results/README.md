@@ -58,7 +58,7 @@ The script can be used in two ways
     
     - Basic Regression Script:
     
-        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
+        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.  They would each be tried for both SYNTH_STRATEGY=(1) and SYNTH_STRATEGY=(3) if not for the later override under the SCL section.
 
         ```
         GLB_RT_ADJUSTMENT=(0.1,0.15)
