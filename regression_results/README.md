@@ -102,7 +102,7 @@ The script can be used in two ways
         set ::env(SYNTH_STRATEGY) 1
         "
         ```
-        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATEGY is already specified under the configurations, the old value will override the value specified here.
 
         This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
