@@ -30,7 +30,7 @@ RUN yum install -y mesa-libGLU-devel csh wget tcl-devel tk-devel libX11-devel ca
 
 # git clone magic components
 ARG MAGIC_REPO=git://opencircuitdesign.com/magic
-ARG MAGIC_COMMIT=f7820ed960a0d8a891ba4040d3b37086cd0879f8
+ARG MAGIC_COMMIT=4aa7e21a6419de5132363e18eb97167e0bf1d2f8
 RUN git clone ${MAGIC_REPO} magic_21012020
 
 WORKDIR magic_21012020
