@@ -10,8 +10,7 @@ run.param
 macrocell.list
 default.cvcrc
 *.log
-./docker_build/build/
-./docker_build/logs/
+./logs/
 # Python cache
 **/__pycache__
 

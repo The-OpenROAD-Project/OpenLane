@@ -17,6 +17,8 @@
 # This Script removes specified input cells ARGV[1] from the lib file input ARGV [0]
 
 use warnings;
+no warnings 'experimental'; # silence annoying new warnings that cause try_catch to fail
+
 use strict;
 use feature "switch";
 #use experimental qw( switch );

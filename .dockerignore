@@ -1,0 +1,6 @@
+.git
+docker/Dockerfile
+docker/docker-cache
+designs
+pdks
+logs

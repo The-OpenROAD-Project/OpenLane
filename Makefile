@@ -22,7 +22,12 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:v0.12
+VERSION ?= v0.12
+CACHE_ID ?= efabless
+DOCKER_ID ?= $(CACHE_ID)
+IMAGE_NAME ?= $(DOCKER_ID)/openlane:$(VERSION)
+BUILD_ARCH ?= linux/amd64,linux/arm64
+
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -30,6 +35,8 @@ PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= db2e06709dc3d876aa6b74a5f3893fa5f1bc2a6e
 OPEN_PDKS_COMMIT ?= b9ffc1fd1cfc26cbca85a61c287ac799721f6e6a
+
+export CACHE_ID DOCKER_ID IMAGE_NAME BUILD_ARCH
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -134,9 +141,15 @@ gen-sources: $(PDK_ROOT)/sky130A
 	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
+
 .PHONY: openlane
 openlane:
-	docker pull $(IMAGE_NAME)
+	docker pull $(IMAGE_NAME) || true
+	$(MAKE) -C docker openlane
+
+.PHONY: docker-cache
+docker-cache:
+	$(MAKE) -C docker cache
 
 .PHONY: mount
 mount:
@@ -165,6 +178,7 @@ fastest_test_set:
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
+		docker pull $(IMAGE_NAME)
 		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
 	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
@@ -174,3 +188,7 @@ test:
 clean_runs:
 	cd $(OPENLANE_DIR) && \
 		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+
+.PHONY: image_name
+image_name:
+	@echo $(IMAGE_NAME)

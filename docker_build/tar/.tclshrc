@@ -1,3 +1,0 @@
-if { [info exists ::env(OPENLANE_ROOT)] } {
-	package require openlane
-}

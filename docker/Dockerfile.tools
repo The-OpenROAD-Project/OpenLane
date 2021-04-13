@@ -1,0 +1,41 @@
+############## combined tools image #################
+ARG REPO=efabless
+FROM base AS tools
+
+RUN yum -y install stow
+RUN mkdir -p /usr/local/stow
+WORKDIR /usr/local/stow
+COPY --from=replace         /build /usr/local/stow/replace
+COPY --from=opendp          /build /usr/local/stow/opendp
+COPY --from=route           /build /usr/local/stow/route
+COPY --from=opensta         /build /usr/local/stow/opensta
+COPY --from=yosys           /build /usr/local/stow/yosys
+COPY --from=antmicro_yosys  /build /usr/local/stow/antmicro_yosys
+COPY --from=magic           /build /usr/local/stow/magic
+COPY --from=openroad_app    /build /usr/local/stow/openroad_app
+COPY --from=padring         /build /usr/local/stow/padring
+COPY --from=netgen          /build /usr/local/stow/netgen
+COPY --from=vlog2verilog    /build /usr/local/stow/vlog2verilog
+COPY --from=openphysyn      /build /usr/local/stow/openphysyn
+COPY --from=cvc             /build /usr/local/stow/cvc
+COPY --from=cugr            /build /usr/local/stow/cugr
+COPY --from=klayout         /build /usr/local/stow/klayout
+COPY --from=drcu            /build /usr/local/stow/drcu
+RUN stow --override='.*' replace
+RUN stow --override='.*' opendp
+RUN stow --override='.*' route
+RUN stow --override='.*' opensta
+RUN stow --override='.*' yosys
+RUN stow --override='.*' antmicro_yosys
+RUN stow --override='.*' magic
+RUN stow --override='.*' openroad_app
+RUN stow --override='.*' padring
+RUN stow --override='.*' netgen
+RUN stow --override='.*' vlog2verilog
+RUN stow --override='.*' openphysyn
+RUN stow --override='.*' cvc
+RUN stow --override='.*' cugr
+RUN stow --override='.*' klayout
+RUN stow --override='.*' drcu
+
+

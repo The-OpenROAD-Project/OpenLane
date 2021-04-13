@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9dbec31..c4d90b8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -39,7 +39,7 @@ add_subdirectory(src/tm)
+ ################################# SWIG #####################################
+ ############################################################################
+ 
+-find_package(SWIG REQUIRED 3.0)
++find_package(SWIG 3.0 REQUIRED)
+ 
+ include(${SWIG_USE_FILE})
+ 

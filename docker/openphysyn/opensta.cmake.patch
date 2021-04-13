@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 7115c79..e0ef0da 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -290,7 +290,7 @@ add_flex_bison_dependency(SdfLex SdfParser)
+ 
+ ################################################################
+ 
+-find_package(SWIG REQUIRED 3.0)
++find_package(SWIG 3.0 REQUIRED)
+ include(UseSWIG)
+ 
+ set(STA_SWIG_FILE app/StaApp.i)
