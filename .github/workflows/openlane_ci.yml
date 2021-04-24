@@ -177,7 +177,7 @@ jobs:
       # END EXPORT BLOCK
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKER_IMAGE }}:intermediate" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
 
       - name: Docker Build
         run: cd docker_build/ && make merge
@@ -230,7 +230,7 @@ jobs:
       # END EXPORT BLOCK
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKER_IMAGE }}:intermediate" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
 
       - name: Download Docker Image
         uses: actions/download-artifact@v2
@@ -287,7 +287,7 @@ jobs:
       # END EXPORT BLOCK
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=${{ secrets.DOCKER_IMAGE }}:intermediate" >> $GITHUB_ENV
+        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
 
       - name: Download Docker Image
         uses: actions/download-artifact@v2
