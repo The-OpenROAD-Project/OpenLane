@@ -41,7 +41,7 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:v0.2
+IMAGE_NAME ?= efabless/openlane:v0.13
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -80,7 +80,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -105,7 +105,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
+	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
