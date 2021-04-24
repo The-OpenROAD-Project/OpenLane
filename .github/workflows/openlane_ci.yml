@@ -254,7 +254,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
 
       - name: Complete Test Set
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && contains(github.ref, 'master') }}
+        if: ${{ false && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }} # TEMPORARY SKIP FOR CI TESTING
         env:
           TEST_SET: completeTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
@@ -329,4 +329,6 @@ jobs:
         if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         run: |
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
+          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:current
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
+          docker push ${{ secrets.DOCKER_IMAGE }}:current

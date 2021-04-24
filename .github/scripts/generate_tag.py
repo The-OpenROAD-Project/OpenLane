@@ -52,6 +52,7 @@ commit_count = int(subprocess.check_output(["git", "rev-list", "--count", "%s..%
 
 if commit_count < 2:
     print("Only %i out of 2 new commits required for a new tag." % commit_count)
+    gh.export_env("NEW_TAG", "NO_NEW_TAG")
     exit(0)
 
 new_tag = None
@@ -64,55 +65,4 @@ else:
     new_tag = "%s.%i" % (prefix, new)
 
 print("Naming new tag %s." % new_tag)
-
-BRANCH_NAME="create-pull-request/green-tag-update"
-print("Checking out to a new branch…")
-git(["branch", "-D", BRANCH_NAME], check=False) # Ignore failure if branch doesn't exist.
-git([
-    "checkout",
-    "-b",
-    BRANCH_NAME
-])
-
-old_tag_rx = r"^\s*IMAGE_NAME\s*\?=\s*efabless\/openlane\:([^\s]+?)\s*$"
-
-mf = open("Makefile").read()
-old_tag = None
-for line in mf.split("\n"):
-    match = re.match(old_tag_rx, line)
-    if match is not None:
-        old_tag = match[1]
-
-print("""\
-Latest Tag: {lt}
-Old Tag: {ot}
-New Tag: {nt}
-""".format(lt=latest_tag, ot=old_tag, nt=new_tag))
-
-print("Updating tag in referenced documentation and Makefiles…")
-for file in ["Makefile", "docker_build/Makefile", "README.md"]:
-    file_str = open(file).read()
-    file_str_new = re.sub(old_tag, new_tag, file_str)
-    with open(file, 'w') as f:
-        f.write(file_str_new)
-    git(["add", file])
-
-git([
-    "commit",
-    "-m",
-    "Update latest green tag to %s" % new_tag
-])
-
-print("Pushing commits and tags to GitHub…")
-git([
-    "push", "--force",
-    "--set-upstream", "origin",
-    "create-pull-request/green-tag-update"
-], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-git([
-    "push",
-    "--set-upstream", "origin",
-    "--tags"
-], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-print("Done.")
+gh.export_env("NEW_TAG", new_tag)
