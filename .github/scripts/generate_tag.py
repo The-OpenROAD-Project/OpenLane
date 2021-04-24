@@ -18,13 +18,6 @@ import os
 import subprocess
 from gh import gh
 
-def git(cmd, check=True, **kwargs):
-    subprocess.run(
-        ["git"] + cmd,
-        check=check,
-        **kwargs
-    )
-
 new_tag = "NO_NEW_TAG"
 
 print("Getting latest release index…")

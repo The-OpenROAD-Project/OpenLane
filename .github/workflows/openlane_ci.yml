@@ -254,7 +254,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
 
       - name: Complete Test Set
-        if: ${{ false && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }} # TEMPORARY SKIP FOR CI TESTING
+        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
           TEST_SET: completeTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
