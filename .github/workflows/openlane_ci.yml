@@ -237,6 +237,12 @@ jobs:
         with:
           name: docker-image
           path: /tmp
+      
+      - name: Delete Artifact (If PR)
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: docker-image
 
       - name: Import Docker Image
         run: docker load --input /tmp/image.tar
@@ -294,6 +300,11 @@ jobs:
         with:
           name: docker-image
           path: /tmp
+      
+      - name: Delete Artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: docker-image
 
       - name: Import Docker Image
         run: docker load --input /tmp/image.tar
