@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Desktop (please complete the following information):**
  - OS: [e.g. ubuntu]
- - Openlane Version [e.g. v0.2]
+ - Openlane Version [e.g. v0.12]
  - open_pdks Version: [commit hash]
  - skywater-pdk Version: [commit hash]
 
