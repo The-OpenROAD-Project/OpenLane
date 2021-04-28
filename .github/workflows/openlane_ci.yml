@@ -237,12 +237,6 @@ jobs:
         with:
           name: docker-image
           path: /tmp
-      
-      - name: Delete Artifact (If PR)
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: docker-image
 
       - name: Import Docker Image
         run: docker load --input /tmp/image.tar
@@ -264,7 +258,15 @@ jobs:
         env:
           TEST_SET: completeTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
-
+  cleanup:
+    needs: test
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: docker-image
   deploy:
       needs: test
       if: ${{ github.event_name != 'pull_request' }}
