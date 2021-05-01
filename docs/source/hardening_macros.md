@@ -73,7 +73,7 @@ During Floor plan, you have one of three options:
 
 2. Set a specific DIE AREA by making `FP_SIZING` set to `absolute` and then giving the size as four coordinates to `DIE_AREA`.
 
-3. Use a template DEF and apply the same DIE AREA and dimensions of that DEF. Not that this option will also force the flow to use the same PIN locations and PIN names (they are copied over from the template DEF). To use that option set: `FP_DEF_TEMPLATE` to point to that DEF file.
+3. Use a template DEF and apply the same DIE AREA and dimensions of that DEF. Note that this option will also force the flow to use the same PIN locations and PIN names (they are copied over from the template DEF). To use this option set: `FP_DEF_TEMPLATE` to point to that DEF file.
 
 You can read more about how to control these variables [here][0].
 
@@ -154,7 +154,7 @@ set ::env(GLB_RT_MAXLAYER) 5
 
 Pdngen configs for macros contain a special stdcell section, instead of the one used for the core in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top level.
 
-If your macro contains other macros inside it. Then make sure to check the `macro` section and see if it requires any modifications for each them depending on their special configs. The following example is using default `connect` section and a different `straps` section:
+If your macro contains other macros inside it, then make sure to check the `macro` section and see if it requires any modifications for each of them depending on their special configs. The following example is using default `connect` section but a different `straps` section:
 ```tcl
 pdngen::specify_grid macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
@@ -209,17 +209,17 @@ You are advised to change `ROUTING_CORES` based on your CPU capacity to specify 
 
 ## GDS Streaming
 
-The configuartions here were selected based on a large design test set and the consulation of the magic sources; therefore they are best left as is. However, for the curious user, refer to [this documentation][0] to learn more about each used configuration and how to change it.
+The configurations here were selected based on a large design test set and the consulation of the magic sources; therefore they are best left as is. However, for the curious user, refer to [this documentation][0] to learn more about each used configuration and how to change it.
 
 ## Final Reports and Checks
 
-Finally, the flow ends with physical verification. This begins by streaming out the GDS followed by running DRC, LVS, and Antenna checks on the design. Then, it produced a final summary reports in csv format to summaries all the reports.
+Finally, the flow ends with physical verification. This begins by streaming out the GDS followed by running DRC, LVS, and Antenna checks on the design. Then, it produces a final summary report in csv format to summarize all the reports.
 
-You can control whether the magic DRC should be done on GDS-II or on LEF/DEF abstract views. We recommend using GDS-II on macros while using LEF/DEF on the chip level. This should speed up the run process and still give as accurate as possible results. This is controlled by `MAGIC_DRC_USE_GDS`.
+You can control whether the magic DRC should be done on GDS-II or on LEF/DEF abstract views. We recommend using GDS-II on macros while using LEF/DEF on the chip level. This should speed up the run process and still give results as accurate as possible. This is controlled by `MAGIC_DRC_USE_GDS`.
 
-You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `USE_ARC_ANTENNA_CHECK`. The magic antenna checker was more reliable at the time of writing this documentation but it comes with a huge runetime trade-off and the accuracy gain is not significant enough to accept that tradeoff; thus, the default is OpenROAD's ARC.
+You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `USE_ARC_ANTENNA_CHECK`. The magic antenna checker was more reliable at the time of writing this documentation but it comes with a huge runtime trade-off and the accuracy gain is not significant enough to accept that tradeoff; thus, the default is OpenROAD's ARC.
 
-You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction, if you perform extraction on GDS-II then it's going to be down to the device/transistor level, otherwise using the LEF/DEF views then it's going to be down to the cell/block level. This is controlloed by `MAGIC_EXT_USE_GDS`.
+You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDS-II then it's going to be down to the device/transistor level, otherwise using the LEF/DEF views then it's going to be down to the cell/block level. This is controlloed by `MAGIC_EXT_USE_GDS`.
 
 You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
 
@@ -231,7 +231,7 @@ The final GDS-II should be found under `<run-path>/results/magic/`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
-If you want to create further tweaks in the flow that the abundant configurations doesn't allow, make sure to check [this][2] for more details about the interactive mode of the OpenLANE flow.
+If you want to create further tweaks in the flow that the abundant configurations don't allow, make sure to check [this][2] for more details about the interactive mode of the OpenLANE flow.
 
 [0]: ./../../configuration/README.md
 [1]: ./OpenLANE_commands.md
