@@ -71,7 +71,7 @@ if {$::env(FP_SIZING) == "absolute"} {
     set ::env(CORE_AREA) [list]
 
     set die_area [$::block getDieArea]
-    set core_area [$::block getCoreArea]
+    set core_area [$::block getCoreArea] 
 
     set die_area [list [$die_area xMin] [$die_area yMin] [$die_area xMax] [$die_area yMax]]
     set core_area [list [$core_area xMin] [$core_area yMin] [$core_area xMax] [$core_area yMax]]
