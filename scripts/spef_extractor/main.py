@@ -477,7 +477,7 @@ class SpefExtractor:
 
         return {'conn': conList, 'cap': capList, 'res': resList}
 
-    def extract(self, lef_file_name, def_file_name, wireModel, edgeCapFactor):
+    def extract(self, lef_file_name, def_file_name, out_spef_file_name, wireModel, edgeCapFactor):
         # We had to modify the lef parser to ignore the second
         # parameter for the offset since our files provide only 1 value
         self.lef_parser = LefParser(lef_file_name)
@@ -524,8 +524,7 @@ class SpefExtractor:
         # writing into SPEF file
         self.capCounter = 0
         self.resCounter = 0
-
-        f = open(def_file_name[:-4] + ".spef", "w", newline='\n')
+        f = open(out_spef_file_name, "w", newline='\n')
         print("Start writing SPEF file")
         self.printSPEFHeader(f)
         self.printNameMap(f, map_of_names)
@@ -544,6 +543,9 @@ if __name__ == "__main__":
 
     parser.add_argument('--lef_file', '-l', required=True,
                         help='Input LEF')
+    
+    parser.add_argument('--spef_file', '-s', required=False,
+                        help='Output SPEF')
 
     parser.add_argument('--wire_model', '-mw', default='PI', required=False,
                         help='name of wire model')
@@ -554,9 +556,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     inst = SpefExtractor()
-    lef_file_name = args.lef_file
-    def_file_name = args.def_file
-    wireModel = args.wire_model
-    edgeCapFactor = float(args.edge_cap_factor)
+    if args.spef_file:
+        spef_file_name = args.spef_file
+    else:
+        spef_file_name = args.def_file[:-4] + ".spef"
 
-    inst.extract(lef_file_name, def_file_name, wireModel, edgeCapFactor)
+    inst.extract(args.lef_file, args.def_file, spef_file_name, 
+                 args.wire_model, float(args.edge_cap_factor))
