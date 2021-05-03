@@ -102,12 +102,12 @@ The script can be used in two ways
         set ::env(SYNTH_STRATEGY) 1
         "
         ```
-        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATEGY is already specified under the configurations, the old value will override the value specified here.
 
-        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
+        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific information, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
 
-    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding to its use in the file.
+    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding its use in the file.
 
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
