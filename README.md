@@ -395,7 +395,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 
 ## OpenLANE Output
 
-All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output timestamp-marked foler containing the following file structure:
+All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output a timestamp-marked folder containing the following file structure:
 
 ```
 designs/<design_name>
