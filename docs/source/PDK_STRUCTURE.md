@@ -75,14 +75,14 @@ This section defines the necessary variables to configure a standard cell librar
 | `LIB_TYPICAL` | Points to the lib file for typical delay calculation during STA. |
 | `NO_SYNTH_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `PLACE_SITE` | Defines the main site used by the cells. Used during floorplanning to generate the rows. |
-| `PLACE_SITE_WIDTH` | Defines the main site width. Used during floorplanning to generate the rows. |
-| `PLACE_SITE_HEIGHT` | Defines the main site height. Used during floorplanning to generate the rows. |
-| `FP_WELLTAP_CELL` | Defines the tapcell to be used in tapcell insertion. <br> If this is not defined then tapcell insertion will be skipped but the flow will resume normally |
+| `PLACE_SITE_WIDTH` | Defines the main site width.Used during floorplanning to generate the rows. |
+| `PLACE_SITE_HEIGHT` | Defines the main site height.Used during floorplanning to generate the rows. |
+| `FP_WELLTAP_CELL` | Defines the tapcell to be used in tapcell insertion. <br> If this is not defiend then tapcell insertion will be skipped but the flow will resume normally |
 | `FP_ENDCAP_CELL` | Defines the decapcell. Inserted during floorplanning at the sides of the design. |
 | `SYNTH_DRIVING_CELL` | Defines the cell to drive the input ports. Used in synthesis |
 | `SYNTH_DRIVING_CELL_PIN` | Defines the driving cell output pin. Used in synthesis |
 | `SYNTH_CAP_LOAD` | Defines the capacitive load on the output ports in femtofarads. Used in synthesis |
-| `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. Example: `sky130_fd_sc_hd__buf_2 A X`  |
+| `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It insert buffer cells into the design for directly connected wires. Example: `sky130_fd_sc_hd__buf_2 A X`  |
 | `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. Example: `sky130_fd_sc_hd__conb_1 HI` |
 | `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. Example: `sky130_fd_sc_hd__conb_1 LO` |
 | `CELL_CLK_PORT` | Defines the name of clk port of the flip flops and other cells. Used in CTS. |
@@ -99,7 +99,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
 | `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |
 | `SYNTH_LATCH_MAP` | A pointer for the file contianing the latch mapping for yosys. |
-| `TRISTATE_BUFFER_MAP` | A pointer for the file containing the tri-state buffer mapping for yosys. |
+| `TRISTATE_BUFFER_MAP` | A pointer for the file contianing the tri-state buffer mapping for yosys. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
 
