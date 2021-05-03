@@ -6,7 +6,7 @@ The power decision flow in this document will go top to bottom, meaning that we 
 
 An example utilizing the controls and logic provided in this documentation is the [Caravel Project, version mpw-one-b](https://github.com/efabless/caravel/tree/mpw-one-b).
 
-> **Note**: When we say "your configurations" in this documentation we are refering to the `config.tcl` for that specific block at that specific section.
+> **Note**: When we say "your configuartions" in this documentation we are refering to the `config.tcl` for that specific block at that specific section.
 
 ## Chip Level:
 
