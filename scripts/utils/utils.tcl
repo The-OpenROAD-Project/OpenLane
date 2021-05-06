@@ -209,6 +209,7 @@ proc flow_fail {args} {
 		set ::env(FLOW_FAILED) 1
 		calc_total_runtime -status "Flow failed"
 		generate_final_summary_report
+        save_state
 		puts_err "Flow Failed."
 	}
 }
