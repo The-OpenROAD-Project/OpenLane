@@ -41,7 +41,7 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:v0.12
+IMAGE_NAME ?= efabless/openlane:current
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
@@ -80,7 +80,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -105,7 +105,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
+	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
@@ -121,8 +121,8 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u 0 $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
-		cd sky130 && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
+	        cd sky130 && \
 		make veryclean && \
 		make && \
 		make install-local && \
@@ -175,11 +175,11 @@ regression_test:
 .PHONY: fastest_test_set
 fastest_test_set:
 	cd $(OPENLANE_DIR) && \
-		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export GITHUB_WORKSPACE=$(OPENLANE_DIR) && \
 		export TEST_SET=fastestTestSet && \
 		export IMAGE_NAME=$(IMAGE_NAME) && \
 		export PDK_ROOT=$(PDK_ROOT) && \
-		bash .travisCI/travisTest.sh
+		bash .github/scripts/test.sh
 
 .PHONY: test
 test:
@@ -192,4 +192,4 @@ test:
 .PHONY: clean_runs
 clean_runs:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -u 0 $(IMAGE_NAME) sh -c "./clean_runs.tcl"
