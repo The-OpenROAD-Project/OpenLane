@@ -285,6 +285,8 @@ proc run_power_grid_generation {args} {
 			max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
 	}
 	set ::env(FP_PDN_ENABLE_RAILS) 1
+    set_vdd_nets $::env(VDD_NETS)
+    set_gnd_nets $::env(GND_NETS)
 }
 
 proc run_floorplan {args} {

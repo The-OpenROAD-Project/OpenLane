@@ -15,6 +15,19 @@
 package require json
 package require openlane_utils
 
+
+proc save_state {args} {
+    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
+    puts_info "Saving Runtime Environment"
+    exec echo "# Run configs" > $::env(GLB_CFG_FILE).saved_state
+    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    foreach index [lsort [array names ::env]] {
+        if { $index != "INIT_ENV_VAR_ARRAY" } {
+            set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+        }
+    }
+}
+
 proc set_netlist {netlist args} {
     set options {}
 
@@ -53,6 +66,18 @@ proc set_guide {guide} {
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
     exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
+proc set_vdd_nets {vdd_nets} {
+    puts_info "Setting VDD_NETS from to $vdd_nets"
+    exec sed -i "/VDD_NETS/d" "$::env(GLB_CFG_FILE)"
+    set_log ::env(VDD_NETS) $::env(VDD_NETS) $::env(GLB_CFG_FILE) 1
+}
+
+proc set_gnd_nets {gnd_nets} {
+    puts_info "Setting VDD_NETS from to $gnd_nets"
+    exec sed -i "/GND_NETS/d" "$::env(GLB_CFG_FILE)"
+    set_log ::env(GND_NETS) $::env(GND_NETS) $::env(GLB_CFG_FILE) 1
 }
 
 proc prep_lefs {args} {
