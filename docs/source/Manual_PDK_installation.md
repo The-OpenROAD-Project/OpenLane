@@ -33,7 +33,7 @@
         cd $PDK_ROOT
         git clone git://opencircuitdesign.com/open_pdks
         cd open_pdks
-        git checkout b9ffc1fd1cfc26cbca85a61c287ac799721f6e6a
+        git checkout 42a78835952591647e81c8a0352a6d6e9f353a9a
         ./configure --enable-sky130-pdk=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT --enable-sram-sky130=disabled
         cd sky130
         make
