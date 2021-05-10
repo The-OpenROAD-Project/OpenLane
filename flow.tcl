@@ -117,9 +117,16 @@ proc run_non_interactive_mode {args} {
                 "cvc" {run_lef_cvc}
         ]
 
-    set_if_unset arg_values(-from) "synthesis";
     set_if_unset arg_values(-to) "cvc";
 
+	if {  [info exists ::env(CURRENT_STEP) ] } {
+        puts "\[INFO\]:Picking up where last execution left off"
+        puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
+    } else {
+        set ::env(CURRENT_STEP) "synthesis";
+    }
+
+    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
     set exe 0;
     dict for {step_name step_exe} $steps {
         if { [ string equal $arg_values(-from) $step_name ] } {
@@ -127,6 +134,8 @@ proc run_non_interactive_mode {args} {
         }
 
         if { $exe } {
+            # For when it fails
+            set ::env(CURRENT_STEP) $step_name
             [lindex $step_exe 0] [lindex $step_exe 1] ;
         }
 
@@ -137,7 +146,10 @@ proc run_non_interactive_mode {args} {
 
     }
 
-
+    # for when it resumes
+    set steps_as_list [dict keys $steps]
+    set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
+    set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
 	if {  [info exists flags_map(-save) ] } {
 		if { ! [info exists arg_values(-save_path)] } {
