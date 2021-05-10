@@ -201,6 +201,22 @@ The following are arguments that can be passed to `flow.tcl`
     </tr>
     <tr>
         <td align="center">
+            <code>-from &lt;stage&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies stage to start flow execution from
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <code>-to &lt;stage&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies stage to stop flow execution at (included)
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
             <code>-config_file &lt;file&gt;</code> <br> (Optional)
         </td>
         <td align="justify">

@@ -85,6 +85,8 @@ Most of the following commands' implementation exists in this [file][0]
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/synthesis/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)` either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/routing/antenna.rpt`|
+| `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
+
 ## Checker Commands
 
 Most of the following commands' implementation exists in this [file][1]
