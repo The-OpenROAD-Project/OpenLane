@@ -34,7 +34,7 @@ proc run_placement_step {args} {
 
 proc run_cts_step {args} {
     # set_def $::env(opendp_result_file_tag).def
-    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+    if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
         set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
@@ -48,7 +48,7 @@ proc run_routing_step {args} {
     # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
-    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+    if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
         set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
@@ -99,6 +99,11 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 }
 
 proc run_drc_step {{ drc_enabled 1 }} {
+    if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
+        set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
+    }
 	if { $drc_enabled } {
 		run_magic_drc
 		run_klayout_drc
@@ -106,6 +111,11 @@ proc run_drc_step {{ drc_enabled 1 }} {
 }
 
 proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
+    if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
+        set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(ANTENNA_CHECK_CURRENT_DEF)
+    }
 	if { $antenna_check_enabled } {
 		run_antenna_check
 	}
