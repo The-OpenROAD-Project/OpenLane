@@ -33,7 +33,9 @@ if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
 }
 
 # checks for unconnected nodes (e.g., isolated rails or stripes)
-check_power_grid -net $::env(VDD_NET)
-check_power_grid -net $::env(GND_NET)
+if { $::env(FP_PDN_CHECK_NODES) } {
+    check_power_grid -net $::env(VDD_NET)
+    check_power_grid -net $::env(GND_NET)
+}
 
 write_def $::env(SAVE_DEF)

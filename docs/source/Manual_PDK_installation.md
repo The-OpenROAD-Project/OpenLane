@@ -14,7 +14,7 @@
         cd  $PDK_ROOT
         git clone https://github.com/google/skywater-pdk.git
         cd skywater-pdk
-        git checkout db2e06709dc3d876aa6b74a5f3893fa5f1bc2a6e
+        git checkout 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
         git submodule update --init libraries/sky130_fd_sc_hd/latest
         git submodule update --init libraries/sky130_fd_sc_hvl/latest
         git submodule update --init libraries/sky130_fd_io/latest
@@ -33,7 +33,7 @@
         cd $PDK_ROOT
         git clone git://opencircuitdesign.com/open_pdks
         cd open_pdks
-        git checkout b9ffc1fd1cfc26cbca85a61c287ac799721f6e6a
+        git checkout d8c159536699c9b4a08b650bddf791a9d48152f9
         ./configure --enable-sky130-pdk=$PDK_ROOT/skywater-pdk/libraries --with-sky130-local-path=$PDK_ROOT --enable-sram-sky130=disabled
         cd sky130
         make

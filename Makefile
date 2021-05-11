@@ -41,14 +41,14 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:v0.12
+IMAGE_NAME ?= efabless/openlane:current
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= db2e06709dc3d876aa6b74a5f3893fa5f1bc2a6e
-OPEN_PDKS_COMMIT ?= b9ffc1fd1cfc26cbca85a61c287ac799721f6e6a
+SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
+OPEN_PDKS_COMMIT ?= d8c159536699c9b4a08b650bddf791a9d48152f9
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -80,7 +80,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout master && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -105,7 +105,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone git://opencircuitdesign.com/open_pdks $(PDK_ROOT)/open_pdks
+	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
@@ -120,8 +120,8 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		sleep 5 && \
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
-	docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
+	docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
 		make veryclean && \
 		make && \
@@ -165,26 +165,26 @@ mount:
 .PHONY: regression
 regression:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: regression_test
 regression_test:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: fastest_test_set
 fastest_test_set:
 	cd $(OPENLANE_DIR) && \
-		export RUN_ROOT=$(OPENLANE_DIR) && \
+		export GITHUB_WORKSPACE=$(OPENLANE_DIR) && \
 		export TEST_SET=fastestTestSet && \
 		export IMAGE_NAME=$(IMAGE_NAME) && \
 		export PDK_ROOT=$(PDK_ROOT) && \
-		bash .travisCI/travisTest.sh
+		bash .github/scripts/test.sh
 
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
 	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
@@ -192,4 +192,4 @@ test:
 .PHONY: clean_runs
 clean_runs:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"

@@ -6,7 +6,7 @@
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 # OpenLANE
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_shield) [![Build Status](https://travis-ci.com/efabless/openlane.svg?branch=master)](https://travis-ci.com/efabless/openlane) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_shield) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master) ![CI](https://github.com/efabless/openlane/workflows/CI/badge.svg?branch=main)
 
 This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/).
 
@@ -41,24 +41,21 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 
 Join the community on [slack](https://invite.skywater.tools)!
 
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
+Find the latest stable release of OpenLANE [here](https://github.com/efabless/openlane/releases).
 
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
 
 # Quick Start:
-
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
-
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch v0.12
+    git clone https://github.com/efabless/openlane.git
     cd openlane/
+    make openlane
     # Default PDK_ROOT is $(pwd)/pdks. If you want to install the PDK at a differnt location, uncomment the next line.
     #export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make openlane
     make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
@@ -113,7 +110,6 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     cd openlane/
     git checkout master
     git pull
-    git checkout v0.12
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     make openlane
     make pdk
@@ -132,11 +128,10 @@ This should install the latest openlane docker container, and re-install the pdk
 To setup openlane you can pull the docker container following these instructions:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git --branch v0.12
-    docker pull efabless/openlane:v0.12
+    git clone https://github.com/efabless/openlane.git
+    docker pull efabless/openlane:current
 ```
 
-The generated IMAGE_NAME is efabless/openlane:v0.12
 
 ## Running OpenLANE
 
@@ -156,7 +151,7 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
-    - Default IMAGE_NAME is efabless/openlane:v0.12. If you want to use a different version, run the following before `make mount`:
+    - Default IMAGE_NAME is efabless/openlane:current. If you want to use a different version, run the following before `make mount`:
         ```bash
         export IMAGE_NAME=<docker image name>
         ```
@@ -202,6 +197,22 @@ The following are arguments that can be passed to `flow.tcl`
         </td>
         <td align="justify">
             Specifies the design folder. A design folder should contain a config.tcl defining the design parameters. <br> If the folder is not found, ./designs directory is searched
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <code>-from &lt;stage&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies stage to start flow execution from
+        </td>
+    </tr>
+    <tr>
+        <td align="center">
+            <code>-to &lt;stage&gt;</code> <br> (Optional)
+        </td>
+        <td align="justify">
+            Specifies stage to stop flow execution at (included)
         </td>
     </tr>
     <tr>
@@ -398,7 +409,7 @@ OpenLANE integrated several key open source tools over the execution stages:
 
 ## OpenLANE Output
 
-All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output timestamp-marked foler containing the following file structure:
+All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output a timestamp-marked folder containing the following file structure:
 
 ```
 designs/<design_name>

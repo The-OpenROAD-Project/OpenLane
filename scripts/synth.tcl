@@ -243,6 +243,9 @@ if { $::env(SYNTH_NO_FLAT) } {
 	synth -top $vtop -flatten
 }
 
+# write a post techmap dot file
+show -format dot -prefix $::env(TMP_DIR)/synthesis/post_techmap
+
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive
 }
