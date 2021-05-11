@@ -20,27 +20,49 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
-    set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
-    set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
-    set_def $pdndef
+    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
+    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
+    # set_def $pdndef
+    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+        set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(PLACEMENT_CURRENT_DEF)
+    }
+
     run_placement
 }
 
 proc run_cts_step {args} {
-    set_def $::env(opendp_result_file_tag).def
+    # set_def $::env(opendp_result_file_tag).def
+    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+        set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
+    }
+
     run_cts
     run_resizer_timing
 }
 
 proc run_routing_step {args} {
-    set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
-    set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
-    set_def $resizerdef
+    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
+    # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
+    # set_def $resizerdef
+    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+        set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
+    }
     run_routing
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
+        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
+    }
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		run_antenna_check
 		heal_antenna_violators; # modifies the routed DEF
@@ -49,7 +71,12 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_power_pins_insertion_step {args} {
-    set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
+        set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(POWER_PINS_INSERTION_CURRENT_DEF)
+    }
     if { $::env(LVS_INSERT_POWER_PINS) } {
 		write_powered_verilog
 		set_netlist $::env(lvs_result_file_tag).powered.v
@@ -58,7 +85,12 @@ proc run_power_pins_insertion_step {args} {
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
+        set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
+    }
 	if { $lvs_enabled } {
 		run_magic_spice_export
 		run_lvs; # requires run_magic_spice_export
