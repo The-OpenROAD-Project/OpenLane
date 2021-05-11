@@ -74,6 +74,8 @@ RUN yum install -y which patch
 ADD ./klayout.tar.gz /
 RUN yum localinstall -y /build/klayout-*.rpm
 
+# install TclX package for Tcl to handle process interrupts 
+RUN yum install -y tclx
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
 
