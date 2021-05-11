@@ -15,6 +15,18 @@
 package require json
 package require openlane_utils
 
+
+proc save_state {args} {
+    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
+    puts_info "Saving Runtime Environment"
+    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    foreach index [lsort [array names ::env]] {
+        if { $index != "INIT_ENV_VAR_ARRAY" } {
+            set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+        }
+    }
+}
+
 proc set_netlist {netlist args} {
     set options {}
 
