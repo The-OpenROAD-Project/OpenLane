@@ -257,7 +257,7 @@ proc calc_total_runtime {args} {
 # 9	Reset to default color
 proc color_text {color txt} {
     if {[info exists ::env(TERM)] && $::env(TERM) != ""} {
-      return [exec tput setaf $color]$txt[exec tput setaf 7]
+      return [exec tput setaf $color]$txt[exec tput setaf 9]
     } else {
       return $txt
     }
