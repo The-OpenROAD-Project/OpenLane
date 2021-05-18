@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import queue
+import os
 import sys
+import copy
 import time
-import subprocess
-import threading
+import queue
 import logging
 import datetime
 import argparse
-import os
-import copy
+import threading
+import subprocess
 from collections import OrderedDict
 
 from scripts.report.report import Report
