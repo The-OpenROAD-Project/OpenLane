@@ -25,7 +25,6 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
     chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
     ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 
-# centos6 doesn't set the PATH automatically for the installed gcc from dev tools
 ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
     CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
