@@ -59,7 +59,9 @@ BEGIN {  # Print power and standard_input definitions
 }"
 	    # For compatibility purposes because master is frozen
 	    # TODO: Remove in later versions
-	    set_if_unset ::env(STD_CELL_LIBRARY_CDL) $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl
+	    if { ! [info exists ::env(STD_CELL_LIBRARY_CDL)] } {
+                set ::env(STD_CELL_LIBRARY_CDL) $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl
+            }
             # Create power file
             try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
             # Create cdl file by combining cdl library with lef spice
