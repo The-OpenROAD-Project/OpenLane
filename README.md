@@ -367,7 +367,7 @@ OpenLANE flow consists of several stages. By default all flow steps are run in s
 1. **Synthesis**
     1. `yosys` - Performs RTL synthesis
     2. `abc` - Performs technology mapping
-    3. `OpenSTA` - Pefroms static timing analysis on the resulting netlist to generate timing reports
+    3. `OpenSTA` - Performs static timing analysis on the resulting netlist to generate timing reports
 2. **Floorplan and PDN**
     1. `init_fp` - Defines the core area for the macro as well as the rows (used for placement) and the tracks (used for routing)
     2. `ioplacer` - Places the macro input and output ports
