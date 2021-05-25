@@ -41,7 +41,7 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 
 Join the community on [slack](https://invite.skywater.tools)!
 
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
+To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/releases/).
 
 # Prerequisites
 
