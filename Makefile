@@ -37,7 +37,7 @@ endif
 
 # Podman (Centos8) doesn't like the -u switches
 # Only add if we're not using podman in emulation
-ifeq (,$(shell which podman))
+ifeq (0,$(shell docker -v 2>/dev/null | grep podman | wc -l))
    DOCKER_UID_OPTIONS = -u $(shell id -u $(USER)):$(shell id -g $(USER))
 endif
 
