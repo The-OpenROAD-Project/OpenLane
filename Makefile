@@ -52,6 +52,7 @@ IMAGE_NAME ?= efabless/openlane:current
 TEST_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
+FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
@@ -182,11 +183,7 @@ regression_test:
 .PHONY: fastest_test_set
 fastest_test_set:
 	cd $(OPENLANE_DIR) && \
-		export GITHUB_WORKSPACE=$(OPENLANE_DIR) && \
-		export TEST_SET=fastestTestSet && \
-		export IMAGE_NAME=$(IMAGE_NAME) && \
-		export PDK_ROOT=$(PDK_ROOT) && \
-		bash .github/scripts/test.sh
+		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c "python3 run_designs.py -d $(shell cat .github/test_sets/fastestTestSet) -dl -tar logs reports -html -t $(FASTEST_TEST_SET_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: test
 test:
