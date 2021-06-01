@@ -45,7 +45,7 @@ if { $::env(FP_IO_MODE) == 1 } {
 
 place_pins $opts\
 	-random_seed 42 \
-	-min_distance 5 \
+	-min_distance $::env(FP_IO_MIN_DISTANCE) \
 	-hor_layers $::env(FP_IO_HMETAL)\
 	-ver_layers $::env(FP_IO_VMETAL)
 
