@@ -77,7 +77,7 @@ proc run_yosys {args} {
     if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
         puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
     } else {
-        try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
+        try_catch sed -i {/defparam/d} $::env(SAVE_NETLIST)
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_runtime.txt 0]
