@@ -42,15 +42,23 @@ if { [info exists ::env(SYNTH_DEFINES) ] } {
 	}
 }
 
+set vIdirsArgs ""
+if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
+	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+		lappend vIdirsArgs "-I$dir"
+	}
+	set vIdirsArgs [join $vIdirsArgs]
+}
+
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-		read_verilog -lib $verilog_file
+		read_verilog -lib {*}$vIdirsArgs $verilog_file
 	}
 }
 
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-  read_verilog  [lindex $::env(VERILOG_FILES) $i]
+  read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 select -module $vtop
