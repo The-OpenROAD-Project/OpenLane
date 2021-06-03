@@ -30,6 +30,14 @@ if { [info exists ::env(SYNTH_DEFINES) ] } {
 	}
 }
 
+set vIdirsArgs ""
+if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
+	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+		lappend vIdirsArgs "-I$dir"
+	}
+	set vIdirsArgs [join $vIdirsArgs]
+}
+
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
 	log "Reading $::env(LIB_SYNTH_COMPLETE_NO_PG) as a blackbox"
 	foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
@@ -45,7 +53,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-		read_verilog -sv -lib $verilog_file
+		read_verilog -sv -lib {*}$vIdirsArgs $verilog_file
 	}
 }
 
@@ -195,14 +203,6 @@ if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
 	log -stderr "\[ERROR] Misformatted SYNTH_ADDER_TYPE (\"$::env(SYNTH_ADDER_TYPE)\")."
 	log -stderr "\[ERROR] Correct format is \"YOSYS|FA|RCA|CSA\"."
 	exit 1
-}
-
-set vIdirsArgs ""
-if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
-	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
-		lappend vIdirsArgs "-I$dir"
-	}
-	set vIdirsArgs [join $vIdirsArgs]
 }
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
