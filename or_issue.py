@@ -72,7 +72,7 @@ def read_env(config_path: str, from_path: str, input_env={}) -> dict:
         string_data = open(config_path).read()
     except FileNotFoundError:
         print(f"❌ File {config_path} not found. The {from_path} path may have been specified incorrectly.", file=sys.stderr)
-        exit(66)
+        exit(os.EX_NOINPUT)
 
     # Process \ at ends of lines, remove semicolons
     entries = string_data.split("\n")
