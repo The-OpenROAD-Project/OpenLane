@@ -58,7 +58,7 @@ if { $::env(PL_BASIC_PLACEMENT) } {
 
 if { $::env(PL_TIME_DRIVEN) } {
 	read_lib $::env(LIB_SYNTH)
-	read_sdc $::env(SCRIPTS_DIR)/base.sdc
+	read_sdc $::env(BASE_SDC_FILE)
 	read_verilog $::env(yosys_result_file_tag).v
 } else {
 	gpl::set_timing_driven_mode 0
