@@ -22,4 +22,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-tr::detailed_route_cmd $::env(tritonRoute_tmp_file_tag).param
+detailed_route -param $::env(tritonRoute_tmp_file_tag).param
+
+write_def $::env(tritonRoute_result_file_tag).def

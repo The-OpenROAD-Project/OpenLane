@@ -49,22 +49,24 @@ class SpefExtractor:
         vias = {}
         for line in vias_data:
             words = line.strip().split()
-            if words:
-                if words[0] == '-':
-                    current_via_name = words[1]
-                    vias[current_via_name] = []
-                elif words[0] != ';':
-                    vias[current_via_name].append(words)
-
+            current_via_name = words[1]
+            specs = line.strip().split('+')
+            for spec in specs:
+              words = spec.strip(" ;").split()
+              if words[0] == '-':
+                  current_via_name = words[1]
+                  vias[current_via_name] = []
+              else:
+                  vias[current_via_name].append(words)
         for via, lines in vias.items():
             current_via = {}
-            if lines[0][1].lower() == 'viarule':
+            if lines[0][0].lower() == 'viarule':
                 for line in lines:
-                    current_via[line[1]] = line[2:]
+                    current_via[line[0]] = line[1:]
             else:
                 layers = []
                 for line in lines:
-                    layers.append(line[2])
+                    layers.append(line[1])
                 current_via['LAYERS'] = layers
             self.vias_dict_def[via] = current_via
 

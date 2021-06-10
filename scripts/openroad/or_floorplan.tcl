@@ -11,6 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+proc create_tracks args {
+  set fp [open $::env(TRACKS_INFO_FILE) r]
+  set file_data [read $fp]
+  close $fp
+  set lines [split $file_data "\n"]
+  set state 0
+  foreach line $lines {
+    set words [split $line " "]
+    if { $state == 0 || [lindex $words 0] != $layer } {
+      set layer [lindex $words 0]
+      set state 1
+    }
+    if { [lindex $words 1] == "X" } {
+      set x_offset [lindex $words 2]
+      set x_pitch [lindex $words 3]
+      incr state
+    } else {
+      set y_offset [lindex $words 2]
+      set y_pitch [lindex $words 3]
+      incr state
+    }
+    if { $state == 3 } {
+      make_tracks $layer -x_offset $x_offset -x_pitch $x_pitch -y_offset $y_offset -y_pitch $y_pitch
+    }
+  }
+}
 
 foreach lib $::env(LIB_SYNTH_COMPLETE) {
 	read_liberty $lib
@@ -49,9 +75,9 @@ if {$::env(FP_SIZING) == "absolute"} {
   initialize_floorplan \
     -die_area $::env(DIE_AREA) \
     -core_area $::env(CORE_AREA) \
-    -tracks $::env(TRACKS_INFO_FILE) \
     -site $::env(PLACE_SITE)
-
+  
+  create_tracks
 
 } else {
 
@@ -60,8 +86,8 @@ if {$::env(FP_SIZING) == "absolute"} {
     -utilization $::env(FP_CORE_UTIL) \
     -aspect_ratio $::env(FP_ASPECT_RATIO) \
     -core_space "$bottom_margin $top_margin $left_margin $right_margin" \
-    -tracks $::env(TRACKS_INFO_FILE) \
     -site $::env(PLACE_SITE)
+  create_tracks
 
     set ::chip [[::ord::get_db] getChip]
     set ::tech [[::ord::get_db] getTech]

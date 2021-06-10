@@ -26,4 +26,4 @@ if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
 #load_antenna_rules
 
 # start checking antennas and generate a detail report
-check_antennas -path $::env(REPORTS_DIR)/routing/
+check_antennas -report_file $::env(REPORTS_DIR)/routing/antenna.rpt

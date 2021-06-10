@@ -53,16 +53,16 @@ if { $::env(GLB_RT_MAXLAYER) > 3 } {
     }
 }
 
-grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
+# grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
 
 grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
 grt::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
 
-grt::set_tile_size $::env(GLB_RT_TILES)
+# grt::set_tile_size $::env(GLB_RT_TILES)
 
-grt::run_fastroute 0
+grt::run
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)"

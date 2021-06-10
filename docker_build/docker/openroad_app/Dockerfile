@@ -115,7 +115,7 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog.git \
     && make install -j
 
 ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
-ARG OPENROAD_APP_COMMIT=1415572a73d43dfc91ba4501170fe6a245729e87
+ARG OPENROAD_APP_COMMIT=4867024d4ec76c43ab9c9902e956fec4620b6ddf
 RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_10012020
 WORKDIR /OpenROAD_10012020/
 RUN git checkout ${OPENROAD_APP_COMMIT}
@@ -124,18 +124,6 @@ RUN git submodule update --init --recursive
 COPY rails.patch /OpenROAD_10012020/
 RUN git apply rails.patch
 
-COPY setup_local.patch /OpenROAD_10012020/src/OpenDB/src/swig/python
-RUN cd /OpenROAD_10012020/src/OpenDB/src/swig/python && git apply setup_local.patch
-
-COPY pdngen_export_subst.patch /OpenROAD_10012020/
-RUN git apply pdngen_export_subst.patch
-
-COPY ignore_obs_outside.patch /OpenROAD_10012020/
-RUN git apply ignore_obs_outside.patch
-
-COPY opendp-diamond-search.patch /OpenROAD_10012020/
-RUN git apply opendp-diamond-search.patch
-
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
@@ -143,11 +131,8 @@ RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
 # OpenDB Python interface
-WORKDIR src/OpenDB
-RUN mkdir build && mkdir -p /build/version && mkdir install
-RUN cd build && cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
-RUN cp -r build/src/swig/python /build/OpenDB_python
-WORKDIR /OpenROAD_10012020/
+RUN cd build && make -j$(nproc) opendbpy
+RUN cp -r build/src/OpenDB/src/swig/python /build/OpenDB_python
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version
