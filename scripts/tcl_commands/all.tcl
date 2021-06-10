@@ -403,9 +403,9 @@ proc prep {args} {
         set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
 
-        set tracks_copy $::env(TMP_DIR)/tracks_copy.info
-        file copy -force $::env(TRACKS_INFO_FILE) $tracks_copy
-        set ::env(TRACKS_INFO_FILE) $tracks_copy
+        set tracks_processed $::env(TMP_DIR)/config.tracks
+        try_catch python3 scripts/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+        set ::env(TRACKS_INFO_FILE) $tracks_processed
 
         if { $::env(USE_GPIO_PADS) } {
             if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {

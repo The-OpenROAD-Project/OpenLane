@@ -16,8 +16,7 @@ FROM centos:centos7 AS base-dependencies
 
 # Install Development Environment
 RUN yum groupinstall -y "Development Tools"
-RUN yum group install -y "Development Tools" \
-    && yum install -y https://repo.ius.io/ius-release-el7.rpm \
+RUN yum install -y https://repo.ius.io/ius-release-el7.rpm \
     && yum install -y centos-release-scl \
     && yum install -y wget devtoolset-8 \
     devtoolset-8-libatomic-devel tcl-devel tcl tk libstdc++ tk-devel pcre-devel \
@@ -114,10 +113,10 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && cmake .. \
     && make install -j
 
-ARG OPENROAD_APP_REPO=https://github.com/donn/OpenROAD
-ARG OPENROAD_APP_COMMIT=0c586ccc11128f067a9e0c843be7384e21b01f55
-RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_10012020
-WORKDIR /OpenROAD_10012020/
+ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
+ARG OPENROAD_APP_COMMIT=b762efa78105daa31935d6d18345f86680a91543
+RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_Repo
+WORKDIR /OpenROAD_Repo/
 RUN git checkout ${OPENROAD_APP_COMMIT}
 RUN git submodule update --init --recursive
 
@@ -127,12 +126,12 @@ RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
-# OpenDB Python interface
-WORKDIR src/OpenDB
-RUN mkdir build && mkdir -p /build/version && mkdir install
-RUN cd build && cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
-RUN cp -r build/src/swig/python /build/OpenDB_python
-WORKDIR /OpenROAD_10012020/
+# # OpenDB Python interface
+# WORKDIR src/OpenDB
+# RUN mkdir build && mkdir -p /build/version && mkdir install
+# RUN cd build && cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
+# RUN cp -r build/src/swig/python /build/OpenDB_python
+# WORKDIR /OpenROAD_Repo/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version
