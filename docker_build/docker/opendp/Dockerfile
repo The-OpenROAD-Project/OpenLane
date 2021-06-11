@@ -38,7 +38,11 @@ RUN wget https://cmake.org/files/v3.9/cmake-3.9.0-Linux-x86_64.sh && \
 # download public key for github.com
 RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-RUN git clone --recursive https://github.com/kareefardi/OpenDP
+ARG OPENDP_REPO=https://github.com/kareefardi/OpenDP
+ARG OPENDP_COMMIT=a8b63757bc393ca7c9841a0999e00deabf675f4f
+RUN git clone --recursive ${OPENDP_REPO}
+WORKDIR /OpenDP
+RUN git checkout ${OPENDP_COMMIT}
 
 RUN mkdir /OpenDP/build
 WORKDIR /OpenDP/build
