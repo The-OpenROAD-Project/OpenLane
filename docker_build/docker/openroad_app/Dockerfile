@@ -80,7 +80,7 @@ RUN yum -y install zlib-devel
 
 
 # eigen required by replace, TritonMacroPlace
-RUN git clone https://gitlab.com/libeigen/eigen.git --branch=3.3 \
+RUN git clone https://gitlab.com/libeigen/eigen --branch=3.3 \
     && cd eigen \
     && mkdir build \
     && cd build \
@@ -107,7 +107,7 @@ RUN yum install -y gettext-devel help2man texinfo \
     && rm -rf flex
 
 # spdlog required by OpenDB
-RUN git clone -b v1.8.1 https://github.com/gabime/spdlog.git \
+RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && cd spdlog \
     && mkdir build \
     && cd build \

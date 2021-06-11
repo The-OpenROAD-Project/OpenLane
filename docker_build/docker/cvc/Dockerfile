@@ -58,11 +58,14 @@ RUN pip3.6 install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir \
 		pyinstaller
 
-COPY cvc-1.0.0.tar.gz cvc-1.0.0.tar.gz
-RUN tar -xvf cvc-1.0.0.tar.gz
+ARG CVC_REPO=https://github.com/d-m-bailey/cvc
+ARG CVC_COMMIT=38c74b0857ecf8f05a1bfde81d197b5a3d33a531
+
 # Build
+RUN git clone ${CVC_REPO} cvc-1.0.0
 WORKDIR cvc-1.0.0
-RUN ./configure --disable-nls --prefix=/build && \
+RUN git checkout ${CVC_COMMIT}
+RUN autoreconf -i && autoconf && ./configure --disable-nls --prefix=/build && \
     make install
 
 RUN tar -czf /build.tar.gz /build

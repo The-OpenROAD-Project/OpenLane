@@ -60,9 +60,11 @@ RUN yum install -y wget autoconf && \
 # RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
 
 # git clone yosys
-RUN git clone https://github.com/antmicro/yosys yosys && \
+ARG ANTMICRO_YOSYS_REPO=https://github.com/antmicro/yosys
+ARG ANTMICRO_YOSYS_COMMIT=fe58e937ef87fdb157dd89c365bb6a570fe616ea
+RUN git clone ${ANTMICRO_YOSYS_REPO} yosys && \
 	cd yosys && \
-	git checkout fe58e937ef87fdb157dd89c365bb6a570fe616ea
+	git checkout ${ANTMICRO_YOSYS_COMMIT}
 
 # build yosys
 WORKDIR yosys

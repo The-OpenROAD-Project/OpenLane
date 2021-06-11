@@ -60,11 +60,14 @@ RUN wget https://www.davidkebo.com/source/cudd_versions/cudd-3.0.0.tar.gz && \
 
 RUN yum install -d6 -y tcl-devel tcl
 
-RUN git clone https://github.com/The-OpenROAD-Project/OpenSTA
+ARG OPENSTA_REPO=https://github.com/The-OpenROAD-Project/OpenSTA
+ARG OPENSTA_COMMIT=6deaf6d8fcabc884063941c3046eb8bdb80061b5
+
+RUN git clone ${OPENSTA_REPO}
 
 WORKDIR OpenSTA
 
-RUN git checkout 6deaf6d8fcabc884063941c3046eb8bdb80061b5
+RUN git checkout ${OPENSTA_COMMIT}
 
 RUN mkdir /build
 RUN mkdir build

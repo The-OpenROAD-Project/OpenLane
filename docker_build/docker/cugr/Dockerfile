@@ -41,11 +41,13 @@ RUN cd boost_1_72_0 && \
 # into C arrays to be linked directly into the executable
 RUN yum -y install vim-common
 
-RUN git clone https://github.com/ax3ghazy/cu-gr cugr_12012021
+ARG CUGR_REPO=https://github.com/ax3ghazy/cu-gr
+ARG CUGR_COMMIT=1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
+RUN git clone ${CUGR_REPO} cugr_12012021
 
 WORKDIR cugr_12012021
 
-RUN git checkout 1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
+RUN git checkout ${CUGR_COMMIT}
 
 RUN python scripts/build.py -o release
 

@@ -37,11 +37,13 @@ RUN cd boost_1_72_0 && \
     ./bootstrap.sh && \
     ./b2 install --with-system --with-filesystem --with-program_options link=static -j $(nproc)
 
-RUN git clone https://github.com/cuhk-eda/dr-cu drcu_18012021
+ARG DRCU_REPO=https://github.com/cuhk-eda/dr-cu
+ARG DRCU_COMMIT=427b4a4f03bb98d8a78b1712fe9e52cfb83a8347
+RUN git clone ${DRCU_REPO} drcu_18012021
 
 WORKDIR drcu_18012021
 
-RUN git checkout 427b4a4f03bb98d8a78b1712fe9e52cfb83a8347
+RUN git checkout ${DRCU_COMMIT}
 
 RUN python scripts/build.py -o release
 
