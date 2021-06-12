@@ -1,0 +1,4 @@
+cmake
+click
+pyyaml
+pyinstaller
