@@ -115,17 +115,11 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && make install -j
 
 ARG OPENROAD_APP_REPO=https://github.com/donn/OpenROAD
-ARG OPENROAD_APP_COMMIT=4f1e0a85fab52d99ee3bfe41f14324f51fef3d12
+ARG OPENROAD_APP_COMMIT=0c586ccc11128f067a9e0c843be7384e21b01f55
 RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_10012020
 WORKDIR /OpenROAD_10012020/
 RUN git checkout ${OPENROAD_APP_COMMIT}
 RUN git submodule update --init --recursive
-
-COPY setup_local.patch /OpenROAD_10012020/src/OpenDB/src/swig/python
-RUN cd /OpenROAD_10012020/src/OpenDB/src/swig/python && git apply setup_local.patch
-
-COPY opendp-diamond-search.patch /OpenROAD_10012020/
-RUN git apply opendp-diamond-search.patch
 
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
@@ -143,9 +137,3 @@ WORKDIR /OpenROAD_10012020/
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version
 RUN tar -czf /build.tar.gz /build
-
-
-# ---
-# Temp for Installer
-ARG OPENDBPY_REPO=https://github.com/Cloud-V/Opendbpy
-ARG OPENDBPY_COMMIT=8e5d974c68613c6d84f090e779a1acb42544228d

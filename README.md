@@ -6,12 +6,15 @@
      \___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 # OpenLANE
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_shield) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master) ![CI](https://github.com/efabless/openlane/workflows/CI/badge.svg?branch=main)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fefabless%2Fopenlane.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fefabless%2Fopenlane?ref=badge_shield) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master) ![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools)
 
-This documentation is also available at ReadTheDocs [here](https://openlane.readthedocs.io/).
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor, CU-GR, Klayout and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
+
+You can find the latest release of OpenLANE [here](https://github.com/efabless/openlane/releases).
+
+This documentation is also available at [ReadTheDocs](https://openlane.readthedocs.io/).
 
 # Table of contents
-- [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
     - [Installation Notes](#installation-notes)
@@ -35,17 +38,12 @@ This documentation is also available at ReadTheDocs [here](https://openlane.read
     - [Papers](#papers)
     - [Videos And Tutorials](#videos-and-tutorials)
 
-# Overview
-
-OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor, CU-GR, Klayout and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
-
-Join the community on [slack](https://invite.skywater.tools)!
-
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/releases/).
-
 # Prerequisites
 
- - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
+ - Docker 19.03.12+
+
+## Dockerless Install
+Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).
 
 # Quick Start:
 You can start setting up the skywater-pdk and openlane by running:

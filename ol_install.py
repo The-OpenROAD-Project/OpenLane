@@ -24,8 +24,9 @@ import re
 import sys
 import uuid
 import glob
+import argparse
 import subprocess
-from os.path import join, abspath, dirname, basename, isdir, relpath, exists
+from os.path import join, abspath, dirname, exists
 from typing import Tuple, Union, List
 
 from dependencies.tool_metadata import Tool
@@ -138,27 +139,27 @@ def compile_tool_data():
                 continue
             tool.commit = commit
 
-def main():
-    compile_tool_data()
-    print("OpenLane Local Installer ALPHA")
+def run_installer():
+    print("")
     print(f"""
+    DO NOT USE THIS UTILITY BEFORE READING LOCAL_INSTALL.md.
+
+OpenLane Local Installer ALPHA
+
     Copyright 2021 Efabless Corporation. Available under the Apache License,
     Version 2.0.
 
     Ctrl+C at any time to quit.
 
-    Note that you'll have to install OpenROAD to PATH separately.
-    We trust that you understand the implications of this.
+    Note that this installer does *not* handle:
+    - Installing OpenROAD to PATH
+    - Installing opendbpy.py to PYTHONPATH
+
+    You'll have to do these on your own. We hope that you understand the implications of this.
 
     This version of OpenLane was tested with this version of OpenRoad:
 
         {Tool.map["openroad_app"].version_string}
-
-    Note that the following tools are /not/ supported outside of Docker:
-    (Their dependencies are far too convoluted:)
-        * antmicro_yosys
-        * cugr
-        * drcu
     """)
 
     os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", ["ubuntu-20.04", "centos7", "other"])
@@ -166,11 +167,12 @@ def main():
     gcc_bin = os.getenv("CC") or "gcc"
     gxx_bin = os.getenv("CXX") or "g++"
     try:
-        gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
-        gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
-        if not os_pick == "centos7" and "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
-            # The reason we ignore centos7 is that we're going to just use devtoolset-8 anyway.
-            print(f"""
+        if not os_pick == "centos7":
+            gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
+            gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
+            if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
+                # The reason we ignore centos7 is that we're going to just use devtoolset-8 anyway.
+                print(f"""
     We've detected that you're using Clang as your default C or C++ compiler.
     Unfortunately, Clang is not compatible with some of the tools being
     installed.
@@ -185,8 +187,8 @@ def main():
 
         CC=/usr/local/bin/gcc-8 CXX=/usr/local/bin/g++-8 python3 {__file__}
 
-        """)
-            input("Press return if you understand the risk and wish to continue anyways >")
+            """)
+                input("Press return if you understand the risk and wish to continue anyways >")
     except FileNotFoundError as e:
         print(e, "(set as either CC or CXX)")
         exit(os.EX_CONFIG)
@@ -215,7 +217,9 @@ def main():
         install_packages = input_options("INSTALL_PACKAGES", "Do you want to install packages for development?", ["no", "yes"])
     if install_packages != "no":
         if os_pick == "centos7":
-            raise Exception("Not yet.")
+            yum_packages = open(join(openlane_dir, 'dependencies', 'centos7.txt')).read().strip().split("\n")
+
+            sh("yum", "install", "-y", *yum_packages)
         if os_pick == "ubuntu-20.04":
             raw = open(join(openlane_dir, 'dependencies', 'ubuntu20.04.txt')).read().strip().split("\n")
 
@@ -238,10 +242,18 @@ def main():
     run_env = os.environ.copy()
     run_env["PREFIX"] = install_dir
 
-    run_env["CC"] = gcc_bin
-    envs.append(("CC", gcc_bin))
-    run_env["CXX"] = gxx_bin
-    envs.append(("CXX", gxx_bin))
+    if os_pick == "centos7":
+        run_env["CC"] = "/opt/rh/devtoolset-8/root/usr/bin/gcc"
+        run_env["CXX"] = "/opt/rh/devtoolset-8/root/usr/bin/g++"
+        run_env["PATH"] = f"/opt/rh/devtoolset-8/root/usr/bin:{os.getenv('PATH')}"
+        run_env["LD_LIBRARY_PATH"] = f"/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:{os.getenv('LD_LIBRARY_PATH')}"
+        run_env["CMAKE_INCLUDE_PATH"] = f"/usr/include/boost169:{os.getenv('CMAKE_INCLUDE_PATH')}"
+        run_env["CMAKE_LIBRARY_PATH"] = f"/lib64/boost169:{os.getenv('CMAKE_LIBRARY_PATH')}"
+    else:
+        run_env["CC"] = gcc_bin
+        envs.append(("CC", gcc_bin))
+        run_env["CXX"] = gxx_bin
+        envs.append(("CXX", gxx_bin))
 
     def copy(f):
         sh("rm", "-rf", f)
@@ -300,7 +312,6 @@ def main():
 
             export NO_DIAMOND_SEARCH_HEIGHT=1
             export PATH=$OL_DIR/bin:$PATH
-            export PYTHONPATH=$OL_DIR:$PYTHONPATH
 
             tclsh $OL_DIR/flow.tcl $@
             """)
@@ -313,6 +324,22 @@ def main():
     print("To invoke Openlane from now on, invoke /opt/openlane/openlane then pass on the same options you would flow.tcl.")
     print("To re-run with the same options: ")
     print(f"{' '.join(['%s=%s' % env for env in envs])} python3 {__file__}")
+
+def main():
+    parser = argparse.ArgumentParser(description="OpenLane Local Installer")
+    parser.add_argument(
+        "--list-tools",
+        action='store_true',
+        help="List the tools and exit."
+    )
+    args = parser.parse_args()
+    compile_tool_data()
+    if args.list_tools:
+        for tool in Tool.map.values():
+            print(f"{tool.name}: {tool.version_string}")
+    else:
+        run_installer()
+
 
 if __name__ == "__main__":
     main()
