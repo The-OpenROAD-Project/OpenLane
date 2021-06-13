@@ -57,10 +57,11 @@ RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.
 
 # download public key for github.com
 #RUN mkdir -p -m 0600 ~/.ssh && ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-RUN git clone https://github.com/The-OpenROAD-Project/TritonRoute.git TritonRoute_26102020 \
+ARG TRITONROUTE_REPO=https://github.com/The-OpenROAD-Project/TritonRoute
+ARG TRITONROUTE_COMMIT=a639a8b8c99fb078057d8449aa57333952b06309
+RUN git clone ${TRITONROUTE_REPO} TritonRoute_26102020 \
 	&& cd TritonRoute_26102020 \
-	&& git checkout a639a8b8c99fb078057d8449aa57333952b06309
+	&& git checkout ${TRITONROUTE_COMMIT}
 
 RUN mkdir TritonRoute_26102020/build
 

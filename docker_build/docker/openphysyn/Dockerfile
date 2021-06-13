@@ -67,10 +67,12 @@ RUN wget https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.tar.
     cd boost_1_68_0 && \
     ./bootstrap.sh -with-libraries=program_options,log,filesystem && \
     ./b2 -j$(nproc) install
- 
-RUN git clone --recursive https://github.com/scale-lab/OpenPhySyn.git && \
+
+ARG OPENPHYSYN_REPO=https://github.com/scale-lab/OpenPhySyn
+ARG OPENPHYSYN_COMMIT=6bb80c5f9312a302b7c29cf1a4ddb93ace47d122
+RUN git clone --recursive ${OPENPHYSYN_REPO} && \
     cd OpenPhySyn && \
-    git checkout 6bb80c5f9312a302b7c29cf1a4ddb93ace47d122 
+    git checkout ${OPENPHYSYN_COMMIT} 
     
 
 # Build
