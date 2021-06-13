@@ -1,7 +1,21 @@
-from typing import OrderedDict
+# Copyright 2021 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from typing import Dict
 
 class Tool(object):
-    map: OrderedDict[str, 'Tool'] = {}
+    map: Dict[str, 'Tool'] = {}
 
     def __init__(self, name, repo=None, commit=None, install_command="make && make install", skip=False, clone_depth=None):
         self.name = name
@@ -9,7 +23,7 @@ class Tool(object):
         self.commit = commit
         self.install_command = install_command
         self.skip = skip
-        self.clone_depth = str(clone_depth)
+        self.clone_depth = str(clone_depth) if clone_depth is not None else None
         Tool.map[self.name] = self
 
     @property
@@ -41,10 +55,15 @@ Tool(
 Tool(
     "cugr",
     install_command="\
-        python2.7 scripts/build.py -o release &&\
-        cp run/iccad19gr $PREFIX/bin/cugr\
-    ",
-    skip=True
+        xxd -i src/flute/POST9.dat > src/flute/POST9.c &&\
+        xxd -i src/flute/POWV9.dat > src/flute/POWV9.c &&\
+        rm -rf build/ &&\
+        mkdir -p build/ &&\
+        cd build &&\
+        cmake ../src &&\
+        make -j$(nproc) &&\
+        cp iccad19gr $PREFIX/bin/cugr\
+    "
 )
 
 Tool(
@@ -60,10 +79,13 @@ Tool(
 Tool(
     "drcu",
     install_command="\
-        python2.7 scripts/build.py -o release &&\
-        cp run/ispd19dr $PREFIX/bin/drcu\
-    ",
-    skip=True
+        rm -rf build/ &&\
+        mkdir -p build/ &&\
+        cd build &&\
+        cmake ../src &&\
+        make -j$(nproc) &&\
+        cp ispd19dr $PREFIX/bin/drcu\
+    "
 )
 
 Tool(
@@ -93,21 +115,6 @@ Tool(
         make -j$(nproc) &&\
         make install\
     "
-)
-
-Tool(
-    # This is temporary until Openlane works with newer versions of OR.
-    "opendbpy",
-    install_command="\
-        mkdir -p ./src/OpenDB/build &&\
-        cd ./src/OpenDB/build &&\
-        cmake -DCMAKE_CXX_FLAGS=-I/usr/include/tcl .. &&\
-        make -j$(nproc) &&\
-        cd ./src/swig/python &&\
-        cp _opendbpy.so $PREFIX &&\
-        cp opendbpy.py $PREFIX\
-    ",
-    clone_depth=1
 )
 
 Tool(

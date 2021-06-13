@@ -7,7 +7,10 @@ devtoolset-8-libatomic-devel
 
 Xvfb
 autoconf
+automake
 bison
+boost169-devel
+boost169-static
 bzip2
 cairo
 cairo-devel
@@ -50,6 +53,8 @@ python36u-tkinter
 readline-devel
 rh-python35
 strace
+spdlog-devel
+swig3
 tcl
 tcl-devel
 tcllib
