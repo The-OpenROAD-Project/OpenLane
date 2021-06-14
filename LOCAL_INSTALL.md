@@ -1,4 +1,6 @@
-**NOTE: This use-case is in alpha. It is far more complex to set up OpenLane without a Docker container. Unless you absolutely have to avoid Docker and are willing to suffer the consequences, go back to the [Readme](./README.md).**
+**NOTE: It is far more complex to set up OpenLane without a Docker container. Unless you absolutely have to avoid Docker, go back to the [Readme](./README.md).**
+
+**NOTE 2: This use case is in alpha. There can and will be bugs and other unexpected behavior as OpenLane is exposed to unknown configurations.**
 
 # Using OpenLane without Docker
 At its core, OpenLane is a set of scripts working with a set of tools. If you'd like to avoid using a Docker container, you can, but you will have to set up all of your tools manually.
