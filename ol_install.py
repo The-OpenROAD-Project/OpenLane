@@ -315,7 +315,10 @@ OpenLane Local Installer ALPHA
             export NO_DIAMOND_SEARCH_HEIGHT=1
             export PATH=$OL_DIR/bin:$PATH
 
-            tclsh $OL_DIR/flow.tcl $@
+            FLOW_TCL=${FLOW_TCL:-$OL_DIR/flow.tcl}
+            FLOW_TCL=$(realpath $FLOW_TCL)
+
+            tclsh $FLOW_TCL $@
             """)
         sh("chmod", "+x", "./openlane")
 

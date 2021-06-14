@@ -162,17 +162,6 @@ Tool(
 )
 
 Tool(
-    "tritonroute",
-    install_command="\
-        mkdir -p build &&\
-        cd build &&\
-        cmake .. &&\
-        make -j$(nproc) &&\
-        cp TritonRoute $PREFIX/bin\
-    "
-)
-
-Tool(
     "qflow", # We just want vlog_to_verilog though
     install_command="\
         ./configure &&\

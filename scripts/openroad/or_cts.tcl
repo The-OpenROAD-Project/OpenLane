@@ -40,9 +40,7 @@ repair_clock_inverters
 puts "\[INFO\]: Configuring cts characterization..."
 configure_cts_characterization\
     -max_slew $max_slew\
-    -max_cap $max_cap\
-    -sqr_cap $::env(CTS_SQR_CAP)\
-    -sqr_res $::env(CTS_SQR_RES)
+    -max_cap $max_cap
 
 puts "\[INFO]: Performing clock tree synthesis..."
 puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"

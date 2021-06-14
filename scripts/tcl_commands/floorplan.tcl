@@ -22,7 +22,7 @@ proc init_floorplan {args} {
 		set ::env(SAVE_DEF) [index_file $::env(verilog2def_tmp_file_tag)_openroad.def]
 		set report_tag_saver $::env(verilog2def_report_file_tag)
 		set ::env(verilog2def_report_file_tag) [index_file $::env(verilog2def_report_file_tag) 0]
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
 
@@ -121,7 +121,7 @@ proc place_io {args} {
 		TIMER::timer_start
 		set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
 
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(ioPlacer_log_file_tag)_runtime.txt 0]
 		set_def $::env(SAVE_DEF)
@@ -156,7 +156,7 @@ proc place_contextualized_io {args} {
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
 				set ::env(CONTEXTUAL_IO_FLAG_) 1
-				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
+				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
 				set ::env(FP_IO_MODE) $old_mode
 
 				move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -179,7 +179,7 @@ proc tap_decap_or {args} {
 				puts_info "Running Tap/Decap Insertion..."
 				TIMER::timer_start
 				set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
-				try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
+				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
 				TIMER::timer_stop
 				exec echo "[TIMER::get_runtime]" >> [index_file $::env(tapcell_log_file_tag)_runtime.txt 0]
 				set_def $::env(SAVE_DEF)
