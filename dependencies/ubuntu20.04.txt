@@ -1,4 +1,4 @@
-https://www.klayout.org/downloads/Ubuntu-20/klayout_0.27.1-1_amd64.deb
+https://www.klayout.org/downloads/Ubuntu-20/klayout_0.26.9-0_amd64.deb
 
 xvfb
 autoconf
