@@ -140,7 +140,9 @@ def compile_tool_data():
             tool.commit = commit
 
 def run_installer():
-    print("")
+    if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read LOCAL_INSTALL.md and agree to the outlined risks.", ["n", "y"]) != "y":
+        return
+
     print(f"""
     DO NOT USE THIS UTILITY BEFORE READING LOCAL_INSTALL.md.
 
