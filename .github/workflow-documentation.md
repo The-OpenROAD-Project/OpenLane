@@ -1,19 +1,28 @@
 # Openlane CI/CD
+There are two primary flows: the pull request flow and the deployment flow.
 
-🚧 Under construction 🚧
+The deployment flow occurs on a daily basis. The PR flow happens whenever someone creates a new Pull Request. PRs can be created by contributors or by an automated tool updater that runs on a schedule.
 
-# Required Tokens
+The tool updater is maintained in a separate repository: https://github.com/openlane-bot/openlane-tool-updater by the bot that creates the PRs.
 
-For internal builds the following tokens are required to be defined as secrets:
+![A Diagram Of The Flow](./diagrams/flow.png)
+* A maintainer cannot review their own code, but they can merge it after a review by another maintainer.
+
+# Required Secrets
+Repository secrets are used to protect certain credentials, but also as repository-dependent parameters for the CI.
+
+## OpenLane CI
 
 | Secret      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `DOCKERHUB_USER`  | A Username for a user that has push access to the efabless organization on Dockerhub. |
-| `DOCKERHUB_PASSWORD`  | The password for the given username that has push access to the efabless organization on Dockerhub. |
-| `DOCKER_IMAGE` | The name of the Docker image used. While it is not technically a secret, we don't want to define it on the repository level as that would create complications with forks. |
+| `DOCKERHUB_USER`  | A username for a user that has push access to the Efabless organization on Docker Hub. |
+| `DOCKERHUB_PASSWORD`  | The password for the given username that has push access to the Efabless organization on Docker Hub. |
+| `DOCKER_IMAGE` | The name of the resulting Docker image (minus the tag). |
+
+## Tool Updater
+
+| Secret      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| `OPENLANE_REPO`  | The URL for the GitHub repo for OpenLane. |
+| `OPENLANE_BRANCH`  | The main branch for OpenLane. |
 | `MY_TOKEN`  | A user Github with push access to the repository. Despite Github Actions internally providing GITHUB_TOKEN for the action to use. pushing/creating a branch with this token will prevent Github Actions from running on the created branch/pushed commit/submitted PR. This is a policy by Github Actions to prevent circular calls as a general rule while still providing a way for the user to do it if they know what they are doing. |
-
-# Best Practices
-
-1. Workflows cannot be updated with external PRs. These updates must be submitted through internal PRs.
-2. Make sure to delete branches after merging or closing a pull request.
