@@ -1,0 +1,105 @@
+name: Tool Updater
+
+# To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
+on:
+    # Runs every day at midnight UTC
+    schedule:
+      - cron:  '0 0 * * *'
+    # Manual Dispatch
+    workflow_dispatch:
+
+jobs:
+  create-cid-tools-branches:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        tools: [magic, netgen, yosys]
+    steps:
+      # EXPORT BLOCK
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+      # END EXPORT BLOCK
+
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.MAIN_BRANCH }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Export TOOL Name
+        run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
+
+      - name: Update TOOL
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tool.py
+
+      - name: Build TOOL
+        if: ${{ env.NO_UPDATE == 'false' }}
+        run: cd ${GITHUB_WORKSPACE}/docker_build && make build-${{ env.TOOL }}
+
+      - name: Create Pull Request
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+          title: "[BOT] Update ${{ env.TOOL }}"
+          body: |
+            This is an automated PR.
+
+            See the individual commits for details.   
+          commit-message: |
+            [BOT] Update ${{ env.TOOL }}
+
+            ${{ env.TOOL }} -> ${{ env.TOOL_COMMIT_HASH }}
+          branch: ${{ matrix.tools }}-update-branch
+          push-to-fork: ${{ secrets.FORK_NAME }}
+          delete-branch: true
+  create-cid-pdk-branch:
+    runs-on: ubuntu-latest
+    steps:
+      # EXPORT BLOCK
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
+      # END EXPORT BLOCK
+
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ secrets.MAIN_BRANCH }}
+
+      - name: Update PDK
+        run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_pdk.py
+
+      - name: Create Pull Request
+        if: ${{ env.NO_UPDATE == 'false' }}
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.MY_TOKEN }}
+          title: "[BOT] Update PDK"
+          body: |
+            This is an automated PR.
+
+            See the individual commits for details.      
+          commit-message: |
+            [BOT] Update PDK
+
+            sky130 -> ${{ env.SKYWATER_COMMIT_HASH }}
+            open_pdks -> ${{ env.OPEN_PDKS_COMMIT_HASH }}
+          base: ${{ env.BRANCH_NAME }}
+          branch: pdk-update-branch
+          push-to-fork: ${{ secrets.FORK_NAME }}
+          delete-branch: true
