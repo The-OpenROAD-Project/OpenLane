@@ -181,7 +181,7 @@ jobs:
         run: docker load --input /tmp/image.tar
 
       - name: Create Tag (If scheduled or dispatched)
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == 'master' }}
+        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == secrets.MAIN_BRANCH }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
       - name: Tag Commit (If scheduled or dispatched)
@@ -199,7 +199,7 @@ jobs:
       - name: Docker Push (Branch Name)
         run: |
           TAG=${{ env.BRANCH_NAME }}
-          if [ "$TAG" = "master" ]; then
+          if [ "$TAG" = "${{ secrets.MAIN_BRANCH }}" ]; then
             TAG=latest
           fi
 
