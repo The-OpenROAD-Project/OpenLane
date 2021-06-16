@@ -6,17 +6,10 @@ digraph G {
         margin=0
         style="invis"
 
-        scheduler_ol [
+        scheduler [
             shapefile="./actor.png",
             peripheries = 0,
-            label="\n\n\n\n\n\n\n\nScheduler (OpenLane)",
-            rank=min
-        ]
-
-        scheduler_tu [
-            shapefile="./actor.png",
-            peripheries = 0,
-            label="\n\n\n\n\n\n\n\nScheduler (Tool Updater)",
+            label="\n\n\n\n\n\n\n\nGitHub Actions Cron",
             rank=min
         ]
 
@@ -37,7 +30,7 @@ digraph G {
         edge [arrowhead="vee", label=""];
 
         # Tool Updater Flow    
-        scheduler_tu -> "Tool Updater" [label="Every Midnight UTC"]
+        scheduler -> "Tool Updater" [label="Every Midnight UTC"]
 
         "Tool Updater" -> "Check for PDK Updates"
         "Tool Updater" -> "Check for Tool Updates"
@@ -65,7 +58,7 @@ digraph G {
             label="Build Docker Image"
         ]
         maintainer -> bdi_full [label="Manual Dispatch"]
-        scheduler_ol -> bdi_full [ label="Every Midnight UTC"]
+        scheduler -> bdi_full [ label="Every Midnight UTC"]
         bdi_full -> "Complete Test Set" [label="[image built successfully]"]
         bdi_full -> "Deployment CI Fails" [label="[else]"]
         "Complete Test Set" -> "Create New Version" [label="[tests pass]"]
