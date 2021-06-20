@@ -130,9 +130,6 @@ RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
-# OpenDB Python interface
-RUN cd build && make -j$(nproc) opendbpy
-RUN cp -r build/src/OpenDB/src/swig/python /build/OpenDB_python
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version
