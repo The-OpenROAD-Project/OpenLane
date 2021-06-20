@@ -35,7 +35,7 @@ proc global_routing_fastroute {args} {
 	set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
 	set report_tag_saver $::env(fastroute_report_file_tag)
 	set ::env(fastroute_report_file_tag) [index_file $::env(fastroute_report_file_tag) 0]
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+	try_catch gdb -batch -ex "run" -ex "bt" --args openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 		set_def $::env(SAVE_DEF)
 		set_guide $::env(SAVE_GUIDE)
@@ -46,7 +46,7 @@ proc global_routing_fastroute {args} {
 		set prevGUIDE2 $::env(SAVE_GUIDE)
 		set prevLOG1 $saveLOG
 		set prevLOG2 $saveLOG
-		set prevAntennaVal [exec grep "#Antenna violations:" [index_file $::env(fastroute_log_file_tag).log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+		set prevAntennaVal [exec grep "INFO GRT-0012\] Antenna violations:" [index_file $::env(fastroute_log_file_tag).log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 		while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
 			set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag)_$iter.def]
 			set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag)_$iter.guide 0]
@@ -57,7 +57,7 @@ proc global_routing_fastroute {args} {
 			puts_info "Antenna Violations Previous: $prevAntennaVal"
 			set ::env(fastroute_report_file_tag) [index_file $report_tag_saver 0]
 			try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
-			set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+			set currAntennaVal [exec grep "INFO GRT-0012\] Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 			puts_info "Antenna Violations Current: $currAntennaVal"
 			if { $currAntennaVal >= $prevAntennaVal } {
 				set iter [expr $iter - 1]
@@ -212,7 +212,7 @@ proc power_routing {args} {
     set_if_unset arg_values(-extra_args) ""
 
 
-    try_catch python3 $::env(SCRIPTS_DIR)/power_route.py\
+    try_catch openroad -python $::env(SCRIPTS_DIR)/power_route.py\
 	--input-lef $arg_values(-lef)\
 	--input-def $arg_values(-def)\
 	--core-vdd-pin $arg_values(-power)\
@@ -280,7 +280,7 @@ proc ins_diode_cells_4 {args} {
 	}
 
 	# Custom script
-	try_catch python3 $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
+	try_catch openroad -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
 
@@ -303,7 +303,7 @@ proc apply_route_obs {args} {
 	puts_warn "Specifying a routing obstruction is now done using the coordinates"
 	puts_warn "of its bounding box instead of the now deprecated (x, y, size_x, size_y)."
 
-	try_catch python3 $::env(SCRIPTS_DIR)/add_def_obstructions.py \
+	try_catch openroad -python $::env(SCRIPTS_DIR)/add_def_obstructions.py \
 		--input-def $::env(CURRENT_DEF) \
 		--lef $::env(MERGED_LEF) \
 		--obstructions $::env(GLB_RT_OBS) \

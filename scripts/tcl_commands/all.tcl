@@ -794,7 +794,7 @@ proc label_macro_pins {args} {
 
     set_if_unset arg_values(-pad_pin_name) ""
 
-    try_catch python3 $::env(SCRIPTS_DIR)/label_macro_pins.py\
+    try_catch openroad -python $::env(SCRIPTS_DIR)/label_macro_pins.py\
         --lef $arg_values(-lef)\
         --input-def $::env(CURRENT_DEF)\
         --netlist-def $arg_values(-netlist_def)\

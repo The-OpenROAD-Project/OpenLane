@@ -113,13 +113,12 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
+	git clone https://github.com/osamahammad21/open_pdks $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
-		git checkout master && git pull && \
-		git checkout -qf $(OPEN_PDKS_COMMIT)
+		git checkout pdn_config && git pull
 
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk

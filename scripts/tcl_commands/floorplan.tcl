@@ -100,7 +100,7 @@ proc place_io_ol {args} {
 
 		set_if_unset arg_values(-extra_args) ""
 
-		try_catch python3 $::env(SCRIPTS_DIR)/io_place.py\
+		try_catch openroad -python $::env(SCRIPTS_DIR)/io_place.py\
 				--input-lef $arg_values(-lef)\
 				--input-def $arg_values(-def)\
 				--config $arg_values(-cfg)\
@@ -142,7 +142,7 @@ proc place_contextualized_io {args} {
 
 				set prev_def $::env(CURRENT_DEF)
 				set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).context.def]
-				try_catch python3 $::env(SCRIPTS_DIR)/contextualize.py \
+				try_catch openroad -python $::env(SCRIPTS_DIR)/contextualize.py \
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
 						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
 						-o $::env(SAVE_DEF) |& \

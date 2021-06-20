@@ -115,7 +115,7 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog.git \
     && make install -j
 
 ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
-ARG OPENROAD_APP_COMMIT=4867024d4ec76c43ab9c9902e956fec4620b6ddf
+ARG OPENROAD_APP_COMMIT=f4bd03215f3b056998bf0298220b532e2c16fc19
 RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_10012020
 WORKDIR /OpenROAD_10012020/
 RUN git checkout ${OPENROAD_APP_COMMIT}
