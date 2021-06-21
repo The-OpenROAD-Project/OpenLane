@@ -193,6 +193,7 @@ jobs:
         uses: tvdias/github-tagger@v0.0.1
         with:
           tag: "${{ env.NEW_TAG }}"
+          repo-token: "${{ secrets.MY_TOKEN }}"
       
       - name: Login to DockerHub
         uses: docker/login-action@v1
