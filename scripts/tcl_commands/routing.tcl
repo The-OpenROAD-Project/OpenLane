@@ -35,7 +35,7 @@ proc global_routing_fastroute {args} {
 	set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
 	set report_tag_saver $::env(fastroute_report_file_tag)
 	set ::env(fastroute_report_file_tag) [index_file $::env(fastroute_report_file_tag) 0]
-	try_catch gdb -batch -ex "run" -ex "bt" --args openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 		set_def $::env(SAVE_DEF)
 		set_guide $::env(SAVE_GUIDE)
