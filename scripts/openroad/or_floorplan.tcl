@@ -18,7 +18,10 @@ proc create_tracks args {
   set lines [split $file_data "\n"]
   set state 0
   foreach line $lines {
-    set words [split $line " "]
+    set words [regexp -inline -all -- {\S+} $line]
+    if { [llength $words] != 4 } {
+      continue
+    }
     if { $state == 0 || [lindex $words 0] != $layer } {
       set layer [lindex $words 0]
       set state 1
