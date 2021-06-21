@@ -48,7 +48,6 @@ set HMETAL [[$tech findRoutingLayer $::env(FP_IO_HMETAL)] getName]
 set VMETAL [[$tech findRoutingLayer $::env(FP_IO_VMETAL)] getName]
 place_pins $opts\
 	-random_seed 42 \
-	-min_distance 5 \
 	-hor_layers $HMETAL\
 	-ver_layers $VMETAL
 
