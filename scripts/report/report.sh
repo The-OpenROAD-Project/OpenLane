@@ -255,6 +255,7 @@ level=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/.*lev.*[^0-9]
 if ! [[ $level ]]; then level=-1; fi
 
 #Extracting layer usage percentage
+#Warning: This needs to be updated to the new log
 layer1=$(grep "Layer 1 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 1 use percentage: (\S+)%/\1/')
 if ! [[ $layer1 ]]; then layer1=-1; fi
 layer2=$(grep "Layer 2 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 2 use percentage: (\S+)%/\1/')
