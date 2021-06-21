@@ -85,12 +85,8 @@ COPY ./.tclshrc /root
 
 ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 
-
-# install opendb python
-RUN cd $OPENROAD/OpenDB_python/ && \
-	python3 setup.py install && \
-	rm -rf $OPENROAD/OpenDB_python
-
 WORKDIR $OPENLANE_ROOT
+
+ENV OPENROAD_BIN openroad
 
 CMD /bin/bash

@@ -88,11 +88,7 @@ foreach net $::nets {
 puts "\n\[INFO\]: $count of $::antenna_cell_name inserted!"
 set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
-if { [info exists ::env(NO_DIAMOND_SEARCH_HEIGHT)] } {
-    detailed_placement
-} else {
-    detailed_placement -diamond_search_height $::env(PL_DIAMOND_SEARCH_HEIGHT)
-}
+detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }

@@ -79,8 +79,9 @@ RUN yum -y install zlib-devel
 
 
 # eigen required by replace, TritonMacroPlace
-RUN git clone https://gitlab.com/libeigen/eigen --branch=3.3 \
+RUN mkdir -p eigen \
     && cd eigen \
+    && curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3/eigen-3.3.tar.gz | tar --strip-components=1 -xzC . \
     && mkdir build \
     && cd build \
     && cmake .. \
@@ -114,8 +115,8 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && make install -j
 
 ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
-ARG OPENROAD_APP_COMMIT=b762efa78105daa31935d6d18345f86680a91543
-RUN git clone --recursive ${OPENROAD_APP_REPO} OpenROAD_Repo
+ARG OPENROAD_APP_COMMIT=c27d7cea8981bc917deaaa4d8cc83a6f9285c0e7
+RUN git clone --depth 1 ${OPENROAD_APP_REPO} OpenROAD_Repo
 WORKDIR /OpenROAD_Repo/
 RUN git checkout ${OPENROAD_APP_COMMIT}
 RUN git submodule update --init --recursive
@@ -125,13 +126,6 @@ RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
-
-# # OpenDB Python interface
-# WORKDIR src/OpenDB
-# RUN mkdir build && mkdir -p /build/version && mkdir install
-# RUN cd build && cmake -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc) opendbpy
-# RUN cp -r build/src/swig/python /build/OpenDB_python
-# WORKDIR /OpenROAD_Repo/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN git rev-parse HEAD >> /build/version/openroad.version

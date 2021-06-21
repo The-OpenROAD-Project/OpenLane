@@ -22,6 +22,6 @@ You can invoke `python3 ./ol_install.py`. This tool copies the skeleton and inst
 
 The tools will all be installed with `/opt/openlane` as a prefix. You'll find all the repos in `/opt/openlane/build/repos` and a list of versions in `/opt/openlane/build/versions`.
 
-**DO NOTE:** We expect you to bring your own OpenROAD and Opendbpy. You will have to build OpenROAD from source and make Opendbpy available to Python somehow. The repository https://github.com/donn/OpenROAD has a `build_opendbpy.sh` script for your convenience.
+**DO NOTE:** We expect you to bring your own OpenROAD.
 
 After the installer is done, you can invoke `sh /opt/openlane/openlane <args>` to use OpenLane, where args are the same arguments you'd pass on to `flow.tcl`.
