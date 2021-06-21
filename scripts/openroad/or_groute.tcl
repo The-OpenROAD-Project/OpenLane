@@ -60,7 +60,7 @@ grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
 grt::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
 
-grt::global_route
+grt::run
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)"

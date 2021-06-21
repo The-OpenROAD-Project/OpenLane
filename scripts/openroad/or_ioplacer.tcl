@@ -43,6 +43,9 @@ if { $::env(FP_IO_MODE) == 1 } {
     set opts "-random"
 }
 
+# set tech [[ord::get_db] getTech]
+# set HMETAL [[$tech findRoutingLayer $::env(FP_IO_HMETAL)] getName]
+# set VMETAL [[$tech findRoutingLayer $::env(FP_IO_VMETAL)] getName]
 place_pins $opts\
 	-random_seed 42 \
 	-min_distance $::env(FP_IO_MIN_DISTANCE) \

@@ -42,6 +42,9 @@ configure_cts_characterization\
     -max_slew $max_slew\
     -max_cap $max_cap
 
+cts::set_cap_per_sqr $::env(CTS_SQR_CAP)
+cts::set_res_per_sqr $::env(CTS_SQR_RES) 
+
 puts "\[INFO]: Performing clock tree synthesis..."
 puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
 puts "\[INFO]: Running Clock Tree Synthesis..."

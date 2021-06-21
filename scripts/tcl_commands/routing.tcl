@@ -46,13 +46,13 @@ proc global_routing_fastroute {args} {
 		set prevGUIDE2 $::env(SAVE_GUIDE)
 		set prevLOG1 $saveLOG
 		set prevLOG2 $saveLOG
-		set prevAntennaVal [exec grep "#Antenna violations:" [index_file $::env(fastroute_log_file_tag).log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+		set prevAntennaVal [exec grep "INFO GRT-0012\] Antenna violations:" [index_file $::env(fastroute_log_file_tag).log 0] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 		while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
 			set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag)_$iter.def]
 			set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag)_$iter.guide 0]
 			set saveLOG [index_file $::env(fastroute_log_file_tag)_$iter.log 0]
 			set replaceWith "INSDIODE$iter"
-			try_catch python3 $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
 			puts_info "FastRoute Iteration $iter"
 			puts_info "Antenna Violations Previous: $prevAntennaVal"
 			set ::env(fastroute_report_file_tag) [index_file $report_tag_saver 0]
@@ -110,7 +110,7 @@ proc detailed_routing_tritonroute {args} {
 
 	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
 
-	try_catch python3 $::env(SCRIPTS_DIR)/tr2klayout.py \
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
 		-i $::env(tritonRoute_report_file_tag).drc \
 		-o $::env(tritonRoute_report_file_tag).klayout.xml \
 		--design-name $::env(DESIGN_NAME)
@@ -205,7 +205,7 @@ proc power_routing {args} {
     set_if_unset arg_values(-extra_args) ""
 
 
-    try_catch python3 $::env(SCRIPTS_DIR)/power_route.py\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/power_route.py\
 	--input-lef $arg_values(-lef)\
 	--input-def $arg_values(-def)\
 	--core-vdd-pin $arg_values(-power)\
@@ -273,7 +273,7 @@ proc ins_diode_cells_4 {args} {
 	}
 
 	# Custom script
-	try_catch python3 $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
 
@@ -296,7 +296,7 @@ proc apply_route_obs {args} {
 	puts_warn "Specifying a routing obstruction is now done using the coordinates"
 	puts_warn "of its bounding box instead of the now deprecated (x, y, size_x, size_y)."
 
-	try_catch python3 $::env(SCRIPTS_DIR)/add_def_obstructions.py \
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/add_def_obstructions.py \
 		--input-def $::env(CURRENT_DEF) \
 		--lef $::env(MERGED_LEF) \
 		--obstructions $::env(GLB_RT_OBS) \
@@ -342,7 +342,7 @@ proc run_spef_extraction {args} {
         puts_info "Running SPEF Extraction..."
 		TIMER::timer_start
 	    set ::env(MPLCONFIGDIR) /tmp
-        try_catch python3 $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
         set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]

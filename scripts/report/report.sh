@@ -51,7 +51,7 @@ arc_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o 
 fr_log=${path}/logs/routing/fastroute.log
 cvc_log=$(python3 $3/get_file_name.py -p ${path}/logs/cvc/ -o cvc_screen.log 2>&1)
 tritonRoute_def="${path}/results/routing/${designName}.def"
-openDP_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o opendp.log 2>&1)
+replace_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
@@ -97,8 +97,8 @@ cellperum=-1
 #if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
-opendpUtil=$(grep "utilization" $openDP_log -s | head -1 | sed -E 's/.* (\S+).*%/\1/')
-if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
+replaceUtil=$(grep "Util(%):" $replace_log -s | head -1 | sed -E 's/.*Util\(%\): (\S+)/\1/')
+if ! [[ $replaceUtil ]]; then replaceUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
 tritonRoute_memoryPeak=$(grep ", peak = " $tritonRoute_log -s | tail -1 | sed -E 's/.*peak = (\S+).*/\1/')
@@ -279,7 +279,7 @@ if ! [[ $tapcells ]]; then tapcells=0; fi
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log -s | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
 if ! [[ $diodes ]]; then
-        diodes=$(grep "diodes inserted" $fr_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted/\1/')
+        diodes=$(grep "diodes inserted" $fr_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted./\1/')
         if ! [[ $diodes ]]; then diodes=0; fi
 fi
 
@@ -300,7 +300,7 @@ cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*
 if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 
-result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
+result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $replaceUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done
