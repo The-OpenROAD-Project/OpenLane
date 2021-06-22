@@ -19,7 +19,7 @@ from the power/ground pads to the *core ring*
 
 import sys
 import argparse
-import opendbpy as odb
+import opendb as odb
 from pprint import pprint
 
 parser = argparse.ArgumentParser(
