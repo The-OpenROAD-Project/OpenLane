@@ -141,17 +141,6 @@ Tool(
 )
 
 Tool(
-    "opensta",
-    install_command="\
-        mkdir -p ./build &&\
-        cd ./build &&\
-        cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin .. &&\
-        make -j$(nproc) &&\
-        cp ../app/sta $PREFIX/bin\
-    "
-)
-
-Tool(
     "padring",
     install_command="\
         bash ./bootstrap.sh &&\
