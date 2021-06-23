@@ -52,7 +52,7 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN pip3.6 install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir \
 		matplotlib \
-		jinja2 \
+		"jinja2<3.0.0" \
 		pandas \
 		install \
 		XlsxWriter
