@@ -22,6 +22,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-drt::detailed_route_cmd $::env(tritonRoute_tmp_file_tag).param
+set_thread_count $::env(ROUTING_CORES)
+
+detailed_route -param $::env(tritonRoute_tmp_file_tag).param
+
 puts stderr "Saving to $::env(SAVE_DEF)"
 write_def $::env(SAVE_DEF)
