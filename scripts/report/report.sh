@@ -97,8 +97,8 @@ cellperum=-1
 #if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
-replaceUtil=$(grep "Util(%):" $replace_log -s | head -1 | sed -E 's/.*Util\(%\): (\S+)/\1/')
-if ! [[ $replaceUtil ]]; then replaceUtil=-1; fi
+opendpUtil=$(grep "Util(%):" $replace_log -s | head -1 | sed -E 's/.*Util\(%\): (\S+)/\1/')
+if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
 tritonRoute_memoryPeak=$(grep ", peak = " $tritonRoute_log -s | tail -1 | sed -E 's/.*peak = (\S+).*/\1/')
@@ -255,17 +255,19 @@ level=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/.*lev.*[^0-9]
 if ! [[ $level ]]; then level=-1; fi
 
 #Extracting layer usage percentage
-layer1=$(grep "Layer 1 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 1 use percentage: (\S+)%/\1/')
+usageLine=$(grep -n -E "Layer\s+Resource" $fr_log | tail -1 | sed -E 's/(\S+):.*/\1/')
+
+layer1=$(sed -n "$(expr $usageLine + 2)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer1 ]]; then layer1=-1; fi
-layer2=$(grep "Layer 2 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 2 use percentage: (\S+)%/\1/')
+layer2=$(sed -n "$(expr $usageLine + 3)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer2 ]]; then layer2=-1; fi
-layer3=$(grep "Layer 3 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 3 use percentage: (\S+)%/\1/')
+layer3=$(sed -n "$(expr $usageLine + 4)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer3 ]]; then layer3=-1; fi
-layer4=$(grep "Layer 4 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 4 use percentage: (\S+)%/\1/')
+layer4=$(sed -n "$(expr $usageLine + 5)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer4 ]]; then layer4=-1; fi
-layer5=$(grep "Layer 5 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 5 use percentage: (\S+)%/\1/')
+layer5=$(sed -n "$(expr $usageLine + 6)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer5 ]]; then layer5=-1; fi
-layer6=$(grep "Layer 6 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 6 use percentage: (\S+)%/\1/')
+layer6=$(sed -n "$(expr $usageLine + 7)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer6 ]]; then layer6=-1; fi
 
 #Extracting Endcaps and TapCells
@@ -300,7 +302,7 @@ cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*
 if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 
-result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $replaceUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
+result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
 	result+=" $val"
 done
