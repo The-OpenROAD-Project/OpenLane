@@ -107,17 +107,6 @@ Tool(
 )
 
 Tool(
-    "opendp",
-    install_command="\
-        mkdir -p ./build &&\
-        cd ./build &&\
-        cmake  -DCMAKE_INSTALL_PREFIX=$PREFIX .. &&\
-        make -j$(nproc) &&\
-        make install\
-    "
-)
-
-Tool(
     "openphysyn",
     install_command="\
         mkdir -p ./build &&\

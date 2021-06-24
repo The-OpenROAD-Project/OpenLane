@@ -12,16 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc global_placement {args} {
-    puts_info "Running Global Placement..."
-    TIMER::timer_start
-    try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log]
-    try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
-    set_def $::env(replaceio_tmp_file_tag).def
-}
-
 proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
@@ -51,6 +41,11 @@ proc global_placement_or {args} {
     set_def $::env(SAVE_DEF)
 }
 
+proc global_placement {args} {
+    global_placement_or args
+}
+
+
 proc random_global_placement {args} {
     puts_warn "Performing Random Global Placement..."
     TIMER::timer_start
@@ -63,41 +58,6 @@ proc random_global_placement {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
-}
-
-proc detailed_placement {args} {
-    puts_info "Running Detailed Placement..."
-    TIMER::timer_start
-    try_catch opendp \
-	-lef $::env(MERGED_LEF) \
-	-def $::env(CURRENT_DEF) \
-	-output_def $::env(opendp_result_file_tag).def \
-	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
-    set_def $::env(opendp_result_file_tag).def
-}
-
-proc add_macro_placement {args} {
-    puts_info " Adding Macro Placement..."
-    set ori "NONE"
-    if { [llength $args] == 4 } {
-	set ori [lindex $args 3]
-    }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placement.cfg
-}
-
-proc manual_macro_placement {args} {
-    puts_info " Manual Macro Placement..."
-    set var "f"
-    set fbasename [file rootname $::env(CURRENT_DEF)]
-    if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
-    } else {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
-    }
-    set_def ${fbasename}.macro_placement.def
 }
 
 proc detailed_placement_or {args} {
@@ -122,11 +82,34 @@ proc detailed_placement_or {args} {
 	exit 1
     }
 
-
-
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
     set_def $::env(SAVE_DEF)
+}
+
+proc detailed_placement {args} {
+    detailed_placement_or args
+}
+
+proc add_macro_placement {args} {
+    puts_info " Adding Macro Placement..."
+    set ori "NONE"
+    if { [llength $args] == 4 } {
+	set ori [lindex $args 3]
+    }
+    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placement.cfg
+}
+
+proc manual_macro_placement {args} {
+    puts_info " Manual Macro Placement..."
+    set var "f"
+    set fbasename [file rootname $::env(CURRENT_DEF)]
+    if { [string compare [lindex $args 0] $var] == 0 } {
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+    } else {
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+    }
+    set_def ${fbasename}.macro_placement.def
 }
 
 proc basic_macro_placement {args} {

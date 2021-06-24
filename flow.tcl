@@ -16,7 +16,7 @@
 
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
 if { ! [info exists ::env(OPENROAD_BIN) ] } {
-	set ::(OPENROAD_BIN) openroad
+	set ::env(OPENROAD_BIN) openroad
 }
 lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
