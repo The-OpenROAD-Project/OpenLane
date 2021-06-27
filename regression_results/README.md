@@ -78,7 +78,7 @@ The script can be used in two ways
         
         ```
         FP_CORE_UTIL=(40,50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1,0.4)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL*0.01-0.1,0.4)
     
         extra="
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
@@ -91,7 +91,7 @@ The script can be used in two ways
 
         ```
         FP_CORE_UTIL=(40,50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL/100-0.1,0.4)
+        PL_TARGET_DENSITY=(FP_CORE_UTIL*0.01-0.1,0.4)
     
         extra="
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
