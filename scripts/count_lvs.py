@@ -96,8 +96,11 @@ def count_LVS_failures(filename):
                     pin0 = re.sub('!$', '', pin[0].lower())
                     pin1 = re.sub('!$', '', pin[1].lower())
                     if pin0 != pin1:
-                        failures += 1
-                        pinfail += 1
+                        # The text "(no pin)" indicates a missing pin that can be
+                        # ignored because the pin in the other netlist is a no-connect
+                        if pin0 != '(no pin)' and pin1 != '(no pin)':
+                            failures += 1
+                            pinfail += 1
 
         # Property errors must be counted for every cell
         if 'properties' in cellrec:

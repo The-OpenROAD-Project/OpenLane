@@ -41,16 +41,13 @@ OpenLANE is an automated RTL to GDSII flow based on several components including
 
 Join the community on [slack](https://invite.skywater.tools)!
 
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
+To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/releases/).
 
 # Prerequisites
 
  - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice
 
 # Quick Start:
-
-To use the latest stable release of OpenLane, please go [here](https://github.com/efabless/openlane/tree/release-0.x).
-
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
@@ -62,6 +59,8 @@ You can start setting up the skywater-pdk and openlane by running:
     make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
+
+Note that `make openlane` always pulls the **latest** version of openlane: to get a specific tag, you need to invoke `IMAGE_NAME=efabless/openlane:v0.18 make openlane`, for example.
 
 This should produce a clean run for the spm. The final layout will be generated here: `./designs/spm/runs/openlane_test/results/magic/spm.gds`.
 
