@@ -43,8 +43,8 @@ for tag in gh.openlane.tags:
 
 commit_count = int(subprocess.check_output(["git", "rev-list", "--count", "%s..%s" % (latest_tag_commit, "HEAD")]))
 
-if commit_count < 2:
-    print("Only %i out of 2 new commits required for a new tag." % commit_count)
+if commit_count == 0:
+    print("No new commits.")
     gh.export_env("NEW_TAG", "NO_NEW_TAG")
     exit(0)
 

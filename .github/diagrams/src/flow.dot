@@ -1,0 +1,69 @@
+digraph G {
+    subgraph main {
+        rankDir=UD;
+        compound=true;
+        nodesep=2;
+        margin=0
+        style="invis"
+
+        scheduler [
+            shapefile="./actor.png",
+            peripheries = 0,
+            label="\n\n\n\n\n\n\n\nGitHub Actions Cron",
+            rank=min
+        ]
+
+        contributor [
+            shapefile="./actor.png",
+            peripheries = 0,
+            label="\n\n\n\n\n\n\n\nContributor",
+            rank=min
+        ]
+
+        maintainer [
+            shapefile="./actor.png",
+            peripheries = 0,
+            label="\n\n\n\n\n\n\n\nMaintainer",
+            rank=min
+        ]
+
+        edge [arrowhead="vee", label=""];
+
+        # Tool Updater Flow    
+        scheduler -> "Tool Updater" [label="Every Midnight UTC"]
+
+        "Tool Updater" -> "Check for PDK Updates"
+        "Tool Updater" -> "Check for Tool Updates"
+
+        "Check for Tool Updates" -> "Pull Request" [label="[updates found]"]
+        "Check for PDK Updates" -> "Pull Request"
+        [label="[updates found]"]
+
+        # Pull Request Flow
+        bdi_fast [
+            label="Build Docker Image"
+        ]
+        contributor -> "Pull Request"
+        "Pull Request" -> bdi_fast
+        bdi_fast -> "Fastest Test Set" [label="[image built successfully]"]
+        bdi_fast -> "PR CI Fails" [label="[else]"]
+        "Fastest Test Set" -> "Valid Pull Request" [label="[test pass]"]
+        "Fastest Test Set" -> "PR CI Fails" [label="[else]"]
+        "Valid Pull Request" -> "Review"
+        maintainer -> "Review" [label="approve"]
+        "Review" -> "Good Pull Request"
+
+        # Complete Test Set Flow
+        bdi_full [
+            label="Build Docker Image"
+        ]
+        maintainer -> bdi_full [label="Manual Dispatch"]
+        scheduler -> bdi_full [ label="Every Midnight UTC"]
+        bdi_full -> "Complete Test Set" [label="[image built successfully]"]
+        bdi_full -> "Deployment CI Fails" [label="[else]"]
+        "Complete Test Set" -> "Create New Version" [label="[tests pass]"]
+        "Complete Test Set" -> "Deployment CI Fails" [label="[else]"]
+        "Create New Version" -> "Deploy Docker Image To DockerHub"
+    }
+
+}

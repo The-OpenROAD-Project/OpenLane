@@ -24,20 +24,20 @@ def process_update_on_repos(repos, files):
             print("%s's commit is already on latest. No action required." % repo.name)
             continue
         
-        print("Checking if branch was already created…")
-        branch_commit = None
-        for branch in gh.openlane.branches:
-            _, name = branch
-            branch_commit = repo.match_branch(name) or branch_commit
+        # print("Checking if branch was already created…")
+        # branch_commit = None
+        # for branch in gh.openlane.branches:
+        #     _, name = branch
+        #     branch_commit = repo.match_branch(name) or branch_commit
         
-        if branch_commit is not None and branch_commit == repo.latest_commit:
-            print("Branch was already created for the latest commit. No update required.")
-            continue
+        # if branch_commit is not None and branch_commit == repo.latest_commit:
+        #     print("Branch was already created for the latest commit. No update required.")
+        #     continue
 
-        if branch_commit is not None:
-            print("Branch is out of date. Updating…")
-        else:
-            print("No matching branch found. Updating…")
+        # if branch_commit is not None:
+        #     print("Branch is out of date. Updating…")
+        # else:
+        #     print("No matching branch found. Updating…")
         
         changed = True
 

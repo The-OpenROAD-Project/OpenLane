@@ -57,11 +57,15 @@ BEGIN {  # Print power and standard_input definitions
  {
     print \$0;
 }"
-
+	    # For compatibility purposes because master is frozen
+	    # TODO: Remove in later versions
+	    if { ! [info exists ::env(STD_CELL_LIBRARY_CDL)] } {
+                set ::env(STD_CELL_LIBRARY_CDL) $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl
+            }
             # Create power file
             try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
             # Create cdl file by combining cdl library with lef spice
-            try_catch awk $cvc_cdl_awk $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/cdl/$::env(STD_CELL_LIBRARY).cdl $::env(magic_result_file_tag).lef.spice \
+	    try_catch awk $cvc_cdl_awk $::env(STD_CELL_LIBRARY_CDL) $::env(magic_result_file_tag).lef.spice \
                 > $::env(cvc_result_file_tag).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
                 |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cvc_log_file_tag)_screen.log]
