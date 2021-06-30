@@ -147,6 +147,7 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_UNIDIRECTIONAL` | Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_ALLOW_CONGESTION` | Allow congestion in the resultign guides. 0 = false, 1 = true <br> (Default: `0`) |
 | `GLB_RT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
+| `GLB_RT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
 | `GLB_RT_TILES` | The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
 | `GLB_RT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `ROUTING_CORES` | Specifies the number of threads to be used in TritonRoute. <br> (Default: `4`) |
@@ -154,7 +155,7 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma separated list of layer and coordinates: `layer llx lly urx ury`.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `ROUTING_OPT_ITERS` | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
 | `GLOBAL_ROUTER` | Specifies which global router to use. Values: `fastroute` or `cugr`. <br> (Default: `fastroute`) |
-| `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`|`tritonroute_or`, or `drcu`. <br> (Default: `tritonroute`) |
+| `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`|
 
 ### Magic
 
