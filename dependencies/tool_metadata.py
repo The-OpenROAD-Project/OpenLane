@@ -107,17 +107,6 @@ Tool(
 )
 
 Tool(
-    "opendp",
-    install_command="\
-        mkdir -p ./build &&\
-        cd ./build &&\
-        cmake  -DCMAKE_INSTALL_PREFIX=$PREFIX .. &&\
-        make -j$(nproc) &&\
-        make install\
-    "
-)
-
-Tool(
     "openphysyn",
     install_command="\
         mkdir -p ./build &&\
@@ -141,34 +130,12 @@ Tool(
 )
 
 Tool(
-    "opensta",
-    install_command="\
-        mkdir -p ./build &&\
-        cd ./build &&\
-        cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin .. &&\
-        make -j$(nproc) &&\
-        cp ../app/sta $PREFIX/bin\
-    "
-)
-
-Tool(
     "padring",
     install_command="\
         bash ./bootstrap.sh &&\
         cd build &&\
         ninja &&\
         cp padring $PREFIX/bin\
-    "
-)
-
-Tool(
-    "tritonroute",
-    install_command="\
-        mkdir -p build &&\
-        cd build &&\
-        cmake .. &&\
-        make -j$(nproc) &&\
-        cp TritonRoute $PREFIX/bin\
     "
 )
 

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import argparse
-import opendbpy as odb
+import opendb as odb
 
 # overkill
 parser = argparse.ArgumentParser(

@@ -4,7 +4,7 @@ DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= efabless/openlane:current
 #ROOT = sudo
 
-TOOLS = klayout opendp route cugr drcu opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
+TOOLS = klayout cugr drcu yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))

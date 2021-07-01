@@ -39,7 +39,7 @@ make build-<tool>
 The following are the available tools:
 
 ```bash
-klayout replace opendp route cugr drcu opensta yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
+klayout cugr drcu yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
 ```
 
 ### Rebuilding

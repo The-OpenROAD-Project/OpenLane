@@ -198,13 +198,22 @@ def run_design(designs_queue):
         while not designs_queue.empty():
                 design, config, tag,design_name= designs_queue.get(timeout=3)  # 3s timeout
                 run_path = utils.get_run_path(design=design, tag=tag)
-                command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
                 log.info('{design} {tag} running'.format(design=design, tag=tag))
                 command = ""
                 if show_log_output:
-                        command = './flow.tcl -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                        command = '{ol_entry} -design {design} -tag {tag} -overwrite -config_tag {config} -no_save'.format(
+                                ol_entry=os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
+                                design=design,
+                                tag=tag,
+                                config=config
+                        )
                 else:
-                        command = './flow.tcl -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(design=design,tag=tag, config=config)
+                        command = '{ol_entry} -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save'.format(
+                                ol_entry=os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
+                                design=design,
+                                tag=tag,
+                                config=config
+                        )
                 skip_rm_from_rems = False
                 try:
                         if show_log_output:
@@ -382,7 +391,7 @@ for i in range(num_workers):
         workers[i].start()
 
 for i in range(num_workers):
-        while workers[i].isAlive() == True:
+        while workers[i].is_alive() == True:
                 workers[i].join(100)
         print("Exiting thread", i)
 
@@ -390,7 +399,7 @@ log.info("Getting top results..")
 best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".format(
         input=report_handler.baseFilename,
         output=report_file_name + "_best.csv"
-        )
+)
 subprocess.check_output(best_result_cmd.split())
 
 if args.htmlExtract:

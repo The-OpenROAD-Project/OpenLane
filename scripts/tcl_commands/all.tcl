@@ -70,7 +70,7 @@ proc set_guide {guide} {
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
-    try_catch python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py -t $::env(TECH_LEF) -o $::env(TMP_DIR)/met_layers_list.txt
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_metal_layers.py -t $::env(TECH_LEF) -o $::env(TMP_DIR)/met_layers_list.txt
     set tech_metal_layers_string [exec cat $::env(TMP_DIR)/met_layers_list.txt]
     set tech_metal_layers_string_strip [join $tech_metal_layers_string " "]
     set ::env(TECH_METAL_LAYERS) [split $tech_metal_layers_string_strip]
@@ -403,9 +403,9 @@ proc prep {args} {
         set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
 
-        set tracks_copy $::env(TMP_DIR)/tracks_copy.info
-        file copy -force $::env(TRACKS_INFO_FILE) $tracks_copy
-        set ::env(TRACKS_INFO_FILE) $tracks_copy
+        set tracks_processed $::env(TMP_DIR)/config.tracks
+        try_catch $::env(OPENROAD_BIN) -python scripts/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+        set ::env(TRACKS_INFO_FILE) $tracks_processed
 
         if { $::env(USE_GPIO_PADS) } {
             if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
@@ -701,7 +701,7 @@ proc heal_antenna_violators {args} {
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
 		} else {
             #Magic Specific
 			set report_file [open [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0] r]
@@ -711,7 +711,7 @@ proc heal_antenna_violators {args} {
 			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch python3 $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/antenna_heal_runtime.txt 0]
@@ -722,12 +722,12 @@ proc heal_antenna_violators {args} {
 proc li1_hack_start {args} {
     puts_info "Starting the li1 Hack..."
     try_catch touch $::env(TMP_DIR)/li1HackTmpFile.txt
-    try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_start.py -d $::env(CURRENT_DEF) -l $::env(MERGED_LEF_UNPADDED) -t $::env(TMP_DIR)/li1HackTmpFile.txt
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_start.py -d $::env(CURRENT_DEF) -l $::env(MERGED_LEF_UNPADDED) -t $::env(TMP_DIR)/li1HackTmpFile.txt
 }
 
 proc li1_hack_end {args} {
     puts_info "Ending the li1 Hack..."
-    try_catch python3 $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
 }
 
 proc widen_site_width {args} {
@@ -743,12 +743,12 @@ proc widen_site_width {args} {
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
         set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
         if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-            try_catch python3 $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch python3 $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
 
         } else {
-            try_catch python3 $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch python3 $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
         }
     }
 }
@@ -794,7 +794,7 @@ proc label_macro_pins {args} {
 
     set_if_unset arg_values(-pad_pin_name) ""
 
-    try_catch python3 $::env(SCRIPTS_DIR)/label_macro_pins.py\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/label_macro_pins.py\
         --lef $arg_values(-lef)\
         --input-def $::env(CURRENT_DEF)\
         --netlist-def $arg_values(-netlist_def)\
@@ -823,7 +823,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/write_verilog_runtime.txt 0]
     if { [info exists flags_map(-canonical)] } {
@@ -842,14 +842,14 @@ proc set_layer_tracks {args} {
     set flags {}
     parse_key_args "set_layer_tracks" args arg_values $options flags_map $flags
 
-    try_catch python3 $::env(SCRIPTS_DIR)/setLayerTracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/setLayerTracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
 
 }
 
 proc run_or_antenna_check {args} {
     TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
     try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/or_antenna_runtime.txt 0]

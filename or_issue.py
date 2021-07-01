@@ -17,6 +17,7 @@
 import os
 import re
 import sys
+import glob
 import shutil
 import pathlib
 import argparse
@@ -29,13 +30,15 @@ parser = argparse.ArgumentParser(description="""
 This script creates a reproducible, self-contained package of files to demonstrate
 OpenROAD behavior in a vaccum, suitable for filing issues.
 
-Requires UNIX-like operating system. Final package printed to /dev/stdout. Don't forget to chomp/rstrip.
+Requires UNIX-like operating system. Final tarball's path is printed to stdout. Don't forget to chomp/strip.
 
 Usage example: IMAGE_NAME=efabless/openlane:v0.15 python3 or_issue.py -s ./scripts/openroad/or_pdn.tcl ./designs/inverter/runs/openlane_test
 """)
-parser.add_argument('--or-script', '-s', required=True, help='Name of the OpenROAD script causing the failure: i.e. or_antenna_check.tcl, or_pdn.tcl, etc.')
-parser.add_argument('--pdk-root', required=(os.getenv("PDK_ROOT") is None), default=os.getenv("PDK_ROOT"), help='Path to the PDK root (Required if environment variable PDK_ROOT is not set.)')
-parser.add_argument('-c', '--compression', default="gzip", help='Comma,delimited list of compression techniques to use after tar. Use "None" to disable compression altogether. Default is "gzip", which will create a .tar.gzip file. Valid technologies: gzip/gz, xzip/xz, bzip2/bz2')
+parser.add_argument('--or-script', '-s', required=True, help='Path to the OpenROAD script causing the failure: i.e. or_antenna_check.tcl, or_pdn.tcl, etc. [required]')
+parser.add_argument('--pdk-root', required=(os.getenv("PDK_ROOT") is None), default=os.getenv("PDK_ROOT"), help='Path to the PDK root [required if environment variable PDK_ROOT is not set]')
+parser.add_argument('--input', '-i', required=True, help='Name of def file input into the OR script (usually denoted by environment variable CURRENT_DEF: get it from the logs) [required]')
+parser.add_argument('--output', '-o', default="./out.def", help='Name of def file to be generated [default: ./out.def]')
+parser.add_argument('-c', '--compression', default="gzip", help='Comma,delimited list of compression techniques to use after tar. Use "None" to disable compression altogether. Valid technologies: gzip/gz, xzip/xz, bzip2/bz2 [default: gzip]')
 parser.add_argument('run_path', help='Path to the run folder.')
 args = parser.parse_args()
 
@@ -44,6 +47,8 @@ run_path = abspath(args.run_path)
 pdk_root = abspath(args.pdk_root)
 compression = args.compression
 or_scripts_path = join(openlane_path, "scripts", "openroad")
+current_def = args.input
+save_def = args.output
 
 if not script_path.startswith(or_scripts_path):
     print(f"⚠ The OpenROAD script {script_path} does not appear to be in {or_scripts_path}.", file=sys.stderr)
@@ -100,6 +105,10 @@ def read_env(config_path: str, from_path: str, input_env={}) -> dict:
     return env
     
 env = read_env(run_config, "Run Path") # , read_env(pdk_config, "PDK Root"))
+# Cannot be reliably read from config.tcl
+env["CURRENT_DEF"] = current_def
+env["SAVE_DEF"] = save_def
+
 
 # Phase 2: Set up destination folder
 destination_folder = abspath(join(".", "_build", f"{run_name}_{script_basename}_packaged"))
@@ -123,7 +132,7 @@ def shift(deque):
     except:
         return None
 
-envs_used = ["OR_SCRIPT"]
+env_keys_used = ["OR_SCRIPT"]
 env["OR_SCRIPT"] = script_path_containerized
 
 current = shift(tcls_to_process)
@@ -134,7 +143,7 @@ while current is not None:
         key_accessor = f"$::env({key})"
         if not key_accessor in script:
             continue
-        envs_used.append(key)
+        env_keys_used.append(key)
         if value.endswith(".tcl"):
             tcls_to_process.append(value)
 
@@ -149,15 +158,26 @@ openlane_misc_path = join(destination_folder, "openlane")
 def copy(frm, to):
     parents = dirname(to)
     mkdirp(parents)
+
     try:
-        if isdir(frm):
-            shutil.copytree(frm, to)
+        incomplete_matches = glob.glob(frm + "*")
+        if len(incomplete_matches) == 0:
+            raise Exception()
+        elif len(incomplete_matches) != 1 or incomplete_matches[0] != frm:
+            # Prefix File
+            for match in incomplete_matches:
+                new_frm = match
+                new_to = to + new_frm[len(frm):]
+                copy(new_frm, new_to)
         else:
-            shutil.copyfile(frm, to)
+            if isdir(frm):
+                shutil.copytree(frm, to)
+            else:
+                shutil.copyfile(frm, to)
     except:
         print(f"ℹ Couldn't copy {frm}, skipping...", file=sys.stderr)
 
-for key in envs_used:
+for key in env_keys_used:
     value = env[key]
     if value.startswith(run_path_containerized):
         relative = relpath(value, run_path_containerized)
@@ -179,6 +199,11 @@ for key in envs_used:
         from_path = value.replace("/openLANE_flow", openlane_path)
         copy(from_path, final_path)       
         final_env_pairs.append((key, final_value))
+    elif value.startswith("/"):
+        final_value = value[1:]
+        final_path = join(destination_folder, final_value)
+        copy(value, final_path)
+        final_env_pairs.append((key, final_value))
     else:
         final_env_pairs.append((key, value))  
 
@@ -186,7 +211,7 @@ for key in envs_used:
 run_ol = join(destination_folder, "run_ol")
 with open(run_ol, "w") as f:
     env_list = "\\\n    ".join([f"-e {key}='{value}'" for key, value in final_env_pairs])
-    f.write(f"""
+    f.write(f"""\
 #!/bin/sh
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 cd $dir;
@@ -200,12 +225,13 @@ os.chmod(run_ol, 0o755)
 run_raw = join(destination_folder, "run")
 with open(run_raw, "w") as f:
     env_list = "\n".join([f"export {key}='{value}';" for key, value in final_env_pairs])
-    f.write(f"""
+    f.write(f"""\
 #!/bin/sh
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
 cd $dir;
 {env_list}
-openroad $OR_SCRIPT
+OPENROAD_BIN=${{OPENROAD_BIN:-openroad}}
+$OPENROAD_BIN -exit $OR_SCRIPT
     """)
 os.chmod(run_raw, 0o755)
 

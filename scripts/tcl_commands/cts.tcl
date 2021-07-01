@@ -90,7 +90,7 @@ proc run_cts {args} {
 			set ::env(LIB_CTS) $::env(TMP_DIR)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
-		try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_log_file_tag).log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_log_file_tag).log 0]
 		check_cts_clock_nets
 		set ::env(cts_report_file_tag) $report_tag_holder
 		TIMER::timer_stop
