@@ -12,16 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc global_placement {args} {
-    puts_info "Running Global Placement..."
-    TIMER::timer_start
-    try_catch replace < $::env(SCRIPTS_DIR)/replace_gp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log]
-    try_catch cp $::env(replaceio_tmp_file_tag)_place.def $::env(replaceio_tmp_file_tag).def
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
-    set_def $::env(replaceio_tmp_file_tag).def
-}
-
 proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
@@ -35,7 +25,7 @@ proc global_placement_or {args} {
 
     set report_tag_saver $::env(replaceio_report_file_tag)
     set ::env(replaceio_report_file_tag) [index_file $::env(replaceio_report_file_tag) 0]
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
     set ::env(replaceio_report_file_tag) $report_tag_saver
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
@@ -51,12 +41,17 @@ proc global_placement_or {args} {
     set_def $::env(SAVE_DEF)
 }
 
+proc global_placement {args} {
+    global_placement_or args
+}
+
+
 proc random_global_placement {args} {
     puts_warn "Performing Random Global Placement..."
     TIMER::timer_start
     set ::env(SAVE_DEF) [index_file $::env(replaceio_tmp_file_tag).def]
 
-    try_catch python3 $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
         --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
 
@@ -65,18 +60,35 @@ proc random_global_placement {args} {
     set_def $::env(SAVE_DEF)
 }
 
-proc detailed_placement {args} {
+proc detailed_placement_or {args} {
     puts_info "Running Detailed Placement..."
     TIMER::timer_start
-    try_catch opendp \
-	-lef $::env(MERGED_LEF) \
-	-def $::env(CURRENT_DEF) \
-	-output_def $::env(opendp_result_file_tag).def \
-	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+    set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
+
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+    set_def $::env(SAVE_DEF)
+
+    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
+	puts_info "Error in detailed placement"
+	puts_info "Retrying detailed placement"
+	set ::env(SAVE_DEF) $::env(opendp_result_file_tag).1.def
+
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+    }
+
+    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
+	puts "Error: Check [index_file $::env(opendp_log_file_tag).log 0]"
+	puts stderr "\[ERROR\]: Check [index_file $::env(opendp_log_file_tag).log 0]"
+	exit 1
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
-    set_def $::env(opendp_result_file_tag).def
+    set_def $::env(SAVE_DEF)
+}
+
+proc detailed_placement {args} {
+    detailed_placement_or args
 }
 
 proc add_macro_placement {args} {
@@ -93,40 +105,11 @@ proc manual_macro_placement {args} {
     set var "f"
     set fbasename [file rootname $::env(CURRENT_DEF)]
     if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
     } else {
-        try_catch python3 $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
     }
     set_def ${fbasename}.macro_placement.def
-}
-
-proc detailed_placement_or {args} {
-    puts_info "Running Detailed Placement..."
-    TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
-
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
-    set_def $::env(SAVE_DEF)
-
-    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
-	puts_info "Error in detailed placement"
-	puts_info "Retrying detailed placement"
-	set ::env(SAVE_DEF) $::env(opendp_result_file_tag).1.def
-
-	try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
-    }
-
-    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
-	puts "Error: Check [index_file $::env(opendp_log_file_tag).log 0]"
-	puts stderr "\[ERROR\]: Check [index_file $::env(opendp_log_file_tag).log 0]"
-	exit 1
-    }
-
-
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
-    set_def $::env(SAVE_DEF)
 }
 
 proc basic_macro_placement {args} {
@@ -135,7 +118,7 @@ proc basic_macro_placement {args} {
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
 
     check_macro_placer_num_solns
 
@@ -226,7 +209,7 @@ proc run_resizer_timing {args} {
             gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
-        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
         set_def $::env(SAVE_DEF)
 
         TIMER::timer_stop
@@ -264,7 +247,7 @@ proc run_resizer_design {args} {
             gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
-        try_catch openroad -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
         set_def $::env(SAVE_DEF)
 
         TIMER::timer_stop

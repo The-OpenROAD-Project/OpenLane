@@ -28,7 +28,6 @@ set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
 set left_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(LEFT_MARGIN_MULT)]
 set right_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(RIGHT_MARGIN_MULT)]
 
-
 if {$::env(FP_SIZING) == "absolute"} {
   if { ! [info exists ::env(CORE_AREA)] } {
 	set die_ll_x [lindex $::env(DIE_AREA) 0]
@@ -49,18 +48,14 @@ if {$::env(FP_SIZING) == "absolute"} {
   initialize_floorplan \
     -die_area $::env(DIE_AREA) \
     -core_area $::env(CORE_AREA) \
-    -tracks $::env(TRACKS_INFO_FILE) \
     -site $::env(PLACE_SITE)
 
-
 } else {
-
 
   initialize_floorplan \
     -utilization $::env(FP_CORE_UTIL) \
     -aspect_ratio $::env(FP_ASPECT_RATIO) \
     -core_space "$bottom_margin $top_margin $left_margin $right_margin" \
-    -tracks $::env(TRACKS_INFO_FILE) \
     -site $::env(PLACE_SITE)
 
     set ::chip [[::ord::get_db] getChip]
@@ -88,6 +83,7 @@ if {$::env(FP_SIZING) == "absolute"} {
     puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(verilog2def_report_file_tag).die_area.rpt."
     puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(verilog2def_report_file_tag).core_area.rpt."
 }
+source $::env(TRACKS_INFO_FILE) 
 
 set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt w]
 set core_area_file [open $::env(verilog2def_report_file_tag).core_area.rpt w]

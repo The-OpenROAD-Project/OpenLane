@@ -15,7 +15,7 @@
 
 import argparse
 import random
-import opendbpy as odb
+import opendb as odb
 
 parser = argparse.ArgumentParser(
     description='Places instances in random locations in layout. Intended for cases,'

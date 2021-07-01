@@ -50,13 +50,16 @@ INSTALL_SRAM ?= disabled
 
 IMAGE_NAME ?= efabless/openlane:current
 TEST_DESIGN ?= spm
+DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
-OPEN_PDKS_COMMIT ?= d8c159536699c9b4a08b650bddf791a9d48152f9
+OPEN_PDKS_COMMIT ?= 1d93a6bd9d6e481acfdf88f26aa3bb0600303d98
+
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -128,7 +131,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		sleep 5 && \
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
-	docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c " cd $(PDK_ROOT)/open_pdks && \
+	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
 		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
 		cd sky130 && \
 		make veryclean && \
@@ -170,25 +173,45 @@ mount:
 	cd $(OPENLANE_DIR) && \
 		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
 
-.PHONY: regression
+MISC_REGRESSION_ARGS=
+.PHONY: regression regression_test
+regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
+regression_test: regression
 regression:
 	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		$(ENV_COMMAND) sh -c "\
+			python3 run_designs.py --delete\
+			--defaultTestSet\
+			--tarList logs reports\
+			--htmlExtract\
+			--tag $(REGRESSION_TAG)\
+			--threads $(THREADS)\
+			--print $(PRINT_REM_DESIGNS_TIME)\
+			$(MISC_REGRESSION_ARGS)\
+		"
 
-.PHONY: regression_test
-regression_test:
+DLTAG=custom_design_List
+.PHONY: test_design_list fastest_test_set
+fastest_test_set: DESIGN_LIST=$(shell cat .github/test_sets/fastestTestSet)
+fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
+fastest_test_set: test_design_list
+test_design_list:
 	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
-
-.PHONY: fastest_test_set
-fastest_test_set:
-	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c "python3 run_designs.py -d $(shell cat .github/test_sets/fastestTestSet) -dl -tar logs reports -html -t $(FASTEST_TEST_SET_TAG) -b $(BENCHMARK) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
+		$(ENV_COMMAND) sh -c "\
+			python3 run_designs.py --delete\
+			--designs $(DESIGN_LIST)\
+			--tarList logs reports\
+			--htmlExtract\
+			--tag $(DLTAG)\
+			--benchmark $(BENCHMARK)\
+			--threads $(THREADS)\
+			--print $(PRINT_REM_DESIGNS_TIME)\
+		"
 
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
+		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
 	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"

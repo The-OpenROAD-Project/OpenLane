@@ -27,7 +27,7 @@ import random
 import argparse
 from subprocess import Popen, PIPE, STDOUT
 
-import opendbpy as odb
+import opendb as odb
 
 # TECH = ""
 # PDK_ROOT = os.environ["PDK_ROOT"]

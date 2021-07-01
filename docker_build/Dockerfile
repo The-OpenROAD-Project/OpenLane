@@ -52,7 +52,7 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN pip3.6 install --no-cache-dir --upgrade pip
 RUN pip install --no-cache-dir \
 		matplotlib \
-		jinja2 \
+		"jinja2<3.0.0" \
 		pandas \
 		install \
 		XlsxWriter
@@ -75,6 +75,11 @@ ADD ./klayout.tar.gz /
 RUN yum localinstall -y /build/klayout-*.rpm
 
 # install TclX package for Tcl to handle process interrupts 
+
+# Update GIT
+RUN yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm && \
+	yum install -y git
+	
 RUN yum install -y tclx
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
@@ -85,12 +90,11 @@ COPY ./.tclshrc /root
 
 ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 
-
-# install opendb python
-RUN cd $OPENROAD/OpenDB_python/ && \
-	python3 setup.py install && \
-	rm -rf $OPENROAD/OpenDB_python
-
 WORKDIR $OPENLANE_ROOT
+
+ENV OPENROAD_BIN openroad
+
+RUN git config --global user.name "OpenLane User" 
+RUN git config --global user.email "openlane.user@localhost" 
 
 CMD /bin/bash

@@ -143,7 +143,7 @@ def run_installer():
     if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read LOCAL_INSTALL.md and agree to the outlined risks.", ["n", "y"]) != "y":
         return
 
-    print(f"""
+    print(f"""\
     DO NOT USE THIS UTILITY BEFORE READING LOCAL_INSTALL.md.
 
 OpenLane Local Installer ALPHA
@@ -155,7 +155,6 @@ OpenLane Local Installer ALPHA
 
     Note that this installer does *not* handle:
     - Installing OpenROAD to PATH
-    - Installing opendbpy.py to PYTHONPATH
 
     You'll have to do these on your own. We hope that you understand the implications of this.
 
@@ -315,7 +314,10 @@ OpenLane Local Installer ALPHA
             export NO_DIAMOND_SEARCH_HEIGHT=1
             export PATH=$OL_DIR/bin:$PATH
 
-            tclsh $OL_DIR/flow.tcl $@
+            FLOW_TCL=${FLOW_TCL:-$OL_DIR/flow.tcl}
+            FLOW_TCL=$(realpath $FLOW_TCL)
+
+            tclsh $FLOW_TCL $@
             """)
         sh("chmod", "+x", "./openlane")
 
