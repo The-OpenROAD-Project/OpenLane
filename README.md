@@ -10,7 +10,7 @@
 
 OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, OpenPhySyn, CVC, SPEF-Extractor, CU-GR, Klayout and custom methodology scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII - this capability will be released in the coming weeks with completed SoC design examples that have been sent to SkyWater for fabrication.
 
-You can find the latest release of OpenLANE [here](https://github.com/efabless/openlane/releases).
+You can find the latest release of OpenLANE [here](https://github.com/The-OpenROAD-Project/OpenLane/releases).
 
 This documentation is also available at [ReadTheDocs](https://openlane.readthedocs.io/).
 
@@ -39,8 +39,7 @@ This documentation is also available at [ReadTheDocs](https://openlane.readthedo
     - [Videos And Tutorials](#videos-and-tutorials)
 
 # Prerequisites
-
- - Docker 19.03.12+
+- Docker 19.03.12+
 
 ## Dockerless Install
 Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).
@@ -49,7 +48,7 @@ Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).
 You can start setting up the skywater-pdk and openlane by running:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git
+    git clone https://github.com/The-OpenROAD-Project/OpenLane.git
     cd openlane/
     make openlane
     # Default PDK_ROOT is $(pwd)/pdks. If you want to install the PDK at a differnt location, uncomment the next line.
@@ -66,7 +65,7 @@ To run the regression test, which tests the flow against all available designs u
     make regression_test
 ```
 
-Your results will be compared with: [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv).
+Your results will be compared with: [sky130_fd_sc_hd](https://github.com/The-OpenROAD-Project/OpenLane/blob/master/regression_results/benchmark_results/SW_HD.csv).
 
 After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
 
@@ -126,7 +125,7 @@ This should install the latest openlane docker container, and re-install the pdk
 To setup openlane you can pull the docker container following these instructions:
 
 ```bash
-    git clone https://github.com/efabless/openlane.git
+    git clone https://github.com/The-OpenROAD-Project/OpenLane.git
     docker pull efabless/openlane:current
 ```
 
@@ -174,7 +173,7 @@ Use the following example to check the overall setup:
 
 To run OpenLANE on multiple designs at the same time, check this [section](#regression-and-design-configurations-exploration).
 
-Having trouble running the flow? check [FAQs](https://github.com/efabless/openlane/wiki)
+Having trouble running the flow? check [FAQs](https://github.com/The-OpenROAD-Project/OpenLane/wiki)
 
 ## Command line arguments
 
@@ -543,10 +542,9 @@ To check the original author list of OpenLANE, check [this][33].
 # Additional Material
 
 ## Papers
-
 - Ahmed Ghazy and Mohamed Shalan, "OpenLane: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
-- M. Shalan and T. Edwards, "Building OpenLANE: A 130nm OpenROAD-based Tapeout- Proven Flow : Invited Paper," 2020 IEEE/ACM International Conference On Computer Aided Design (ICCAD), San Diego, CA, USA, 2020, pp. 1-6.
-- R. Timothy Edwards, M. Shalan and M. Kassem, "Real Silicon using Open Source EDA," in IEEE Design & Test, doi: 10.1109/MDAT.2021.3050000.
+- M. Shalan and T. Edwards, "Building OpenLANE: A 130nm OpenROAD-based Tapeout- Proven Flow : Invited Paper," 2020 IEEE/ACM International Conference On Computer Aided Design (ICCAD), San Diego, CA, USA, 2020, pp. 1-6. [Paper](https://ieeexplore.ieee.org/document/9256623/)
+- R. Timothy Edwards, M. Shalan and M. Kassem, "Real Silicon using Open Source EDA," in IEEE Design & Test, doi: 10.1109/MDAT.2021.3050000. [Paper](https://ieeexplore.ieee.org/document/9336682)
 
 ## Videos and Tutorials
 
