@@ -54,6 +54,7 @@ DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
+COMPLETE_TEST_SET_TAG ?= COMPLETE_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
@@ -191,10 +192,13 @@ regression:
 		"
 
 DLTAG=custom_design_List
-.PHONY: test_design_list fastest_test_set
-fastest_test_set: DESIGN_LIST=$(shell cat .github/test_sets/fastestTestSet)
+.PHONY: test_design_list fastest_test_set complete_test_set
+fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py fastestTestSet)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
+complete_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py completeTestSet)
+complete_test_set: DLTAG=$(COMPLETE_TEST_SET_TAG)
+complete_test_set: test_design_list
 test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
