@@ -404,7 +404,7 @@ proc prep {args} {
         trim_lib
 
         set tracks_processed $::env(TMP_DIR)/config.tracks
-        try_catch $::env(OPENROAD_BIN) -python scripts/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
         set ::env(TRACKS_INFO_FILE) $tracks_processed
 
         if { $::env(USE_GPIO_PADS) } {
