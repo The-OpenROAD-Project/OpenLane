@@ -467,7 +467,7 @@ To delete all generated runs under all designs:
         ```
         $PDK_ROOT/$PDK/$STD_CELL_LIBRARY/config.tcl
         ```
-    - More on configuring a new PDK in this [section](#setting-up-the-pdk-skywater-pdk)
+    - More on configuring a new PDK in this [section](#setting-up-OpenLane)
 
 - Flow specific variables are related to the flow and are initialized with default values in:
 
@@ -557,14 +557,14 @@ To check the original author list of OpenLane, check [this][33].
 [6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/ioPlacer
 [7]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/tapcell
 [8]: https://github.com/The-OpenROAD-Project/OpenSTA
-[9]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/replace
+[9]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/replace
 [10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
 [11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS
 [12]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/FastRoute
 [13]: https://github.com/The-OpenROAD-Project/TritonRoute
 [14]: https://github.com/RTimothyEdwards/magic
 [15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/resizer
-[16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/pdngen
+[16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/pdn
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
