@@ -41,7 +41,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    cd openlane/
+    cd OpenLane/
     make openlane
 ```
 * Note that `make openlane` always pulls the **latest** version of OpenLane: to get a specific tag, you need to invoke `IMAGE_NAME=efabless/openlane:v0.18 make openlane`, for example.
