@@ -38,7 +38,7 @@ endif
 # Podman (Centos8) doesn't like the -u switches
 # Only add if we're not using podman in emulation
 ifeq (0,$(shell docker -v 2>/dev/null | grep podman | wc -l))
-   DOCKER_UID_OPTIONS = -u $(shell id -u $(USER)):$(shell id -g $(USER))
+   # DOCKER_UID_OPTIONS = -u $(shell id -u $(USER)):$(shell id -g $(USER))
 endif
 
 
@@ -48,7 +48,8 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:current
+CURRENT_TAG ?= $(shell python3 ./get_tag.py)
+IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv

@@ -44,7 +44,6 @@ You can start setting up the Sky130 PDK and OpenLane by running:
     cd openlane/
     make openlane
 ```
-* Note that `make openlane` always pulls the **latest** version of OpenLane: to get a specific tag, you need to invoke `IMAGE_NAME=efabless/openlane:v0.18 make openlane`, for example.
 
 ---
 
@@ -119,7 +118,7 @@ To setup OpenLane you can pull the Docker container by following these instructi
 
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    docker pull efabless/openlane:current
+    make openlane
 ```
 For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
 
