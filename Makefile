@@ -177,10 +177,6 @@ mount:
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
 regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
-regression_test: regression
-regression:
-	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) -u 0 $(IMAGE_NAME) sh -c "python3 run_designs.py -dts -dl -tar logs reports -html -t $(REGRESSION_TAG) -th $(THREADS) -p $(PRINT_REM_DESIGNS_TIME)"
 
 .PHONY: fastest_test_set
 fastest_test_set:
