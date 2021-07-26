@@ -30,6 +30,14 @@ if { [info exists ::env(SYNTH_DEFINES) ] } {
 	}
 }
 
+set vIdirsArgs ""
+if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
+	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
+		lappend vIdirsArgs "-I$dir"
+	}
+	set vIdirsArgs [join $vIdirsArgs]
+}
+
 if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
 	log "Reading $::env(LIB_SYNTH_COMPLETE_NO_PG) as a blackbox"
 	foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
@@ -45,7 +53,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-		read_verilog -sv -lib $verilog_file
+		read_verilog -sv -lib {*}$vIdirsArgs $verilog_file
 	}
 }
 
@@ -197,14 +205,6 @@ if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
 	exit 1
 }
 
-set vIdirsArgs ""
-if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
-	foreach dir $::env(VERILOG_INCLUDE_DIRS) {
-		lappend vIdirsArgs "-I$dir"
-	}
-	set vIdirsArgs [join $vIdirsArgs]
-}
-
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 	read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
@@ -242,6 +242,9 @@ if { $::env(SYNTH_NO_FLAT) } {
 } else {
 	synth -top $vtop -flatten
 }
+
+# write a post techmap dot file
+show -format dot -prefix $::env(TMP_DIR)/synthesis/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive

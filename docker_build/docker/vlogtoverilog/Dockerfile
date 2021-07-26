@@ -29,10 +29,12 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
 RUN yum install -y git 
 RUN cd
 
-RUN git clone https://github.com/RTimothyEdwards/qflow
+ARG QFLOW_REPO=https://github.com/RTimothyEdwards/qflow
+ARG QFLOW_COMMIT=a550469b63e910ede6e3022e2886bca96462c540
 
+RUN git clone ${QFLOW_REPO}
 WORKDIR qflow
-RUN git checkout a550469b63e910ede6e3022e2886bca96462c540
+RUN git checkout ${QFLOW_COMMIT}
 
 RUN ./configure && cd src && make vlog2Verilog
 

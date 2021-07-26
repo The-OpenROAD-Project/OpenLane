@@ -90,7 +90,7 @@ proc run_sta {args} {
 		set report_tag_saver $::env(opensta_report_file_tag)
 		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
 
-        try_catch sta $::env(SCRIPTS_DIR)/sta.tcl \
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/sta.tcl \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
 
 		set ::env(opensta_report_file_tag) $report_tag_saver

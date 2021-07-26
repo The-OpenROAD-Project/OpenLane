@@ -66,7 +66,7 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch python3 $::env(SCRIPTS_DIR)/write_powered_def.py \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/write_powered_def.py \
       -d $arg_values(-def) \
       -l $arg_values(-lef) \
       --power-port $arg_values(-power) \

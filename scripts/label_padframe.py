@@ -22,7 +22,7 @@ import argparse
 import sys
 import os
 import re
-# import opendbpy as odb
+# import opendb as odb
 
 TECH = ""
 PDK_ROOT = os.environ["PDK_ROOT"]

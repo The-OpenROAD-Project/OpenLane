@@ -129,7 +129,7 @@ proc zeroize_origin_lef {args} {
   set flags {}
   parse_key_args "zeroize_origin_lef" args arg_values $options flags_map $flags
   exec cp $arg_values(-file) $arg_values(-file).original
-  try_catch python3 $::env(SCRIPTS_DIR)/zeroize_origin_lef.py < $arg_values(-file) > $arg_values(-file).zeroized
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/zeroize_origin_lef.py < $arg_values(-file) > $arg_values(-file).zeroized
   exec mv  $arg_values(-file).zeroized $arg_values(-file)
 }
 

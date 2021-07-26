@@ -20,7 +20,7 @@ to single macro pin given also as an input -> writes a PINS section with shapes
 generated over those macro pins, "labels".
 """
 import argparse
-import opendbpy as odb
+import opendb as odb
 
 parser = argparse.ArgumentParser(
     description='Labels pins of macros according to netlist')

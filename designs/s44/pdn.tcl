@@ -3,6 +3,17 @@ set ::ground_nets $::env(GND_PIN)
 
 set ::macro_blockage_layer_list "li1 met1 met2 met3 met4 met5"
 
+set pdngen::global_connections {
+  VPWR {
+    {inst_name .* pin_name VPWR}
+    {inst_name .* pin_name VPB}
+  }
+  VGND {
+    {inst_name .* pin_name VGND}
+    {inst_name .* pin_name VNB}
+  }
+}
+
 pdngen::specify_grid stdcell {
   name grid
   rails {
@@ -12,6 +23,7 @@ pdngen::specify_grid stdcell {
     met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
   }
   connect {{met1 met4}}
+  pins {met4}
 }
 
 set ::halo 0

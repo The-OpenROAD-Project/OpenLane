@@ -15,13 +15,121 @@
 
 
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
-
+if { ! [info exists ::env(OPENROAD_BIN) ] } {
+	set ::env(OPENROAD_BIN) openroad
+}
 lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
+
+proc run_placement_step {args} {
+    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
+    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
+    # set_def $pdndef
+    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+        set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(PLACEMENT_CURRENT_DEF)
+    }
+
+    run_placement
+}
+
+proc run_cts_step {args} {
+    # set_def $::env(opendp_result_file_tag).def
+    if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
+        set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
+    }
+
+    run_cts
+    run_resizer_timing
+}
+
+proc run_routing_step {args} {
+    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
+    # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
+    # set_def $resizerdef
+    if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
+        set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
+    }
+    run_routing
+}
+
+proc run_diode_insertion_2_5_step {args} {
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
+        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
+    }
+	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+		run_antenna_check
+		heal_antenna_violators; # modifies the routed DEF
+	}
+
+}
+
+proc run_power_pins_insertion_step {args} {
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
+        set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(POWER_PINS_INSERTION_CURRENT_DEF)
+    }
+    if { $::env(LVS_INSERT_POWER_PINS) } {
+		write_powered_verilog
+		set_netlist $::env(lvs_result_file_tag).powered.v
+    }
+
+}
+
+proc run_lvs_step {{ lvs_enabled 1 }} {
+    # set_def $::env(tritonRoute_result_file_tag).def
+    if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
+        set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
+    }
+	if { $lvs_enabled } {
+		run_magic_spice_export
+		run_lvs; # requires run_magic_spice_export
+	}
+
+}
+
+proc run_drc_step {{ drc_enabled 1 }} {
+    if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
+        set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
+    }
+	if { $drc_enabled } {
+		run_magic_drc
+		run_klayout_drc
+	}
+}
+
+proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
+    if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
+        set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
+    } else {
+        set ::env(CURRENT_DEF) $::env(ANTENNA_CHECK_CURRENT_DEF)
+    }
+	if { $antenna_check_enabled } {
+		run_antenna_check
+	}
+}
+
+	
 
 proc run_non_interactive_mode {args} {
 	set options {
 		{-design required}
+		{-from optional}
+		{-to optional}
 		{-save_path optional}
 		{-no_lvs optional}
 	    {-no_drc optional}
@@ -31,33 +139,61 @@ proc run_non_interactive_mode {args} {
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
 	prep {*}$args
+    # signal trap SIGINT save_state;
 
-	run_synthesis
-	run_floorplan
-	run_placement
-	run_cts
-	run_resizer_timing
-	run_routing
+    set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
+    set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
+    set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
-	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-		run_antenna_check
-		heal_antenna_violators; # modifies the routed DEF
-	}
+    set steps [dict create "synthesis" {run_synthesis "" } \
+                "floorplan" {run_floorplan ""} \
+                "placement" {run_placement_step ""} \
+                "cts" {run_cts_step ""} \
+                "routing" {run_routing_step ""}\
+                "diode_insertion" {run_diode_insertion_2_5_step ""} \
+                "power_pins_insertion" {run_power_pins_insertion_step ""} \
+                "gds_magic" {run_magic ""} \
+                "gds_drc_klayout" {run_klayout ""} \
+                "gds_xor_klayout" {run_klayout_gds_xor ""} \
+                "lvs" "run_lvs_step $LVS_ENABLED" \
+                "drc" "run_drc_step $DRC_ENABLED" \
+                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+                "cvc" {run_lef_cvc}
+        ]
 
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
+    set_if_unset arg_values(-to) "cvc";
+
+	if {  [info exists ::env(CURRENT_STEP) ] } {
+        puts "\[INFO\]:Picking up where last execution left off"
+        puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
+    } else {
+        set ::env(CURRENT_STEP) "synthesis";
     }
 
-	run_magic
+    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+    set exe 0;
+    dict for {step_name step_exe} $steps {
+        if { [ string equal $arg_values(-from) $step_name ] } {
+            set exe 1;
+        }
 
-	run_klayout
+        if { $exe } {
+            # For when it fails
+            set ::env(CURRENT_STEP) $step_name
+            [lindex $step_exe 0] [lindex $step_exe 1] ;
+        }
 
-	run_klayout_gds_xor
+        if { [ string equal $arg_values(-to) $step_name ] } {
+            set exe 0:
+            break;
+        }
 
-	if { ! [info exists flags_map(-no_lvs)] } {
-		run_magic_spice_export
-	}
+    }
+
+    # for when it resumes
+    set steps_as_list [dict keys $steps]
+    set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
+    set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
 	if {  [info exists flags_map(-save) ] } {
 		if { ! [info exists arg_values(-save_path)] } {
@@ -74,24 +210,11 @@ proc run_non_interactive_mode {args} {
 			-tag $::env(RUN_TAG)
 	}
 
-	# Physical verification
-	if { ! [info exists flags_map(-no_lvs)] } {
-		run_lvs; # requires run_magic_spice_export
-	}
 
-	if { ! [info exists flags_map(-no_drc)] } {
-		run_magic_drc
-		run_klayout_drc
-	}
-
-	if {  ! [info exists flags_map(-no_antennacheck) ] } {
-		run_antenna_check
-	}
-
-	run_lef_cvc
 
 	calc_total_runtime
 	generate_final_summary_report
+    save_state
 
 	puts_success "Flow Completed Without Fatal Errors."
 }
@@ -203,11 +326,11 @@ set flags {-interactive -it -drc -lvs -synth_explore}
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 puts_info {
-	___   ____   ___  ____   _       ____  ____     ___
+	 ___   ____   ___  ____   _       ____  ____     ___
 	/   \ |    \ /  _]|    \ | |     /    ||    \   /  _]
-	|     ||  o  )  [_ |  _  || |    |  o  ||  _  | /  [_
-	|  O  ||   _/    _]|  |  || |___ |     ||  |  ||    _]
-	|     ||  | |   [_ |  |  ||     ||  _  ||  |  ||   [_
+	|   | |  o  )  [_ |  _  || |    |  o  ||  _  | /  [_
+	| O | |   _/    _]|  |  || |___ |     ||  |  ||    _]
+	|   | |  | |   [_ |  |  ||     ||  _  ||  |  ||   [_
 	\___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 }

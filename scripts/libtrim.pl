@@ -18,8 +18,8 @@
 
 use warnings;
 use strict;
-use feature "switch";
-#use experimental qw( switch );
+use feature qw( switch );
+no if $] >= 5.018, warnings => qw( experimental::smartmatch );
 
 open (CELLS,'<', $ARGV[1]) or die("Couldn't open $ARGV[1]");
 
