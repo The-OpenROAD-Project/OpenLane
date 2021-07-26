@@ -27,7 +27,7 @@ $(TOOL_EXPORT_TARGETS_PHONY): export-% :
 	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
 	id=$$(${ROOT} docker create $*) ; \
-	  ${ROOT} docker cp $$id:\build.tar.gz tar/$*.tar.gz ; \
+	  ${ROOT} docker cp $$id:/build.tar.gz tar/$*.tar.gz ; \
 	  ${ROOT} docker rm -v $$id
 
 .PHONY: export-all
