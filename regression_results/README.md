@@ -14,11 +14,11 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.html)
-- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.html)
-- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.html)
-- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.html)
-- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.html)
+- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv)
+- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.csv)
+- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.csv)
+- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.csv)
+- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.csv)
 
 **Note**: `flow_failed` under `flow_status` implies that the run had failed.
 
@@ -102,12 +102,12 @@ The script can be used in two ways
         set ::env(SYNTH_STRATEGY) 1
         "
         ```
-        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATGY is already specified under the configurations, the old value will override the value specified here.
+        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATEGY is already specified under the configurations, the old value will override the value specified here.
 
-        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
+        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific information, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
 
-    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding to its use in the file.
+    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding its use in the file.
 
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*

@@ -209,6 +209,7 @@ proc flow_fail {args} {
 		set ::env(FLOW_FAILED) 1
 		calc_total_runtime -status "Flow failed"
 		generate_final_summary_report
+        save_state
 		puts_err "Flow Failed."
 	}
 }
@@ -256,7 +257,7 @@ proc calc_total_runtime {args} {
 # 9	Reset to default color
 proc color_text {color txt} {
     if {[info exists ::env(TERM)] && $::env(TERM) != ""} {
-      return [exec tput setaf $color]$txt[exec tput setaf 7]
+      return [exec tput setaf $color]$txt[exec tput setaf 9]
     } else {
       return $txt
     }
@@ -309,7 +310,7 @@ proc generate_final_summary_report {args} {
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
 
-        try_catch python3 $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) \
+        try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) \
 			-dn $::env(DESIGN_NAME) \
 			-t $::env(RUN_TAG) \
 			-o $arg_values(-output) \

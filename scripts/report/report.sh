@@ -51,7 +51,7 @@ arc_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o 
 fr_log=${path}/logs/routing/fastroute.log
 cvc_log=$(python3 $3/get_file_name.py -p ${path}/logs/cvc/ -o cvc_screen.log 2>&1)
 tritonRoute_def="${path}/results/routing/${designName}.def"
-openDP_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o opendp.log 2>&1)
+replace_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
@@ -97,7 +97,7 @@ cellperum=-1
 #if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
-opendpUtil=$(grep "utilization" $openDP_log -s | head -1 | sed -E 's/.* (\S+).*%/\1/')
+opendpUtil=$(grep "Util(%):" $replace_log -s | head -1 | sed -E 's/.*Util\(%\): (\S+)/\1/')
 if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
@@ -255,17 +255,19 @@ level=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/.*lev.*[^0-9]
 if ! [[ $level ]]; then level=-1; fi
 
 #Extracting layer usage percentage
-layer1=$(grep "Layer 1 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 1 use percentage: (\S+)%/\1/')
+usageLine=$(grep -n -E "Layer\s+Resource" $fr_log | tail -1 | sed -E 's/(\S+):.*/\1/')
+
+layer1=$(sed -n "$(expr $usageLine + 2)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer1 ]]; then layer1=-1; fi
-layer2=$(grep "Layer 2 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 2 use percentage: (\S+)%/\1/')
+layer2=$(sed -n "$(expr $usageLine + 3)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer2 ]]; then layer2=-1; fi
-layer3=$(grep "Layer 3 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 3 use percentage: (\S+)%/\1/')
+layer3=$(sed -n "$(expr $usageLine + 4)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer3 ]]; then layer3=-1; fi
-layer4=$(grep "Layer 4 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 4 use percentage: (\S+)%/\1/')
+layer4=$(sed -n "$(expr $usageLine + 5)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer4 ]]; then layer4=-1; fi
-layer5=$(grep "Layer 5 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 5 use percentage: (\S+)%/\1/')
+layer5=$(sed -n "$(expr $usageLine + 6)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer5 ]]; then layer5=-1; fi
-layer6=$(grep "Layer 6 use percentage:" $fr_log -s | tail -1 | sed -E 's/Layer 6 use percentage: (\S+)%/\1/')
+layer6=$(sed -n "$(expr $usageLine + 7)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
 if ! [[ $layer6 ]]; then layer6=-1; fi
 
 #Extracting Endcaps and TapCells
@@ -279,7 +281,7 @@ if ! [[ $tapcells ]]; then tapcells=0; fi
 #Extracting Diodes
 diodes=$(grep "inserted!" $diodes_log -s | tail -1 | sed -E 's/.* (\S+) of .* inserted!/\1/')
 if ! [[ $diodes ]]; then
-        diodes=$(grep "diodes inserted" $fr_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted/\1/')
+        diodes=$(grep "diodes inserted" $fr_log -s | tail -1 | sed -E 's/.* (\S+) diodes inserted./\1/')
         if ! [[ $diodes ]]; then diodes=0; fi
 fi
 

@@ -30,7 +30,7 @@ import re
 import sys
 import argparse
 import random
-import opendbpy as odb
+import opendb as odb
 
 parser = argparse.ArgumentParser(description='''
 Places the IOs according to an input file. Supports regexes.
