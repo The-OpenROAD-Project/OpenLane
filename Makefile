@@ -179,8 +179,8 @@ MISC_REGRESSION_ARGS=
 regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
 regression_test: regression
 regression:
-	cd $(OPENLANE_DIR) && \		
-	$(ENV_COMMAND) sh -c "\
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py --delete\
 			--defaultTestSet\
 			--tarList logs reports\
