@@ -177,10 +177,10 @@ mount:
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
 regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
-
-.PHONY: fastest_test_set
-fastest_test_set:
-		$(ENV_COMMAND) sh -c "\
+regression_test: regression
+regression:
+	cd $(OPENLANE_DIR) && \		
+	$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py --delete\
 			--defaultTestSet\
 			--tarList logs reports\
