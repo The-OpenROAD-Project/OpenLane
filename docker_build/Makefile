@@ -16,7 +16,7 @@ build-all: $(TOOL_BUILD_TARGETS) export-all
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 	mkdir -p logs/docker
-	docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
+	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* docker/$* | tee logs/docker/$*.build.txt
 	${MAKE} export-$*
 
 # ==============================================================================

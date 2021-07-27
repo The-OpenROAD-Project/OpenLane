@@ -42,32 +42,23 @@
     ./configure --prefix=$PREFIX
     make -j$(nproc)
     make install
-- name: openroad_app
-  repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
-  build:
-    mkdir -p ./build
-    cd ./build
-    cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin ..
-    make -j$(nproc)
 - name: padring
   repo: https://github.com/ax3ghazy/padring
   commit: a88faf5a4faef75ff241276599fef81c3653cb70
   build: |
-      bash ./bootstrap.sh
-      cd build
-      ninja
-      cp padring $PREFIX/bin
-
-- name: qflow # Note we only grab the vlog2verilog tool.
+    bash ./bootstrap.sh
+    cd build
+    ninja
+    cp padring $PREFIX/bin
+- name: qflow
   repo: https://github.com/RTimothyEdwards/qflow
   commit: a550469b63e910ede6e3022e2886bca96462c540
   build: |
+    # Note we only grab the vlog2verilog tool.
     ./configure
     cd src
     make -j$(nproc) vlog2Verilog
     cp vlog2Verilog $PREFIX/bin
-
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: d061b0e41a2023b5e72794563b94d6a9b5ab41a1
@@ -75,4 +66,21 @@
     make PREFIX=$PREFIX config-gcc
     make PREFIX=$PREFIX -j$(nproc)
     make PREFIX=$PREFIX install
-    
+- name: openroad_app
+  repo: https://github.com/The-OpenROAD-Project/OpenROAD
+  commit: 4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
+  build: mkdir -p ./build cd ./build cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin .. make
+    -j$(nproc)
+  in_install: false
+- name: open_pdks
+  repo: https://github.com/rtimothyedwards/open_pdks
+  commit: 1d93a6bd9d6e481acfdf88f26aa3bb0600303d98
+  build: ''
+  in_install: false
+  in_container: false
+- name: sky130
+  repo: https://github.com/google/skywater-pdk
+  commit: 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
+  build: ''
+  in_install: false
+  in_container: false

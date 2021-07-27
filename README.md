@@ -31,7 +31,12 @@ This documentation is also available at [ReadTheDocs](https://openlane.readthedo
     - [Videos And Tutorials](#videos-and-tutorials)
 
 # Prerequisites
+At a minimum:
+
 - Docker 19.03.12+
+- GNU Make
+- Python 3.6+ with PIP
+- Pyyaml: `pip3 install pyyaml`
 
 ## Dockerless Install
 Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).

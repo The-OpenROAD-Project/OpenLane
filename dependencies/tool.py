@@ -16,12 +16,13 @@ import yaml
 from typing import Dict, List
 
 class Tool(object):
-    def __init__(self, name, repo=None, commit=None, build_script="make && make install", clone_depth=None):
+    def __init__(self, name, repo, commit, build_script="make && make install", in_install=True, in_container=True):
         self.name = name
         self.repo = repo
         self.commit = commit
         self.build_script = build_script
-        self.clone_depth = str(clone_depth) if clone_depth is not None else None
+        self.in_install = in_install
+        self.in_container = in_container
 
     @property
     def repo_pretty(self):
@@ -48,7 +49,33 @@ class Tool(object):
                 repo=tool['repo'],
                 commit=tool['commit'],
                 build_script=tool['build'],
-                clone_depth=tool.get('clone_depth')
+                in_container=tool.get('in_container') or True,
+                in_install=tool.get('in_install') or True
             )
         return final_dict
 
+def main():
+    import os
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Get Tool Info")
+    parser.add_argument("--docker-args", action="store_true")
+    parser.add_argument("--field", "-f")
+    parser.add_argument("tool")
+    tools = Tool.from_metadata_yaml(open(os.path.join(os.path.dirname(__file__), "tool_metadata.yml")).read())
+    args = parser.parse_args()
+    
+    tool = tools[args.tool]
+    
+    if args.docker_args:
+        print(f"--build-arg {tool.name.upper()}_REPO={tool.repo} --build-arg {tool.name.upper()}_COMMIT={tool.commit}", end="")
+    elif args.field:
+        field = tool.__dict__[args.field]
+        print(field, end="")
+    else:
+        print("Either --field or --docker-args is required.")
+        exit(os.EX_USAGE)
+
+
+if __name__ == "__main__":
+    main()

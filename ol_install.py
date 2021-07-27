@@ -260,7 +260,7 @@ OpenLane Local Installer ALPHA
                 sh("mkdir", "-p", folder)
                 
             for tool in tools.values():
-                if tool.name == "openroad_app":
+                if not tool.in_install:
                     continue
                 installed_version = ""
                 version_path = f"versions/{tool.name}"

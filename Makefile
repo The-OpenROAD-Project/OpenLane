@@ -58,8 +58,8 @@ FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 COMPLETE_TEST_SET_TAG ?= COMPLETE_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
-OPEN_PDKS_COMMIT ?= 1d93a6bd9d6e481acfdf88f26aa3bb0600303d98
+SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
+OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
 ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
 
@@ -88,7 +88,7 @@ $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk:
-	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
+	git clone $(shell python3 ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
@@ -118,7 +118,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
+	git clone $(shell python3 ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks

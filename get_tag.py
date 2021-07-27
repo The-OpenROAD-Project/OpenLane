@@ -20,7 +20,7 @@ import subprocess
 tag = None
 
 try:
-    tag = subprocess.check_output(["git", "describe", "--tags"]).decode("utf8").strip()
+    tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"]).decode("utf8").strip()
 except Exception as e:
     pass
 
