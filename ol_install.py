@@ -29,7 +29,7 @@ import subprocess
 from os.path import join, abspath, dirname, exists
 from typing import Tuple, Union, List
 
-from dependencies.tool_metadata import Tool
+from dependencies.tool import Tool
 
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
@@ -112,34 +112,8 @@ def download(url, ext):
     target.close()
     return path
 
-def compile_tool_data():
-    dockerfiles = glob.glob(join(openlane_dir, "docker_build", "**", "Dockerfile"), recursive=True)
-    docker_lines = "\n".join([open(x).read() for x in dockerfiles]).split("\n")
-    for line in docker_lines:
-        repo_rx = r"ARG\s+(\w+)_REPO\s*=\s*([^\s]+)"
-        commit_rx = r"ARG\s+(\w+)_COMMIT\s*=\s*([^\s]+)"
-
-        repo_match = re.match(repo_rx, line)
-        commit_match = re.match(commit_rx, line)
-
-        if repo_match:
-            name = repo_match[1].lower(); repo = repo_match[2]
-
-            tool = Tool.map.get(name)
-            if tool is None:
-                print(f"Tool {name} not found, skipping...")
-                continue
-            tool.repo = repo
-        if commit_match:
-            name = commit_match[1].lower(); commit = commit_match[2]
-
-            tool = Tool.map.get(name)
-            if tool is None:
-                print(f"Tool {name} not found, skipping...")
-                continue
-            tool.commit = commit
-
 def run_installer():
+    tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
     if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read LOCAL_INSTALL.md and agree to the outlined risks.", ["n", "y"]) != "y":
         return
 
@@ -160,7 +134,7 @@ OpenLane Local Installer ALPHA
 
     This version of OpenLane was tested with this version of OpenRoad:
 
-        {Tool.map["openroad_app"].version_string}
+        {tools["openroad_app"].version_string}
     """)
 
     os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", ["ubuntu-20.04", "centos7", "other"])
@@ -168,11 +142,10 @@ OpenLane Local Installer ALPHA
     gcc_bin = os.getenv("CC") or "gcc"
     gxx_bin = os.getenv("CXX") or "g++"
     try:
-        if not os_pick == "centos7":
+        if not os_pick == "centos7": # The reason we ignore centos7 is that we're going to just use devtoolset-8 anyway.            
             gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
             gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
             if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
-                # The reason we ignore centos7 is that we're going to just use devtoolset-8 anyway.
                 print(f"""
     We've detected that you're using Clang as your default C or C++ compiler.
     Unfortunately, Clang is not compatible with some of the tools being
@@ -203,13 +176,19 @@ OpenLane Local Installer ALPHA
 
     pip_action = input_options("PIP_DEPS", "Install PIP dependencies?", ["no", "system", "user"])
     if pip_action != "no":
+        python_directory = join(openlane_dir, "dependencies", "python")
+        requirements_files = [os.path.join(python_directory, file) for file in os.listdir(python_directory)]
+        final_list = []
+        for file in requirements_files:
+            final_list.append("-r")
+            final_list.append(file)
+
         sh(
             "python3",
             "-m",
             "pip",
             "install",
-            "-r",
-            join(openlane_dir, "dependencies", "requirements.txt"),
+            *final_list,
             root=pip_action == "system"
         )
    
@@ -217,12 +196,18 @@ OpenLane Local Installer ALPHA
     if os_pick != "other":
         install_packages = input_options("INSTALL_PACKAGES", "Do you want to install packages for development?", ["no", "yes"])
     if install_packages != "no":
+        def cat_all(dir):
+            result = ""
+            for file in os.listdir(dir):
+                result += open(join(dir, file)).read()
+                result += "\n"
+            return result
         if os_pick == "centos7":
-            yum_packages = open(join(openlane_dir, 'dependencies', 'centos7.txt')).read().strip().split("\n")
+            yum_packages = cat_all(join(openlane_dir, 'dependencies', 'centos7')).strip().split("\n") 
 
             sh("yum", "install", "-y", *yum_packages)
         if os_pick == "ubuntu-20.04":
-            raw = open(join(openlane_dir, 'dependencies', 'ubuntu20.04.txt')).read().strip().split("\n")
+            raw = cat_all(join(openlane_dir, 'dependencies', 'ubuntu-20.04')).strip().split("\n")
 
             apt_packages = []
             apt_debs = []
@@ -274,8 +259,8 @@ OpenLane Local Installer ALPHA
             for folder in ["repos", "versions"]:
                 sh("mkdir", "-p", folder)
                 
-            for tool in Tool.map.values():
-                if tool.skip:
+            for tool in tools.values():
+                if tool.name == "openroad_app":
                     continue
                 installed_version = ""
                 version_path = f"versions/{tool.name}"
@@ -301,7 +286,7 @@ OpenLane Local Installer ALPHA
                         sh("git", "submodule", "update", "--init")
                         sh("git", "checkout", tool.commit)
                         subprocess.run([
-                            "bash", "-c", tool.install_command
+                            "bash", "-c", tool.build_script
                         ], env=run_env, check=True)
 
                 with open(version_path, "w") as f:
@@ -311,7 +296,6 @@ OpenLane Local Installer ALPHA
             f.write("""#!/bin/bash
             OL_DIR="$(dirname "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
-            export NO_DIAMOND_SEARCH_HEIGHT=1
             export PATH=$OL_DIR/bin:$PATH
 
             FLOW_TCL=${FLOW_TCL:-$OL_DIR/flow.tcl}
@@ -337,9 +321,9 @@ def main():
         help="List the tools and exit."
     )
     args = parser.parse_args()
-    compile_tool_data()
     if args.list_tools:
-        for tool in Tool.map.values():
+        tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
+        for tool in tools.values():
             print(f"{tool.name}: {tool.version_string}")
     else:
         run_installer()

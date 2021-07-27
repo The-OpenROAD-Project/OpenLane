@@ -1,5 +1,5 @@
 https://repo.ius.io/ius-release-el7.rpm
-https://www.klayout.org/downloads/CentOS_7/klayout-0.26.9-0.x86_64.rpm
+https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
 
 centos-release-scl
 devtoolset-8
