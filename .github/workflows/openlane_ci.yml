@@ -203,11 +203,6 @@ jobs:
 
       - name: Docker Push (Branch Name)
         run: |
-          TAG=${{ env.BRANCH_NAME }}
-          if [ "$TAG" = "${{ secrets.MAIN_BRANCH }}" ]; then
-            TAG=latest
-          fi
-
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:$TAG
           docker push ${{ secrets.DOCKER_IMAGE }}:$TAG
 
@@ -215,6 +210,6 @@ jobs:
         if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         run: |
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:current
+          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:latest
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker push ${{ secrets.DOCKER_IMAGE }}:current
+          docker push ${{ secrets.DOCKER_IMAGE }}:latest
