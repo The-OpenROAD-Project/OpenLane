@@ -151,51 +151,10 @@ proc run_placement {args} {
         set ::env(PL_TARGET_DENSITY) $old_pl_target_density
     }
 
-    run_openPhySyn
     run_resizer_design
     detailed_placement_or
     scrot_klayout -layout $::env(CURRENT_DEF)
 }
-
-proc run_openPhySyn {args} {
-    if { $::env(PL_OPENPHYSYN_OPTIMIZATIONS) == 1} {
-        puts_info "Running OpenPhySyn Timing Optimizations..."
-        TIMER::timer_start
-        if { ! [info exists ::env(LIB_OPT)]} {
-            set ::env(LIB_OPT) $::env(TMP_DIR)/opt.lib
-            trim_lib -input $::env(LIB_SLOWEST) -output $::env(LIB_OPT) -drc_exclude_only
-        }
-        set report_tag_saver $::env(openphysyn_report_file_tag)
-        set ::env(openphysyn_report_file_tag) [index_file $::env(openphysyn_report_file_tag)]
-
-        set ::env(SAVE_DEF) [index_file $::env(openphysyn_tmp_file_tag).def 0]
-        try_catch Psn $::env(SCRIPTS_DIR)/openPhySyn.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(openphysyn_log_file_tag).log 0]
-        set_def $::env(SAVE_DEF)
-        set ::env(openphysyn_report_file_tag) $report_tag_saver
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(openphysyn_log_file_tag)_runtime.txt 0]
-
-        write_verilog $::env(yosys_result_file_tag)_optimized.v
-        set_netlist $::env(yosys_result_file_tag)_optimized.v
-
-        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
-
-        set report_tag_holder $::env(opensta_report_file_tag)
-        set log_tag_holder $::env(opensta_log_file_tag)
-        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_openphysyn
-        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_openphysyn
-        run_sta
-        set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder
-
-    } else {
-        puts_info "Skipping OpenPhySyn Timing Optimizations."
-    }
-}
-
 
 proc run_resizer_timing {args} {
     if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
