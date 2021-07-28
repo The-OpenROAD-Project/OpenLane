@@ -206,8 +206,8 @@ jobs:
       - name: Docker Push (Branch Name)
         if: ${{ env.PUSHING == '1' }}
         run: |
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:$TAG
-          docker push ${{ secrets.DOCKER_IMAGE }}:$TAG
+          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
+          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
 
       - name: Docker Push (Tag) (If scheduled or dispatched)
         if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
