@@ -128,13 +128,14 @@ jobs:
           TEST_SET: completeTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
   cleanup_and_deploy:
+      name: Cleanup (and Possibly Deployment)
       needs: test
       runs-on: ubuntu-latest
       steps:
       - name: Check If Going To Push An Image To Docker
         # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
         run: |
-          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}"" != ""); print(1) else print(0) end')
+          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
           echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
