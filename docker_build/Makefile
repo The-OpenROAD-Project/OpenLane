@@ -4,7 +4,7 @@ DOCKERFILE_PATH ?= ./Dockerfile
 IMAGE_NAME ?= efabless/openlane:current
 #ROOT = sudo
 
-TOOLS = klayout cugr drcu yosys antmicro_yosys magic openroad_app padring netgen vlogtoverilog openphysyn cvc
+TOOLS = klayout cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
@@ -16,7 +16,7 @@ build-all: $(TOOL_BUILD_TARGETS) export-all
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
 	mkdir -p logs/docker
-	docker build $(DOCKER_BUILD_OPTS) -t $* docker/$* | tee logs/docker/$*.build.txt
+	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* docker/$* | tee logs/docker/$*.build.txt
 	${MAKE} export-$*
 
 # ==============================================================================

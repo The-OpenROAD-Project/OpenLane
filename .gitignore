@@ -29,3 +29,6 @@ default.cvcrc
 
 # PDK
 pdks/
+
+# Misc
+/resolved_version

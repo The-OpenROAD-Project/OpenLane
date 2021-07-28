@@ -442,7 +442,6 @@ proc prep {args} {
         {pdn floorplan/pdn}
         {tapcell floorplan/tapcell}
         {replaceio placement/replace}
-        {openphysyn placement/openphysyn}
         {resizer placement/resizer}
         {opendp placement/opendp}
         {addspacers routing/addspacers}
