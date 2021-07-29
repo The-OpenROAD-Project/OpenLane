@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tools: [magic, netgen, yosys]
+        tools: [magic, netgen, yosys, openroad_app]
     steps:
       # EXPORT BLOCK
       - name: Export Repo URL
