@@ -31,7 +31,12 @@ This documentation is also available at [ReadTheDocs](https://openlane.readthedo
     - [Videos And Tutorials](#videos-and-tutorials)
 
 # Prerequisites
+At a minimum:
+
 - Docker 19.03.12+
+- GNU Make
+- Python 3.6+ with PIP
+- Pyyaml: `pip3 install pyyaml`
 
 ## Dockerless Install
 Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).
@@ -44,7 +49,6 @@ You can start setting up the Sky130 PDK and OpenLane by running:
     cd OpenLane/
     make openlane
 ```
-* Note that `make openlane` always pulls the **latest** version of OpenLane: to get a specific tag, you need to invoke `IMAGE_NAME=efabless/openlane:v0.18 make openlane`, for example.
 
 ---
 
@@ -119,7 +123,7 @@ To setup OpenLane you can pull the Docker container by following these instructi
 
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    docker pull efabless/openlane:current
+    make openlane
 ```
 For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
 
@@ -359,8 +363,7 @@ OpenLane flow consists of several stages. By default all flow steps are run in s
 3. **Placement**
     1. `RePLace` - Performs global placement
     2. `Resizer` - Performs optional optimizations on the design
-    3. `OpenPhySyn` - Performs timing optimizations on the design
-    4. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
+    3. `OpenDP` - Perfroms detailed placement to legalize the globally placed components
 4. **CTS**
     1. `TritonCTS` - Synthesizes the clock distribution network (the clock tree)
 5. **Routing**
@@ -381,7 +384,7 @@ OpenLane integrated several key open source tools over the execution stages:
 - RTL Synthesis, Technology Mapping, and Formal Verification : [yosys + abc][4]
 - Static Timing Analysis: [OpenSTA][8]
 - Floor Planning: [init_fp][5], [ioPlacer][6], [pdn][16] and [tapcell][7]
-- Placement: [RePLace][9] (Global), [Resizer][15] and [OpenPhySyn][28] (Optimizations), and [OpenDP][10] (Detailed)
+- Placement: [RePLace][9] (Global), [Resizer][15] and [OpenPhySyn][28] (formerly), and [OpenDP][10] (Detailed)
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] or [CU-GR][36] (Global) and [TritonRoute][13] (Detailed)

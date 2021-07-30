@@ -22,7 +22,7 @@ proc save_state {args} {
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
-            set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+            set_log ::env($index) [string map {\" \\\"} $::env($index)] $::env(GLB_CFG_FILE) 1
         }
     }
 }
@@ -442,7 +442,6 @@ proc prep {args} {
         {pdn floorplan/pdn}
         {tapcell floorplan/tapcell}
         {replaceio placement/replace}
-        {openphysyn placement/openphysyn}
         {resizer placement/resizer}
         {opendp placement/opendp}
         {addspacers routing/addspacers}

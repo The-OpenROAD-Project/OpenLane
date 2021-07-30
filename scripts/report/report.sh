@@ -26,18 +26,12 @@ routed_runtime_rpt=${path}/reports/routed_runtime.txt
 total_runtime_rpt=${path}/reports/total_runtime.txt
 wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1)
 pl_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.log 2>&1)
-opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_openphysyn_wns.rpt 2>&1)
-if ! [ -f $opt_wns_rpt ]; then
-        opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_wns.rpt 2>&1)
-fi
+opt_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_wns.rpt 2>&1)
 fr_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o fastroute.log 2>&1)
 spef_wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_wns.rpt 2>&1)
 tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_tns.rpt 2>&1)
 pl_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.log 2>&1)
-opt_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_openphysyn_tns.rpt 2>&1)
-if ! [ -f $opt_tns_rpt ]; then
-        opt_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_tns.rpt 2>&1)
-fi
+opt_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_tns.rpt 2>&1)
 fr_tns_rpt=$(python3 $3/get_file_name.py -p  ${path}/reports/routing/ -o fastroute.log 2>&1)
 spef_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_tns.rpt 2>&1)
 HPWL_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
@@ -180,7 +174,7 @@ if ! [[ $wns ]]; then wns=-1; fi
 pl_wns=$(grep "wns" $pl_wns_rpt -s | tail -1 |sed -r 's/wns //')
 if ! [[ $pl_wns ]]; then pl_wns=$wns; fi
 
-#Extracting Info from OpenPhySyn
+#Extracting Info from OpenSTA
 opt_wns=$(grep "wns" $opt_wns_rpt -s | tail -1 |sed -r 's/wns //')
 if ! [[ $opt_wns ]]; then opt_wns=$pl_wns; fi
 
@@ -200,7 +194,7 @@ if ! [[ $tns ]]; then tns=-1; fi
 pl_tns=$(grep "tns" $pl_tns_rpt -s | tail -1 |sed -r 's/tns //')
 if ! [[ $pl_tns ]]; then pl_tns=$tns; fi
 
-#Extracting Info from OpenPhySyn
+#Extracting Info from OpenSTA
 opt_tns=$(grep "tns" $opt_tns_rpt -s | tail -1 |sed -r 's/tns //')
 if ! [[ $opt_tns ]]; then opt_tns=$pl_tns; fi
 
