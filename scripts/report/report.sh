@@ -20,6 +20,13 @@ designName=$2
 scriptDir=$3
 # This assumes that all these files exist
 tritonRoute_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o tritonRoute.log 2>&1)
+
+cts_log=$(python3 $3/get_file_name.py -p ${path}/logs/cts/ -o cts.log 2>&1)
+routing_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o fastroute.log 2>&1)
+placement_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
+sta_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta 2>&1)
+sta_post_resizer_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_post_resizer 2>&1)
+
 tritonRoute_drc=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o tritonRoute.drc 2>&1)
 yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.rpt -io 2>&1)
 routed_runtime_rpt=${path}/reports/routed_runtime.txt
@@ -304,3 +311,38 @@ result+=" $input_output"
 result+=" $level"
 result+=" $endcaps $tapcells $diodes $physical_cells"
 echo "$result"
+
+echo $cts_log
+
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.timing.rpt 2>&1) timing_report timing_report_end
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.min_max.rpt 2>&1) min_max_report min_max_report_end
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.rpt 2>&1) check_report check_report_end
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_wns.rpt 2>&1) wns_report wns_report_end
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_tns.rpt 2>&1) tns_report tns_report_end
+python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_clock_skew.rpt 2>&1) clock_skew_report clock_skew_report_end
+
+python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.timing.rpt 2>&1) timing_report timing_report_end
+python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.min_max.rpt 2>&1) min_max_report min_max_report_end
+python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.rpt 2>&1) check_report check_report_end
+python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1) wns_report wns_report_end
+python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1) tns_report tns_report_end
+
+python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.timing.rpt 2>&1) timing_report timing_report_end
+python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.min_max.rpt 2>&1) min_max_report min_max_report_end
+python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.rpt 2>&1) check_report check_report_end
+python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1) wns_report wns_report_end
+python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_tns.rpt 2>&1) tns_report tns_report_end
+
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.timing.rpt 2>&1) timing_report timing_report_end
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.min_max.rpt 2>&1) min_max_report min_max_report_end
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.rpt 2>&1) check_report check_report_end
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1) wns_report wns_report_end
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_tns.rpt 2>&1) tns_report tns_report_end
+python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.slew.rpt 2>&1) check_slew check_slew_end
+
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.timing.rpt 2>&1) timing_report timing_report_end
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.min_max.rpt 2>&1) min_max_report min_max_report_end
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.rpt 2>&1) check_report check_report_end
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_wns.rpt 2>&1) wns_report wns_report_end
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_tns.rpt 2>&1) tns_report tns_report_end
+python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.slew.rpt 2>&1) check_slew check_slew_end

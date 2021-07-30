@@ -82,13 +82,26 @@ if {[info exists ::env(CLOCK_PORT)]} {
         read_liberty -max $::env(LIB_SLOWEST)
         read_liberty -min $::env(LIB_FASTEST)
 
+        puts "timing_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(cts_report_file_tag).timing.rpt
+        puts "timing_report_end"
+        puts "min_max_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(cts_report_file_tag).min_max.rpt
+        puts "min_max_report_end"
+        puts "check_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(cts_report_file_tag).rpt
+        puts "check_report_end"
 
+
+        puts "wns_report"
         report_wns > $::env(cts_report_file_tag)_wns.rpt
+        puts "wns_report_end"
+        puts "tns_report"
         report_tns > $::env(cts_report_file_tag)_tns.rpt
+        puts "tns_report_end"
+        puts "clock_skew_report"
         report_clock_skew > $::env(cts_report_file_tag)_clock_skew.rpt
+        puts "clock_skew_report_end"
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
