@@ -22,7 +22,7 @@ scriptDir=$3
 tritonRoute_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o tritonRoute.log 2>&1)
 
 cts_log=$(python3 $3/get_file_name.py -p ${path}/logs/cts/ -o cts.log 2>&1)
-# routing_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o fastroute.log 2>&1)
+routing_log=$(python3 $3/get_file_name.py -p ${path}/logs/routing/ -o fastroute.log 2>&1)
 placement_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 sta_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta 2>&1)
 sta_post_resizer_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_post_resizer 2>&1)
@@ -325,15 +325,15 @@ else
 	echo "File not found or empty"
 fi
 
-# if [[ $(find $routing_log -type f -size +10c 2>/dev/null) ]]; then
-#         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.timing.rpt 2>&1) timing_report timing_report_end
-#         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.min_max.rpt 2>&1) min_max_report min_max_report_end
-#         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.rpt 2>&1) check_report check_report_end
-#         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1) wns_report wns_report_end
-#         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1) tns_report tns_report_end
-# else 
-# 	echo "File not found or empty"
-# fi
+if [[ $(find $routing_log -type f -size +10c 2>/dev/null) ]]; then
+        python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.timing.rpt 2>&1) timing_report timing_report_end
+        python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.min_max.rpt 2>&1) min_max_report min_max_report_end
+        python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.rpt 2>&1) check_report check_report_end
+        # python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1) wns_report wns_report_end
+        # python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1) tns_report tns_report_end
+else 
+	echo "File not found or empty"
+fi
 
 if [[ $(find $placement_log -type f -size +10c 2>/dev/null) ]]; then
         python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.timing.rpt 2>&1) timing_report timing_report_end
