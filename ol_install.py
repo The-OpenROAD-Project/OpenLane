@@ -276,10 +276,7 @@ OpenLane Local Installer ALPHA
                 
                 with chdir("repos"):
                     if not exists(tool.name):
-                        clone_depth_args = []
-                        if tool.clone_depth is not None:
-                            clone_depth_args = ["--depth", tool.clone_depth]
-                        sh("git", "clone", *clone_depth_args, tool.repo, tool.name)
+                        sh("git", "clone", tool.repo, tool.name)
                     
                     with chdir(tool.name):
                         sh("git", "fetch")
