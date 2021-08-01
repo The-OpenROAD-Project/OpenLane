@@ -49,8 +49,8 @@ class Tool(object):
                 repo=tool['repo'],
                 commit=tool['commit'],
                 build_script=tool['build'],
-                in_container=tool.get('in_container') or True,
-                in_install=tool.get('in_install') or True
+                in_container=tool['in_container'] if tool.get('in_container') is not None else True,
+                in_install=tool['in_install'] if tool.get('in_install') is not None else True
             )
         return final_dict
 
