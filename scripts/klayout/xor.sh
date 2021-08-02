@@ -24,12 +24,12 @@ echo "Second Layout: $2"
 echo "Design Name: $3"
 echo "Output GDS will be: $4"
 
-xvfb-run -a klayout -r $(dirname $0)/xor.drc \
+klayout -b\
+    -r $(dirname $0)/xor.drc \
     -rd top_cell=$3 \
     -rd a=$1 \
     -rd b=$2 \
     -rd thr=$(nproc) \
     -rd ol=$4 \
     -rd o=$4 \
-    -rd ext=${4##*.} \
-    -zz
+    -rd ext=${4##*.}

@@ -24,7 +24,7 @@ echo "Using GDS file: $2"
 echo "Output Report File: $3"
 # The -a here is necessary to handle race conditions.
 # This limits the max number of possible jobs to 100.
-xvfb-run -a klayout -b \
+klayout -b \
     -rd input=$2 \
     -rd report=$3 \
     -r $1
