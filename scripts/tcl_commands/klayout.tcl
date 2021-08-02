@@ -23,7 +23,12 @@ proc run_klayout {args} {
 			if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 				set gds_files_in $::env(EXTRA_GDS_FILES)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds "$::env(GDS_FILES) $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
+			if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+				set cells_gds "$::env(GDS_FILES) $::env(GDS_FILES_OPT)"
+			} else {
+				set cells_gds $::env(GDS_FILES)
+			}
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds "$cells_gds $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
 			if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
 				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(klayout_result_file_tag).lyp
 			} else {
