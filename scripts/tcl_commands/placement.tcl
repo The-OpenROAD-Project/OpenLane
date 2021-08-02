@@ -171,7 +171,12 @@ proc run_resizer_timing {args} {
             }
         } 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            gen_exclude_list -lib resizer_timing_opt -drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST_OPT) $::env(DRC_EXCLUDE_CELL_LIST)" -output $::env(TMP_DIR)/resizer_timing_opt.exclude.list -drc_exclude_only -create_dont_use_list
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
+            } else {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
+            }
+            gen_exclude_list -lib resizer_timing_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_timing_opt.exclude.list -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
@@ -214,7 +219,12 @@ proc run_resizer_design {args} {
             }
         } 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            gen_exclude_list -lib resizer_opt -drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST_OPT) $::env(DRC_EXCLUDE_CELL_LIST)" -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
+            } else {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
+            }
+            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
