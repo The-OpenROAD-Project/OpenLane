@@ -205,12 +205,10 @@ test_design_list:
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py --delete\
 			--designs $(DESIGN_LIST)\
-			--tarList logs reports\
-			--htmlExtract\
 			--tag $(DLTAG)\
-			--benchmark $(BENCHMARK)\
 			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
+			--print_rem $(PRINT_REM_DESIGNS_TIME)\
+			--benchmark $(BENCHMARK)\
 		"
 
 .PHONY: test
