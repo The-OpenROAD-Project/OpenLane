@@ -14,7 +14,7 @@
 
 # Routing defaults
 set ::env(ROUTING_CORES) 4
-set ::env(GLB_RT_ADJUSTMENT) 0
+set ::env(GLB_RT_ADJUSTMENT) 0.0
 set ::env(GLB_RT_L1_ADJUSTMENT) 0; # more like pdk-specific (e.g., when L1 = li)
 set ::env(GLB_RT_L2_ADJUSTMENT) 0
 set ::env(GLB_RT_L3_ADJUSTMENT) 0
