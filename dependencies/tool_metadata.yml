@@ -68,7 +68,7 @@
     make PREFIX=$PREFIX install
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
+  commit: 2fffb885e2b7ffcf0d26e243f979cd1f4348189c
   build: mkdir -p ./build cd ./build cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin .. make
     -j$(nproc)
   in_install: false
