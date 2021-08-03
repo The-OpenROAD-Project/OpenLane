@@ -11,12 +11,12 @@
     make -j$(nproc)
     cp iccad19gr $PREFIX/bin/cugr
 - name: cvc
-  repo: https://github.com/d-m-bailey/cvc
-  commit: 38c74b0857ecf8f05a1bfde81d197b5a3d33a531
+  repo: https://github.com/donn/cvc
+  commit: 90e78b4598c1f5c35fcc3b8fc4d80fde7c881445
   build: |
     autoreconf -i
-    autoconf
     ./configure --disable-nls --prefix=$PREFIX
+    make -j$(nproc) $READLINE_CXXFLAGS
     make install
 - name: drcu
   repo: https://github.com/cuhk-eda/dr-cu
@@ -32,7 +32,7 @@
   repo: https://github.com/rtimothyedwards/magic
   commit: 958d6f16701c1ee25e27440381b5c2c37b5fee7c
   build: |
-    ./configure --prefix=$PREFIX
+    ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make -j$(nproc)
     make install
 - name: netgen
@@ -43,8 +43,8 @@
     make -j$(nproc)
     make install
 - name: padring
-  repo: https://github.com/ax3ghazy/padring
-  commit: a88faf5a4faef75ff241276599fef81c3653cb70
+  repo: https://github.com/donn/padring
+  commit: b2a64abcc8561d758c0bcb3945117dcb13bd9dca
   build: |
     bash ./bootstrap.sh
     cd build
@@ -69,8 +69,11 @@
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: 4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
-  build: mkdir -p ./build cd ./build cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin .. make
-    -j$(nproc)
+  build: |
+    mkdir -p ./build
+    cd ./build
+    cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin ..
+    make -j$(nproc)
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
