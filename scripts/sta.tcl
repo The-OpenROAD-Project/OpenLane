@@ -31,13 +31,9 @@ if { [info exists ::env(CURRENT_SPEF)] } {
 read_sdc -echo $::env(BASE_SDC_FILE)
 #report_checks
 # report_tns
-puts "tns_report"
 report_tns > $::env(opensta_report_file_tag)_tns.rpt
-puts "tns_report_end"
 # report_wns
-puts "wns_report"
 report_wns > $::env(opensta_report_file_tag)_wns.rpt
-puts "wns_report_end"
 # report_power
 # report_power > $::env(opensta_report_file_tag)_power.rpt
 puts "timing_report"

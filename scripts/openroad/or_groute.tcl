@@ -90,12 +90,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
         puts "check_report_end"
 
-        # puts "wns_report"
         report_wns > $::env(fastroute_report_file_tag)_wns.rpt
-        # puts "wns_report_end"
-        # puts "tns_report"
         report_tns > $::env(fastroute_report_file_tag)_tns.rpt
-        # puts "tns_report_end"
 
     }
 } else {

@@ -92,13 +92,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(cts_report_file_tag).rpt
         puts "check_report_end"
 
-
-        puts "wns_report"
         report_wns > $::env(cts_report_file_tag)_wns.rpt
-        puts "wns_report_end"
-        puts "tns_report"
         report_tns > $::env(cts_report_file_tag)_tns.rpt
-        puts "tns_report_end"
         puts "clock_skew_report"
         report_clock_skew > $::env(cts_report_file_tag)_clock_skew.rpt
         puts "clock_skew_report_end"

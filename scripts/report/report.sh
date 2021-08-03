@@ -318,8 +318,8 @@ if [[ $(find $cts_log -type f -size +10c 2>/dev/null) ]]; then
         python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.timing.rpt 2>&1) timing_report timing_report_end
         python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.min_max.rpt 2>&1) min_max_report min_max_report_end
         python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts.rpt 2>&1) check_report check_report_end
-        python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_wns.rpt 2>&1) wns_report wns_report_end
-        python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_tns.rpt 2>&1) tns_report tns_report_end
+        python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_wns.rpt 2>&1) wns_report wns_report_end wns
+        python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_tns.rpt 2>&1) tns_report tns_report_end tns
         python3 $3/report_parser.py $cts_log $(python3 $3/get_file_name.py -p ${path}/reports/cts/ -o cts_clock_skew.rpt 2>&1) clock_skew_report clock_skew_report_end
 else 
 	echo "File not found or empty"
@@ -329,8 +329,8 @@ if [[ $(find $routing_log -type f -size +10c 2>/dev/null) ]]; then
         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.timing.rpt 2>&1) timing_report timing_report_end
         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.min_max.rpt 2>&1) min_max_report min_max_report_end
         python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute.rpt 2>&1) check_report check_report_end
-        # python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1) wns_report wns_report_end
-        # python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1) tns_report tns_report_end
+        python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_wns.rpt 2>&1) wns_report wns_report_end wns
+        python3 $3/report_parser.py $routing_log $(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o fastroute_tns.rpt 2>&1) tns_report tns_report_end tns
 else 
 	echo "File not found or empty"
 fi
@@ -339,8 +339,8 @@ if [[ $(find $placement_log -type f -size +10c 2>/dev/null) ]]; then
         python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.timing.rpt 2>&1) timing_report timing_report_end
         python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.min_max.rpt 2>&1) min_max_report min_max_report_end
         python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace.rpt 2>&1) check_report check_report_end
-        python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1) wns_report wns_report_end
-        python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_tns.rpt 2>&1) tns_report tns_report_end
+        python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_wns.rpt 2>&1) wns_report wns_report_end wns
+        python3 $3/report_parser.py $placement_log $(python3 $3/get_file_name.py -p ${path}/reports/placement/ -o replace_tns.rpt 2>&1) tns_report tns_report_end tns
 else 
 	echo "File not found or empty"
 fi
@@ -349,8 +349,8 @@ if [[ $(find $sta_log -type f -size +10c 2>/dev/null) ]]; then
 	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.timing.rpt 2>&1) timing_report timing_report_end
 	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.min_max.rpt 2>&1) min_max_report min_max_report_end
 	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.rpt 2>&1) check_report check_report_end
-	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1) wns_report wns_report_end
-	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_tns.rpt 2>&1) tns_report tns_report_end
+	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1) wns_report wns_report_end wns
+	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_tns.rpt 2>&1) tns_report tns_report_end tns
 	python3 $3/report_parser.py $sta_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta.slew.rpt 2>&1) check_slew check_slew_end
 else 
 	echo "File not found or empty"
@@ -360,8 +360,8 @@ if [[ $(find $sta_post_resizer_log -type f -size +10c 2>/dev/null) ]]; then
 	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.timing.rpt 2>&1) timing_report timing_report_end
 	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.min_max.rpt 2>&1) min_max_report min_max_report_end
 	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.rpt 2>&1) check_report check_report_end
-	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_wns.rpt 2>&1) wns_report wns_report_end
-	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_tns.rpt 2>&1) tns_report tns_report_end
+	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_wns.rpt 2>&1) wns_report wns_report_end wns
+	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_tns.rpt 2>&1) tns_report tns_report_end tns
 	python3 $3/report_parser.py $sta_post_resizer_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer.slew.rpt 2>&1) check_slew check_slew_end
 else 
 	echo "File not found or empty"
@@ -371,8 +371,8 @@ if [[ $(find $sta_post_resizer_timing_log -type f -size +10c 2>/dev/null) ]]; th
 	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing.timing.rpt 2>&1) timing_report timing_report_end
 	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing.min_max.rpt 2>&1) min_max_report min_max_report_end
 	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing.rpt 2>&1) check_report check_report_end
-	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_wns.rpt 2>&1) wns_report wns_report_end
-	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_tns.rpt 2>&1) tns_report tns_report_end
+	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_wns.rpt 2>&1) wns_report wns_report_end wns
+	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing_tns.rpt 2>&1) tns_report tns_report_end tns
 	python3 $3/report_parser.py $sta_post_resizer_timing_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_post_resizer_timing.slew.rpt 2>&1) check_slew check_slew_end
 else 
 	echo "File not found or empty"
@@ -382,8 +382,8 @@ if [[ $(find $sta_spef_log -type f -size +10c 2>/dev/null) ]]; then
 	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef.timing.rpt 2>&1) timing_report timing_report_end
 	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef.min_max.rpt 2>&1) min_max_report min_max_report_end
 	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef.rpt 2>&1) check_report check_report_end
-	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_wns.rpt 2>&1) wns_report wns_report_end
-	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_tns.rpt 2>&1) tns_report tns_report_end
+	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_wns.rpt 2>&1) wns_report wns_report_end wns
+	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef_tns.rpt 2>&1) tns_report tns_report_end tns
 	python3 $3/report_parser.py $sta_spef_log $(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_spef.slew.rpt 2>&1) check_slew check_slew_end
 else 
 	echo "File not found or empty"

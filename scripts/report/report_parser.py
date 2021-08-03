@@ -11,20 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# input("log path: ")
-# /home/marwan/ef/openlane/designs/spm/runs/29-07_15-56/logs/cts/11-cts.log
-# /home/marwan/ef/openlane/designs/spm/runs/29-07_15-56/reports/cts/11-cts.timing.rpt
 
 import sys
 
 with open(sys.argv[1], "r") as log:
     with open(sys.argv[2], "w") as rep:
-        content = log.read()
-        start_point = content.index(sys.argv[3])
-        end_point = content.index(sys.argv[4])
-        log.seek(start_point)
-        data = log.read(end_point - start_point)
-        rep.write(data)
+        if sys.argv[3] == "wns_report":
+            content = log.read()
+            start_point = content.index("wns")
+            log.seek(start_point)
+            data = log.readline(start_point)
+            print(data)
+            rep.write(data)
+        elif sys.argv[3] == "tns_report":
+            content = log.read()
+            start_point = content.index("tns")
+            log.seek(start_point)
+            data = log.readline(start_point)
+            print(data)
+            rep.write(data)
+        else:
+            content = log.read()
+            start_point = content.index(sys.argv[3])
+            end_point = content.index(sys.argv[4])
+            log.seek(start_point)
+            data = log.read(end_point - start_point)
+            rep.write(data)
 
 rep.close()
 log.close()
