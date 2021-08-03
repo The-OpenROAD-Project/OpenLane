@@ -99,7 +99,7 @@ tritonRoute_memoryPeak=$(grep ", peak = " $tritonRoute_log -s | tail -1 | sed -E
 if ! [[ $tritonRoute_memoryPeak ]]; then tritonRoute_memoryPeak=-1; fi
 
 #Extracting TritonRoute Violations Information
-tritonRoute_violations=$(grep "number of violations" $tritonRoute_log -s | tail -1 | sed -r 's/.*[^0-9]//')
+tritonRoute_violations=$(grep -si "Number of violations" $tritonRoute_log | tail -1 | python3 -c 'import re; print(re.match(r"\[.+?\].*?\=\s*(\d+)", input())[1])')
 if ! [[ $tritonRoute_violations ]]; then tritonRoute_violations=-1; fi
 Other_violations=$tritonRoute_violations;
 
@@ -294,7 +294,6 @@ fi
 #Extracting the total number of cvc errors
 cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*//g')
 if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
-
 
 result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do
