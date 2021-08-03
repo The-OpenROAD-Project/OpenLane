@@ -18,25 +18,33 @@ with open(sys.argv[1], "r") as log:
     with open(sys.argv[2], "w") as rep:
         if sys.argv[3] == "wns_report":
             content = log.read()
-            start_point = content.index("wns")
-            log.seek(start_point)
-            data = log.readline(start_point)
-            print(data)
-            rep.write(data)
+            try:
+                start_point = content.index("wns")
+                log.seek(start_point)
+                data = log.readline(start_point)
+                rep.write(data)
+            except:
+                rep.write("SKIPPED!")
+            
         elif sys.argv[3] == "tns_report":
             content = log.read()
-            start_point = content.index("tns")
-            log.seek(start_point)
-            data = log.readline(start_point)
-            print(data)
-            rep.write(data)
+            try:
+                start_point = content.index("tns")
+                log.seek(start_point)
+                data = log.readline(start_point)
+                rep.write(data)
+            except:
+                rep.write("SKIPPED!")
         else:
             content = log.read()
-            start_point = content.index(sys.argv[3])
-            end_point = content.index(sys.argv[4])
-            log.seek(start_point)
-            data = log.read(end_point - start_point)
-            rep.write(data)
+            try:
+                start_point = content.index(sys.argv[3])
+                end_point = content.index(sys.argv[4])
+                log.seek(start_point)
+                data = log.read(end_point - start_point)
+                rep.write(data)
+            except:
+                rep.write("SKIPPED!")
 
 rep.close()
 log.close()
