@@ -53,7 +53,14 @@ proc init_floorplan {args} {
 					set ::env(FP_PDN_VPITCH) [expr {$core_width/3.0}]
 					set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
 				}
+
 		}
+		puts_info "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
+		puts_info "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
+
+		puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
+		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
+		
 		set ::env(verilog2def_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(verilog2def_log_file_tag)_openroad_runtime.txt 0]
