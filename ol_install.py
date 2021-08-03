@@ -14,11 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Avoid any and all third-party Python libraries in this codebase.
-# I don't care if you have to shoddily reimplement functions.
-
-# The only hard requirements for this setup are Python3 and PIP.
-
 import os
 import re
 import sys
@@ -137,12 +132,12 @@ OpenLane Local Installer ALPHA
         {tools["openroad_app"].version_string}
     """)
 
-    os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", ["ubuntu-20.04", "centos7", "other"])
+    os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", ["ubuntu-20.04", "centos7", "macos", "other"])
     
     gcc_bin = os.getenv("CC") or "gcc"
     gxx_bin = os.getenv("CXX") or "g++"
     try:
-        if not os_pick == "centos7": # The reason we ignore centos7 is that we're going to just use devtoolset-8 anyway.            
+        if not os_pick in ["centos7", "macos"]: # The reason we ignore centos7 and macos is that we're going to just use devtoolset-8/gcc anyway.            
             gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
             gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
             if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
@@ -152,9 +147,7 @@ OpenLane Local Installer ALPHA
     installed.
 
     You may continue this installation at your own risk, but we recommend
-    installing GCC. If you're on macOS, you can do this using brew:
-        
-        https://brew.sh
+    installing GCC.
 
     You can specify a compiler to use explicitly by invoking this script as
     follows, for example:
@@ -202,6 +195,8 @@ OpenLane Local Installer ALPHA
                 result += open(join(dir, file)).read()
                 result += "\n"
             return result
+        if os_pick == "macos":
+            yum_packages = cat_all(join(openlane_dir, 'dependencies', 'macos')).strip().split("\n")
         if os_pick == "centos7":
             yum_packages = cat_all(join(openlane_dir, 'dependencies', 'centos7')).strip().split("\n") 
 
@@ -224,9 +219,13 @@ OpenLane Local Installer ALPHA
                 sh("apt-get", "install", "-y", "-f", path, root=True)
             sh("apt-get", "install", "-y", *apt_packages, root=True)
 
+    print("To re-run with the same options: ")
+    print(f"{' '.join(['%s=%s' % env for env in envs])} python3 {__file__}")
     
     run_env = os.environ.copy()
     run_env["PREFIX"] = install_dir
+
+    path_elements = ["$PATH", "$OL_DIR/bin"]
 
     if os_pick == "centos7":
         run_env["CC"] = "/opt/rh/devtoolset-8/root/usr/bin/gcc"
@@ -235,6 +234,19 @@ OpenLane Local Installer ALPHA
         run_env["LD_LIBRARY_PATH"] = f"/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:{os.getenv('LD_LIBRARY_PATH')}"
         run_env["CMAKE_INCLUDE_PATH"] = f"/usr/include/boost169:{os.getenv('CMAKE_INCLUDE_PATH')}"
         run_env["CMAKE_LIBRARY_PATH"] = f"/lib64/boost169:{os.getenv('CMAKE_LIBRARY_PATH')}"
+    elif os_pick == "macos":
+        def get_prefix(tool):
+            return subprocess.check_output([
+                "brew", "--prefix", tool
+            ]).decode('utf8').strip()
+
+        run_env["CC"] = f"{get_prefix('gcc')}/bin/gcc-11"
+        run_env["CXX"] = f"{get_prefix('gcc')}/bin/g++-11"
+        run_env["PATH"] = f"{get_prefix('swig@3')}/bin:{get_prefix('bison')}/bin:{get_prefix('flex')}/bin:{get_prefix('gnu-which')}/bin:{os.getenv('PATH')}"
+        run_env["MAGIC_CONFIG_OPTS"] = f"--with-tcl={get_prefix('tcl-tk')} --with-tk={get_prefix('tcl-tk')}"
+        run_env["READLINE_CXXFLAGS"] = f"CXXFLAGS=-L{get_prefix('readline')}/lib"
+
+        path_elements.append(f"{get_prefix('gnu-sed')}/libexec/gnubin")
     else:
         run_env["CC"] = gcc_bin
         envs.append(("CC", gcc_bin))
@@ -259,8 +271,12 @@ OpenLane Local Installer ALPHA
             for folder in ["repos", "versions"]:
                 sh("mkdir", "-p", folder)
                 
+            skip_tools = (os.getenv("SKIP_TOOLS") or "").split(':')
+            print(skip_tools)
             for tool in tools.values():
                 if not tool.in_install:
+                    continue
+                if tool.name in skip_tools:
                     continue
                 installed_version = ""
                 version_path = f"versions/{tool.name}"
@@ -289,13 +305,14 @@ OpenLane Local Installer ALPHA
                 with open(version_path, "w") as f:
                     f.write(tool.version_string)
 
+        path_elements.reverse()
         with open("openlane", "w") as f:
-            f.write("""#!/bin/bash
+            f.write(f"""#!/bin/bash
             OL_DIR="$(dirname "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
-            export PATH=$OL_DIR/bin:$PATH
+            export PATH={":".join(path_elements)}
 
-            FLOW_TCL=${FLOW_TCL:-$OL_DIR/flow.tcl}
+            FLOW_TCL=${{FLOW_TCL:-$OL_DIR/flow.tcl}}
             FLOW_TCL=$(realpath $FLOW_TCL)
 
             tclsh $FLOW_TCL $@
@@ -306,9 +323,7 @@ OpenLane Local Installer ALPHA
         install()
 
     print("Done.")
-    print("To invoke Openlane from now on, invoke /opt/openlane/openlane then pass on the same options you would flow.tcl.")
-    print("To re-run with the same options: ")
-    print(f"{' '.join(['%s=%s' % env for env in envs])} python3 {__file__}")
+    print(f"To invoke Openlane from now on, invoke {install_dir}/openlane then pass on the same options you would flow.tcl.")
 
 def main():
     parser = argparse.ArgumentParser(description="OpenLane Local Installer")

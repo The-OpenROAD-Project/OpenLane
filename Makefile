@@ -35,11 +35,7 @@ ifeq (, $(strip $(NPROC)))
 
 endif
 
-# Podman (Centos8) doesn't like the -u switches
-# Only add if we're not using podman in emulation
-ifeq (0,$(shell docker -v 2>/dev/null | grep podman | wc -l))
-   DOCKER_UID_OPTIONS = -u $(shell id -u $(USER)):$(shell id -g $(USER))
-endif
+DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
 
 
 THREADS ?= $(NPROC)
@@ -205,12 +201,10 @@ test_design_list:
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py --delete\
 			--designs $(DESIGN_LIST)\
-			--tarList logs reports\
-			--htmlExtract\
 			--tag $(DLTAG)\
-			--benchmark $(BENCHMARK)\
 			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
+			--print_rem $(PRINT_REM_DESIGNS_TIME)\
+			--benchmark $(BENCHMARK)\
 		"
 
 .PHONY: test
