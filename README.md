@@ -46,7 +46,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    cd openlane/
+    cd OpenLane/
     make openlane
 ```
 
@@ -470,7 +470,7 @@ To delete all generated runs under all designs:
         ```
         $PDK_ROOT/$PDK/$STD_CELL_LIBRARY/config.tcl
         ```
-    - More on configuring a new PDK in this [section](#setting-up-the-pdk-skywater-pdk)
+    - More on configuring a new PDK in this [section](#setting-up-OpenLane)
 
 - Flow specific variables are related to the flow and are initialized with default values in:
 
@@ -556,18 +556,18 @@ To check the original author list of OpenLane, check [this][33].
 [1]: ./docker_build/README.md
 [2]: ./configuration/README.md
 [4]: https://github.com/YosysHQ/yosys
-[5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/init_fp
-[6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/ioPlacer
-[7]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/tapcell
+[5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ifp
+[6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ppl
+[7]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/tap
 [8]: https://github.com/The-OpenROAD-Project/OpenSTA
-[9]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/replace
-[10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/opendp
-[11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonCTS
-[12]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/FastRoute
-[13]: https://github.com/The-OpenROAD-Project/TritonRoute
+[9]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/replace
+[10]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/dpl
+[11]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/cts
+[12]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/grt
+[13]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/TritonRoute
 [14]: https://github.com/RTimothyEdwards/magic
-[15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/resizer
-[16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/openroad/src/pdngen
+[15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rsz
+[16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/pdn
 [17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/

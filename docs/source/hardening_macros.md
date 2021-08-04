@@ -228,7 +228,7 @@ If you want to create further tweaks in the flow that the abundant configuration
 [0]: ./../../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
+[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: ./chip_integration.md
 [5]: ./../../designs/README.md
 [6]: ./../../regression_results/README.md
