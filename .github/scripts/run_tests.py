@@ -51,12 +51,15 @@ docker_command = [
     gh.image,
     "bash", "-c",
     shlex.join([
-        "python3", "run_designs.py",
-        "-d"] + design_list + [
-        "-t", test_name,
-        "-dl", "-dt", "-th", str(threads_used),
-        "-p", "30",
-        "-b", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
+        "python3",
+        "run_designs.py", "--delete",
+        "--disable_timestamp",
+        "--designs"
+    ] + design_list + [
+        "--tag", test_name,
+        "--threads", str(threads_used),
+        "--print_rem", "30",
+        "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
     ] + extra_flags)
 ]
 print(os.getenv("PWD"))

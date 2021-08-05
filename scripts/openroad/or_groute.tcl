@@ -36,8 +36,6 @@ grt::set_min_layer $::env(GLB_RT_MINLAYER)
 grt::check_routing_layer $::env(GLB_RT_MAXLAYER)
 grt::set_max_layer $::env(GLB_RT_MAXLAYER)
 
-grt::set_verbose 3
-
 grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
 grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
@@ -53,14 +51,16 @@ if { $::env(GLB_RT_MAXLAYER) > 3 } {
     }
 }
 
-# grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
 # grt::set_tile_size $::env(GLB_RT_TILES)
 
 grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
-grt::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
-
-grt::run
+if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
+    global_route -verbose 3\
+        -allow_congestion
+} else {
+    global_route -verbose 3
+}
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)" -iterations $::env(GLB_RT_ANT_ITERS)

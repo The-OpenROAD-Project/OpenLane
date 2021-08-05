@@ -45,7 +45,7 @@ proc init_floorplan {args} {
 			if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
 				$core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
 					puts_warn "Current core area is too small for a power grid"
-					puts_warn "Minimizing the power grid!!!!"
+					puts_warn "!!! THE POWER GRID WILL BE MINIMIZED. !!!"
 
 					set ::env(FP_PDN_VOFFSET) [expr {$core_width/6.0}]
 					set ::env(FP_PDN_HOFFSET) [expr {$core_height/6.0}]
@@ -53,7 +53,14 @@ proc init_floorplan {args} {
 					set ::env(FP_PDN_VPITCH) [expr {$core_width/3.0}]
 					set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
 				}
+
 		}
+		puts_info "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
+		puts_info "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
+
+		puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
+		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
+		
 		set ::env(verilog2def_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(verilog2def_log_file_tag)_openroad_runtime.txt 0]
