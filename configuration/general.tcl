@@ -14,7 +14,11 @@
 
 # default pdk
 set ::env(PDK) "sky130A"
-set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
+    set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+} else {
+    puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+}
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
