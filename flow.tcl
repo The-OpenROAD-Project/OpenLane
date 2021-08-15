@@ -341,7 +341,12 @@ if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env
 	}
 }
 
-puts_info "Version: $::env(OPENLANE_VERSION)"
+puts_info "Git Version: $::env(OPENLANE_VERSION)"
+
+if [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+	puts_warn $::env(VCHECK_OUTPUT)
+	puts_warn "OpenLane may not function properly."
+}
 
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"

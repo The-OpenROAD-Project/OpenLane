@@ -46,7 +46,8 @@ tar/openLANE_flow.tar.gz: FORCE
 FORCE:
 
 .PHONY: merge
-merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz
+merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz ../dependencies/tool_metadata.yml
+	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	mkdir -p logs/docker/tar
 	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
