@@ -12,6 +12,8 @@ You can run `python3 ./ol_install.py --list-tools` for a list. There are at leas
 
 You can invoke `python3 ./ol_install.py`. This tool copies the skeleton and installs all the tools to a directory of your choice, which is by default, `/opt/openlane`. Furthermore, if you are on CentOS 7, macOS or Ubuntu 20.04, the installer will offer to install all the required apt or yum packages for you.
 
+On macOS, it may be prudent to invoke it as `SKIP_TOOLS=drcu:cugr python3 ./ol_install.py` instead, as these tools are a nightmare to compile on macOS.
+
 The tools will all be installed with `/opt/openlane` as a prefix. You'll find all the repos in `/opt/openlane/build/repos` and a list of versions in `/opt/openlane/build/versions`.
 
 **DO NOTE:** We expect you to bring your own OpenROAD. This installer will make no attempt to install OpenROAD.

@@ -196,7 +196,9 @@ OpenLane Local Installer ALPHA
                 result += "\n"
             return result
         if os_pick == "macos":
-            yum_packages = cat_all(join(openlane_dir, 'dependencies', 'macos')).strip().split("\n")
+            brew_packages = cat_all(join(openlane_dir, 'dependencies', 'macos')).strip().split("\n")
+
+            sh("brew", "install", *brew_packages)
         if os_pick == "centos7":
             yum_packages = cat_all(join(openlane_dir, 'dependencies', 'centos7')).strip().split("\n") 
 
@@ -240,13 +242,18 @@ OpenLane Local Installer ALPHA
                 "brew", "--prefix", tool
             ]).decode('utf8').strip()
 
+        klayout_app_path = input_default("KLAYOUT_MAC_APP", "Please input the path to klayout.app (0.27.3 or later): ", "/Applications/klayout.app")
+        klayout_path_element = join(klayout_app_path, "Contents", "MacOS")
+
         run_env["CC"] = f"{get_prefix('gcc')}/bin/gcc-11"
         run_env["CXX"] = f"{get_prefix('gcc')}/bin/g++-11"
         run_env["PATH"] = f"{get_prefix('swig@3')}/bin:{get_prefix('bison')}/bin:{get_prefix('flex')}/bin:{get_prefix('gnu-which')}/bin:{os.getenv('PATH')}"
         run_env["MAGIC_CONFIG_OPTS"] = f"--with-tcl={get_prefix('tcl-tk')} --with-tk={get_prefix('tcl-tk')}"
         run_env["READLINE_CXXFLAGS"] = f"CXXFLAGS=-L{get_prefix('readline')}/lib"
 
+        path_elements.append(f"{klayout_path_element}")
         path_elements.append(f"{get_prefix('gnu-sed')}/libexec/gnubin")
+        path_elements.append(f"{get_prefix('bash')}/bin")
     else:
         run_env["CC"] = gcc_bin
         envs.append(("CC", gcc_bin))
@@ -259,12 +266,13 @@ OpenLane Local Installer ALPHA
 
     def install():
         print("Copying files...")
-        for folder in ["bin", "lib", "share", "build"]:
+        for folder in ["bin", "lib", "share", "build", "dependencies"]:
             sh("mkdir", "-p", folder)
         copy("configuration")
         copy("scripts")
         copy("flow.tcl")
         copy("report_generation_wrapper.py")
+        copy("dependencies/")
 
         print("Installing dependencies...")
         with chdir("build"):
