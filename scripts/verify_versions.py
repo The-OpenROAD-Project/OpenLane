@@ -97,7 +97,7 @@ except Exception as e:
     exit(os.EX_CONFIG)
 
 installed_versions_path = join(openlane_dir, "build", "versions")
-installed = pathlib.Path().is_dir()
+installed = pathlib.Path(installed_versions_path).is_dir()
 environment_manifest = None
 if installed:
     # 3a. Compare with installed versions

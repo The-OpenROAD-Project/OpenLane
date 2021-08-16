@@ -53,16 +53,16 @@ digraph G {
         maintainer -> "Review" [label="approve"]
         "Review" -> "Good Pull Request"
 
-        # Complete Test Set Flow
+        # Extended Test Set Flow
         bdi_full [
             label="Build Docker Image"
         ]
         maintainer -> bdi_full [label="Manual Dispatch"]
         scheduler -> bdi_full [ label="Every Midnight UTC"]
-        bdi_full -> "Complete Test Set" [label="[image built successfully]"]
+        bdi_full -> "Extended Test Set" [label="[image built successfully]"]
         bdi_full -> "Deployment CI Fails" [label="[else]"]
-        "Complete Test Set" -> "Create New Version" [label="[tests pass]"]
-        "Complete Test Set" -> "Deployment CI Fails" [label="[else]"]
+        "Extended Test Set" -> "Create New Version" [label="[tests pass]"]
+        "Extended Test Set" -> "Deployment CI Fails" [label="[else]"]
         "Create New Version" -> "Deploy Docker Image To DockerHub"
     }
 
