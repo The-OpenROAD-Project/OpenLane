@@ -341,9 +341,13 @@ proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
         puts_info "Running SPEF Extraction..."
 		TIMER::timer_start
-	    set ::env(MPLCONFIGDIR) /tmp
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
-        set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
+		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
+			set ::env(MPLCONFIGDIR) /tmp
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+		} else {
+		    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+		}
+		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
         # Static Timing Analysis using the extracted SPEF
@@ -356,6 +360,7 @@ proc run_spef_extraction {args} {
         set ::env(opensta_log_file_tag) $log_tag_holder
     }
 }
+
 proc run_routing {args} {
     puts_info "Routing..."
 
@@ -413,7 +418,7 @@ proc run_routing {args} {
 
     run_spef_extraction
 
-    ## Calculate Runtime To Routing
+	## Calculate Runtime To Routing
 	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/routed_runtime.txt
 }
 
