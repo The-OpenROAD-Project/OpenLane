@@ -115,6 +115,7 @@ if os.getenv("GITHUB_ACTIONS") != "true":
     os.environ["BRANCH_NAME"] = branch
     os.environ["GITHUB_WORKSPACE"] = git_directory
     os.environ["GITHUB_EVENT_NAME"] = "workspace_dispatch"
+    os.environ["GITHUB_RUN_ID"] = "test_run"
     
     def export_env_alt(key, value):
         os.environ[key] = value
@@ -131,7 +132,8 @@ repo = Repo("Openlane", origin)
 
 # public
 gh = SimpleNamespace(**{
-    "origin": origin,
+    "run_id": os.getenv("GITHUB_RUN_ID"),
+    "origin": origin,   
     "branch": os.getenv("BRANCH_NAME"),
     "image": os.getenv("IMAGE_NAME"),
     "root": os.getenv("GITHUB_WORKSPACE"),
