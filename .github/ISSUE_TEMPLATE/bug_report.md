@@ -1,33 +1,30 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Bug Report
+about: If you encounter an issue while using OpenLane
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-**Describe the bug**
+### Description
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+### Environment
+* Operating System Information: `uname -a`
+* Docker Version: `docker --version`
+    * If you're using Podman, please also include this information.
+* OpenLane Tag in use: `python3 ./get_tag.py` in the main OpenLane directory.
 
-**Expected behavior**
+### Reproduction Material
+* Upload a tarball containing the relevant design.
+* List the commands used to run the design.
+
+### Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+### Logs
+```
+Add any relevant logs here. Please do ensure they're enclosed by the triple-backticks.
+```
 
-**Desktop (please complete the following information):**
- - OS: [e.g. ubuntu]
- - Openlane Version [e.g. v0.12]
- - open_pdks Version: [commit hash]
- - skywater-pdk Version: [commit hash]
-
-**Additional context**
-Add any other context about the problem here.
