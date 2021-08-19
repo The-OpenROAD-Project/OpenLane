@@ -35,8 +35,17 @@ ifeq (, $(strip $(NPROC)))
 
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
+DOCKER_MEMORY_OPTIONS :=
+ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
+DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+endif
+ifneq (,$(DOCKER_MEMORY))
+DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
+# To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
+endif
 
+DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
+DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= $(NPROC)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -57,7 +66,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -171,7 +180,7 @@ openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
+		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
