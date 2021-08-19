@@ -26,7 +26,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-
 if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -36,6 +35,21 @@ if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
 if { $::env(FP_PDN_CHECK_NODES) } {
     check_power_grid -net $::env(VDD_NET)
     check_power_grid -net $::env(GND_NET)
+}
+
+if { $::env(FP_PDN_IRDROP) } {
+    if { ! [ info exists ::env(FP_PDN_RCFILE) ] } {
+        puts stderr "To calculate the IR Drop, you should add an RC file to your config.tcl."
+        puts stderr "set ::env(FP_PDN_RCFILE) /path/to/rcfile"
+        exit 1
+    }
+    if {[catch {source $::env(FP_PDN_RCFILE)} errmsg]} {
+        puts stderr "Invalid PDN RC file $::env(FP_PDN_RCFILE)."
+        puts stderr $errmsg
+        exit 1
+    }
+    
+    analyze_power_grid -net $::env(VDD_NET)
 }
 
 write_def $::env(SAVE_DEF)

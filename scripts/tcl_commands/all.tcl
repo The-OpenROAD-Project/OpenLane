@@ -358,6 +358,10 @@ proc prep {args} {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
 
+    if {![info exists ::env(PDN_CFG)]} {
+        set ::env(PDN_CFG) $::env(PDKPATH)/libs.tech/openlane/common_pdn.tcl
+    }
+    
     # source PDK and SCL specific configurations
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
