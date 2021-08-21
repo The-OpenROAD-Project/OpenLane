@@ -267,8 +267,11 @@ with open(output_report_file, 'w') as report_file:
         pr("---")
 
     if len(missing_configs):
-        pr("[Missing Configuration Variables]")
-        pr("".join(missing_configs))
+        pr("[Missing Configuration Variables]  (Do not exist in the sheets.)")
+        pr("")
+        for variable in missing_configs:
+            pr(variable)
+        pr("")
         pr("---")
 
     if testFail:
