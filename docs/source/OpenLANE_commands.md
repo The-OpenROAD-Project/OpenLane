@@ -339,8 +339,8 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
 | `calc_total_runtime` | | Creates a `<-report>` file with `<-status>` for the design followed by the total runtime from the beginning of the flow. |
 |    | `[-report <report_file>]` | The ouput total runtime file path. <br> Defaults to being generated under `<run_path>/reports/total_runtime.txt`. |
-|    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `Flow completed`. |
-| `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `Flow failed`, and finally prints `Flow Failed` to the terminal. |
+|    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `flow completed`. |
+| `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `flow failed`, and finally prints `Flow Failed` to the terminal. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
 
 
