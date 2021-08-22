@@ -81,6 +81,11 @@ RUN yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-
 	yum install -y git
 	
 RUN yum install -y tclx
+RUN pip3 install --no-cache-dir click pyyaml
+
+RUN git config --global user.name "OpenLane User" 
+RUN git config --global user.email "openlane.user@localhost"
+
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
 
@@ -94,7 +99,6 @@ WORKDIR $OPENLANE_ROOT
 
 ENV OPENROAD_BIN openroad
 
-RUN git config --global user.name "OpenLane User" 
-RUN git config --global user.email "openlane.user@localhost" 
+ADD ./tool_metadata.yml /tool_metadata.yml
 
 CMD /bin/bash

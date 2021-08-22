@@ -1,5 +1,6 @@
 autoconf
 automake
+bash
 bison
 boost
 bzip2

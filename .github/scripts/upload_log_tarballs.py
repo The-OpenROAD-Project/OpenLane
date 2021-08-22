@@ -1,4 +1,9 @@
-# Copyright 2020 Efabless Corporation
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# 🚧
+
+# Copyright 2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,20 +16,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+import os
+import glob
+from gh import gh
+from google.cloud import storage
 
-foreach lib $::env(LIB_SYNTH) {
-    read_liberty $lib
-}
+gcs_client = storage.Client()
+tarball_glob = os.path.join(gh.root, "designs", "*", "runs", "*.tar.gz")
+for tarball in glob.glob(tarball_glob):
+    tarball_basename = os.path.basename(tarball)
+    final_key = os.path.join(gh.run_id, tarball_basename)
+    
+    print(final_key)
 
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}  
-
-macro_placement -channel {0 0} -halo {0 0}
-
-write_def $::env(SAVE_DEF)
+#for report in glob.glob(os.path.join(results_folder, "%s*.rpt" % test_name)):

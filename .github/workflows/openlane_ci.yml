@@ -60,10 +60,8 @@ jobs:
           name: docker-image
           path: /tmp/image.tar
 
-  # Each test has two components: a fast test set and a more complete test set.
-  # The fast test set is run on all PRs, etc. The complete test set runs on schedule.
-  # The reason for this is that the entire complete set on one machine typically
-  # times out the test.
+  # Each test has two components: a fast test set and an extended test set.
+  # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
     needs: docker-build
     runs-on: ubuntu-latest
@@ -122,10 +120,10 @@ jobs:
           TEST_SET: fastestTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
 
-      - name: Complete Test Set
+      - name: Extended Test Set
         if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
-          TEST_SET: completeTestSet${{ matrix.testset }}
+          TEST_SET: extendedTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
