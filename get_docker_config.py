@@ -57,5 +57,5 @@ try:
 except Exception as e:
     if e.__str__() != "":
         print(f"{e} Assuming a standard Docker installation.", file=sys.stderr)
-    print(f"-u {uid}:{gid}", end="")
+    print(f"--user {uid}:{gid}", end="")
     exit(0)
