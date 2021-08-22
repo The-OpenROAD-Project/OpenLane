@@ -40,21 +40,21 @@ class ConfigHandler:
 
     base_config_values = ['DESIGN_NAME', 'VERILOG_FILES', 'CLOCK_PERIOD', 'CLOCK_PORT']
 
-    @staticmethod
-    def update_configuration_values(params, append):
+    @classmethod
+    def update_configuration_values(Self, params, append):
         if append:
-            ConfigHandler.configuration_values = ConfigHandler.configuration_values + params
+            Self.configuration_values = Self.configuration_values + params
         else:
-            ConfigHandler.configuration_values = params
-        ConfigHandler.configuration_values = list(OrderedDict.fromkeys(ConfigHandler.configuration_values))
+            Self.configuration_values = params
+        Self.configuration_values = list(OrderedDict.fromkeys(Self.configuration_values))
 
-    @staticmethod
-    def update_configuration_values_to_all(append):
+    @classmethod
+    def update_configuration_values_to_all(Self, append):
         configFiles = ["synthesis.tcl","floorplan.tcl","placement.tcl","cts.tcl", "routing.tcl"]#, "magic.tcl"]
         config_relative_path = "configuration/"
         config_path = os.path.join(os.getcwd(), config_relative_path)
         if append == False:
-            ConfigHandler.configuration_values = []
+            Self.configuration_values = []
 
         for configFile in configFiles:
             try:
@@ -65,36 +65,36 @@ class ConfigHandler:
                         start =  line.find("(")
                         end = line.find(")")
                         if (start > -1) & (end >0) & (line.find("SCRIPT") == -1) :
-                            ConfigHandler.configuration_values.append(line[start+1:end])
+                            Self.configuration_values.append(line[start+1:end])
             except  OSError:
                 print ("Could not open/read file:", config_path)
                 sys.exit()
-        ConfigHandler.configuration_values = list( dict.fromkeys(ConfigHandler.configuration_values) )
+        Self.configuration_values = list( dict.fromkeys(Self.configuration_values) )
 
-    @staticmethod
-    def get_header():
-        return ",".join(ConfigHandler.configuration_values)
+    @classmethod
+    def get_header(Self):
+        return ",".join(Self.configuration_values)
 
-    @staticmethod
-    def get_config(design, tag, run_path=None):
+    @classmethod
+    def get_config(Self, design, tag, run_path=None):
         if run_path is None:
             run_path = get_run_path(design=design, tag=tag)
-        config_params = " ".join(ConfigHandler.configuration_values)
+        config_params = " ".join(Self.configuration_values)
         config_relative_path = "config.tcl"
         config_path = os.path.join(os.getcwd(), run_path, config_relative_path)
-        cmd = "{script} {path} {params}".format(script=ConfigHandler.config_getter_script, path=config_path, params=config_params)
+        cmd = "{script} {path} {params}".format(script=Self.config_getter_script, path=config_path, params=config_params)
         config_coded = subprocess.check_output(cmd.split())
         config = config_coded.decode(sys.getfilesystemencoding()).strip()
         config = config.split("##")
         config = list(filter(None, config))
         return config
 
-    @staticmethod
-    def gen_base_config_legacy(design, base_config_path):
-        config_params = " ".join(ConfigHandler.base_config_values)
+    @classmethod
+    def gen_base_config_legacy(Self, design, base_config_path):
+        config_params = " ".join(Self.base_config_values)
         config_relative_path = "designs/{design}/config.tcl".format(design=design)
         config_path = os.path.join(os.getcwd(), config_relative_path)
-        cmd = "{script} {path} {params}".format(script=ConfigHandler.config_getter_script, path=config_path, params=config_params)
+        cmd = "{script} {path} {params}".format(script=Self.config_getter_script, path=config_path, params=config_params)
         config_coded = subprocess.check_output(cmd.split())
         config = config_coded.decode(sys.getfilesystemencoding()).strip()
         config = config.split("##")
@@ -102,7 +102,7 @@ class ConfigHandler:
 
         f = open(base_config_path, 'w')
         for i in range(len(config)):
-            f.write("set ::env({var}) {val}\n".format(var=ConfigHandler.base_config_values[i], val=config[i]))
+            f.write("set ::env({var}) {val}\n".format(var=Self.base_config_values[i], val=config[i]))
 
         f.close()
 

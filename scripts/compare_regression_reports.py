@@ -251,41 +251,41 @@ criticalMistmatch(benchmark, regression_results)
 noteWorthyMismatch(benchmark, regression_results)
 
 with open(output_report_file, 'w') as report_file:
-    pr = lambda *args, **kwargs: print(*args, **kwargs, file=report_file)
+    write = lambda *args, **kwargs: print(*args, **kwargs, file=report_file)
     if testFail:
-        pr("Failed")
+        write("Failed")
     else:
-        pr("Passed")
-    pr("---")
+        write("Passed")
+    write("---")
 
     if len(flow_failures):
-        pr("[OpenLane Flow Failures] (Designs where OpenLane failed outright)")
-        pr("")
+        write("[OpenLane Flow Failures] (Designs where OpenLane failed outright)")
+        write("")
         for failure in flow_failures:
-            pr(failure)
-        pr("")
-        pr("---")
+            write(failure)
+        write("")
+        write("---")
 
     if len(missing_configs):
-        pr("[Missing Configuration Variables]  (Do not exist in the sheets.)")
-        pr("")
+        write("[Missing Configuration Variables]  (Do not exist in the sheets.)")
+        write("")
         for variable in missing_configs:
-            pr(variable)
-        pr("")
-        pr("---")
+            write(variable)
+        write("")
+        write("---")
 
     if testFail:
-        pr("[Critical Mismatches] (Cause Failures)")
-        pr("".join(critical_mismatches))
-        pr("---")
+        write("[Critical Mismatches] (Cause Failures)")
+        write("".join(critical_mismatches))
+        write("---")
 
     if testFail and len(configuration_mismatches):
-        pr("[Configuration Mismatches] (May Contribute To Differences Between Results)")
-        pr("".join(configuration_mismatches))
-        pr("---")
+        write("[Configuration Mismatches] (May Contribute To Differences Between Results)")
+        write("".join(configuration_mismatches))
+        write("---")
 
-    pr("[Full Report]")
-    pr("".join(output_report_list))
+    write("[Full Report]")
+    write("".join(output_report_list))
 
 def formNotFoundStatus(benchmark, regression_results):
     for design in benchmark.keys():

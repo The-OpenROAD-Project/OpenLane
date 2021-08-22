@@ -103,11 +103,10 @@ class Report:
         'Diodes',
         'Total_Physical_Cells'
     ]
-
-
-    @staticmethod
-    def get_header():
-        header = ','.join(Report.values)
+    
+    @classmethod
+    def get_header(Self):
+        header = ','.join(Self.values)
         return header
 
     def run_script(self):
