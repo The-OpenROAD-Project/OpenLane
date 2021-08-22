@@ -17,7 +17,6 @@ import subprocess
 import sys
 from ..utils.utils import *
 
-
 class Report:
     def __init__(self, design, tag, design_name,params,run_path=None):
         self.design = design
@@ -129,13 +128,11 @@ class Report:
 
         return report
 
-
     def get_report(self):
         self.raw_report = self.run_script()
         self.formatted_report = self.format_report()
 
         return self.formatted_report
-
 
 if __name__ == '__main__':
     report = Report('test_design', 'test_tag','test_design_name' ,'test_config')

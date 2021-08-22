@@ -23,6 +23,7 @@ from collections import OrderedDict
 
 class ConfigHandler:
     config_getter_script = os.path.join(os.path.dirname(__file__), "config_get.sh")
+
     configuration_values = [
         'CLOCK_PERIOD',
         'SYNTH_STRATEGY',
@@ -38,7 +39,21 @@ class ConfigHandler:
         'DIODE_INSERTION_STRATEGY'
     ]
 
-    base_config_values = ['DESIGN_NAME', 'VERILOG_FILES', 'CLOCK_PERIOD', 'CLOCK_PORT']
+    base_config_values = [
+        'DESIGN_NAME',
+        'VERILOG_FILES',
+        'CLOCK_PERIOD',
+        'CLOCK_PORT'
+    ]
+
+    configuration_files = [
+        "synthesis.tcl",
+        "floorplan.tcl",
+        "placement.tcl",
+        "cts.tcl",
+        "routing.tcl",
+        # "magic.tcl",
+    ]
 
     @classmethod
     def update_configuration_values(Self, params, append):
@@ -50,24 +65,22 @@ class ConfigHandler:
 
     @classmethod
     def update_configuration_values_to_all(Self, append):
-        configFiles = ["synthesis.tcl","floorplan.tcl","placement.tcl","cts.tcl", "routing.tcl"]#, "magic.tcl"]
-        config_relative_path = "configuration/"
+        config_relative_path = "configuration"
         config_path = os.path.join(os.getcwd(), config_relative_path)
         if append == False:
             Self.configuration_values = []
 
-        for configFile in configFiles:
+        for file in Self.configuration_files:
             try:
-                tmpFile = open(config_path+configFile,"r")
-                if tmpFile.mode == 'r':
-                    configurationFileContent = tmpFile.read().split("\n")
-                    for line in configurationFileContent:
-                        start =  line.find("(")
-                        end = line.find(")")
-                        if (start > -1) & (end >0) & (line.find("SCRIPT") == -1) :
-                            Self.configuration_values.append(line[start+1:end])
-            except  OSError:
-                print ("Could not open/read file:", config_path)
+                file_string = open(os.path.join(config_path, file), "r").read()
+                file_lines = file_string.split("\n")
+                for line in file_lines:
+                    start =  line.find("(")
+                    end = line.find(")")
+                    if (start > -1) & (end > 0) & (line.find("SCRIPT") == -1):
+                        Self.configuration_values.append(line[start+1:end])
+            except OSError:
+                print("Could not open/read file:", config_path)
                 sys.exit()
         Self.configuration_values = list( dict.fromkeys(Self.configuration_values) )
 
