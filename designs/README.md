@@ -233,7 +233,7 @@ The following is the list of flags used with the script:
     </tr>
 </table>
 
-**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their flow_status is not `Flow_completed`.
+**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their flow_status is not `flow_completed`.
 
 **Important Note:** *The updateDesignsConfigs script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the replicateDesignsConfigs copies the whole file.*
 

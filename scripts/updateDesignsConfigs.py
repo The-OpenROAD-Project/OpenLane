@@ -83,7 +83,7 @@ for line in logFileData:
     if line != "":
         splitLine = line.split(",")
         designConfigDict[str(splitLine[designIdx])] = str(splitLine[configIdx])
-        designFailDict[str(splitLine[designIdx])] = str(splitLine[flow_statusIdx]) == "Flow_completed"
+        designFailDict[str(splitLine[designIdx])] = str(splitLine[flow_statusIdx]) == "flow_completed"
         if clkPeriodIdx != -1:
             designClockDict[str(splitLine[designIdx])] = str(splitLine[clkPeriodIdx])
 
