@@ -107,14 +107,14 @@ def parseCSV(csv_file, isBenchmark):
     size = len(base_configs)
     while remover < size:
         if base_configs[remover] not in headerInfo:
-            missing_configs.append("\nThis configuration "+base_configs[remover]+" doesn't exist in the sheets.")
+            missing_configs.append(base_configs[remover])
             base_configs.pop(remover)
             remover -= 1
             size -= 1
         remover += 1
 
     if designNameIdx == -1:
-        print("invalid report. No design names.")
+        print("Invalid report. No design name was found.")
         exit(-1)
     for i in range(1, len(csvData)):
         if len(csvData[i]):
@@ -236,45 +236,56 @@ def noteWorthyMismatch(benchmark, regression_results):
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" BENCHMARK value: "+ benchmark[design][stat] +"\n")
                 output_report_list.append("\t\tDesign "+ design + " Statistic "+ stat+" USER value: "+ regression_results[design][stat] +"\n")
 
-
-
-
+flow_failures = []
+def flowFailures(regression_results):
+    global flow_failures
+    for design in regression_results.keys():
+        if "failed" in regression_results[design]["flow_status"]:
+            flow_failures.append(design)
 
 benchmark = parseCSV(benchmark_file,1)
 regression_results = parseCSV(regression_results_file,0)
-
-
-configurationMismatch(benchmark,regression_results)
-criticalMistmatch(benchmark,regression_results)
+flowFailures(regression_results)
+configurationMismatch(benchmark, regression_results)
+criticalMistmatch(benchmark, regression_results)
 noteWorthyMismatch(benchmark, regression_results)
 
-report = ""
-if testFail:
-    report = "TEST FAILED\n"
-else:
-    report = "TEST PASSED\n"
+with open(output_report_file, 'w') as report_file:
+    write = lambda *args, **kwargs: print(*args, **kwargs, file=report_file)
+    if testFail:
+        write("Failed")
+    else:
+        write("Passed")
+    write("---")
 
-if len(missing_configs):
-    report += "\nThese configuration are missing:\n"
-    report += "".join(missing_configs)
+    if len(flow_failures):
+        write("[OpenLane Flow Failures] (Designs where OpenLane failed outright)")
+        write("")
+        for failure in flow_failures:
+            write(failure)
+        write("")
+        write("---")
 
-if testFail:
-    report += "\n\nCritical Mismatches These are the reason why the test failed:\n\n"
-    report += "".join(critical_mismatches)
+    if len(missing_configs):
+        write("[Missing Configuration Variables]  (Do not exist in the sheets.)")
+        write("")
+        for variable in missing_configs:
+            write(variable)
+        write("")
+        write("---")
 
-if testFail:
-    report += "\n\nConfiguration Mismatches. These are expected to cause differences between the results:\n\n"
-    report += "".join(configuration_mismatches)
+    if testFail:
+        write("[Critical Mismatches] (Cause Failures)")
+        write("".join(critical_mismatches))
+        write("---")
 
-report += "\nThis is the full generated report:\n"
-report += "".join(output_report_list)
+    if testFail and len(configuration_mismatches):
+        write("[Configuration Mismatches] (May Contribute To Differences Between Results)")
+        write("".join(configuration_mismatches))
+        write("---")
 
-
-
-outputReportOpener = open(output_report_file, 'w')
-outputReportOpener.write(report)
-outputReportOpener.close()
-
+    write("[Full Report]")
+    write("".join(output_report_list))
 
 def formNotFoundStatus(benchmark, regression_results):
     for design in benchmark.keys():
