@@ -145,7 +145,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		$(MAKE) prerequisites
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
-		make install-local && \
+		make install && \
 		make clean"
 
 .PHONY: native-build-pdk
