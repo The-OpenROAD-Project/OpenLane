@@ -68,6 +68,7 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
     optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
+write_sdc $::env(cts_result_file_tag).sdc
 if { [check_placement -verbose] } {
 	exit 1
 }
