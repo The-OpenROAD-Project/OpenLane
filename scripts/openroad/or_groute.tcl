@@ -75,7 +75,13 @@ if {[info exists ::env(CLOCK_PORT)]} {
     if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
         read_liberty -max $::env(LIB_SLOWEST)
         read_liberty -min $::env(LIB_FASTEST)
-        read_sdc -echo $::env(BASE_SDC_FILE)
+        #read_sdc -echo $::env(BASE_SDC_FILE)
+	if {$::env(CLOCK_TREE_SYNTH)} {
+	   read_sdc -echo $::env(cts_result_file_tag)_1.sdc
+	} else {
+	   puts "INFO:Skipped CTS Stage so reading base SDC file"
+	   read_sdc -echo $::env(BASE_SDC_FILE)
+	}
 
         set_wire_rc -layer $::env(WIRE_RC_LAYER)
         estimate_parasitics -global_routing
