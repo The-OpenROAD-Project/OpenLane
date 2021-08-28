@@ -109,7 +109,7 @@ class Report:
         return header
 
     def run_script(self):
-        return subprocess.check_output(self.report_command.split()).decode(sys.getfilesystemencoding())
+        return subprocess.check_output(self.report_command.split(), stderr=subprocess.DEVNULL).decode(sys.getfilesystemencoding())
 
     def format_report(self):
         prefixIdx = self.values.index('config')+1

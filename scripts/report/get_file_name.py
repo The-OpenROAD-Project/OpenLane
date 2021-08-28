@@ -18,15 +18,23 @@ import argparse
 import os
 
 def get_name(run_path, output_file, include_only=False):
-    try:
-        neededfile=[]
-        if not include_only:
-            neededfile = sorted([(int(f.split('-',1)[0]),f.split('-',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('-',1)) > 1 and f.split('-',1)[1] == output_file], reverse=True)[0]
-        else:
-            neededfile = sorted([(int(f.split('-',1)[0]),f.split('-',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('-',1)) > 1 and str(output_file) in str(f.split('-',1)[1])], reverse=True)[0]
-        return str(run_path)+'/'+str(neededfile[0])+'-'+str(neededfile[1])
-    except Exception:
-        return str(run_path)+'/'+str(output_file)
+    candidates = [
+        filename.split('-', 1) for filename in os.listdir(run_path)
+        if os.path.isfile(os.path.join(run_path, filename))
+    ]
+    candidates = filter(lambda name_pair: len(name_pair) > 1 and str(output_file) in name_pair[1], candidates)
+    if not include_only:
+        candidates = filter(lambda name_pair: name_pair[1] == output_file, candidates)
+
+    candidates = sorted(candidates, reverse=True, key=lambda name_parts: int(name_parts[0]))
+    if len(candidates) > 0:
+        neededfile = '-'.join(candidates[0])
+    elif os.path.isfile(os.path.join(run_path, output_file)):
+        neededfile = output_file
+    else:
+        raise FileNotFoundError(f"Cannot find any file with name matching '{output_file}'")
+
+    return os.path.join(run_path, neededfile)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

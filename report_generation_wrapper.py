@@ -22,6 +22,13 @@ from scripts.config.config import ConfigHandler
 import scripts.utils.utils as utils
 from scripts.report.get_file_name import get_name
 
+def get_name_or_none(path, log_name):
+    try:
+        return get_name(path, log_name)
+    except FileNotFoundError:
+        return None
+
+
 parser = argparse.ArgumentParser(
     description='Creates a final summary csv report for a given design \
         + a manufacturability report + a runtime summary report.')
@@ -51,7 +58,7 @@ args = parser.parse_args()
 design = args.design
 design_name = args.design_name
 tag = args.tag
-run_path=args.run_path
+run_path = args.run_path
 output_file = args.output_file
 man_report = args.man_report
 runtime_summary = args.runtime_summary
@@ -73,12 +80,12 @@ utils.addComputedStatistics(output_file)
 # Tracking Magic DRC, LVS, Antenna Logs:
 if run_path is None:
     run_path = utils.get_run_path(design, tag)
-magic_drc_report=get_name(str(run_path)+"/reports/magic/", "magic.drc")
-lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.lef.log"
-if not os.path.exists(lvs_report):
-    lvs_report=str(run_path)+"/results/lvs/"+design_name+".lvs_parsed.gds.log"
-magic_antenna_report=get_name(str(run_path)+"/reports/magic/","magic.antenna_violators.rpt")
-arc_antenna_report=get_name(str(run_path)+"/reports/routing/","antenna.rpt")
+magic_drc_report = get_name_or_none(str(run_path) + "/reports/magic/", "magic.drc")
+lvs_report = get_name_or_none(str(run_path) + "/results/lvs/", design_name + ".lvs_parsed.lef.log")
+if lvs_report is None:
+    lvs_report = get_name_or_none(str(run_path) + "/results/lvs/", design_name + ".lvs_parsed.gds.log")
+magic_antenna_report = get_name_or_none(str(run_path) +"/reports/magic/", "magic.antenna_violators.rpt")
+arc_antenna_report = get_name_or_none(str(run_path) + "/reports/routing/", "antenna.rpt")
 
 printArr = []
 
@@ -90,7 +97,9 @@ splitLine = '----------------------------------------'
 # Summarizing Magic DRC
 drcVioDict = dict()
 cnt = 0
-if os.path.exists(magic_drc_report):
+printArr.append(splitLine)
+printArr.append("\nMagic DRC Summary:")
+if magic_drc_report is not None:
     drcFileOpener = open(magic_drc_report)
     if drcFileOpener.mode == 'r':
         drcContent = drcFileOpener.read()
@@ -100,8 +109,6 @@ if os.path.exists(magic_drc_report):
     # violation message
     # list of violations
     # Total Count:
-    printArr.append(splitLine)
-    printArr.append("\nMagic DRC Summary:")
     printArr.append("Source: " + str(magic_drc_report))
     if drcContent is not None:
         drcSections = drcContent.split(splitLine)
@@ -118,8 +125,8 @@ else:
 # Summarizing LVS
 printArr.append(splitLine)
 printArr.append("\nLVS Summary:")
-printArr.append("Source: "+str(lvs_report))
-if os.path.exists(lvs_report):
+if lvs_report is not None:
+    printArr.append("Source: " + str(lvs_report))
     lvsFileOpener = open(lvs_report)
     if lvsFileOpener.mode == 'r':
         lvsContent = lvsFileOpener.read()
@@ -140,7 +147,7 @@ else:
 printArr.append(splitLine)
 printArr.append("\nAntenna Summary:")
 
-if os.path.exists(arc_antenna_report):
+if arc_antenna_report is not None:
     printArr.append("Source: " + str(arc_antenna_report))
     antFileOpener = open(arc_antenna_report)
     if antFileOpener.mode == 'r':
@@ -149,7 +156,7 @@ if os.path.exists(arc_antenna_report):
     for line in antContent:
         if line.find("violated:") != -1:
             printArr.append(line)
-elif os.path.exists(magic_antenna_report):
+elif magic_antenna_report is not None:
     printArr.append("Source: " + str(magic_antenna_report))
     antFileOpener = open(magic_antenna_report)
     if antFileOpener.mode == 'r':
