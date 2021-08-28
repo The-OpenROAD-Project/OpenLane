@@ -171,8 +171,8 @@ proc try_catch {args} {
             puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
             close $error_log_file
         }
-		flow_fail
-		return -code error
+        if { ! [info exists writing_report] || ! $writing_report } { flow_fail }
+        return -code error
     }
 }
 
@@ -310,6 +310,7 @@ proc generate_final_summary_report {args} {
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
 
+        set writing_report 1
         try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/report_generation_wrapper.py -d $::env(DESIGN_DIR) \
 			-dn $::env(DESIGN_NAME) \
 			-t $::env(RUN_TAG) \
