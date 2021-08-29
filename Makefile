@@ -133,13 +133,13 @@ open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
+	[ -d $(PDK_ROOT)/pdk/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
 		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
+		rm -rf $(PDK_ROOT)/pdk/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT)"
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --prefix=$(PDK_ROOT) --datarootdir=$(PDK_ROOT)"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
@@ -150,27 +150,27 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 
 .PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
+	[ -d $(PDK_ROOT)/pdk/sky130A ] && \
 		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
 		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
+		rm -rf $(PDK_ROOT)/pdk/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --prefix=$(PDK_ROOT) --datarootdir=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
 		$(MAKE) install-local
 
-gen-sources: $(PDK_ROOT)/sky130A
-	touch $(PDK_ROOT)/sky130A/SOURCES
+gen-sources: $(PDK_ROOT)/pdk/sky130A
+	touch $(PDK_ROOT)/pdk/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
-	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
-	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
-	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
-	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "openlane " > $(PDK_ROOT)/pdk/sky130A/SOURCES
+	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	echo -ne "skywater-pdk " >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	echo -ne "open_pdks " >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
