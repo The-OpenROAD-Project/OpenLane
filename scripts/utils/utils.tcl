@@ -207,7 +207,7 @@ proc index_file {args} {
 proc flow_fail {args} {
 	if { ! [info exists ::env(FLOW_FAILED)] || ! $::env(FLOW_FAILED) } {
 		set ::env(FLOW_FAILED) 1
-		calc_total_runtime -status "Flow failed"
+		calc_total_runtime -status "flow failed"
 		generate_final_summary_report
         save_state
 		puts_err "Flow Failed."
@@ -224,7 +224,7 @@ proc calc_total_runtime {args} {
 		}
 		parse_key_args "calc_total_runtime" args arg_values $options
 		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
-		set_if_unset arg_values(-status) "Flow completed"
+		set_if_unset arg_values(-status) "flow completed"
 		set timer_end [clock seconds]
 		set timer_start $::env(timer_start)
 		set datetime $::env(datetime)
