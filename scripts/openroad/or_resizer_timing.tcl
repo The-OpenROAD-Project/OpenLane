@@ -24,7 +24,13 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
-read_sdc -echo $::env(BASE_SDC_FILE)
+#read_sdc -echo $::env(BASE_SDC_FILE)
+if {$::env(CLOCK_TREE_SYNTH)} {
+	read_sdc -echo $::env(cts_result_file_tag).sdc
+} else {
+puts "INFO:Skipped CTS Stage so reading base SDC file"
+	read_sdc -echo $::env(BASE_SDC_FILE)
+}
 # Resize
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
@@ -49,3 +55,4 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
 check_placement -verbose
 
 write_def $::env(SAVE_DEF)
+write_sdc $::env(cts_result_file_tag)_1.sdc
