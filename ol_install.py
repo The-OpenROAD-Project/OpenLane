@@ -26,6 +26,8 @@ from typing import Tuple, Union, List
 
 from dependencies.tool import Tool
 
+from get_tag import get_tag
+
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
         
@@ -108,6 +110,7 @@ def download(url, ext):
     return path
 
 def run_installer():
+    ol_version = get_tag()
     tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
     if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read LOCAL_INSTALL.md and agree to the outlined risks.", ["n", "y"]) != "y":
         return
@@ -132,35 +135,7 @@ OpenLane Local Installer ALPHA
         {tools["openroad_app"].version_string}
     """)
 
-    os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", ["ubuntu-20.04", "centos7", "macos", "other"])
-    
-    gcc_bin = os.getenv("CC") or "gcc"
-    gxx_bin = os.getenv("CXX") or "g++"
-    try:
-        if not os_pick in ["centos7", "macos"]: # The reason we ignore centos7 and macos is that we're going to just use devtoolset-8/gcc anyway.            
-            gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
-            gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
-            if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
-                print(f"""
-    We've detected that you're using Clang as your default C or C++ compiler.
-    Unfortunately, Clang is not compatible with some of the tools being
-    installed.
-
-    You may continue this installation at your own risk, but we recommend
-    installing GCC.
-
-    You can specify a compiler to use explicitly by invoking this script as
-    follows, for example:
-
-        CC=/usr/local/bin/gcc-8 CXX=/usr/local/bin/g++-8 python3 {__file__}
-
-            """)
-                input("Press return if you understand the risk and wish to continue anyways >")
-    except FileNotFoundError as e:
-        print(e, "(set as either CC or CXX)")
-        exit(os.EX_CONFIG)
-
-    install_dir = input_default("INSTALL_DIR", "Where do you want to install Openlane?", "/opt/openlane")
+    install_dir = input_default("INSTALL_DIR", "Where do you want to install Openlane?", "/usr/local/opt/openlane")
 
     sh("mkdir", "-p", install_dir, root="retry")
 
@@ -185,6 +160,65 @@ OpenLane Local Installer ALPHA
             root=pip_action == "system"
         )
    
+
+    os_list = ["other", "ubuntu-20.04", "centos7", "macos"]
+
+    # Try to determine user's OS
+    set_default_os = lambda x: os_list.insert(0, os_list.pop(os_list.index(x)))
+    uname = subprocess.check_output(["uname", "-a"]).decode("utf8").strip()
+    if "Darwin" in uname:
+        set_default_os("macos")
+
+    if "Linux" in uname:
+        try:
+            os_release = open("/etc/os-release").read()
+
+            config = {}
+            for line in os_release.split("\n"):
+                key, value = line.split("=")
+                value = value.strip('"')
+
+                config[key] = value
+
+            id = config["ID"]
+            version = config["VERSION_ID"]
+
+            if id == "centos" and version == "7":
+                set_default_os("centos7")
+            
+            if id == "ubuntu" and version == "20.04":
+                set_default_os("ubuntu-20.04")
+        except:
+            pass # non-systemd
+
+    os_pick = input_options("OS", "Which UNIX/Unix-like OS are you using?", os_list)
+    
+    gcc_bin = os.getenv("CC") or "gcc"
+    gxx_bin = os.getenv("CXX") or "g++"
+    try:
+        if not os_pick in ["centos7", "macos"]: # The reason we ignore centos7 and macos is that we're going to just use devtoolset-8/brew gcc anyway.            
+            gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
+            gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
+            if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
+                print(f"""
+    We've detected that you're using Clang as your default C or C++ compiler.
+    Unfortunately, Clang is not compatible with some of the tools being
+    installed.
+
+    You may continue this installation at your own risk, but we recommend
+    installing GCC.
+
+    You can specify a compiler to use explicitly by invoking this script as
+    follows, for example:
+
+        CC=/usr/local/bin/gcc-8 CXX=/usr/local/bin/g++-8 python3 {__file__}
+
+            """)
+                input("Press return if you understand the risk and wish to continue anyways >")
+    except FileNotFoundError as e:
+        print(e, "(set as either CC or CXX)")
+        exit(os.EX_CONFIG)
+
     install_packages = "no"
     if os_pick != "other":
         install_packages = input_options("INSTALL_PACKAGES", "Do you want to install packages for development?", ["no", "yes"])
@@ -327,6 +361,8 @@ OpenLane Local Installer ALPHA
             """)
         sh("chmod", "+x", "./openlane")
 
+        with open("installed_version", "w") as f:
+            f.write(ol_version)
     with chdir(install_dir):
         install()
 
