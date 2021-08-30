@@ -163,14 +163,14 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
 
 gen-sources: $(PDK_ROOT)/pdk/sky130A
-	touch $(PDK_ROOT)/pdk/sky130A/SOURCES
+	touch $(PDK_ROOT)/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
-	echo -ne "openlane " > $(PDK_ROOT)/pdk/sky130A/SOURCES
-	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 	echo -ne "skywater-pdk " >> $(PDK_ROOT)/pdk/sky130A/SOURCES
-	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
-	echo -ne "open_pdks " >> $(PDK_ROOT)/pdk/sky130A/SOURCES
-	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/pdk/sky130A/SOURCES
+	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
