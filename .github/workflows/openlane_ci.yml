@@ -125,6 +125,13 @@ jobs:
         env:
           TEST_SET: extendedTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
+
+      - name: Upload Logs
+        if: ${{ always() }}
+        env:
+          LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
+        
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
       needs: test

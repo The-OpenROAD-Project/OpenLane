@@ -69,7 +69,7 @@ def upload_log_tarballs():
         
         try:
             upload(final_key, tarball)
-            print(f"Uploaded {design_name}'s tarball…")
+            print(f"Uploaded {design_name}'s tarball to {final_key}.")
         except Exception as e:
             print(e, file=sys.stderr)
             print(traceback.format_exc(), file=sys.stderr)
