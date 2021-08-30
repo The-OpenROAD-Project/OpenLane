@@ -139,13 +139,13 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT)"
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
-		make install-local && \
+		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
 		make clean"
 
 .PHONY: native-build-pdk
@@ -156,11 +156,11 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local
+		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
 
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
