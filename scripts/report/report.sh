@@ -56,7 +56,7 @@ magic_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o 
 arc_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o antenna.rpt 2>&1)
 fr_log=${path}/logs/routing/fastroute.log
 cvc_log=$(python3 $3/get_file_name.py -p ${path}/logs/cvc/ -o cvc_screen.log 2>&1)
-tritonRoute_def="${path}/results/routing/${designName}.def"
+tritonRoute_def=$(python3 $3/get_file_name.py -p ${path}/results/routing/ -o ${designName}.def 2>&1)
 replace_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
