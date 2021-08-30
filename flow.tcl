@@ -334,14 +334,17 @@ puts_info {
 	\___/ |__| |_____||__|__||_____||__|__||__|__||_____|
 
 }
-if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env(OPENLANE_VERSION)]} {
-	# if no tags yet
-	if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1} ::env(OPENLANE_VERSION)]} {
-		set ::env(OPENLANE_VERSION) "N/A"
+
+if {[catch {exec cat $::env(OPENLANE_ROOT)/installed_version} ::env(OPENLANE_VERSION)]} {
+	if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env(OPENLANE_VERSION)]} {
+		# if no tags yet
+		if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1} ::env(OPENLANE_VERSION)]} {
+			set ::env(OPENLANE_VERSION) "N/A"
+		}
 	}
 }
 
-puts_info "Git Version: $::env(OPENLANE_VERSION)"
+puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/verify_versions.py} ::env(VCHECK_OUTPUT)] {
 	puts_warn $::env(VCHECK_OUTPUT)
