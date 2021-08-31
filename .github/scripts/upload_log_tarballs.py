@@ -78,5 +78,5 @@ if __name__ == "__main__":
         upload_log_tarballs()
     except Exception as e:
         print("An unhandled exception has occurred while uploading log tarballs.", file=sys.stderr)
-        print(e, file=sys.stderr)
+        # print(e, file=sys.stderr)
         exit(os.EX_UNAVAILABLE)
