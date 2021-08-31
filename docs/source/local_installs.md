@@ -26,6 +26,6 @@ OpenLane can work as a skeleton with this file structure:
 * configuration/
 * scripts/
 * flow.tcl
-* report_generation_wrapper.py
+* generate_reports.py
 
 You can copy them into any folder, then invoke `tclsh /path/to/flow.tcl` and go to town. The scripts are pretty light on requirements too: You only need Python 3.6+, Perl 5 and Tclsh. Unfortunately, OpenLane cannot accomplish much without its library of open source EDA tooling. 

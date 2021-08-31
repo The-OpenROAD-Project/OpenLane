@@ -302,7 +302,7 @@ OpenLane Local Installer ALPHA
         copy("configuration")
         copy("scripts")
         copy("flow.tcl")
-        copy("report_generation_wrapper.py")
+        copy("generate_reports.py")
         copy("dependencies/")
 
         print("Installing dependencies...")

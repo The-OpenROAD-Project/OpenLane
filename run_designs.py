@@ -329,7 +329,7 @@ def run_design(designs_queue):
             rmDesignFromPrintList(design)
 
         log.info(
-            "{design} {tag} finished\t Writing report..".format(design=design, tag=tag)
+            "{design} {tag} finished\t Writing report...".format(design=design, tag=tag)
         )
         params = ConfigHandler.get_config(design, tag)
 
@@ -345,7 +345,7 @@ def run_design(designs_queue):
             try:
 
                 log.info(
-                    "{design} {tag} Comparing vs benchmark results..".format(
+                    "{design} {tag} Comparing with benchmark results...".format(
                         design=design, tag=tag
                     )
                 )
@@ -368,7 +368,7 @@ def run_design(designs_queue):
         if args.clean:
             try:
                 log.info(
-                    "{design} {tag} Cleaning tmp Directory..".format(
+                    "{design} {tag} Cleaning tmp/...".format(
                         design=design, tag=tag
                     )
                 )
@@ -382,7 +382,7 @@ def run_design(designs_queue):
                 clean_cmd = "rm -rf {run_path}/tmp/".format(run_path=run_path, tag=tag)
                 subprocess.check_output(clean_cmd.split())
                 log.info(
-                    "{design} {tag} Cleaning tmp Directory Finished".format(
+                    "{design} {tag} tmp/  cleaned.".format(
                         design=design, tag=tag
                     )
                 )
@@ -396,7 +396,7 @@ def run_design(designs_queue):
 
         if tarList[0] != "":
             log.info(
-                "{design} {tag} Compressing Run Directory..".format(
+                "{design} {tag} Compressing run directory...".format(
                     design=design, tag=tag
                 )
             )
@@ -429,7 +429,7 @@ def run_design(designs_queue):
         if args.delete:
             try:
                 log.info(
-                    "{design} {tag} Deleting Run Directory..".format(
+                    "{design} {tag} Deleting run directory...".format(
                         design=design, tag=tag
                     )
                 )
@@ -437,7 +437,7 @@ def run_design(designs_queue):
                 subprocess.check_output(deleteDirectory.split())
 
                 log.info(
-                    "{design} {tag} Deleting Run Directory Finished..".format(
+                    "{design} {tag} Run directory deleted.".format(
                         design=design, tag=tag
                     )
                 )
@@ -524,14 +524,14 @@ for i in range(num_workers):
         workers[i].join(100)
     print("Exiting thread", i)
 
-log.info("Getting top results..")
+log.info("Getting top results...")
 best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".format(
     input=report_handler.baseFilename, output=report_file_name + "_best.csv"
 )
 subprocess.check_output(best_result_cmd.split())
 
 if args.htmlExtract:
-    log.info("Converting to html..")
+    log.info("Creating HTML report...")
     csv2html_result_cmd = (
         "python3 ./scripts/csv2html/csv2html.py -i {input} -o {output}".format(
             input=report_file_name + ".csv", output=report_file_name + ".html"
@@ -552,7 +552,7 @@ utils.addComputedStatistics(report_file_name + "_best.csv")
 
 
 if args.benchmark is not None:
-    log.info("Generating final benchmark results..")
+    log.info("Benchmarking...")
     full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -ur -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
         benchmark=args.benchmark,
         this_run=report_file_name + ".csv",
