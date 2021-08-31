@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Log Upload Dependencies
-        run: python3 -m pip install cloudstorage 'cloudstorage[google]'
+        run: python3 -m pip install apache-libcloud==3.3.1
       - name: Upload Logs
         if: ${{ always() }}
         env:
