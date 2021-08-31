@@ -21,8 +21,9 @@ import sys
 import glob
 import base64
 import traceback
-from typing import Callable
+import subprocess
 from gh import gh
+from typing import Callable
 
 def upload_log_tarballs():
     log_upload_info = os.getenv("LOG_UPLOAD_INFO")
@@ -36,6 +37,16 @@ def upload_log_tarballs():
     cleanup = lambda x: None
 
     if platform == "gcp":
+        try:
+            import google.cloud.storage
+        except ImportError:
+            print("Google Cloud Storage SDK not installed, attempting to install…", file=sys.stderr)
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "google-cloud-storage"])
+            except:
+                print("Failed to install Google Cloud Storage SDK.", file=sys.stderr)
+                exit(os.EX_UNAVAILABLE)
+        
         from google.cloud import storage
         
         json = base64.b64decode(encoded_data).decode("utf8")
