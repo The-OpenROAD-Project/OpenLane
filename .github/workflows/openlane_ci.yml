@@ -20,7 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
+      - name: Log Upload Dependencies
+        run: python3 -m pip install cloudstorage 'cloudstorage[google]'
       - name: Upload Logs
         if: ${{ always() }}
         env:

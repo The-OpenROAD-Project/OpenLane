@@ -19,11 +19,12 @@
 import os
 import sys
 import glob
+import json
 import base64
 import traceback
-import subprocess
 from gh import gh
-from typing import Callable
+
+from libcloud.storage.base import StorageDriver, Container
 
 def upload_log_tarballs():
     log_upload_info = os.getenv("LOG_UPLOAD_INFO")
@@ -33,60 +34,43 @@ def upload_log_tarballs():
 
     platform, bucket_name, encoded_data = log_upload_info.split(":")
 
-    upload: Callable[[str, str], None] = None
-    cleanup = lambda x: None
+    driver: StorageDriver = None
+    container: Container = None
 
     if platform == "gcp":
+        from libcloud.storage.drivers.google_storage import GoogleStorageDriver
+        
+        data = None
         try:
-            import google.cloud.storage
-        except ImportError:
-            print("Google Cloud Storage SDK not installed, attempting to install…", file=sys.stderr)
-            try:
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "google-cloud-storage"])
-            except:
-                print("Failed to install Google Cloud Storage SDK.", file=sys.stderr)
-                exit(os.EX_UNAVAILABLE)
+            data = json.loads(base64.b64decode(encoded_data).decode("utf8"))
+        except:
+            raise Exception("Invalid base64 data or resultant JSON file.")
         
-        from google.cloud import storage
-        
-        json = base64.b64decode(encoded_data).decode("utf8")
-        with open("/tmp/gcp_credentials.json", "w") as f:
-            f.write(json)
+        driver = GoogleStorageDriver(key=data["client_email"], secret=data["private_key"])
+        container = driver.get_container(bucket_name)
 
-        gcs_client = storage.Client.from_service_account_json(
-            "/tmp/gcp_credentials.json"
-        )
-        bucket = gcs_client.get_bucket(bucket_name)
-
-
-        def gcp_upload(key, file):
-            blob = bucket.blob(key)
-            blob.upload_from_filename(file)
-
-        def gcp_cleanup():
-            os.remove("/tmp/gcp_credentials.json")
-
-        upload = gcp_upload
-        cleanup = gcp_cleanup
     else:
         print("Platform not supported. Ensure your key is formatted correctly as {platform}:{bucket_name}:{encoded_data}.", file=sys.stderr)
         exit(os.EX_CONFIG)
 
     tarball_glob = os.path.join(gh.root, "designs", "*", "runs", "*.tar.gz")
-    for tarball in glob.glob(tarball_glob):
+    tarballs = glob.glob(tarball_glob)
+    if len(tarballs) == 0:
+        print("No tarballs found.", file=sys.stderr)
+
+    for tarball in tarballs:
         design_name = os.path.basename(os.path.dirname(os.path.dirname(tarball)))
         tarball_name = f"{design_name}.tar.gz"
         final_key = os.path.join(gh.run_id, tarball_name)
         
         try:
-            upload(final_key, tarball)
+            driver.upload_object(file_path=tarball, container=container, object_name=final_key)
             print(f"Uploaded {design_name}'s tarball to {final_key}.")
         except Exception as e:
             print(e, file=sys.stderr)
             print(traceback.format_exc(), file=sys.stderr)
             print(f"Failed to upload tarball for {design_name}, skipping…", file=sys.stderr)
 
-    cleanup()
     print("Done.")
 
 if __name__ == "__main__":
