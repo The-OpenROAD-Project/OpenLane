@@ -444,15 +444,7 @@ designs/<design_name>
 ```
 
 To delete all generated runs under all designs:
-- inside the docker container:
-    ```bash
-        ./clean_runs.tcl
-    ```
-- outside the docker container:
-    ```bash
-        make clean_runs
-    ```
-
+`make clean_runs`
 ## Flow configuration
 
 1. PDK / technology specific

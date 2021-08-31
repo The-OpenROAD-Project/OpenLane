@@ -25,8 +25,7 @@ from os.path import join, abspath, dirname, exists
 from typing import Tuple, Union, List
 
 from dependencies.tool import Tool
-
-from get_tag import get_tag
+from dependencies.get_tag import get_tag
 
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
@@ -112,12 +111,10 @@ def download(url, ext):
 def run_installer():
     ol_version = get_tag()
     tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
-    if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read LOCAL_INSTALL.md and agree to the outlined risks.", ["n", "y"]) != "y":
+    if input_options("RISK_ACKNOWLEDGED", "I affirm that I have read docs/source/local_installs.md and agree to the outlined risks.", ["n", "y"]) != "y":
         return
 
     print(f"""\
-    DO NOT USE THIS UTILITY BEFORE READING LOCAL_INSTALL.md.
-
 OpenLane Local Installer ALPHA
 
     Copyright 2021 Efabless Corporation. Available under the Apache License,
