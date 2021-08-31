@@ -20,7 +20,7 @@ import pandas as pd
 from jinja2 import Environment, PackageLoader, select_autoescape
 
 parser = argparse.ArgumentParser(
-    description='Takes an input csv report from the run_designs.py script and creates an html summary for it')
+    description='Takes an input csv report from the run_designs.py script and creates an html summary for it.')
 
 parser.add_argument('--csv_file', '-i',required=True,
                    help='The input csv file')

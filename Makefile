@@ -44,7 +44,7 @@ DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
+DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
 DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= $(NPROC)
@@ -53,7 +53,7 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-CURRENT_TAG ?= $(shell python3 ./get_tag.py)
+CURRENT_TAG ?= $(shell python3 ./dependencies/get_tag.py)
 IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
@@ -228,5 +228,4 @@ test:
 
 .PHONY: clean_runs
 clean_runs:
-	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
