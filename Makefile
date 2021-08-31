@@ -44,7 +44,7 @@ DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
+DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
 DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= $(NPROC)
