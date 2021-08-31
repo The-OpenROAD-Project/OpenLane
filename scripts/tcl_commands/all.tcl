@@ -22,9 +22,9 @@ proc save_state {args} {
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
-            set escapped_env_var [string map {\" \\\"} $::env($index)]
-            set escapped_env_var [string map {\$ \\\$} $::env($index)]
-            set_log ::env($index) $escapped_env_var env(GLB_CFG_FILE) 1
+            set escaped_env_var [string map {\" \\\"} $::env($index)]
+            set escaped_env_var [string map {\$ \\\$} $::env($index)]
+            set_log ::env($index) $escaped_env_var env(GLB_CFG_FILE) 1
         }
     }
 }
