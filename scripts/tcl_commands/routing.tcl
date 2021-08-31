@@ -363,6 +363,9 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
+
+	run_resizer_timing_routing
+	
 	if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
 		if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
 			ins_diode_cells_1
@@ -382,9 +385,10 @@ proc run_routing {args} {
 
     add_route_obs
 
-	run_resizer_timing_routing
-
-	detailed_placement_or
+	#legalize if not yet legalized
+	if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+		detailed_placement_or
+	}
 
     global_routing
 
