@@ -30,6 +30,7 @@ placement_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replac
 sta_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta 2>&1)
 sta_post_resizer_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_post_resizer 2>&1)
 sta_post_resizer_timing_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_post_resizer_timing 2>&1)
+sta_post_resizer_routing_timing_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_post_resizer_routing_timing 2>&1)
 sta_spef_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_spef 2>&1)
 
 tritonRoute_drc=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o tritonRoute.drc 2>&1)
@@ -56,7 +57,7 @@ magic_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o 
 arc_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o antenna.rpt 2>&1)
 fr_log=${path}/logs/routing/fastroute.log
 cvc_log=$(python3 $3/get_file_name.py -p ${path}/logs/cvc/ -o cvc_screen.log 2>&1)
-tritonRoute_def=$(python3 $3/get_file_name.py -p ${path}/results/routing/ -o ${designName}.def 2>&1)
+tritonRoute_def="${path}/results/routing/${designName}.def"
 replace_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 lvs_report=${path}/results/lvs/${designName}.lvs_parsed.*.log
 # Extracting info from Yosys
@@ -397,6 +398,17 @@ if [[ $(find $sta_post_resizer_timing_log -type f -size +10c 2> /dev/null) ]]; t
 	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.slew.rpt check_slew check_slew_end
 else 
 	echo "Static Timing Analysis Post Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_timing.rpt
+fi
+
+if [[ $(find $sta_post_resizer_routing_timing_log -type f -size +10c 2> /dev/null) ]]; then
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing.timing.rpt timing_report timing_report_end
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing.min_max.rpt min_max_report min_max_report_end
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing.rpt check_report check_report_end
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing_wns.rpt wns_report wns_report_end
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing_tns.rpt tns_report tns_report_end
+	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing.slew.rpt check_slew check_slew_end
+else 
+	echo "Static Timing Analysis Post Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_routing_timing.rpt
 fi
 
 if [[ $(test_file $sta_spef_log) ]]; then
