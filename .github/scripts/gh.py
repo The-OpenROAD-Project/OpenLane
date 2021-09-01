@@ -115,7 +115,7 @@ if os.getenv("GITHUB_ACTIONS") != "true":
     os.environ["BRANCH_NAME"] = branch
     os.environ["GITHUB_WORKSPACE"] = git_directory
     os.environ["GITHUB_EVENT_NAME"] = "workspace_dispatch"
-    os.environ["GITHUB_RUN_ID"] = "test_run"
+    os.environ["GITHUB_RUN_ID"] = "mock_gha_run"
     
     def export_env_alt(key, value):
         os.environ[key] = value
