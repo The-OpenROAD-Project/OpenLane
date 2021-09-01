@@ -15,7 +15,9 @@
 # limitations under the License.
 
 """
-See ./docs/source/using_or_issue.md.
+See <openlane_root>/docs/source/using_or_issue.md.
+
+This script is intended for use by bug reporters and maintainers and is not part of the flow.
 """
 
 import os
@@ -79,7 +81,7 @@ run_path_containerized = run_path.replace(openlane_path, "/openLANE_flow")
 
 # Phase 1: Read All Environment Variables
 # pdk_config = join(args.pdk_root, "sky130A", "libs.tech", "openlane", "config.tcl")
-print(f"Parsing config file(s)...", file=sys.stderr)
+print(f"Parsing config file(s)…", file=sys.stderr)
 run_config = join(run_path, "config.tcl")
 
 env = {}
@@ -127,7 +129,7 @@ env["SAVE_DEF"] = save_def
 
 # Phase 2: Set up destination folder
 destination_folder = abspath(join(".", "_build", f"{run_name}_{script_basename}_packaged"))
-print(f"Setting up {destination_folder}...", file=sys.stderr)
+print(f"Setting up {destination_folder}…", file=sys.stderr)
 
 def mkdirp(path):
     return pathlib.Path(path).mkdir(parents=True, exist_ok=True)
@@ -176,23 +178,31 @@ def copy(frm, to):
     parents = dirname(to)
     mkdirp(parents)
 
+    def do_copy():
+        if isdir(frm):
+            shutil.copytree(frm, to)
+        else:
+            shutil.copyfile(frm, to)
+
     try:
         incomplete_matches = glob.glob(frm + "*")
+
         if len(incomplete_matches) == 0:
             raise Exception()
         elif len(incomplete_matches) != 1 or incomplete_matches[0] != frm:
-            # Prefix File
+            # Prefix For Other Files
             for match in incomplete_matches:
-                new_frm = match
-                new_to = to + new_frm[len(frm):]
-                copy(new_frm, new_to)
+                if match == frm:
+                    # If it's both a file AND a prefix for other files
+                    do_copy()
+                else:
+                    new_frm = match
+                    new_to = to + new_frm[len(frm):]
+                    copy(new_frm, new_to)
         else:
-            if isdir(frm):
-                shutil.copytree(frm, to)
-            else:
-                shutil.copyfile(frm, to)
-    except:
-        warnings.append(f"ℹ Couldn't copy {frm}, skipped.")
+            do_copy()
+    except Exception as e:
+        warnings.append(f"ℹ Couldn't copy {frm}: {e}. Skipped.")
 
 if verbose:
     print("\nProcessing environment variables…\n---", file=sys.stderr)

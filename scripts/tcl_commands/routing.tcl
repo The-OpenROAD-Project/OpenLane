@@ -368,6 +368,9 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
+
+	run_resizer_timing_routing
+	
 	if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
 		if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
 			ins_diode_cells_1
@@ -386,6 +389,11 @@ proc run_routing {args} {
     use_original_lefs
 
     add_route_obs
+
+	#legalize if not yet legalized
+	if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+		detailed_placement_or
+	}
 
     global_routing
 
@@ -421,5 +429,43 @@ proc run_routing {args} {
 	## Calculate Runtime To Routing
 	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/routed_runtime.txt
 }
+
+proc run_resizer_timing_routing {args} {
+    if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
+        puts_info "Running Resizer Timing Optimizations..."
+        TIMER::timer_start
+        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
+            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
+            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+        }
+        if { ! [info exists ::env(DONT_USE_CELLS)] } {
+            gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
+        }
+        set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
+        set_def $::env(SAVE_DEF)
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
+
+        write_verilog $::env(yosys_result_file_tag)_optimized.v
+        set_netlist $::env(yosys_result_file_tag)_optimized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
+        set report_tag_holder $::env(opensta_report_file_tag)
+        set log_tag_holder $::env(opensta_log_file_tag)
+        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer_routing_timing
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer_routing_timing
+        run_sta
+        set ::env(opensta_report_file_tag) $report_tag_holder
+        set ::env(opensta_log_file_tag) $log_tag_holder
+    } else {
+        puts_info "Skipping Resizer Timing Optimizations."
+    }
+}
+
 
 package provide openlane 0.9
