@@ -128,7 +128,7 @@ jobs:
 
       - name: Log Upload Dependencies
         run: python3 -m pip install apache-libcloud==3.3.1
-        
+
       - name: Upload Logs
         if: ${{ always() }}
         env:
@@ -212,7 +212,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Docker Push (Branch Name)
-        if: ${{ env.PUSHING == '1' }}
+        if: ${{ env.PUSHING == '1' && github.event_name == 'push'}}
         run: |
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
