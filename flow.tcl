@@ -123,7 +123,7 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
-	
+
 
 proc run_non_interactive_mode {args} {
 	set options {
@@ -213,8 +213,8 @@ proc run_non_interactive_mode {args} {
 
 
 	calc_total_runtime
+	save_state
 	generate_final_summary_report
-    save_state
 
 	puts_success "Flow Completed Without Fatal Errors."
 }
