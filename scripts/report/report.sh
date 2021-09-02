@@ -75,6 +75,30 @@ parse_to_report() {
         python3 $SCRIPT_PATH/report_parser.py $LOG $(python3 $SCRIPT_PATH/get_file_name.py -p ${REPORT_PATH} -o ${REPORT} 2>&1) $FROM $TO
 }
 
+REPORT_PATH=${path}/reports/cts/
+if [[ $(test_file $cts_log) ]]; then
+        parse_to_report $cts_log $REPORT_PATH cts.timing.rpt timing_report timing_report_end
+        parse_to_report $cts_log $REPORT_PATH cts.timing.rpt timing_report timing_report_end
+        parse_to_report $cts_log $REPORT_PATH cts.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $cts_log $REPORT_PATH cts.rpt check_report check_report_end
+        parse_to_report $cts_log $REPORT_PATH cts_wns.rpt wns_report wns_report_end
+        parse_to_report $cts_log $REPORT_PATH cts_tns.rpt tns_report tns_report_end
+        parse_to_report $cts_log $REPORT_PATH cts_clock_skew.rpt clock_skew_report clock_skew_report_end
+else
+        echo "CTS log not found or empty." > $REPORT_PATH/cts.rpt
+fi
+
+REPORT_PATH=${path}/reports/routing/
+if [[ $(test_file $routing_log) ]]; then
+        parse_to_report $routing_log $REPORT_PATH fastroute.timing.rpt timing_report timing_report_end
+        parse_to_report $routing_log $REPORT_PATH fastroute.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $routing_log $REPORT_PATH fastroute.rpt check_report check_report_end
+        parse_to_report $routing_log $REPORT_PATH fastroute_wns.rpt wns_report wns_report_end
+        parse_to_report $routing_log $REPORT_PATH fastroute_tns.rpt tns_report tns_report_end
+else
+        echo "Routing log not found or empty." > $REPORT_PATH/fastroute.rpt
+fi
+
 REPORT_PATH=${path}/reports/placement/
 if [[ $(test_file $placement_log) ]]; then
         parse_to_report $placement_log $REPORT_PATH replace.timing.rpt timing_report timing_report_end
@@ -82,42 +106,42 @@ if [[ $(test_file $placement_log) ]]; then
         parse_to_report $placement_log $REPORT_PATH replace.rpt check_report check_report_end
         parse_to_report $placement_log $REPORT_PATH replace_wns.rpt wns_report wns_report_end
         parse_to_report $placement_log $REPORT_PATH replace_tns.rpt tns_report tns_report_end
-else 
-	echo "Placement log not found or empty." > $REPORT_PATH/replace.rpt
+else
+        echo "Placement log not found or empty." > $REPORT_PATH/replace.rpt
 fi
 
 REPORT_PATH=${path}/reports/synthesis/
 if [[ $(test_file $sta_log) ]]; then
-	parse_to_report $sta_log $REPORT_PATH opensta.timing.rpt timing_report timing_report_end
-	parse_to_report $sta_log $REPORT_PATH opensta.min_max.rpt min_max_report min_max_report_end
-	parse_to_report $sta_log $REPORT_PATH opensta.rpt check_report check_report_end
-	parse_to_report $sta_log $REPORT_PATH opensta_wns.rpt wns_report wns_report_end
-	parse_to_report $sta_log $REPORT_PATH opensta_tns.rpt tns_report tns_report_end
-	parse_to_report $sta_log $REPORT_PATH opensta.slew.rpt check_slew check_slew_end
-else 
-	echo "Static Timing Analysis log not found or empty." > $REPORT_PATH/opensta.rpt
+        parse_to_report $sta_log $REPORT_PATH opensta.timing.rpt timing_report timing_report_end
+        parse_to_report $sta_log $REPORT_PATH opensta.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $sta_log $REPORT_PATH opensta.rpt check_report check_report_end
+        parse_to_report $sta_log $REPORT_PATH opensta_wns.rpt wns_report wns_report_end
+        parse_to_report $sta_log $REPORT_PATH opensta_tns.rpt tns_report tns_report_end
+        parse_to_report $sta_log $REPORT_PATH opensta.slew.rpt check_slew check_slew_end
+else
+        echo "Static Timing Analysis log not found or empty." > $REPORT_PATH/opensta.rpt
 fi
 
 if [[ $(test_file $sta_post_resizer_log) ]]; then
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.timing.rpt timing_report timing_report_end
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.min_max.rpt min_max_report min_max_report_end
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.rpt check_report check_report_end
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer_wns.rpt wns_report wns_report_end
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer_tns.rpt tns_report tns_report_end
-	parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.slew.rpt check_slew check_slew_end
-else 
-	echo "Static Timing Analysis Post Resizer log not found or empty." > $REPORT_PATH/opensta_post_resizer.rpt
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.timing.rpt timing_report timing_report_end
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.rpt check_report check_report_end
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer_wns.rpt wns_report wns_report_end
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer_tns.rpt tns_report tns_report_end
+        parse_to_report $sta_post_resizer_log $REPORT_PATH opensta_post_resizer.slew.rpt check_slew check_slew_end
+else
+        echo "Static Timing Analysis Post Resizer log not found or empty." > $REPORT_PATH/opensta_post_resizer.rpt
 fi
 
 if [[ $(find $sta_post_resizer_timing_log -type f -size +10c 2> /dev/null) ]]; then
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.timing.rpt timing_report timing_report_end
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.min_max.rpt min_max_report min_max_report_end
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.rpt check_report check_report_end
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing_wns.rpt wns_report wns_report_end
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing_tns.rpt tns_report tns_report_end
-	parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.slew.rpt check_slew check_slew_end
-else 
-	echo "Static Timing Analysis Post Routing Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_timing.rpt
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.timing.rpt timing_report timing_report_end
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.rpt check_report check_report_end
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing_wns.rpt wns_report wns_report_end
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing_tns.rpt tns_report tns_report_end
+        parse_to_report $sta_post_resizer_timing_log $REPORT_PATH opensta_post_resizer_timing.slew.rpt check_slew check_slew_end
+else
+        echo "Static Timing Analysis Post Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_timing.rpt
 fi
 
 if [[ $(find $sta_post_resizer_routing_timing_log -type f -size +10c 2> /dev/null) ]]; then
@@ -127,19 +151,19 @@ if [[ $(find $sta_post_resizer_routing_timing_log -type f -size +10c 2> /dev/nul
 	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing_wns.rpt wns_report wns_report_end
 	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing_tns.rpt tns_report tns_report_end
 	parse_to_report $sta_post_resizer_routing_timing_log $REPORT_PATH opensta_post_resizer_routing_timing.slew.rpt check_slew check_slew_end
-else 
-	echo "Static Timing Analysis Post Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_routing_timing.rpt
+else
+	echo "Static Timing Analysis Post Routing Resizer Timing log not found or empty." > $REPORT_PATH/opensta_post_resizer_routing_timing.rpt
 fi
 
 if [[ $(test_file $sta_spef_log) ]]; then
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.timing.rpt timing_report timing_report_end
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.min_max.rpt min_max_report min_max_report_end
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.rpt check_report check_report_end
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef_wns.rpt wns_report wns_report_end
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef_tns.rpt tns_report tns_report_end
-	parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.slew.rpt check_slew check_slew_end
-else 
-	echo "Static Timing Analysis SPEF log not found or empty." > $REPORT_PATH/opensta_spef.rpt
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.timing.rpt timing_report timing_report_end
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.min_max.rpt min_max_report min_max_report_end
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.rpt check_report check_report_end
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef_wns.rpt wns_report wns_report_end
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef_tns.rpt tns_report tns_report_end
+        parse_to_report $sta_spef_log $REPORT_PATH opensta_spef.slew.rpt check_slew check_slew_end
+else
+        echo "Static Timing Analysis SPEF log not found or empty." > $REPORT_PATH/opensta_spef.rpt
 fi
 
 # Extracting info from Yosys
