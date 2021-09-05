@@ -14,7 +14,11 @@
 
 # default pdk
 set ::env(PDK) "sky130A"
-set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
+    set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+} else {
+    puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+}
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
@@ -39,7 +43,7 @@ set ::env(KLAYOUT_XOR_XML) 1
 
 set ::env(RUN_ROUTING_DETAILED) 1
 set ::env(RUN_SIMPLE_CTS) 0
-set ::env(CLOCK_PERIOD) "10"
+set ::env(CLOCK_PERIOD) "10.0"
 set ::env(RUN_KLAYOUT) 1
 set ::env(TAKE_LAYOUT_SCROT) 0
 set ::env(RUN_KLAYOUT_DRC) 0
@@ -54,12 +58,8 @@ set ::env(WIDEN_SITE) 1
 set ::env(WIDEN_SITE_IS_FACTOR) 1
 
 set ::env(RUN_SPEF_EXTRACTION) 1
-set ::env(SPEF_WIRE_MODEL) "L"
-set ::env(SPEF_EDGE_CAP_FACTOR) 1
-
 set ::env(RUN_CVC) 1
 
-set ::env(WIRE_RC_LAYER) "met1"; # Used for estimate_parasitics
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 0: no diodes
 # 1: spray inputs with diodes

@@ -36,8 +36,6 @@ grt::set_min_layer $::env(GLB_RT_MINLAYER)
 grt::check_routing_layer $::env(GLB_RT_MAXLAYER)
 grt::set_max_layer $::env(GLB_RT_MAXLAYER)
 
-grt::set_verbose 3
-
 grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
 grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
@@ -53,14 +51,16 @@ if { $::env(GLB_RT_MAXLAYER) > 3 } {
     }
 }
 
-# grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
 # grt::set_tile_size $::env(GLB_RT_TILES)
 
 grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 
-grt::set_allow_overflow $::env(GLB_RT_ALLOW_CONGESTION)
-
-grt::run
+if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
+    global_route -verbose 3\
+        -allow_congestion
+} else {
+    global_route -verbose 3
+}
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)" -iterations $::env(GLB_RT_ANT_ITERS)
@@ -75,14 +75,26 @@ if {[info exists ::env(CLOCK_PORT)]} {
     if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
         read_liberty -max $::env(LIB_SLOWEST)
         read_liberty -min $::env(LIB_FASTEST)
-        read_sdc -echo $::env(BASE_SDC_FILE)
+        #read_sdc -echo $::env(BASE_SDC_FILE)
+	if {$::env(CLOCK_TREE_SYNTH)} {
+	   read_sdc -echo $::env(cts_result_file_tag)_1.sdc
+	} else {
+	   puts "INFO:Skipped CTS Stage so reading base SDC file"
+	   read_sdc -echo $::env(BASE_SDC_FILE)
+	}
 
         set_wire_rc -layer $::env(WIRE_RC_LAYER)
         estimate_parasitics -global_routing
 
+        puts "timing_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt
+        puts "timing_report_end"
+        puts "min_max_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(fastroute_report_file_tag).min_max.rpt
+        puts "min_max_report_end"
+        puts "check_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
+        puts "check_report_end"
 
         report_wns > $::env(fastroute_report_file_tag)_wns.rpt
         report_tns > $::env(fastroute_report_file_tag)_tns.rpt

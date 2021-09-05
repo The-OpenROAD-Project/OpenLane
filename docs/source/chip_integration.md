@@ -126,7 +126,7 @@ When you use the `power_routing` command in the chip interactive script, the pow
 [0]: ./../../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
+[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/interactive.tcl
 [5]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.tcl
 [6]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/padframe.cfg

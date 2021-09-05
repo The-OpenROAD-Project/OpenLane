@@ -28,7 +28,6 @@ detailed_placement_or
 basic_macro_placement
 run_placement
 repair_wire_length
-run_openPhySyn
 init_design
 global_routing_or
 global_routing

@@ -118,14 +118,6 @@ The only optimization we use from resizer is the wire length optimization which 
 
 However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then determine the maximum wire length by setting this value `MAX_WIRE_LENGTH`.
 
-#### OpenPhySyn optimizations:
-
-The timing OpenPhySyn optimizations are enabled by default and you can control that using this flag `PL_OPENPHYSYN_OPTIMIZATIONS`.
-
-You can also control resizing and pin swapping using these flags: `PSN_ENABLE_RESIZING` and `PSN_ENABLE_PIN_SWAP`.
-
-You can read more about those configurations [here][0].
-
 ### Detailed Placement:
 
 The only value to consider here is the `CELL_PAD` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is. However, typically for the skywater libraries the value should be 4~6.
@@ -236,7 +228,7 @@ If you want to create further tweaks in the flow that the abundant configuration
 [0]: ./../../configuration/README.md
 [1]: ./OpenLANE_commands.md
 [2]: ./advanced_readme.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdngen/doc/PDN.md
+[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: ./chip_integration.md
 [5]: ./../../designs/README.md
 [6]: ./../../regression_results/README.md

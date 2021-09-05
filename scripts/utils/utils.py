@@ -67,9 +67,26 @@ def get_design_name(design, config):
 def addComputedStatistics(filename):
     data = pd.read_csv(filename, error_bad_lines=False)
     df = pd.DataFrame(data)
-    df.insert(6, '(Cell/mm^2)/Core_Util', df['CellPer_mm^2']/(df['FP_CORE_UTIL']/100), True)
-    suggest_clock_period=df['CLOCK_PERIOD']-df['spef_wns']
-    used_idx = df.columns.get_loc("CLOCK_PERIOD")
-    df.insert(used_idx,'suggested_clock_period',suggest_clock_period,True)
-    df.insert(used_idx,'suggested_clock_frequency',1000.0/suggest_clock_period,True)
+
+    diearea_mm2_index = df.columns.get_loc("DIEAREA_mm^2")
+    df.insert(diearea_mm2_index,
+        column='(Cell/mm^2)/Core_Util',
+        value= df['CellPer_mm^2'] / (df['FP_CORE_UTIL'] / 100),
+        allow_duplicates=True
+    )
+
+    suggest_clock_period = df['CLOCK_PERIOD'] - df['spef_wns']
+    clock_period_index = df.columns.get_loc("CLOCK_PERIOD")
+    df.insert(
+        clock_period_index,
+        column='suggested_clock_period',
+        value=suggest_clock_period,
+        allow_duplicates=True
+    )
+    df.insert(
+        clock_period_index,
+        column='suggested_clock_frequency',
+        value=1000.0/suggest_clock_period,
+        allow_duplicates=True
+    )
     df.to_csv(filename)

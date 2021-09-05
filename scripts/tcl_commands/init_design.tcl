@@ -32,7 +32,7 @@ set ::env(DESIGN_NAME) ${design_name}
 set ::env(VERILOG_FILES) \[glob $src/*.v\]
 
 # Fill this
-set ::env(CLOCK_PERIOD) \"10\"
+set ::env(CLOCK_PERIOD) \"10.0\"
 set ::env(CLOCK_PORT) \"clk\"
 
 set filename \$::env(DESIGN_DIR)/\$::env(PDK)_\$::env(STD_CELL_LIBRARY)_config.tcl

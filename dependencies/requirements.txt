@@ -1,4 +1,0 @@
-cmake
-click
-pyyaml
-pyinstaller

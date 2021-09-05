@@ -22,7 +22,9 @@ proc save_state {args} {
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
-            set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+            set escaped_env_var [string map {\" \\\"} $::env($index)]
+            set escaped_env_var [string map {\$ \\\$} $::env($index)]
+            set_log ::env($index) $escaped_env_var $::env(GLB_CFG_FILE) 1
         }
     }
 }
@@ -88,6 +90,12 @@ proc prep_lefs {args} {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
         puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
+    
+    # merge optimization library lef if it is different from the STD_CELL_LIBRARY
+    if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT) 
+        puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
+    }
 
     file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
     set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
@@ -117,6 +125,9 @@ proc gen_exclude_list {args} {
     puts_info "Generating Exclude List..."
     set options {
         {-lib required}
+        {-drc_exclude_list optional}
+        {-synth_exclude_list optional}
+        {-output optional}
     }
     set flags {
         -drc_exclude_only
@@ -124,32 +135,34 @@ proc gen_exclude_list {args} {
     }
     parse_key_args "gen_exclude_list" args arg_values $options flags_map $flags
 
-    # Set if unset for the two env vars:
-    if {![info exists ::env(NO_SYNTH_CELL_LIST)]} {
-        set ::env(NO_SYNTH_CELL_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells
-    }
-
-    if {![info exists ::env(DRC_EXCLUDE_CELL_LIST)]} {
-        set ::env(DRC_EXCLUDE_CELL_LIST) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells
-    }
+    set_if_unset arg_values(-drc_exclude_list) $::env(DRC_EXCLUDE_CELL_LIST)
+    set_if_unset arg_values(-synth_exclude_list) $::env(NO_SYNTH_CELL_LIST) 
+    set_if_unset arg_values(-output) $arg_values(-lib).exclude.list 
 
     # Copy the drc exclude list into the run directory, if it exists.
-    if { [file exists $::env(DRC_EXCLUDE_CELL_LIST)] } {
-        file copy -force $::env(DRC_EXCLUDE_CELL_LIST) $arg_values(-lib).exclude.list
+    foreach list_file $arg_values(-drc_exclude_list) {
+        puts $list_file
+        set out  [open $arg_values(-output) a]
+        if { [file exists $list_file] } {
+            set in [open $list_file]
+            fcopy $in $out
+            close $in 
+        }
+        close $out 
     }
-
+   
     # If you're not told to only use the drc exclude list, and if the no_synth.cells exists, merge the two lists
-    if { (![info exists flags_map(-drc_exclude_only)]) && [file exists $::env(NO_SYNTH_CELL_LIST)] } {
-        set out [open $arg_values(-lib).exclude.list a]
-        set in [open $::env(NO_SYNTH_CELL_LIST)]
+    if { (![info exists flags_map(-drc_exclude_only)]) && [file exists $arg_values(-synth_exclude_list)] } {
+        set out [open $arg_values(-output) a]
+        set in [open $arg_values(-synth_exclude_list)]
         fcopy $in $out
         close $in
         close $out
     }
 
-    if { [file exists $arg_values(-lib).exclude.list] && [info exists flags_map(-create_dont_use_list)] } {
+    if { [file exists $arg_values(-output)] && [info exists flags_map(-create_dont_use_list)] } {
         puts_info "Creating ::env(DONT_USE_CELLS)..."
-        set fp [open "$arg_values(-lib).exclude.list" r]
+        set fp [open "$arg_values(-output)" r]
         set x [read $fp]
         set y [split $x]
         set ::env(DONT_USE_CELLS) [join $y " "]
@@ -340,6 +353,12 @@ proc prep {args} {
         puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
     }
 
+    if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
+        set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
+        puts_info "Optimization Standard Cell Library is set to: $::env(STD_CELL_LIBRARY_OPT)"
+    } else {
+        puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
+    }
 
     # source PDK and SCL specific configurations
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
@@ -442,7 +461,6 @@ proc prep {args} {
         {pdn floorplan/pdn}
         {tapcell floorplan/tapcell}
         {replaceio placement/replace}
-        {openphysyn placement/openphysyn}
         {resizer placement/resizer}
         {opendp placement/opendp}
         {addspacers routing/addspacers}

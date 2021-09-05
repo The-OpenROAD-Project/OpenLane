@@ -19,4 +19,10 @@
 : ${PDK_ROOT?"You need to export PDK_ROOT"}
 TECH=${TECH:-sky130A}
 
-xvfb-run klayout -z -rd input_layout=$1 -rd tech_file=$PDK_ROOT/$TECH/libs.tech/klayout/$TECH.lyt -rd source_layer=$2 -rd target_layer=$3 -rd output_layout=$4 -rm $(dirname $0)/mv_shapes.py
+klayout -b\
+    -rm $(dirname $0)/mv_shapes.py\    
+    -rd input_layout=$1\
+    -rd tech_file=$PDK_ROOT/$TECH/libs.tech/klayout/$TECH.lyt\
+    -rd source_layer=$2\
+    -rd target_layer=$3\
+    -rd output_layout=$4

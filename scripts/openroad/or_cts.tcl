@@ -42,9 +42,6 @@ configure_cts_characterization\
     -max_slew $max_slew\
     -max_cap $max_cap
 
-cts::set_cap_per_sqr $::env(CTS_SQR_CAP)
-cts::set_res_per_sqr $::env(CTS_SQR_RES) 
-
 puts "\[INFO]: Performing clock tree synthesis..."
 puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
 puts "\[INFO]: Running Clock Tree Synthesis..."
@@ -71,6 +68,7 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
     optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
+write_sdc $::env(cts_result_file_tag).sdc
 if { [check_placement -verbose] } {
 	exit 1
 }
@@ -82,13 +80,21 @@ if {[info exists ::env(CLOCK_PORT)]} {
         read_liberty -max $::env(LIB_SLOWEST)
         read_liberty -min $::env(LIB_FASTEST)
 
+        puts "timing_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(cts_report_file_tag).timing.rpt
+        puts "timing_report_end"
+        puts "min_max_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(cts_report_file_tag).min_max.rpt
+        puts "min_max_report_end"
+        puts "check_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(cts_report_file_tag).rpt
+        puts "check_report_end"
 
         report_wns > $::env(cts_report_file_tag)_wns.rpt
         report_tns > $::env(cts_report_file_tag)_tns.rpt
+        puts "clock_skew_report"
         report_clock_skew > $::env(cts_report_file_tag)_clock_skew.rpt
+        puts "clock_skew_report_end"
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
