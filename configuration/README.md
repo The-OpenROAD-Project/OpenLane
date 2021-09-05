@@ -72,7 +72,6 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_HLENGTH`  | The length of the horizontal IOs in microns. <br> (Default: `4`) |
 | `FP_IO_VTHICKNESS_MULT`  | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth <br> (Default: `2`) |
 | `FP_IO_HTHICKNESS_MULT`  | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth <br> (Default: `2`) |
-| `FP_IO_MIN_DISTANCE`  | This option has been removed and has no effect. |
 | `BOTTOM_MARGIN_MULT`     | The core margin, in multiples of site heights, from the bottom boundary. <br> (Default: `4`) |
 | `TOP_MARGIN_MULT`        | The core margin, in multiples of site heights, from the top boundary. <br> (Default: `4`) |
 | `LEFT_MARGIN_MULT`       | The core margin, in multiples of site widths, from the left boundary.  <br> (Default: `12`) |
@@ -90,6 +89,7 @@ These variables are optional that can be specified in the design configuration f
 | `VDD_NETS` | Specifies the power nets/pins to be used when creating the power grid for the design. |
 | `GND_NETS` | Specifies the ground nets/pins to be used when creating the power grid for the design. |
 | `SYNTH_USE_PG_PINS_DEFINES` | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
+| `FP_IO_MIN_DISTANCE`  | **Removed**: The minmimum distance between the IOs in microns. <br> (Default: `5`) |
 
 ### Placement
 
@@ -103,9 +103,6 @@ These variables are optional that can be specified in the design configuration f
 | `PL_RANDOM_GLB_PLACEMENT` | Specifies whether the placer should run random placement or not. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RANDOM_INITIAL_PLACEMENT` | Specifies whether the placer should run random placement or not followed by replace's initial placement. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_ROUTABILITY_DRIVEN` | Specifies whether the placer should use routability driven placement. 0 = false, 1 = true <br> (Default: `0`) |
-| `PL_OPENPHYSYN_OPTIMIZATIONS` | Specifies whether OpenPhySyn should be used to perform timing optimizations or not. 0 = false, 1 = true <br> (Default: `0`) |
-| `PSN_ENABLE_RESIZING` | Enables driver resizing by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
-| `PSN_ENABLE_PIN_SWAP` | Enables pin swapping for timing optimization by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
 | `PL_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
@@ -116,7 +113,10 @@ These variables are optional that can be specified in the design configuration f
 | `PL_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_RESIZER_BUFFER_INPUT_PORTS` | Specifies whether or not to insert buffers on input ports whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_RESIZER_BUFFER_OUTPUT_PORTS` | Specifies whether or not to insert buffers on output ports whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `PL_DIAMOND_SEARCH_HEIGHT` | This option has been removed and has no effect. |
+| `PL_DIAMOND_SEARCH_HEIGHT` | **Removed**: Specifies the diamond search height used for legalizing the cells during detailed placement. The search width is calculated internally as `heigh*5`. For designs that contain big macros, increasing this value to above 400 will allow for more search space and more potentail for successful legalization. <br> (Default: `100`) |
+| `PL_OPENPHYSYN_OPTIMIZATIONS` | **Removed**: Specifies whether OpenPhySyn should be used to perform timing optimizations or not. 0 = false, 1 = true <br> (Default: `0`) |
+| `PSN_ENABLE_RESIZING` | **Removed**: Enables driver resizing by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
+| `PSN_ENABLE_PIN_SWAP` | **Removed**: Enables pin swapping for timing optimization by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
 
 ### CTS
 
@@ -144,11 +144,9 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_L4_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met3 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_L5_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met4 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_L6_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met5 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_UNIDIRECTIONAL` | Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_ALLOW_CONGESTION` | Allow congestion in the resultign guides. 0 = false, 1 = true <br> (Default: `0`) |
 | `GLB_RT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
 | `GLB_RT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
-| `GLB_RT_TILES` | The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
 | `GLB_RT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `ROUTING_CORES` | Specifies the number of threads to be used in TritonRoute. <br> (Default: `4`) |
 | `GLB_RT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3`.  <br> (Default: `1`) |
@@ -156,6 +154,27 @@ These variables are optional that can be specified in the design configuration f
 | `ROUTING_OPT_ITERS` | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
 | `GLOBAL_ROUTER` | Specifies which global router to use. Values: `fastroute` or `cugr`. <br> (Default: `fastroute`) |
 | `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`, `tritonroute_or` (identical to `tritonroute`, deprecated) or `drcu`. <br> (Default: `tritonroute`)|
+| `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
+| `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) | 
+| `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
+| `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
+
+### RC Extraction
+
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or `def2spef`. <br> (Default: `openrcx`) |
+| `RCX_CORNER_COUNT` | Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
+| `RCX_MAX_RESISTANCE` | Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
+| `RCX_COUPLING_THRESHOLD` | Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
+| `RCX_CC_MODEL` | Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
+| `RCX_CONTEXT_DEPTH` | Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
+| `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
+| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. Should be moved to PDK configurations later.. <br> (Default: `met1`)|
+| `DATA_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for data nets. <br> (Default: `met2`)|
+| `CLOCK_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for clock nets. <br> (Default: `met5`)|
+| `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
+| `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
 
 ### Magic
 
@@ -188,10 +207,10 @@ These variables are optional that can be specified in the design configuration f
 |---------------|---------------------------------------------------------------|
 | `PDK` | Specifies the process design kit (PDK). <br> (Default: `sky130A` )|
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
+| `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `$STD_CELL_LIBRARY` )|
 | `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$STD_CELL_LIBRARY`. |
 | `CELL_PAD` | Cell padding; increases the width of cells. <br> (Default: `4` microns -- 4 sites)|
 | `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
-| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. Should be moved to PDK configurations later.. <br> Default: `met1`.|
 | `MERGED_LEF_UNPADDED` | Points to `merged_unpadded.lef` by default. it contains the technology LEF for the used STD_CELL_LIBRARY merged with the LEF file for all the cells. |
 | `MERGED_LEF` | points to `merged.lef`, which is `merged_unpadded.lef` but with cell padding. This is controlled by CELL_PAD. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
@@ -220,8 +239,6 @@ These variables are optional that can be specified in the design configuration f
 | `WIDEN_SITE_IS_FACTOR` | Specifies whether the given `WIDEN_SITE` should be treated as a factor or an absolute value. 0 = absolute, 1 = factor <br> (Default: `1`) |
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
-| `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> Default: `L` |
-| `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> Default: `1` |
 | `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
 | `MAGIC_CONVERT_DRC_TO_RDB` | Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. Thus, it controls the command `run_lef_cvc`. 1=Enabled, 0=Disabled. <br> Default: `1` |

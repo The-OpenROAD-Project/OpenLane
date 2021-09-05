@@ -35,12 +35,17 @@ ifeq (, $(strip $(NPROC)))
 
 endif
 
-# Podman (Centos8) doesn't like the -u switches
-# Only add if we're not using podman in emulation
-ifeq (0,$(shell docker -v 2>/dev/null | grep podman | wc -l))
-   DOCKER_UID_OPTIONS = -u 0
+DOCKER_MEMORY_OPTIONS :=
+ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
+DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+endif
+ifneq (,$(DOCKER_MEMORY))
+DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
+# To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
+DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
+DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= $(NPROC)
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -48,19 +53,20 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-IMAGE_NAME ?= efabless/openlane:current
+CURRENT_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
-COMPLETE_TEST_SET_TAG ?= COMPLETE_TEST_SET
+EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= 00bdbcf4a3aa922cc1f4a0d0cd8b80dbd73149d3
-OPEN_PDKS_COMMIT ?= 1d93a6bd9d6e481acfdf88f26aa3bb0600303d98
+SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
+OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -87,7 +93,7 @@ $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk:
-	git clone https://github.com/google/skywater-pdk.git $(PDK_ROOT)/skywater-pdk
+	git clone $(shell python3 ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
@@ -117,7 +123,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone https://github.com/rtimothyedwards/open_pdks $(PDK_ROOT)/open_pdks
+	git clone $(shell python3 ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
@@ -133,11 +139,13 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) && \
-		cd sky130 && \
-		make veryclean && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM)"
+	cd $(PDK_ROOT)/open_pdks/sky130 && \
+		$(MAKE) veryclean && \
+		$(MAKE) prerequisites
+	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
-		make install-local && \
+		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
 		make clean"
 
 .PHONY: native-build-pdk
@@ -148,11 +156,11 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local
+		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
 
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
@@ -172,7 +180,7 @@ openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_UID_OPTIONS) $(IMAGE_NAME)
+		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
@@ -192,24 +200,22 @@ regression:
 		"
 
 DLTAG=custom_design_List
-.PHONY: test_design_list fastest_test_set complete_test_set
+.PHONY: test_design_list fastest_test_set extended_test_set
 fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py fastestTestSet)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
-complete_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py completeTestSet)
-complete_test_set: DLTAG=$(COMPLETE_TEST_SET_TAG)
-complete_test_set: test_design_list
+extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py extendedTestSet)
+extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
+extended_test_set: test_design_list
 test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py --delete\
 			--designs $(DESIGN_LIST)\
-			--tarList logs reports\
-			--htmlExtract\
 			--tag $(DLTAG)\
-			--benchmark $(BENCHMARK)\
 			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
+			--print_rem $(PRINT_REM_DESIGNS_TIME)\
+			--benchmark $(BENCHMARK)\
 		"
 
 .PHONY: test
@@ -222,5 +228,4 @@ test:
 
 .PHONY: clean_runs
 clean_runs:
-	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."

@@ -106,12 +106,18 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		set_wire_rc -layer $::env(WIRE_RC_LAYER)
 		estimate_parasitics -placement
 
-		report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(replaceio_report_file_tag).timing.rpt
-		report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(replaceio_report_file_tag).min_max.rpt
-		report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(replaceio_report_file_tag).rpt
+		puts "timing_report"
+        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(replaceio_report_file_tag).timing.rpt
+        puts "timing_report_end"
+        puts "min_max_report"
+        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(replaceio_report_file_tag).min_max.rpt
+        puts "min_max_report_end"
+        puts "check_report"
+        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(replaceio_report_file_tag).rpt
+        puts "check_report_end"
 
-		report_wns > $::env(replaceio_report_file_tag)_wns.rpt
-		report_tns > $::env(replaceio_report_file_tag)_tns.rpt
+        report_wns > $::env(replaceio_report_file_tag)_wns.rpt
+        report_tns > $::env(replaceio_report_file_tag)_tns.rpt
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

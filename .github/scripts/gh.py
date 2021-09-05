@@ -93,17 +93,7 @@ class Repo(object):
                 tags.append((hash, name))
             self._tags = tags
         return self._tags
-
-    # Helper Functions
-    def match_branch(self, line):
-        match = re.match(self.branch_rx, line)
-        if match is not None:
-            return match[1]
-
-    def match_line(self, line):
-        match = re.match(self.extraction_rx, line)
-        if match is not None:
-            return match[1]
+        
 
     def out_of_date(self):
         return self.commit != self.latest_commit
@@ -125,6 +115,7 @@ if os.getenv("GITHUB_ACTIONS") != "true":
     os.environ["BRANCH_NAME"] = branch
     os.environ["GITHUB_WORKSPACE"] = git_directory
     os.environ["GITHUB_EVENT_NAME"] = "workspace_dispatch"
+    os.environ["GITHUB_RUN_ID"] = "mock_gha_run"
     
     def export_env_alt(key, value):
         os.environ[key] = value
@@ -132,8 +123,8 @@ if os.getenv("GITHUB_ACTIONS") != "true":
 
     export_env = export_env_alt
 
-    if os.getenv("TOOL") is None or os.getenv("PDK_ROOT") is None:
-        print("Environment variables \"TOOL\" and \"PDK_ROOT\" are required.")
+    if os.getenv("PDK_ROOT") is None:
+        print("Environment variables required: \"PDK_ROOT\"")
         exit(os.EX_CONFIG)
 
 origin = os.getenv("REPO_URL")
@@ -141,7 +132,8 @@ repo = Repo("Openlane", origin)
 
 # public
 gh = SimpleNamespace(**{
-    "origin": origin,
+    "run_id": os.getenv("GITHUB_RUN_ID"),
+    "origin": origin,   
     "branch": os.getenv("BRANCH_NAME"),
     "image": os.getenv("IMAGE_NAME"),
     "root": os.getenv("GITHUB_WORKSPACE"),

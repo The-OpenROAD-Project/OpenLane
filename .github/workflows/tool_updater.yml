@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tools: [magic, netgen, yosys]
+        tools: [magic, netgen, yosys, openroad_app]
     steps:
       # EXPORT BLOCK
       - name: Export Repo URL
@@ -40,14 +40,14 @@ jobs:
         run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
 
       - name: Update TOOL
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tool.py
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py ${{ env.TOOL }}
 
       - name: Build TOOL
-        if: ${{ env.NO_UPDATE == 'false' }}
+        if: ${{ env.NO_UPDATE != '1' }}
         run: cd ${GITHUB_WORKSPACE}/docker_build && make build-${{ env.TOOL }}
 
       - name: Create Pull Request
-        if: ${{ env.NO_UPDATE == 'false' }}
+        if: ${{ env.NO_UPDATE != '1' }}
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.MY_TOKEN }}
@@ -82,10 +82,10 @@ jobs:
           ref: ${{ secrets.MAIN_BRANCH }}
 
       - name: Update PDK
-        run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_pdk.py
+        run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py sky130 open_pdks
 
       - name: Create Pull Request
-        if: ${{ env.NO_UPDATE == 'false' }}
+        if: ${{ env.NO_UPDATE != '1' }}
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ secrets.MY_TOKEN }}
@@ -97,7 +97,7 @@ jobs:
           commit-message: |
             [BOT] Update PDK
 
-            sky130 -> ${{ env.SKYWATER_COMMIT_HASH }}
+            sky130 -> ${{ env.SKY130_COMMIT_HASH }}
             open_pdks -> ${{ env.OPEN_PDKS_COMMIT_HASH }}
           base: ${{ env.BRANCH_NAME }}
           branch: pdk-update-branch

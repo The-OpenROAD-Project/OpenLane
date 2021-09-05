@@ -60,10 +60,8 @@ jobs:
           name: docker-image
           path: /tmp/image.tar
 
-  # Each test has two components: a fast test set and a more complete test set.
-  # The fast test set is run on all PRs, etc. The complete test set runs on schedule.
-  # The reason for this is that the entire complete set on one machine typically
-  # times out the test.
+  # Each test has two components: a fast test set and an extended test set.
+  # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
     needs: docker-build
     runs-on: ubuntu-latest
@@ -122,26 +120,34 @@ jobs:
           TEST_SET: fastestTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
 
-      - name: Complete Test Set
+      - name: Extended Test Set
         if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         env:
-          TEST_SET: completeTestSet${{ matrix.testset }}
+          TEST_SET: extendedTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
-  cleanup:
-    needs: test
-    if: ${{ github.event_name == 'pull_request' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Delete Artifact
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: docker-image
-  deploy:
+
+      - name: Log Upload Dependencies
+        run: python3 -m pip install apache-libcloud==3.3.1
+
+      - name: Upload Logs
+        if: ${{ always() }}
+        env:
+          LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
+        
+  cleanup_and_deploy:
+      name: Cleanup (and Possibly Deployment)
       needs: test
-      if: ${{ github.event_name != 'pull_request' }}
       runs-on: ubuntu-latest
       steps:
+      - name: Check If Going To Push An Image To Docker
+        # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
+        run: |
+          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
+          echo "PUSHING=$PUSHING" >> $GITHUB_ENV
+
       - uses: actions/checkout@v2
+        if: ${{ env.PUSHING == '1' }}
         with:
           fetch-depth: 0
 
@@ -167,6 +173,7 @@ jobs:
         run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
 
       - name: Download Docker Image
+        if: ${{ env.PUSHING == '1' }}
         uses: actions/download-artifact@v2
         with:
           name: docker-image
@@ -178,43 +185,42 @@ jobs:
           name: docker-image
 
       - name: Import Docker Image
+        if: ${{ env.PUSHING == '1' }}
         run: docker load --input /tmp/image.tar
 
       - name: Write Main Branch
+        if: ${{ env.PUSHING == '1' }}
         run: |
           echo "MAIN_BRANCH=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
 
       - name: Create Tag (If scheduled or dispatched)
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
+        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
       - name: Tag Commit (If scheduled or dispatched)
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
+        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         uses: tvdias/github-tagger@v0.0.1
         with:
           tag: "${{ env.NEW_TAG }}"
           repo-token: "${{ secrets.MY_TOKEN }}"
       
       - name: Login to DockerHub
+        if: ${{ env.PUSHING == '1' }}
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Docker Push (Branch Name)
+        if: ${{ env.PUSHING == '1' && github.event_name == 'push' }}
         run: |
-          TAG=${{ env.BRANCH_NAME }}
-          if [ "$TAG" = "${{ secrets.MAIN_BRANCH }}" ]; then
-            TAG=latest
-          fi
-
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:$TAG
-          docker push ${{ secrets.DOCKER_IMAGE }}:$TAG
+          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
+          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
 
       - name: Docker Push (Tag) (If scheduled or dispatched)
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
+        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         run: |
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:current
+          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:latest
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker push ${{ secrets.DOCKER_IMAGE }}:current
+          docker push ${{ secrets.DOCKER_IMAGE }}:latest

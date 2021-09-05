@@ -21,8 +21,6 @@ import getpass
 import subprocess
 from gh import gh
 
-extra_flags = (os.getenv("EXTRA_FLAGS") or "").split()
-
 test_set = os.getenv("TEST_SET")
 if test_set is None:
     raise Exception("Environment variable TEST_SET must be set.")
@@ -51,13 +49,17 @@ docker_command = [
     gh.image,
     "bash", "-c",
     shlex.join([
-        "python3", "run_designs.py",
-        "-d"] + design_list + [
-        "-t", test_name,
-        "-dl", "-dt", "-th", str(threads_used),
-        "-p", "30",
-        "-b", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
-    ] + extra_flags)
+        "python3",
+        "run_designs.py",
+        "--tarList", "all",
+        "--disable_timestamp",
+        "--designs",
+    ] + design_list + [
+        "--tag", test_name,
+        "--threads", str(threads_used),
+        "--print_rem", "30",
+        "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
+    ])
 ]
 print(os.getenv("PWD"))
 print("Running %s…" % shlex.join(docker_command))
