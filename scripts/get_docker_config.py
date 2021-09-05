@@ -45,14 +45,26 @@ def get_docker_config():
             info = json.loads(info)
         except:
             raise Exception("Docker info was not valid JSON.")
+       
 
-        if info.get("Name") is not None and "docker" in info["Name"]:
-            engine = Engine.docker
-            # Maybe TODO: Check for rootless setups?
-        elif info.get("host") is not None and info["host"].get("conmon") is not None:
+        if info.get("host") is not None and info["host"].get("conmon") is not None:
             engine = Engine.misc_conmon
             if info["host"].get("remoteSocket") is not None and "podman" in info["host"]["remoteSocket"]["path"]:
                 engine = Engine.podman
+        elif info.get("Name") is not None: 
+            engine = Engine.docker
+            rootless = False
+            sec_info = info.get("SecurityOptions") 
+
+            for o in sec_info:
+
+                if "rootless" in o:
+                    rootless = True
+                    break
+            
+            if rootless:
+                return "-u 0"
+
 
         if engine == Engine.docker:
             raise Exception("") # Output UID/GID Info
@@ -62,6 +74,7 @@ def get_docker_config():
     except Exception as e:
         if e.__str__() != "":
             print(f"{e}. Assuming a standard Docker installation.", file=sys.stderr)
+
         return f"--user {uid}:{gid}"
 
 if __name__ == "__main__":
