@@ -14,7 +14,7 @@
 # limitations under the License.
 
 import argparse
-import opendb as odb
+import odb
 
 parser = argparse.ArgumentParser(
     description='Produces a DEF file where a design is shown in the context of its instantiation in a top-level design')
