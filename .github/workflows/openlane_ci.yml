@@ -127,6 +127,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
 
       - name: Log Upload Dependencies
+        if: ${{ always() }}
         run: python3 -m pip install apache-libcloud==3.3.1
 
       - name: Upload Logs
