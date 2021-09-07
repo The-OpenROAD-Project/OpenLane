@@ -23,7 +23,7 @@ proc save_state {args} {
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
             set escaped_env_var [string map {\" \\\"} $::env($index)]
-            set escaped_env_var [string map {\$ \\\$} $::env($index)]
+            set escaped_env_var [string map {\$ \\\$} $escaped_env_var]
             set_log ::env($index) $escaped_env_var $::env(GLB_CFG_FILE) 1
         }
     }
