@@ -38,8 +38,8 @@ At a minimum:
 - Python 3.6+ with PIP
 - Click, Pyyaml: `pip3 install pyyaml click`
 
-## Dockerless Install
-Please see [LOCAL_INSTALL.md](./LOCAL_INSTALL.md).
+## Containerless Install
+Please see [here](./docs/source/local_installs.md).
 
 # Setting Up OpenLane
 You can start setting up the Sky130 PDK and OpenLane by running:
