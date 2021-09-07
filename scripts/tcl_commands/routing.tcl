@@ -106,7 +106,9 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-	try_catch envsubst < $::env(SCRIPTS_DIR)/tritonRoute.param > $::env(tritonRoute_tmp_file_tag).param
+	set ::env(TRITONROUTE_FILE_PREFIX) $::env(tritonRoute_tmp_file_tag)
+
+	set ::env(TRITONROUTE_RPT_PREFIX) $::env(tritonRoute_report_file_tag)
 
 	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
 

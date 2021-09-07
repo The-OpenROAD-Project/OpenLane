@@ -16,25 +16,6 @@ OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-ifeq (, $(strip $(NPROC)))
-  # Linux (utility program)
-  NPROC := $(shell nproc 2>/dev/null)
-
-  ifeq (, $(strip $(NPROC)))
-    # Linux (generic)
-    NPROC := $(shell grep -c ^processor /proc/cpuinfo 2>/dev/null)
-  endif
-  ifeq (, $(strip $(NPROC)))
-    # BSD (at least FreeBSD and Mac OSX)
-    NPROC := $(shell sysctl -n hw.ncpu 2>/dev/null)
-  endif
-  ifeq (, $(strip $(NPROC)))
-    # Fallback
-    NPROC := 1
-  endif
-
-endif
-
 DOCKER_MEMORY_OPTIONS :=
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
 DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
@@ -47,7 +28,13 @@ endif
 DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
 DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
-THREADS ?= $(NPROC)
+THREADS ?= 1
+
+ROUTING_CORES_OPTION := 
+ifneq (,$(ROUTING_CORES))
+ROUTING_CORES_OPTION += -e ROUTING_CORES=$(ROUTING_CORES)
+endif
+
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
@@ -66,7 +53,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)

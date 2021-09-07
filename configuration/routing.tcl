@@ -13,7 +13,9 @@
 # limitations under the License.
 
 # Routing defaults
-set ::env(ROUTING_CORES) 4
+if {! [info exists ::env(ROUTING_CORES)] } {
+    set ::env(ROUTING_CORES) 2
+}
 set ::env(GLB_RT_ADJUSTMENT) 0.0
 set ::env(GLB_RT_L1_ADJUSTMENT) 0; # more like pdk-specific (e.g., when L1 = li)
 set ::env(GLB_RT_L2_ADJUSTMENT) 0

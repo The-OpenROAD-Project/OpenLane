@@ -1,7 +1,0 @@
-guide:${CURRENT_GUIDE}
-outputguide:${tritonRoute_tmp_file_tag}.guide
-outputDRC:${tritonRoute_report_file_tag}.drc
-outputMaze:${tritonRoute_tmp_file_tag}_maze.log
-verbose:1
-drouteEndIterNum:${ROUTING_OPT_ITERS}
-OR_SEED:42
