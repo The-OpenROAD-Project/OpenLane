@@ -223,9 +223,7 @@ proc power_routing {args} {
 proc gen_pdn {args} {
     puts_info "Generating PDN..."
     TIMER::timer_start
-    if {![info exists ::env(PDN_CFG)]} {
-	set ::env(PDN_CFG) $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/common_pdn.tcl
-    }
+	
     set ::env(SAVE_DEF) [index_file $::env(pdn_tmp_file_tag).def]
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_pdn.tcl \
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]

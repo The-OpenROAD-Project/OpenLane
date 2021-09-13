@@ -16,6 +16,12 @@ This page describes configuration variables and their default values.
 
 These variables are optional that can be specified in the design configuration file.
 
+### Multiple
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| `DATA_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for data nets. <br> (Default: `met2`)|
+| `CLOCK_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for clock nets. <br> (Default: `met5`)|
+
 ### Synthesis
 
 | Variable      | Description                                                   |
@@ -89,8 +95,8 @@ These variables are optional that can be specified in the design configuration f
 | `VDD_NETS` | Specifies the power nets/pins to be used when creating the power grid for the design. |
 | `GND_NETS` | Specifies the ground nets/pins to be used when creating the power grid for the design. |
 | `SYNTH_USE_PG_PINS_DEFINES` | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
+| `FP_PDN_IRDROP` | Enable calculation of power grid IR drop during PDN generation. <br> (Default: `0`)|
 | `FP_IO_MIN_DISTANCE`  | **Removed**: The minmimum distance between the IOs in microns. <br> (Default: `5`) |
-
 ### Placement
 
 | Variable      | Description                                                   |
@@ -170,9 +176,6 @@ These variables are optional that can be specified in the design configuration f
 | `RCX_CC_MODEL` | Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
 | `RCX_CONTEXT_DEPTH` | Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
-| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. Should be moved to PDK configurations later.. <br> (Default: `met1`)|
-| `DATA_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for data nets. <br> (Default: `met2`)|
-| `CLOCK_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for clock nets. <br> (Default: `met5`)|
 | `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
 
