@@ -68,7 +68,7 @@
     make PREFIX=$PREFIX install
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: f0e6c04818f120fcd15c29735a398d3cd420bd78
+  commit: fb8ae93b6c7a5eb0e6fac83360a8a48d76c41885
   build: |
     mkdir -p ./build
     cd ./build
@@ -77,7 +77,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: 13e0611f6a27fd6e601f8fe207773233f4f3883f
+  commit: 81d28fd0423ca6bbf3f3bf00b7d407958cf8f0f3
   build: ''
   in_install: false
   in_container: false

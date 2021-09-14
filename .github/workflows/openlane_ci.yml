@@ -125,6 +125,15 @@ jobs:
         env:
           TEST_SET: extendedTestSet${{ matrix.testset }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
+        
+      - name: Upload Logs
+        if: ${{ always() }}
+        env:
+          LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
+        run: |
+          python3 -m pip install apache-libcloud==3.3.1
+          cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
+        
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
       needs: test
@@ -202,7 +211,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Docker Push (Branch Name)
-        if: ${{ env.PUSHING == '1' }}
+        if: ${{ env.PUSHING == '1' && github.event_name == 'push' }}
         run: |
           docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}

@@ -24,7 +24,14 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 set_thread_count $::env(ROUTING_CORES)
 
-detailed_route -param $::env(tritonRoute_tmp_file_tag).param
+detailed_route\
+    -guide $::env(CURRENT_GUIDE)\
+    -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\
+    -output_maze $::env(TRITONROUTE_FILE_PREFIX)_maze.log\
+    -output_drc $::env(TRITONROUTE_RPT_PREFIX).drc\
+    -droute_end_iter $::env(ROUTING_OPT_ITERS)\
+    -or_seed 42\
+    -verbose 1
 
 puts stderr "Saving to $::env(SAVE_DEF)"
 write_def $::env(SAVE_DEF)

@@ -8,7 +8,7 @@ import argparse
 import random
 import sys
 
-import opendb as odb
+import odb
 
 
 class DiodeInserter:

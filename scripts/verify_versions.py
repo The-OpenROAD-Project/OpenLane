@@ -18,6 +18,7 @@ import os
 import re
 import sys
 import pathlib
+import traceback
 from os.path import dirname, abspath, join
 
 try:
@@ -62,25 +63,47 @@ try:
         except FileNotFoundError:
             raise Exception("Could not find SOURCES file for sky130A.")
 
-        sources_lines = list(filter(lambda x: x, open(sources_file).read().split("\n")))
-        entries = len(sources_lines) // 2
-
         manifest_names = {
             "open_pdks": "open_pdks",
             "skywater": "sky130"
         }
 
-        name_rx = re.compile(r"\-ne\s+(\w+)")
-        for entry in range(entries):
-            name_line = sources_lines[entry * 2]
-            commit_line = sources_lines[entry * 2 + 1]
-            
-            name_data = name_rx.match(name_line)
-            if name_data is None:
-                raise Exception(f"Malformed sky130A SOURCES file: {name_line} did not match regex.")
+        sources_str = sources_str.strip()
 
-            name = name_data[1]
-            commit = commit_line.strip()
+        sources_lines = list(filter(lambda x: x, sources_str.split("\n")))
+
+        # Format: {tool} {commit}
+        
+        if sources_str.startswith("-ne"):
+            # Format:
+            # -ne {tool}
+            # {commit} 
+            sources_lines = []
+
+            entries = len(sources_lines) // 2
+            name_rx = re.compile(r"\-ne\s+([\w\-]+)")
+
+            for entry in range(entries):
+                name_line = sources_lines[entry * 2]
+                commit_line = sources_lines[entry * 2 + 1]
+                
+                name_data = name_rx.match(name_line)
+                if name_data is None:
+                    raise Exception(f"Malformed sky130A SOURCES file: {name_line} did not match regex.")
+
+                name = name_data[1]
+                commit = commit_line.strip()
+
+                sources_lines.append(f"{name} {commit}")
+                
+        name_rx = re.compile(r"([\w\-]+)\s+(\w+)")
+        for line in sources_lines:
+            match = name_rx.match(line)
+            if match is None:
+                raise Exception(f"Malformed sky130A SOURCES file: {line} did not match regex.")
+                    
+            name = match[1]
+            commit = match[2]
 
             manifest_name = manifest_names.get(name)
             if manifest_name is None:
@@ -94,6 +117,7 @@ try:
 except Exception as e:
     print("Failed to compare PDKS", file=sys.stderr)
     print(e, file=sys.stderr)
+    print(traceback.format_exc(), file=sys.stderr)
     exit(os.EX_CONFIG)
 
 installed_versions_path = join(openlane_dir, "build", "versions")

@@ -14,11 +14,11 @@ python3 run_designs.py --designs spm xtea des aes256 --tag test --threads 3
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv)
-- [sky130_fd_sc_hs](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.csv)
-- [sky130_fd_sc_ms](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.csv)
-- [sky130_fd_sc_ls](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.csv)
-- [sky130_fd_sc_hdll](https://htmlpreview.github.io/?https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.csv)
+- [sky130_fd_sc_hd](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv)
+- [sky130_fd_sc_hs](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HS.csv)
+- [sky130_fd_sc_ms](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_MS.csv)
+- [sky130_fd_sc_ls](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_LS.csv)
+- [sky130_fd_sc_hdll](https://github.com/efabless/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.csv)
 
 **Note**: `flow_failed` under `flow_status` implies that the run had failed.
 

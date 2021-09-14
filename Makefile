@@ -16,25 +16,6 @@ OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-ifeq (, $(strip $(NPROC)))
-  # Linux (utility program)
-  NPROC := $(shell nproc 2>/dev/null)
-
-  ifeq (, $(strip $(NPROC)))
-    # Linux (generic)
-    NPROC := $(shell grep -c ^processor /proc/cpuinfo 2>/dev/null)
-  endif
-  ifeq (, $(strip $(NPROC)))
-    # BSD (at least FreeBSD and Mac OSX)
-    NPROC := $(shell sysctl -n hw.ncpu 2>/dev/null)
-  endif
-  ifeq (, $(strip $(NPROC)))
-    # Fallback
-    NPROC := 1
-  endif
-
-endif
-
 DOCKER_MEMORY_OPTIONS :=
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
 DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
@@ -44,16 +25,22 @@ DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./get_docker_config.py)
+DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
 DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
-THREADS ?= $(NPROC)
+THREADS ?= 1
+
+ROUTING_CORES_OPTION := 
+ifneq (,$(ROUTING_CORES))
+ROUTING_CORES_OPTION += -e ROUTING_CORES=$(ROUTING_CORES)
+endif
+
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-CURRENT_TAG ?= $(shell python3 ./get_tag.py)
+CURRENT_TAG ?= $(shell python3 ./dependencies/get_tag.py)
 IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
@@ -66,7 +53,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -139,13 +126,13 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT)"
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM)"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
-		make install-local && \
+		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
 		make clean"
 
 .PHONY: native-build-pdk
@@ -156,11 +143,11 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --with-sky130-local-path=$(PDK_ROOT) --enable-sram-sky130=$(INSTALL_SRAM) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
-		$(MAKE) install-local
+		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
 
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
@@ -228,5 +215,4 @@ test:
 
 .PHONY: clean_runs
 clean_runs:
-	cd $(OPENLANE_DIR) && \
-		docker run --rm -v $(OPENLANE_DIR):/openLANE_flow $(IMAGE_NAME) sh -c "./clean_runs.tcl"
+	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."

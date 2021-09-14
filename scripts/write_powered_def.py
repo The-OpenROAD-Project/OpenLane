@@ -17,7 +17,7 @@ import os
 import sys
 import argparse
 from subprocess import Popen, PIPE, STDOUT
-import opendb as odb
+import odb
 
 parser = argparse.ArgumentParser(
     description='Add cell power connections in the netlist. Useful for LVS purposes.')
