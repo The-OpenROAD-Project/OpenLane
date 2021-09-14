@@ -24,7 +24,13 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
-read_sdc -echo $::env(BASE_SDC_FILE)
+#read_sdc -echo $::env(BASE_SDC_FILE)
+if {$::env(CLOCK_TREE_SYNTH)} {
+	read_sdc -echo $::env(cts_result_file_tag)_1.sdc
+} else {
+puts "INFO:Skipped CTS Stage so reading base SDC file"
+	read_sdc -echo $::env(BASE_SDC_FILE)
+}
 # Resize
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
@@ -37,7 +43,7 @@ if { [info exists ::env(DONT_USE_CELLS)] } {
 # CTS and detailed placement move instances, so update parastic estimates.
 global_route
 estimate_parasitics -global_routing
-set_propagated_clock [all_clocks]
+#set_propagated_clock [all_clocks]
 repair_timing
 
 # set_placement_padding -global -right $::env(CELL_PAD)
