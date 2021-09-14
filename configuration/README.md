@@ -16,12 +16,6 @@ This page describes configuration variables and their default values.
 
 These variables are optional that can be specified in the design configuration file.
 
-### Multiple
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
-| `DATA_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for data nets. <br> (Default: `met2`)|
-| `CLOCK_WIRE_RC_LAYER` | The metal layer used for estimating the resistance/capacitence values for clock nets. <br> (Default: `met5`)|
-
 ### Synthesis
 
 | Variable      | Description                                                   |
@@ -95,7 +89,7 @@ These variables are optional that can be specified in the design configuration f
 | `VDD_NETS` | Specifies the power nets/pins to be used when creating the power grid for the design. |
 | `GND_NETS` | Specifies the ground nets/pins to be used when creating the power grid for the design. |
 | `SYNTH_USE_PG_PINS_DEFINES` | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
-| `FP_PDN_IRDROP` | Enable calculation of power grid IR drop during PDN generation. <br> (Default: `0`)|
+| `FP_PDN_IRDROP` | Enable calculation of power grid IR drop during PDN generation. <br> (Default: `1`)|
 | `FP_IO_MIN_DISTANCE`  | **Removed**: The minmimum distance between the IOs in microns. <br> (Default: `5`) |
 ### Placement
 

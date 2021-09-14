@@ -75,6 +75,3 @@ if { [file exists /build/transforms/] } {
 } else {
 	set ::env(PSN_TRANSFORM_PATH) $::env(HOME)/.local/transforms
 }
-
-set ::env(DATA_WIRE_RC_LAYER) "met2"
-set ::env(CLOCK_WIRE_RC_LAYER) "met5"

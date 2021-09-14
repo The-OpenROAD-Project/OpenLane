@@ -225,6 +225,8 @@ proc gen_pdn {args} {
     TIMER::timer_start
 	
     set ::env(SAVE_DEF) [index_file $::env(pdn_tmp_file_tag).def]
+    set ::env(PGA_RPT_FILE) [index_file $::env(pdn_report_file_tag).pga.rpt]
+
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_pdn.tcl \
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]
 

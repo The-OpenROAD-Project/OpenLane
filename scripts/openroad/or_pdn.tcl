@@ -63,7 +63,8 @@ if { $::env(FP_PDN_IRDROP) } {
     set_wire_rc -signal -layer $::env(DATA_WIRE_RC_LAYER)
     set_wire_rc -clock -layer $::env(CLOCK_WIRE_RC_LAYER)
 
-    analyze_power_grid -net $::env(VDD_NET)
+    analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
+    
 }
 
 write_def $::env(SAVE_DEF)
