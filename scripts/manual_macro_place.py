@@ -20,7 +20,7 @@
 import argparse
 import re
 import os
-import opendb as odb
+import odb
 
 parser = argparse.ArgumentParser(
     description='Places macros in positions and orientations specified by a config file')

@@ -14,7 +14,7 @@
 # limitations under the License.
 import argparse
 import re
-import opendb as odb
+import odb
 
 parser = argparse.ArgumentParser(
     description='Creates obstructions in def files.')

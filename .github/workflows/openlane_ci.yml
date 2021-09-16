@@ -129,12 +129,14 @@ jobs:
       - name: Log Upload Dependencies
         if: ${{ always() }}
         run: python3 -m pip install apache-libcloud==3.3.1
-
+        
       - name: Upload Logs
         if: ${{ always() }}
         env:
           LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
+        run: |
+          python3 -m pip install apache-libcloud==3.3.1
+          cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
         
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
