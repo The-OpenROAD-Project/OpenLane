@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -141,7 +141,6 @@ proc gen_exclude_list {args} {
 
     # Copy the drc exclude list into the run directory, if it exists.
     foreach list_file $arg_values(-drc_exclude_list) {
-        puts $list_file
         set out  [open $arg_values(-output) a]
         if { [file exists $list_file] } {
             set in [open $list_file]

@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -311,12 +311,12 @@ proc generate_final_summary_report {args} {
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
 
         try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/generate_reports.py -d $::env(DESIGN_DIR) \
-			-dn $::env(DESIGN_NAME) \
-			-t $::env(RUN_TAG) \
-			-o $arg_values(-output) \
-			-m $arg_values(-man_report) \
-			-rs $arg_values(-runtime_summary) \
-			-r $::env(RUN_DIR)
+			--design_name $::env(DESIGN_NAME) \
+			--tag $::env(RUN_TAG) \
+			--output_file $arg_values(-output) \
+			--man_report $arg_values(-man_report) \
+			--runtime_summary $arg_values(-runtime_summary) \
+			--run_path $::env(RUN_DIR)
 
         puts_info [read [open $arg_values(-man_report) r]]
 		puts_info "check full report here: $arg_values(-output)"

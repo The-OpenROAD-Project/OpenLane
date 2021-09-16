@@ -1,5 +1,8 @@
 #!/bin/bash
-# Copyright 2020 Efabless Corporation
+
+# This file is no longer used as part of OpenLane and only remains in the version history for reference.
+
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+set +x
 
 path=$1
 designName=$2
@@ -34,7 +37,7 @@ sta_post_resizer_routing_timing_log=$(python3 $3/get_file_name.py -p ${path}/log
 sta_spef_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o opensta_spef 2>&1)
 
 tritonRoute_drc=$(python3 $3/get_file_name.py -p ${path}/reports/routing/ -o tritonRoute.drc 2>&1)
-yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.rpt -io 2>&1)
+yosys_rprt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o .stat.rpt -I 2>&1)
 routed_runtime_rpt=${path}/reports/routed_runtime.txt
 total_runtime_rpt=${path}/reports/total_runtime.txt
 wns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o opensta_wns.rpt 2>&1)
@@ -50,7 +53,7 @@ spef_tns_rpt=$(python3 $3/get_file_name.py -p ${path}/reports/synthesis/ -o open
 HPWL_rpt=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o replace.log 2>&1)
 yosys_log=$(python3 $3/get_file_name.py -p ${path}/logs/synthesis/ -o yosys.log 2>&1)
 magic_drc=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.drc 2>&1)
-klayout_drc=$(python3 $3/get_file_name.py -p ${path}/reports/klayout/ -o magic.lydrc -io 2>&1)
+klayout_drc=$(python3 $3/get_file_name.py -p ${path}/reports/klayout/ -o magic.lydrc -I 2>&1)
 tapcell_log=$(python3 $3/get_file_name.py -p ${path}/logs/floorplan/ -o tapcell.log 2>&1)
 diodes_log=$(python3 $3/get_file_name.py -p ${path}/logs/placement/ -o diodes.log 2>&1)
 magic_antenna_report=$(python3 $3/get_file_name.py -p ${path}/reports/magic/ -o magic.antenna_violators.rpt 2>&1)
@@ -77,7 +80,6 @@ parse_to_report() {
 
 REPORT_PATH=${path}/reports/cts/
 if [[ $(test_file $cts_log) ]]; then
-        parse_to_report $cts_log $REPORT_PATH cts.timing.rpt timing_report timing_report_end
         parse_to_report $cts_log $REPORT_PATH cts.timing.rpt timing_report timing_report_end
         parse_to_report $cts_log $REPORT_PATH cts.min_max.rpt min_max_report min_max_report_end
         parse_to_report $cts_log $REPORT_PATH cts.rpt check_report check_report_end
@@ -168,20 +170,20 @@ fi
 
 # Extracting info from Yosys
 cell_count=$(grep "cells" $yosys_rprt -s | tail -1 | sed -r 's/.*[^0-9]//')
-if ! [[ $cell_count ]]; then cell_count="E404"; fi
+if ! [[ $cell_count ]]; then cell_count=-1; fi
 
 #Extracting routed_runtime info
 if [ -f $routed_runtime_rpt ]; then
         routed_runtime=$(sed 's/.*in //' $routed_runtime_rpt)
-        if ! [[ $routed_runtime ]]; then routed_runtime="E404"; fi
+        if ! [[ $routed_runtime ]]; then routed_runtime=-1; fi
 else
-        routed_runtime="E404";
+        routed_runtime=-1;
 fi
 
 #Extracting total_runtime info
 if [ -f $total_runtime_rpt ]; then
         total_runtime=$(sed 's/.*in //' $total_runtime_rpt)
-        if ! [[ $total_runtime ]]; then total_runtime="E404"; fi
+        if ! [[ $total_runtime ]]; then total_runtime=-1; fi
         flow_status=$(sed 's/ for .*//' $total_runtime_rpt)
         if ! [[ $flow_status ]]; then
                 flow_status="unknown_no_content_in_file";
@@ -189,7 +191,7 @@ if [ -f $total_runtime_rpt ]; then
                 flow_status="${flow_status// /_}"
         fi
 else
-        total_runtime="E404";
+        total_runtime=-1;
         flow_status="unknown_no_total_runtime_file";
 fi
 
@@ -200,58 +202,58 @@ if [ -f $tritonRoute_def ]; then
         tmpc=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 3)
         tmpd=$(awk  '/DIEAREA/ {print $3, $4, $7, $8; exit}' $tritonRoute_def | cut -d' ' -f 4)
         diearea=$(( (($tmpc-$tmpa)/1000)*(($tmpd-$tmpb)/1000) ))
-        if ! [[ $diearea ]]; then diearea="E404";fi
+        if ! [[ $diearea ]]; then diearea=-1;fi
 else
-        diearea="E404";
+        diearea=-1;
 fi
 
 #Place Holder for cell per um
-cellperum="E404"
-#if ! [[ $cellperum ]]; then cellperum="E404";fi
+cellperum=-1
+#if ! [[ $cellperum ]]; then cellperum=-1;fi
 
 #Extracting OpenDP Reported Utilization
 opendpUtil=$(grep "Util(%):" $replace_log -s | head -1 | sed -E 's/.*Util\(%\): (\S+)/\1/')
-if ! [[ $opendpUtil ]]; then opendpUtil="E404"; fi
+if ! [[ $opendpUtil ]]; then opendpUtil=-1; fi
 
 #Extracting TritonRoute memory usage peak
 tritonRoute_memoryPeak=$(grep ", peak = " $tritonRoute_log -s | tail -1 | sed -E 's/.*peak = (\S+).*/\1/')
-if ! [[ $tritonRoute_memoryPeak ]]; then tritonRoute_memoryPeak="E404"; fi
+if ! [[ $tritonRoute_memoryPeak ]]; then tritonRoute_memoryPeak=-1; fi
 
 #Extracting TritonRoute Violations Information
 tritonRoute_violations=$(grep -si "Number of violations" $tritonRoute_log | tail -1 | python3 -c 'import re; print(re.match(r"\[.+?\].*?\=\s*(\d+)", input())[1])')
-if ! [[ $tritonRoute_violations ]]; then tritonRoute_violations="E404"; fi
+if ! [[ $tritonRoute_violations ]]; then tritonRoute_violations=-1; fi
 Other_violations=$tritonRoute_violations;
 
 if [ -f $tritonRoute_drc ]; then
         Short_violations=$(grep "Short" $tritonRoute_drc -s | wc -l)
-        if ! [[ $Short_violations ]]; then Short_violations="E404"; fi
+        if ! [[ $Short_violations ]]; then Short_violations=-1; fi
         Other_violations=$((Other_violations-Short_violations));
 
         MetSpc_violations=$(grep "MetSpc" $tritonRoute_drc -s | wc -l)
-        if ! [[ $MetSpc_violations ]]; then MetSpc_violations="E404"; fi
+        if ! [[ $MetSpc_violations ]]; then MetSpc_violations=-1; fi
         Other_violations=$((Other_violations-MetSpc_violations));
 
         OffGrid_violations=$(grep "OffGrid" $tritonRoute_drc -s | wc -l)
-        if ! [[ $OffGrid_violations ]]; then OffGrid_violations="E404"; fi
+        if ! [[ $OffGrid_violations ]]; then OffGrid_violations=-1; fi
         Other_violations=$((Other_violations-OffGrid_violations));
 
         MinHole_violations=$(grep "MinHole" $tritonRoute_drc -s | wc -l)
-        if ! [[ $MinHole_violations ]]; then MinHole_violations="E404"; fi
+        if ! [[ $MinHole_violations ]]; then MinHole_violations=-1; fi
         Other_violations=$((Other_violations-MinHole_violations));
 else
-        Short_violations="E404";
-        MetSpc_violations="E404";
-        OffGrid_violations="E404";
-        MinHole_violations="E404";
+        Short_violations=-1;
+        MetSpc_violations=-1;
+        OffGrid_violations=-1;
+        MinHole_violations=-1;
 fi
 
 #Extracting Magic Violations from Magic drc
 if [ -f $magic_drc ]; then
         Magic_violations=$(grep "^ [0-9]" $magic_drc -s | wc -l)
-        if ! [[ $Magic_violations ]]; then Magic_violations="E404"; fi
+        if ! [[ $Magic_violations ]]; then Magic_violations=-1; fi
         if [ $Magic_violations -ne -1 ]; then Magic_violations=$(((Magic_violations+3)/4)); fi
 else
-        Magic_violations="E404";
+        Magic_violations=-1;
 fi
 
 
@@ -260,34 +262,34 @@ if [ -f "$klayout_drc" ]; then
         klayout_violations=$(grep "<item>" $klayout_drc -s | wc -l)
         if ! [[ $klayout_violations ]]; then klayout_violations=0; fi
 else
-        klayout_violations="E404";
+        klayout_violations=-1;
 fi
 
 # Extracting Antenna Violations
 if [ -f $arc_antenna_report ]; then
         #arc check
         antenna_violations=$(grep "Number of pins violated:" $arc_antenna_report -s | tail -1 | sed -r 's/.*[^0-9]//')
-        if ! [[ $antenna_violations ]]; then antenna_violations="E404"; fi
+        if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
 else
         if [ -f $magic_antenna_report ]; then
                 #old magic check
                 antenna_violations=$(wc $magic_antenna_report -l | cut -d ' ' -f 1)
-                if ! [[ $antenna_violations ]]; then antenna_violations="E404"; fi
+                if ! [[ $antenna_violations ]]; then antenna_violations=-1; fi
         else
 
-                antenna_violations="E404";
+                antenna_violations=-1;
         fi
 fi
 
 #Extracting Other information from TritonRoute Logs
 wire_length=$(grep "Total wire length =" $tritonRoute_log -s | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $wire_length ]]; then wire_length="E404"; fi
+if ! [[ $wire_length ]]; then wire_length=-1; fi
 vias=$(grep "Total number of vias =" $tritonRoute_log -s | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $vias ]]; then vias="E404"; fi
+if ! [[ $vias ]]; then vias=-1; fi
 
 #Extracting Info from OpenSTA
 wns=$(grep "wns" $wns_rpt -s | sed -r 's/wns //')
-if ! [[ $wns ]]; then wns="E404"; fi
+if ! [[ $wns ]]; then wns=-1; fi
 
 #Extracting info from OpenSTA post global placement using estimate parasitics
 pl_wns=$(grep "wns" $pl_wns_rpt -s | tail -1 |sed -r 's/wns //')
@@ -307,7 +309,7 @@ if ! [[ $spef_wns ]]; then spef_wns=$fr_wns; fi
 
 #Extracting Info from OpenSTA
 tns=$(grep "tns" $tns_rpt -s | sed -r 's/tns //')
-if ! [[ $tns ]]; then tns="E404"; fi
+if ! [[ $tns ]]; then tns=-1; fi
 
 #Extracting info from OpenSTA post global placement using estimate parasitics
 pl_tns=$(grep "tns" $pl_tns_rpt -s | tail -1 |sed -r 's/tns //')
@@ -332,7 +334,7 @@ if ! [[ $spef_tns ]]; then spef_tns=$opt_tns; fi
 
 #openroad replace extraction
 hpwl=$(grep " HPWL: " $HPWL_rpt -s | tail -1 | sed -E 's/.*HPWL: (\S+).*/\1/')
-if ! [[ $hpwl ]]; then hpwl="E404"; fi
+if ! [[ $hpwl ]]; then hpwl=-1; fi
 
 #Extracting Info from Yosys logs
 declare -a metrics=(
@@ -365,23 +367,23 @@ done
 input_output=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/ABC: netlist[^0-9]*([0-9]+)\/ *([0-9]+).*/\1 \2/')
 if ! [[ $input_output ]]; then input_output="-1 -1"; fi
 level=$(grep -e "ABC: netlist" $yosys_log -s | tail -1 | sed -r 's/.*lev.*[^0-9]([0-9]+)$/\1/')
-if ! [[ $level ]]; then level="E404"; fi
+if ! [[ $level ]]; then level=-1; fi
 
 #Extracting layer usage percentage
 usageLine=$(grep -n -E "Layer\s+Resource" $fr_log | tail -1 | sed -E 's/(\S+):.*/\1/')
 
 layer1=$(sed -n "$(expr $usageLine + 2)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer1 ]]; then layer1="E404"; fi
+if ! [[ $layer1 ]]; then layer1=-1; fi
 layer2=$(sed -n "$(expr $usageLine + 3)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer2 ]]; then layer2="E404"; fi
+if ! [[ $layer2 ]]; then layer2=-1; fi
 layer3=$(sed -n "$(expr $usageLine + 4)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer3 ]]; then layer3="E404"; fi
+if ! [[ $layer3 ]]; then layer3=-1; fi
 layer4=$(sed -n "$(expr $usageLine + 5)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer4 ]]; then layer4="E404"; fi
+if ! [[ $layer4 ]]; then layer4=-1; fi
 layer5=$(sed -n "$(expr $usageLine + 6)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer5 ]]; then layer5="E404"; fi
+if ! [[ $layer5 ]]; then layer5=-1; fi
 layer6=$(sed -n "$(expr $usageLine + 7)p" $fr_log | sed -E 's/.*\s+(\S+)%.*/\1/')
-if ! [[ $layer6 ]]; then layer6="E404"; fi
+if ! [[ $layer6 ]]; then layer6=-1; fi
 
 #Extracting Endcaps and TapCells
 endcaps=$(grep "Endcaps inserted:" $tapcell_log -s | tail -1 | sed -E 's/.*Endcaps inserted: (\S+)/\1/')
@@ -406,13 +408,13 @@ if ! [[ -f "$lvs_report" ]]; then
         lvs_total_errors=$(grep "Total errors =" $lvs_report -s | tail -1 | sed -r 's/[^0-9]*//g')
         if ! [[ $lvs_total_errors ]]; then lvs_total_errors=0; fi
 else
-        lvs_total_errors="E404";
+        lvs_total_errors=-1;
 fi
 
 
 #Extracting the total number of cvc errors
 cvc_total_errors=$(grep "CVC: Total: " $cvc_log -s | tail -1 | sed -r 's/[^0-9]*//g')
-if ! [[ $cvc_total_errors ]]; then cvc_total_errors="E404"; fi
+if ! [[ $cvc_total_errors ]]; then cvc_total_errors=-1; fi
 
 result="$flow_status $total_runtime $routed_runtime $diearea $cellperum $opendpUtil $tritonRoute_memoryPeak $cell_count $tritonRoute_violations $Short_violations $MetSpc_violations $OffGrid_violations $MinHole_violations $Other_violations $Magic_violations $antenna_violations $lvs_total_errors $cvc_total_errors $klayout_violations $wire_length $vias $wns $pl_wns $opt_wns $fr_wns $spef_wns $tns $pl_tns $opt_tns $fr_tns $spef_tns $hpwl $layer1 $layer2 $layer3 $layer4 $layer5 $layer6"
 for val in "${metrics_vals[@]}"; do

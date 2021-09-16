@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument("--design", "-d", required=True, help="Design Path")
 
-parser.add_argument("--design_name", "-dn", required=True, help="Design Name")
+parser.add_argument("--design_name", "-n", required=True, help="Design Name")
 
 parser.add_argument("--tag", "-t", required=True, help="Run Tag")
 
@@ -43,7 +43,7 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--runtime_summary", "-rs", required=True, help="Output Runtime Summary Reports"
+    "--runtime_summary", "-s", required=True, help="Output Runtime Summary Reports"
 )
 
 args = parser.parse_args()

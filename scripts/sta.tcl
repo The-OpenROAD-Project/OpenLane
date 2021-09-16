@@ -29,23 +29,21 @@ if { [info exists ::env(CURRENT_SPEF)] } {
 
 #set_units -capacitance ff
 read_sdc -echo $::env(BASE_SDC_FILE)
-#report_checks
-# report_tns
-report_tns > $::env(opensta_report_file_tag)_tns.rpt
-# report_wns
-report_wns > $::env(opensta_report_file_tag)_wns.rpt
-# report_power
-# report_power > $::env(opensta_report_file_tag)_power.rpt
+puts "check_report"
+report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
+puts "check_report_end"
 puts "timing_report"
 report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(opensta_report_file_tag).timing.rpt
 puts "timing_report_end"
 puts "min_max_report"
 report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(opensta_report_file_tag).min_max.rpt
 puts "min_max_report_end"
-puts "check_report"
-report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
-puts "check_report_end"
 puts "check_slew"
 report_check_types -max_slew -max_capacitance -max_fanout -violators > $::env(opensta_report_file_tag).slew.rpt
 puts "check_slew_end"
-exit
+puts "wns_report"
+report_wns
+puts "wns_report_end"
+puts "tns_report"
+report_tns
+puts "tns_report_end"

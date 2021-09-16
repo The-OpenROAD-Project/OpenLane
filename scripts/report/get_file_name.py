@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,19 +14,44 @@
 
 # The only purpose of this file is to create a wrapper around report.py and config.py and make them usable by flow.tcl
 
-import argparse
 import os
+import sys
+import argparse
 
-def get_name(run_path, output_file, include_only=False):
+def get_name(pathname, output_file, partial_match=False):
+    pathname = str(pathname)
+    output_file = str(output_file)
+
     try:
-        neededfile=[]
-        if not include_only:
-            neededfile = sorted([(int(f.split('-',1)[0]),f.split('-',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('-',1)) > 1 and f.split('-',1)[1] == output_file], reverse=True)[0]
-        else:
-            neededfile = sorted([(int(f.split('-',1)[0]),f.split('-',1)[1]) for f in os.listdir(run_path) if os.path.isfile(os.path.join(run_path, f)) and len(f.split('-',1)) > 1 and str(output_file) in str(f.split('-',1)[1])], reverse=True)[0]
-        return str(run_path)+'/'+str(neededfile[0])+'-'+str(neededfile[1])
-    except Exception:
-        return str(run_path)+'/'+str(output_file)
+        candidates = []
+        for file in os.listdir(pathname):
+            if not os.path.isfile(os.path.join(pathname, file)):
+                continue # Directory
+
+            file_components = file.split("-", 1)
+
+            if len(file_components) <= 1:
+                continue
+
+            step_index, name = file_components
+            step_index = int(step_index)
+
+            if partial_match:
+                if output_file not in name:
+                    continue
+            else:
+                if output_file != name:
+                    continue
+
+            candidates.append((step_index, name))
+        
+        candidates.sort(key= lambda x: x[0], reverse=True)
+
+        file = f"{candidates[0][0]}-{candidates[0][1]}"
+
+        return os.path.join(pathname, file)
+    except Exception as e:
+        return os.path.join(pathname, output_file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -38,7 +63,8 @@ if __name__ == "__main__":
     parser.add_argument('--output_file', '-o', required=True,
                         help='File name to search for, i.e. 1.X 2.X 3.X, then the script will return <path>/3.X')
 
-    parser.add_argument('--include_only', '-io',action='store_true', default=False,
+    # This whole thing is a contrived way to say "partial match"
+    parser.add_argument('--include_only', '-I',action='store_true', default=False,
                        help="If enabled the matching is done for inclusion, i.e. the passed output_file is a string that is included in the file name to be matched. -o exam will return matches like: exam.txt and example.txl.")
 
     args = parser.parse_args()

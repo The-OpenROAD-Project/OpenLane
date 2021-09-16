@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -176,9 +176,8 @@ regression_test: regression
 regression:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
-			python3 run_designs.py --delete\
+			python3 run_designs.py\
 			--defaultTestSet\
-			--tarList logs reports\
 			--htmlExtract\
 			--tag $(REGRESSION_TAG)\
 			--threads $(THREADS)\
@@ -197,7 +196,7 @@ extended_test_set: test_design_list
 test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
-			python3 run_designs.py --delete\
+			python3 run_designs.py\
 			--designs $(DESIGN_LIST)\
 			--tag $(DLTAG)\
 			--threads $(THREADS)\
