@@ -71,14 +71,15 @@ class DiodeInserter:
 				return (x, y)
 
 		# Or maybe output of a cell
-		x = odb.new_int(0)
-		y = odb.new_int(0)
+		# x = odb.new_int(0)
+		# y = odb.new_int(0)
 
 		for it in net.getITerms():
 			if not it.isOutputSignal():
 				continue
-			if it.getAvgXY(x,y):
-				return ( odb.get_int(x), odb.get_int(y) )
+			found, x ,y =  it.getAvgXY()
+			if found:
+				return x,y
 
 		# Nothing found
 		return None
@@ -119,12 +120,13 @@ class DiodeInserter:
 		return (max(ys) - min(ys)) + (max(xs) - min(xs))
 
 	def pin_position(self, it):
-		px = odb.new_int(0)
-		py = odb.new_int(0)
+		# px = odb.new_int(0)
+		# py = odb.new_int(0)
 
-		if it.getAvgXY(px,py):
+		found, px, py = it.getAvgXY()
+		if found:
 			# Got it
-			return odb.get_int(px), odb.get_int(py)
+			return px, py
 		else:
 			# Failed, use the center coordinate of the instance as fall back
 			return it.getInst().getLocation()
