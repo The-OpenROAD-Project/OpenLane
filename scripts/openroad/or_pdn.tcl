@@ -26,7 +26,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-
 if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -36,6 +35,36 @@ if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
 if { $::env(FP_PDN_CHECK_NODES) } {
     check_power_grid -net $::env(VDD_NET)
     check_power_grid -net $::env(GND_NET)
+}
+
+
+
+if { $::env(FP_PDN_IRDROP) } {
+    if { [info exist ::env(VIAS_RC)] } {
+        set vias_rc [split $::env(VIAS_RC) ","]
+        foreach via_rc $vias_rc {
+            set layer_name [lindex $via_rc 0]
+            set resistance [lindex $via_rc 1]
+            set_layer_rc -via $layer_name -resistance $resistance
+        }
+    }
+
+    if { [info exist ::env(LAYERS_RC)] } {
+        set layers_rc [split $::env(LAYERS_RC) ","]
+        foreach layer_rc $layers_rc {
+            set layer_name [lindex $layer_rc 0]
+            set capacitance [lindex $layer_rc 1]
+            set resistance [lindex $layer_rc 2]
+            set_layer_rc -layer $layer_name -capacitance $capacitance -resistance $resistance
+        }
+    }
+
+    set_wire_rc -layer $::env(WIRE_RC_LAYER)
+    set_wire_rc -signal -layer $::env(DATA_WIRE_RC_LAYER)
+    set_wire_rc -clock -layer $::env(CLOCK_WIRE_RC_LAYER)
+
+    analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
+    
 }
 
 write_def $::env(SAVE_DEF)

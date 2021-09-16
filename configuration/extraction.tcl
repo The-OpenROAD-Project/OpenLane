@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set ::env(WIRE_RC_LAYER) "met1"; # Used for estimate_parasitics
-
 # Options are rcx/def2spef
 set ::env(SPEF_EXTRACTOR) "openrcx"
 
@@ -24,8 +22,6 @@ set ::env(RCX_COUPLING_THRESHOLD) 0.1
 set ::env(RCX_CC_MODEL) 10
 set ::env(RCX_CONTEXT_DEPTH) 5
 set ::env(RCX_MERGE_VIA_WIRE_RES) 1
-set ::env(DATA_WIRE_RC_LAYER) "met2"
-set ::env(CLOCK_WIRE_RC_LAYER) "met5"
 
 # DEF2SPEF default configurations
 set ::env(SPEF_WIRE_MODEL) "L"
