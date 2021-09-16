@@ -212,6 +212,11 @@ test:
 		echo "Basic test passed" || \
 		echo "Basic test failed"
 
-.PHONY: clean_runs
+.PHONY: clean_all clean_runs clean_results
+clean_all: clean_runs clean_results
+
 clean_runs:
 	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
+
+clean_results:
+	@{ find regression_results -mindepth 1 -maxdepth 1 -type d | grep -v benchmark | xargs rm -rf ; } && echo "Results cleaned successfully." || echo "Failed to delete results."

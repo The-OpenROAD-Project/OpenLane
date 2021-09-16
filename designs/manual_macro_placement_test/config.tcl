@@ -6,7 +6,7 @@ set ::env(FP_CORE_UTIL) 35
 set ::env(FP_PDN_VOFFSET) 0
 set ::env(FP_PDN_VPITCH) 30
 
-set ::env(MACRO_PLACEMENT_CFG) $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/macro_placement.cfg
+set ::env(MACRO_PLACEMENT_CFG) $::env(DESIGN_DIR)/macro_placement.cfg
 
 
 set ::env(PL_TARGET_DENSITY) 0.35

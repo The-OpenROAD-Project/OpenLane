@@ -3,7 +3,7 @@ set ::env(DESIGN_NAME) lut_s44
 
 # Design config
 set ::env(CLOCK_PERIOD) 30
-set ::env(VERILOG_FILES) [glob $::env(OPENLANE_ROOT)/designs/s44/src/*.v]
+set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 set ::env(CLOCK_PORT) "config_clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 # Synthesis config

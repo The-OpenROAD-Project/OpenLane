@@ -268,7 +268,7 @@ class Report(object):
                 flow_status = re.sub(r" ", "_", match[1])
                 total_runtime = match[4]
         except Exception as e:
-            print(f"Failed to get total runtime: {e}", file=sys.stderr)
+            print(f"Warning: failed to get extract runtime info for {self.design}/{self.tag}: {e}", file=sys.stderr)
 
         routed_runtime = -1
         try:
@@ -423,11 +423,11 @@ class Report(object):
             report = Artifact(rp, kind, step, sta_report_filename)
             report_content = report.get_content()
             if report_content is not None:
-                match = re.search(rf"{filter}\s+([\d\.]+)", report_content)
+                match = re.search(rf"{filter}\s+(-?[\d\.]+)", report_content)
                 if match is not None:
                     value = float(match[1])
                 else:
-                    print(f"Didn't find {filter} in {report_content}, {sta_report_filename}")
+                    print(f"Didn't find {filter} in {sta_report_filename}")
             else:
                 print(f"Can't find {sta_report_filename}")
             return value
@@ -550,13 +550,13 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, 'results', "lvs", f"{self.design_name}.lvs_parsed", True)
+        lvs_report = Artifact(rp, 'results', "lvs", f"{self.design_name}.lvs_parsed.lef.log")
         lvs_report_content = lvs_report.get_content()
-
+        
         lvs_total_errors = -1
         if lvs_report_content is not None:
             lvs_total_errors = 0
-            match = re.search(r"Total errors =\s*(\d+)", lvs_total_errors)
+            match = re.search(r"Total errors\s*=\s*(\d+)", lvs_report_content)
             if match is not None:
                 lvs_total_errors = int(match[1])
 
