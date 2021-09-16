@@ -96,8 +96,24 @@ assert VDD_PORTS and GND_PORTS, "No power ports found at the top-level. "\
     "Make sure that they exist and have the USE POWER|GROUND property or "\
     "they match the arguments specified with --power-port and --ground-port."
 
-DEFAULT_VDD = VDD_PORTS[0].getNet()
-DEFAULT_GND = GND_PORTS[0].getNet()
+vdd_net_idx = None
+for index, port in enumerate(VDD_PORTS): 
+    if port.getNet().getName() == power_port_name: 
+        vdd_net_idx = index
+
+gnd_net_idx = None 
+for index, port in enumerate(GND_PORTS): 
+    if port.getNet().getName() == ground_port_name: 
+        gnd_net_idx = index
+
+assert vdd_net_idx is not None, "Can't find power net at the top-level."\
+    "Make sure that argument specified with --power-port"    
+
+assert gnd_net_idx is not None, "Can't find ground net at the top-level."\
+    "Make sure that argument specified with --ground-port"  
+
+DEFAULT_VDD = VDD_PORTS[vdd_net_idx].getNet()
+DEFAULT_GND = GND_PORTS[gnd_net_idx].getNet()
 
 print("Default power net: ", DEFAULT_VDD.getName())
 print("Default ground net:", DEFAULT_GND.getName())
