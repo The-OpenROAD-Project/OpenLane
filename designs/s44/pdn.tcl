@@ -14,7 +14,7 @@ set pdngen::global_connections {
   }
 }
 
-pdngen::specify_grid stdcell {
+set stdcell {
   name grid
   rails {
     met1 {width $::env(FP_PDN_RAIL_WIDTH) pitch $::env(PLACE_SITE_HEIGHT) offset $::env(FP_PDN_RAIL_OFFSET)}
@@ -25,6 +25,8 @@ pdngen::specify_grid stdcell {
   connect {{met1 met4}}
   pins {met4}
 }
+pdngen::specify_grid stdcell [subst $stdcell]
+set pdngen::voltage_domains { CORE { primary_power VPWR primary_ground VGND } } 
 
 set ::halo 0
 

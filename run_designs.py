@@ -336,7 +336,7 @@ def run_design(designs_queue):
         report = Report(design, tag, design_name, params).get_report()
         report_log.info(report)
 
-        with open(run_path + "final_report.txt", "w") as report_file:
+        with open(run_path + "report.csv", "w") as report_file:
             report_file.write(Report.get_header() + "," + ConfigHandler.get_header())
             report_file.write("\n")
             report_file.write(report)
@@ -356,7 +356,7 @@ def run_design(designs_queue):
                     design=design,
                     run_path=run_path,
                 )
-                subprocess.check_output(design_benchmark_comp_cmd.split())
+                subprocess.check_output(design_benchmark_comp_cmd.split(), stderr=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
                 error_msg = e.stderr.decode(sys.getfilesystemencoding())
                 log.error(
