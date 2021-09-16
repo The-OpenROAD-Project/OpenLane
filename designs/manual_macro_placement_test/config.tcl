@@ -2,9 +2,17 @@
 set ::env(DESIGN_NAME) manual_macro_placement_test
 
 set ::env(FP_CORE_UTIL) 35
-
 set ::env(FP_PDN_VOFFSET) 0
 set ::env(FP_PDN_VPITCH) 30
+
+# OpenROAD reports unconnected nodes as a warning.
+# OpenLane typically treats unconnected node warnings 
+# as a critical issue, and simply quits.
+#
+# We'll be leaving it up to the designer's discretion to
+# enable/disable this: if LVS passes you're probably fine
+# with this option being turned off.
+set ::env(FP_PDN_CHECK_NODES) 0
 
 set ::env(MACRO_PLACEMENT_CFG) $::env(DESIGN_DIR)/macro_placement.cfg
 
@@ -18,6 +26,8 @@ set ::env(CLOCK_PORT) "clk1 clk2"
 set ::env(CLOCK_TREE_SYNTH) 0
 
 set ::env(DIODE_INSERTION_STRATEGY) 0
+
+set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) 0
 
 # Change if needed
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]

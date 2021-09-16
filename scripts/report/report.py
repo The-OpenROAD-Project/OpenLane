@@ -18,6 +18,10 @@ from .get_file_name import get_name
 import os
 from typing import Iterable, Optional
 
+def debug(*args, **kwargs):
+    if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
+        print(*args, **kwargs)
+
 def parse_to_report(input_log: str, output_report: str, start: str, end: Optional[str] = None):
     if end is None:
         end = f"{start}_end"
@@ -45,10 +49,10 @@ class Artifact(object):
 
         self.path = get_name(self.pathname, self.filename, find_by_partial_match)
 
-        # if self.is_valid():
-        #     print(f"Resolved {kind}, {step}, {filename} to {self.path}")
-        # else:
-        #     print(f"Failed to resolve {kind}, {step}, {filename}")
+        if self.is_valid():
+            debug(f"Resolved {kind}, {step}, {filename} to {self.path}")
+        else:
+            debug(f"Failed to resolve {kind}, {step}, {filename}")
 
     def is_valid(self) -> bool:
         valid = os.path.exists(self.path) and os.path.isfile(self.path)
@@ -427,9 +431,9 @@ class Report(object):
                 if match is not None:
                     value = float(match[1])
                 else:
-                    print(f"Didn't find {filter} in {sta_report_filename}")
+                    debug(f"Didn't find {filter} in {sta_report_filename}")
             else:
-                print(f"Can't find {sta_report_filename}")
+                debug(f"Can't find {sta_report_filename}")
             return value
 
         wns = sta_report_extraction("opensta_wns.rpt", 'wns')
