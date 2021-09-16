@@ -306,9 +306,9 @@ class Report(object):
                 die_area /= 1000000 # To mm^2
 
         # Cells per micrometer
-        cells_per_um = - 1
+        cells_per_mm = - 1
         if cell_count != -1 and die_area != -1:
-            cells_per_um = cell_count / die_area
+            cells_per_mm = cell_count / die_area
 
         # OpenDP Utilization and HPWL
         utilization = -1
@@ -373,10 +373,10 @@ class Report(object):
                     other_violations -= 1
                 if "OffGrid" in line:
                     offgrid_violations += 1
-                    offgrid_violations -= 1
+                    other_violations -= 1
                 if "MinHole" in line:
                     minhole_violations += 1
-                    minhole_violations -= 1
+                    other_violations -= 1
             
         # Magic Violations
         magic_drc = Artifact(rp, 'reports', "magic", "magic.drc")
@@ -579,7 +579,7 @@ class Report(object):
             total_runtime,
             routed_runtime,
             die_area,
-            cells_per_um,
+            cells_per_mm,
             utilization,
             tr_memory_peak,
             cell_count,
