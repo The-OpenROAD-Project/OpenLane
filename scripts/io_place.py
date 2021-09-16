@@ -285,15 +285,11 @@ BLOCK_UR_Y = DIE_AREA.yMax()
 print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
 
-origin, count, step = odb.new_int(0), odb.new_int(0), odb.new_int(0)
-block_top.findTrackGrid(H_LAYER).getGridPatternY(0, origin, count, step)
-origin, count, step = odb.get_int(origin),  odb.get_int(count), odb.get_int(step)
+origin, count, step = block_top.findTrackGrid(H_LAYER).getGridPatternY(0)
 
 h_tracks = getGrid(origin, count, step)
 
-origin, count, step = odb.new_int(0), odb.new_int(0), odb.new_int(0)
-block_top.findTrackGrid(V_LAYER).getGridPatternX(0, origin, count, step)
-origin, count, step = odb.get_int(origin),  odb.get_int(count), odb.get_int(step)
+origin, count, step = block_top.findTrackGrid(V_LAYER).getGridPatternX(0)
 
 v_tracks = getGrid(origin, count, step)
 
