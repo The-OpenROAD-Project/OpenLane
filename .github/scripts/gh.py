@@ -76,7 +76,7 @@ class Repo(object):
         if self._tags is None:
             print("[Repo Object] Fetching tags for %s…" % self.name)
             p = subprocess.check_output([
-                "git", "ls-remote", "--tags", "--sort=v:refname",
+                "git", "ls-remote", "--tags", "--sort=creatordate",
                 self.url
             ]).decode("utf8")
 

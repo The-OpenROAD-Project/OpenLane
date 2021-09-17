@@ -35,13 +35,12 @@ for tag in gh.openlane.tags:
 commit_count = int(subprocess.check_output(["git", "rev-list", "--count", "%s..%s" % (latest_tag_commit, "HEAD")]))
 
 if commit_count == 0:
-    print("No new commits.")
-    gh.export_env("NEW_TAG", "NO_NEW_TAG")
-    exit(0)
+    print("No new commits. A tag will not be created.")
+else:
+    now = datetime.datetime.now()
 
-now = datetime.datetime.now()
+    new_tag = now.strftime("%Y.%m.%d_%H.%M.%S")
 
-new_tag = now.strftime("%Y.%m.%d_%H.%M.%S")
-
-print("Naming new tag %s." % new_tag)
+    print("Naming new tag %s." % new_tag)
+    
 gh.export_env("NEW_TAG", new_tag)
