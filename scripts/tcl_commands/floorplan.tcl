@@ -234,6 +234,9 @@ proc run_power_grid_generation {args} {
 			puts_err "VDD_NETS and GND_NETS must *both* either be defined or undefined"
 			return -code error
 		}
+		# standard cell power and ground nets are assumed to be the first net 
+		set ::env(VDD_PIN) [lindex $::env(VDD_NETS) 0]
+		set ::env(GND_PIN) [lindex $::env(GND_NETS) 0]
 	} elseif { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
 		set ::env(VDD_NETS) [list]
 		set ::env(GND_NETS) [list]
@@ -269,15 +272,58 @@ proc run_power_grid_generation {args} {
 		return -code error
 	}
 
+	# internal macros power connections 
+	if {[info exists ::env(FP_PDN_MACRO_HOOKS)]} {
+		set macro_hooks [dict create]
+		set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
+		foreach pdn_hook $pdn_hooks {
+			set instance_name [lindex $pdn_hook 0]
+			set power_net [lindex $pdn_hook 1]
+			set ground_net [lindex $pdn_hook 2]
+			dict append macro_hooks $instance_name [subst {$power_net $ground_net}]
+		}
+		
+		set power_net_indx [lsearch $::env(VDD_NETS) $power_net]
+		set ground_net_indx [lsearch $::env(GND_NETS) $ground_net]
+
+		# make sure that the specified power domains exist.
+		if { $power_net_indx == -1  || $ground_net_indx == -1 || $power_net_indx != $ground_net_indx } {
+			puts_err "Can't find $power_net and $ground_net domain. \
+			Make sure that both exist in $::env(VDD_NETS) and $::env(GND_NETS)." 
+		} 
+	}
+	
 	# generate multiple power grids per pair of (VDD,GND)
 	# offseted by WIDTH + SPACING
 	foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
 		set ::env(VDD_NET) $vdd
 		set ::env(GND_NET) $gnd
 
+		# internal macros power connections
+		set ::env(FP_PDN_MACROS) ""
+		if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 } {
+			# if macros connections to power are explicitly set
+			# default behavoir macro pins will be connected to the first power domain
+			if { [info exists ::env(FP_PDN_MACRO_HOOKS)] } {
+				set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
+				foreach {instance_name hooks} $macro_hooks {
+					set power [lindex $hooks 0]
+					set ground [lindex $hooks 1]			 
+					if { $power == $::env(VDD_NET) && $ground == $::env(GND_NET) } {
+						set ::env(FP_PDN_ENABLE_MACROS_GRID) 1
+						puts_info "Connecting $instance_name to $power and $ground nets."
+						lappend ::env(FP_PDN_MACROS) $instance_name
+					}
+				}
+			} 
+		} else {
+			puts_warn "All internal macros will not be connected to power."
+		}
+		
 		gen_pdn
 
 		set ::env(FP_PDN_ENABLE_RAILS) 0
+		set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
 
 		# allow failure until open_pdks is up to date...
 		catch {set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]}
