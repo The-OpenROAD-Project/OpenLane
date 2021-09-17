@@ -392,11 +392,6 @@ proc run_routing {args} {
 
     add_route_obs
 
-	#legalize if not yet legalized
-	if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-		detailed_placement_or
-	}
-
     global_routing
 
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
