@@ -130,6 +130,7 @@ jobs:
       ## PRs outside using a self-hosted runner on the same cloud platform as
       ## the bucket and some special permissions trickery.
       # - name: Upload Logs To Cloud Service
+      #   if: ${{ always() }}
       #   env:
       #     LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
       #   run: |
@@ -137,6 +138,7 @@ jobs:
       #     cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
 
       - name: Upload Logs As Artifacts
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: run_tarballs
