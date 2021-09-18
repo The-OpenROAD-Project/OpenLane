@@ -30,7 +30,7 @@ import argparse
 from collections import deque
 from os.path import join, abspath, dirname, basename, isdir, relpath
 
-openlane_path = abspath(dirname(__file__))
+openlane_path = abspath(dirname(dirname(__file__)))
 
 parser = argparse.ArgumentParser(description="OpenROAD Issue Packager")
 parser.add_argument('--or-script', '-s', required=True, help='Path to the OpenROAD script causing the failure: i.e. ./scripts/openroad/or_antenna_check.tcl, ./scripts/openroad/or_pdn.tcl, etc. [required]')
