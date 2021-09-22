@@ -94,6 +94,7 @@ skywater-library: $(PDK_ROOT)/skywater-pdk
 		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
+		git submodule update --init libraries/sky130_fd_pr/latest && \
 		$(MAKE) timing
 
 .PHONY: all-skywater-libraries
