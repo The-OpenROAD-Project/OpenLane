@@ -56,7 +56,7 @@ jobs:
       - name: Build PDK
         run: |
           sudo mkdir -p ${{ env.PDK_ROOT }}
-          sudo chown $USER:$USER ${{ env.PDK_ROOT }}
+          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           make pdk
 
       - name: Tarball PDK
@@ -120,7 +120,7 @@ jobs:
       - name: Unpack PDK Tarball
         run: |
           sudo mkdir -p ${{ env.PDK_ROOT }}/sky130A
-          sudo chown $USER:$USER ${{ env.PDK_ROOT }}
+          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
       - name: Fastest Test Set
@@ -191,15 +191,15 @@ jobs:
           name: docker-image
           path: /tmp
       
-      - name: Delete Artifact
+      - name: Delete Docker Image
         uses: geekyeggo/delete-artifact@v1
         with:
           name: docker-image
 
-      - name: Delete Artifact
+      - name: Delete PDK
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: docker-image
+          name: pdk-tarball
 
       - name: Import Docker Image
         if: ${{ env.PUSHING == '1' }}
