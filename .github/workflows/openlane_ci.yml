@@ -16,8 +16,10 @@ on:
     workflow_dispatch:
 
 jobs:
-  docker-build:
+  docker_build:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v2
 
@@ -69,16 +71,28 @@ jobs:
           name: pdk-tarball
           path: /tmp/sky130A.tar
 
+      - name: Determine If Running Extended Test Set
+        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+        run: |
+          echo "USE_ETS=1" >> $GITHUB_ENV
+
+      - name: Prepare Test Matrix
+        id: set-matrix
+        run: |
+          if [[ "$USE_ETS" = "1" ]]; then
+            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
+          else
+            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set extended_test_set)"
+          fi
 
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
-    needs: docker-build
+    needs: docker_build
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        testset: ["1", "2", "3", "4", "5"]
-    name: Test Set ${{ matrix.testset }}
+      matrix: ${{ fromJSON(needs.docker_build.outputs.matrix) }}
+    name: Test Design ${{ matrix.design }}
     steps:
       - uses: actions/checkout@v2
 
@@ -123,16 +137,8 @@ jobs:
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
-      - name: Fastest Test Set
-        env:
-          TEST_SET: fastestTestSet${{ matrix.testset }}
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
-
-      - name: Extended Test Set
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
-        env:
-          TEST_SET: extendedTestSet${{ matrix.testset }}
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py
+      - name: Run Test
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
         
       ## This is temporarily disabled. It has no way of uploading logs for
       ## PRs outside using a self-hosted runner on the same cloud platform as

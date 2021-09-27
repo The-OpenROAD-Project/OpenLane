@@ -16,22 +16,21 @@
 import os
 import re
 import sys
+import json
 
 args = sys.argv[1:]
 
-if len(args) != 1:
-    print(f"Usage: {__file__} [test set name]", file=sys.stderr)
+if len(args) < 1:
+    print(f"Usage: {__file__} [test set 0 name [test set 1 name [...]]]", file=sys.stderr)
     exit(os.EX_USAGE)
-
-test_set = args[0]
 
 directory = os.path.dirname(os.path.realpath(__file__))
 
-files = [os.path.join(directory, x) for x in filter(lambda x: x.startswith(test_set), os.listdir(directory))]
+files = [os.path.join(directory, x) for x in args]
 
 designs = []
 
 for file in files:
     designs += re.split(r"\s+", open(file).read().strip())
 
-print(" ".join(designs))
+print(json.dumps({ "design": designs }))

@@ -15,26 +15,29 @@
 # limitations under the License.
 import re
 import os
+import sys
 import glob
 import shlex
 import getpass
 import subprocess
 from gh import gh
 
-test_set = os.getenv("TEST_SET")
-if test_set is None:
-    raise Exception("Environment variable TEST_SET must be set.")
-
-test_name = "TEST_%s" % test_set
-
-test_set_file = os.path.join(gh.root, ".github", "test_sets", test_set)
-design_list = [test_set]
-if os.path.exists(test_set_file):
-    design_list = open(test_set_file).read().split()
 
 threads_used = int(subprocess.check_output(["nproc"]).decode("utf-8")) - 1
+test_name = "TEST"
+design_list = sys.argv[1:]
+test_set = os.getenv("TEST_SET")
+if test_set is not None:
+    test_name = "TEST_%s" % test_set
+    test_set_file = os.path.join(gh.root, ".github", "test_sets", test_set)
+    if os.path.exists(test_set_file):
+        design_list = open(test_set_file).read().split()
+    else:
+        raise Exception("Test set %s not found." % test_set)
 
-print("Running test set %s using %i threads…" % (test_set, threads_used))
+    print("Running test set %s using %i threads…" % (test_set, threads_used))
+else:
+    print("Running on designs %s using %i threads…" % (design_list, threads_used))
 
 username = getpass.getuser()
 user = subprocess.check_output(["id", "-u", username]).decode("utf8")[:-1]
