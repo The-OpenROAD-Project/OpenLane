@@ -23,12 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       # EXPORT BLOCK
       - name: Export Repo URL
         run: echo "REPO_URL=git://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
@@ -80,9 +74,9 @@ jobs:
         id: set-matrix
         run: |
           if [[ "$USE_ETS" = "1" ]]; then
-            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
-          else
             echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set extended_test_set)"
+          else
+            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
 
   # Each test has two components: a fast test set and an extended test set.
@@ -95,12 +89,6 @@ jobs:
     name: Test Design ${{ matrix.design }}
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
 
       # EXPORT BLOCK
       - name: Export Repo URL
