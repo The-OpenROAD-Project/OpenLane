@@ -262,7 +262,7 @@ cd $dir;
 docker run --rm\\
     -tiv `pwd`:`pwd` -w `pwd`\\
     {env_list}\\
-    {os.getenv("IMAGE_NAME") or "efabless/openlane:current"} openroad \\$::env\\(OR_SCRIPT\\)
+    {os.getenv("OPENLANE_IMAGE_NAME") or "efabless/openlane:current"} openroad \\$::env\\(OR_SCRIPT\\)
     """)
 os.chmod(run_ol, 0o755)
 

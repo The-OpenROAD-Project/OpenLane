@@ -135,7 +135,7 @@ gh = SimpleNamespace(**{
     "run_id": os.getenv("GITHUB_RUN_ID"),
     "origin": origin,   
     "branch": os.getenv("BRANCH_NAME"),
-    "image": os.getenv("IMAGE_NAME"),
+    "image": os.getenv("OPENLANE_IMAGE_NAME"),
     "root": os.getenv("GITHUB_WORKSPACE"),
     "pdk": os.getenv("PDK_ROOT"),
     "tool": os.getenv("TOOL"),

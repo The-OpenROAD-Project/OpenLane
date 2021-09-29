@@ -142,17 +142,17 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
-    - Default IMAGE_NAME is efabless/openlane:current. If you want to use a different version, run the following before `make mount`:
+    - Default OPENLANE_IMAGE_NAME is efabless/openlane:current. If you want to use a different version, run the following before `make mount`:
         ```bash
-        export IMAGE_NAME=<docker image name>
+        export OPENLANE_IMAGE_NAME=<docker image name>
         ```
 
 The following is roughly what happens under the hood when you run `make mount` + the required exports:
 
 ```bash
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    export IMAGE_NAME=<docker image name>
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $IMAGE_NAME
+    export OPENLANE_IMAGE_NAME=<docker image name>
+    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $OPENLANE_IMAGE_NAME
 ```
 
 **Note: this will mount the OpenLane directory and the PDK_ROOT directory inside the container.**

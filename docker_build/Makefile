@@ -1,7 +1,7 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./Dockerfile
-IMAGE_NAME ?= efabless/openlane:current
+OPENLANE_IMAGE_NAME ?= efabless/openlane:current
 #ROOT = sudo
 
 TOOLS = klayout cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc
@@ -49,7 +49,7 @@ FORCE:
 merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	mkdir -p logs/docker/tar
-	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
+	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
