@@ -40,8 +40,8 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-CURRENT_TAG ?= $(shell python3 ./dependencies/get_tag.py)
-OPENLANE_IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
+OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
