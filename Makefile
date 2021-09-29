@@ -40,8 +40,8 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-CURRENT_TAG ?= $(shell python3 ./dependencies/get_tag.py)
-IMAGE_NAME ?= efabless/openlane:$(CURRENT_TAG)
+OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
@@ -53,7 +53,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -163,12 +163,12 @@ gen-sources: $(PDK_ROOT)/sky130A
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	docker pull $(IMAGE_NAME)
+	docker pull $(OPENLANE_IMAGE_NAME)
 
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(IMAGE_NAME)
+		docker run -it --rm -v $(OPENLANE_DIR):/openLANE_flow -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
@@ -188,10 +188,10 @@ regression:
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
-fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py fastestTestSet)
+fastest_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
-extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_set.py extendedTestSet)
+extended_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/extended_test_set)
 extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
 extended_test_set: test_design_list
 test_design_list:

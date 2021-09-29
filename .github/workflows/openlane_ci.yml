@@ -34,14 +34,14 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
+        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
       - name: Docker Build
         run: cd docker_build/ && make merge
 
       - name: Export Docker Image
-        run: docker save -o /tmp/image.tar ${{ env.IMAGE_NAME }}
+        run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
 
       - name: Upload Docker Image
         uses: actions/upload-artifact@v2
@@ -101,7 +101,7 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
+        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
       - name: Download Docker Image
@@ -175,7 +175,7 @@ jobs:
         run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Export Temp Image Name
-        run: echo "IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
+        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
       - name: Download Docker Image
@@ -225,13 +225,13 @@ jobs:
       - name: Docker Push (Branch Name)
         if: ${{ env.PUSHING == '1' && github.event_name == 'push' }}
         run: |
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
+          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
 
       - name: Docker Push (Tag) (If scheduled or dispatched)
         if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         run: |
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker image tag ${{ env.IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:latest
+          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
+          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:latest
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
           docker push ${{ secrets.DOCKER_IMAGE }}:latest
