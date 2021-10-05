@@ -27,16 +27,16 @@ if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef $::env(CURRENT_SPEF)
 }
 
-#set_units -capacitance ff
-read_sdc -echo $::env(BASE_SDC_FILE)
+read_sdc -echo $::env(CURRENT_SDC)
+
 puts "check_report"
-report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -group_count 1000  -slack_max -0.01 > $::env(opensta_report_file_tag).rpt
 puts "check_report_end"
 puts "timing_report"
-report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(opensta_report_file_tag).timing.rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 1000 > $::env(opensta_report_file_tag).timing.rpt
 puts "timing_report_end"
 puts "min_max_report"
-report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(opensta_report_file_tag).min_max.rpt
+report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max -group_count 1000 > $::env(opensta_report_file_tag).min_max.rpt
 puts "min_max_report_end"
 puts "check_slew"
 report_check_types -max_slew -max_capacitance -max_fanout -violators > $::env(opensta_report_file_tag).slew.rpt
