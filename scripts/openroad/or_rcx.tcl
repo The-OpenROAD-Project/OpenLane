@@ -26,7 +26,7 @@ if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-read_sdc $::env(BASE_SDC_FILE)
+read_sdc $::env(CURRENT_SDC)
 
 set_propagated_clock [all_clocks]
 

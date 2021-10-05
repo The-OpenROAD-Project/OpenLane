@@ -437,9 +437,11 @@ proc run_resizer_timing_routing {args} {
             gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
+	    set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
         set_def $::env(SAVE_DEF)
-
+		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+		
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
 

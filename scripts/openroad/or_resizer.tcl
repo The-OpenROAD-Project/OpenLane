@@ -25,7 +25,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-read_sdc -echo $::env(BASE_SDC_FILE)
+read_sdc -echo $::env(CURRENT_SDC)
 
 # Resize
 # estimate wire rc parasitics
@@ -63,3 +63,4 @@ check_placement -verbose
 
 
 write_def $::env(SAVE_DEF)
+write_sdc $::env(SAVE_SDC)

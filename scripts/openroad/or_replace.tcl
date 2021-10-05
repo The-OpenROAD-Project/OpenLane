@@ -59,7 +59,7 @@ if { $::env(PL_BASIC_PLACEMENT) } {
 }
 
 if { $::env(PL_TIME_DRIVEN) } {
-	read_sdc $::env(BASE_SDC_FILE)
+	read_sdc $::env(CURRENT_SDC)
 	gpl::set_timing_driven_mode 1
 	read_verilog $::env(yosys_result_file_tag).v
 }
@@ -101,7 +101,7 @@ if {[info exists ::env(CLOCK_PORT)]} {
 
 		read_liberty -max $::env(LIB_SLOWEST)
 		read_liberty -min $::env(LIB_FASTEST)
-		read_sdc -echo $::env(BASE_SDC_FILE)
+		read_sdc -echo $::env(CURRENT_SDC)
 
 		set_wire_rc -layer $::env(WIRE_RC_LAYER)
 		estimate_parasitics -placement

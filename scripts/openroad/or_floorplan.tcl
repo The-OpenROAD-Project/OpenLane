@@ -23,6 +23,8 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 
 read_verilog $::env(yosys_result_file_tag).v
 link_design $::env(DESIGN_NAME)
+read_sdc $::env(CURRENT_SDC)
+
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
 set left_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(LEFT_MARGIN_MULT)]
@@ -93,3 +95,4 @@ close $core_area_file
 close $die_area_file
 
 write_def $::env(SAVE_DEF)
+write_sdc $::env(SAVE_SDC)

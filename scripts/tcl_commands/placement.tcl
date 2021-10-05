@@ -179,8 +179,10 @@ proc run_resizer_timing {args} {
             gen_exclude_list -lib resizer_timing_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_timing_opt.exclude.list -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
+        set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
         set_def $::env(SAVE_DEF)
+        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
@@ -227,8 +229,10 @@ proc run_resizer_design {args} {
             gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
         }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
+        set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag).sdc 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
         set_def $::env(SAVE_DEF)
+        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_runtime.txt 0]

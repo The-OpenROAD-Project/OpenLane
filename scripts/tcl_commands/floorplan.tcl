@@ -20,6 +20,7 @@ proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
 		set ::env(SAVE_DEF) [index_file $::env(verilog2def_tmp_file_tag)_openroad.def]
+		set ::env(SAVE_SDC) [index_file $::env(verilog2def_tmp_file_tag).sdc 0]
 		set report_tag_saver $::env(verilog2def_report_file_tag)
 		set ::env(verilog2def_report_file_tag) [index_file $::env(verilog2def_report_file_tag) 0]
 		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
@@ -65,6 +66,7 @@ proc init_floorplan {args} {
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(verilog2def_log_file_tag)_openroad_runtime.txt 0]
 		set_def $::env(SAVE_DEF)
+		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 }
 
 
