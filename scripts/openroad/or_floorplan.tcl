@@ -23,7 +23,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 
 read_verilog $::env(yosys_result_file_tag).v
 link_design $::env(DESIGN_NAME)
-read_sdc $::env(CURRENT_SDC)
+read_sdc -echo $::env(CURRENT_SDC)
 
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
