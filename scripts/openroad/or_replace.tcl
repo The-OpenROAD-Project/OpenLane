@@ -103,6 +103,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		read_liberty -min $::env(LIB_FASTEST)
 		read_sdc -echo $::env(CURRENT_SDC)
 
+		# set rc values
+		source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 		set_wire_rc -layer $::env(WIRE_RC_LAYER)
 		estimate_parasitics -placement
 

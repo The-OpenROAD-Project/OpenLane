@@ -28,6 +28,8 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 read_sdc -echo $::env(CURRENT_SDC)
 
 # Resize
+# set rc values
+source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 # estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)

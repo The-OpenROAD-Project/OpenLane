@@ -37,6 +37,8 @@ if { [info exists ::env(DONT_USE_CELLS)] } {
 }
 
 # CTS and detailed placement move instances, so update parastic estimates.
+# set rc values
+source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 estimate_parasitics -placement
 set_propagated_clock [all_clocks]
 repair_timing
