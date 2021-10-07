@@ -35,16 +35,8 @@ if { !$::env(RCX_MERGE_VIA_WIRE_RES) } {
     set rcx_flags "-no_merge_via_res"
 }
 
-# Via resistance
-if { [info exist ::env(VIAS_RC)] } {
-    set vias_rc [split $::env(VIAS_RC) ","]
-    foreach via_rc $vias_rc {
-        set layer_name [lindex $via_rc 0]
-        set resistance [lindex $via_rc 1]
-        set_layer_rc -via $layer_name -resistance $resistance
-    }
-}
-
+# set rc values
+source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 set_wire_rc -signal -layer $::env(DATA_WIRE_RC_LAYER)
 set_wire_rc -clock -layer $::env(CLOCK_WIRE_RC_LAYER)
 
