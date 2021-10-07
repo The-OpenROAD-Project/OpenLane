@@ -27,7 +27,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_verilog $::env(CURRENT_NETLIST)
-read_sdc $::env(BASE_SDC_FILE)
+read_sdc -echo $::env(CURRENT_SDC)
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
@@ -68,7 +68,7 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
     optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
-write_sdc $::env(cts_result_file_tag).sdc
+write_sdc $::env(SAVE_SDC)
 if { [check_placement -verbose] } {
 	exit 1
 }

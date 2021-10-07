@@ -83,6 +83,7 @@ proc run_cts {args} {
 		}
 
 		set ::env(SAVE_DEF) $::env(cts_result_file_tag).def
+		set ::env(SAVE_SDC) $::env(cts_result_file_tag).sdc
 		set report_tag_holder $::env(cts_report_file_tag)
         set ::env(cts_report_file_tag) [ index_file $::env(cts_report_file_tag) ]
 		# trim the lib to exclude cells with drc errors
@@ -97,6 +98,7 @@ proc run_cts {args} {
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(cts_log_file_tag)_runtime.txt 0]
 
 		set_def $::env(SAVE_DEF)
+		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 		write_verilog $::env(yosys_result_file_tag)_cts.v
 		set_netlist $::env(yosys_result_file_tag)_cts.v
 		if { $::env(LEC_ENABLE) } {

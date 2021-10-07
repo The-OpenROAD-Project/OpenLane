@@ -26,12 +26,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-if { $::env(CLOCK_TREE_SYNTH) } {
-    read_sdc -echo $::env(cts_result_file_tag)_1.sdc
-} else {
-    puts "INFO: CTS was skipped, reading base sdc file."
-    read_sdc -echo $::env(BASE_SDC_FILE)
-}
+read_sdc -echo $::env(CURRENT_SDC)
 
 # Resize
 # estimate wire rc parasitics
@@ -45,7 +40,7 @@ if { [info exists ::env(DONT_USE_CELLS)] } {
 # CTS and detailed placement move instances, so update parasitic estimates.
 global_route
 estimate_parasitics -global_routing
-#set_propagated_clock [all_clocks]
+set_propagated_clock [all_clocks]
 repair_timing
 
 # set_placement_padding -global -right $::env(CELL_PAD)
@@ -60,3 +55,4 @@ if { [info exists ::env(GLB_OPTIMIZE_MIRRORING)] && $::env(GLB_OPTIMIZE_MIRRORIN
 check_placement -verbose
 
 write_def $::env(SAVE_DEF)
+write_sdc $::env(SAVE_SDC)

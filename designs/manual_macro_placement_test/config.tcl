@@ -15,7 +15,7 @@ set ::env(FP_PDN_VPITCH) 30
 set ::env(FP_PDN_CHECK_NODES) 0
 
 set ::env(MACRO_PLACEMENT_CFG) $::env(DESIGN_DIR)/macro_placement.cfg
-
+set ::env(BASE_SDC_FILE) $::env(DESIGN_DIR)/base.sdc
 
 set ::env(PL_TARGET_DENSITY) 0.35
 set ::env(PL_BASIC_PLACEMENT) 1
