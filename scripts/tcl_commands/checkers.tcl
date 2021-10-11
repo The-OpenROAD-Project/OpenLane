@@ -52,7 +52,7 @@ proc check_hold_setup_violations {args} {
         set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.min_max.rpt }]
         if { ! $checker } {
             puts_err "There are hold/setup violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.min_max.rpt."
-            puts_err "Flow Failed."
+            flow_fail
             return -code error
         } else {
             puts_info "There are no hold/setup violations in the design"
@@ -65,7 +65,7 @@ proc check_slew_violations {args} {
         set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.slew.rpt }]
         if { ! $checker } {
             puts_err "There are max slew violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.slew.rpt"
-            puts_err "Flow Failed."
+            flow_fail
             return -code error
         } else {
             puts_info "There are no max slew violations in the design"
@@ -78,7 +78,7 @@ proc check_wns {args} {
         set checker [catch {exec grep "-" $::env(opensta_report_file_tag)_spef.wns.rpt }]
         if { ! $checker } {
             puts_err "wns is negative. Please refer to $::env(opensta_report_file_tag)_spef.wns.rpt"
-            puts_err "Flow Failed."
+            flow_fail
             return -code error
         } else {
             puts_info "wns is positive"
