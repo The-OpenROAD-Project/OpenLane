@@ -39,6 +39,53 @@ proc check_synthesis_failure {args} {
     }
 }
 
+proc check_timing_violations {args} {
+    if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
+        check_hold_setup_violations
+        check_slew_violations
+        check_wns
+    }
+}
+
+proc check_hold_setup_violations {args} {
+    if { $::env(QUIT_ON_HOLD_SETUP_VIOLATIONS) } {
+        set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.min_max.rpt }]
+        if { ! $checker } {
+            puts_err "There are hold/setup violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.min_max.rpt."
+            flow_fail
+            return -code error
+        } else {
+            puts_info "There are no hold/setup violations in the design"
+        }
+    }
+}
+
+proc check_slew_violations {args} {
+    if { $::env(QUIT_ON_SLEW_VIOLATIONS) } {
+        set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.slew.rpt }]
+        if { ! $checker } {
+            puts_err "There are max slew violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.slew.rpt"
+            flow_fail
+            return -code error
+        } else {
+            puts_info "There are no max slew violations in the design"
+        }
+    }
+}
+
+proc check_wns {args} {
+    if { $::env(QUIT_ON_NEGATIVE_WNS) } {
+        set checker [catch {exec grep "-" $::env(opensta_report_file_tag)_spef.wns.rpt }]
+        if { ! $checker } {
+            puts_err "wns is negative. Please refer to $::env(opensta_report_file_tag)_spef.wns.rpt"
+            flow_fail
+            return -code error
+        } else {
+            puts_info "wns is positive"
+        }
+    }
+}
+
 proc check_floorplan_missing_lef {args} {
     set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(verilog2def_log_file_tag).openroad.log 0]} missing_lefs]
 
