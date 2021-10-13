@@ -56,6 +56,8 @@ clock_tree_synthesis\
     -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)\
     -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
 
+set_propagated_clock [all_clocks]
+
 puts "\[INFO]: Repairing long wires on clock nets..."
 # CTS leaves a long wire from the pad to the clock tree root.
 repair_clock_nets
