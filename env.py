@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import io
 import os
 import sys
 import uuid
@@ -21,7 +22,7 @@ import getpass
 import textwrap
 import subprocess
 from os.path import join, abspath, dirname, exists
-from typing import Tuple, Union, List, Optional
+from typing import Tuple, Union, List
 
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
@@ -356,38 +357,126 @@ class Installer(object):
 
         print("Done.")
         print(f"To invoke Openlane from now on, invoke {install_dir}/openlane then pass on the same options you would flow.tcl.")
- 
+
+# Commands
+def tool_list():
+    from dependencies.tool import Tool
+    tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
+    for tool in tools.values():
+        print(f"{tool.name}: {tool.version_string}")
+
+def local_install():
+    installer = Installer()
+    installer.run()
+
+def docker_config():
+    from dependencies.env_info import ContainerInfo
+
+    cinfo = ContainerInfo.get()
+
+    if cinfo.engine == "docker":
+        if cinfo.rootless:
+            print("-u 0", end="")
+        else:
+            uid = subprocess.check_output([ "id", "-u", getpass.getuser() ]).decode("utf8").strip()
+            gid = subprocess.check_output([ "id", "-g", getpass.getuser() ]).decode("utf8").strip()
+            print(f"--user {uid}:{gid}", end="")
+
+
+def issue_survey():
+    from dependencies.env_info import OSInfo
+    from dependencies.get_tag import get_tag
+    
+    alerts = open(os.devnull, 'w')
+
+    final_report = ""
+
+    os_info = OSInfo.get()
+    final_report += textwrap.dedent(f"""\
+        Python: v{os_info.python_version}
+        Kernel: {os_info.kernel} v{os_info.kernel_version}
+    """)
+
+    if os_info.distro is not None:
+        final_report += textwrap.dedent(f"""\
+            Distribution: {os_info.distro} {os_info.distro_version or ""}
+        """)
+
+
+    if os_info.container_info is not None:
+        final_report += textwrap.dedent(f"""\
+            Container Engine: {os_info.container_info.engine} v{os_info.container_info.version}
+        """)
+    else:
+        alert = "Critical Alert: No Docker or Docker-compatible container engine was found."
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    try:
+        final_report += textwrap.dedent(f"""\
+            OpenLane Git Version: {get_tag()}
+        """)
+    except:
+        alert = "Critical Alert: OpenLane does not appear to be using a Git repository. This will impair considerable functionality."
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    try:
+        import click
+    except ImportError:
+        alert = "Alert: Click is not installed."
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    try:
+        import venv
+    except ImportError:
+        alert = "Alert: venv is not installed."
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    try:
+        import yaml
+
+        from dependencies.verify_versions import verify_versions
+
+        with io.StringIO() as f:
+            status = 'OK'
+            try:
+                mismatches = verify_versions(no_tools=True, report_file=f)
+                if mismatches:
+                    status = 'MISMATCH'
+            except Exception as e:
+                status = 'FAILED'
+                f.write(f"Failed to compare PDKs: {e}")
+            final_report += f"---\nPDK Version Verification Status: {status}\n\n" + f.getvalue()
+        
+
+    except ImportError:
+        alert = "Critical Alert: Pyyaml is not installed."
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    try:
+        git_log = subprocess.check_output(["git", "log", "-n", "5"]).decode("utf8")
+
+        final_report += "---\nGit Log (Last 5 Commits)\n\n" + git_log
+    except:
+        alert = "Critical Alert: Could not launch git: Are you sure git is installed properly?"
+        final_report += f"\n{alert}\n"
+        print(alert, file=alerts)
+
+    print(final_report)
+    
+
 # Entry Point
 def main():
     args = sys.argv[1:]
-
-    def tool_list():
-        from dependencies.tool import Tool
-        tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
-        for tool in tools.values():
-            print(f"{tool.name}: {tool.version_string}")
-
-    def install():
-        installer = Installer()
-        installer.run()
-
-    def docker_config():
-        from dependencies.env_info import ContainerInfo
-
-        cinfo = ContainerInfo.get()
-
-        if cinfo.engine == "docker":
-            if cinfo.rootless:
-                print("-u 0", end="")
-            else:
-                uid = subprocess.check_output([ "id", "-u", getpass.getuser() ]).decode("utf8").strip()
-                gid = subprocess.check_output([ "id", "-g", getpass.getuser() ]).decode("utf8").strip()
-                print(f"--user {uid}:{gid}", end="")
-
     commands = {
         "tool-list": tool_list,
-        "local-install": install,
-        "docker-config": docker_config
+        "local-install": local_install,
+        "docker-config": docker_config,
+        "issue-survey": issue_survey
     }
 
     if len(args) < 1 or args[0] not in commands.keys():
