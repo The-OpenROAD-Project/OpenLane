@@ -14,31 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 import subprocess
 
-def get_tag():
-    tag = None
+class NoGitException(Exception):
+    pass
 
+def get_tag() -> str:
     try:
-        tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"]).decode("utf8").strip()
+        process_data: subprocess.CompletedProcess = subprocess.run(["git", "describe", "--tags", "--abbrev=0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if process_data.returncode != 0:
+            raise NoGitException(f"You do not appear to be running OpenLane through a Git repository. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}")
+        return process_data.stdout.decode('utf8').strip()
     except Exception as e:
-        pass
-
-    if tag is None:
-        try:
-            tag = open("./resolved_version").read()
-        except:
-            print("Please input the version of OpenLane you'd like to pull: ", file=sys.stderr)
-            try:
-                tag = input()
-                with open("./resolved_version", "w") as f:
-                    f.write(tag)
-            except EOFError:
-                print("Could not resolve the version of OpenLane being used. This is a critical error.", file=sys.stderr)
-                exit(-1)
-
-    return tag
+        raise Exception(f"An unexpected error has occurred when trying to find the OpenLane version: {e}.")
 
 if __name__ == "__main__":
-    print(get_tag(), end="")
+    try:
+        print(get_tag(), end="")
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(os.EX_UNAVAILABLE)
