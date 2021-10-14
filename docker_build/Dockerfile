@@ -43,6 +43,7 @@ RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && 
 		tk \
 		wget \
 		Xvfb && \
+		perl-Switch && \
 	yum clean all && \
 	rm -rf /var/cache/yum
 
