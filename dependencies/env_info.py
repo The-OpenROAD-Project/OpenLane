@@ -142,8 +142,8 @@ class OSInfo(StringRepresentable):
 
                     config[key] = value
 
-                osinfo.distro = config.get("DISTRIB_ID") or config.get("ID")
-                osinfo.distro_version = config.get("DISTRIB_RELEASE") or config.get("VERSION_ID")
+                osinfo.distro = config.get("ID") or config.get("DISTRIB_ID")
+                osinfo.distro_version = config.get("VERSION_ID") or config.get("DISTRIB_RELEASE")
 
                 
             else:

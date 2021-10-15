@@ -184,7 +184,6 @@ regression:
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
 			--defaultTestSet\
-			--htmlExtract\
 			--tag $(REGRESSION_TAG)\
 			--threads $(THREADS)\
 			--print $(PRINT_REM_DESIGNS_TIME)\

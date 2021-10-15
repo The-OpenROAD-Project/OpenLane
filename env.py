@@ -14,10 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
 import io
 import os
 import sys
 import uuid
+import shutil
+import tempfile
+import pathlib
 import getpass
 import textwrap
 import subprocess
@@ -111,6 +115,11 @@ class Installer(object):
         from dependencies.tool import Tool
         from dependencies.get_tag import NoGitException, get_tag
         from dependencies.env_info import OSInfo
+        
+        try:
+            import venv
+        except ImportError:
+            print("Python venv does not appear to be installed, and is required for local installations.", file=sys.stderr)
 
         try:
             ol_version = get_tag()
@@ -147,31 +156,12 @@ class Installer(object):
         home_perms = os.stat(os.getenv("HOME"))
         sh("chown", "-R", "%i:%i" % (home_perms.st_uid, home_perms.st_gid), install_dir, root="retry")
 
-        pip_action = self.input_options("PIP_DEPS", "Install PIP dependencies?", ["no", "system", "user"])
-        if pip_action != "no":
-            python_directory = join(openlane_dir, "dependencies", "python")
-            requirements_files = [os.path.join(python_directory, file) for file in os.listdir(python_directory)]
-            final_list = []
-            for file in requirements_files:
-                final_list.append("-r")
-                final_list.append(file)
-
-            sh(
-                "python3",
-                "-m",
-                "pip",
-                "install",
-                *final_list,
-                root=pip_action == "system"
-            )
-    
-
-        os_list = ["other", "ubuntu-20.04", "centos-7", "macos"]
+        os_list = ["other", "ubuntu-20.04", "centos-7", "arch", "macos"]
 
         # Try to determine user's OS
         set_default_os = lambda x: os_list.insert(0, os_list.pop(os_list.index(x)))
 
-        os_info = OSInfo()
+        os_info = OSInfo.get()
 
         if os_info.distro == "macOS":
             set_default_os("macos")
@@ -181,16 +171,25 @@ class Installer(object):
 
         if os_info.distro == "ubuntu" and os_info.distro_version == "20.04":
             set_default_os("ubuntu-20.04")
+
+        if os_info.distro in ["manjaro", "arch"]:
+            set_default_os("arch")
         
         os_pick = self.input_options("OS", "Which UNIX/Unix-like OS are you using?", os_list)
         
         gcc_bin = os.getenv("CC") or "gcc"
         gxx_bin = os.getenv("CXX") or "g++"
         try:
-            if not os_pick in ["centos-7", "macos"]: # The reason we ignore centos 7 and macos is that we're going to just use devtoolset-8/brew gcc anyway.            
-                gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
-                gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
-                if "clang" in gcc_ver_output.stdout.decode("utf-8") + gx_ver_output.stdout.decode("utf-8"):
+            if not os_pick in ["centos-7", "macos"]: # The reason we ignore centos 7 and macos is that we're going to just use devtoolset-8/brew gcc anyway.
+                all_output = ""
+                try:     
+                    gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
+                    all_output += gcc_ver_output.stdout.decode("utf8")
+                    gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
+                    all_output += gx_ver_output.stdout.decode("utf8")
+                except:
+                    pass
+                if "clang" in all_output:
                     print(textwrap.dedent(f"""\
                         We've detected that you're using Clang as your default C or C++ compiler.
                         Unfortunately, Clang is not compatible with some of the tools being
@@ -226,7 +225,34 @@ class Installer(object):
             if os_pick == "centos-7":
                 yum_packages = cat_all(join(openlane_dir, 'dependencies', 'centos-7')).strip().split("\n") 
 
-                sh("yum", "install", "-y", *yum_packages)
+                sh("yum", "install", "-y", *yum_packages, root="retry")
+            if os_pick == "arch":
+                raw = cat_all(join(openlane_dir, 'dependencies', 'arch')).strip().split("\n")
+
+                arch_packages = []
+                aur_packages = []
+
+                for entry in raw:
+                    if entry.strip() == "":
+                        continue
+
+                    if entry.startswith("https://"):
+                        aur_packages.append(entry)
+                    else:
+                        arch_packages.append(entry)
+
+
+                sh("pacman", "-S", "--noconfirm", "--needed", *arch_packages, root="retry")
+
+                temp_dir = tempfile.gettempdir()
+                oaur_path = os.path.join(temp_dir, "openlane_aur")
+                pathlib.Path(oaur_path).mkdir(parents=True, exist_ok=True)
+                with chdir(oaur_path):
+                    for package in aur_packages:
+                        sh("rm", "-rf", "current")
+                        sh("git", "clone", package, "current")
+                        with chdir("current"):
+                            sh("makepkg", "-si")
             if os_pick == "ubuntu-20.04":
                 raw = cat_all(join(openlane_dir, 'dependencies', 'ubuntu-20.04')).strip().split("\n")
 
@@ -234,16 +260,19 @@ class Installer(object):
                 apt_debs = []
 
                 for entry in raw:
+                    if entry.strip() == "":
+                        continue
+                    
                     if entry.startswith("https://"):
                         apt_debs.append(entry)
                     else:
                         apt_packages.append(entry)
-                sh("apt-get", "update", root=True)
-                sh("apt-get", "install", "-y", "curl", root=True)
+                sh("apt-get", "update", root="retry")
+                sh("apt-get", "install", "-y", "curl", root="retry")
                 for deb in apt_debs:
                     path = download(deb, "deb")
-                    sh("apt-get", "install", "-y", "-f", path, root=True)
-                sh("apt-get", "install", "-y", *apt_packages, root=True)
+                    sh("apt-get", "install", "-y", "-f", path, root="retry")
+                sh("apt-get", "install", "-y", *apt_packages, root="retry")
 
         print("To re-run with the same options: ")
         print(f"{' '.join(['%s=%s' % env for env in self.envs])} python3 {__file__}")
@@ -297,17 +326,27 @@ class Installer(object):
             copy("flow.tcl")
             copy("dependencies/")
 
+            print("Building Python virtual environment...")
+            venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
+            venv_builder.create("./venv")
+            
+            subprocess.run([
+                "bash", "-c", f"""
+                    source ./venv/bin/activate
+                    python3 -m pip install -r ./dependencies/python/compile_time.txt
+                """
+            ])
+
             print("Installing dependencies...")
             with chdir("build"):
                 for folder in ["repos", "versions"]:
                     sh("mkdir", "-p", folder)
                     
-                skip_tools = (os.getenv("SKIP_TOOLS") or "").split(':')
-                print(skip_tools)
+                skip_tools = re.compile(os.getenv("SKIP_TOOLS") or "Unmatchable")
                 for tool in tools.values():
                     if not tool.in_install:
                         continue
-                    if tool.name in skip_tools:
+                    if skip_tools.match(tool.name) is not None:
                         continue
                     installed_version = ""
                     version_path = f"versions/{tool.name}"
@@ -315,7 +354,7 @@ class Installer(object):
                         installed_version = open(version_path).read()
                     except:
                         pass
-                    if installed_version == tool.version_string:
+                    if installed_version == tool.version_string and os.getenv("FORCE_REINSTALL") != "1":
                         print(f"{tool.version_string} already installed, skipping...")
                         continue
                     
@@ -330,7 +369,11 @@ class Installer(object):
                             sh("git", "submodule", "update", "--init")
                             sh("git", "checkout", tool.commit)
                             subprocess.run([
-                                "bash", "-c", tool.build_script
+                                "bash", "-c", f"""\
+                                    set -e
+                                    source {install_dir}/venv/bin/activate
+                                    {tool.build_script}
+                                """
                             ], env=run_env, check=True)
 
                     with open(version_path, "w") as f:
@@ -338,7 +381,8 @@ class Installer(object):
 
             path_elements.reverse()
             with open("openlane", "w") as f:
-                f.write(f"""#!/bin/bash
+                f.write(textwrap.dedent(f"""\
+                #!/bin/bash
                 OL_DIR="$(dirname "$(test -L "$0" && readlink "$0" || echo "$0")")"
 
                 export PATH={":".join(path_elements)}
@@ -346,8 +390,10 @@ class Installer(object):
                 FLOW_TCL=${{FLOW_TCL:-$OL_DIR/flow.tcl}}
                 FLOW_TCL=$(realpath $FLOW_TCL)
 
+                source $OL_DIR/venv/bin/activate
+
                 tclsh $FLOW_TCL $@
-                """)
+                """))
             sh("chmod", "+x", "./openlane")
 
             with open("installed_version", "w") as f:

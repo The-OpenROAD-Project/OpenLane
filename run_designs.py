@@ -90,7 +90,7 @@ parser.add_argument(
     "-html",
     action="store_true",
     default=False,
-    help="An option to extract an html summary of the final csv summary",
+    help="An option to extract an html summary of the final csv summary (Deprecated)",
 )
 parser.add_argument(
     "--defaultTestSet",
@@ -531,20 +531,7 @@ best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".
 subprocess.check_output(best_result_cmd.split())
 
 if args.htmlExtract:
-    log.info("Creating HTML report...")
-    csv2html_result_cmd = (
-        "python3 ./scripts/csv2html/csv2html.py -i {input} -o {output}".format(
-            input=report_file_name + ".csv", output=report_file_name + ".html"
-        )
-    )
-    subprocess.check_output(csv2html_result_cmd.split())
-
-    csv2besthtml_result_cmd = (
-        "python3 ./scripts/csv2html/csv2html.py -i {input} -o {output}".format(
-            input=report_file_name + "_best.csv", output=report_file_name + "_best.html"
-        )
-    )
-    subprocess.check_output(csv2besthtml_result_cmd.split())
+    log.warn("htmlExtract is deprecated.")
 
 utils.addComputedStatistics(report_file_name + ".csv")
 
