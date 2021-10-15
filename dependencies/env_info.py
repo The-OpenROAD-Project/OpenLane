@@ -64,7 +64,7 @@ class ContainerInfo(StringRepresentable):
                         cinfo.engine = "podman"
 
                         cinfo.version = info["version"]["Version"]
-            elif info.get("Docker Root Dir") is not None:
+            elif info.get("Docker Root Dir") is not None or info.get("DockerRootDir") is not None:
                 cinfo.engine = "docker"
 
                 # Get Version
