@@ -10,7 +10,7 @@ At its core, OpenLane is a set of scripts working with a set of tools. If you'd 
 # Tool Library
 You can run `python3 ./env.py list-tools` for a list. There are at least a dozen tools to install here. Luckily, you don't have to install them all one-by-one: There is an installation script that installs most of them.
 
-You can invoke `python3 ./env.py --local-install`. This tool copies the skeleton and installs all the tools to a directory of your choice, which is by default, `/usr/local/opt/openlane`. Furthermore, if you are on CentOS 7, macOS or Ubuntu 20.04, the installer will offer to install all the required apt, yum or brew packages for you.
+You can invoke `python3 ./env.py local-install`. This tool copies the skeleton and installs all the tools to a directory of your choice, which is by default, `/usr/local/opt/openlane`. Furthermore, if you are on CentOS 7, macOS or Ubuntu 20.04, the installer will offer to install all the required apt, yum or brew packages for you.
 
 On macOS, it may be prudent to invoke it as `SKIP_TOOLS=drcu:cugr python3 ./ol_install.py` instead, as these tools are a nightmare to compile on macOS.
 
