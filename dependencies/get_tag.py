@@ -25,8 +25,10 @@ def get_tag() -> str:
     try:
         process_data: subprocess.CompletedProcess = subprocess.run(["git", "describe", "--tags", "--abbrev=0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if process_data.returncode != 0:
-            raise NoGitException(f"You do not appear to be running OpenLane through a Git repository. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}")
+            raise NoGitException(f"Cannot find any tags. You are either using a shallow clone or not using a Git repository at all. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}")
         return process_data.stdout.decode('utf8').strip()
+    except NoGitException as e:
+        raise e
     except Exception as e:
         raise Exception(f"An unexpected error has occurred when trying to find the OpenLane version: {e}.")
 
