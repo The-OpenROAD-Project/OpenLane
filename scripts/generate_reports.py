@@ -17,10 +17,10 @@
 import argparse
 import os
 import re
-import scripts.utils.utils as utils
-from scripts.report.report import Report
-from scripts.config.config import ConfigHandler
-from scripts.report.get_file_name import get_name
+import utils.utils as utils
+from config.config import ConfigHandler
+from report.report import Report
+from report.get_file_name import get_name
 
 parser = argparse.ArgumentParser(
     description="Creates manufacturability and runtime summary reports for a given design and OpenLane run."

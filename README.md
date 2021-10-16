@@ -142,7 +142,7 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
-    - Default OPENLANE_IMAGE_NAME is efabless/openlane:current. If you want to use a different version, run the following before `make mount`:
+    - Default OPENLANE_IMAGE_NAME is dynamically obtained using your current git version. If you want to use a specific image, run the following before `make mount`:
         ```bash
         export OPENLANE_IMAGE_NAME=<docker image name>
         ```

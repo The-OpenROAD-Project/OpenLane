@@ -25,7 +25,7 @@ DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./scripts/get_docker_config.py)
+DOCKER_UID_OPTIONS = $(shell python3 ./env.py docker-config)
 DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= 1
@@ -40,8 +40,13 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
+ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+ifneq ($(OPENLANE_TAG),)
 OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
+endif
+endif
+
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
@@ -179,7 +184,6 @@ regression:
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
 			--defaultTestSet\
-			--htmlExtract\
 			--tag $(REGRESSION_TAG)\
 			--threads $(THREADS)\
 			--print $(PRINT_REM_DESIGNS_TIME)\

@@ -15,11 +15,12 @@
 import os
 import subprocess
 import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 from shutil import copyfile
-from ..utils.utils import *
+from utils.utils import *
 from collections import OrderedDict
-
-
 
 class ConfigHandler:
     config_getter_script = os.path.join(os.path.dirname(__file__), "config_get.sh")

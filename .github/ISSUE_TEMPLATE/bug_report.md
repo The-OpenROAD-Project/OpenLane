@@ -11,10 +11,13 @@ assignees: ''
 A clear and concise description of what the bug is.
 
 ### Environment
-* Operating System Information: `uname -a`
-* Docker Version: `docker --version`
-    * If you're using an alternative container service, please also include this information.
-* OpenLane Tag in use: `python3 ./dependencies/get_tag.py` in the main OpenLane directory.
+```
+Please run the following command in the OpenLane folder:
+
+python3 ./env.py issue-survey
+
+And copy and paste the ENTIRE output between the triple-backticks.
+```
 
 ### Reproduction Material
 * Upload a tarball containing the relevant design.

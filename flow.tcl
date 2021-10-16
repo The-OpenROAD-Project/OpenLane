@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -348,7 +348,7 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/installed_version} ::env(OPENLANE_VER
 
 puts_info "Version: $::env(OPENLANE_VERSION)"
 
-if [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
 	puts_warn $::env(VCHECK_OUTPUT)
 	puts_warn "OpenLane may not function properly."
 }
