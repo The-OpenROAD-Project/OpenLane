@@ -5,7 +5,7 @@ At its core, OpenLane is a set of scripts working with a set of tools. If you'd 
 
 # Base Requirements
 * Python 3.6+ with PIP
-* pyyaml: `python3 -m pip install pyyaml`
+* pyyaml, venv: `python3 -m pip install pyyaml venv`
 
 # Tool Library
 You can run `python3 ./env.py list-tools` for a list. There are at least a dozen tools to install here. Luckily, you don't have to install them all one-by-one: There is an installation script that installs most of them.
