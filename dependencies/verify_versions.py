@@ -175,7 +175,7 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
 if __name__ == "__main__":
     try:
         mismatches = verify_versions(no_tools=False)
-        sys.exit(os.EX_OK if mismatches else os.EX_CONFIG)
+        sys.exit(os.EX_CONFIG if mismatches else os.EX_OK)
     except Exception as e:
         print(f"{e}")
         sys.exit(os.EX_UNAVAILABLE)
