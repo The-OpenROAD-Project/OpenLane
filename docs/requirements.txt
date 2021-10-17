@@ -1,5 +1,4 @@
-git+https://github.com/SymbiFlow/sphinx_materialdesign_theme.git#egg=sphinx-symbiflow-theme
-
+furo
 docutils
 sphinx
 sphinx-autobuild
