@@ -14,28 +14,20 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+# Yes, it needs to be in this directory. Don't try to move it.
+# Yes, it needs to be called conf.py
+
 
 # -- Path setup --------------------------------------------------------------
-
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-#
 import os
 import sys
-# sys.path.insert(0, os.path.abspath('.'))
 from recommonmark.parser import CommonMarkParser
 sys.path.insert(0, os.path.abspath('docs/_ext'))
 
 # -- Project information -----------------------------------------------------
-
-project = 'OpenLANE'
-copyright = '2020, efabless'
-author = 'efabless'
+project = 'OpenLane'
+copyright = '2020-2021 Efabless Corporation'
+author = 'Efabless Corporation'
 
 
 # -- General configuration ---------------------------------------------------
@@ -45,12 +37,16 @@ author = 'efabless'
 # ones.
 extensions = [
   'sphinx.ext.todo',
-  'markdown_code_links',
-  'markdown_cross_doc_section_links',
+
+  'markdown_code_links', # CUSTOM
+  'markdown_cross_doc_section_links', # CUSTOM
+
   'sphinx.ext.autosectionlabel',
   'sphinx_markdown_tables',
-  'image_links',
-  'toc_from_markdown',
+
+  'image_links', # CUSTOM
+  'toc_from_markdown', # CUSTOM
+
   'recommonmark',
 ]
 
@@ -88,75 +84,25 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_title = 'OpenLane Documentation'
+
+html_theme = 'furo'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
-# artifact sphinx_symbiflow_theme configs
-"""
-html_theme_options = {
-    # Specify a list of menu in Header.
-    # Tuples forms:
-    #  ('Name', 'external url or path of pages in the document', boolean, 'icon name')
-    #
-    # Third argument:
-    # True indicates an external link.
-    # False indicates path of pages in the document.
-    #
-    # Fourth argument:
-    # Specify the icon name.
-    # For details see link.
-    # https://material.io/icons/
-    'header_links': [
-        ('Home', 'index', False, 'home'),
-        ("GitHub", "https://github.com/efabless/openlane", True, 'code'),
-        ("efabless", "https://www.efabless.com/", True, 'link'),
-    ],
-
-    # Customize css colors.
-    # For details see link.
-    # https://getmdl.io/customize/index.html
-    #
-    # Values: amber, blue, brown, cyan deep_orange, deep_purple, green, grey, indigo, light_blue,
-    #         light_green, lime, orange, pink, purple, red, teal, yellow(Default: indigo)
-    'primary_color': 'deep_purple',
-    # Values: Same as primary_color. (Default: pink)
-    'accent_color': 'teal',
-
-    # Customize layout.
-    # For details see link.
-    # https://getmdl.io/components/index.html#layout-section
-    'fixed_drawer': True,
-    'fixed_header': True,
-    'header_waterfall': True,
-    'header_scroll': False,
-
-    # Render title in header.
-    # Values: True, False (Default: False)
-    'show_header_title': False,
-    # Render title in drawer.
-    # Values: True, False (Default: True)
-    'show_drawer_title': True,
-    # Render footer.
-    # Values: True, False (Default: True)
-    'show_footer': True,
-
-    # Hide the symbiflow links
-    'hide_symbiflow_links': True,
-    'license_url' : 'https://www.apache.org/licenses/LICENSE-2.0',
-}
-"""
+html_theme_options = {}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['docs/_static']
 
+html_sidebars = {}
+
 todo_include_todos = True
 numfig = True
-markdown_code_links_githubrepo   = 'https://github.com/efabless/openlane'
+markdown_code_links_githubrepo   = 'https://github.com/The-OpenROAD-Project/OpenLane'
 markdown_code_links_githubbranch = 'blob/master'
 markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '.sdc', '/', '.json', 'Makefile']
 autosectionlabel_prefix_document = True

@@ -16,6 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from util import debug
 
 def setup(app):
     app.connect('source-read', process_image_links)
@@ -33,11 +34,10 @@ def process_image_links(app, docname, source):
     linkexp = '<img src=\".*\"\s*>'
 
     for m in re.finditer(linkexp,source[0]):
-            print (f" IMAGE_LINKS {docname}")
             link = m.group(0).split('"')
             if len(link)==3 and link[1].startswith('.'):
                 link[1] = '_static/' + link[1].rpartition('/')[2]
                 link    = '"'.join(link)
-                print (f" {docname}: img link: {link}")
+                debug(f"[IMG] {docname}: {link}")
 
                 source[0] = source[0][:m.start()] + link + source[0][m.end():]

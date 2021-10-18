@@ -65,7 +65,7 @@ def get_design_name(design, config):
 
 # addComputedStatistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
 def addComputedStatistics(filename):
-    data = pd.read_csv(filename, error_bad_lines=False)
+    data = pd.read_csv(filename)
     df = pd.DataFrame(data)
 
     diearea_mm2_index = df.columns.get_loc("DIEAREA_mm^2")

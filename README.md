@@ -1,5 +1,5 @@
 # OpenLane
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=master)](https://openlane.readthedocs.io/en/master/?badge=master) ![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=latest)](https://openlane.readthedocs.io/en/master/?badge=master) [![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master)](#) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools)
 
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
@@ -36,7 +36,7 @@ At a minimum:
 - Docker 19.03.12+
 - GNU Make
 - Python 3.6+ with PIP
-- Click, Pyyaml: `pip3 install pyyaml click`
+- Click, Pyyaml: `python3 -m pip install pyyaml click`
 
 ## Containerless Install
 Please see [here](./docs/source/local_installs.md).
@@ -142,7 +142,7 @@ The easiest way to mount the proper directories into the docker container would 
         ```bash
         export PDK_ROOT=<absolute path to where skywater-pdk, open_pdks, and sky130A reside>
         ```
-    - Default OPENLANE_IMAGE_NAME is efabless/openlane:current. If you want to use a different version, run the following before `make mount`:
+    - Default OPENLANE_IMAGE_NAME is dynamically obtained using your current git version. If you want to use a specific image, run the following before `make mount`:
         ```bash
         export OPENLANE_IMAGE_NAME=<docker image name>
         ```

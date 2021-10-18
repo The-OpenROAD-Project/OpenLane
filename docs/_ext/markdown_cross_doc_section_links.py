@@ -16,6 +16,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import re
+from util import debug
 
 def setup(app):
     app.connect('source-read', process_markdown_crosslinks)
@@ -46,6 +47,6 @@ def process_markdown_crosslinks(app, docname, source):
        link = link.replace ('(','(<')    # change parenthesis
        link = link.replace (')','>)')    # change parenthesis
        link = link.replace ('.md#',':')  # change section symbol
-       print (f"Cross doc link conv {docname} : {m.group(0)} to {link}")
+       debug(f"[CDL] {docname}: {m.group(0)} to {link}")
        source[0] = source[0][:m.start()] + link + source[0][m.end():]
 

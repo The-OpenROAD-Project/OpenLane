@@ -12,11 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ..utils.utils import *
-from .get_file_name import get_name
-
 import os
+import sys
 from typing import Iterable, Optional
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from utils.utils import *
+from .get_file_name import get_name
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":

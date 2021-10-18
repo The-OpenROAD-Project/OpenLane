@@ -18,6 +18,7 @@
 import re
 import os
 import os.path as path
+from util import debug
 
 def setup(app):
     app.add_config_value('markdown_code_links_githubrepo', 'https://github.com/name/repo', 'html')
@@ -44,10 +45,6 @@ def local_link_to_github (link, docname, githublink):
     # combine with repo link
     link = githublink.rstrip('/') + '/' + link.lstrip('/')
     return link
-
-def printv (verb, lvl, arg):
-    ''' Print depending on verbose level '''
-    if verb >= lvl: print (arg)
 
 def process_image_links(app, docname, source):
     """
@@ -84,7 +81,7 @@ def process_image_links(app, docname, source):
 
         linkexp = linknameexp1 + linktargetexp1.format(fileext=fileext)
         for m in reversed(list( re.finditer( linkexp, source[0]) )):
-                printv (verb, 1, f"Code link conv {docname} : {m.group(0)}")
+                debug(f"[CL] {docname}: {m.group(0)}")
                 # strip link
                 link = m.group(0).partition('(')[2].rpartition(')')[0]
                 # dirs require verification
@@ -92,12 +89,12 @@ def process_image_links(app, docname, source):
                     link = local_link_to_github (link, docname, githublink)
                     # combine with rest of markdown link
                     link = m.group(0).partition('(')[0] + '(' + link + ')'
-                    printv (verb, 2, link)
+                    debug(link)
                     source[0] = source[0][:m.start()] + link + source[0][m.end():]
 
         linkexp = linknameexp2 + linktargetexp2.format(fileext=fileext)
         for m in reversed(list( re.finditer(linkexp, source[0]) )):
-                printv (verb, 1, f"Code link conv {docname} : {m.group(0).strip()}")
+                debug(f"[CL] {docname}: {m.group(0).strip()}")
                 # strip link
                 link = m.group(0).rpartition(':')[2].strip()
                 # dirs require verification
@@ -105,6 +102,6 @@ def process_image_links(app, docname, source):
                     link = local_link_to_github (link, docname, githublink)
                     # combine with rest of markdown link
                     link = m.group(0).partition(':')[0] + ': ' + link.strip() + '\n'
-                    printv (verb, 2, link)
+                    debug(link)
                     source[0] = source[0][:m.start()] + link + source[0][m.end():]
 
