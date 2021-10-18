@@ -310,7 +310,7 @@ proc generate_final_summary_report {args} {
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
 
-        try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/generate_reports.py -d $::env(DESIGN_DIR) \
+        try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
 			--design_name $::env(DESIGN_NAME) \
 			--tag $::env(RUN_TAG) \
 			--output_file $arg_values(-output) \

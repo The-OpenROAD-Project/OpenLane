@@ -18,6 +18,7 @@
 import re
 import os
 import os.path as path
+from util import debug
 
 cleanup_on_finish_files = []
 
@@ -33,7 +34,7 @@ def setup(app):
 def after_build_cleanup (app, exception):
     for f in cleanup_on_finish_files:
         os.remove (path.join (app.srcdir, f))
-        print (f'Deleted {f}')
+        debug(f'[TOC] Deleted {f}.')
 
 def extract_markdown_links (file):
     ''' Extracts list of local markdown links from markdown file'''
@@ -58,7 +59,7 @@ def extract_markdown_links (file):
              link = m.group(0).rpartition(':')[2].strip()
              links.append (link)
     except:
-          print (f"Warning: Cannot process {file}")
+          debug(f"[TOC] Warning: Failed to process {file}.")
 
     return links
 
