@@ -360,7 +360,7 @@ proc prep {args} {
     }
 
     if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(PDKPATH)/libs.tech/openlane/common_pdn.tcl
+        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/or_pdn_cfg.tcl
     }
 
     # source PDK and SCL specific configurations
