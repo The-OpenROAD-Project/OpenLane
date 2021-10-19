@@ -15,10 +15,6 @@ set ::env(PL_TARGET_DENSITY) 0.5
 
 set ::env(PDN_CFG) $::env(DESIGN_DIR)/pdn.tcl
 
-# Disable timing checks temporarily till the design configurations are updated 
-# to tackle the timing violations 
-set ::env(QUIT_ON_TIMING_VIOLATIONS) 0
-
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename

@@ -71,6 +71,8 @@ detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
+estimate_parasitics -placement
+
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 if { [check_placement -verbose] } {

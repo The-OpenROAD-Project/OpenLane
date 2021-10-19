@@ -16,6 +16,9 @@ foreach lib $::env(LIB_RESIZER_OPT) {
     read_liberty $lib
 }
 
+read_liberty -max $::env(LIB_SLOWEST)
+read_liberty -min $::env(LIB_FASTEST)
+
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -43,7 +46,14 @@ global_route
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 estimate_parasitics -global_routing
 set_propagated_clock [all_clocks]
-repair_timing
+repair_timing -hold \
+              -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
+              -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)
+
+repair_timing -setup \
+              -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
+              -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)
+
 
 # set_placement_padding -global -right $::env(CELL_PAD)
 # set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0

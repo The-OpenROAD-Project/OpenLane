@@ -431,7 +431,7 @@ proc run_resizer_timing_routing {args} {
         TIMER::timer_start
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
             set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+            file copy -force $::env(LIB_SYNTH_COMPLETE) $::env(LIB_RESIZER_OPT)
         }
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
             gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list

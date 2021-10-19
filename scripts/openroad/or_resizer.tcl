@@ -15,6 +15,10 @@
 foreach lib $::env(LIB_RESIZER_OPT) {
     read_liberty $lib
 }
+
+read_liberty -max $::env(LIB_SLOWEST)
+read_liberty -min $::env(LIB_FASTEST)
+
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -47,9 +51,12 @@ if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BU
 }
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
-    repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH)
+    repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH) \
+                  -max_slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
+                  -max_cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 } else {
-    repair_design
+    repair_design -max_slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
+                  -max_cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 }
 
 report_floating_nets -verbose
