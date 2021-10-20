@@ -42,7 +42,7 @@ set ::env(KLAYOUT_XOR_GDS) 1
 set ::env(KLAYOUT_XOR_XML) 1
 
 set ::env(RUN_ROUTING_DETAILED) 1
-set ::env(RUN_SIMPLE_CTS) 0
+set ::env(RUN_SIMPLE_CTS) 1
 set ::env(CLOCK_PERIOD) "10.0"
 set ::env(RUN_KLAYOUT) 1
 set ::env(TAKE_LAYOUT_SCROT) 0

@@ -5,6 +5,7 @@ set ::env(DESIGN_NAME) inverter
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 
 # turn off clock
+set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_TREE_SYNTH) 0
 set ::env(CLOCK_PORT) ""
 
