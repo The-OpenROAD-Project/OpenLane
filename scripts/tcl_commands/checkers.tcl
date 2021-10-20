@@ -40,49 +40,100 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_timing_violations {args} {
+    set hold_setup_report $::env(opensta_report_file_tag)_spef.min_max.rpt
+    set slew_report $::env(opensta_report_file_tag)_spef.slew.rpt
+    set wns_report $::env(opensta_report_file_tag)_spef.wns.rpt
+
+    check_hold_setup_violations -report_file $hold_setup_report -corner "min_max" 
+    check_slew_violations -report_file $slew_report -corner "min_max" 
+    check_wns -report_file $wns_report -corner "min_max"
+
     if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
-        check_hold_setup_violations
-        check_slew_violations
-        check_wns
+        set hold_setup_report_tt $::env(opensta_report_file_tag)_spef_tt.min_max.rpt
+        set slew_report_tt $::env(opensta_report_file_tag)_spef_tt.slew.rpt
+        set wns_report_tt $::env(opensta_report_file_tag)_spef_tt.wns.rpt
+        check_hold_setup_violations -report_file $hold_setup_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_SETUP_VIOLATIONS)
+        check_slew_violations -report_file $slew_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_SLEW_VIOLATIONS)
+        check_wns -report_file $wns_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_NEGATIVE_WNS)
     }
 }
 
 proc check_hold_setup_violations {args} {
-    if { $::env(QUIT_ON_HOLD_SETUP_VIOLATIONS) } {
-        set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.min_max.rpt }]
-        if { ! $checker } {
-            puts_err "There are hold/setup violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.min_max.rpt."
+    set options {
+        {-report_file required}
+        {-corner required}
+        {-quit_on_vios optional}
+    }
+    parse_key_args "check_hold_setup_violations" args arg_values $options
+    set_if_unset arg_values(-quit_on_vios) 0
+    set report_file $arg_values(-report_file)
+    set quit_on_vios $arg_values(-quit_on_vios)
+    set corner $arg_values(-corner)
+
+    set checker [catch {exec grep "VIOLATED" $report_file }]
+    if { ! $checker } {
+        if { $quit_on_vios } {
+            puts_err "There are hold/setup violations in the design at the $corner corner. Please refer to $report_file."
             flow_fail
             return -code error
         } else {
-            puts_info "There are no hold/setup violations in the design"
+            puts_warn "There are hold/setup violations in the design at the $corner corner. Please refer to $report_file."
         }
+    } else {
+        puts_info "There are no hold/setup violations in the design at the $corner corner."
     }
 }
 
 proc check_slew_violations {args} {
-    if { $::env(QUIT_ON_SLEW_VIOLATIONS) } {
-        set checker [catch {exec grep "VIOLATED" $::env(opensta_report_file_tag)_spef.slew.rpt }]
-        if { ! $checker } {
-            puts_err "There are max slew violations in the design. Please refer to $::env(opensta_report_file_tag)_spef.slew.rpt"
+    set options {
+        {-report_file required}
+        {-corner required}
+        {-quit_on_vios optional}
+    }
+    parse_key_args "check_slew_violations" args arg_values $options
+    set_if_unset arg_values(-quit_on_vios) 0
+    set report_file $arg_values(-report_file)
+    set quit_on_vios $arg_values(-quit_on_vios)
+    set corner $arg_values(-corner)
+
+    set checker [catch {exec grep "VIOLATED" $report_file }]
+    if { ! $checker } {
+        if { $quit_on_vios } {
+            puts_err "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
             flow_fail
             return -code error
         } else {
-            puts_info "There are no max slew violations in the design"
+            puts_warn "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
         }
+    } else {
+        puts_info "There are no max slew violations in the design at the $corner corner."
     }
 }
 
 proc check_wns {args} {
-    if { $::env(QUIT_ON_NEGATIVE_WNS) } {
-        set checker [catch {exec grep "-" $::env(opensta_report_file_tag)_spef.wns.rpt }]
-        if { ! $checker } {
-            puts_err "wns is negative. Please refer to $::env(opensta_report_file_tag)_spef.wns.rpt"
+    set options {
+        {-report_file required}
+        {-corner required}
+        {-quit_on_vios optional}
+    }
+
+    parse_key_args "check_wns" args arg_values $options
+    set_if_unset arg_values(-quit_on_vios) 0
+    set report_file $arg_values(-report_file)
+    set quit_on_vios $arg_values(-quit_on_vios)
+    set corner $arg_values(-corner)
+    
+    set checker [catch {exec grep "-" $report_file }]
+    if { ! $checker } {
+        if { $quit_on_vios } {
+            puts_err "wns is negative at the $corner corner. Please refer to $report_file"
             flow_fail
             return -code error
         } else {
-            puts_info "wns is positive"
+            puts_warn "wns is negative at the $corner corner. Please refer to $report_file"
         }
+    } else {
+        puts_info "wns is positive at the $corner corner."
     }
 }
 

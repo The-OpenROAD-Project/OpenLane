@@ -352,12 +352,15 @@ proc run_spef_extraction {args} {
 		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
-        # Static Timing Analysis using the extracted SPEF
+        # Static Timing Analysis using the extracted SPEF on the min max / typical corners 
         set report_tag_holder $::env(opensta_report_file_tag)
         set log_tag_holder $::env(opensta_log_file_tag)
         set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef
         set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
         run_sta
+		set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_tt
+        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_tt
+        run_sta -use_typical_corner
         set ::env(opensta_report_file_tag) $report_tag_holder
         set ::env(opensta_log_file_tag) $log_tag_holder
     }

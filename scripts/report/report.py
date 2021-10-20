@@ -254,6 +254,16 @@ class Report(object):
             ("opensta_spef.slew.rpt", "check_slew")
         )
 
+        sta_spef_tt_log = Artifact(rp, "logs", "synthesis", "opensta_spef_tt")
+        sta_spef_tt_log.generate_reports(
+            ("opensta_spef_tt.rpt", "check_report"),
+            ("opensta_spef_tt.timing.rpt", "timing_report"),
+            ("opensta_spef_tt.min_max.rpt", "min_max_report"),
+            ("opensta_spef_wns_tt.rpt", "wns_report"),
+            ("opensta_spef_tns_tt.rpt", "tns_report"),
+            ("opensta_spef_tt.slew.rpt", "check_slew")
+        )
+
     def extract_all_values(self):
         rp = self.run_path
         self.reports_from_logs()
