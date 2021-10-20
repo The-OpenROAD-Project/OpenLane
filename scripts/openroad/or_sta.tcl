@@ -19,8 +19,13 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-read_liberty -min $::env(LIB_FASTEST)
-read_liberty -max $::env(LIB_SLOWEST)
+if $::env(USE_TYPICAL_CORNER) {
+    read_liberty $::env(LIB_SYNTH_COMPLETE)
+} else {
+    read_liberty -min $::env(LIB_FASTEST)
+    read_liberty -max $::env(LIB_SLOWEST)
+}
+
 read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)
 if { [info exists ::env(CURRENT_SPEF)] } {
@@ -41,6 +46,9 @@ puts "min_max_report_end"
 puts "check_slew"
 report_check_types -max_slew -max_capacitance -max_fanout -violators > $::env(opensta_report_file_tag).slew.rpt
 puts "check_slew_end"
+puts "clock_skew_report"
+report_clock_skew > $::env(opensta_report_file_tag)_clock_skew.rpt
+puts "clock_skew_report_end"
 puts "wns_report"
 report_wns
 puts "wns_report_end"
