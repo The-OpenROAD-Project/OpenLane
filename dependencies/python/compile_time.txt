@@ -1,5 +1,2 @@
-pip
-wheel
 cmake
 pyinstaller
--r ./run_time.txt

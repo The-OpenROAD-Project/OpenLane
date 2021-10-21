@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,40 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+FROM openlane-build-base
 
-# syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos7 as build
-
-# Common development tools and libraries (kitchen sink approach)
-RUN yum groupinstall -y "Development Tools"
-RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-8 devtoolset-8-libatomic-devel
-
-# python 3.6
-RUN yum install -y https://repo.ius.io/ius-release-el7.rpm
-RUN yum install -y python36u python36u-libs python36u-devel python36u-pip python36u-tkinter
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
-
-# magic dependencies
-RUN yum install -y mesa-libGLU-devel csh wget tcl-devel tk-devel libX11-devel cairo-devel ncurses-devel
-
-# git clone magic components
 # Upstream is git://opencircuitdesign.com/magic, but servers are not stable enough for CI.
 ARG MAGIC_REPO=https://github.com/rtimothyedwards/magic
 ARG MAGIC_COMMIT=958d6f16701c1ee25e27440381b5c2c37b5fee7c
-RUN git clone ${MAGIC_REPO} magic_21012020
 
-WORKDIR magic_21012020
-
-RUN git checkout ${MAGIC_COMMIT}
-
-# build
-RUN ./configure --prefix=/build && \
+WORKDIR /magic
+RUN curl -L ${MAGIC_REPO}/tarball/${MAGIC_COMMIT} | tar -xzC . --strip-components=1 && \
+    ./configure --prefix=/build && \
     make -j$(nproc) && \
     make install
 
 RUN mkdir -p /build/version/
-
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/magic.version
-RUN git rev-parse HEAD >> /build/version/magic.version
+RUN echo ${MAGIC_COMMIT} >> /build/version/magic.version
 RUN tar -czf /build.tar.gz /build

@@ -1,7 +1,5 @@
-https://repo.ius.io/ius-release-el7.rpm
 https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
 
-centos-release-scl
 devtoolset-8
 devtoolset-8-libatomic-devel
 
@@ -36,6 +34,7 @@ libffi-devel
 libgomp
 libjpeg-turbo-devel
 libstdc++
+libstdc++-static
 libxml2-devel
 libxslt-devel
 make
@@ -65,6 +64,5 @@ tk-devel
 vim-common
 wget
 which
-xdot
 zlib-devel
 zlib-static

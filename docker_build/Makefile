@@ -1,6 +1,6 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm
-DOCKERFILE_PATH ?= ./Dockerfile
+DOCKERFILE_PATH ?= ./docker/openlane/Dockerfile
 OPENLANE_IMAGE_NAME ?= efabless/openlane:current
 #ROOT = sudo
 
@@ -14,7 +14,16 @@ TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 build-all: $(TOOL_BUILD_TARGETS) export-all
 
-$(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile
+base_image: ./docker/base/Dockerfile
+	cat ../dependencies/centos-7/precompile_time.txt > ./docker/base/yum_precompile_dependencies.txt
+	cat ../dependencies/centos-7/compile_time.txt > ./docker/base/yum_compile_dependencies.txt
+	cat ../dependencies/centos-7/run_time.txt > ./docker/base/yum_dependencies.txt
+	cat ../dependencies/python/precompile_time.txt > ./docker/base/pip_precompile_dependencies.txt
+	cat ../dependencies/python/compile_time.txt > ./docker/base/pip_compile_dependencies.txt
+	cat ../dependencies/python/run_time.txt > ./docker/base/pip_dependencies.txt
+	docker build $(DOCKER_BUILD_OPTS) -t openlane-build-base docker/base | tee logs/docker/base.build.txt
+
+$(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile base_image
 	mkdir -p logs/docker
 	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* docker/$* | tee logs/docker/$*.build.txt
 	${MAKE} export-$*

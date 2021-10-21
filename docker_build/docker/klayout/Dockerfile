@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Common development tools and libraries (kitchen sink approach)
-FROM centos:centos7 as build
+FROM centos:centos7
 
 # wget
 RUN yum install -y wget && \
