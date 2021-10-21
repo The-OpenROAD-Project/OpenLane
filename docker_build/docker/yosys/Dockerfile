@@ -41,7 +41,7 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
 # https://github.com/YosysHQ/yosys/issues/332
 RUN yum install -y wget autoconf && \
-    wget https://ftp.gnu.org/gnu/bison/bison-3.0.1.tar.gz && \
+    wget --no-check-certificate https://ftp.gnu.org/gnu/bison/bison-3.0.1.tar.gz && \
     tar -xvzf bison-3.0.1.tar.gz && \
     cd bison-3.0.1 && \
     ./configure && \

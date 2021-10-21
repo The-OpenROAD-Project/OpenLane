@@ -34,7 +34,7 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
 
 # update bison
 RUN yum -y remove bison
-RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
+RUN wget --no-check-certificate https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
     tar -xvzf bison-3.0.5.tar.gz
 RUN cd bison-3.0.5 && \
     ./configure --prefix=/usr && \

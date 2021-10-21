@@ -22,7 +22,7 @@ RUN yum install -y wget && \
 # klayout
 RUN mkdir /build
 WORKDIR /build
-RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
+RUN wget --no-check-certificate https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
 
 
 RUN mkdir -p /build/version/

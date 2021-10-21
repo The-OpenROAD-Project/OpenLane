@@ -41,7 +41,7 @@ RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
 
 # update bison
 RUN yum -y remove bison
-RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
+RUN wget --no-check-certificate https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
     tar -xvzf bison-3.0.5.tar.gz
 RUN cd bison-3.0.5 && \
     ./configure --prefix=/usr && \
@@ -59,7 +59,7 @@ RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm 
 RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel
 
 # build boost
-RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
+RUN wget --no-check-certificate https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
     tar -xf download && \
     cd boost_1_72_0 && \
     ./bootstrap.sh && \
