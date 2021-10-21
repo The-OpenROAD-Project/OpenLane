@@ -44,16 +44,17 @@ proc check_timing_violations {args} {
     set slew_report $::env(opensta_report_file_tag)_spef.slew.rpt
     set wns_report $::env(opensta_report_file_tag)_spef.wns.rpt
 
+    set hold_setup_report_tt $::env(opensta_report_file_tag)_spef_tt.min_max.rpt
+    set slew_report_tt $::env(opensta_report_file_tag)_spef_tt.slew.rpt
+    set wns_report_tt $::env(opensta_report_file_tag)_spef_tt.wns.rpt
+
     check_hold_setup_violations -report_file $hold_setup_report -corner "min_max" 
     check_slew_violations -report_file $slew_report -corner "min_max" 
+    check_slew_violations -report_file $slew_report_tt -corner "typical" 
     check_wns -report_file $wns_report -corner "min_max"
 
     if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
-        set hold_setup_report_tt $::env(opensta_report_file_tag)_spef_tt.min_max.rpt
-        set slew_report_tt $::env(opensta_report_file_tag)_spef_tt.slew.rpt
-        set wns_report_tt $::env(opensta_report_file_tag)_spef_tt.wns.rpt
         check_hold_setup_violations -report_file $hold_setup_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_SETUP_VIOLATIONS)
-        check_slew_violations -report_file $slew_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_SLEW_VIOLATIONS)
         check_wns -report_file $wns_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_NEGATIVE_WNS)
     }
 }
