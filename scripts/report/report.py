@@ -290,7 +290,7 @@ class Report(object):
         total_runtime = -1
         try:
             total_runtime_content = open(os.path.join(rp, "reports", "total_runtime.txt")).read().strip()
-            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-]+)\s+in\s+(\w+)", total_runtime_content)
+            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-\.]+)\s+in\s+(\w+)", total_runtime_content)
             if match is not None:
                 flow_status = re.sub(r" ", "_", match[1])
                 total_runtime = match[4]
