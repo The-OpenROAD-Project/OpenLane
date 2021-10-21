@@ -87,16 +87,16 @@ if {[info exists ::env(CLOCK_PORT)]} {
         read_liberty -min $::env(LIB_FASTEST)
 
         puts "check_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(cts_report_file_tag).rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01
         puts "check_report_end"
         puts "timing_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(cts_report_file_tag).timing.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100
         puts "timing_report_end"
         puts "min_max_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(cts_report_file_tag).min_max.rpt
+        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max
         puts "min_max_report_end"
         puts "clock_skew_report"
-        report_clock_skew > $::env(cts_report_file_tag)_clock_skew.rpt
+        report_clock_skew
         puts "clock_skew_report_end"
         puts "wns_report"
         report_wns

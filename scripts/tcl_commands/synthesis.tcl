@@ -85,20 +85,24 @@ proc run_yosys {args} {
 
 proc run_sta {args} {
     puts_info "Running Static Timing Analysis..."
+	set options {}
+	set flags {
+		-use_typical_corner
+	}
+	parse_key_args "run_sta" args arg_values $options flags_map $flags 
+	set ::env(USE_TYPICAL_CORNER) [info exists flags_map(-use_typical_corner)] 
 	TIMER::timer_start
-    if {[info exists ::env(CLOCK_PORT)]} {
+	if {[info exists ::env(CLOCK_PORT)]} {
 		set report_tag_saver $::env(opensta_report_file_tag)
 		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
-
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
-
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta.tcl \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opensta_log_file_tag) 0]
 		set ::env(opensta_report_file_tag) $report_tag_saver
-    } else {
-        puts_warn "No CLOCK_PORT found. Skipping STA..."
-    }
+	} else {
+		puts_warn "No CLOCK_PORT found. Skipping STA..."
+	}
 	TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opensta_log_file_tag)_runtime.txt 0]
+	exec echo "[TIMER::get_runtime]" >> [index_file $::env(opensta_log_file_tag)_runtime.txt 0]
 }
 
 proc run_synth_exploration {args} {

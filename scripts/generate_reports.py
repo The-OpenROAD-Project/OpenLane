@@ -32,18 +32,18 @@ parser.add_argument("--design_name", "-n", required=True, help="Design Name")
 
 parser.add_argument("--tag", "-t", required=True, help="Run Tag")
 
-parser.add_argument("--run_path", "-r", default=None, help="Run Path")
+parser.add_argument("--run_path", "-r", default=None, help="Run Path [Optional, otherwise derived from tag")
 
 parser.add_argument(
     "--output_file", "-o", required=True, help="Output Final Summary Report"
 )
 
 parser.add_argument(
-    "--man_report", "-m", required=True, help="Output Manufacturability Reports"
+    "--man_report", "-m", default="/dev/null", help="Output Manufacturability Reports"
 )
 
 parser.add_argument(
-    "--runtime_summary", "-s", required=True, help="Output Runtime Summary Reports"
+    "--runtime_summary", "-s", default="/dev/null", help="Output Runtime Summary Reports"
 )
 
 args = parser.parse_args()

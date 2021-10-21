@@ -9,10 +9,6 @@ set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 
 set ::env(FP_PDN_IRDROP) 1
 
-# Disable timing checks temporarily till the design configurations are updated 
-# to tackle the timing violations 
-set ::env(QUIT_ON_TIMING_VIOLATIONS) 0
-
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename

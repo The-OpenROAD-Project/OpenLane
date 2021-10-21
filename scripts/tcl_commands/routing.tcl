@@ -341,25 +341,28 @@ proc add_route_obs {args} {
 
 proc run_spef_extraction {args} {
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
-        puts_info "Running SPEF Extraction..."
+		puts_info "Running SPEF Extraction..."
 		TIMER::timer_start
 		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
 			set ::env(MPLCONFIGDIR) /tmp
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		} else {
-		    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		}
 		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
-        # Static Timing Analysis using the extracted SPEF
-        set report_tag_holder $::env(opensta_report_file_tag)
-        set log_tag_holder $::env(opensta_log_file_tag)
-        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef
-        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
-        run_sta
-        set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder
+		# Static Timing Analysis using the extracted SPEF on the min max / typical corners 
+		set report_tag_holder $::env(opensta_report_file_tag)
+		set log_tag_holder $::env(opensta_log_file_tag)
+		set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef
+		set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
+		run_sta
+		set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_tt
+		set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_tt
+		run_sta -use_typical_corner
+		set ::env(opensta_report_file_tag) $report_tag_holder
+		set ::env(opensta_log_file_tag) $log_tag_holder
     }
 }
 
