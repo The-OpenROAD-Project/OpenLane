@@ -94,6 +94,8 @@ ADD ./openroad_tools.tar.gz /
 COPY ./.tclshrc /
 COPY ./.tclshrc /root
 
+ADD pdks /pdks
+
 ADD ./openLANE_flow.tar.gz $OPENLANE_ROOT
 
 WORKDIR $OPENLANE_ROOT
