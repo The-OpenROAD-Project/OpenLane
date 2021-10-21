@@ -25,20 +25,31 @@ def debug(*args, **kwargs):
         print(*args, **kwargs)
 
 def parse_to_report(input_log: str, output_report: str, start: str, end: Optional[str] = None):
+    """
+    Parses a log in the format
+    START_MARKER
+    data
+    END_MARKER
+    to a report file.
+    """
     if end is None:
         end = f"{start}_end"
 
-    with open(input_log) as log:
-        with open(output_report, "w") as rep:
-            content = log.read()
-            try:
-                start_point = content.index(start)
-                end_point = content.index(end)
-                log.seek(start_point)
-                data = log.read(end_point - start_point)
-                rep.write(data)
-            except:
-                rep.write("SKIPPED!")
+    log_lines = open(input_log).read().split("\n")
+
+    with open(output_report, "w") as f:
+        started = False
+
+        for line in log_lines:
+            if line.strip() == end:
+                break
+            if started:
+                f.write(line)
+            if line.strip() == start:
+                started = True
+
+        if not started:
+            f.write("SKIPPED!")
 
 class Artifact(object):
     def __init__(self, run_path: str, kind: str, step: str, filename: str, find_by_partial_match: bool = False):
@@ -72,7 +83,7 @@ class Artifact(object):
         report_path = os.path.join(self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
             with open(report_path, "w") as f:
-                f.write(f"{self.filename} not found or empty.")
+                f.write(f"{self.step}:{self.filename} not found or empty.")
             return
         parse_to_report(self.path, report_path, start, end)
 
@@ -226,22 +237,22 @@ class Report(object):
 
         sta_post_resizer_timing_log = Artifact(rp, "logs", "synthesis", "opensta_post_resizer_timing")
         sta_post_resizer_timing_log.generate_reports(
-            ("sta_post_resizer_timing.rpt", "check_report"),
-            ("sta_post_resizer_timing.timing.rpt", "timing_report"),
-            ("sta_post_resizer_timing.min_max.rpt", "min_max_report"),
-            ("sta_post_resizer_timing_wns.rpt", "wns_report"),
-            ("sta_post_resizer_timing_tns.rpt", "tns_report"),
-            ("sta_post_resizer_timing.slew.rpt", "check_slew")
+            ("opensta_post_resizer_timing.rpt", "check_report"),
+            ("opensta_post_resizer_timing.timing.rpt", "timing_report"),
+            ("opensta_post_resizer_timing.min_max.rpt", "min_max_report"),
+            ("opensta_post_resizer_timing_wns.rpt", "wns_report"),
+            ("opensta_post_resizer_timing_tns.rpt", "tns_report"),
+            ("opensta_post_resizer_timing.slew.rpt", "check_slew")
         )
 
         sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "synthesis", "opensta_post_resizer_routing_timing")
         sta_post_resizer_routing_timing_log.generate_reports(
-            ("sta_post_resizer_routing_timing.rpt", "check_report"),
-            ("sta_post_resizer_routing_timing.timing.rpt", "timing_report"),
-            ("sta_post_resizer_routing_timing.min_max.rpt", "min_max_report"),
-            ("sta_post_resizer_routing_timing_wns.rpt", "wns_report"),
-            ("sta_post_resizer_routing_timing_tns.rpt", "tns_report"),
-            ("sta_post_resizer_routing_timing.slew.rpt", "check_slew")
+            ("opensta_post_resizer_routing_timing.rpt", "check_report"),
+            ("opensta_post_resizer_routing_timing.timing.rpt", "timing_report"),
+            ("opensta_post_resizer_routing_timing.min_max.rpt", "min_max_report"),
+            ("opensta_post_resizer_routing_timing_wns.rpt", "wns_report"),
+            ("opensta_post_resizer_routing_timing_tns.rpt", "tns_report"),
+            ("opensta_post_resizer_routing_timing.slew.rpt", "check_slew")
         )
 
         sta_spef_log = Artifact(rp, "logs", "synthesis", "opensta_spef")
@@ -265,7 +276,7 @@ class Report(object):
             return matches[-1]
 
         # Runtime
-        flow_status = "unknown"
+        flow_status = "flow_exceptional_failure"
         total_runtime = -1
         try:
             total_runtime_content = open(os.path.join(rp, "reports", "total_runtime.txt")).read().strip()
