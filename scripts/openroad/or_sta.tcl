@@ -46,9 +46,6 @@ puts "min_max_report_end"
 puts "check_slew"
 report_check_types -max_slew -max_capacitance -max_fanout -violators > $::env(opensta_report_file_tag).slew.rpt
 puts "check_slew_end"
-puts "clock_skew_report"
-report_clock_skew > $::env(opensta_report_file_tag)_clock_skew.rpt
-puts "clock_skew_report_end"
 puts "wns_report"
 report_wns
 puts "wns_report_end"

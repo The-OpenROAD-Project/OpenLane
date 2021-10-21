@@ -122,7 +122,7 @@ proc check_wns {args} {
     set report_file $arg_values(-report_file)
     set quit_on_vios $arg_values(-quit_on_vios)
     set corner $arg_values(-corner)
-    
+
     set checker [catch {exec grep "-" $report_file }]
     if { ! $checker } {
         if { $quit_on_vios } {
