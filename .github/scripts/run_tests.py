@@ -45,7 +45,7 @@ group = subprocess.check_output(["id", "-g", username]).decode("utf8")[:-1]
 
 docker_command = [
     "docker", "run",
-    "-v", "%s:/openLANE_flow" % os.path.realpath(gh.root),
+    "-v", "%s:/openlane" % os.path.realpath(gh.root),
     "-v", "{p}:{p}".format(p=gh.pdk),
     "-u", "%s:%s" % (user, group),
     "-e", "PDK_ROOT=%s" % gh.pdk,

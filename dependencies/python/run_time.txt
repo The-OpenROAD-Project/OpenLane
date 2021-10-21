@@ -1,6 +1,5 @@
 click
 pyyaml
-pyinstaller
 matplotlib
 jinja2<3.0.0
 pandas

@@ -40,22 +40,24 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 	find ./build/ -name "*.tcl" -exec chmod +x {} \;
 	cd tar && tar -czf openroad_tools.tar.gz ../build
 
-tar/openLANE_flow.tar.gz: FORCE
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks" --exclude="../../logs/*" -czf openLANE_flow.tar.gz ../../
+tar/openlane.tar.gz: FORCE
+	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks" --exclude="../../logs/*" -czf openlane.tar.gz ../../
 
 FORCE:
 
 .PHONY: merge
-merge: tar/openroad_tools.tar.gz tar/openLANE_flow.tar.gz ../dependencies/tool_metadata.yml
+merge: tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
+	cat ../dependencies/python/run_time.txt > ./tar/pip_dependencies.txt
+	cat ../dependencies/centos-7/run_time.txt > ./tar/yum_dependencies.txt
 	mkdir -p logs/docker/tar
 	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
 ifneq (,$(wildcard ./tar/openroad_tools.tar.gz))
-ifneq (,$(wildcard ./tar/openLANE_flow.tar.gz))
-		rm ./tar/openLANE_flow.tar.gz
+ifneq (,$(wildcard ./tar/openlane.tar.gz))
+		rm ./tar/openlane.tar.gz
 		rm ./tar/openroad_tools.tar.gz
 endif
 endif

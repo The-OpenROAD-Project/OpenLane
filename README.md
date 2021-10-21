@@ -152,7 +152,7 @@ The following is roughly what happens under the hood when you run `make mount` +
 ```bash
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
     export OPENLANE_IMAGE_NAME=<docker image name>
-    docker run -it -v $(pwd):/openLANE_flow -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $OPENLANE_IMAGE_NAME
+    docker run -it -v $(pwd):/openlane -v $PDK_ROOT:$PDK_ROOT -e PDK_ROOT=$PDK_ROOT -u $(id -u $USER):$(id -g $USER) $OPENLANE_IMAGE_NAME
 ```
 
 **Note: this will mount the OpenLane directory and the PDK_ROOT directory inside the container.**

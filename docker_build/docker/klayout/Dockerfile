@@ -22,12 +22,13 @@ RUN yum install -y wget && \
 # klayout
 RUN mkdir /build
 WORKDIR /build
-RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
+ENV KLAYOUT_VERSION 0.27.3-0
+RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-${KLAYOUT_VERSION}.x86_64.rpm
 
 
 RUN mkdir -p /build/version/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/klayout.version
-RUN echo "klayout-0.26.9-0.x86_64" >> /build/version/klayout.version
+RUN echo "klayout-${KLAYOUT_VERSION}.x86_64" >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 

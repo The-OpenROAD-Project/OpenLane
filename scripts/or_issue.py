@@ -75,8 +75,8 @@ if not os.path.exists(run_path) and os.path.isdir(run_path):
 run_name = basename(run_path)
 script_basename = basename(args.or_script)[:-4]
 
-script_path_containerized = script_path.replace(openlane_path, "/openLANE_flow")
-run_path_containerized = run_path.replace(openlane_path, "/openLANE_flow")
+script_path_containerized = script_path.replace(openlane_path, "/openlane")
+run_path_containerized = run_path.replace(openlane_path, "/openlane")
 
 
 # Phase 1: Read All Environment Variables
@@ -230,11 +230,11 @@ for key in env_keys_used:
         final_path = join(destination_folder, final_value)
         copy(value, final_path)
         final_env_pairs.append((key, final_value))
-    elif value.startswith("/openLANE_flow"):
-        relative = relpath(value, "/openLANE_flow")
+    elif value.startswith("/openlane"):
+        relative = relpath(value, "/openlane")
         final_value = join("openlane", relative)
         final_path = join(destination_folder, final_value)
-        from_path = value.replace("/openLANE_flow", openlane_path)
+        from_path = value.replace("/openlane", openlane_path)
         copy(from_path, final_path)       
         final_env_pairs.append((key, final_value))
     elif value.startswith("/"):
