@@ -26,6 +26,7 @@ pin2_regex
 ...
 """
 
+import os
 import re
 import sys
 import argparse
@@ -249,11 +250,9 @@ for side in pin_placement_cfg:
             pin_name = bterm.getName()
             if re.match(regex, pin_name) is not None:
                 if bterm in bterm_regex_map:
-                    print("Warning: Multiple regexes matched", pin_name,
+                    print("Error: Multiple regexes matched", pin_name,
                           ". Those are", bterm_regex_map[bterm], "and", regex)
-                    print("Only the first one is taken into consideration.")
-                    continue
-                    # sys.exit(1)
+                    sys.exit(os.EX_DATA)
                 bterm_regex_map[bterm] = regex
                 pin_placement[side].append(bterm)  # to maintain the order
 
@@ -338,5 +337,5 @@ for side in pin_placement:
             rect.moveTo(x, slot-H_WIDTH//2)
             odb.dbBox_create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
 
-print("Writing", output_def_file_name)
+print(f"Writing {output_def_file_name}...",)
 odb.write_def(block_top, output_def_file_name)

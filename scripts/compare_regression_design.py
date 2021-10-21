@@ -12,11 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
-import subprocess
-import csv
-import pandas as pd
 import os
+import argparse
 
 parser = argparse.ArgumentParser(
         description="compare one design from a regression result to a benchmark result")
@@ -91,8 +88,8 @@ def parseCSV(csv_file):
     return design_out
 
 def criticalMistmatch(benchmark, regression_result):
-    if len(benchmark) == 0 or len(regression_result) == 0:
-        return False, "Nothing to compare with"
+    if len(benchmark):
+        return False, "The design is not benchmarked"
     for stat in critical_statistics:
         if compare_vals(benchmark[stat],regression_result[stat],stat):
             continue
@@ -103,13 +100,14 @@ def criticalMistmatch(benchmark, regression_result):
                 return True, "The results of " +stat+" mismatched with the benchmark"
     return False, "The test passed"
 
-def compareStatus(benchmark,regression_result):
-    if len(benchmark) == 0 or len(regression_result) == 0:
-        return False, "Nothing to compare with"
-    elif "fail" in str(benchmark["flow_status"]):
-        return False, "The test passed"
+def compareStatus(benchmark, regression_result):
+    if len(benchmark) == 0:
+        return False, "The design is not benchmarked"
     elif "fail" in str(regression_result["flow_status"]):
-        return True, "The flow didn't complete for the user design after magic drc."
+        if "fail" in str(benchmark["flow_status"]):
+            return False, "The OpenLane flow failed, but the benchmark never saw it succeed"
+        else:
+            return True, "The OpenLane flow failed outright, check the logs"
     else:
         return False, "The test passed"
 
@@ -124,17 +122,17 @@ def missingResultingFiles(design):
 benchmark = parseCSV(benchmark_file)
 regression_result = parseCSV(regression_results_file)
 
-testFail, reasonWhy = criticalMistmatch(benchmark,regression_result)
+testFail, reasonWhy = compareStatus(benchmark, regression_result)
 
 report = str(design)
 if testFail:
     report += ",FAILED,"+reasonWhy+"\n"
 else:
-    testFail, reasonWhy = missingResultingFiles(regression_result)
+    testFail, reasonWhy = criticalMistmatch(benchmark, regression_result)
     if testFail:
         report += ",FAILED,"+reasonWhy+"\n"
     else:
-        testFail, reasonWhy = compareStatus(benchmark,regression_result)
+        testFail, reasonWhy = missingResultingFiles(regression_result)
         if testFail:
             report += ",FAILED,"+reasonWhy+"\n"
         else:

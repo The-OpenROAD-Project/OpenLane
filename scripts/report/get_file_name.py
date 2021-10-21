@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The only purpose of this file is to create a wrapper around report.py and config.py and make them usable by flow.tcl
-
 import os
 import sys
 import argparse

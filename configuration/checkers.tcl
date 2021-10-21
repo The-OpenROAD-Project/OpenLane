@@ -19,7 +19,7 @@ set ::env(CHECK_UNMAPPED_CELLS) 1
 # Static timing analysis
 set ::env(QUIT_ON_TIMING_VIOLATIONS) 1
 set ::env(QUIT_ON_HOLD_SETUP_VIOLATIONS) 1
-set ::env(QUIT_ON_SLEW_VIOLATIONS) 1
+set ::env(QUIT_ON_SLEW_VIOLATIONS) 0
 set ::env(QUIT_ON_NEGATIVE_WNS) 1
 
 # Floor Planning

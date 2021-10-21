@@ -43,6 +43,12 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
     manifest_dict = { element['name']: element for element in manifest }
     mismatches = False
 
+    manifest_names_by_SOURCES_name = {
+        "open_pdks": "open_pdks",
+        "skywater": "sky130"
+    }
+    pdk_manifest_names = set(manifest_names_by_SOURCES_name.values())
+
     try:
         # 2. Check if the Sky130 PDK is compatible with Flow Scripts
         if not os.getenv("PDK_ROOT"):
@@ -60,11 +66,6 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
             except FileNotFoundError:
                 raise Exception("Could not find SOURCES file for the installed sky130A PDK.")
 
-            manifest_names = {
-                "open_pdks": "open_pdks",
-                "skywater": "sky130"
-            }
-
             sources_str = sources_str.strip()
 
             sources_lines = list(filter(lambda x: x, sources_str.split("\n")))
@@ -75,12 +76,14 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                 # Format:
                 # -ne {tool}
                 # {commit} 
-                sources_lines = []
 
                 entries = len(sources_lines) // 2
                 name_rx = re.compile(r"\-ne\s+([\w\-]+)")
 
+                new_sources_lines = []
+
                 for entry in range(entries):
+                    print(entry * 2, entry * 2 + 1)
                     name_line = sources_lines[entry * 2]
                     commit_line = sources_lines[entry * 2 + 1]
                     
@@ -91,18 +94,19 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                     name = name_data[1]
                     commit = commit_line.strip()
 
-                    sources_lines.append(f"{name} {commit}")
-                    
+                    new_sources_lines.append(f"{name} {commit}")
+
+                sources_lines = new_sources_lines
+
             name_rx = re.compile(r"([\w\-]+)\s+(\w+)")
             for line in sources_lines:
                 match = name_rx.match(line)
                 if match is None:
                     raise Exception(f"Malformed sky130A SOURCES file: {line} did not match regex.")
-                        
                 name = match[1]
                 commit = match[2]
 
-                manifest_name = manifest_names.get(name)
+                manifest_name = manifest_names_by_SOURCES_name.get(name)
                 if manifest_name is None:
                     continue
                 manifest_commit = manifest_dict[manifest_name]["commit"]
@@ -111,6 +115,8 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                     mismatches = True
                     print(f"The version of {manifest_name} installed does not match the one required by the OpenLane flow scripts (installed: {commit}, expected: {manifest_commit})", file=report_file)
                     print(f"You may want to re-install the PDK by invoking `make pdk`.", file=report_file)
+
+                pdk_manifest_names.add(manifest_name)
     except Exception as e:
         print("Failed to compare PDKS", file=report_file)
         print(e, file=report_file)
@@ -142,8 +148,8 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
         except FileNotFoundError:
             raise Exception("Container manifest not found. What this likely means is that the container is severely out of date.")
 
-    tool_set_flow = set([element['name'] for element in manifest])
-    tool_set_container = set([element['name'] for element in environment_manifest])
+    tool_set_flow = set([element['name'] for element in manifest]) - pdk_manifest_names
+    tool_set_container = set([element['name'] for element in environment_manifest]) - pdk_manifest_names
 
     unmatched_tools_flow = tool_set_flow - tool_set_container
     for tool in unmatched_tools_flow:
@@ -161,6 +167,8 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
         mismatches = True
 
     for tool in environment_manifest:
+        if tool["name"] in pdk_manifest_names:
+            continue # PDK Stuff Already Checked
         flow_script_counterpart = manifest_dict.get(tool["name"])
         if flow_script_counterpart is None:
             continue

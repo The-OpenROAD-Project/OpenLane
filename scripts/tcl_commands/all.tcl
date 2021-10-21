@@ -291,11 +291,11 @@ proc prep {args} {
         set ::env(TERMINAL_OUTPUT) "/dev/null"
     }
 
-    set ::env(datetime) [clock format [clock seconds] -format %d-%m_%H-%M]
+    set ::env(datetime) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
     if { [lsearch -exact $args_copy -tag ] >= 0} {
         set tag "$arg_values(-tag)"
     } else {
-        set tag $::env(datetime)
+        set tag "RUN_$::env(datetime)"
     }
 
     set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
