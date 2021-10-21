@@ -23,7 +23,7 @@ ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
     PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
     LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
 
-RUN yum install -y git python-devel glibc-static wget
+RUN yum install -y git python-devel glibc-static wget bzip2
 
 # Installing cmake for build dependency
 RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
