@@ -73,7 +73,7 @@ proc run_cts {args} {
 		set ::env(CLOCK_TREE_SYNTH) 0
 	}
 
-	if {$::env(CLOCK_TREE_SYNTH)} {
+	if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
 		puts_info "Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
@@ -105,6 +105,8 @@ proc run_cts {args} {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
 		scrot_klayout -layout $::env(CURRENT_DEF)
+	} elseif { $::env(RUN_SIMPLE_CTS) } {
+		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_log_file_tag).log]
 	} else {
 		exec echo "SKIPPED!" >> [index_file $::env(cts_log_file_tag).log]
 	}

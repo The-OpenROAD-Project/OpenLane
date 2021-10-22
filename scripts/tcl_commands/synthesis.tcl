@@ -131,7 +131,7 @@ proc run_synthesis {args} {
 
     run_sta
 
-    if {$::env(RUN_SIMPLE_CTS)} {
+    if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}

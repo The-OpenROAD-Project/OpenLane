@@ -11,8 +11,6 @@ set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 set ::env(CLOCK_PERIOD) "100000"
 set ::env(CLOCK_PORT) "w"
 set ::env(CLOCK_TREE_SYNTH) 0
-
-set ::env(RUN_SIMPLE_CTS) 0
 set ::env(SYNTH_BUFFERING) 0
 set ::env(SYNTH_SIZING) 0
 
