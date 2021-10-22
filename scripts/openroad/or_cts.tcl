@@ -18,7 +18,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 }
 
 foreach lib $::env(LIB_CTS) {
-        read_liberty $lib
+    read_liberty $lib
 }
 
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
@@ -58,10 +58,12 @@ clock_tree_synthesis\
 
 set_propagated_clock [all_clocks]
 
+estimate_parasitics -placement
 puts "\[INFO]: Repairing long wires on clock nets..."
 # CTS leaves a long wire from the pad to the clock tree root.
 repair_clock_nets
 
+estimate_parasitics -placement
 write_def $::env(SAVE_DEF)
 
 set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)" 
@@ -82,10 +84,6 @@ if { [check_placement -verbose] } {
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
-
-        read_liberty -max $::env(LIB_SLOWEST)
-        read_liberty -min $::env(LIB_FASTEST)
-
         puts "check_report"
         report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01
         puts "check_report_end"

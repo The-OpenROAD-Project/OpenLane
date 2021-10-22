@@ -98,11 +98,8 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
-
-		read_liberty -max $::env(LIB_SLOWEST)
-		read_liberty -min $::env(LIB_FASTEST)
+		read_liberty $::env(LIB_SYNTH_COMPLETE)
 		read_sdc -echo $::env(CURRENT_SDC)
-
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
 		set_wire_rc -layer $::env(WIRE_RC_LAYER)

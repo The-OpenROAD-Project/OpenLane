@@ -16,9 +16,6 @@ foreach lib $::env(LIB_RESIZER_OPT) {
     read_liberty $lib
 }
 
-read_liberty -max $::env(LIB_SLOWEST)
-read_liberty -min $::env(LIB_FASTEST)
-
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
