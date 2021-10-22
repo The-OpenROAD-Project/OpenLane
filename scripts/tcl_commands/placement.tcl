@@ -162,12 +162,12 @@ proc run_resizer_timing {args} {
         TIMER::timer_start
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
             set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+            file copy -force $::env(LIB_SYNTH) $::env(LIB_RESIZER_OPT)
             # if optimization library is different from the base library
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
                 set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
-                file copy -force $::env(LIB_SLOWEST_OPT) $opt_lib
-                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SLOWEST_OPT)
+                file copy -force $::env(LIB_SYNTH_OPT) $opt_lib
+                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SYNTH_OPT)
             }
         } 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
@@ -213,11 +213,11 @@ proc run_resizer_design {args} {
         TIMER::timer_start
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
             set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
+            file copy -force $::env(LIB_SYNTH_COMPLETE) $::env(LIB_RESIZER_OPT)
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
                 set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
-                file copy -force $::env(LIB_SLOWEST_OPT) $opt_lib
-                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SLOWEST_OPT)
+                file copy -force $::env(LIB_SYNTH_OPT) $opt_lib
+                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SYNTH_OPT)
             }
         } 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
