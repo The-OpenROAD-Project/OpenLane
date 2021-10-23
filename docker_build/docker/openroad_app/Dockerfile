@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,116 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:centos7 AS base-dependencies
+FROM openlane-build-base
 
-# Install Development Environment
-RUN yum groupinstall -y "Development Tools"
-RUN yum install -y https://repo.ius.io/ius-release-el7.rpm \
-    && yum install -y centos-release-scl \
-    && yum install -y wget devtoolset-8 \
-    devtoolset-8-libatomic-devel tcl-devel tcl tk libstdc++ tk-devel pcre-devel \
-    python36u python36u-libs python36u-devel python36u-pip && \
-    yum clean -y all && \
-    rm -rf /var/lib/apt/lists/*
-
-# centos7 doesn't set the PATH automatically for the installed gcc from dev tools
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
-
-RUN yum update -y ca-certificates
-
-# install cmake
-RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
-    chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
-    ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local && rm -rf cmake-3.14.0-Linux-x86_64.sh \
-    && yum clean -y all
-
-# update bison
-RUN yum -y remove bison
-RUN wget https://ftp.gnu.org/gnu/bison/bison-3.0.5.tar.gz && \
-    tar -xvzf bison-3.0.5.tar.gz
-RUN cd bison-3.0.5 && \
-    ./configure --prefix=/usr && \
-    make -j$(nproc) && \
-    make install
-
-
-# install epel repo
-RUN wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
-    yum install -y epel-release-latest-7.noarch.rpm && rm -rf epel-release-latest-7.noarch.rpm  \
-    && yum clean -y all
-
-# Install dev and runtime dependencies
-# Tcl 8.5
-RUN yum install -y tcl-devel tcl tk libstdc++ tk-devel
-
-# build boost
+# Build Boost
 RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
     tar -xf download && \
     cd boost_1_72_0 && \
     ./bootstrap.sh && \
     ./b2 install --with-iostreams --with-test -j $(nproc)
 
-# Install SWIG
-RUN yum remove -y swig \
-    && yum install -y pcre-devel \
-    && wget https://github.com/swig/swig/archive/rel-4.0.1.tar.gz \
-    && tar xfz rel-4.0.1.tar.gz \
-    && rm -rf rel-4.0.1.tar.gz \
-    && cd swig-rel-4.0.1 \
-    && ./autogen.sh && ./configure --prefix=/usr && make -j $(nproc) && make install \
-    && cd .. \
-    && rm -rf swig-rel-4.0.1
+# Build Eigen
+WORKDIR /eigen
+RUN curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3/eigen-3.3.tar.gz | tar --strip-components=1 -xzC . && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install
 
-RUN yum -y install zlib-devel
-
-
-
-# eigen required by replace, TritonMacroPlace
-RUN mkdir -p eigen \
-    && cd eigen \
-    && curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3/eigen-3.3.tar.gz | tar --strip-components=1 -xzC . \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-    && make install
-
-RUN cd / && wget http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz \
-    && tar -xf lemon-1.3.1.tar.gz \
-    && cd lemon-1.3.1 \
+# Build Lemon
+WORKDIR /lemon
+RUN curl -L http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz | tar --strip-components=1 -xzC . \
     && cmake -B build . \
     && cmake --build build -j $(nproc) --target install
 
-
-RUN yum install -y gettext-devel help2man texinfo \
-    && git clone https://github.com/westes/flex \
-    && cd flex \
-    && git checkout v2.6.4 \
-    && ./autogen.sh \
-    && ./configure \
-    && make -j $(nproc) \
-    && yum remove -y flex \
-    && make install -j $(nproc) \
-    && cd - \
-    && rm -rf flex
-
-# spdlog required by OpenDB
+# Build Spdlog
 RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && cd spdlog \
     && mkdir build \
     && cd build \
     && cmake .. \
-    && make install -j
+    && make install -j $(nproc)
 
 ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
 ARG OPENROAD_APP_COMMIT=4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
-RUN git clone ${OPENROAD_APP_REPO} OpenROAD_Repo
-WORKDIR /OpenROAD_Repo/
-RUN git checkout ${OPENROAD_APP_COMMIT}
-RUN git submodule update --init --recursive
+
+WORKDIR /openroad
+RUN curl -L ${OPENROAD_APP_REPO}/tarball/${OPENROAD_APP_COMMIT} | tar -xzC . --strip-components=1
+COPY ./fetch_submodules_from_tarballs.py .
+RUN python3 ./fetch_submodules_from_tarballs.py ${OPENROAD_APP_REPO} ${OPENROAD_APP_COMMIT}
 
 # Build OpenROAD
 RUN mkdir build && mkdir -p /build/version && mkdir install
@@ -130,5 +59,5 @@ RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
-RUN git rev-parse HEAD >> /build/version/openroad.version
+RUN echo ${OPENROAD_APP_COMMIT} >> /build/version/openroad.version
 RUN tar -czf /build.tar.gz /build
