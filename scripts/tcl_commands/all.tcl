@@ -421,9 +421,29 @@ proc prep {args} {
     if { ! $skip_basic_prep } {
         prep_lefs
 
+        # trim synthesis library
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
         set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
         trim_lib
+
+        # trim resizer library 
+        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
+            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
+            file copy -force $::env(LIB_SYNTH_COMPLETE) $::env(LIB_RESIZER_OPT)
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
+                file copy -force $::env(LIB_SYNTH_OPT) $opt_lib
+                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SYNTH_OPT)
+            }
+        } 
+        if { ! [info exists ::env(DONT_USE_CELLS)] } {
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
+            } else {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
+            }
+            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
+        }
 
         set tracks_processed $::env(TMP_DIR)/config.tracks
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed

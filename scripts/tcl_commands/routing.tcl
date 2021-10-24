@@ -429,13 +429,6 @@ proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Timing Optimizations..."
         TIMER::timer_start
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SYNTH) $::env(LIB_RESIZER_OPT)
-        }
-        if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            gen_exclude_list -lib $::env(LIB_RESIZER_OPT) -drc_exclude_only -create_dont_use_list
-        }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
 	    set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
