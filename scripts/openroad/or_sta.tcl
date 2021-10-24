@@ -135,3 +135,7 @@ puts " report_design_area"
 puts "============================================================================"
 report_design_area
 puts "area_report_end"
+
+if { [info exists ::env(SAVE_SDF)] } {
+    write_sdf $::env(SAVE_SDF)
+}

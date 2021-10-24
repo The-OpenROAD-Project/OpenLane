@@ -350,6 +350,7 @@ proc run_spef_extraction {args} {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		}
 		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
+		set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
 		# Static Timing Analysis using the extracted SPEF 
