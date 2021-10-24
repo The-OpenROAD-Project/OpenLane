@@ -44,12 +44,7 @@ proc check_timing_violations {args} {
     set setup_report $::env(FINAL_TIMING_REPORT_TAG).max.rpt
     set slew_report $::env(FINAL_TIMING_REPORT_TAG).slew.rpt
 
-    puts_info $hold_report
-    puts_info $setup_report
-    puts_info $slew_report
-
     check_slew_violations -report_file $slew_report -corner "typical" 
-
     if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
         check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_VIOLATIONS)
         check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $::env(QUIT_ON_SETUP_VIOLATIONS)
