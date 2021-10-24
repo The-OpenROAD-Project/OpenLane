@@ -88,13 +88,13 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: 8d25606b95e3ca3ac20041bcbe42f4237de2906b
+  commit: e7ad4747a338900a00d2253e3b3926de11ff7ff5
   build: ''
   in_install: false
   in_container: false
 - name: sky130
   repo: https://github.com/google/skywater-pdk
-  commit: c094b6e83a4f9298e47f696ec5a7fd53535ec5eb
+  commit: a1492be33ebd1c7474f66ff76f8bdba6b01c2702
   build: ''
   in_install: false
   in_container: false
