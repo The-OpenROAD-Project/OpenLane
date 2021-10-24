@@ -37,6 +37,12 @@ if { [info exists ::env(CURRENT_SPEF)] } {
 
 read_sdc -echo $::env(CURRENT_SDC)
 
+if { $::env(ESTIMATE_PL_PARASITICS)} {
+    source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
+    set_wire_rc -layer $::env(WIRE_RC_LAYER)
+    estimate_parasitics -placement
+} 
+
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"

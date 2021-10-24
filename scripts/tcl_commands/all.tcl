@@ -489,6 +489,8 @@ proc prep {args} {
         {addspacers routing/addspacers}
         {fastroute routing/fastroute}
         {tritonRoute routing/tritonRoute}
+        {rcx routing/spef}
+        {glb_resizer routing/resizer}
         {magic magic/magic}
         {cts cts/cts}
         {lvs lvs/lvs}

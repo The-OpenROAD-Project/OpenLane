@@ -40,32 +40,29 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_timing_violations {args} {
-    set hold_setup_report $::env(opensta_report_file_tag)_spef.min_max.rpt
-    set slew_report $::env(opensta_report_file_tag)_spef.slew.rpt
-    set wns_report $::env(opensta_report_file_tag)_spef.wns.rpt
+    set hold_report $::env(FINAL_TIMING_REPORT_TAG).min.rpt 
+    set setup_report $::env(FINAL_TIMING_REPORT_TAG).max.rpt
+    set slew_report $::env(FINAL_TIMING_REPORT_TAG).slew.rpt
 
-    set hold_setup_report_tt $::env(opensta_report_file_tag)_spef_tt.min_max.rpt
-    set slew_report_tt $::env(opensta_report_file_tag)_spef_tt.slew.rpt
-    set wns_report_tt $::env(opensta_report_file_tag)_spef_tt.wns.rpt
+    puts_info $hold_report
+    puts_info $setup_report
+    puts_info $slew_report
 
-    check_hold_setup_violations -report_file $hold_setup_report -corner "min_max" 
-    check_slew_violations -report_file $slew_report -corner "min_max" 
-    check_slew_violations -report_file $slew_report_tt -corner "typical" 
-    check_wns -report_file $wns_report -corner "min_max"
+    check_slew_violations -report_file $slew_report -corner "typical" 
 
     if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
-        check_hold_setup_violations -report_file $hold_setup_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_SETUP_VIOLATIONS)
-        check_wns -report_file $wns_report_tt -corner "typical" -quit_on_vios $::env(QUIT_ON_NEGATIVE_WNS)
+        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_VIOLATIONS)
+        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $::env(QUIT_ON_SETUP_VIOLATIONS)
     }
 }
 
-proc check_hold_setup_violations {args} {
+proc check_hold_violations {args} {
     set options {
         {-report_file required}
         {-corner required}
         {-quit_on_vios optional}
     }
-    parse_key_args "check_hold_setup_violations" args arg_values $options
+    parse_key_args "check_hold_violations" args arg_values $options
     set_if_unset arg_values(-quit_on_vios) 0
     set report_file $arg_values(-report_file)
     set quit_on_vios $arg_values(-quit_on_vios)
@@ -74,14 +71,40 @@ proc check_hold_setup_violations {args} {
     set checker [catch {exec grep "VIOLATED" $report_file }]
     if { ! $checker } {
         if { $quit_on_vios } {
-            puts_err "There are hold/setup violations in the design at the $corner corner. Please refer to $report_file."
+            puts_err "There are hold violations in the design at the $corner corner. Please refer to $report_file."
             flow_fail
             return -code error
         } else {
-            puts_warn "There are hold/setup violations in the design at the $corner corner. Please refer to $report_file."
+            puts_warn "There are hold violations in the design at the $corner corner. Please refer to $report_file."
         }
     } else {
-        puts_info "There are no hold/setup violations in the design at the $corner corner."
+        puts_info "There are no hold violations in the design at the $corner corner."
+    }
+}
+
+proc check_setup_violations {args} {
+    set options {
+        {-report_file required}
+        {-corner required}
+        {-quit_on_vios optional}
+    }
+    parse_key_args "check_setup_violations" args arg_values $options
+    set_if_unset arg_values(-quit_on_vios) 0
+    set report_file $arg_values(-report_file)
+    set quit_on_vios $arg_values(-quit_on_vios)
+    set corner $arg_values(-corner)
+
+    set checker [catch {exec grep "VIOLATED" $report_file }]
+    if { ! $checker } {
+        if { $quit_on_vios } {
+            puts_err "There are setup violations in the design at the $corner corner. Please refer to $report_file."
+            flow_fail
+            return -code error
+        } else {
+            puts_warn "There are setup violations in the design at the $corner corner. Please refer to $report_file."
+        }
+    } else {
+        puts_info "There are no setup violations in the design at the $corner corner."
     }
 }
 
@@ -108,33 +131,6 @@ proc check_slew_violations {args} {
         }
     } else {
         puts_info "There are no max slew violations in the design at the $corner corner."
-    }
-}
-
-proc check_wns {args} {
-    set options {
-        {-report_file required}
-        {-corner required}
-        {-quit_on_vios optional}
-    }
-
-    parse_key_args "check_wns" args arg_values $options
-    set_if_unset arg_values(-quit_on_vios) 0
-    set report_file $arg_values(-report_file)
-    set quit_on_vios $arg_values(-quit_on_vios)
-    set corner $arg_values(-corner)
-
-    set checker [catch {exec grep "-" $report_file }]
-    if { ! $checker } {
-        if { $quit_on_vios } {
-            puts_err "wns is negative at the $corner corner. Please refer to $report_file"
-            flow_fail
-            return -code error
-        } else {
-            puts_warn "wns is negative at the $corner corner. Please refer to $report_file"
-        }
-    } else {
-        puts_info "wns is positive at the $corner corner."
     }
 }
 

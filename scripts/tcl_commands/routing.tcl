@@ -352,14 +352,11 @@ proc run_spef_extraction {args} {
 		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
-		# Static Timing Analysis using the extracted SPEF on the min max / typical corners 
-		set report_tag_holder $::env(opensta_report_file_tag)
-		set log_tag_holder $::env(opensta_log_file_tag)
-		set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_spef
-		set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_spef
-		run_sta
-		set ::env(opensta_report_file_tag) $report_tag_holder
-		set ::env(opensta_log_file_tag) $log_tag_holder
+		# Static Timing Analysis using the extracted SPEF 
+		set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
+        set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
+		set ::env(FINAL_TIMING_REPORT_TAG) $output_log
+        run_sta -output_log $output_log -runtime_log $runtime_log 
     }
 }
 
@@ -431,12 +428,12 @@ proc run_resizer_timing_routing {args} {
         TIMER::timer_start
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
 	    set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(glb_resizer_log_file_tag)_timing_optimization.log 0]
         set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 		
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
@@ -445,13 +442,9 @@ proc run_resizer_timing_routing {args} {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
 
-        set report_tag_holder $::env(opensta_report_file_tag)
-        set log_tag_holder $::env(opensta_log_file_tag)
-        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer_routing_timing
-        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer_routing_timing
-        run_sta
-        set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder
+		set output_log [index_file $::env(glb_resizer_log_file_tag)_timing_optimization_sta 0] 
+        set runtime_log  [index_file $::env(glb_resizer_log_file_tag)_timing_optimization_sta_runtime.txt 0] 
+        run_sta -placement_parasitics -output_log $output_log -runtime_log $runtime_log 
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }
