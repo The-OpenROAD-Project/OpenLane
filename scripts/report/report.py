@@ -188,30 +188,31 @@ class Report(object):
 
         cts_log = Artifact(rp, "logs", "cts", "cts.log")
         cts_log.generate_reports(
-            ("cts.rpt", "check_report"),
-            ("cts.timing.rpt", "timing_report"),
-            ("cts.min_max.rpt", "min_max_report"),
-            ("cts_wns.rpt", "wns_report"),
-            ("cts_tns.rpt", "tns_report"),
-            ("cts_clock_skew.rpt", "cts_clock_skew_report"),
+            ("cts.rpt", "cts_report"),
+            ("cts_sta.rpt", "check_report"),
+            ("cts_sta.timing.rpt", "timing_report"),
+            ("cts_sta.min_max.rpt", "min_max_report"),
+            ("cts_sta.wns.rpt", "wns_report"),
+            ("cts_sta.tns.rpt", "tns_report"),
+            ("cts_sta.clock_skew.rpt", "cts_clock_skew_report"),
         )
 
         routing_log = Artifact(rp, "logs", "routing", "fastroute.log")
         routing_log.generate_reports(
-            ("fastroute.rpt", "check_report"),
-            ("fastroute.timing.rpt", "timing_report"),
-            ("fastroute.min_max.rpt", "min_max_report"),
-            ("fastroute_wns.rpt", "wns_report"),
-            ("fastroute_tns.rpt", "tns_report")
+            ("fastroute_sta.rpt", "check_report"),
+            ("fastroute_sta.timing.rpt", "timing_report"),
+            ("fastroute_sta.min_max.rpt", "min_max_report"),
+            ("fastroute_sta.wns.rpt", "wns_report"),
+            ("fastroute_sta.tns.rpt", "tns_report")
         )
         
         placement_log = Artifact(rp, "logs", "placement", "replace.log")
         placement_log.generate_reports(
-            ("replace.rpt", "check_report"),
-            ("replace.timing.rpt", "timing_report"),
-            ("replace.min_max.rpt", "min_max_report"),
-            ("replace_wns.rpt", "wns_report"),
-            ("replace_tns.rpt", "tns_report")
+            ("replace_sta.rpt", "check_report"),
+            ("replace_sta.timing.rpt", "timing_report"),
+            ("replace_sta.min_max.rpt", "min_max_report"),
+            ("replace_sta.wns.rpt", "wns_report"),
+            ("replace_sta.tns.rpt", "tns_report")
         )
 
         sta_log = Artifact(rp, "logs", "synthesis", "opensta")
