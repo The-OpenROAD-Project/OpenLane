@@ -26,10 +26,10 @@ import urllib.parse
 """
 Must be run from inside an extracted repository tarball.
 
-Given the repository's URL and commit, which are available, and the .gitmodules
-file from the extracted tarball, a table of the git submodules with their
-repositories, commits and paths is constructed and then promptly downloaded
-without git, using curl.
+Given the repository's URL and commit, which are available, a table of the
+git submodules with their repositories, commits and paths is constructed and
+then promptly downloaded and extracted using only the GitHub APIs (and curl),
+no git involved.
 
 This makes things much faster than having to clone an repo's entire history then
 its submodule's entire history.
