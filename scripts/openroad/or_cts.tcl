@@ -81,6 +81,9 @@ if { [check_placement -verbose] } {
 	exit 1
 }
 
+puts "cts_report"
+report_cts
+puts "cts_report_end"
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
