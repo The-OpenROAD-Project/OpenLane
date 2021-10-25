@@ -73,8 +73,6 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
     if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
-        read_liberty -max $::env(LIB_SLOWEST)
-        read_liberty -min $::env(LIB_FASTEST)
         read_sdc -echo $::env(CURRENT_SDC)
 	
         # set rc values

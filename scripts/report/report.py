@@ -36,7 +36,6 @@ def parse_to_report(input_log: str, output_report: str, start: str, end: Optiona
         end = f"{start}_end"
 
     log_lines = open(input_log).read().split("\n")
-
     with open(output_report, "w") as f:
         started = False
 
@@ -44,7 +43,7 @@ def parse_to_report(input_log: str, output_report: str, start: str, end: Optiona
             if line.strip() == end:
                 break
             if started:
-                f.write(line)
+                f.write(line + "\n")
             if line.strip() == start:
                 started = True
 
@@ -60,7 +59,7 @@ class Artifact(object):
         self.pathname = os.path.join(self.run_path, self.kind, self.step)
         self.filename = filename
 
-        self.path = get_name(self.pathname, self.filename, find_by_partial_match)
+        self.index, self.path = get_name(self.pathname, self.filename, find_by_partial_match)
 
         if self.is_valid():
             debug(f"Resolved {kind}, {step}, {filename} to {self.path}")
@@ -89,7 +88,7 @@ class Artifact(object):
 
     def generate_reports(self, *args: Iterable[Iterable[str]]):
         for report in args:
-            filename = report[0]
+            filename = f"{self.index}-{report[0]}"
             start = report[1]
             end = None
             try:
@@ -219,60 +218,75 @@ class Report(object):
         sta_log.generate_reports(
             ("opensta.rpt", "check_report"),
             ("opensta.timing.rpt", "timing_report"),
-            ("opensta.min_max.rpt", "min_max_report"),
+            ("opensta.min.rpt", "min_report"),
+            ("opensta.max.rpt", "max_report"),
             ("opensta_wns.rpt", "wns_report"),
             ("opensta_tns.rpt", "tns_report"),
-            ("opensta.slew.rpt", "check_slew")
+            ("opensta.slew.rpt", "check_slew"),
+            ("opensta.worst_slack.rpt", "worst_slack"),
+            ("opensta.clock_skew.rpt", "clock_skew"),
+            ("opensta.power.rpt", "power_report"),
+            ("opensta.area.rpt", "design_area")
         )
 
-        sta_post_resizer_log = Artifact(rp, "logs", "synthesis", "opensta_post_resizer")
+        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer_design_optimization_sta")
         sta_post_resizer_log.generate_reports(
-            ("opensta_post_resizer.rpt", "check_report"),
-            ("opensta_post_resizer.timing.rpt", "timing_report"),
-            ("opensta_post_resizer.min_max.rpt", "min_max_report"),
-            ("opensta_post_resizer_wns.rpt", "wns_report"),
-            ("opensta_post_resizer_tns.rpt", "tns_report"),
-            ("opensta_post_resizer.slew.rpt", "check_slew")
+            ("resizer_design_optimization_sta.rpt", "check_report"),
+            ("resizer_design_optimization_sta.timing.rpt", "timing_report"),
+            ("resizer_design_optimization_sta.min.rpt", "min_report"),
+            ("resizer_design_optimization_sta.max.rpt", "max_report"),
+            ("resizer_design_optimization_sta.wns.rpt", "wns_report"),
+            ("resizer_design_optimization_sta.tns.rpt", "tns_report"),
+            ("resizer_design_optimization_sta.slew.rpt", "check_slew"),
+            ("resizer_design_optimization_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_design_optimization_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_design_optimization_sta.power.rpt", "power_report"),
+            ("resizer_design_optimization_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "synthesis", "opensta_post_resizer_timing")
+        sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "resizer_timing_optimization_sta")
         sta_post_resizer_timing_log.generate_reports(
-            ("opensta_post_resizer_timing.rpt", "check_report"),
-            ("opensta_post_resizer_timing.timing.rpt", "timing_report"),
-            ("opensta_post_resizer_timing.min_max.rpt", "min_max_report"),
-            ("opensta_post_resizer_timing_wns.rpt", "wns_report"),
-            ("opensta_post_resizer_timing_tns.rpt", "tns_report"),
-            ("opensta_post_resizer_timing.slew.rpt", "check_slew")
+            ("resizer_timing_optimization_sta.rpt", "check_report"),
+            ("resizer_timing_optimization_sta.timing.rpt", "timing_report"),
+            ("resizer_timing_optimization_sta.max.rpt", "min_report"),
+            ("resizer_timing_optimization_sta.min.rpt", "max_report"),
+            ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
+            ("resizer_timing_optimization_sta.tns.rpt", "tns_report"),
+            ("resizer_timing_optimization_sta.slew.rpt", "check_slew"),
+            ("resizer_timing_optimization_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_timing_optimization_sta.power.rpt", "power_report"),
+            ("resizer_timing_optimization_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "synthesis", "opensta_post_resizer_routing_timing")
+        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer_timing_optimization_sta")
         sta_post_resizer_routing_timing_log.generate_reports(
-            ("opensta_post_resizer_routing_timing.rpt", "check_report"),
-            ("opensta_post_resizer_routing_timing.timing.rpt", "timing_report"),
-            ("opensta_post_resizer_routing_timing.min_max.rpt", "min_max_report"),
-            ("opensta_post_resizer_routing_timing_wns.rpt", "wns_report"),
-            ("opensta_post_resizer_routing_timing_tns.rpt", "tns_report"),
-            ("opensta_post_resizer_routing_timing.slew.rpt", "check_slew")
+            ("resizer_timing_optimization_sta.rpt", "check_report"),
+            ("resizer_timing_optimization_sta.timing.rpt", "timing_report"),
+            ("resizer_timing_optimization_sta.min.rpt", "min_report"),
+            ("resizer_timing_optimization_sta.max.rpt", "max_report"),
+            ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
+            ("resizer_timing_optimization_sta.tns.rpt", "tns_report"),
+            ("resizer_timing_optimization_sta.slew.rpt", "check_slew"),
+            ("resizer_timing_optimization_sta.wost_slack.rpt", "worst_slack"),
+            ("resizer_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_timing_optimization_sta.power.rpt", "power_report"),
+            ("resizer_timing_optimization_sta.area.rpt", "area_report")
         )
 
-        sta_spef_log = Artifact(rp, "logs", "synthesis", "opensta_spef")
+        sta_spef_log = Artifact(rp, "logs", "routing", "spef_extraction_sta")
         sta_spef_log.generate_reports(
-            ("opensta_spef.rpt", "check_report"),
-            ("opensta_spef.timing.rpt", "timing_report"),
-            ("opensta_spef.min_max.rpt", "min_max_report"),
-            ("opensta_spef_wns.rpt", "wns_report"),
-            ("opensta_spef_tns.rpt", "tns_report"),
-            ("opensta_spef.slew.rpt", "check_slew")
-        )
-
-        sta_spef_tt_log = Artifact(rp, "logs", "synthesis", "opensta_spef_tt")
-        sta_spef_tt_log.generate_reports(
-            ("opensta_spef_tt.rpt", "check_report"),
-            ("opensta_spef_tt.timing.rpt", "timing_report"),
-            ("opensta_spef_tt.min_max.rpt", "min_max_report"),
-            ("opensta_spef_wns_tt.rpt", "wns_report"),
-            ("opensta_spef_tns_tt.rpt", "tns_report"),
-            ("opensta_spef_tt.slew.rpt", "check_slew")
+            ("spef_extraction_sta.rpt", "check_report"),
+            ("spef_extraction_sta.timing.rpt", "timing_report"),
+            ("spef_extraction_sta.min.rpt", "min_report"),
+            ("spef_extraction_sta.max.rpt", "max_report"),
+            ("spef_extraction_sta.wns.rpt", "wns_report"),
+            ("spef_extraction_sta.tns.rpt", "tns_report"),
+            ("spef_extraction_sta.slew.rpt", "check_slew"),
+            ("spef_extraction_sta.worst_slack.rpt", "worst_slack"),
+            ("spef_extraction_sta.clock_skew.rpt", "clock_skew"),
+            ("spef_extraction_sta.power.rpt", "power_report"),
+            ("spef_extraction_sta.area.rpt", "area_report")
         )
 
     def extract_all_values(self):

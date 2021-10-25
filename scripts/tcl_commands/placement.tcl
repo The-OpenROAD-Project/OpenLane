@@ -160,32 +160,14 @@ proc run_resizer_timing {args} {
     if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Timing Optimizations..."
         TIMER::timer_start
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
-            # if optimization library is different from the base library
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
-                file copy -force $::env(LIB_SLOWEST_OPT) $opt_lib
-                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SLOWEST_OPT)
-            }
-        } 
-        if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
-            } else {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
-            }
-            gen_exclude_list -lib resizer_timing_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_timing_opt.exclude.list -drc_exclude_only -create_dont_use_list
-        }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
         set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
@@ -194,13 +176,9 @@ proc run_resizer_timing {args} {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
 
-        set report_tag_holder $::env(opensta_report_file_tag)
-        set log_tag_holder $::env(opensta_log_file_tag)
-        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer_timing
-        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer_timing
-        run_sta
-        set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder
+        set output_log [index_file $::env(resizer_log_file_tag)_timing_optimization_sta 0] 
+        set runtime_log [index_file $::env(resizer_log_file_tag)_timing_optimization_sta_runtime.txt 0] 
+        run_sta -placement_parasitics -output_log $output_log -runtime_log $runtime_log 
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }
@@ -211,31 +189,14 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Design Optimizations..."
         TIMER::timer_start
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SLOWEST) $::env(LIB_RESIZER_OPT)
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
-                file copy -force $::env(LIB_SLOWEST_OPT) $opt_lib
-                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SLOWEST_OPT)
-            }
-        } 
-        if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
-            } else {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
-            }
-            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
-        }
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
         set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag).sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag).log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_design_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_design_optimization_runtime.txt 0]
 
         write_verilog $::env(yosys_result_file_tag)_optimized.v
         set_netlist $::env(yosys_result_file_tag)_optimized.v
@@ -243,14 +204,9 @@ proc run_resizer_design {args} {
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
-
-        set report_tag_holder $::env(opensta_report_file_tag)
-        set log_tag_holder $::env(opensta_log_file_tag)
-        set ::env(opensta_report_file_tag) $::env(opensta_report_file_tag)_post_resizer
-        set ::env(opensta_log_file_tag) $::env(opensta_log_file_tag)_post_resizer
-        run_sta
-        set ::env(opensta_report_file_tag) $report_tag_holder
-        set ::env(opensta_log_file_tag) $log_tag_holder
+        set output_log [index_file $::env(resizer_log_file_tag)_design_optimization_sta 0] 
+        set runtime_log  [index_file $::env(resizer_log_file_tag)_design_optimization_sta_runtime.txt 0] 
+        run_sta -placement_parasitics -output_log $output_log -runtime_log $runtime_log 
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }

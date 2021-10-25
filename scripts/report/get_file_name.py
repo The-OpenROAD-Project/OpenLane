@@ -47,9 +47,9 @@ def get_name(pathname, output_file, partial_match=False):
 
         file = f"{candidates[0][0]}-{candidates[0][1]}"
 
-        return os.path.join(pathname, file)
+        return candidates[0][0], os.path.join(pathname, file)
     except Exception as e:
-        return os.path.join(pathname, output_file)
+        return "", os.path.join(pathname, output_file)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

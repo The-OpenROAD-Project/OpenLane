@@ -70,12 +70,12 @@ utils.addComputedStatistics(output_file)
 
 # Tracking Magic DRC, LVS, Antenna Logs:
 run_path = run_path or utils.get_run_path(design, tag)
-magic_drc_report = get_name(str(run_path) + "/reports/magic/", "magic.drc")
+_, magic_drc_report = get_name(str(run_path) + "/reports/magic/", "magic.drc")
 lvs_report = str(run_path) + "/results/lvs/" + design_name + ".lvs_parsed.lef.log"
-arc_antenna_report = get_name(str(run_path) + "/reports/routing/", "antenna.rpt")
+_, arc_antenna_report = get_name(str(run_path) + "/reports/routing/", "antenna.rpt")
 if not os.path.exists(lvs_report):
     lvs_report = str(run_path) + "/results/lvs/" + design_name + ".lvs_parsed.gds.log"
-magic_antenna_report = get_name(
+_, magic_antenna_report = get_name(
     str(run_path) + "/reports/magic/", "magic.antenna_violators.rpt"
 )
 
