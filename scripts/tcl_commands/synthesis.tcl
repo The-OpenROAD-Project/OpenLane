@@ -136,7 +136,7 @@ proc run_synthesis {args} {
 	set runtime_log [index_file $::env(opensta_log_file_tag)_runtime.txt 0]
     run_sta -output_log $output_log -runtime_log $runtime_log
 
-    if {$::env(RUN_SIMPLE_CTS)} {
+    if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
