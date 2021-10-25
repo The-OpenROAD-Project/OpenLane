@@ -356,7 +356,7 @@ proc run_spef_extraction {args} {
 		# Static Timing Analysis using the extracted SPEF 
 		set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
         set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
-		set ::env(FINAL_TIMING_REPORT_TAG) $output_log
+		set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(rcx_report_file_tag)_extraction_sta 0]
         run_sta -output_log $output_log -runtime_log $runtime_log 
     }
 }
