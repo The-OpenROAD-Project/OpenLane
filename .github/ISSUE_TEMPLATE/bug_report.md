@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+<!-- NOTE: This template is NOT a suggestion. Issues not using this template will very likely be ignored. -->
+
 ### Description
 A clear and concise description of what the bug is.
 
@@ -17,6 +19,8 @@ Please run the following command in the OpenLane folder:
 python3 ./env.py issue-survey
 
 And copy and paste the ENTIRE output between the triple-backticks.
+
+If there's no env.py, you are using an out of date version of OpenLane and should probably update. 
 ```
 
 ### Reproduction Material
