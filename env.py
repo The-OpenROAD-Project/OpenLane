@@ -333,7 +333,9 @@ class Installer(object):
             subprocess.run([
                 "bash", "-c", f"""
                     source ./venv/bin/activate
-                    python3 -m pip install -r ./dependencies/python/compile_time.txt
+                    python3 -m pip install --upgrade -r ./dependencies/python/precompile_time.txt
+                    python3 -m pip install --upgrade -r ./dependencies/python/compile_time.txt
+                    python3 -m pip install --upgrade -r ./dependencies/python/run_time.txt
                 """
             ])
 

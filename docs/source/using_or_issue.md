@@ -14,11 +14,11 @@ You'll have to extract three key elements from the error:
 As a practical example, for this log from flow_summary.txt:
 
 ```log
-[INFO]: Changing layout from /openLANE_flow/designs/spm/runs/config_TEST_fastestTestSet1/results/cts/spm.cts.def to /openLANE_flow/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def
+[INFO]: Changing layout from /openlane/designs/spm/runs/config_TEST_fastestTestSet1/results/cts/spm.cts.def to /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def
 [...]
 [INFO]: Running Global Routing...
 [INFO]: current step index: 15
-[INFO]: Changing layout from /openLANE_flow/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def to /openLANE_flow/designs/spm/runs/config_TEST_fastestTestSet1/tmp/routing/15-fastroute.def
+[INFO]: Changing layout from /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def to /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/routing/15-fastroute.def
 ```
 
 The three elements would be:

@@ -58,11 +58,11 @@
     ninja clean
     ninja
     cp padring $PREFIX/bin
-- name: qflow
+- name: vlog2Verilog
   repo: https://github.com/RTimothyEdwards/qflow
   commit: a550469b63e910ede6e3022e2886bca96462c540
   build: |
-    # Note that we only build and install the vlog2verilog tool.
+    # Note that vlog2Verilog is part of the qflow repository.
     ./configure
     cd src
     make clean

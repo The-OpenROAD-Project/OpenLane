@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # Common development tools and libraries (kitchen sink approach)
-FROM centos:centos7 as build
+FROM centos:centos7
 
 # wget
 RUN yum install -y wget && \
@@ -22,12 +22,13 @@ RUN yum install -y wget && \
 # klayout
 RUN mkdir /build
 WORKDIR /build
-RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
+ENV KLAYOUT_VERSION 0.27.3-0
+RUN wget https://www.klayout.org/downloads/CentOS_7/klayout-${KLAYOUT_VERSION}.x86_64.rpm
 
 
 RUN mkdir -p /build/version/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/klayout.version
-RUN echo "klayout-0.26.9-0.x86_64" >> /build/version/klayout.version
+RUN echo "klayout-${KLAYOUT_VERSION}.x86_64" >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 

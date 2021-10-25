@@ -6,6 +6,7 @@ boost
 bzip2
 cairo
 curl
+eigen
 flex
 gawk
 gcc@11
