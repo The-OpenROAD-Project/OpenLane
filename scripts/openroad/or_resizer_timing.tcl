@@ -43,13 +43,29 @@ source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
 estimate_parasitics -placement
 set_propagated_clock [all_clocks]
 
-repair_timing -hold \
-              -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
-              -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)
 
-repair_timing -setup \
-              -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
-              -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)
+if { $::env(PL_RESIZER_ALLOW_SETUP_VIOS) == 1} {
+    if { [catch {repair_timing -hold -allow_setup_violations \
+            -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
+            -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)}
+    ]} {
+        puts "Hold utilization limit is reached. Continuing the flow... "
+    }
+} else {
+    if { [catch {repair_timing -hold \
+            -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
+            -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)}
+    ]} {
+        puts "Hold utilization limit is reached. Continuing the flow... "
+    }
+}
+
+if { [catch {repair_timing -setup \
+        -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
+        -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)}
+]} {
+    puts "Setup utilization limit is reached. Continuing the flow... "
+}
 
 set_placement_padding -global -right $::env(CELL_PAD)
 

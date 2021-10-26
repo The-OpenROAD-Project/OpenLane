@@ -1,17 +1,9 @@
-
-# Design
-
-# Design
-
 # Design
 set ::env(DESIGN_NAME) "des3"
 
 set ::env(VERILOG_FILES) [glob ./designs/des3/src/*.v]
 
-set ::env(CLOCK_PERIOD) "2.000"
 set ::env(CLOCK_PORT) "clk"
-
-
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 
 
