@@ -252,7 +252,7 @@ for side in pin_placement_cfg:
                 if bterm in bterm_regex_map:
                     print("Error: Multiple regexes matched", pin_name,
                           ". Those are", bterm_regex_map[bterm], "and", regex)
-                    sys.exit(os.EX_DATA)
+                    sys.exit(os.EX_DATAERR)
                 bterm_regex_map[bterm] = regex
                 pin_placement[side].append(bterm)  # to maintain the order
 
