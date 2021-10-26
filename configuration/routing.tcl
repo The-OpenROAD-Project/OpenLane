@@ -14,7 +14,7 @@
 
 # Routing defaults
 if {! [info exists ::env(ROUTING_CORES)] } {
-    set ::env(ROUTING_CORES) 2
+    set ::env(ROUTING_CORES) 6
 }
 set ::env(GLB_RT_ADJUSTMENT) 0.0
 set ::env(GLB_RT_L1_ADJUSTMENT) 0; # more like pdk-specific (e.g., when L1 = li)
@@ -45,3 +45,9 @@ set ::env(ROUTING_OPT_ITERS) 64
 
 set ::env(GLOBAL_ROUTER) fastroute
 set ::env(DETAILED_ROUTER) tritonroute
+
+set ::env(GLB_RESIZER_HOLD_SLACK_MARGIN) 0.1
+set ::env(GLB_RESIZER_SETUP_SLACK_MARGIN) 0.05
+set ::env(GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT) 50
+set ::env(GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT) 50
+set ::env(GLB_RESIZER_ALLOW_SETUP_VIOS) 0
