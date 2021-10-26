@@ -3,11 +3,8 @@
 set ::env(DESIGN_NAME) "aes128"
 
 set ::env(VERILOG_FILES) "./designs/aes128/src/aes128.v"
-set ::env(SDC_FILE) "./designs/aes128/src/aes128.sdc"
 
-set ::env(CLOCK_PERIOD) "18.0"
 set ::env(CLOCK_PORT) "clk"
-
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 
 
