@@ -21,6 +21,7 @@ base_image: ./docker/base/Dockerfile
 	cat ../dependencies/python/precompile_time.txt > ./docker/base/pip_precompile_dependencies.txt
 	cat ../dependencies/python/compile_time.txt > ./docker/base/pip_compile_dependencies.txt
 	cat ../dependencies/python/run_time.txt > ./docker/base/pip_dependencies.txt
+	mkdir -p logs/docker
 	docker build $(DOCKER_BUILD_OPTS) -t openlane-build-base docker/base | tee logs/docker/base.build.txt
 
 $(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile base_image
