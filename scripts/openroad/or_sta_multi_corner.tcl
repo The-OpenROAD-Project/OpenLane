@@ -26,33 +26,47 @@ if { $::env(CURRENT_DEF) != 0 } {
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-read_liberty $::env(LIB_SYNTH_COMPLETE)
+define_corners ss tt ff
+read_liberty -corner ss $::env(LIB_SLOWEST)
+read_liberty -corner tt $::env(LIB_SYNTH_COMPLETE)
+read_liberty -corner ff $::env(LIB_FASTEST)
 
 read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)
 
+# read spef files if they are generated
+if { [info exists ::env(SPEF_TYPICAL)] } {
+    read_spef -corner ss $::env(SPEF_SLOWEST)
+    read_spef -corner tt $::env(SPEF_TYPICAL)
+    read_spef -corner ff $::env(SPEF_FASTEST)
+}
+
 read_sdc -echo $::env(CURRENT_SDC)
 
-if { [info exists ::env(SPEF_TYPICAL)] } {
-    read_spef $::env(SPEF_TYPICAL)
-} elseif {$::env(ESTIMATE_PL_PARASITICS)} {
-    source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
-    set_wire_rc -layer $::env(WIRE_RC_LAYER)
-    estimate_parasitics -placement
-}
 
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
+puts "\n======================= Slowest Corner ===================================\n"
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
+puts "\n======================= Fastest Corner ===================================\n"
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ff
 puts "min_report_end"
+
 
 puts "max_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 
+puts "\n======================= Slowest Corner ===================================\n"
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
+puts "\n======================= Fastest Corner ===================================\n"
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ff
 puts "max_report_end"
 
 
@@ -60,20 +74,36 @@ puts "check_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
 puts "============================================================================"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded 
+puts "\n======================= Slowest Corner ===================================\n"
+report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner ss 
+puts "\n======================= Typical Corner ===================================\n"
+report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
+puts "\n======================= Fastest Corner ===================================\n"
+report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff 
+
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
 puts "============================================================================"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded
+puts "\n======================= Slowest Corner ===================================\n"
+report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ss 
+puts "\n======================= Typical Corner ===================================\n"
+report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
+puts "\n======================= Fastest Corner ===================================\n"
+report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff 
 puts "check_report_end"
+
 
 puts "check_slew"
 puts "\n==========================================================================="
 puts " report_check_types -max_slew -max_cap -max_fanout -violators"
 puts "============================================================================"
-report_check_types -max_slew -max_capacitance -max_fanout -violators
-
+puts "\n======================= Slowest Corner ===================================\n"
+report_check_types -max_slew -max_capacitance -max_fanout -violators -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_check_types -max_slew -max_capacitance -max_fanout -violators -corner tt
+puts "\n======================= Fastest Corner ===================================\n"
+report_check_types -max_slew -max_capacitance -max_fanout -violators -corner ff
 
 puts "\n==========================================================================="
 puts "max slew violation count [sta::max_slew_violation_count]"
@@ -96,6 +126,7 @@ puts "==========================================================================
 report_wns
 puts "wns_report_end"
 
+
 puts "worst_slack"
 puts "\n==========================================================================="
 puts " report_worst_slack -max (Setup)"
@@ -108,6 +139,7 @@ puts "==========================================================================
 report_worst_slack -min 
 puts "worst_slack_end"
 
+
 # report clock skew if the clock port is defined
 # OR hangs if this command is run on clockless designs
 if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
@@ -115,7 +147,12 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "\n==========================================================================="
     puts " report_clock_skew"
     puts "============================================================================"
-    report_clock_skew
+    puts "\n======================== Slowest Corner ==================================\n"
+    report_clock_skew -corner ss 
+    puts "\n======================= Typical Corner ===================================\n"
+    report_clock_skew -corner tt 
+    puts "\n======================= Fastest Corner ===================================\n"
+    report_clock_skew -corner ff 
     puts "clock_skew_end"
 }
 
@@ -123,8 +160,14 @@ puts "power_report"
 puts "\n==========================================================================="
 puts " report_power"
 puts "============================================================================"
-report_power 
+puts "\n\n======================= Slowest Corner =================================\n"
+report_power -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_power -corner tt
+puts "\n\n======================= Fastest Corner =================================\n"
+report_power -corner ff
 puts "power_report_end"
+
 
 puts "area_report"
 puts "\n==========================================================================="
@@ -132,7 +175,3 @@ puts " report_design_area"
 puts "============================================================================"
 report_design_area
 puts "area_report_end"
-
-if { [info exists ::env(SAVE_SDF)] } {
-    write_sdf $::env(SAVE_SDF)
-}

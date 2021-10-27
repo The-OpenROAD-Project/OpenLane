@@ -218,7 +218,6 @@ class Report(object):
         sta_log = Artifact(rp, "logs", "synthesis", "opensta")
         sta_log.generate_reports(
             ("opensta.rpt", "check_report"),
-            ("opensta.timing.rpt", "timing_report"),
             ("opensta.min.rpt", "min_report"),
             ("opensta.max.rpt", "max_report"),
             ("opensta_wns.rpt", "wns_report"),
@@ -233,7 +232,6 @@ class Report(object):
         sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer_design_optimization_sta")
         sta_post_resizer_log.generate_reports(
             ("resizer_design_optimization_sta.rpt", "check_report"),
-            ("resizer_design_optimization_sta.timing.rpt", "timing_report"),
             ("resizer_design_optimization_sta.min.rpt", "min_report"),
             ("resizer_design_optimization_sta.max.rpt", "max_report"),
             ("resizer_design_optimization_sta.wns.rpt", "wns_report"),
@@ -248,7 +246,6 @@ class Report(object):
         sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "resizer_timing_optimization_sta")
         sta_post_resizer_timing_log.generate_reports(
             ("resizer_timing_optimization_sta.rpt", "check_report"),
-            ("resizer_timing_optimization_sta.timing.rpt", "timing_report"),
             ("resizer_timing_optimization_sta.max.rpt", "min_report"),
             ("resizer_timing_optimization_sta.min.rpt", "max_report"),
             ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
@@ -263,7 +260,6 @@ class Report(object):
         sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer_timing_optimization_sta")
         sta_post_resizer_routing_timing_log.generate_reports(
             ("resizer_timing_optimization_sta.rpt", "check_report"),
-            ("resizer_timing_optimization_sta.timing.rpt", "timing_report"),
             ("resizer_timing_optimization_sta.min.rpt", "min_report"),
             ("resizer_timing_optimization_sta.max.rpt", "max_report"),
             ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
@@ -278,7 +274,6 @@ class Report(object):
         sta_spef_log = Artifact(rp, "logs", "routing", "spef_extraction_sta")
         sta_spef_log.generate_reports(
             ("spef_extraction_sta.rpt", "check_report"),
-            ("spef_extraction_sta.timing.rpt", "timing_report"),
             ("spef_extraction_sta.min.rpt", "min_report"),
             ("spef_extraction_sta.max.rpt", "max_report"),
             ("spef_extraction_sta.wns.rpt", "wns_report"),
@@ -288,6 +283,20 @@ class Report(object):
             ("spef_extraction_sta.clock_skew.rpt", "clock_skew"),
             ("spef_extraction_sta.power.rpt", "power_report"),
             ("spef_extraction_sta.area.rpt", "area_report")
+        )
+
+        sta_spef_multi_corner_log = Artifact(rp, "logs", "routing", "spef_extraction_multi_corner_sta")
+        sta_spef_multi_corner_log.generate_reports(
+            ("spef_extraction_multi_corner_sta.rpt", "check_report"),
+            ("spef_extraction_multi_corner_sta.min.rpt", "min_report"),
+            ("spef_extraction_multi_corner_sta.max.rpt", "max_report"),
+            ("spef_extraction_multi_corner_sta.wns.rpt", "wns_report"),
+            ("spef_extraction_multi_corner_sta.tns.rpt", "tns_report"),
+            ("spef_extraction_multi_corner_sta.slew.rpt", "check_slew"),
+            ("spef_extraction_multi_corner_sta.worst_slack.rpt", "worst_slack"),
+            ("spef_extraction_multi_corner_sta.clock_skew.rpt", "clock_skew"),
+            ("spef_extraction_multi_corner_sta.power.rpt", "power_report"),
+            ("spef_extraction_multi_corner_sta.area.rpt", "area_report")
         )
 
     def extract_all_values(self):
