@@ -49,18 +49,18 @@ if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BU
 
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH) \
-                  -max_slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
-                  -max_cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
+                  -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
+                  -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 } else {
-    repair_design -max_slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
-                  -max_cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
+    repair_design -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
+                  -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 }
 
 # repair tie lo fanout
-repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIELO_PORT) 1]
+repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIELO_PORT) 0]/[lindex $::env(SYNTH_TIELO_PORT) 1]
 
 # repair tie hi fanout
-repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIEHI_PORT) 1]
+repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIEHI_PORT) 0]/[lindex $::env(SYNTH_TIEHI_PORT) 1]
 
 report_floating_nets -verbose
 

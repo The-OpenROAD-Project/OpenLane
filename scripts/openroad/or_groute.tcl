@@ -51,15 +51,13 @@ if { $::env(GLB_RT_MAXLAYER) > 3 } {
     }
 }
 
-# grt::set_tile_size $::env(GLB_RT_TILES)
-
-grt::set_overflow_iterations $::env(GLB_RT_OVERFLOW_ITERS)
-
 if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
     global_route -verbose 3\
+        -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)\
         -allow_congestion
 } else {
-    global_route -verbose 3
+    global_route -verbose 3 \
+    -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)
 }
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {

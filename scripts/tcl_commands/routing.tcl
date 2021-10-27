@@ -340,6 +340,16 @@ proc add_route_obs {args} {
 }
 
 proc run_spef_extraction {args} {
+	set options {
+		{-rcx_lib optional}
+		{-output_spef optional}
+	}
+	parse_key_args "run_spef_extraction" args arg_values $options
+	set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE);
+	set_if_unset arg_values(-output_spef) [file rootname $::env(CURRENT_DEF)].spef;
+	set ::env(CURRENT_SPEF) $arg_values(-output_spef)
+	set ::env(LIB_RCX) $arg_values(-rcx_lib)
+	
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
 		puts_info "Running SPEF Extraction..."
 		TIMER::timer_start
@@ -349,15 +359,8 @@ proc run_spef_extraction {args} {
 		} else {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		}
-		set ::env(CURRENT_SPEF) [file rootname $::env(CURRENT_DEF)].spef
-		set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
-		# Static Timing Analysis using the extracted SPEF 
-		set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
-        set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
-		set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(rcx_report_file_tag)_extraction_sta 0]
-        run_sta -output_log $output_log -runtime_log $runtime_log 
     }
 }
 
@@ -417,7 +420,27 @@ proc run_routing {args} {
     detailed_routing
 	scrot_klayout -layout $::env(CURRENT_DEF)
 
-    run_spef_extraction
+	# spef extraction at the three corners 
+	set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
+	set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
+	set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+
+    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL)
+
+	# run sta at the typical corner using the extracted spef
+	set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
+	set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
+	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(rcx_report_file_tag)_extraction_sta 0]
+	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+	run_sta -output_log $output_log -runtime_log $runtime_log 
+
+    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST)
+    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST)
+	
+	# run sta at the three corners 
+	set output_log [index_file $::env(rcx_log_file_tag)_extraction_multi_corner_sta 0] 
+	set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_multi_corner_sta_runtime.txt 0] 
+	run_sta -output_log $output_log -runtime_log $runtime_log -multi_corner
 
 	## Calculate Runtime To Routing
 	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/routed_runtime.txt

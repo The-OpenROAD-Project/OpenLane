@@ -33,8 +33,8 @@ link_design $::env(DESIGN_NAME)
 
 read_sdc -echo $::env(CURRENT_SDC)
 
-if { [info exists ::env(CURRENT_SPEF)] } {
-    read_spef $::env(CURRENT_SPEF)
+if { [info exists ::env(SPEF_TYPICAL)] } {
+    read_spef $::env(SPEF_TYPICAL)
 } elseif {$::env(ESTIMATE_PL_PARASITICS)} {
     source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
     set_wire_rc -layer $::env(WIRE_RC_LAYER)
@@ -55,12 +55,6 @@ puts "==========================================================================
 report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 
 puts "max_report_end"
 
-puts "timing_report"
-puts "\n==========================================================================="
-puts "report_checks -unique"
-puts "============================================================================"
-report_checks -unique -fields {slew cap input nets fanout} -slack_max -0.0 -format full_clock_expanded
-puts "timing_report_end"
 
 puts "check_report"
 puts "\n==========================================================================="

@@ -90,17 +90,23 @@ proc run_sta {args} {
 	}
     set flags {
 		-placement_parasitics
+		-multi_corner 
 	}
     parse_key_args "run_sta" args arg_values $options flags_map $flags
-	
 	set ::env(ESTIMATE_PL_PARASITICS)  [info exists flags_map(-placement_parasitics)]
+	set multi_corner [info exists flags_map(-multi_corner)]
 
 	puts_info "Running Static Timing Analysis..."
 	TIMER::timer_start
 	if {[info exists ::env(CLOCK_PORT)]} {
 		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta.tcl \
-		|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
+		if { $multi_corner == 1} {
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta_multi_corner.tcl \
+			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
+		} else {
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta.tcl \
+			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
+		}
 	} else {
 		puts_warn "No CLOCK_PORT found. Skipping STA..."
 	}

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
+foreach lib $::env(LIB_RCX) {
 	read_liberty $lib
 }
 
@@ -49,4 +49,4 @@ extract_parasitics $rcx_flags -ext_model_file $::env(RCX_RULES)\
     -cc_model $::env(RCX_CC_MODEL)\
     -context_depth $::env(RCX_CONTEXT_DEPTH)
 
-write_spef [file rootname $::env(CURRENT_DEF)].spef
+write_spef $::env(CURRENT_SPEF)
