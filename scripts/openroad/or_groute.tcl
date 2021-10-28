@@ -79,22 +79,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
         set_propagated_clock [all_clocks]
         estimate_parasitics -global_routing
 
-        puts "check_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01 > $::env(fastroute_report_file_tag).rpt
-        puts "check_report_end"
-        puts "timing_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100 > $::env(fastroute_report_file_tag).timing.rpt
-        puts "timing_report_end"
-        puts "min_max_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max > $::env(fastroute_report_file_tag).min_max.rpt
-        puts "min_max_report_end"
-        puts "wns_report"
-        report_wns
-        puts "wns_report_end"
-        puts "tns_report"
-        report_tns
-        puts "tns_report_end"
-
+        set ::env(RUN_STANDALONE) 0
+        source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
     }
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

@@ -35,6 +35,7 @@ source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
+
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
@@ -73,6 +74,9 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
 }
 check_placement -verbose
 
-
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
+
+# Run STA
+set ::env(RUN_STANDALONE) 0
+source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
