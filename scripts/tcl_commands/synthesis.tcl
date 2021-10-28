@@ -89,12 +89,11 @@ proc run_sta {args} {
 		{-runtime_log -required} 
 	}
     set flags {
-		-placement_parasitics
 		-multi_corner 
 	}
     parse_key_args "run_sta" args arg_values $options flags_map $flags
-	set ::env(ESTIMATE_PL_PARASITICS)  [info exists flags_map(-placement_parasitics)]
 	set multi_corner [info exists flags_map(-multi_corner)]
+    set ::env(RUN_STANDALONE) 1
 
 	puts_info "Running Static Timing Analysis..."
 	TIMER::timer_start

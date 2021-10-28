@@ -466,9 +466,6 @@ proc run_resizer_timing_routing {args} {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
 
-		set output_log [index_file $::env(glb_resizer_log_file_tag)_timing_optimization_sta 0] 
-        set runtime_log  [index_file $::env(glb_resizer_log_file_tag)_timing_optimization_sta_runtime.txt 0] 
-        run_sta -placement_parasitics -output_log $output_log -runtime_log $runtime_log 
     } else {
         puts_info "Skipping Resizer Timing Optimizations."
     }

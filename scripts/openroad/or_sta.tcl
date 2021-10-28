@@ -12,34 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if { $::env(CURRENT_DEF) != 0 } {
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+if { $::env(RUN_STANDALONE) == 1 } {
+    if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
+
+    if { $::env(CURRENT_DEF) != 0 } {
+        if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    }
+    read_liberty $::env(LIB_SYNTH_COMPLETE)
+    read_verilog $::env(CURRENT_NETLIST)
+    link_design $::env(DESIGN_NAME)
+    read_sdc -echo $::env(CURRENT_SDC)
 }
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-read_liberty $::env(LIB_SYNTH_COMPLETE)
-
-read_verilog $::env(CURRENT_NETLIST)
-link_design $::env(DESIGN_NAME)
-
-read_sdc -echo $::env(CURRENT_SDC)
-
 if { [info exists ::env(SPEF_TYPICAL)] } {
     read_spef $::env(SPEF_TYPICAL)
-} elseif {$::env(ESTIMATE_PL_PARASITICS)} {
-    source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
-    set_wire_rc -layer $::env(WIRE_RC_LAYER)
-    estimate_parasitics -placement
-}
+} 
 
 puts "min_report"
 puts "\n==========================================================================="

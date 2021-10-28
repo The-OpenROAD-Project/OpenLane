@@ -190,18 +190,19 @@ class Report(object):
         cts_log.generate_reports(
             ("cts.rpt", "cts_report"),
             ("cts_sta.rpt", "check_report"),
-            ("cts_sta.timing.rpt", "timing_report"),
-            ("cts_sta.min_max.rpt", "min_max_report"),
+            ("cts_sta.min.rpt", "min_report"),
+            ("cts_sta.max.rpt", "max_report"),
             ("cts_sta.wns.rpt", "wns_report"),
             ("cts_sta.tns.rpt", "tns_report"),
-            ("cts_sta.clock_skew.rpt", "cts_clock_skew_report"),
+            ("cts_sta.clock_skew.rpt", "clock_skew")
         )
 
         routing_log = Artifact(rp, "logs", "routing", "fastroute.log")
         routing_log.generate_reports(
             ("fastroute_sta.rpt", "check_report"),
-            ("fastroute_sta.timing.rpt", "timing_report"),
-            ("fastroute_sta.min_max.rpt", "min_max_report"),
+            ("fastroute_sta.clock_skew.rpt", "clock_skew"),
+            ("fastroute_sta.min.rpt", "min_report"),
+            ("fastroute_sta.max.rpt", "max_report"),
             ("fastroute_sta.wns.rpt", "wns_report"),
             ("fastroute_sta.tns.rpt", "tns_report")
         )
@@ -209,8 +210,9 @@ class Report(object):
         placement_log = Artifact(rp, "logs", "placement", "replace.log")
         placement_log.generate_reports(
             ("replace_sta.rpt", "check_report"),
-            ("replace_sta.timing.rpt", "timing_report"),
-            ("replace_sta.min_max.rpt", "min_max_report"),
+            ("replace_sta.clock_skew.rpt", "clock_skew"),
+            ("replace_sta.min.rpt", "min_report"),
+            ("replace_sta.max.rpt", "max_report"),
             ("replace_sta.wns.rpt", "wns_report"),
             ("replace_sta.tns.rpt", "tns_report")
         )
@@ -229,7 +231,7 @@ class Report(object):
             ("opensta.area.rpt", "design_area")
         )
 
-        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer_design_optimization_sta")
+        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer_design_optimization.log")
         sta_post_resizer_log.generate_reports(
             ("resizer_design_optimization_sta.rpt", "check_report"),
             ("resizer_design_optimization_sta.min.rpt", "min_report"),
@@ -243,7 +245,7 @@ class Report(object):
             ("resizer_design_optimization_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "resizer_timing_optimization_sta")
+        sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "resizer_timing_optimization.log")
         sta_post_resizer_timing_log.generate_reports(
             ("resizer_timing_optimization_sta.rpt", "check_report"),
             ("resizer_timing_optimization_sta.max.rpt", "min_report"),
@@ -257,7 +259,7 @@ class Report(object):
             ("resizer_timing_optimization_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer_timing_optimization_sta")
+        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer_timing_optimization.log")
         sta_post_resizer_routing_timing_log.generate_reports(
             ("resizer_timing_optimization_sta.rpt", "check_report"),
             ("resizer_timing_optimization_sta.min.rpt", "min_report"),

@@ -87,24 +87,8 @@ puts "cts_report_end"
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
-        puts "check_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -group_count 100  -slack_max -0.01
-        puts "check_report_end"
-        puts "timing_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -unique -slack_max -0.0 -group_count 100
-        puts "timing_report_end"
-        puts "min_max_report"
-        report_checks -fields {capacitance slew input_pins nets fanout} -path_delay min_max
-        puts "min_max_report_end"
-        puts "clock_skew_report"
-        report_clock_skew
-        puts "clock_skew_report_end"
-        puts "wns_report"
-        report_wns
-        puts "wns_report_end"
-        puts "tns_report"
-        report_tns
-        puts "tns_report_end"
+        set ::env(RUN_STANDALONE) 0
+        source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

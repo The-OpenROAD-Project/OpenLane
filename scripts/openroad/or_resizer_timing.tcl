@@ -78,3 +78,8 @@ check_placement -verbose
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
+
+# Run STA
+set ::env(RUN_STANDALONE) 0
+puts "Post-timing optimizations"
+source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
