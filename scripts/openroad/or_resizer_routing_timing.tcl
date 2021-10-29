@@ -81,9 +81,6 @@ source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl
 
 set_propagated_clock [all_clocks]
 
-# CTS and detailed placement move instances, so update parasitic estimates.
-set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 # estimate wire rc parasitics
 estimate_parasitics -global_routing
 

@@ -91,8 +91,6 @@ if {[info exists ::env(CLOCK_PORT)]} {
         source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
         set_propagated_clock [all_clocks]
         # estimate wire rc parasitics
-        set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-        set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
         estimate_parasitics -global_routing
 
         set ::env(RUN_STANDALONE) 0
