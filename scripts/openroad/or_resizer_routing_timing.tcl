@@ -28,22 +28,67 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 read_sdc -echo $::env(CURRENT_SDC)
 
-# Resize
-# estimate wire rc parasitics
-set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
-
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
 
-# CTS and detailed placement move instances, so update parasitic estimates.
-global_route
+set signal_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER)-1}]]
+set signal_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER)-1}]]
+
+if { ![info exists ::env(CLB_RT_CLOCK_MIN_LAYER)] } {
+    set clock_min_layer $signal_min_layer
+} else {
+    set clock_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER)-1}]]
+}
+
+if { ![info exists ::env(CLB_RT_CLOCK_MAX_LAYER)] } {
+    set clock_max_layer $signal_max_layer
+} else {
+    set clock_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER)-1}]]
+}
+
+puts "\[INFO]: Setting singal min routig layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "
+puts "\[INFO]: Setting signal max routig layer to: $signal_max_layer and clock min routing layer to $clock_max_layer.  "
+
+set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
+
+grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
+
+grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
+grt::add_layer_adjustment 2 $::env(GLB_RT_L2_ADJUSTMENT)
+grt::add_layer_adjustment 3 $::env(GLB_RT_L3_ADJUSTMENT)
+if { $::env(GLB_RT_MAXLAYER) > 3 } {
+    grt::add_layer_adjustment 4 $::env(GLB_RT_L4_ADJUSTMENT)
+    if { $::env(GLB_RT_MAXLAYER) > 4 } {
+        grt::add_layer_adjustment 5 $::env(GLB_RT_L5_ADJUSTMENT)
+        if { $::env(GLB_RT_MAXLAYER) > 5 } {
+            grt::add_layer_adjustment 6 $::env(GLB_RT_L6_ADJUSTMENT)
+        }
+    }
+}
+
+if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
+    global_route -verbose 3\
+        -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)\
+        -allow_congestion
+} else {
+    global_route -verbose 3 \
+    -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)
+}
+
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-estimate_parasitics -global_routing
+
 set_propagated_clock [all_clocks]
 
+# CTS and detailed placement move instances, so update parasitic estimates.
+set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
+set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
+# estimate wire rc parasitics
+estimate_parasitics -global_routing
+
+
+# Resize
 if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1} {
     if { [catch {repair_timing -hold -allow_setup_violations \
             -slack_margin $::env(GLB_RESIZER_HOLD_SLACK_MARGIN) \
@@ -81,6 +126,7 @@ check_placement -verbose
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 
-# Run STA
+# Run post timing optimizations STA
+estimate_parasitics -global_routing
 set ::env(RUN_STANDALONE) 0
 source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 

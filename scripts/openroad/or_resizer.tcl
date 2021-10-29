@@ -31,9 +31,9 @@ read_sdc -echo $::env(CURRENT_SDC)
 # Resize
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-# estimate wire rc parasitics
 set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
 set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
+# estimate wire rc parasitics
 estimate_parasitics -placement
 
 if { [info exists ::env(DONT_USE_CELLS)] } {
@@ -77,6 +77,7 @@ check_placement -verbose
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 
-# Run STA
+# Run post design optimizations STA
+estimate_parasitics -placement
 set ::env(RUN_STANDALONE) 0
 source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 

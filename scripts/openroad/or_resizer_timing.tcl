@@ -28,22 +28,22 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 read_sdc -echo $::env(CURRENT_SDC)
 
-# Resize
-# estimate wire rc parasitics
-set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
-
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
 
-# CTS and detailed placement move instances, so update parastic estimates.
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-estimate_parasitics -placement
+
 set_propagated_clock [all_clocks]
 
+# CTS and detailed placement move instances, so update parastic estimates.
+set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
+set_wire_rc -clock -layer $::env(WIRE_RC_LAYER)
+# estimate wire rc parasitics
+estimate_parasitics -placement
 
+# Resize
 if { $::env(PL_RESIZER_ALLOW_SETUP_VIOS) == 1} {
     if { [catch {repair_timing -hold -allow_setup_violations \
             -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
@@ -68,18 +68,19 @@ if { [catch {repair_timing -setup \
 }
 
 set_placement_padding -global -right $::env(CELL_PAD)
-
 set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+
 detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
+
 check_placement -verbose
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 
-# Run STA
+# Run post timing optimizations STA
+estimate_parasitics -placement
 set ::env(RUN_STANDALONE) 0
-puts "Post-timing optimizations"
 source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
