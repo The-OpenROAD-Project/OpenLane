@@ -58,6 +58,13 @@ proc run_routing_step {args} {
     run_routing
 }
 
+proc run_eco_step {args} {
+    set path "$::env(LOG_DIR)/eco"
+    file mkdir $path
+
+    run_eco
+}
+
 proc run_diode_insertion_2_5_step {args} {
     # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
@@ -150,6 +157,7 @@ proc run_non_interactive_mode {args} {
                 "placement" {run_placement_step ""} \
                 "cts" {run_cts_step ""} \
                 "routing" {run_routing_step ""}\
+		"eco" {run_eco_step ""} \
                 "diode_insertion" {run_diode_insertion_2_5_step ""} \
                 "power_pins_insertion" {run_power_pins_insertion_step ""} \
                 "gds_magic" {run_magic ""} \
