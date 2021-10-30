@@ -58,13 +58,6 @@ proc run_routing_step {args} {
     run_routing
 }
 
-proc run_eco_step {args} {
-    set path "$::env(LOG_DIR)/eco"
-    file mkdir $path
-
-    run_eco
-}
-
 proc run_diode_insertion_2_5_step {args} {
     # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
@@ -131,6 +124,58 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 }
 
 
+proc run_eco_step {args} {
+    set path "$::env(RUN_DIR)/results/eco"
+    file mkdir $path
+
+    set ::env(ECO_FINISH) 0
+    set ::env(ECO_ITER) 0
+
+    exec primetime -f pt.tcl &
+
+    while {$::env(ECO_FINISH) != 0} {
+	# Run cts again
+	run_cts_step
+
+	# Source PT script that generates the fixes
+	# Then run detailed placement again
+	# Get the connections then destroy them
+        run_eco
+
+	# Re-run remaining steps
+        dict for {step_name step_exe} $eco_steps {
+            if { [ string equal $arg_values(-from) $step_name ] } {
+                set exe 1;
+            }
+
+            if { $exe } {
+                # For when it fails
+                set ::env(CURRENT_STEP) $step_name
+                [lindex $step_exe 0] [lindex $step_exe 1] ;
+            }
+
+            if { [ string equal $arg_values(-to) $step_name ] } {
+                set exe 0:
+                break;
+            }
+
+        }
+
+	# Use regex to determine if finished here
+        # set fp   [open  $path r]
+	# set fd   [read  $fp]
+	# set txt  [split $fd "\n"]
+	# if {[regexp {no errors} $fp]} {
+        #      set eco_finish 1
+        #  }
+        #  else {
+        #      exec primetime -f pt.tcl &
+        #  }
+	set ::env(ECO_FINISH) 1
+	incr ::env(ECO_ITER)
+    }
+
+}
 
 proc run_non_interactive_mode {args} {
 	set options {
@@ -157,7 +202,20 @@ proc run_non_interactive_mode {args} {
                 "placement" {run_placement_step ""} \
                 "cts" {run_cts_step ""} \
                 "routing" {run_routing_step ""}\
-		"eco" {run_eco_step ""} \
+                "diode_insertion" {run_diode_insertion_2_5_step ""} \
+                "power_pins_insertion" {run_power_pins_insertion_step ""} \
+                "gds_magic" {run_magic ""} \
+                "gds_drc_klayout" {run_klayout ""} \
+                "gds_xor_klayout" {run_klayout_gds_xor ""} \
+                "lvs" "run_lvs_step $LVS_ENABLED" \
+                "drc" "run_drc_step $DRC_ENABLED" \
+                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+                "cvc" {run_lef_cvc} \
+		"eco" {run_eco_step ""}
+        ]
+
+    # Assume only one run for now
+    set eco_steps [dict create "routing" {run_routing_step ""}\
                 "diode_insertion" {run_diode_insertion_2_5_step ""} \
                 "power_pins_insertion" {run_power_pins_insertion_step ""} \
                 "gds_magic" {run_magic ""} \
@@ -181,6 +239,9 @@ proc run_non_interactive_mode {args} {
     set_if_unset arg_values(-from) $::env(CURRENT_STEP);
     set exe 0;
     dict for {step_name step_exe} $steps {
+        puts "================================================"
+        puts $step_name
+        puts "================================================"
         if { [ string equal $arg_values(-from) $step_name ] } {
             set exe 1;
         }
