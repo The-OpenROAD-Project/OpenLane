@@ -75,6 +75,12 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
 }
 estimate_parasitics -placement
 
+
+if { $::env(ECO_STARTED) == 1} {
+    source $::env(SCRIPTS_DIR)/eco.tcl
+}
+
+
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 if { [check_placement -verbose] } {

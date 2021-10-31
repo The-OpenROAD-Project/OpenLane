@@ -1,20 +1,25 @@
+run_eco
+
 proc run_eco {args} {
 	# Source fixes from PT
-	set fix_file [list $::env(RUN_DIR) results eco]
-	append fix_file $::env(ECO_ITER)_wc.tcl
+    # Fixes are currently unavailable
+	# set fix_file [list $::env(RUN_DIR) results eco]
+	# append fix_file $::env(ECO_ITER)_wc.tcl
+    # source $fix_file
 
-        source $fix_file
+    # Run detailed placement
+    detailed_placement
 
-        detailed_placement
-        set block [ord::get_db_block]
-        set nets [$block getNets]
+    # Destroy faulty connections
+    set block [ord::get_db_block]
+    set nets [$block getNets]
 
-        foreach net $nets {
-            set wire [$net getWire]
-             if {$wire != "NULL"} {
-                  [odb::dbWire_destroy $wire]
-             }
-        }
+    foreach net $nets {
+        set wire [$net getWire]
+         if {$wire != "NULL"} {
+              [odb::dbWire_destroy $wire]
+         }
+    }
 
 }
 
@@ -62,4 +67,14 @@ proc insert_buffer {pin_name master_name net_name inst_name} {
 # done inserting the buffer
   odb::dbITerm_connect $in_iterm $old_net
   odb::dbITerm_connect $out_iterm $new_net
+}
+
+
+proc size_cell {inst_name new_master_name} {
+  set db [ord::get_db]
+  set new_master [$db findMaster $new_master_name]
+
+  set block [ord::get_db_block]
+  set inst [$block findInst $inst_name]
+  $inst swapMaster $new_master
 }

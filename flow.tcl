@@ -42,6 +42,12 @@ proc run_cts_step {args} {
         set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
     }
 
+    if { ! [info exists ::env(ECO_STARTED) ] } {
+        set ::env(ECO_STARTED) 0
+    } else {
+        set ::env(ECO_STARTED) 1
+    }
+
     run_cts
     run_resizer_timing
 }
@@ -131,18 +137,26 @@ proc run_eco_step {args} {
     set ::env(ECO_FINISH) 0
     set ::env(ECO_ITER) 0
 
-    exec primetime -f pt.tcl &
+    # Pretend that the script below creates
+    # the script that contains
+    # the necessary fixes
+    # exec primetime -f pt.tcl &
+    puts "Reading the final verilog!"
+    puts "Linking the TT/Fast/Slow library!"
+    puts "Sourcing the SDC"
+    puts "Generating Timing reports!"
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rpt.tcl
+
+    puts "Generating Fix commands (resize/insert)"
 
     while {$::env(ECO_FINISH) != 0} {
-	# Run cts again
-	run_cts_step
+        # Re-run cts and routing again
+        
+        # or_cts will source the eco.tc script
+        # that contains the fixes
 
-	# Source PT script that generates the fixes
-	# Then run detailed placement again
-	# Get the connections then destroy them
-        run_eco
-
-	# Re-run remaining steps
+        # Then run detailed placement again
+        # Get the connections then destroy them
         dict for {step_name step_exe} $eco_steps {
             if { [ string equal $arg_values(-from) $step_name ] } {
                 set exe 1;
@@ -161,20 +175,23 @@ proc run_eco_step {args} {
 
         }
 
-	# Use regex to determine if finished here
+        # Use regex to determine if finished here
         # set fp   [open  $path r]
-	# set fd   [read  $fp]
-	# set txt  [split $fd "\n"]
-	# if {[regexp {no errors} $fp]} {
+        # set fd   [read  $fp]
+        # set txt  [split $fd "\n"]
+
+        # Exit the loop if no violations are reported
+        # if {[regexp {no errors} $fp]} {
         #      set eco_finish 1
         #  }
+        # Run the script that generate new fixes
         #  else {
         #      exec primetime -f pt.tcl &
         #  }
-	set ::env(ECO_FINISH) 1
-	incr ::env(ECO_ITER)
-    }
 
+        set ::env(ECO_FINISH) 1
+        incr ::env(ECO_ITER)
+    }
 }
 
 proc run_non_interactive_mode {args} {
@@ -202,20 +219,7 @@ proc run_non_interactive_mode {args} {
                 "placement" {run_placement_step ""} \
                 "cts" {run_cts_step ""} \
                 "routing" {run_routing_step ""}\
-                "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                "power_pins_insertion" {run_power_pins_insertion_step ""} \
-                "gds_magic" {run_magic ""} \
-                "gds_drc_klayout" {run_klayout ""} \
-                "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                "lvs" "run_lvs_step $LVS_ENABLED" \
-                "drc" "run_drc_step $DRC_ENABLED" \
-                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                "cvc" {run_lef_cvc} \
-		"eco" {run_eco_step ""}
-        ]
-
-    # Assume only one run for now
-    set eco_steps [dict create "routing" {run_routing_step ""}\
+                "eco" {run_eco_step ""}\
                 "diode_insertion" {run_diode_insertion_2_5_step ""} \
                 "power_pins_insertion" {run_power_pins_insertion_step ""} \
                 "gds_magic" {run_magic ""} \
@@ -225,6 +229,11 @@ proc run_non_interactive_mode {args} {
                 "drc" "run_drc_step $DRC_ENABLED" \
                 "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
                 "cvc" {run_lef_cvc}
+        ]
+
+    # Assume only one run for now
+    set eco_steps [dict create "cts" {run_cts_step ""}\
+                "routing" {run_routing_step ""}
         ]
 
     set_if_unset arg_values(-to) "cvc";
@@ -239,9 +248,9 @@ proc run_non_interactive_mode {args} {
     set_if_unset arg_values(-from) $::env(CURRENT_STEP);
     set exe 0;
     dict for {step_name step_exe} $steps {
-        puts "================================================"
+        puts "################################################"
         puts $step_name
-        puts "================================================"
+        puts "################################################"
         if { [ string equal $arg_values(-from) $step_name ] } {
             set exe 1;
         }
