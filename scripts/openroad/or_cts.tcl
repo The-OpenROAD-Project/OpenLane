@@ -17,6 +17,12 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty $lib
+	}
+}
+
 foreach lib $::env(LIB_CTS) {
     read_liberty $lib
 }

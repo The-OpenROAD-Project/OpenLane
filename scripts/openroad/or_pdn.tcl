@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty $lib
+	}
+}
+
 foreach lib $::env(LIB_SYNTH_COMPLETE) {
 	read_liberty $lib
 }

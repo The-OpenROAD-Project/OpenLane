@@ -24,6 +24,13 @@ if { $::env(RUN_STANDALONE) == 1 } {
             exit 1
         }
     }
+
+    if { [info exists ::env(EXTRA_LIBS) ] } {
+	    foreach lib $::env(EXTRA_LIBS) {
+		    read_liberty $lib
+	    }
+    }
+
     read_liberty $::env(LIB_SYNTH_COMPLETE)
     read_verilog $::env(CURRENT_NETLIST)
     link_design $::env(DESIGN_NAME)
