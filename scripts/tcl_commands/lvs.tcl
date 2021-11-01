@@ -83,7 +83,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     # LEF LVS output to lvs.lef.log, design.lvs_parsed.lef.log, design.lvs.lef.json, design.lvs.lef.log
     # GDS LVS output to lvs.gds.log, design.lvs_parsed.gds.log, design.lvs.gds.json, design.lvs.gds.log
     # GDS LVS uses STD_CELL_LIBRARY spice and
-    # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
+    # if defined, additional LVS_EXTRA_SPICE or LVS_EXTRA_STD_CELL_LIBRARY and LVS_EXTRA_GATE_LEVEL_VERILOG files
     TIMER::timer_start
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type gds
@@ -101,20 +101,26 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     #writes setup_file_*_lvs to tmp directory.
     set lvs_file [open $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs w]
     if { "$extract_type" == "gds" } {
+        if { [info exist ::env(STD_CELL_LIBRARY)] } {
+            set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
+        } else {
+            set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+        }
+        puts $lvs_file "puts \"Reading spice netlist file $std_cell_source\""
+        puts $lvs_file "readnet spice $std_cell_source 1"
         if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
             set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)
             foreach lib_file $libs_in {
                 puts $lvs_file "puts \"Reading spice netlist file $lib_file\""
                 puts $lvs_file "readnet spice $lib_file 1"
             }
-        } else {
-            if { [info exist ::env(STD_CELL_LIBRARY)] } {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
-            } else {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+        }
+        if { [info exist ::env(LVS_EXTRA_SPICE)] } {
+            set libs_in $::env(LVS_EXTRA_SPICE)
+            foreach lib_file $libs_in {
+                puts $lvs_file "puts \"Reading spice netlist file $lib_file\""
+                puts $lvs_file "readnet spice $lib_file 1"
             }
-            puts $lvs_file "puts \"Reading spice netlist file $std_cell_source\""
-            puts $lvs_file "readnet spice $std_cell_source 1"
         }
         if { [info exist ::env(LVS_EXTRA_GATE_LEVEL_VERILOG)] } {
             set libs_in $::env(LVS_EXTRA_GATE_LEVEL_VERILOG)

@@ -151,6 +151,8 @@ proc run_magic_spice_export {args} {
 		set commands \
 "
 if { \[info exist ::env(MAGIC_EXT_USE_GDS)\] && \$::env(MAGIC_EXT_USE_GDS) } {
+	gds flatglob \"*_example_*\"
+	gds flatten true
 	gds read \$::env(CURRENT_GDS)
 } else {
 	lef read $::env(TECH_LEF)
