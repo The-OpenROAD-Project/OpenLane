@@ -33,8 +33,8 @@ set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-set_wire_rc -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
+
 # Clone clock tree inverters next to register loads
 # so cts does not try to buffer the inverted clocks.
 repair_clock_inverters

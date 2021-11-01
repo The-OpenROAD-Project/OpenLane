@@ -20,3 +20,6 @@ if { [info exist ::env(LAYERS_RC)] } {
         set_layer_rc -layer $layer_name -capacitance $capacitance -resistance $resistance
     }
 }
+
+set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
+set_wire_rc -clock -layer $::env(WIRE_RC_LAYER)

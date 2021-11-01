@@ -30,11 +30,25 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
-grt::check_routing_layer $::env(GLB_RT_MINLAYER)
-grt::set_min_layer $::env(GLB_RT_MINLAYER)
+set signal_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER)-1}]]
+set signal_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER)-1}]]
 
-grt::check_routing_layer $::env(GLB_RT_MAXLAYER)
-grt::set_max_layer $::env(GLB_RT_MAXLAYER)
+if { ![info exists ::env(CLB_RT_CLOCK_MIN_LAYER)] } {
+    set clock_min_layer $signal_min_layer
+} else {
+    set clock_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER)-1}]]
+}
+
+if { ![info exists ::env(CLB_RT_CLOCK_MAX_LAYER)] } {
+    set clock_max_layer $signal_max_layer
+} else {
+    set clock_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER)-1}]]
+}
+
+puts "\[INFO]: Setting singal min routig layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "
+puts "\[INFO]: Setting signal max routig layer to: $signal_max_layer and clock min routing layer to $clock_max_layer.  "
+
+set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
 
 grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
 
@@ -75,8 +89,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
 	
         # set rc values
         source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-        set_wire_rc -layer $::env(WIRE_RC_LAYER)
         set_propagated_clock [all_clocks]
+        # estimate wire rc parasitics
         estimate_parasitics -global_routing
 
         set ::env(RUN_STANDALONE) 0

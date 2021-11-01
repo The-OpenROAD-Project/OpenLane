@@ -37,8 +37,6 @@ if { !$::env(RCX_MERGE_VIA_WIRE_RES) } {
 
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
-set_wire_rc -signal -layer $::env(DATA_WIRE_RC_LAYER)
-set_wire_rc -clock -layer $::env(CLOCK_WIRE_RC_LAYER)
 
 # RCX 
 define_process_corner -ext_model_index 0 X

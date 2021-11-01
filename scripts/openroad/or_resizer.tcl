@@ -28,12 +28,10 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 read_sdc -echo $::env(CURRENT_SDC)
 
-# Resize
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+
 # estimate wire rc parasitics
-set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-set_wire_rc -clock  -layer $::env(WIRE_RC_LAYER)
 estimate_parasitics -placement
 
 if { [info exists ::env(DONT_USE_CELLS)] } {
@@ -47,7 +45,7 @@ if { [info exists ::env(PL_RESIZER_BUFFER_INPUT_PORTS)] && $::env(PL_RESIZER_BUF
 if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) } {
     buffer_ports -outputs
 }
-
+# Resize
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH) \
                   -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
@@ -77,6 +75,7 @@ check_placement -verbose
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
 
-# Run STA
+# Run post design optimizations STA
+estimate_parasitics -placement
 set ::env(RUN_STANDALONE) 0
 source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
