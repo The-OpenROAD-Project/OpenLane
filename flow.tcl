@@ -146,18 +146,34 @@ proc run_eco_step {args} {
     puts "Sourcing the SDC"
     puts "Generating Timing reports!"
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rpt.tcl
+    
+    # Assume script generate fix commands
+    puts "Generating Fix commands (resize/insert)"    
 
-    puts "Generating Fix commands (resize/insert)"
-
-    while {$::env(ECO_FINISH) != 0} {
+    while {$::env(ECO_FINISH) != 1} {
+        puts "Start ECO loop!"
         # Re-run cts and routing again
         
-        # or_cts will source the eco.tc script
+        # or_cts will source the eco.tcl script
         # that contains the fixes
 
         # Then run detailed placement again
         # Get the connections then destroy them
+
+        # Assume only one run for now
+        set eco_steps [dict create "cts" {run_cts_step ""}\
+            "routing" {run_routing_step ""}
+        ]
+
+        set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+        set_if_unset arg_values(-to) "routing";
+
+        set exe 0;
         dict for {step_name step_exe} $eco_steps {
+            puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
+            puts "Re-running"
+            puts $step_name
+            puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
             if { [ string equal $arg_values(-from) $step_name ] } {
                 set exe 1;
             }
@@ -231,10 +247,6 @@ proc run_non_interactive_mode {args} {
                 "cvc" {run_lef_cvc}
         ]
 
-    # Assume only one run for now
-    set eco_steps [dict create "cts" {run_cts_step ""}\
-                "routing" {run_routing_step ""}
-        ]
 
     set_if_unset arg_values(-to) "cvc";
 
