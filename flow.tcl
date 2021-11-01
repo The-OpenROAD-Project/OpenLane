@@ -42,11 +42,13 @@ proc run_cts_step {args} {
         set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
     }
 
+    puts "ECO_STARTED value: "
     if { ! [info exists ::env(ECO_STARTED) ] } {
         set ::env(ECO_STARTED) 0
     } else {
         set ::env(ECO_STARTED) 1
     }
+    puts $::env(ECO_STARTED)
 
     run_cts
     run_resizer_timing
@@ -145,10 +147,14 @@ proc run_eco_step {args} {
     puts "Linking the TT/Fast/Slow library!"
     puts "Sourcing the SDC"
     puts "Generating Timing reports!"
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rpt.tcl
+    # try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rpt.tcl
     
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
+    try_catch $::env(OPENROAD_BIN) \
+    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+    -i $::env(RUN_DIR)/reports/routing/23-spef_extraction_multi_corner_sta.min.rpt \
+    -o $::env(RUN_DIR)/results/eco/eco_fix.tcl
 
     while {$::env(ECO_FINISH) != 1} {
         puts "Start ECO loop!"
@@ -165,7 +171,7 @@ proc run_eco_step {args} {
             "routing" {run_routing_step ""}
         ]
 
-        set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+        set_if_unset arg_values(-from) "cts";
         set_if_unset arg_values(-to) "routing";
 
         set exe 0;
@@ -181,6 +187,7 @@ proc run_eco_step {args} {
             if { $exe } {
                 # For when it fails
                 set ::env(CURRENT_STEP) $step_name
+                puts $step_exe
                 [lindex $step_exe 0] [lindex $step_exe 1] ;
             }
 

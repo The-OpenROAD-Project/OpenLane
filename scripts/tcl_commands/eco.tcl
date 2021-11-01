@@ -6,7 +6,8 @@ proc run_eco {args} {
 	# set fix_file [list $::env(RUN_DIR) results eco]
 	# append fix_file $::env(ECO_ITER)_wc.tcl
     # source $fix_file
-
+    
+    puts "Running run_eco!"
     # Run detailed placement
     detailed_placement
 

@@ -75,8 +75,8 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
 }
 estimate_parasitics -placement
 
-
 if { $::env(ECO_STARTED) == 1} {
+    puts "Sourcing eco.tcl!"
     source $::env(SCRIPTS_DIR)/eco.tcl
 }
 
