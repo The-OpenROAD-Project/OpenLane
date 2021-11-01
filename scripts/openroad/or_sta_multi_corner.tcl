@@ -24,6 +24,12 @@ if { $::env(CURRENT_DEF) != 0 } {
     }
 }
 
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty $lib
+	}
+}
+
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
 define_corners ss tt ff

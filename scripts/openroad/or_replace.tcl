@@ -22,6 +22,11 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty $lib
+	}
+}
 
 set ::block [[[::ord::get_db] getChip] getBlock]
 set ::insts [$::block getInsts]
