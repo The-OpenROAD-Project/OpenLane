@@ -268,7 +268,7 @@ proc run_magic_drc_batch {args} {
 			-noconsole \
 			-dnull \
 			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
-			</dev/null |& /dev/tty
+			</dev/null |& tee /dev/tty
 	}
 }
 
