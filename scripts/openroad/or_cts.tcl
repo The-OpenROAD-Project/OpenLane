@@ -77,7 +77,7 @@ estimate_parasitics -placement
 
 if { $::env(ECO_STARTED) == 1} {
     puts "Sourcing eco.tcl!"
-    source $::env(SCRIPTS_DIR)/eco.tcl
+    source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
 }
 
 

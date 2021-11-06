@@ -151,9 +151,10 @@ proc run_eco_step {args} {
     
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
+    puts [lindex [glob -path $::env(RUN_DIR)/reports/routing *multi_corner_sta.min] 0] 
     try_catch $::env(OPENROAD_BIN) \
     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-    -i $::env(RUN_DIR)/reports/routing/23-spef_extraction_multi_corner_sta.min.rpt \
+    -i [lindex [glob -path $::env(RUN_DIR)/reports/routing *multi_corner_sta.min] 0] \
     -o $::env(RUN_DIR)/results/eco/eco_fix.tcl
 
     while {$::env(ECO_FINISH) != 1} {

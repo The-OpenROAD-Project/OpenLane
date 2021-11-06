@@ -1,4 +1,3 @@
-run_eco
 
 proc run_eco {args} {
 	# Source fixes from PT
@@ -79,3 +78,11 @@ proc size_cell {inst_name new_master_name} {
   set inst [$block findInst $inst_name]
   $inst swapMaster $new_master
 }
+
+run_eco
+
+
+
+
+
+

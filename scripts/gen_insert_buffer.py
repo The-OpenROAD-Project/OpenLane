@@ -15,6 +15,7 @@ args = parser.parse_args()
 input_file = args.input_file
 output_file = args.output_file
 
+
 splitLine = "\n\n\n"
 printArr = []
 
