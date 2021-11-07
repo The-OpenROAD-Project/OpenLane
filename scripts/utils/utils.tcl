@@ -295,6 +295,23 @@ proc puts_info {txt} {
   }
 }
 
+proc generate_routing_report {args} {
+    puts_info "Generating Report for routing..."
+    set options {
+        {-output optional}
+        {-man_report optional}
+        {-runtime_summary optional}
+    }
+    set flags {}
+    parse_key_args "generate_routing_report" args arg_values $options flags_map $flags
+    
+    try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/gen_report_routing.py -d $::env(DESIGN_DIR) \
+        --design_name $::env(DESIGN_NAME) \
+        --tag $::env(RUN_TAG) \
+        --run_path $::env(RUN_DIR)
+}
+
+
 proc generate_final_summary_report {args} {
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
 		puts_info "Generating Final Summary Report..."

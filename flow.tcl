@@ -64,6 +64,7 @@ proc run_routing_step {args} {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
     run_routing
+    generate_routing_report
 }
 
 proc run_diode_insertion_2_5_step {args} {
@@ -135,19 +136,20 @@ proc eco_output_check {args} {
         puts "Entering eco_output_check subproc!"
         puts "Value of current ECO_ITER: $::env(ECO_ITER)"
 
+        set path "$::env(RUN_DIR)/results/eco"
+
         # Use regex to determine if finished here
-        set   fp   [open  $path/eco_fix_$::env(ECO_ITER) "r"]
+        set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
         set   fd   [read  $fp]
         set   txt  [split $fd "\n"]
         close $fp
         
         foreach line $txt {
             # Exit the loop if no violations are reported
-            if {[regexp {no errors} $txt]} {
+            if {[regexp {No violations} $txt]} {
                 set ::env(ECO_FINISH) 1
-            }
-            # Run the script that generate new fixes
-            else {
+            } else {
+                # Run the script that generate new fixes
                 if {$::env(ECO_ITER) != 0} {
                     puts "Cont. Generating Fix commands"    
                     try_catch $::env(OPENROAD_BIN) \
@@ -155,8 +157,8 @@ proc eco_output_check {args} {
                     -i [lindex [glob -path $::env(RUN_DIR)/reports/routing \
                                      *multi_corner_sta.min*] 0] \
                     -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+                    incr ::env(ECO_ITER)
                 } 
-                incr ::env(ECO_ITER)
             }
             break
         }
