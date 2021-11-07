@@ -15,7 +15,6 @@ args = parser.parse_args()
 input_file = args.input_file
 output_file = args.output_file
 
-
 splitLine = "\n\n\n"
 printArr = []
 
@@ -42,20 +41,21 @@ if os.path.exists(input_file):
                 '(-[0-9]+\.[0-9]+) +slack', vio_name)
             if (minus_time_str != None):
                 vio_count += 1
-                # minus_time=minus_time_str.group(1)
                 start_point_str = re.search('Startpoint: (.*?)[ \n]', vio_name)
                 if (start_point_str != None):
                     start_point = start_point_str.group(1)
                     start_pin = re.search(start_point+'/Q', vio_name)
-                # end_point_str = re.search('Endpoint: (.*?) ', vio_name)
-                # if(end_point_str != None):
-                #     end_point = end_point_str.group(1)
-                    insert_buffer_line = "insert_buffer "+start_point+'/Q'+" " + "sky130_fd_sc_hd__dlygate4sd3_1" + \
-                        " net_HOLD_NET_"+str(vio_count) + \
-                        " U_HOLD_FIX_BUF"+str(vio_count)
+                    insert_buffer_line = "insert_buffer " \
+                        + start_point+'/Q' \
+                        + " " \
+                        + "sky130_fd_sc_hd__dlygate4sd3_1" \
+                        + " net_HOLD_NET_" +str(vio_count) \
+                        + " U_HOLD_FIX_BUF" +str(vio_count)
                     printArr.append(insert_buffer_line)
                     print(insert_buffer_line)
-
+        if vio_count == 0:
+            insert_buffer_line = "No violations found"
+            printArr.append(insert_buffer_line)
 else:
     printArr.append("Source not found.")
 

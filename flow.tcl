@@ -131,6 +131,36 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
+proc eco_output_check {args} {
+        puts "Entering eco_output_check subproc!"
+        puts "Value of current ECO_ITER: $::env(ECO_ITER)"
+
+        # Use regex to determine if finished here
+        set   fp   [open  $path/eco_fix_$::env(ECO_ITER) "r"]
+        set   fd   [read  $fp]
+        set   txt  [split $fd "\n"]
+        close $fp
+        
+        foreach line $txt {
+            # Exit the loop if no violations are reported
+            if {[regexp {no errors} $txt]} {
+                set ::env(ECO_FINISH) 1
+            }
+            # Run the script that generate new fixes
+            else {
+                if {$::env(ECO_ITER) != 0} {
+                    puts "Cont. Generating Fix commands"    
+                    try_catch $::env(OPENROAD_BIN) \
+                    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+                    -i [lindex [glob -path $::env(RUN_DIR)/reports/routing \
+                                     *multi_corner_sta.min*] 0] \
+                    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+                } 
+                incr ::env(ECO_ITER)
+            }
+            break
+        }
+}
 
 proc run_eco_step {args} {
     set path "$::env(RUN_DIR)/results/eco"
@@ -147,15 +177,16 @@ proc run_eco_step {args} {
     puts "Linking the TT/Fast/Slow library!"
     puts "Sourcing the SDC"
     puts "Generating Timing reports!"
-    # try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rpt.tcl
     
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
-    puts [lindex [glob -path $::env(RUN_DIR)/reports/routing *multi_corner_sta.min] 0] 
     try_catch $::env(OPENROAD_BIN) \
     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-    -i [lindex [glob -path $::env(RUN_DIR)/reports/routing *multi_corner_sta.min] 0] \
-    -o $::env(RUN_DIR)/results/eco/eco_fix.tcl
+    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
+                     *multi_corner_sta.min*.rpt] 0] \
+    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+
+    eco_output_check
 
     while {$::env(ECO_FINISH) != 1} {
         puts "Start ECO loop!"
@@ -198,25 +229,13 @@ proc run_eco_step {args} {
             }
 
         }
+        # end of dict
 
-        # Use regex to determine if finished here
-        # set fp   [open  $path r]
-        # set fd   [read  $fp]
-        # set txt  [split $fd "\n"]
-
-        # Exit the loop if no violations are reported
-        # if {[regexp {no errors} $fp]} {
-        #      set eco_finish 1
-        #  }
-        # Run the script that generate new fixes
-        #  else {
-        #      exec primetime -f pt.tcl &
-        #  }
-
-        set ::env(ECO_FINISH) 1
-        incr ::env(ECO_ITER)
+        eco_output_check
     }
+    # end of while
 }
+
 
 proc run_non_interactive_mode {args} {
 	set options {
