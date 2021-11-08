@@ -83,7 +83,6 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                 new_sources_lines = []
 
                 for entry in range(entries):
-                    print(entry * 2, entry * 2 + 1)
                     name_line = sources_lines[entry * 2]
                     commit_line = sources_lines[entry * 2 + 1]
                     
