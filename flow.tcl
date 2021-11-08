@@ -136,10 +136,11 @@ proc eco_output_check {args} {
         puts "Entering eco_output_check subproc!"
         puts "Value of current ECO_ITER: $::env(ECO_ITER)"
 
-        set path "$::env(RUN_DIR)/results/eco"
+        set path     "$::env(RUN_DIR)/results/eco"
+        set cur_iter [expr $::env(ECO_ITER) == 0 ? 0 : $::env(ECO_ITER)-1]
 
         # Use regex to determine if finished here
-        set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
+        set   fp   [open  $path/eco_fix_$cur_iter.tcl "r"]
         set   fd   [read  $fp]
         set   txt  [split $fd "\n"]
         close $fp
@@ -155,10 +156,10 @@ proc eco_output_check {args} {
                     try_catch $::env(OPENROAD_BIN) \
                     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
                     -i [lindex [glob -path $::env(RUN_DIR)/reports/routing \
-                                     *multi_corner_sta.min*] 0] \
+                                     *multi_corner_sta.min*] end] \
                     -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
-                    incr ::env(ECO_ITER)
                 } 
+                incr $::env(ECO_ITER)
             }
             break
         }
@@ -185,12 +186,13 @@ proc run_eco_step {args} {
     try_catch $::env(OPENROAD_BIN) \
     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
     -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
-                     *multi_corner_sta.min*.rpt] 0] \
+                     *multi_corner_sta.min*.rpt] end] \
     -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
 
     eco_output_check
 
     while {$::env(ECO_FINISH) != 1} {
+
         puts "Start ECO loop!"
         # Re-run cts and routing again
         
