@@ -67,22 +67,19 @@ if { $::env(PL_TIME_DRIVEN) } {
 	read_sdc $::env(CURRENT_SDC)
 	read_verilog $::env(yosys_result_file_tag).v
 	lappend arg_list -timing_driven
-} else {
-	lappend arg_list -disable_timing_driven
 }
 
 if { $::env(PL_ROUTABILITY_DRIVEN) } {
 	lappend arg_list -routability_driven
 	lappend arg_list -routability_max_density [expr $::env(PL_TARGET_DENSITY) + 0.1]
 	lappend arg_list -routability_max_inflation_iter 10
-} else {
-	lappend arg_list -disable_routability_driven
 }
 
-if { $::env(PL_SKIP_INITIAL_PLACEMENT) } {
+if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
+puts stderr $arg_list
 global_placement {*}$arg_list
 
 write_def $::env(SAVE_DEF)
