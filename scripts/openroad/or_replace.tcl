@@ -67,6 +67,8 @@ if { $::env(PL_TIME_DRIVEN) } {
 	read_sdc $::env(CURRENT_SDC)
 	gpl::set_timing_driven_mode 1
 	read_verilog $::env(yosys_result_file_tag).v
+} else {
+	gpl::set_timing_driven_mode 0
 }
 
 if { $::env(PL_ROUTABILITY_DRIVEN) } {
@@ -89,6 +91,8 @@ if { $::env(PL_ROUTABILITY_DRIVEN) } {
 	grt::set_overflow_iterations 150
 	gpl::set_routability_max_density_cmd [expr $::env(PL_TARGET_DENSITY) + 0.1]
 	gpl::set_routability_max_inflation_iter_cmd 10
+} else {
+	gpl::set_routability_driven_mode 0
 }
 
 if { !$::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_BASIC_PLACEMENT) } {
