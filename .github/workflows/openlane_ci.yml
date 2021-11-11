@@ -38,7 +38,7 @@ jobs:
       # END EXPORT BLOCK
 
       - name: Docker Build
-        run: cd docker_build/ && make merge
+        run: cd docker/ && make merge
 
       - name: Export Docker Image
         run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
@@ -85,6 +85,7 @@ jobs:
     needs: docker_build
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix: ${{ fromJSON(needs.docker_build.outputs.matrix) }}
     name: Test Design ${{ matrix.design }}
     steps:
@@ -153,7 +154,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - name: Check If Going To Push An Image To Docker
-        if: needs.test.result == 'success'
+        # # Uncomment the next line if you want to only build & push a container if entire test set succeeds
+        # if: needs.test.result == 'success'
         # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
         run: |
           export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')

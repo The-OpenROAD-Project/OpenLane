@@ -1,6 +1,6 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
 DOCKER_BUILD_OPTS ?= --rm
-DOCKERFILE_PATH ?= ./docker/openlane/Dockerfile
+DOCKERFILE_PATH ?= ./openlane/Dockerfile
 OPENLANE_IMAGE_NAME ?= efabless/openlane:current
 #ROOT = sudo
 
@@ -14,19 +14,19 @@ TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 build-all: $(TOOL_BUILD_TARGETS) export-all
 
-base_image: ./docker/base/Dockerfile
-	cat ../dependencies/centos-7/precompile_time.txt > ./docker/base/yum_precompile_dependencies.txt
-	cat ../dependencies/centos-7/compile_time.txt > ./docker/base/yum_compile_dependencies.txt
-	cat ../dependencies/centos-7/run_time.txt > ./docker/base/yum_dependencies.txt
-	cat ../dependencies/python/precompile_time.txt > ./docker/base/pip_precompile_dependencies.txt
-	cat ../dependencies/python/compile_time.txt > ./docker/base/pip_compile_dependencies.txt
-	cat ../dependencies/python/run_time.txt > ./docker/base/pip_dependencies.txt
-	mkdir -p logs/docker
-	docker build $(DOCKER_BUILD_OPTS) -t openlane-build-base docker/base | tee logs/docker/base.build.txt
+base_image: ./base/Dockerfile
+	cat ../dependencies/centos-7/precompile_time.txt > ./base/yum_precompile_dependencies.txt
+	cat ../dependencies/centos-7/compile_time.txt > ./base/yum_compile_dependencies.txt
+	cat ../dependencies/centos-7/run_time.txt > ./base/yum_dependencies.txt
+	cat ../dependencies/python/precompile_time.txt > ./base/pip_precompile_dependencies.txt
+	cat ../dependencies/python/compile_time.txt > ./base/pip_compile_dependencies.txt
+	cat ../dependencies/python/run_time.txt > ./base/pip_dependencies.txt
+	mkdir -p logs
+	docker build $(DOCKER_BUILD_OPTS) -t openlane-build-base base | tee logs/base.build.txt
 
-$(TOOL_BUILD_TARGETS): build-% : ./docker/%/Dockerfile base_image
-	mkdir -p logs/docker
-	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* docker/$* | tee logs/docker/$*.build.txt
+$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile base_image
+	mkdir -p logs
+	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* $* | tee logs/$*.build.txt
 	${MAKE} export-$*
 
 # ==============================================================================
@@ -51,7 +51,7 @@ tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
 	cd tar && tar -czf openroad_tools.tar.gz ../build
 
 tar/openlane.tar.gz: FORCE
-	cd tar && tar --exclude='../../.git' --exclude='../../docker_build' --exclude="../../designs" --exclude="../../pdks" --exclude="../../logs/*" -czf openlane.tar.gz ../../
+	cd tar && tar --exclude='../../.git' --exclude='../../docker' --exclude="../../designs" --exclude="../../pdks" --exclude="../../logs/*" -czf openlane.tar.gz ../../
 
 FORCE:
 
@@ -60,8 +60,8 @@ merge: tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metada
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	cat ../dependencies/python/run_time.txt > ./tar/pip_dependencies.txt
 	cat ../dependencies/centos-7/run_time.txt > ./tar/yum_dependencies.txt
-	mkdir -p logs/docker/tar
-	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/docker/$<.build.txt ; \
+	mkdir -p logs/tar
+	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/$<.build.txt ; \
 
 .PHONY: clean_merge
 clean_merge:
