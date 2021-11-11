@@ -69,4 +69,6 @@ COPY ./.tclshrc /root
 
 WORKDIR $OPENLANE_ROOT
 
+RUN dbus-uuidgen --ensure
+
 CMD /bin/bash
