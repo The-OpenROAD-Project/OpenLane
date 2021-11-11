@@ -94,13 +94,13 @@ if {[info exists ::env(CLOCK_PORT)]} {
         read_sdc -echo $::env(CURRENT_SDC)
 	
         # set rc values
-        source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+        source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
         set_propagated_clock [all_clocks]
         # estimate wire rc parasitics
         estimate_parasitics -global_routing
 
         set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
+        source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
     }
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

@@ -38,7 +38,7 @@ read_sdc -echo $::env(CURRENT_SDC)
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 estimate_parasitics -placement
 
 # Clone clock tree inverters next to register loads
@@ -94,7 +94,7 @@ puts "cts_report_end"
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
         set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
+        source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

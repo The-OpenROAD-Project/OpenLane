@@ -47,7 +47,7 @@ if { $::env(FP_PDN_CHECK_NODES) } {
 
 if { $::env(FP_PDN_IRDROP) } {
     # set rc values
-    source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+    source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 
     analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
     

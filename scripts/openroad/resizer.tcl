@@ -35,7 +35,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 read_sdc -echo $::env(CURRENT_SDC)
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 
 # estimate wire rc parasitics
 estimate_parasitics -placement
@@ -84,4 +84,4 @@ write_sdc $::env(SAVE_SDC)
 # Run post design optimizations STA
 estimate_parasitics -placement
 set ::env(RUN_STANDALONE) 0
-source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
+source $::env(SCRIPTS_DIR)/openroad/sta.tcl 

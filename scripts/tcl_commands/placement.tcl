@@ -25,7 +25,7 @@ proc global_placement_or {args} {
 
     set report_tag_saver $::env(replaceio_report_file_tag)
     set ::env(replaceio_report_file_tag) [index_file $::env(replaceio_report_file_tag) 0]
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
     set ::env(replaceio_report_file_tag) $report_tag_saver
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
@@ -65,7 +65,7 @@ proc detailed_placement_or {args} {
     TIMER::timer_start
     set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
     set_def $::env(SAVE_DEF)
 
     if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
@@ -73,7 +73,7 @@ proc detailed_placement_or {args} {
 	puts_info "Retrying detailed placement"
 	set ::env(SAVE_DEF) $::env(opendp_result_file_tag).1.def
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
     }
 
     if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
@@ -118,7 +118,7 @@ proc basic_macro_placement {args} {
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
 
     check_macro_placer_num_solns
 
@@ -166,7 +166,7 @@ proc run_resizer_timing {args} {
         TIMER::timer_start
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
         set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing_optimization.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
@@ -192,7 +192,7 @@ proc run_resizer_design {args} {
         TIMER::timer_start
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag).def 0]
         set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag).sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_design_optimization.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_design_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

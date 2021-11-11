@@ -42,7 +42,7 @@ if { !$::env(RCX_MERGE_VIA_WIRE_RES) } {
 }
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 
 # RCX 
 define_process_corner -ext_model_index 0 X

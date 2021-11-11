@@ -34,7 +34,7 @@ from os.path import join, abspath, dirname, basename, isdir, relpath
 openlane_path = abspath(dirname(dirname(__file__)))
 
 parser = argparse.ArgumentParser(description="OpenROAD Issue Packager")
-parser.add_argument('--or-script', '-s', required=True, help='Path to the OpenROAD script causing the failure: i.e. ./scripts/openroad/or_antenna_check.tcl, ./scripts/openroad/or_pdn.tcl, etc. [required]')
+parser.add_argument('--or-script', '-s', required=True, help='Path to the OpenROAD script causing the failure: i.e. ./scripts/openroad/antenna_check.tcl, ./scripts/openroad/pdn.tcl, etc. [required]')
 parser.add_argument('--pdk-root', required=(os.getenv("PDK_ROOT") is None), default=os.getenv("PDK_ROOT"), help='Path to the PDK root [required if environment variable PDK_ROOT is not set]')
 parser.add_argument('--run-path', '-r', default=None, help='The run path. If not specified, the script will attempt to discern it from the input_def path.')
 parser.add_argument('--output', '-o', default="./out.def", help='Name of def file to be generated [default: ./out.def]')

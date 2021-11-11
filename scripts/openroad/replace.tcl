@@ -92,11 +92,11 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		read_liberty $::env(LIB_SYNTH_COMPLETE)
 		read_sdc -echo $::env(CURRENT_SDC)
 		# set rc values
-		source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 		estimate_parasitics -placement
 
         set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
+        source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
 	}
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

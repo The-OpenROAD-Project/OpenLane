@@ -360,7 +360,7 @@ proc prep {args} {
     }
 
     if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/or_pdn_cfg.tcl
+        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/pdn_cfg.tcl
     }
 
     # source PDK and SCL specific configurations
@@ -866,7 +866,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/write_verilog_runtime.txt 0]
     if { [info exists flags_map(-canonical)] } {
@@ -892,10 +892,10 @@ proc set_layer_tracks {args} {
 proc run_or_antenna_check {args} {
     TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/or_antenna.log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/antenna.log]
     try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/or_antenna_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/antenna_runtime.txt 0]
 
 }
 

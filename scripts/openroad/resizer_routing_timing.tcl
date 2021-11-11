@@ -83,7 +83,7 @@ if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
 }
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/or_set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 
 set_propagated_clock [all_clocks]
 
@@ -132,4 +132,4 @@ write_sdc $::env(SAVE_SDC)
 # Run post timing optimizations STA
 estimate_parasitics -global_routing
 set ::env(RUN_STANDALONE) 0
-source $::env(SCRIPTS_DIR)/openroad/or_sta.tcl 
+source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
