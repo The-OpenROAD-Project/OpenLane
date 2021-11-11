@@ -152,6 +152,10 @@ proc run_placement {args} {
     }
 
     run_resizer_design
+
+    if { [info exists ::env(DONT_BUFFER_PORTS) ]} {
+        remove_buffers
+    }
     detailed_placement_or
     scrot_klayout -layout $::env(CURRENT_DEF)
 }
@@ -205,4 +209,18 @@ proc run_resizer_design {args} {
         puts_info "Skipping Resizer Timing Optimizations."
     }
 }
+
+proc remove_buffers {args} {
+    set fbasename [file rootname $::env(CURRENT_DEF)]
+    set ::env(SAVE_DEF) ${fbasename}.remove_buffers.def
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/dont_buffer.py\
+        --input_lef  $::env(MERGED_LEF)
+        --input_def $::env(CURRENT_DEF)
+        --dont_buffer $::env(DONT_BUFFER_PORTS)
+        --output_def $::env(SAVE_DEF)
+    |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log 0]
+
+    set_def $::env(SAVE_DEF)
+}
+
 package provide openlane 0.9
