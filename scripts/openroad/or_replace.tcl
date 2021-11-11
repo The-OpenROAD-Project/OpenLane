@@ -49,59 +49,41 @@ if { ! $free_insts_flag } {
 	exit 0
 }
 
-gpl::set_verbose_level_cmd 1
-
-gpl::set_density_cmd $::env(PL_TARGET_DENSITY)
-
 read_lib $::env(LIB_SYNTH)
 
+set arg_list [list]
+
+lappend arg_list -verbose_level 1
+lappend arg_list -density $::env(PL_TARGET_DENSITY)
+
 if { $::env(PL_BASIC_PLACEMENT) } {
-	gpl::set_overflow_cmd 0.9
-	gpl::set_init_density_penalty_factor_cmd 0.0001
-	gpl::set_initial_place_max_iter_cmd 20
-	gpl::set_bin_grid_cnt_x_cmd 64
-	gpl::set_bin_grid_cnt_y_cmd 64
+	lappend arg_list -overflow 0.9
+	lappend arg_list -init_density_penalty 0.0001
+	lappend arg_list -initial_place_max_iter 20
+	lappend arg_list -bin_grid_count 64
 }
 
 if { $::env(PL_TIME_DRIVEN) } {
 	read_sdc $::env(CURRENT_SDC)
-	gpl::set_timing_driven_mode 1
 	read_verilog $::env(yosys_result_file_tag).v
+	lappend arg_list -timing_driven
 } else {
-	gpl::set_timing_driven_mode 0
+	lappend arg_list -disable_timing_driven
 }
 
 if { $::env(PL_ROUTABILITY_DRIVEN) } {
-	gpl::set_routability_driven_mode 1
-	grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
-	grt::set_max_layer $::env(GLB_RT_MAXLAYER)
-	grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
-	grt::add_layer_adjustment 2 $::env(GLB_RT_L2_ADJUSTMENT)
-	grt::add_layer_adjustment 3 $::env(GLB_RT_L3_ADJUSTMENT)
-	if { $::env(GLB_RT_MAXLAYER) > 3 } {
-	   grt::add_layer_adjustment 4 $::env(GLB_RT_L4_ADJUSTMENT)
-	    if { $::env(GLB_RT_MAXLAYER) > 4 } {
-	        grt::add_layer_adjustment 5 $::env(GLB_RT_L5_ADJUSTMENT)
-	        if { $::env(GLB_RT_MAXLAYER) > 5 } {
-	            grt::add_layer_adjustment 6 $::env(GLB_RT_L6_ADJUSTMENT)
-	        }
-	    }
-	}
-	# grt::set_unidirectional_routing $::env(GLB_RT_UNIDIRECTIONAL)
-	grt::set_overflow_iterations 150
-	gpl::set_routability_max_density_cmd [expr $::env(PL_TARGET_DENSITY) + 0.1]
-	gpl::set_routability_max_inflation_iter_cmd 10
+	lappend arg_list -routability_driven
+	lappend arg_list -routability_max_density [expr $::env(PL_TARGET_DENSITY) + 0.1]
+	lappend arg_list -routability_max_inflation_iter 10
 } else {
-	gpl::set_routability_driven_mode 0
+	lappend arg_list -disable_routability_driven
 }
 
-if { !$::env(PL_SKIP_INITIAL_PLACEMENT) || $::env(PL_BASIC_PLACEMENT) } {
-    gpl::replace_initial_place_cmd
+if { $::env(PL_SKIP_INITIAL_PLACEMENT) } {
+	lappend arg_list -skip_initial_place
 }
 
-gpl::replace_nesterov_place_cmd
-
-gpl::replace_reset_cmd
+global_placement {*}$arg_list
 
 write_def $::env(SAVE_DEF)
 
