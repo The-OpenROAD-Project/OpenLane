@@ -67,7 +67,7 @@ set_propagated_clock [all_clocks]
 estimate_parasitics -placement
 puts "\[INFO]: Repairing long wires on clock nets..."
 # CTS leaves a long wire from the pad to the clock tree root.
-repair_clock_nets
+repair_clock_nets -max_wire_length $::env(CTS_CLK_MAX_WIRE_LENGTH)
 
 estimate_parasitics -placement
 write_def $::env(SAVE_DEF)
