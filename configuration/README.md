@@ -147,6 +147,7 @@ These variables are optional that can be specified in the design configuration f
 | `CTS_SINK_CLUSTERING_SIZE` | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
 | `CTS_REPORT_TIMING` | Specifies whether or not to run STA after clock tree synthesis using OpenROAD's estimate_parasitics -placement and generates reports under `logs/cts`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
 | `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(TMP_DIR)/cts.lib`) |
 
 ### Routing
