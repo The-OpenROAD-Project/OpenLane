@@ -15,7 +15,8 @@ FROM openlane-build-base
 
 # Upstream is git://opencircuitdesign.com/magic, but servers are not stable enough for CI.
 ARG MAGIC_REPO=https://github.com/rtimothyedwards/magic
-ARG MAGIC_COMMIT=958d6f16701c1ee25e27440381b5c2c37b5fee7c
+# ARG MAGIC_COMMIT=958d6f16701c1ee25e27440381b5c2c37b5fee7c
+ARG MAGIC_COMMIT=bee0039e437efca8889a9e1a75cdeaf84183fbe7
 
 WORKDIR /magic
 RUN curl -L ${MAGIC_REPO}/tarball/${MAGIC_COMMIT} | tar -xzC . --strip-components=1 && \
