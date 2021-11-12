@@ -8,9 +8,7 @@ set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 set ::env(CLOCK_TREE_SYNTH) 0
 set ::env(CLOCK_PORT) ""
 
-
-set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
-set ::env(PL_RANDOM_GLB_PLACEMENT) 0
+set ::env(PL_RANDOM_GLB_PLACEMENT) 1
 
 set ::env(FP_SIZING) absolute
 set ::env(DIE_AREA) "0 0 34.165 54.885"

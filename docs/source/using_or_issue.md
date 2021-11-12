@@ -24,13 +24,13 @@ As a practical example, for this log from flow_summary.txt:
 
 The three elements would be:
 * input:    `./designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def`
-* script:   `./scripts/openroad/or_groute.tcl`
+* script:   `./scripts/openroad/groute.tcl`
 * run_path: `./designs/spm/runs/config_TEST_fastestTestSet1`
 
 Then you'd want to run this script as follows, from the root of the OpenLane Repo:
 ```sh
     python3 ./scripts/or_issue.py\
-        -s  ./scripts/openroad/or_groute.tcl\
+        -s  ./scripts/openroad/groute.tcl\
         ./designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def
         # run path is implicitly specified by input def: ./designs/spm/runs/config_TEST_fastestTestSet1
 ```

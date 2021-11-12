@@ -16,8 +16,11 @@ perl-Switch
 python36u
 python36u-pip
 python36u-tkinter
+qt5-qtbase
+qt5-qtimageformats
 strace
 tcl
+tcl-tclreadline-devel
 tclx
 tcllib
 tk

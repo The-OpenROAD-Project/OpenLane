@@ -49,6 +49,7 @@ python36u-devel
 python36u-libs
 python36u-pip
 python36u-tkinter
+qt5-qtbase-devel
 readline-devel
 rh-python35
 strace
@@ -56,6 +57,7 @@ spdlog-devel
 swig3
 tcl
 tcl-devel
+tcl-tclreadline-devel
 tcllib
 tclx
 texinfo

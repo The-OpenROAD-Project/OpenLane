@@ -16,23 +16,27 @@ OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-DOCKER_MEMORY_OPTIONS :=
+DOCKER_OPTIONS = $(shell python3 ./env.py docker-config)
+
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
-DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+DOCKER_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
 endif
 ifneq (,$(DOCKER_MEMORY))
-DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
+DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./env.py docker-config)
-DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
+UNAME_S := $(shell uname -s)
+ifeq (1,$(DOCKER_DISPLAY))
+ifeq ($(UNAME_S),Linux)
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix
+endif
+endif
 
 THREADS ?= 1
 
-ROUTING_CORES_OPTION := 
 ifneq (,$(ROUTING_CORES))
-ROUTING_CORES_OPTION += -e ROUTING_CORES=$(ROUTING_CORES)
+DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -58,7 +62,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)

@@ -545,7 +545,7 @@ To check the original author list of OpenLane, check [this][33].
 - [FOSSi Dial-Up - Skywater PDK: Fully open source manufacturable PDK for a 130nm process, Tim Ansell](https://www.youtube.com/watch?v=EczW2IWdnOM&)
 - [Skywater 130nm PDK - Initial Discovery, Sylvain Munaut](https://www.youtube.com/watch?v=gRYBdTXbxiU)
 
-[1]: ./docker_build/README.md
+[1]: ./docker/README.md
 [2]: ./configuration/README.md
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ifp

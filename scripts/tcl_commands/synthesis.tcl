@@ -100,10 +100,10 @@ proc run_sta {args} {
 	if {[info exists ::env(CLOCK_PORT)]} {
 		set ::env(opensta_report_file_tag) [index_file $::env(opensta_report_file_tag)]
 		if { $multi_corner == 1} {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta_multi_corner.tcl \
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
 			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_sta.tcl \
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta.tcl \
 			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
 		}
 	} else {

@@ -35,7 +35,7 @@ proc global_routing_fastroute {args} {
 	set saveLOG [index_file $::env(fastroute_log_file_tag).log 0]
 	set report_tag_saver $::env(fastroute_report_file_tag)
 	set ::env(fastroute_report_file_tag) [index_file $::env(fastroute_report_file_tag) 0]
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 	if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 		set_def $::env(SAVE_DEF)
 		set_guide $::env(SAVE_GUIDE)
@@ -56,7 +56,7 @@ proc global_routing_fastroute {args} {
 			puts_info "FastRoute Iteration $iter"
 			puts_info "Antenna Violations Previous: $prevAntennaVal"
 			set ::env(fastroute_report_file_tag) [index_file $report_tag_saver 0]
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
 			set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
 			puts_info "Antenna Violations Current: $currAntennaVal"
 			if { $currAntennaVal >= $prevAntennaVal } {
@@ -110,7 +110,7 @@ proc detailed_routing_tritonroute {args} {
 
 	set ::env(TRITONROUTE_RPT_PREFIX) $::env(tritonRoute_report_file_tag)
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tritonRoute_log_file_tag).log 0]
 
 	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
 		-i $::env(tritonRoute_report_file_tag).drc \
@@ -170,7 +170,7 @@ proc ins_fill_cells {args} {
     if {$::env(FILL_INSERTION)} {
 	set ::env(SAVE_DEF) [index_file $::env(addspacers_tmp_file_tag).def]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_fill.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(addspacers_log_file_tag).log 0]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/fill.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(addspacers_log_file_tag).log 0]
 
 	set_def $::env(SAVE_DEF)
     } else {
@@ -227,7 +227,7 @@ proc gen_pdn {args} {
     set ::env(SAVE_DEF) [index_file $::env(pdn_tmp_file_tag).def]
     set ::env(PGA_RPT_FILE) [index_file $::env(pdn_report_file_tag).pga.rpt]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_pdn.tcl \
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
 	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]
 
 
@@ -245,7 +245,7 @@ proc ins_diode_cells_1 {args} {
 	TIMER::timer_start
     set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
     write_verilog $::env(yosys_result_file_tag)_diodes.v
@@ -357,7 +357,7 @@ proc run_spef_extraction {args} {
 			set ::env(MPLCONFIGDIR) /tmp
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		}
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
@@ -452,7 +452,7 @@ proc run_resizer_timing_routing {args} {
         TIMER::timer_start
         set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
 	    set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(glb_resizer_log_file_tag)_timing_optimization.log 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(glb_resizer_log_file_tag)_timing_optimization.log 0]
         set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 		
