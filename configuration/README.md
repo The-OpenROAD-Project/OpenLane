@@ -155,6 +155,8 @@ These variables are optional that can be specified in the design configuration f
 |---------------|---------------------------------------------------------------|
 | `GLB_RT_MINLAYER` | The number of lowest layer to be used in routing. <br> (Default: `1`)|
 | `GLB_RT_MAXLAYER` | The number of highest layer to be used in routing. <br> (Default: `6`)|
+| `GLB_RT_CLOCK_MINLAYER` | The number of lowest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MINLAYER`)|
+| `GLB_RT_CLOCK_MAXLAYER` | The number of highest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MAXLAYER`)|
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
 | `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0.99`) |
 | `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
