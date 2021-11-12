@@ -46,7 +46,7 @@ if os.path.exists(input_file):
                     start_point = start_point_str.group(1)
                     start_pin = re.search(start_point+'/Q', vio_name)
                     insert_buffer_line = "insert_buffer " \
-                        + start_point+'/Q' \
+                        + start_point \
                         + " " \
                         + "sky130_fd_sc_hd__dlygate4sd3_1" \
                         + " net_HOLD_NET_" +str(vio_count) \

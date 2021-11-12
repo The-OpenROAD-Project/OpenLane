@@ -153,13 +153,22 @@ proc eco_output_check {args} {
                 # Run the script that generate new fixes
                 if {$::env(ECO_ITER) != 0} {
                     puts "Cont. Generating Fix commands"    
+                    set  ::env(ECO_ITER) $::env(ECO_ITER)+1
+                    puts "DEBUG IF Incremented iter: $::env(ECO_ITER)"
+
+                    # Generate fixes via the gen_insert_buffer Python script
+                    # It reads in the LATEST multi-corner sta min report
                     try_catch $::env(OPENROAD_BIN) \
                     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
                     -i [lindex [glob -path $::env(RUN_DIR)/reports/routing \
                                      *multi_corner_sta.min*] end] \
                     -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+                } else {
+                    set  ::env(ECO_ITER) $::env(ECO_ITER)+1
+                    puts "DEBUG ELSE Incremented iter: $::env(ECO_ITER)"
                 } 
-                incr $::env(ECO_ITER)
+                # Uncomment the line below to NOT run the ECO loop
+                set ::env(ECO_FINISH) 1
             }
             break
         }
