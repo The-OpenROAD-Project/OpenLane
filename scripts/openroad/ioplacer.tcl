@@ -47,6 +47,7 @@ set tech [[ord::get_db] getTech]
 set HMETAL [[$tech findRoutingLayer $::env(FP_IO_HMETAL)] getName]
 set VMETAL [[$tech findRoutingLayer $::env(FP_IO_VMETAL)] getName]
 place_pins $opts\
+	-min_distance $::env(FP_IO_MIN_DISTANCE)\
 	-random_seed 42 \
 	-hor_layers $HMETAL \
 	-ver_layers $VMETAL
