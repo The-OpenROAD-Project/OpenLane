@@ -64,7 +64,11 @@ proc run_eco {args} {
 	# Source fixes
     puts "Sourcing fixes !!!"
     puts "$::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl"
-    # source "$::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl"
+    
+    # Uncomment to source the generated fix
+    # Currently args in the fix tcl has some bugs:
+    # 1st argument of insert_buffer (pin_name) not found
+    source "$::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl"
     
     # Run detailed placement
     detailed_placement

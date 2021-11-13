@@ -64,6 +64,7 @@ proc run_routing_step {args} {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
     run_routing
+    puts "Generating Routing Timing reports!"
     generate_routing_report
 }
 
@@ -134,10 +135,10 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc eco_output_check {args} {
         puts "Entering eco_output_check subproc!"
-        puts "Value of current ECO_ITER: $::env(ECO_ITER)"
+        # puts "Value of current ECO_ITER before For loop: $::env(ECO_ITER)"
 
         set path     "$::env(RUN_DIR)/results/eco"
-        set cur_iter [expr $::env(ECO_ITER) == 0 ? 0 : $::env(ECO_ITER)-1]
+        set cur_iter [expr $::env(ECO_ITER) == 0 ? 0 : [incr ::env(ECO_ITER) -1]]
 
         # Use regex to determine if finished here
         set   fp   [open  $path/eco_fix_$cur_iter.tcl "r"]
@@ -147,28 +148,40 @@ proc eco_output_check {args} {
         
         foreach line $txt {
             # Exit the loop if no violations are reported
+            puts "First line of the eco fix script:"
+            puts $line
+
             if {[regexp {No violations} $txt]} {
-                set ::env(ECO_FINISH) 1
+                set ::env(ECO_FINISH) 1;
             } else {
                 # Run the script that generate new fixes
                 if {$::env(ECO_ITER) != 0} {
-                    puts "Cont. Generating Fix commands"    
-                    set  ::env(ECO_ITER) $::env(ECO_ITER)+1
-                    puts "DEBUG IF Incremented iter: $::env(ECO_ITER)"
+                    # set  ::env(ECO_ITER) [expr {$::env(ECO_ITER) + 1}]
+                    # puts "DEBUG IF ECO_ITER is NOT 0"    
+                    # puts [expr {$::env(ECO_ITER) + 1}]
+                    # puts "DEBUG IF Incremented ECO  iter: $::env(ECO_ITER)"
+                    # puts "DEBUG IF Incremented curr iter: $cur_iter"
+
+                    incr ::env(ECO_ITER) 1;
+                    puts "DEBUG ELSE Incremented ECO"
+                    puts $::env(ECO_ITER)
 
                     # Generate fixes via the gen_insert_buffer Python script
                     # It reads in the LATEST multi-corner sta min report
                     try_catch $::env(OPENROAD_BIN) \
                     -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-                    -i [lindex [glob -path $::env(RUN_DIR)/reports/routing \
+                    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
                                      *multi_corner_sta.min*] end] \
                     -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
                 } else {
-                    set  ::env(ECO_ITER) $::env(ECO_ITER)+1
-                    puts "DEBUG ELSE Incremented iter: $::env(ECO_ITER)"
+                    # set  ::env(ECO_ITER) [expr {$::env(ECO_ITER) + 1}]
+
+                    incr ::env(ECO_ITER) 1;
+                    puts "DEBUG ELSE Incremented ECO"
+                    puts $::env(ECO_ITER)
                 } 
                 # Uncomment the line below to NOT run the ECO loop
-                set ::env(ECO_FINISH) 1
+                set ::env(ECO_FINISH) 1;
             }
             break
         }
@@ -185,10 +198,6 @@ proc run_eco_step {args} {
     # the script that contains
     # the necessary fixes
     # exec primetime -f pt.tcl &
-    puts "Reading the final verilog!"
-    puts "Linking the TT/Fast/Slow library!"
-    puts "Sourcing the SDC"
-    puts "Generating Timing reports!"
     
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
@@ -288,7 +297,7 @@ proc run_non_interactive_mode {args} {
         ]
 
 
-    set_if_unset arg_values(-to) "cvc";
+    set_if_unset arg_values(-to) "eco";
 
 	if {  [info exists ::env(CURRENT_STEP) ] } {
         puts "\[INFO\]:Picking up where last execution left off"
