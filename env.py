@@ -496,8 +496,9 @@ def issue_survey():
                     status = 'MISMATCH'
             except Exception as e:
                 status = 'FAILED'
-                f.write(f"Failed to compare PDKs: {e}")
-            final_report += f"---\nPDK Version Verification Status: {status}\n\n" + f.getvalue()
+                f.write(f"Failed to compare PDKs.")
+                f.write("\n")
+            final_report += f"---\nPDK Version Verification Status: {status}\n" + f.getvalue()
         
 
     except ImportError:
@@ -506,9 +507,9 @@ def issue_survey():
         print(alert, file=alerts)
 
     try:
-        git_log = subprocess.check_output(["git", "log", "-n", "5"]).decode("utf8")
+        git_log = subprocess.check_output(["git", "log", "-n", "3"]).decode("utf8")
 
-        final_report += "---\nGit Log (Last 5 Commits)\n\n" + git_log
+        final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
     except:
         alert = "Critical Alert: Could not launch git: Are you sure git is installed properly?"
         final_report += f"\n{alert}\n"

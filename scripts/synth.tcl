@@ -314,7 +314,6 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
 		hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-		# get rid of the assignments that make verilog2def fail
 		splitnets
 		opt_clean -purge
 		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
@@ -338,7 +337,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
 	hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-	# get rid of the assignments that make verilog2def fail
+	# get rid of the assignments that make init_floorplan fail
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)

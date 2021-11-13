@@ -52,8 +52,14 @@ ENV LC_CTYPE en_US.UTF-8
 ARG CACHE_INVALIDATOR=1
 RUN echo "$CACHE_INVALIDATOR"
 
+## Qt Thing
+RUN dbus-uuidgen --ensure
+
 ## Copy manifest
 ADD ./tool_metadata.yml /tool_metadata.yml
+
+## Copy Version
+ADD ./git_version /git_version
 
 ## RPM
 ADD ./klayout.tar.gz /
@@ -67,8 +73,9 @@ ADD ./openlane.tar.gz $OPENLANE_ROOT
 COPY ./.tclshrc /
 COPY ./.tclshrc /root
 
-WORKDIR $OPENLANE_ROOT
+## Bash RC
+COPY ./.bashrc /root/.bashrc
 
-RUN dbus-uuidgen --ensure
+WORKDIR $OPENLANE_ROOT
 
 CMD /bin/bash

@@ -138,7 +138,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(verilog2def_log_file_tag).openroad.log 0]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -153,7 +153,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(verilog2def_log_file_tag).openroad.log 0]} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]

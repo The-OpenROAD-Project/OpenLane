@@ -176,8 +176,8 @@ proc try_catch {args} {
     }
 }
 
-proc make_array {pesudo_dict prefix} {
-	foreach element $pesudo_dict {
+proc make_array {pseudo_dict prefix} {
+	foreach element $pseudo_dict {
 		set key [lindex $element 0]
 		set value [lindex $element 1]
 		set returned_array($key) ${prefix}${value}

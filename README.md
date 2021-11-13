@@ -47,7 +47,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
     cd OpenLane/
-    make openlane
+    make pull-openlane
 ```
 
 ---
@@ -108,7 +108,7 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     git checkout master
     git pull
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make openlane
+    make pull-openlane
     make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
@@ -117,14 +117,8 @@ This should install the latest openlane docker container, and re-install the pdk
 
 ## Pulling or Building the OpenLane Docker Container
 
-**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make openlane`.**
+**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make pull-openlane`.**
 
-To setup OpenLane you can pull the Docker container by following these instructions:
-
-```bash
-    git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    make openlane
-```
 For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
 
 

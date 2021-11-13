@@ -4,3 +4,4 @@ openlane.tar.gz
 openLANE_flow.tar.gz
 /*.yml
 /*.txt
+/git_version

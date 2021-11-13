@@ -24,6 +24,7 @@ Finally, we merge all the tools in a single docker image.
 
 ```bash
 make merge
+# or alternatively: `make openlane`
 ```
 
 ## Additional information

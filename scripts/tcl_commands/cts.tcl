@@ -99,8 +99,8 @@ proc run_cts {args} {
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-		write_verilog $::env(yosys_result_file_tag)_cts.v
-		set_netlist $::env(yosys_result_file_tag)_cts.v
+		write_verilog $::env(cts_result_file_tag)_resynth.v
+		set_netlist $::env(cts_result_file_tag)_resynth.v
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
