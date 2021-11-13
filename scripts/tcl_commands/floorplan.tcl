@@ -19,16 +19,16 @@ proc init_floorplan_or {args} {
 proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
-		set ::env(SAVE_DEF) [index_file $::env(verilog2def_tmp_file_tag)_openroad.def]
-		set ::env(SAVE_SDC) [index_file $::env(verilog2def_tmp_file_tag).sdc 0]
-		set report_tag_saver $::env(verilog2def_report_file_tag)
-		set ::env(verilog2def_report_file_tag) [index_file $::env(verilog2def_report_file_tag) 0]
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(verilog2def_log_file_tag).openroad.log 0]
+		set ::env(SAVE_DEF) [index_file $::env(init_floorplan_tmp_file_tag)_openroad.def]
+		set ::env(SAVE_SDC) [index_file $::env(init_floorplan_tmp_file_tag).sdc 0]
+		set report_tag_saver $::env(init_floorplan_report_file_tag)
+		set ::env(init_floorplan_report_file_tag) [index_file $::env(init_floorplan_report_file_tag) 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
 
-		set die_area_file [open $::env(verilog2def_report_file_tag).die_area.rpt]
-		set core_area_file [open $::env(verilog2def_report_file_tag).core_area.rpt]
+		set die_area_file [open $::env(init_floorplan_report_file_tag).die_area.rpt]
+		set core_area_file [open $::env(init_floorplan_report_file_tag).core_area.rpt]
 
 		set ::env(DIE_AREA) [read $die_area_file]
 		set ::env(CORE_AREA) [read $core_area_file]
@@ -62,9 +62,9 @@ proc init_floorplan {args} {
 		puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
 		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
 		
-		set ::env(verilog2def_report_file_tag) $report_tag_saver
+		set ::env(init_floorplan_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(verilog2def_log_file_tag)_openroad_runtime.txt 0]
+		exec echo "[TIMER::get_runtime]" >> [index_file $::env(init_floorplan_log_file_tag)_openroad_runtime.txt 0]
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 }

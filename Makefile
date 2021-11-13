@@ -47,7 +47,7 @@ INSTALL_SRAM ?= disabled
 ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
 ifneq ($(OPENLANE_TAG),)
-OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
+export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
 endif
 endif
 
@@ -162,16 +162,20 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
-	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	printf "openlane " > $(PDK_ROOT)/sky130A/SOURCES
 	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
 openlane:
+	$(MAKE) -C docker openlane
+
+pull-openlane:
+	@echo "Pulling most recent OpenLane image relative to your commit..."
 	docker pull $(OPENLANE_IMAGE_NAME)
 
 .PHONY: mount

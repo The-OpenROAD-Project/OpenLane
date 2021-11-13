@@ -51,10 +51,10 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
 
     try:
         # 2. Check if the Sky130 PDK is compatible with Flow Scripts
+        pdk_root = os.getenv("PDK_ROOT")
         if not os.getenv("PDK_ROOT"):
-            raise Exception("Environment variable PDK_ROOT is not set.")
+            pdk_root = join(openlane_dir, "pdks")
 
-        pdk_root = os.environ["PDK_ROOT"]
         sky130_dir = join(pdk_root, "sky130A")
 
         if pathlib.Path(sky130_dir).is_dir():
@@ -116,8 +116,9 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                     print(f"You may want to re-install the PDK by invoking `make pdk`.", file=report_file)
 
                 pdk_manifest_names.add(manifest_name)
+        else:
+            raise Exception(f"{sky130_dir} not found.")
     except Exception as e:
-        print("Failed to compare PDKS", file=report_file)
         print(e, file=report_file)
         print(traceback.format_exc(), file=report_file)
         raise Exception("Failed to compare PDKs.")

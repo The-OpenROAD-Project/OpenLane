@@ -479,7 +479,7 @@ proc prep {args} {
     set tmp_output {
         {yosys synthesis/yosys}
         {opensta synthesis/opensta}
-        {verilog2def floorplan/verilog2def}
+        {init_floorplan floorplan/init_floorplan}
         {ioPlacer floorplan/ioPlacer}
         {pdn floorplan/pdn}
         {tapcell floorplan/tapcell}
@@ -508,7 +508,8 @@ proc prep {args} {
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
         [list cvc cvc/$::env(DESIGN_NAME)] \
-        [list klayout klayout/$::env(DESIGN_NAME)] 
+        [list klayout klayout/$::env(DESIGN_NAME)] \
+        [list resizer resizer/$::env(DESIGN_NAME)]
         ]
 
     array set results_file_name [make_array $final_output $::env(RESULTS_DIR)/]
@@ -532,7 +533,7 @@ proc prep {args} {
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
-    set stages {synthesis floorplan placement cts routing magic lvs cvc klayout}
+    set stages {synthesis floorplan placement cts routing magic lvs cvc klayout resizer}
     foreach stage $stages {
         file mkdir\
             $::env(RESULTS_DIR)/$stage \

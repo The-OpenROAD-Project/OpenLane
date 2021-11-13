@@ -55,11 +55,13 @@ tar/openlane.tar.gz: FORCE
 
 FORCE:
 
-.PHONY: merge
+.PHONY: merge openlane
+openlane: merge
 merge: tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	cat ../dependencies/python/run_time.txt > ./tar/pip_dependencies.txt
 	cat ../dependencies/centos-7/run_time.txt > ./tar/yum_dependencies.txt
+	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version
 	mkdir -p logs/tar
 	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/$<.build.txt ; \
 

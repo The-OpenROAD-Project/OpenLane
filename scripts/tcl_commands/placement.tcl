@@ -173,8 +173,8 @@ proc run_resizer_timing {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
 
-        write_verilog $::env(yosys_result_file_tag)_optimized.v
-        set_netlist $::env(yosys_result_file_tag)_optimized.v
+        write_verilog $::env(resizer_result_file_tag)_optimized.v
+        set_netlist $::env(resizer_result_file_tag)_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -199,8 +199,8 @@ proc run_resizer_design {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_design_optimization_runtime.txt 0]
 
-        write_verilog $::env(yosys_result_file_tag)_optimized.v
-        set_netlist $::env(yosys_result_file_tag)_optimized.v
+        write_verilog $::env(resizer_result_file_tag)_optimized.v
+        set_netlist $::env(resizer_result_file_tag)_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
