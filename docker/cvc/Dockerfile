@@ -14,8 +14,8 @@
 
 FROM openlane-build-base
 
-ARG CVC_REPO=https://github.com/d-m-bailey/cvc
-ARG CVC_COMMIT=38c74b0857ecf8f05a1bfde81d197b5a3d33a531
+ARG CVC_REPO
+ARG CVC_COMMIT
 
 # Build
 WORKDIR /cvc

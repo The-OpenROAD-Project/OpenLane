@@ -13,8 +13,8 @@
 # limitations under the License.
 FROM openlane-build-base
 
-ARG VLOGTOVERILOG_REPO=https://github.com/RTimothyEdwards/qflow
-ARG VLOGTOVERILOG_COMMIT=a550469b63e910ede6e3022e2886bca96462c540
+ARG VLOGTOVERILOG_REPO
+ARG VLOGTOVERILOG_COMMIT
 
 WORKDIR /qflow
 RUN curl -L ${VLOGTOVERILOG_REPO}/tarball/${VLOGTOVERILOG_COMMIT} | tar -xzC . --strip-components=1 && \

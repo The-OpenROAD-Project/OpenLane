@@ -41,8 +41,8 @@ RUN cd boost_1_72_0 && \
 # into C arrays to be linked directly into the executable
 RUN yum -y install vim-common
 
-ARG CUGR_REPO=https://github.com/ax3ghazy/cu-gr
-ARG CUGR_COMMIT=1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
+ARG CUGR_REPO
+ARG CUGR_COMMIT
 RUN git clone ${CUGR_REPO} cugr_12012021
 
 WORKDIR cugr_12012021
