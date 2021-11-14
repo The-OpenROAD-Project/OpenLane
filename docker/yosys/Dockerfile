@@ -16,8 +16,8 @@
 FROM openlane-build-base
 
 # git clone yosys
-ARG YOSYS_REPO=https://github.com/YosysHQ/yosys
-ARG YOSYS_COMMIT=d061b0e41a2023b5e72794563b94d6a9b5ab41a1
+ARG YOSYS_REPO
+ARG YOSYS_COMMIT
 
 WORKDIR /yosys
 RUN curl -L ${YOSYS_REPO}/tarball/${YOSYS_COMMIT} | tar -xzC . --strip-components=1 && \

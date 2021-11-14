@@ -14,8 +14,8 @@
 
 FROM openlane-build-base
 
-ARG PADRING_REPO=https://github.com/ax3ghazy/padring
-ARG PADRING_COMMIT=a88faf5a4faef75ff241276599fef81c3653cb70
+ARG PADRING_REPO
+ARG PADRING_COMMIT
 WORKDIR /padring
 
 RUN curl -L ${PADRING_REPO}/tarball/${PADRING_COMMIT} | tar -xzC . --strip-components=1 && \
