@@ -133,55 +133,47 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
+proc eco_read_fix {args} {
+    # set cur_iter [expr $::env(ECO_ITER) == 0 ? \
+    #                    0 : \
+    #                    [expr {$::env(ECO_ITER) -1}] \
+    #              ]
+    set path "$::env(RUN_DIR)/results/eco"
+
+    set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
+    set   fd   [read  $fp]
+    set   txt  [split $fd "\n"]
+    close $fp
+
+    return $txt
+}
+
+proc eco_gen_buffer {args} {
+    # Generate fixes via the gen_insert_buffer Python script
+    # It reads in the LATEST multi-corner sta min report
+    try_catch $::env(OPENROAD_BIN) \
+    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
+                     *multi_corner_sta.min*] end] \
+    -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                     *.lef] end] \
+    -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                     *.def] end] \
+    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+}
+
 proc eco_output_check {args} {
         puts "Entering eco_output_check subproc!"
-        # puts "Value of current ECO_ITER before For loop: $::env(ECO_ITER)"
 
-        set path     "$::env(RUN_DIR)/results/eco"
-        set cur_iter [expr $::env(ECO_ITER) == 0 ? 0 : [incr ::env(ECO_ITER) -1]]
+        eco_gen_buffer
 
-        # Use regex to determine if finished here
-        set   fp   [open  $path/eco_fix_$cur_iter.tcl "r"]
-        set   fd   [read  $fp]
-        set   txt  [split $fd "\n"]
-        close $fp
-        
-        foreach line $txt {
-            # Exit the loop if no violations are reported
-            puts "First line of the eco fix script:"
-            puts $line
-
-            if {[regexp {No violations} $txt]} {
+        set lines [eco_read_fix]
+        foreach line $lines {
+            # Use regex to determine if finished here
+            if {[regexp {No violations} $line]} {
                 set ::env(ECO_FINISH) 1;
             } else {
-                # Run the script that generate new fixes
-                if {$::env(ECO_ITER) != 0} {
-                    # set  ::env(ECO_ITER) [expr {$::env(ECO_ITER) + 1}]
-                    # puts "DEBUG IF ECO_ITER is NOT 0"    
-                    # puts [expr {$::env(ECO_ITER) + 1}]
-                    # puts "DEBUG IF Incremented ECO  iter: $::env(ECO_ITER)"
-                    # puts "DEBUG IF Incremented curr iter: $cur_iter"
-
-                    incr ::env(ECO_ITER) 1;
-                    puts "DEBUG ELSE Incremented ECO"
-                    puts $::env(ECO_ITER)
-
-                    # Generate fixes via the gen_insert_buffer Python script
-                    # It reads in the LATEST multi-corner sta min report
-                    try_catch $::env(OPENROAD_BIN) \
-                    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-                    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
-                                     *multi_corner_sta.min*] end] \
-                    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
-                } else {
-                    # set  ::env(ECO_ITER) [expr {$::env(ECO_ITER) + 1}]
-
-                    incr ::env(ECO_ITER) 1;
-                    puts "DEBUG ELSE Incremented ECO"
-                    puts $::env(ECO_ITER)
-                } 
-                # Uncomment the line below to NOT run the ECO loop
-                set ::env(ECO_FINISH) 1;
+                incr ::env(ECO_ITER) 1;
             }
             break
         }
@@ -191,22 +183,9 @@ proc run_eco_step {args} {
     set path "$::env(RUN_DIR)/results/eco"
     file mkdir $path
 
-    set ::env(ECO_FINISH) 0
-    set ::env(ECO_ITER) 0
 
-    # Pretend that the script below creates
-    # the script that contains
-    # the necessary fixes
-    # exec primetime -f pt.tcl &
-    
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
-    try_catch $::env(OPENROAD_BIN) \
-    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
-                     *multi_corner_sta.min*.rpt] end] \
-    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
-
     eco_output_check
 
     while {$::env(ECO_FINISH) != 1} {
@@ -272,7 +251,10 @@ proc run_non_interactive_mode {args} {
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
-	prep {*}$args
+    set ::env(ECO_FINISH) 0
+    set ::env(ECO_ITER) 0
+	
+    prep {*}$args
     # signal trap SIGINT save_state;
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]

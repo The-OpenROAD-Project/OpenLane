@@ -10,9 +10,9 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--input_file', '-i', required=True,
                     help='input 23-spef_extraction_multi_corner_sta.min.rpt')
 
-parser.add_argument('--lef_file', '-i', required=True,
+parser.add_argument('--lef_file', '-l', required=True,
                     help='input lef file to load design')
-parser.add_argument('--def_file', '-i', required=True,
+parser.add_argument('--def_file', '-d', required=True,
                     help='input def file for detailed information')
 parser.add_argument('--output_file', '-o', required=True,
                     help='output eco_fix.tcl')
