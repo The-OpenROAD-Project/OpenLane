@@ -44,8 +44,8 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
     && cmake .. \
     && make install -j $(nproc)
 
-ARG OPENROAD_APP_REPO=https://github.com/The-OpenROAD-Project/OpenROAD
-ARG OPENROAD_APP_COMMIT=4d4d7205fd0292dbf3fae55fad9109b3f0bd5786
+ARG OPENROAD_APP_REPO
+ARG OPENROAD_APP_COMMIT
 
 WORKDIR /openroad
 RUN curl -L ${OPENROAD_APP_REPO}/tarball/${OPENROAD_APP_COMMIT} | tar -xzC . --strip-components=1

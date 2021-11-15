@@ -14,8 +14,8 @@
 FROM openlane-build-base
 
 # Upstream is git://opencircuitdesign.com/netgen, but servers are not stable enough for CI.
-ARG NETGEN_REPO=https://github.com/rtimothyedwards/netgen
-ARG NETGEN_COMMIT=738c1f7b3705bca2f1cc66fbc1cfb20f12d49a06
+ARG NETGEN_REPO
+ARG NETGEN_COMMIT
 
 WORKDIR /netgen
 

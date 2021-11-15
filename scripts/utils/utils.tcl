@@ -138,6 +138,11 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
 # puts a variable in a log file
 proc set_log {var val filepath log_flag} {
         set cmd "set ${var} \"${val}\""
+        if { [string first {[} "$val"] != -1 } {
+                set cmd "set ${var} \{${val}\}"
+        } else {
+                set cmd "set ${var} \"${val}\""
+        }
         uplevel #0 ${cmd}
         set global_cfg_file [open $filepath a+]
 		if { $log_flag } {
