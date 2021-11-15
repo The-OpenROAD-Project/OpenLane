@@ -428,14 +428,24 @@ proc prep {args} {
 
         # trim resizer library 
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) $::env(TMP_DIR)/resizer.lib
-            file copy -force $::env(LIB_SYNTH_COMPLETE) $::env(LIB_RESIZER_OPT)
+            set ::env(LIB_RESIZER_OPT) ""
+            foreach lib $::env(LIB_SYNTH_COMPLETE) {
+            	set fbasename [file rootname [file tail $lib]]
+                set lib_resizer $::env(TMP_DIR)/resizer_$fbasename.lib
+                file copy -force $lib $lib_resizer 
+                lappend $::env(LIB_RESIZER_OPT) $lib_resizer
+            }
+
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set opt_lib $::env(TMP_DIR)/resizer_optlib.lib
-                file copy -force $::env(LIB_SYNTH_OPT) $opt_lib
-                lappend $::env(LIB_RESIZER_OPT) $::env(LIB_SYNTH_OPT)
+                foreach lib $::env(LIB_SYNTH_OPT) {
+                    set fbasename [file rootname [file tail $lib]]
+                    set lib_resizer $::env(TMP_DIR)/resizer_opt_$fbasename.lib
+                    file copy -force $lib $lib_resizer 
+                    lappend $::env(LIB_RESIZER_OPT) $lib_resizer
+                }
             }
         } 
+        
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
                 set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
