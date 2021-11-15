@@ -119,7 +119,6 @@ These variables are optional that can be specified in the design configuration f
 | `PL_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
-| `LIB_OPT` | **Removed** Points to the lib file, corresponding to the slowest corner, for max delay calculation during OpenPhySyn optimizations. This is usually a trimmed version of `LIB_SYNTH`. <br> Default: `$::env(TMP_DIR)/opt.lib` |
 | `LIB_RESIZER_OPT` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: `$::env(TMP_DIR)/resizer_<library-name>.lib` |
 | `DONT_USE_CELLS` | The list of cells to not use during resizer optimizations. <br> Default: the contents of `DRC_EXCLUDE_CELL_LIST`. |
 | `PL_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global placement using OpenROAD's estimate_parasitics -placement and generates reports under `logs/placement`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
@@ -129,6 +128,7 @@ These variables are optional that can be specified in the design configuration f
 | `PL_MAX_DISPLACEMENT_X` | Specifies how far an instance can be moved along the X-axis when finding a site where it can be placed during detailed placement. <br> (Default: `500`um) |
 | `PL_MAX_DISPLACEMENT_Y` | Specifies how far an instance can be moved along the Y-axis when finding a site where it can be placed during detailed placement. <br> (Default: `100`um) |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros. |
+| `LIB_OPT` | **Removed**: Points to the lib file, corresponding to the slowest corner, for max delay calculation during OpenPhySyn optimizations. This is usually a trimmed version of `LIB_SYNTH`. <br> Default: `$::env(TMP_DIR)/opt.lib` |
 | `PL_DIAMOND_SEARCH_HEIGHT` | **Removed: Use PL_MAX_DISPLACEMENT_(X/Y) instead**: Specifies the diamond search height used for legalizing the cells during detailed placement. The search width is calculated internally as `heigh*5`. For designs that contain big macros, increasing this value to above 400 will allow for more search space and more potentail for successful legalization. <br> (Default: `100`) |
 | `PL_OPENPHYSYN_OPTIMIZATIONS` | **Removed**: Specifies whether OpenPhySyn should be used to perform timing optimizations or not. 0 = false, 1 = true <br> (Default: `0`) |
 | `PSN_ENABLE_RESIZING` | **Removed**: Enables driver resizing by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
