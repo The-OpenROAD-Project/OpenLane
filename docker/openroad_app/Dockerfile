@@ -53,6 +53,7 @@ COPY ./fetch_submodules_from_tarballs.py .
 RUN python3 ./fetch_submodules_from_tarballs.py ${OPENROAD_APP_REPO} ${OPENROAD_APP_COMMIT}
 
 # Build OpenROAD
+RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
 RUN cd build && make install

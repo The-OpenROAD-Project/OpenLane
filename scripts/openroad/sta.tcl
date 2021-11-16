@@ -23,6 +23,12 @@ if { $::env(RUN_STANDALONE) == 1 } {
             puts stderr $errmsg
             exit 1
         }
+    } else {
+        if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
+            puts stderr $errmsg
+            exit 1
+        }
+        link_design $::env(DESIGN_NAME)
     }
 
     if { [info exists ::env(EXTRA_LIBS) ] } {
@@ -32,8 +38,6 @@ if { $::env(RUN_STANDALONE) == 1 } {
     }
 
     read_liberty $::env(LIB_SYNTH_COMPLETE)
-    read_verilog $::env(CURRENT_NETLIST)
-    link_design $::env(DESIGN_NAME)
     read_sdc -echo $::env(CURRENT_SDC)
 }
 

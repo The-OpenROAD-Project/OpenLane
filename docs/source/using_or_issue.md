@@ -35,9 +35,8 @@ Then you'd want to run this script as follows, from the root of the OpenLane Rep
         # run path is implicitly specified by input def: ./designs/spm/runs/config_TEST_fastestTestSet1
 ```
 
-Which will create a folder called `_build`, with two entries:
-* `config_TEST_fastestTestSet1_or_groute_packaged/`: A folder for human inspection
-* `config_TEST_fastestTestSet1_or_groute_packaged.tar.gz`: A gzipped tarball of that same folder.
+Which will create a folder called `_build`, with a single sub entry:
+* `config_TEST_fastestTestSet1_or_groute_packaged/`
 
 Ensure that you inspect this folder manually and the output of this script. This script only attempts a best effort, and it is very likely that it might miss something, in which case, feel free to file an issue.
 
@@ -55,4 +54,4 @@ You can override the OpenROAD binary used as follows:
 ```
 
 # Warning about proprietary files
-When working with a proprietary PDK, also inspect the tarball and ensure no proprietary data resulting ends up in there. This is *critical*, if something leaks, this scripts' authors take no responsibility and you are very much on your own. We will try our best to output warnings for your own good if something looks like a part of a proprietary PDK, but the absence of this message does not necessarily indicate that your folder and tarball are free of confidential material. 
+When working with a proprietary PDK, also inspect the tarball and ensure no proprietary data resulting ends up in there. This is *critical*, if something leaks, this scripts' authors take no responsibility and you are very much on your own. We will try our best to output warnings for your own good if something looks like a part of a proprietary PDK, but the absence of this message does not necessarily indicate that your folder is free of confidential material. 
