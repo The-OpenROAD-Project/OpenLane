@@ -42,14 +42,6 @@ proc run_cts_step {args} {
         set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
     }
 
-    puts "ECO_STARTED value: "
-    if { ! [info exists ::env(ECO_STARTED) ] } {
-        set ::env(ECO_STARTED) 0
-    } else {
-        set ::env(ECO_STARTED) 1
-    }
-    puts $::env(ECO_STARTED)
-
     run_cts
     run_resizer_timing
 }
@@ -133,11 +125,13 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
+proc run_apply_step {args} {
+    puts "ECO: Applying Fixes!"
+    try_catch $::env(OPENROAD_BIN) \
+        -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
+}
+
 proc eco_read_fix {args} {
-    # set cur_iter [expr $::env(ECO_ITER) == 0 ? \
-    #                    0 : \
-    #                    [expr {$::env(ECO_ITER) -1}] \
-    #              ]
     set path "$::env(RUN_DIR)/results/eco"
 
     set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
@@ -152,14 +146,14 @@ proc eco_gen_buffer {args} {
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
     try_catch $::env(OPENROAD_BIN) \
-    -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-    -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
-                     *multi_corner_sta.min*] end] \
-    -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                     *.lef] end] \
-    -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                     *.def] end] \
-    -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+        -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+        -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
+                         *multi_corner_sta.min*] end] \
+        -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                         *.lef] end] \
+        -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                         *.def] end] \
+        -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
 }
 
 proc eco_output_check {args} {
@@ -200,11 +194,11 @@ proc run_eco_step {args} {
         # Get the connections then destroy them
 
         # Assume only one run for now
-        set eco_steps [dict create "cts" {run_cts_step ""}\
+        set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}
         ]
 
-        set_if_unset arg_values(-from) "cts";
+        set_if_unset arg_values(-from) "apply";
         set_if_unset arg_values(-to) "routing";
 
         set exe 0;
@@ -220,7 +214,6 @@ proc run_eco_step {args} {
             if { $exe } {
                 # For when it fails
                 set ::env(CURRENT_STEP) $step_name
-                puts $step_exe
                 [lindex $step_exe 0] [lindex $step_exe 1] ;
             }
 

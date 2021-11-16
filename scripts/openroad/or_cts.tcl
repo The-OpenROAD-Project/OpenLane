@@ -13,10 +13,26 @@
 # limitations under the License.
 
 
+if { ! [info exists ::env(ECO_STARTED) ] } {
+    set ::env(ECO_STARTED) 0
+} else {
+    set ::env(ECO_STARTED) 0
+}
+
 if { $::env(ECO_STARTED) == 1} {
 
-    puts "Sourcing eco.tcl!"
-    source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
+    # puts "ECO: Successfully read liberty!"
+    # foreach lib $::env(LIB_CTS) {
+    #     read_liberty $lib
+    # }
+
+    # puts "ECO: Successfully read Verilog!"
+    # read_verilog   $::env(RUN_DIR)/results/synthesis/mgmt_core.cts.sdc
+    # puts "ECO: Successfully read SDC!"
+    # read_sdc -echo $::env(RUN_DIR)/results/routing/mgmt_core.synthesis_cts.v
+
+    # puts "Sourcing eco.tcl!"
+    # source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
 
 } else {
 

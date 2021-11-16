@@ -71,11 +71,13 @@ if os.path.exists(input_file):
                             for iterm in inst.getITerms():  # instance pin
                                 mterm = iterm.getMTerm()  # mterm get the information
                                 if (mterm.getIoType() == "OUTPUT"):
+                                    printArr.append("# Found SP: "+start_point+"mterm: "+mterm.getName())
                                     pin_name = start_point+'/'+mterm.getName()
                                     # master = inst.getMaster()
                                     break
                     # pin
                     if (pin_name == ''):
+                        # continue
                         pin_name=start_point
  
                     insert_buffer_line = "insert_buffer " \

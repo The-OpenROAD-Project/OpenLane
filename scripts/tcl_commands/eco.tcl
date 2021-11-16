@@ -3,7 +3,13 @@ proc insert_buffer {pin_name master_name net_name inst_name} {
   puts "Successfully set db"
   set db [ord::get_db]
   set new_master [$db findMaster $master_name]
+  puts "Set DB: "
+  puts $db
+  puts "NEW MASTER: "
+  puts $new_master
   set block [ord::get_db_block]
+  puts "GOT BLOCK FROM DB: "
+  puts $block
 
   puts "Successfully set block"
   set block [ord::get_db_block]
