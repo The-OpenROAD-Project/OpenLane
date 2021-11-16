@@ -383,12 +383,6 @@ proc run_routing {args} {
 		}
     }
 
-	# if diode insertion does *not* happen as part of global routing, then
-	# we can insert fill cells early on
-	if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
-		ins_fill_cells
-	}
-
     use_original_lefs
 
     add_route_obs
@@ -396,6 +390,12 @@ proc run_routing {args} {
 	#legalize if not yet legalized
 	if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
 		detailed_placement_or
+	}
+
+	# if diode insertion does *not* happen as part of global routing, then
+	# we can insert fill cells early on
+	if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+		ins_fill_cells
 	}
 	
     global_routing
