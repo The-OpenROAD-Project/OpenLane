@@ -1,5 +1,5 @@
 
-proc insert_buffer {pin_name master_name net_name inst_name} {
+proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   puts "Successfully set db"
   set db [ord::get_db]
   set new_master [$db findMaster $master_name]
@@ -13,7 +13,9 @@ proc insert_buffer {pin_name master_name net_name inst_name} {
 
   puts "Successfully set block"
   set block [ord::get_db_block]
-  set iterm [$block findITerm $pin_name]
+  # set iterm [$block findITerm $pin_name]
+  # pin_type is the command "findxTerm"
+  set iterm [$block $pin_type $pin_name]
   puts "Successfully find old net"
   set old_net [$iterm getNet]
   odb::dbITerm_disconnect $iterm

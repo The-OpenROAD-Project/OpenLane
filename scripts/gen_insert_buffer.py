@@ -73,15 +73,19 @@ if os.path.exists(input_file):
                                 if (mterm.getIoType() == "OUTPUT"):
                                     printArr.append("# Found SP: "+start_point+"mterm: "+mterm.getName())
                                     pin_name = start_point+'/'+mterm.getName()
+                                    pin_type="findMTerm"
                                     # master = inst.getMaster()
                                     break
                     # pin
                     if (pin_name == ''):
                         # continue
                         pin_name=start_point
+                        pin_type="findBTerm"
  
                     insert_buffer_line = "insert_buffer " \
                         + pin_name \
+                        + " " \
+                        + pin_type \
                         + " " \
                         + "sky130_fd_sc_hd__dlygate4sd3_1" \
                         + " net_HOLD_NET_" + str(vio_count) \
