@@ -39,7 +39,8 @@ parser.add_argument('--pdk-root', required=(os.getenv("PDK_ROOT") is None), defa
 parser.add_argument('--run-path', '-r', default=None, help='The run path. If not specified, the script will attempt to discern it from the input_def path.')
 parser.add_argument('--output', '-o', default="./out.def", help='Name of def file to be generated [default: ./out.def]')
 parser.add_argument('--verbose', action="store_true", default=False, help='Verbose output of all found environment variables.')
-parser.add_argument('input', help='Name of def file input into the OR script (usually denoted by environment variable CURRENT_DEF: get it from the logs) [required]')
+parser.add_argument('--netlist', '-n', action="store_true", default=False, help='Use the netlist as an input instead of a def file. Useful for evaluating some scripts such as floorplan.tcl.')
+parser.add_argument('input', help='Name of input into the OR script (usually denoted by environment variable CURRENT_NETLIST or CURRENT_DEF: get it from the logs) [required]')
 args = parser.parse_args()
 
 OPEN_SOURCE_PDKS = ["sky130A"]
@@ -56,12 +57,13 @@ AND ALL IT ENTAILS.
 script_path = abspath(args.or_script)
 pdk_root = abspath(args.pdk_root)
 or_scripts_path = join(openlane_path, "scripts", "openroad")
-current_def = abspath(args.input)
+use_netlist = args.netlist
+input_file = abspath(args.input)
 run_path = None
 if args.run_path is not None:
     run_path = abspath(args.run_path)
 else:
-    current_dir = dirname(current_def)
+    current_dir = dirname(input_file)
     while current_dir != "/":
         if "config.tcl" in os.listdir(current_dir):
             run_path = current_dir
@@ -69,7 +71,7 @@ else:
         current_dir = dirname(current_dir)
 
     if run_path is None:
-        print(f"❌ No run path provided and {current_def} is not in the run path.", file=sys.stderr)
+        print(f"❌ No run path provided and {input_file} is not in the run path.", file=sys.stderr)
         exit(os.EX_USAGE)
     else:
         print(f"ℹ Resolved run path to {run_path}.")
@@ -77,8 +79,8 @@ else:
 save_def = args.output
 verbose = args.verbose
 
-if not os.path.exists(current_def):
-    print(f"❌ {current_def} not found.", file=sys.stderr)
+if not os.path.exists(input_file):
+    print(f"❌ {input_file} not found.", file=sys.stderr)
     exit(os.EX_NOINPUT)
 
 if not script_path.startswith(or_scripts_path):
@@ -134,8 +136,12 @@ def read_env(config_path: str, from_path: str, input_env={}) -> dict:
     return env
     
 env = read_env(run_config, "Run Path") # , read_env(pdk_config, "PDK Root"))
+
 # Cannot be reliably read from config.tcl
-env["CURRENT_DEF"] = current_def
+input_key = "CURRENT_DEF"
+if use_netlist:
+    input_key = "CURRENT_NETLIST"
+env[input_key] = input_file
 env["SAVE_DEF"] = save_def
 
 
@@ -189,7 +195,7 @@ while current is not None:
 
             value_substituted = full.replace(accessor, value)
 
-            if value_substituted.endswith(".tcl"):
+            if value_substituted.endswith(".tcl") or value_substituted.endswith(".sdc"):
                 if value_substituted not in tcls:
                     tcls.add(value_substituted)
                     tcls_to_process.append(value_substituted)
@@ -197,7 +203,7 @@ while current is not None:
     current = shift(tcls_to_process)
 
 # Phase 4: Copy The Files
-final_env_pairs = []
+final_env = {}
 
 pdk_path = join(destination_folder, "pdk")
 openlane_misc_path = join(destination_folder, "openlane")
@@ -240,11 +246,12 @@ for key in env_keys_used:
     value = env[key]
     if verbose:
         print(f"{key}: {value}")
-    if value == current_def:
+    if value == input_file:
         final_path = join(destination_folder, "in.def")
         from_path = value
         copy(from_path, final_path)
-        final_env_pairs.append(("CURRENT_DEF", "./in.def"))
+
+        final_env[input_key] = "./in.def"
     elif value.startswith(run_path):
         relative = relpath(value, run_path)
         final_value = join(".", relative)
@@ -252,7 +259,7 @@ for key in env_keys_used:
         from_path = value
         copy(from_path, final_path)
 
-        final_env_pairs.append((key, final_value))
+        final_env[key] = final_value
     elif value.startswith(pdk_root):
         nonfree_warning = True
         value_components = value.split(os.path.sep)
@@ -265,7 +272,7 @@ for key in env_keys_used:
         final_value = join("pdk", relative)
         final_path = join(destination_folder, final_value)
         copy(value, final_path)
-        final_env_pairs.append((key, final_value))
+        final_env[key] = final_value
     elif value.startswith("/openlane"):
         relative = relpath(value, "/openlane")
         final_value = join("openlane", relative)
@@ -273,25 +280,25 @@ for key in env_keys_used:
         from_path = value.replace("/openlane", openlane_path)
         if value != "/openlane/scripts": # Too many files to copy otherwise
             copy(from_path, final_path)
-        final_env_pairs.append((key, final_value))
+        final_env[key] = final_value
     elif value.startswith("/"):
         final_value = value[1:]
         final_path = join(destination_folder, final_value)
         copy(value, final_path)
-        final_env_pairs.append((key, final_value))
+        final_env[key] = final_value
     else:
-        final_env_pairs.append((key, value))  
+        final_env[key] = value
 if verbose:
     print("---\n", file=sys.stderr)
 
 for warning in warnings:
     print(warning)
 print('\n')
-    
-# Phase 5: Create Run Files
-run_raw = join(destination_folder, "run")
-with open(run_raw, "w") as f:
-    env_list = "\n".join([f"export {key}='{value}';" for key, value in final_env_pairs])
+
+# Phase 5: Create Environment Set/Run Files
+run_shell = join(destination_folder, "run.sh")
+with open(run_shell, "w") as f:
+    env_list = "\n".join([f"export {key}='{value}';" for key, value in final_env.items()])
     f.write(f"""\
 #!/bin/sh
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
@@ -300,12 +307,31 @@ cd $dir;
 OPENROAD_BIN=${{OPENROAD_BIN:-openroad}}
 $OPENROAD_BIN -exit $OR_SCRIPT_0
     """)
-os.chmod(run_raw, 0o755)
+os.chmod(run_shell, 0o755)
 
-# Phase 6: Tarball and output
-last_output = f"{destination_folder}.tar.gz"
+run_tcl = join(destination_folder, "run.tcl")
+with open(run_tcl, "w") as f:
+    env_list = "\n".join([f"set ::env({key}) {{{value}}};" for key, value in final_env.items()])
+    f.write(f"""\
+#!/usr/bin/env openroad
+{env_list}
+source $::env(OR_SCRIPT_0)
+    """)
+os.chmod(run_tcl, 0o755)
 
-os.system(f"tar -cvC {destination_folder} . | gzip > {last_output}")
+gdb_env = join(destination_folder, "env.gdb")
+with open(gdb_env, "w") as f:
+    env_list = "\n".join([f"set env {key} {value}" for key, value in final_env.items()])
+    f.write(f"""\
+{env_list}
+    """)
+
+lldb_env = join(destination_folder, "env.lldb")
+with open(lldb_env, "w") as f:
+    env_list = "\n".join([f"env {key}={value}" for key, value in final_env.items()])
+    f.write(f"""\
+{env_list}
+    """)
 
 print("⭕️ Done.", file=sys.stderr)
-print(last_output)
+print(destination_folder)
