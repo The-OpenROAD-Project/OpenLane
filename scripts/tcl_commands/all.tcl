@@ -428,12 +428,12 @@ proc prep {args} {
 
         # trim resizer library 
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) ""
+            set ::env(LIB_RESIZER_OPT) [list]
             foreach lib $::env(LIB_SYNTH_COMPLETE) {
             	set fbasename [file rootname [file tail $lib]]
                 set lib_resizer $::env(TMP_DIR)/resizer_$fbasename.lib
                 file copy -force $lib $lib_resizer 
-                lappend $::env(LIB_RESIZER_OPT) $lib_resizer
+                lappend ::env(LIB_RESIZER_OPT) $lib_resizer
             }
 
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
@@ -441,7 +441,7 @@ proc prep {args} {
                     set fbasename [file rootname [file tail $lib]]
                     set lib_resizer $::env(TMP_DIR)/resizer_opt_$fbasename.lib
                     file copy -force $lib $lib_resizer 
-                    lappend $::env(LIB_RESIZER_OPT) $lib_resizer
+                    lappend ::env(LIB_RESIZER_OPT) $lib_resizer
                 }
             }
         } 
