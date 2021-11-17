@@ -47,7 +47,7 @@ INSTALL_SRAM ?= disabled
 # endif
 # endif
 
-OPENLANE_IMAGE_NAME ?= efabless/openlane:current
+OPENLANE_IMAGE_NAME = efabless/openlane:current
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv

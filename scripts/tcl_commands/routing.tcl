@@ -372,59 +372,54 @@ proc run_routing {args} {
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
     puts_info $::env(ECO_ITER)
-	if {$::env(ECO_ITER)==0} {
 
-		run_resizer_timing_routing
-		
-		if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-			if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-				ins_diode_cells_1
-			}
-			if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-				ins_diode_cells_4
-			}
-		}
+    run_resizer_timing_routing
+    
+    if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
+            ins_diode_cells_1
+        }
+        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+            ins_diode_cells_4
+        }
+    }
 
-		# if diode insertion does *not* happen as part of global routing, then
-		# we can insert fill cells early on
-		if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
-			ins_fill_cells
-		}
+    # if diode insertion does *not* happen as part of global routing, then
+    # we can insert fill cells early on
+    if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+        ins_fill_cells
+    }
 
-		use_original_lefs
+    use_original_lefs
 
-		add_route_obs
+    add_route_obs
 
-		#legalize if not yet legalized
-		if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-			detailed_placement_or
-		}
-		
-		global_routing
+    #legalize if not yet legalized
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+        detailed_placement_or
+    }
+    
+    global_routing
 
-		if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
-			# Doing this here can be problematic and is something that needs to be
-			# addressed in FastRoute since fill cells *might* occupy some of the
-			# resources that were already used during global routing causing the
-			# detailed router to suffer later.
-			ins_fill_cells
-		}
+    if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+        # Doing this here can be problematic and is something that needs to be
+        # addressed in FastRoute since fill cells *might* occupy some of the
+        # resources that were already used during global routing causing the
+        # detailed router to suffer later.
+        ins_fill_cells
+    }
 
+	if {[expr {$::env(ECO_ITER) == 0}]} {
 		# for LVS
 		write_verilog $::env(yosys_result_file_tag)_preroute.v
 		set_netlist $::env(yosys_result_file_tag)_preroute.v
-		if { $::env(LEC_ENABLE) } {
-			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-		}
-
+	} else {
+		write_verilog $::env(yosys_result_file_tag)_preroute.v
+        set_netlist $::env(yosys_result_file_tag)_preroute_eco_$::env(ECO_ITER).v
 	}
-	else {
-		write_verilog $::env(yosys_result_file_tag)_preroute_eco_$::env(ECO_ITER).v
-		set_netlist $::env(yosys_result_file_tag)_preroute_eco_$::env(ECO_ITER).v
-		if { $::env(LEC_ENABLE) } {
-			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-		}
-	}
+    if { $::env(LEC_ENABLE) } {
+        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    }
 
     # detailed routing
     detailed_routing

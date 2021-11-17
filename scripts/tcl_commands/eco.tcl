@@ -11,13 +11,13 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   puts "GOT BLOCK FROM DB: "
   puts $block
 
-  puts "Successfully set block"
-  set block [ord::get_db_block]
   # set iterm [$block findITerm $pin_name]
   # pin_type is the command "findxTerm"
   set iterm [$block $pin_type $pin_name]
   puts "Successfully find old net"
   set old_net [$iterm getNet]
+  puts "OLD_NET"
+  puts $old_net
   odb::dbITerm_disconnect $iterm
   puts "Successfully create new net"
   set new_net [odb::dbNet_create $block $net_name]
