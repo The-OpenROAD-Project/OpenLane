@@ -44,7 +44,7 @@ jobs:
 
       - name: Build TOOL
         if: ${{ env.NO_UPDATE != '1' }}
-        run: cd ${GITHUB_WORKSPACE}/docker_build && make build-${{ env.TOOL }}
+        run: cd ${GITHUB_WORKSPACE}/docker && make build-${{ env.TOOL }}
 
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}
