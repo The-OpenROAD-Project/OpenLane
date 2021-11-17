@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -58,20 +58,7 @@ puts "\[INFO]: Setting signal max routing layer to: $signal_max_layer and clock 
 
 set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
 
-grt::set_capacity_adjustment $::env(GLB_RT_ADJUSTMENT)
-
-grt::add_layer_adjustment 1 $::env(GLB_RT_L1_ADJUSTMENT)
-grt::add_layer_adjustment 2 $::env(GLB_RT_L2_ADJUSTMENT)
-grt::add_layer_adjustment 3 $::env(GLB_RT_L3_ADJUSTMENT)
-if { $::env(GLB_RT_MAXLAYER) > 3 } {
-    grt::add_layer_adjustment 4 $::env(GLB_RT_L4_ADJUSTMENT)
-    if { $::env(GLB_RT_MAXLAYER) > 4 } {
-        grt::add_layer_adjustment 5 $::env(GLB_RT_L5_ADJUSTMENT)
-        if { $::env(GLB_RT_MAXLAYER) > 5 } {
-            grt::add_layer_adjustment 6 $::env(GLB_RT_L6_ADJUSTMENT)
-        }
-    }
-}
+source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 
 if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
     global_route -verbose 3\

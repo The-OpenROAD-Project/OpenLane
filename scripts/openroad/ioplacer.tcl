@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,9 +28,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-#ppl::set_rand_seed 42
-
-#ppl::set_min_distance 5
 ppl::set_hor_length $::env(FP_IO_HLENGTH)
 ppl::set_ver_length $::env(FP_IO_VLENGTH)
 ppl::set_hor_length_extend $::env(FP_IO_VEXTEND)
@@ -43,9 +40,8 @@ if { $::env(FP_IO_MODE) == 1 } {
     set opts "-random"
 }
 
-set tech [[ord::get_db] getTech]
-set HMETAL [[$tech findRoutingLayer $::env(FP_IO_HMETAL)] getName]
-set VMETAL [[$tech findRoutingLayer $::env(FP_IO_VMETAL)] getName]
+set HMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL)-1}]]
+set VMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL)-1}]]
 place_pins $opts\
 	-min_distance $::env(FP_IO_MIN_DISTANCE)\
 	-random_seed 42 \
