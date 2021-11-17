@@ -51,8 +51,8 @@ if { ![info exists ::env(GLB_RT_CLOCK_MAXLAYER)] } {
     set clock_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER)-1}]]
 }
 
-puts "\[INFO]: Setting singal min routig layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "
-puts "\[INFO]: Setting signal max routig layer to: $signal_max_layer and clock min routing layer to $clock_max_layer.  "
+puts "\[INFO]: Setting signal min routing layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "
+puts "\[INFO]: Setting signal max routing layer to: $signal_max_layer and clock max routing layer to $clock_max_layer. "
 
 set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
 
