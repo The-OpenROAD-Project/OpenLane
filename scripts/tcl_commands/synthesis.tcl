@@ -80,7 +80,7 @@ proc run_yosys {args} {
         try_catch sed -i {/defparam/d} $::env(SAVE_NETLIST)
     }
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 }
 
 proc run_sta {args} {
@@ -110,7 +110,7 @@ proc run_sta {args} {
 		puts_warn "No CLOCK_PORT found. Skipping STA..."
 	}
 	TIMER::timer_stop
-	exec echo "[TIMER::get_runtime]" >> $arg_values(-runtime_log)
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }
 
 proc run_synth_exploration {args} {
@@ -201,7 +201,7 @@ proc yosys_rewrite_verilog {filename} {
 		-l [index_file $::env(yosys_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag)_rewrite_verilog_runtime.txt 0]
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"
 	} else {
 		puts_info "Yosys won't attempt to rewrite verilog, and the OpenROAD output will be used as is."
 	}
@@ -239,12 +239,12 @@ proc logic_equiv_check {args} {
 	|& tee $::env(TERMINAL_OUTPUT)}] } {
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 	    return -code error
 	}
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
 	TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(yosys_log_file_tag).equiv_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
     return -code ok
 }
 

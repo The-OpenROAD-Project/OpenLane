@@ -36,7 +36,7 @@ proc run_klayout {args} {
 			}
 			puts_info "Back-up GDS-II streamed out."
 			TIMER::timer_stop
-			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_runtime.txt 0]
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
 			scrot_klayout -layout $::env(klayout_result_file_tag).gds
 			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
 				set conf_save $::env(RUN_KLAYOUT_DRC)
@@ -67,7 +67,7 @@ proc scrot_klayout {args} {
 			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).scrot.log]
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
-			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_scrot_runtime.txt 0]
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"
 		} else {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, we won't be able to take a PNG screenshot of the Layout."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
@@ -94,7 +94,7 @@ proc run_klayout_drc {args} {
 			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).$arg_values(-stage).lydrc 0]
 			puts_info "Klayout DRC Complete"
 			TIMER::timer_stop
-			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_$arg_values(-stage)\_drc_runtime.txt 0]
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc @ $arg_values(-stage) - klayout"
 		} else {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, we won't be able to run klayout drc on the GDS-II."
 			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
@@ -150,7 +150,7 @@ proc run_klayout_gds_xor {args} {
 				puts_warn "$arg_values(-layout1) wasn't found. Skipping GDS XOR."
 			}
 			TIMER::timer_stop
-			exec echo "[TIMER::get_runtime]" >> [index_file $::env(klayout_log_file_tag)_xor_runtime.txt 0]
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "xor - klayout"
 	}
 }
 

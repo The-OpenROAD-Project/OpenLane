@@ -82,7 +82,7 @@ proc run_magic {args} {
 			}
 		}
 		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_gen_runtime.txt 0]
+	    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 }
 
 
@@ -126,7 +126,7 @@ proc run_magic_drc {args} {
 		}
 		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
 		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_drc_runtime.txt 0]
+	    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
 		quit_on_magic_drc
 
 		set ::env(magic_report_file_tag) $report_tag_saver
@@ -200,7 +200,7 @@ feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
 		}
     file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
 	TIMER::timer_stop
-	exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_ext_$extract_type\_runtime.txt 0]
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
 
 	quit_on_illegal_overlaps -log [index_file $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt 0]
 }
@@ -239,7 +239,7 @@ puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 				</dev/null \
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_save_mag.log]
 		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_save_mag_runtime.txt 0]
+	    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "mag export - magic"
 }
 
 proc run_magic_antenna_check {args} {
@@ -299,7 +299,7 @@ antennacheck
 		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
 				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
 		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_antenna_runtime.txt 0]
+	    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"
 
 }
 

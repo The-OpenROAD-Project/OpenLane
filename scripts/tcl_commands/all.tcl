@@ -631,7 +631,7 @@ proc prep {args} {
 
     puts_info "Preparation complete"
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/prep_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok
 }
 
@@ -774,7 +774,7 @@ proc heal_antenna_violators {args} {
 		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/antenna_heal_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
 	}
 }
 
@@ -862,7 +862,7 @@ proc label_macro_pins {args} {
         -o $output_def\
         {*}$extra_args |& tee [index_file $::env(LOG_DIR)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/label_macro_pins_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
 
 
@@ -885,7 +885,7 @@ proc write_verilog {filename args} {
 
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/write_verilog_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {
         yosys_rewrite_verilog $filename
     }
@@ -912,7 +912,7 @@ proc run_or_antenna_check {args} {
 	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/antenna.log]
     try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/antenna_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 
 }
 

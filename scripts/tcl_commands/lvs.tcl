@@ -134,7 +134,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
       |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(lvs_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
     quit_on_lvs_error -log $::env(lvs_result_file_tag)_parsed.$extract_type.log
 }
 

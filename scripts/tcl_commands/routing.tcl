@@ -89,7 +89,9 @@ proc global_routing {args} {
 	set ::env(SAVE_GUIDE) [index_file $::env(fastroute_tmp_file_tag).guide]
 	set ::env(SAVE_DEF) [index_file $::env(fastroute_tmp_file_tag).def 0]
 
+	set tool "openroad"
 	if { $::env(GLOBAL_ROUTER) == "cugr" } {
+		set tool "cugr"
 		global_routing_cugr
 	} else {
 		global_routing_fastroute
@@ -100,7 +102,7 @@ proc global_routing {args} {
 
 	TIMER::timer_stop
 
-	exec echo "[TIMER::get_runtime]" >> [index_file $::env(fastroute_log_file_tag)_runtime.txt 0]
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - $tool"
 	puts_info "Current Def is $::env(CURRENT_DEF)"
 	puts_info "Current Guide is $::env(CURRENT_GUIDE)"
 }
@@ -139,8 +141,10 @@ proc detailed_routing {args} {
     set ::env(tritonRoute_report_file_tag) [index_file $::env(tritonRoute_report_file_tag)]
     set tmp_tag_saver $::env(tritonRoute_tmp_file_tag)
 	set ::env(tritonRoute_tmp_file_tag) [index_file $::env(tritonRoute_tmp_file_tag) 0]
+	set tool "openroad"
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		if { $::env(DETAILED_ROUTER) == "drcu" } {
+			set tool "drcu"
 			detailed_routing_drcu
 		} else {
 			detailed_routing_tritonroute
@@ -150,7 +154,7 @@ proc detailed_routing {args} {
 	}
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(tritonRoute_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - $tool"
 
     set_def $::env(SAVE_DEF)
 
@@ -181,7 +185,7 @@ proc ins_fill_cells {args} {
     }
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(addspacers_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
 
 }
 
@@ -217,7 +221,7 @@ proc power_routing {args} {
 
     set_def $arg_values(-output_def)
 	TIMER::timer_stop
-	exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/power_routed_runtime.txt 0]
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "top level power routing - power_route.py"
 }
 
 proc gen_pdn {args} {
@@ -232,7 +236,7 @@ proc gen_pdn {args} {
 
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(pdn_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
 
 	quit_on_unconnected_pdn_nodes
 
@@ -251,7 +255,7 @@ proc ins_diode_cells_1 {args} {
     write_verilog $::env(yosys_result_file_tag)_diodes.v
     set_netlist $::env(yosys_result_file_tag)_diodes.v
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/diodes_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
     if { $::env(LEC_ENABLE) } {
 		        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -286,7 +290,7 @@ proc ins_diode_cells_4 {args} {
 	write_verilog $::env(yosys_result_file_tag)_diodes.v
 	set_netlist $::env(yosys_result_file_tag)_diodes.v
 	TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/diodes_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - place_diodes.py"
 	if { $::env(LEC_ENABLE) } {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -351,16 +355,18 @@ proc run_spef_extraction {args} {
 	set ::env(LIB_RCX) $arg_values(-rcx_lib)
 	
     if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
+		set tool "openroad"
 		puts_info "Running SPEF Extraction..."
 		TIMER::timer_start
 		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
+			set tool "def2spef"
 			set ::env(MPLCONFIGDIR) /tmp
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		} else {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
 		}
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/routing/spef_extraction_runtime.txt 0]
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
     }
 }
 
@@ -457,7 +463,7 @@ proc run_resizer_timing_routing {args} {
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 		
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
         write_verilog $::env(resizer_result_file_tag)_optimized.v
         set_netlist $::env(resizer_result_file_tag)_optimized.v

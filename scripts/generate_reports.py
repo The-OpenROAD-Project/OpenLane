@@ -190,17 +190,6 @@ def getListOfFiles(dirName):
     return allFiles
 
 
-def timestamp_to_seconds(runtime):
-    pattern = re.compile(r"\s*([\d+]+)h([\d+]+)m([\d+]+)s([\d+]+)+ms")
-    m = pattern.match(runtime)
-    time = (
-        int(m.group(1)) * 60 * 60
-        + int(m.group(2)) * 60
-        + int(m.group(3))
-        + int(m.group(4)) / 1000.0
-    )
-    return str(time)
-
 
 # Creating a runtime summary report
 logs_path = run_path + "/logs"
@@ -215,20 +204,3 @@ neededfiles = sorted(
         and os.path.basename(f).split("-")[0].isnumeric()
     ]
 )
-runtimeArr = []
-prasableRuntimeArr = []
-for (idx, f) in neededfiles:
-    stagename = os.path.basename(f).split("_runtime.txt")[0]
-    runtimeFileOpener = open(f, "r")
-    if runtimeFileOpener.mode == "r":
-        runtimeContent = runtimeFileOpener.read().strip()
-    runtimeFileOpener.close()
-    runtimeArr.append(str(stagename) + " " + str(runtimeContent))
-    prasableRuntimeArr.append(str(stagename) + " " + timestamp_to_seconds(runtimeContent))
-
-# write into file
-with open(runtime_summary, "w") as f:
-    f.write("\n".join(runtimeArr))
-
-with open(runtime_summary + ".parsable", "w") as f:
-    f.write("\n".join(prasableRuntimeArr))

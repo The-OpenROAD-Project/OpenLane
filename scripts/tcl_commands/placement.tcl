@@ -37,7 +37,7 @@ proc global_placement_or {args} {
     check_replace_divergence
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - openroad"
     set_def $::env(SAVE_DEF)
 }
 
@@ -56,7 +56,7 @@ proc random_global_placement {args} {
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(replaceio_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - random_place.py"
     set_def $::env(SAVE_DEF)
 }
 
@@ -83,7 +83,7 @@ proc detailed_placement_or {args} {
     }
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(opendp_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed placement - openroad"
     set_def $::env(SAVE_DEF)
 }
 
@@ -124,7 +124,7 @@ proc basic_macro_placement {args} {
 
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(LOG_DIR)/placement/basic_mp_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "macro placement - basic_mp.tcl"
     set_def $::env(SAVE_DEF)
 }
 
@@ -171,7 +171,7 @@ proc run_resizer_timing {args} {
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
         write_verilog $::env(resizer_result_file_tag)_optimized.v
         set_netlist $::env(resizer_result_file_tag)_optimized.v
@@ -197,7 +197,7 @@ proc run_resizer_design {args} {
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_design_optimization_runtime.txt 0]
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
 
         write_verilog $::env(resizer_result_file_tag)_optimized.v
         set_netlist $::env(resizer_result_file_tag)_optimized.v

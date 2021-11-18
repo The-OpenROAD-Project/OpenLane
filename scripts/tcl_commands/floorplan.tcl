@@ -64,13 +64,14 @@ proc init_floorplan {args} {
 		
 		set ::env(init_floorplan_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(init_floorplan_log_file_tag)_openroad_runtime.txt 0]
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openroad init_floorplan"
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 }
 
 
 proc place_io_ol {args} {
+	TIMER::timer_start
 		set options {
 				{-lef optional}
 				{-def optional}
@@ -123,17 +124,19 @@ proc place_io_ol {args} {
 				-o $arg_values(-output_def)\
 				{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/floorplan/place_io_ol.log 0] $::env(TERMINAL_OUTPUT)
 		set_def $arg_values(-output_def)
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - io_place.py"
 }
 
 proc place_io {args} {
-		puts_info "Running IO Placement..."
-		TIMER::timer_start
-		set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
+	puts_info "Running IO Placement..."
+	TIMER::timer_start
+	set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
 
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" >> [index_file $::env(ioPlacer_log_file_tag)_runtime.txt 0]
-		set_def $::env(SAVE_DEF)
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
+	set_def $::env(SAVE_DEF)
 }
 
 proc place_contextualized_io {args} {
@@ -173,7 +176,7 @@ proc place_contextualized_io {args} {
 
 				TIMER::timer_stop
 
-				exec echo "[TIMER::get_runtime]" >> [index_file $::env(ioPlacer_log_file_tag)_runtime.txt 0]
+				exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad (contextual)"
 
 		} else {
 				puts_err "Contextual IO placement: def/lef files don't exist, exiting"
@@ -190,7 +193,7 @@ proc tap_decap_or {args} {
 				set ::env(SAVE_DEF) $::env(tapcell_result_file_tag).def
 				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_log_file_tag).log]
 				TIMER::timer_stop
-				exec echo "[TIMER::get_runtime]" >> [index_file $::env(tapcell_log_file_tag)_runtime.txt 0]
+				exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
 				set_def $::env(SAVE_DEF)
 			} else {
 				puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
