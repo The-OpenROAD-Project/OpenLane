@@ -158,14 +158,7 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RT_MAXLAYER` | The number of highest layer to be used in routing. <br> (Default: `6`)|
 | `GLB_RT_CLOCK_MINLAYER` | The number of lowest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MINLAYER`)|
 | `GLB_RT_CLOCK_MAXLAYER` | The number of highest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MAXLAYER`)|
-| `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
-| `GLB_RT_L1_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0.99`) |
-| `GLB_RT_L2_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_L3_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met2 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_L4_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met3 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_L5_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met4 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_L6_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met5 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
-| `GLB_RT_ALLOW_CONGESTION` | Allow congestion in the resultign guides. 0 = false, 1 = true <br> (Default: `0`) |
+| `GLB_RT_ALLOW_CONGESTION` | Allow congestion in the resultign guides. 0 = false, 1 = true <br> (Default: `0`) 
 | `GLB_RT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
 | `GLB_RT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
 | `GLB_RT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
@@ -181,7 +174,26 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `GLB_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
-| `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) | 
+| `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
+| `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Default: `0.99,0,0,0,0,0`)
+
+#### Deprecated Layer Adjustment Variables
+These variables worked initially, but they were too sky130 specific to be scalable. Currently, if they exist, they'll be concatenated into GLB_RT_LAYER_ADJUSTMENTS, but it's recommended to update your configuration to use `GLB_RT_LAYER_ADJUSTMENTS`.
+
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| `GLB_RT_L1_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0.99`) |
+| `GLB_RT_L2_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L3_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met2 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L4_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met3 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L5_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met4 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+| `GLB_RT_L6_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met5 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
+
+#### Removed
+
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
 | `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
 
