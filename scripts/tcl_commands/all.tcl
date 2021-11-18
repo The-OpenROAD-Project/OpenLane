@@ -367,6 +367,12 @@ proc prep {args} {
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
     source $pdk_config
+
+    # Value set by PDK for some reason
+    if { [info exists ::env(GLB_RT_L1_ADJUSTMENT) ] } {
+        unset ::env(GLB_RT_L1_ADJUSTMENT)
+    }
+
     source $scl_config
 
     # needs to be resourced to make sure it overrides the above
