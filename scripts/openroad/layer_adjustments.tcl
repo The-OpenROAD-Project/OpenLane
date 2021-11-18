@@ -14,51 +14,50 @@
 
 set_global_routing_layer_adjustment * $::env(GLB_RT_ADJUSTMENT)
 
+# Legacy format for layer adjustments: Convert to new format
+set array [split $::env(GLB_RT_LAYER_ADJUSTMENTS) ","]
+
+set conversion_flag 0
+
+set l1_adj [lindex $array 0]
 if { [info exists ::env(GLB_RT_L1_ADJUSTMENT)] } {
-    # Legacy format for layer adjustments: Convert to new format
-    set flag 0
-
-    set l1_adj 0
-    if { [info exists ::env(GLB_RT_L1_ADJUSTMENT)] } {
-        set flag 1
-        set l1_adj $::env(GLB_RT_L1_ADJUSTMENT)
-    }
-    set l2_adj 0
-    if { [info exists ::env(GLB_RT_L2_ADJUSTMENT)] } {
-        set flag 1
-        set l2_adj $::env(GLB_RT_L2_ADJUSTMENT)
-    }
-    set l3_adj 0
-    if { [info exists ::env(GLB_RT_L3_ADJUSTMENT)] } {
-        set flag 1
-        set l3_adj $::env(GLB_RT_L3_ADJUSTMENT)
-    }
-    set l4_adj 0
-    if { [info exists ::env(GLB_RT_L4_ADJUSTMENT)] } {
-        set flag 1
-        set l4_adj $::env(GLB_RT_L4_ADJUSTMENT)
-    }
-    set l5_adj 0
-    if { [info exists ::env(GLB_RT_L5_ADJUSTMENT)] } {
-        set flag 1
-        set l5_adj $::env(GLB_RT_L5_ADJUSTMENT)
-    }
-    set l6_adj 0
-    if { [info exists ::env(GLB_RT_L6_ADJUSTMENT)] } {
-        set flag 1
-        set l6_adj $::env(GLB_RT_L6_ADJUSTMENT)
-    }
-
-    set ::env(GLB_RT_LAYER_ADJUSTMENTS) "$l1_adj,$l2_adj,$l3_adj,$l4_adj,$l5_adj,$l6_adj"
-
-    if { $flag } {
-        puts stderr "\[DEPRECATION WARNING] A GLB_RT_LX_ADJUSTMENT variable is still used by your design and will be removed in a future version of OpenLane. We recommend you update to GLB_RT_LAYER_ADJUSTMENTS. Check configuration/README.md for more info."
-
-        puts stderr "Recommended replacement:\nset ::env(GLB_RT_LAYER_ADJUSTMENTS) $::env(GLB_RT_LAYER_ADJUSTMENTS)"
-    }
+    set conversion_flag 1
+    set l1_adj $::env(GLB_RT_L1_ADJUSTMENT)
+}
+set l2_adj [lindex $array 1]
+if { [info exists ::env(GLB_RT_L2_ADJUSTMENT)] } {
+    set conversion_flag 1
+    set l2_adj $::env(GLB_RT_L2_ADJUSTMENT)
+}
+set l3_adj [lindex $array 2]
+if { [info exists ::env(GLB_RT_L3_ADJUSTMENT)] } {
+    set conversion_flag 1
+    set l3_adj $::env(GLB_RT_L3_ADJUSTMENT)
+}
+set l4_adj [lindex $array 3]
+if { [info exists ::env(GLB_RT_L4_ADJUSTMENT)] } {
+    set conversion_flag 1
+    set l4_adj $::env(GLB_RT_L4_ADJUSTMENT)
+}
+set l5_adj [lindex $array 4]
+if { [info exists ::env(GLB_RT_L5_ADJUSTMENT)] } {
+    set conversion_flag 1
+    set l5_adj $::env(GLB_RT_L5_ADJUSTMENT)
+}
+set l6_adj [lindex $array 5]
+if { [info exists ::env(GLB_RT_L6_ADJUSTMENT)] } {
+    set conversion_flag 1
+    set l6_adj $::env(GLB_RT_L6_ADJUSTMENT)
 }
 
-set array [split $::env(GLB_RT_LAYER_ADJUSTMENTS) ","]
+if { $conversion_flag } {
+    set ::env(GLB_RT_LAYER_ADJUSTMENTS) "$l1_adj,$l2_adj,$l3_adj,$l4_adj,$l5_adj,$l6_adj"
+
+    puts stderr "\[DEPRECATION WARNING] A GLB_RT_LX_ADJUSTMENT variable is still used by your design and will be removed in a future version of OpenLane. We recommend you update to GLB_RT_LAYER_ADJUSTMENTS. Check configuration/README.md for more info."
+
+    puts stderr "Recommended replacement:\nset ::env(GLB_RT_LAYER_ADJUSTMENTS) $::env(GLB_RT_LAYER_ADJUSTMENTS)"
+}
+
 set i 0
 foreach adjustment $array {
     set layer_name [lindex $::env(TECH_METAL_LAYERS) $i]
