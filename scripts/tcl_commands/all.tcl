@@ -492,30 +492,42 @@ proc prep {args} {
         }
     }
 
-    set tmp_output {
-        {yosys synthesis/yosys}
-        {opensta synthesis/opensta}
-        {init_floorplan floorplan/init_floorplan}
-        {ioPlacer floorplan/ioPlacer}
-        {pdn floorplan/pdn}
-        {tapcell floorplan/tapcell}
-        {replaceio placement/replace}
-        {resizer placement/resizer}
-        {opendp placement/opendp}
-        {addspacers routing/addspacers}
-        {fastroute routing/fastroute}
-        {tritonRoute routing/tritonRoute}
-        {rcx routing/spef}
-        {glb_resizer routing/resizer}
-        {magic magic/magic}
-        {cts cts/cts}
-        {lvs lvs/lvs}
-        {cvc cvc/cvc}
-        {klayout klayout/klayout}
-    }
+    set run_subfolder_structure [list \
+        synthesis\
+        floorplan\
+        placement\
+        cts\
+        routing\
+        magic\
+        lvs\
+        cvc\
+        klayout\
+        resizer\
+    ]
 
-    set final_output \
-        [list  \
+    set intermediate_output_prefices [list \
+        [list yosys synthesis/yosys] \
+        [list opensta synthesis/opensta] \
+        [list init_floorplan floorplan/init_floorplan] \
+        [list ioPlacer floorplan/ioPlacer] \
+        [list pdn floorplan/pdn] \
+        [list tapcell floorplan/tapcell] \
+        [list replaceio placement/replace] \
+        [list resizer placement/resizer] \
+        [list opendp placement/opendp] \
+        [list addspacers routing/addspacers] \
+        [list fastroute routing/fastroute] \
+        [list tritonRoute routing/tritonRoute] \
+        [list rcx routing/spef] \
+        [list glb_resizer routing/resizer] \
+        [list magic magic/magic] \
+        [list cts cts/cts] \
+        [list lvs lvs/lvs] \
+        [list cvc cvc/cvc] \
+        [list klayout klayout/klayout] \
+    ]
+
+    set final_output_prefices [list \
         [list yosys synthesis/$::env(DESIGN_NAME).synthesis] \
         [list tapcell floorplan/$::env(DESIGN_NAME).floorplan] \
         [list opendp placement/$::env(DESIGN_NAME).placement] \
@@ -526,12 +538,13 @@ proc prep {args} {
         [list cvc cvc/$::env(DESIGN_NAME)] \
         [list klayout klayout/$::env(DESIGN_NAME)] \
         [list resizer resizer/$::env(DESIGN_NAME)]
-        ]
+    ]
+        
 
-    array set results_file_name [make_array $final_output $::env(RESULTS_DIR)/]
-    array set reports_file_name [make_array $tmp_output $::env(REPORTS_DIR)/]
-    array set logs_file_name [make_array $tmp_output $::env(LOG_DIR)/]
-    array set tmp_file_name [make_array $tmp_output $::env(TMP_DIR)/]
+    array set results_file_name [make_array $final_output_prefices $::env(RESULTS_DIR)/]
+    array set reports_file_name [make_array $intermediate_output_prefices $::env(REPORTS_DIR)/]
+    array set logs_file_name [make_array $intermediate_output_prefices $::env(LOG_DIR)/]
+    array set tmp_file_name [make_array $intermediate_output_prefices $::env(TMP_DIR)/]
 
     foreach {key value} [array get results_file_name] {
         set ::env(${key}_result_file_tag) $value
@@ -549,19 +562,18 @@ proc prep {args} {
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
 
-    set stages {synthesis floorplan placement cts routing magic lvs cvc klayout resizer}
-    foreach stage $stages {
+    foreach subfolder $run_subfolder_structure {
         file mkdir\
-            $::env(RESULTS_DIR)/$stage \
-            $::env(TMP_DIR)/$stage  \
-            $::env(LOG_DIR)/$stage \
-            $::env(REPORTS_DIR)/$stage
+            $::env(RESULTS_DIR)/$subfolder \
+            $::env(TMP_DIR)/$subfolder  \
+            $::env(LOG_DIR)/$subfolder \
+            $::env(REPORTS_DIR)/$subfolder
 
-        if { ! [file exists $::env(TMP_DIR)/$stage/merged_unpadded.lef] } {
-            file link -symbolic $::env(TMP_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        if { ! [file exists $::env(TMP_DIR)/$subfolder/merged_unpadded.lef] } {
+            file link -symbolic $::env(TMP_DIR)/$subfolder/merged_unpadded.lef ../../tmp/merged_unpadded.lef
         }
-        if { ! [file exists $::env(RESULTS_DIR)/$stage/merged_unpadded.lef] } {
-            file link -symbolic $::env(RESULTS_DIR)/$stage/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        if { ! [file exists $::env(RESULTS_DIR)/$subfolder/merged_unpadded.lef] } {
+            file link -symbolic $::env(RESULTS_DIR)/$subfolder/merged_unpadded.lef ../../tmp/merged_unpadded.lef
         }
     }
 

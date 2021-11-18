@@ -15,7 +15,7 @@
 proc get_yosys_bin {} {
     set synth_bin yosys
     if { [info exists ::env(SYNTH_BIN)] } {
-	set synth_bin $::env(SYNTH_BIN)
+		set synth_bin $::env(SYNTH_BIN)
     }
     return $synth_bin
 }
@@ -166,12 +166,12 @@ proc run_synthesis {args} {
     }
 
 	if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
-		puts_info "Creating a synthesis netlist with PG pins."
+		puts_info "Creating a netlist with power/ground pins."
 		if { ! [info exists ::env(SYNTH_DEFINES)] } {
 			set ::env(SYNTH_DEFINES) [list]
 		}
 		lappend ::env(SYNTH_DEFINES) {*}$::env(SYNTH_USE_PG_PINS_DEFINES)
-		run_yosys -output $::env(yosys_tmp_file_tag).pg_define.v -no_set_netlist
+		run_yosys -output $::env(yosys_tmp_file_tag).pg_pins.v -no_set_netlist
 	}
 
 }
@@ -233,10 +233,12 @@ proc logic_equiv_check {args} {
 	}
     puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
 
-    if { [catch {exec [get_yosys_bin] \
-	-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
-	-l [index_file $::env(yosys_log_file_tag).equiv.log] \
-	|& tee $::env(TERMINAL_OUTPUT)}] } {
+    if {[ catch {\
+		exec [get_yosys_bin] \
+			-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
+			-l [index_file $::env(yosys_log_file_tag).equiv.log] \
+		|& tee $::env(TERMINAL_OUTPUT)\
+	} ]} {
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"

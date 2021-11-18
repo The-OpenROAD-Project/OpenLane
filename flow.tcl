@@ -22,9 +22,6 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
-    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
-    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
-    # set_def $pdndef
     if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
         set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
