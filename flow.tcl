@@ -132,7 +132,7 @@ proc run_apply_step {args} {
 }
 
 proc eco_read_fix {args} {
-    set path "$::env(RUN_DIR)/results/eco"
+    set path "$::env(RUN_DIR)/results/eco/fix"
 
     set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
     set   fd   [read  $fp]
@@ -153,7 +153,7 @@ proc eco_gen_buffer {args} {
                          *.lef] end] \
         -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
                          *.def] end] \
-        -o $::env(RUN_DIR)/results/eco/eco_fix_$::env(ECO_ITER).tcl
+        -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
 }
 
 proc eco_output_check {args} {
@@ -174,8 +174,15 @@ proc eco_output_check {args} {
 }
 
 proc run_eco_step {args} {
-    set path "$::env(RUN_DIR)/results/eco"
+
+    set path     "$::env(RUN_DIR)/results/eco"
+    set fix_path "$::env(RUN_DIR)/results/eco/fix"
+    set def_path "$::env(RUN_DIR)/results/eco/def"
+    set net_path "$::env(RUN_DIR)/results/eco/net"
     file mkdir $path
+    file mkdir $fix_path
+    file mkdir $def_path
+    file mkdir $net_path
 
 
     # Assume script generate fix commands
@@ -185,15 +192,9 @@ proc run_eco_step {args} {
     while {$::env(ECO_FINISH) != 1} {
 
         puts "Start ECO loop!"
-        # Re-run cts and routing again
-        
-        # or_cts will source the eco.tcl script
-        # that contains the fixes
-
         # Then run detailed placement again
         # Get the connections then destroy them
 
-        # Assume only one run for now
         set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}
         ]
@@ -294,7 +295,12 @@ proc run_non_interactive_mode {args} {
         if { $exe } {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
-            [lindex $step_exe 0] [lindex $step_exe 1] ;
+            if {$step_name == "eco"} {
+                [lindex $step_exe 0] [lindex $step_exe 1] \
+                |& tee $::env(TERMINAL_OUTPUT) $::env(RUN_DIR)/debug.log;
+            } else {
+                [lindex $step_exe 0] [lindex $step_exe 1] ;
+            }
         }
 
         if { [ string equal $arg_values(-to) $step_name ] } {

@@ -79,7 +79,7 @@ proc run_eco {args} {
     # Uncomment to source the generated fix
     # Currently args in the fix tcl has some bugs:
     # 1st argument of insert_buffer (pin_name) not found
-    source "$::env(RUN_DIR)/results/eco/eco_fix_$cur_iter.tcl"
+    source "$::env(RUN_DIR)/results/eco/fix/eco_fix_$cur_iter.tcl"
     
     # Run detailed placement
     detailed_placement

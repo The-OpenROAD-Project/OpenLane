@@ -409,13 +409,12 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
+    write_verilog $::env(yosys_result_file_tag)_preroute.v
 	if {[expr {$::env(ECO_ITER) == 0}]} {
 		# for LVS
-		write_verilog $::env(yosys_result_file_tag)_preroute.v
 		set_netlist $::env(yosys_result_file_tag)_preroute.v
 	} else {
-		write_verilog $::env(yosys_result_file_tag)_preroute.v
-        set_netlist $::env(yosys_result_file_tag)_preroute_eco_$::env(ECO_ITER).v
+        set_netlist $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
 	}
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
