@@ -184,21 +184,24 @@ while current is not None:
     env_keys_used.add(env_key)
     env[env_key] = current
 
-    script = open(current).read()
+    try:
+        script = open(current).read()
 
-    for key, value in env.items():
-        key_accessor = re.compile(rf"((\$::env\({re.escape(key)}\))([/\-\w\.]*))")
-        for use in key_accessor.findall(script):
-            use: List[str]
-            full, accessor, extra = use
-            env_keys_used.add(key)
+        for key, value in env.items():
+            key_accessor = re.compile(rf"((\$::env\({re.escape(key)}\))([/\-\w\.]*))")
+            for use in key_accessor.findall(script):
+                use: List[str]
+                full, accessor, extra = use
+                env_keys_used.add(key)
 
-            value_substituted = full.replace(accessor, value)
+                value_substituted = full.replace(accessor, value)
 
-            if value_substituted.endswith(".tcl") or value_substituted.endswith(".sdc"):
-                if value_substituted not in tcls:
-                    tcls.add(value_substituted)
-                    tcls_to_process.append(value_substituted)
+                if value_substituted.endswith(".tcl") or value_substituted.endswith(".sdc"):
+                    if value_substituted not in tcls:
+                        tcls.add(value_substituted)
+                        tcls_to_process.append(value_substituted)
+    except:
+        print(f"⚠ {current} was not found, might be a product. Skipping", file=sys.stderr)
 
     current = shift(tcls_to_process)
 
