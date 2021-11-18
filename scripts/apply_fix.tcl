@@ -26,8 +26,8 @@ if {[expr {$cur_iter == 0}]} {
         puts stderr $errmsg
         exit 1
     }
-    puts "Reading: $::env(yosys_result_file_tag)_preroute_eco_$cur_iter.v"
-    read_verilog $::env(yosys_result_file_tag)_preroute_eco_$cur_iter.v
+    puts "Reading results/eco/net/eco_$cur_iter.v"
+    read_verilog $::env(RUN_DIR)/results/eco/net/eco_$cur_iter.v
 }
 puts "ECO: Successfully read Verilog!"
 
