@@ -106,7 +106,7 @@ proc place_io_ol {args} {
 		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
 		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-		set_if_unset arg_values(-output_def) [index_file $::env(io_placement_tmpfiles).def]
+		set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)_io.def]
 
 		set_if_unset arg_values(-extra_args) ""
 
@@ -131,9 +131,9 @@ proc place_io_ol {args} {
 proc place_io {args} {
 	puts_info "Running IO Placement..."
 	TIMER::timer_start
-	set ::env(SAVE_DEF) [index_file $::env(io_placement_tmpfiles).def]
+	set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)_io.def]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(io_placement_logs).log 0]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)_io.log 0]
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
 	set_def $::env(SAVE_DEF)
@@ -153,22 +153,22 @@ proc place_contextualized_io {args} {
 
 
 				set prev_def $::env(CURRENT_DEF)
-				set ::env(SAVE_DEF) [index_file $::env(io_placement_tmpfiles).context.def]
+				set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)_io.context.def]
 				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
 						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
 						-o $::env(SAVE_DEF) |& \
-						tee [index_file $::env(io_placement_logs).contextualize.log 0]
+						tee [index_file $::env(floorplan_logs)_io.contextualize.log 0]
 				puts_info "Custom floorplan created"
 
 				set_def $::env(SAVE_DEF)
 
-				set ::env(SAVE_DEF) [index_file $::env(io_placement_tmpfiles).def]
+				set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)_io.def]
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
 				set ::env(CONTEXTUAL_IO_FLAG_) 1
-				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(io_placement_logs).log 0]
+				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)_io.log 0]
 				set ::env(FP_IO_MODE) $old_mode
 
 				move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -185,22 +185,22 @@ proc place_contextualized_io {args} {
 }
 
 proc tap_decap_or {args} {
-		if { $::env(TAP_DECAP_INSERTION) } {
-			if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
+	if { $::env(TAP_DECAP_INSERTION) } {
+		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
 
-				puts_info "Running Tap/Decap Insertion..."
-				TIMER::timer_start
-				set ::env(SAVE_DEF) $::env(tapcell_results).def
-				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(tapcell_logs).log]
-				TIMER::timer_stop
-				exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
-				set_def $::env(SAVE_DEF)
-			} else {
-				puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
-			}
+			puts_info "Running Tap/Decap Insertion..."
+			TIMER::timer_start
+			set ::env(SAVE_DEF) $::env(floorplan_results)_tap.def
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)_tap.log]
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
+			set_def $::env(SAVE_DEF)
 		} else {
-			puts_warn "Skipping Tap/Decap Insertion."
+			puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
 		}
+	} else {
+		puts_warn "Skipping Tap/Decap Insertion."
+	}
 }
 
 

@@ -98,8 +98,7 @@ proc run_sta {args} {
 	puts_info "Running Static Timing Analysis..."
 	TIMER::timer_start
 	if {[info exists ::env(CLOCK_PORT)]} {
-		set ::env(sta_reports) [index_file $::env(sta_reports)]
-		if { $multi_corner == 1} {
+		if { $multi_corner == 1 } {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
 			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
 		} else {
@@ -137,9 +136,8 @@ proc run_synthesis {args} {
 		run_yosys
 	}
 
-	set output_log [index_file $::env(sta_logs) 0]
-	set runtime_log [index_file $::env(sta_logs)_runtime.txt 0]
-    run_sta -output_log $output_log -runtime_log $runtime_log
+	set output_log [index_file $::env(synthesis_logs)_sta.log 0]
+    run_sta -output_log $output_log
 
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {

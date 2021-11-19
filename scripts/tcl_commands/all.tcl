@@ -501,25 +501,14 @@ proc prep {args} {
         magic\
         lvs\
         erc\
-        klayout\
-        resizer\
+        klayout
     ]
 
     set intermediate_output_prefices [list \
         [list synthesis synthesis/synthesis] \
-        [list sta synthesis/sta] \
         [list floorplan floorplan/floorplan] \
-        [list io_placement floorplan/io] \
-        [list pdn floorplan/pdn] \
-        [list tapcell floorplan/tapcell] \
-        [list gplace placement/global] \
-        [list resizer placement/resizer] \
-        [list dplace placement/detailed] \
-        [list fill routing/fill] \
-        [list groute routing/global] \
-        [list droute routing/detailed] \
-        [list parasitics routing/spef] \
-        [list routing_resizer routing/resizer] \
+        [list placement placement/placement] \
+        [list routing routing/routing] \
         [list magic magic/magic] \
         [list klayout klayout/klayout] \
         [list cts cts/cts] \
@@ -529,15 +518,14 @@ proc prep {args} {
 
     set final_output_prefices [list \
         [list synthesis synthesis/$::env(DESIGN_NAME).synthesis] \
-        [list tapcell floorplan/$::env(DESIGN_NAME).floorplan] \
-        [list dplace placement/$::env(DESIGN_NAME).placement] \
-        [list droute routing/$::env(DESIGN_NAME)] \
+        [list floorplan floorplan/$::env(DESIGN_NAME).floorplan] \
+        [list placement placement/$::env(DESIGN_NAME).placement] \
+        [list routing routing/$::env(DESIGN_NAME)] \
         [list cts cts/$::env(DESIGN_NAME).cts] \
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
         [list erc erc/$::env(DESIGN_NAME)] \
-        [list klayout klayout/$::env(DESIGN_NAME)] \
-        [list resizer resizer/$::env(DESIGN_NAME)]
+        [list klayout klayout/$::env(DESIGN_NAME)]
     ]
         
 
@@ -783,7 +771,7 @@ proc heal_antenna_violators {args} {
 			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(droute_results).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(routing_results)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"

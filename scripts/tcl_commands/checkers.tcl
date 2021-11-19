@@ -181,7 +181,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(gplace_logs).log 0]} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)_global.log 0]} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -208,7 +208,7 @@ proc check_macro_placer_num_solns {args} {
 
 proc quit_on_tr_drc {args} {
     if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(droute_reports).drc ]
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(routing_reports)_detailed.drc ]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."
@@ -273,7 +273,7 @@ proc quit_on_illegal_overlaps {args} {
 }
 
 proc quit_on_unconnected_pdn_nodes {args} {
-    set log_file [index_file $::env(pdn_logs).log 0]
+    set log_file [index_file $::env(floorplan_logs)_pdn.log 0]
     set checker [catch {exec grep -E "Unconnected PDN node" $log_file} error]
 
     if { ! $checker } {
