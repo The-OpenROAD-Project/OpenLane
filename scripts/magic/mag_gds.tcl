@@ -65,7 +65,7 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 
 select top cell
 
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+cellname filepath $::env(DESIGN_NAME) $::env(magic_results)
 
 save
 

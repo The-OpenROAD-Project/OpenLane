@@ -208,7 +208,7 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 select -module $vtop
-show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop
@@ -242,7 +242,7 @@ if { $::env(SYNTH_NO_FLAT) } {
 }
 
 # write a post techmap dot file
-show -format dot -prefix $::env(TMP_DIR)/synthesis/post_techmap
+show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive

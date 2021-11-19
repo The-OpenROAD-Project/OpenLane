@@ -53,7 +53,7 @@ proc write_powered_verilog {args} {
     set flags {}
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
-    set_if_unset arg_values(-output_def) [index_file $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).powered.def]
+    set_if_unset arg_values(-output_def) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).powered.def]
     set_if_unset arg_values(-output_verilog) $::env(lvs_results)/$::env(DESIGN_NAME).powered.v
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
@@ -73,8 +73,8 @@ proc write_powered_verilog {args} {
       --ground-port $arg_values(-ground) \
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/lvs/write_powered_verilog.log 0]
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -canonical
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_logs)/write_powered_verilog.log 0]
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)  -log [index_file $::env(routing_logs)/write_verilog.log 0] -canonical
 }
 
 # "layout": a spice netlist
@@ -99,7 +99,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     set setup_file $::env(NETGEN_SETUP_FILE)
     set module_name $::env(DESIGN_NAME)
     #writes setup_file_*_lvs to tmp directory.
-    set lvs_file [open $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs w]
+    set lvs_file [open $::env(lvs_tmpfiles)/setup_file.$extract_type.lvs w]
     if { "$extract_type" == "gds" } {
         if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
             set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)

@@ -399,7 +399,7 @@ proc prep {args} {
     set ::env(RUN_DIR) 		"$run_path"
     set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
     set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOG_DIR) 		"$::env(RUN_DIR)/logs"
+    set ::env(LOGS_DIR) 		"$::env(RUN_DIR)/logs"
     set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
     set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
 
@@ -420,7 +420,7 @@ proc prep {args} {
 
 
     # file mkdir *ensures* they exists (no problem if they already do)
-    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOG_DIR) $::env(REPORTS_DIR)
+    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
 
     puts_info "Current run directory is $::env(RUN_DIR)"
 
@@ -509,7 +509,7 @@ proc prep {args} {
         set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_reports)
         
-        set ::env(${subfolder}_logs) $::env(LOG_DIR)/$subfolder
+        set ::env(${subfolder}_logs) $::env(LOGS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_logs)
         
         set ::env(${subfolder}_tmpfiles) $::env(TMP_DIR)/$subfolder
@@ -719,24 +719,24 @@ proc save_views {args} {
 proc heal_antenna_violators {args} {
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
-	# $::env(magic_tmpfiles).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
+	# $::env(magic_tmpfiles)/antenna_violators.rpt or $::env(routing_reports)/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(routing_reports)/antenna.rpt 0] -o [index_file $::env(routing_reports)/violators.txt 0]
 		} else {
             #Magic Specific
 			set report_file [open [index_file $::env(magic_reports)/antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
-			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
+			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt 0] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
@@ -825,7 +825,7 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(LOG_DIR)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        {*}$extra_args |& tee [index_file $::env(lvs_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
@@ -838,6 +838,7 @@ proc write_verilog {filename args} {
 
     set options {
         {-def optional}
+        {-log optional}
     }
     set flags {
         -canonical
@@ -845,10 +846,11 @@ proc write_verilog {filename args} {
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-log) /dev/null
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/write_verilog.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {
@@ -874,8 +876,8 @@ proc set_layer_tracks {args} {
 proc run_or_antenna_check {args} {
     TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/antenna.log]
-    try_catch mv -f $::env(REPORTS_DIR)/routing/antenna.rpt [index_file $::env(REPORTS_DIR)/routing/antenna.rpt]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/antenna.log]
+    try_catch mv -f $::env(routing_reports)/antenna.rpt [index_file $::env(REPORTS_DIR)/antenna.rpt]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 

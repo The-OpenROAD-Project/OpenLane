@@ -65,7 +65,7 @@ BEGIN {  # Print power and standard_input definitions
         
         # merge cdl views of the optimization library and the base library if they are different
         if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY)} {
-            set lib_cdl $::env(TMP_DIR)/cvc/merged.cdl
+            set lib_cdl $::env(erc_tmpfiles)/merged.cdl
             file copy -force $::env(STD_CELL_LIBRARY_CDL) $lib_cdl
             set out [open $lib_cdl a]
             set in [open $::env(STD_CELL_LIBRARY_OPT_CDL)]

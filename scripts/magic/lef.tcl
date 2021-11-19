@@ -11,7 +11,7 @@ if {  [info exist ::env(EXTRA_LEFS)] } {
 
 load $::env(magic_results)/$::env(DESIGN_NAME).mag -dereference
 
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+cellname filepath $::env(DESIGN_NAME) $::env(magic_results)
 
 # Write LEF
 if { $::env(MAGIC_WRITE_FULL_LEF) } {

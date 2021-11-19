@@ -193,7 +193,7 @@ proc check_replace_divergence {args} {
 }
 
 proc check_macro_placer_num_solns {args} {
-    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(LOG_DIR)/placement/basic_mp.log 0]} error]
+    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(placement_logs)/basic_mp.log 0]} error]
 
     if { ! $checker } {
         puts_err "Macro placement failed"

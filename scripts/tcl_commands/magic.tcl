@@ -34,7 +34,7 @@ proc run_magic {args} {
 			</dev/null \
 			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_logs)/gdsii.log]
 	set ::env(CURRENT_GDS) $::env(magic_results)/$::env(DESIGN_NAME).gds
-	file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+	file copy -force $::env(MAGIC_MAGICRC) $::env(magic_results)/.magicrc
 	# Take a PNG screenshot
 	scrot_klayout
 
@@ -124,7 +124,7 @@ proc run_magic_drc {args} {
 			--rdb_out $::env(drc_prefix).rdb
 		puts_info "Converted DRC Violations to RDB Format"
 	}
-	file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
+	file copy -force $::env(MAGIC_MAGICRC) $::env(magic_results)/.magicrc
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
 	
@@ -163,7 +163,7 @@ if { \[info exist ::env(MAGIC_EXT_USE_GDS)\] && \$::env(MAGIC_EXT_USE_GDS) } {
 	def read $::env(CURRENT_DEF)
 }
 load $::env(DESIGN_NAME) -dereference
-cd $::env(RESULTS_DIR)/magic/
+cd $::env(magic_results)/
 extract do local
 extract no capacitance
 extract no coupling
@@ -198,7 +198,7 @@ feedback save $::env(magic_extract_prefix)$extract_type.feedback.txt
 	if { $extract_type == "spice" } {
 		file copy -force $::env(magic_results)/$::env(DESIGN_NAME).spice $::env(magic_results)/$::env(DESIGN_NAME).lef.spice
 	}
-    file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
+    file rename -force {*}[glob $::env(magic_results)/*.ext] $::env(magic_tmpfiles)
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
 
@@ -213,7 +213,7 @@ proc export_magic_view {args} {
 	}
 	set flags {}
 	parse_key_args "export_magic_views" args arg_values $options flags_map $flags
-	set script_dir $::env(TMP_DIR)/magic_mag_save.tcl
+	set script_dir $::env(magic_tmpfiles)/magic_mag_save.tcl
 	set commands \
 "
 lef read $::env(TECH_LEF)
@@ -258,7 +258,7 @@ if {  \[info exist ::env(EXTRA_LEFS)\] } {
 }
 def read \$::env(CURRENT_DEF)
 load \$::env(DESIGN_NAME) -dereference
-cd \$::env(TMP_DIR)/magic/
+cd \$::env(magic_tmpfiles)
 select top cell
 
 # for now, do extraction anyway; can be optimized by reading the maglef ext

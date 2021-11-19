@@ -259,32 +259,32 @@ proc color_text {color txt} {
 proc puts_err {txt} {
   set message "\[ERROR\]: $txt"
   puts "[color_text 1 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
   }
 }
 
 proc puts_success {txt} {
   set message "\[SUCCESS\]: $txt"
   puts "[color_text 2 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
   }
 }
 
 proc puts_warn {txt} {
   set message "\[WARNING\]: $txt"
   puts "[color_text 3 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
   }
 }
 
 proc puts_info {txt} {
   set message "\[INFO\]: $txt"
   puts "[color_text 6 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
   }
 }
 

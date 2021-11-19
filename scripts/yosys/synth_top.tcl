@@ -62,7 +62,7 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 select -module $vtop
-show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop

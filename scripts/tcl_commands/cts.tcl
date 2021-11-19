@@ -88,7 +88,7 @@ proc run_cts {args} {
         set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt ]
 		# trim the lib to exclude cells with drc errors
 		if { ! [info exists ::env(LIB_CTS) ] } {
-			set ::env(LIB_CTS) $::env(TMP_DIR)/cts.lib
+			set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
 		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/cts.log 0]
@@ -99,7 +99,7 @@ proc run_cts {args} {
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v
+		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log [index_file $::env(cts_logs)/write_verilog.log 0]
 		set_netlist $::env(cts_results)/$::env(DESIGN_NAME).v
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

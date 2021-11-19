@@ -279,7 +279,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(magic_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]

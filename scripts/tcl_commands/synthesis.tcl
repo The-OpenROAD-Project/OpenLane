@@ -47,15 +47,16 @@ proc run_yosys {args} {
 		set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 	}
 
+	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synth]
+	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log 0]
+
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]
 	foreach lib $::env(LIB_SYNTH_COMPLETE) {
 		set fbasename [file rootname [file tail $lib]]
-		convert_pg_pins $lib $::env(TMP_DIR)/$fbasename.no_pg.lib
-		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
+		set lib_path [index_file $::env(synthesis_tmpfiles)/$fbasename.no_pg.lib 0]
+		convert_pg_pins $lib $lib_path
+		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $lib_path
 	}
-
-	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synth]
-	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log 0]
 
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
@@ -117,9 +118,9 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log 0] > $::env(synthesis_reports).exploration.html
-    file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(REPORTS_DIR)/synthesis
-    file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(REPORTS_DIR)/synthesis
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log 0] > $::env(synthesis_reports)/exploration_analysis.html
+    file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(synthesis_reports)
+    file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(synthesis_reports)
 }
 
 proc run_synthesis {args} {

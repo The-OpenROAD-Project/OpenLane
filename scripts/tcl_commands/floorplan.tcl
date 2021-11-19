@@ -73,58 +73,60 @@ proc init_floorplan {args} {
 
 proc place_io_ol {args} {
 	TIMER::timer_start
-		set options {
-				{-lef optional}
-				{-def optional}
-				{-cfg optional}
-				{-horizontal_layer optional}
-				{-vertical_layer optional}
-				{-horizontal_mult optional}
-				{-horizontal_ext optional}
-				{-vertical_layer optional}
-				{-vertical_mult optional}
-				{-vertical_ext optional}
-				{-length optional}
-				{-output_def optional}
-				{-extra_args optional}
-		}
-		set flags {}
+	set options {
+			{-lef optional}
+			{-def optional}
+			{-cfg optional}
+			{-horizontal_layer optional}
+			{-vertical_layer optional}
+			{-horizontal_mult optional}
+			{-horizontal_ext optional}
+			{-vertical_layer optional}
+			{-vertical_mult optional}
+			{-vertical_ext optional}
+			{-length optional}
+			{-output_def optional}
+			{-extra_args optional}
+	}
+	set flags {}
 
-		parse_key_args "place_io_ol" args arg_values $options flags_map $flags
+	parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
-		set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-		set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+	set_if_unset arg_values(-lef) $::env(MERGED_LEF)
+	set_if_unset arg_values(-def) $::env(CURRENT_DEF)
 
-		set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
+	set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
-		set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HMETAL)
-		set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VMETAL)
+	set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HMETAL)
+	set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VMETAL)
 
-		set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
-		set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
+	set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
+	set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
 
-		set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VEXTEND)
-		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
+	set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VEXTEND)
+	set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
-		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-		set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
+	set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
+	set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-		set_if_unset arg_values(-extra_args) ""
+	set_if_unset arg_values(-extra_args) ""
 
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/io_place.py\
-				--input-lef $arg_values(-lef)\
-				--input-def $arg_values(-def)\
-				--config $arg_values(-cfg)\
-				--hor-layer $arg_values(-horizontal_layer)\
-				--ver-layer $arg_values(-vertical_layer)\
-				--ver-width-mult $arg_values(-vertical_mult)\
-				--hor-width-mult $arg_values(-horizontal_mult)\
-				--hor-extension $arg_values(-horizontal_ext)\
-				--ver-extension $arg_values(-vertical_ext)\
-				--length $arg_values(-length)\
-				-o $arg_values(-output_def)\
-				{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/floorplan/place_io_ol.log 0] $::env(TERMINAL_OUTPUT)
-		set_def $arg_values(-output_def)
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/io_place.py\
+		--input-lef $arg_values(-lef)\
+		--input-def $arg_values(-def)\
+		--config $arg_values(-cfg)\
+		--hor-layer $arg_values(-horizontal_layer)\
+		--ver-layer $arg_values(-vertical_layer)\
+		--ver-width-mult $arg_values(-vertical_mult)\
+		--hor-width-mult $arg_values(-horizontal_mult)\
+		--hor-extension $arg_values(-horizontal_ext)\
+		--ver-extension $arg_values(-vertical_ext)\
+		--length $arg_values(-length)\
+		-o $arg_values(-output_def)\
+		{*}$arg_values(-extra_args) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log 0] $::env(TERMINAL_OUTPUT)
+
+	set_def $arg_values(-output_def)
+	
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - io_place.py"
 }
@@ -149,15 +151,15 @@ proc place_contextualized_io {args} {
 		if {[file exists $arg_values(-def)] && [file exists $arg_values(-lef)]} {
 				TIMER::timer_start
 
-				file copy -force $arg_values(-def) $::env(TMP_DIR)/top_level.def
-				file copy -force $arg_values(-lef) $::env(TMP_DIR)/top_level.lef
+				file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
+				file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
 
 				set prev_def $::env(CURRENT_DEF)
 				set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
 				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
-						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
+						-td $::env(placement_tmpfiles)/top_level.def   -tl $::env(placement_tmpfiles)/top_level.lef \
 						-o $::env(SAVE_DEF) |& \
 						tee [index_file $::env(floorplan_logs)/io.contextualize.log 0]
 				puts_info "Custom floorplan created"
@@ -168,7 +170,7 @@ proc place_contextualized_io {args} {
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
-				set ::env(CONTEXTUAL_IO_FLAG_) 1
+				set ::env(CONTEXTUAL_IO_FLAG) 1
 				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log 0]
 				set ::env(FP_IO_MODE) $old_mode
 
@@ -375,7 +377,7 @@ proc run_floorplan {args} {
 
 		if { [info exist ::env(EXTRA_LEFS)] } {
 			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
-				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
+				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
 				manual_macro_placement f
 			} else {
 				global_placement_or

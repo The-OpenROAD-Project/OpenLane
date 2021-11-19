@@ -89,12 +89,12 @@ proc detailed_placement {args} {
 }
 
 proc add_macro_placement {args} {
-    puts_info " Adding Macro Placement..."
+    puts_info "Adding Macro Placement..."
     set ori "NONE"
     if { [llength $args] == 4 } {
 	set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(TMP_DIR)/macro_placement.cfg
+    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
@@ -102,9 +102,9 @@ proc manual_macro_placement {args} {
     set var "f"
     set fbasename [file rootname $::env(CURRENT_DEF)]
     if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(placement_tmpfiles)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
     } else {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(TMP_DIR)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/macro_placement.log]
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(placement_tmpfiles)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
     }
     set_def ${fbasename}.macro_placement.def
 }
@@ -115,7 +115,7 @@ proc basic_macro_placement {args} {
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/basic_mp.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/basic_mp.log]
 
     check_macro_placer_num_solns
 
@@ -170,7 +170,7 @@ proc run_resizer_timing {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
-        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(placement_logs)/write_verilog.log 0]
         set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
@@ -196,7 +196,7 @@ proc run_resizer_design {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
 
-        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(placement_logs)/write_verilog.log 0]
         set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
@@ -215,7 +215,7 @@ proc remove_buffers {args} {
         --input_def $::env(CURRENT_DEF)
         --dont_buffer $::env(DONT_BUFFER_PORTS)
         --output_def $::env(SAVE_DEF)
-    |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log 0]
+    |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/remove_buffers.log 0]
 
     set_def $::env(SAVE_DEF)
 }

@@ -179,12 +179,12 @@ proc power_routing {args} {
     TIMER::timer_start
     puts_info "Routing top-level power"
     set options {
-	{-lef optional}
-	{-def optional}
-	{-power optional}
-	{-ground optional}
-	{-output_def optional}
-	{-extra_args optional}
+		{-lef optional}
+		{-def optional}
+		{-power optional}
+		{-ground optional}
+		{-output_def optional}
+		{-extra_args optional}
     }
     set flags {}
     parse_key_args "power_routing" args arg_values $options flags_map $flags
@@ -193,17 +193,17 @@ proc power_routing {args} {
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
-    set_if_unset arg_values(-output_def) [index_file $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).power_routed.def]
+    set_if_unset arg_values(-output_def) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).power_routed.def]
     set_if_unset arg_values(-extra_args) ""
 
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/power_route.py\
-	--input-lef $arg_values(-lef)\
-	--input-def $arg_values(-def)\
-	--core-vdd-pin $arg_values(-power)\
-	--core-gnd-pin $arg_values(-ground)\
-	-o $arg_values(-output_def)\
-	{*}$arg_values(-extra_args) |& tee [index_file $::env(LOG_DIR)/routing/power_routed.log 0] $::env(TERMINAL_OUTPUT)
+		--input-lef $arg_values(-lef)\
+		--input-def $arg_values(-def)\
+		--core-vdd-pin $arg_values(-power)\
+		--core-gnd-pin $arg_values(-ground)\
+		-o $arg_values(-output_def)\
+		{*}$arg_values(-extra_args) |& tee [index_file $::env(routing_logs)/power_routing.log 0] $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
 	TIMER::timer_stop
@@ -233,13 +233,13 @@ proc gen_pdn {args} {
 proc ins_diode_cells_1 {args} {
     puts_info "Running Diode Insertion..."
 	TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
 
-    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
+    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log [index_file $::env(routing_logs)/write_verilog_diodes.log 0]
     set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
 
     TIMER::timer_stop
@@ -252,7 +252,7 @@ proc ins_diode_cells_1 {args} {
 proc ins_diode_cells_4 {args} {
     puts_info "Running Diode Insertion..."
 	TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(TMP_DIR)/placement/diodes.def]
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
     # Select diode cell
 	if { $::env(DIODE_INSERTION_STRATEGY) == 5 } {
@@ -267,7 +267,7 @@ proc ins_diode_cells_4 {args} {
 	}
 
 	# Custom script
-	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/diodes.log 0]
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
 
@@ -275,7 +275,7 @@ proc ins_diode_cells_4 {args} {
 	detailed_placement_or
 
 	# Update netlist
-	write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
+	write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log [index_file $::env(routing_logs)/write_verilog_diodes.log 0]
 	set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
 
 	TIMER::timer_stop
@@ -295,7 +295,7 @@ proc apply_route_obs {args} {
 		--input-def $::env(CURRENT_DEF) \
 		--lef $::env(MERGED_LEF) \
 		--obstructions $::env(GLB_RT_OBS) \
-		--output [file rootname $::env(CURRENT_DEF)].obs.def |& tee $::env(TERMINAL_OUTPUT) $::env(LOG_DIR)/obs.log
+		--output [file rootname $::env(CURRENT_DEF)].obs.def |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/obs.log
 	puts_info "Obstructions added over $::env(GLB_RT_OBS)"
 	set_def [file rootname $::env(CURRENT_DEF)].obs.def
 }
@@ -350,9 +350,9 @@ proc run_spef_extraction {args} {
 		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
 			set tool "def2spef"
 			set ::env(MPLCONFIGDIR) /tmp
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/spef_extraction.log]
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/routing/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/spef_extraction.log]
 		}
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
@@ -404,7 +404,7 @@ proc run_routing {args} {
 	}
 
     # for LVS
-    write_verilog $::env(routing_tmpfiles)/global.v
+    write_verilog $::env(routing_tmpfiles)/global.v -log [index_file $::env(routing_logs)/write_verilog.log 0]
     set_netlist $::env(routing_tmpfiles)/global.v
     if { $::env(LEC_ENABLE) } {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -452,7 +452,7 @@ proc run_resizer_timing_routing {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
-        write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(routing_logs)/write_verilog.log 0]
         set_netlist $::env(routing_results)/$::env(DESIGN_NAME)_rsz_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
