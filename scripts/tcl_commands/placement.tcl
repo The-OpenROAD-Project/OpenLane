@@ -15,7 +15,7 @@
 proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(replaceio_tmp_file_tag).def]
+    set ::env(SAVE_DEF) [index_file $::env(gplace_tmp_file_tag).def]
 
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
@@ -23,10 +23,10 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    set report_tag_saver $::env(replaceio_report_file_tag)
-    set ::env(replaceio_report_file_tag) [index_file $::env(replaceio_report_file_tag) 0]
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
-    set ::env(replaceio_report_file_tag) $report_tag_saver
+    set report_tag_saver $::env(gplace_report_file_tag)
+    set ::env(gplace_report_file_tag) [index_file $::env(gplace_report_file_tag) 0]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(gplace_log_file_tag).log 0]
+    set ::env(gplace_report_file_tag) $report_tag_saver
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -49,11 +49,11 @@ proc global_placement {args} {
 proc random_global_placement {args} {
     puts_warn "Performing Random Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(replaceio_tmp_file_tag).def]
+    set ::env(SAVE_DEF) [index_file $::env(gplace_tmp_file_tag).def]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
         --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(replaceio_log_file_tag).log 0]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(gplace_log_file_tag).log 0]
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - random_place.py"
@@ -63,22 +63,22 @@ proc random_global_placement {args} {
 proc detailed_placement_or {args} {
     puts_info "Running Detailed Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(opendp_result_file_tag).def
+    set ::env(SAVE_DEF) $::env(dplace_result_file_tag).def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(dplace_log_file_tag).log]
     set_def $::env(SAVE_DEF)
 
-    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
+    if {[catch {exec grep -q -i "fail" [index_file $::env(dplace_log_file_tag).log 0]}] == 0}  {
 	puts_info "Error in detailed placement"
 	puts_info "Retrying detailed placement"
-	set ::env(SAVE_DEF) $::env(opendp_result_file_tag).1.def
+	set ::env(SAVE_DEF) $::env(dplace_result_file_tag).1.def
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(opendp_log_file_tag).log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(dplace_log_file_tag).log]
     }
 
-    if {[catch {exec grep -q -i "fail" [index_file $::env(opendp_log_file_tag).log 0]}] == 0}  {
-	puts "Error: Check [index_file $::env(opendp_log_file_tag).log 0]"
-	puts stderr "\[ERROR\]: Check [index_file $::env(opendp_log_file_tag).log 0]"
+    if {[catch {exec grep -q -i "fail" [index_file $::env(dplace_log_file_tag).log 0]}] == 0}  {
+	puts "Error: Check [index_file $::env(dplace_log_file_tag).log 0]"
+	puts stderr "\[ERROR\]: Check [index_file $::env(dplace_log_file_tag).log 0]"
 	exit 1
     }
 

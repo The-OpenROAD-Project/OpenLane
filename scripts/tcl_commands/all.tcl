@@ -500,42 +500,42 @@ proc prep {args} {
         routing\
         magic\
         lvs\
-        cvc\
+        erc\
         klayout\
         resizer\
     ]
 
     set intermediate_output_prefices [list \
-        [list yosys synthesis/yosys] \
-        [list opensta synthesis/opensta] \
-        [list init_floorplan floorplan/init_floorplan] \
-        [list ioPlacer floorplan/ioPlacer] \
+        [list synthesis synthesis/synthesis] \
+        [list sta synthesis/sta] \
+        [list floorplan floorplan/floorplan] \
+        [list io_placement floorplan/io] \
         [list pdn floorplan/pdn] \
         [list tapcell floorplan/tapcell] \
-        [list replaceio placement/replace] \
+        [list gplace placement/global] \
         [list resizer placement/resizer] \
-        [list opendp placement/opendp] \
-        [list addspacers routing/addspacers] \
-        [list fastroute routing/fastroute] \
-        [list tritonRoute routing/tritonRoute] \
-        [list rcx routing/spef] \
-        [list glb_resizer routing/resizer] \
+        [list dplace placement/detailed] \
+        [list fill routing/fill] \
+        [list groute routing/global] \
+        [list droute routing/detailed] \
+        [list parasitics routing/spef] \
+        [list routing_resizer routing/resizer] \
         [list magic magic/magic] \
+        [list klayout klayout/klayout] \
         [list cts cts/cts] \
         [list lvs lvs/lvs] \
-        [list cvc cvc/cvc] \
-        [list klayout klayout/klayout] \
+        [list erc erc/erc] \
     ]
 
     set final_output_prefices [list \
-        [list yosys synthesis/$::env(DESIGN_NAME).synthesis] \
+        [list synthesis synthesis/$::env(DESIGN_NAME).synthesis] \
         [list tapcell floorplan/$::env(DESIGN_NAME).floorplan] \
-        [list opendp placement/$::env(DESIGN_NAME).placement] \
-        [list tritonRoute routing/$::env(DESIGN_NAME)] \
+        [list dplace placement/$::env(DESIGN_NAME).placement] \
+        [list droute routing/$::env(DESIGN_NAME)] \
         [list cts cts/$::env(DESIGN_NAME).cts] \
         [list magic magic/$::env(DESIGN_NAME)] \
         [list lvs lvs/$::env(DESIGN_NAME).lvs] \
-        [list cvc cvc/$::env(DESIGN_NAME)] \
+        [list erc erc/$::env(DESIGN_NAME)] \
         [list klayout klayout/$::env(DESIGN_NAME)] \
         [list resizer resizer/$::env(DESIGN_NAME)]
     ]
@@ -783,7 +783,7 @@ proc heal_antenna_violators {args} {
 			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(tritonRoute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(droute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"

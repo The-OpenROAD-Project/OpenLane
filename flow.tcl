@@ -32,7 +32,7 @@ proc run_placement_step {args} {
 }
 
 proc run_cts_step {args} {
-    # set_def $::env(opendp_result_file_tag).def
+    # set_def $::env(dplace_result_file_tag).def
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -56,7 +56,7 @@ proc run_routing_step {args} {
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(droute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -70,7 +70,7 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_power_pins_insertion_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(droute_result_file_tag).def
     if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
         set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -84,7 +84,7 @@ proc run_power_pins_insertion_step {args} {
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    # set_def $::env(tritonRoute_result_file_tag).def
+    # set_def $::env(droute_result_file_tag).def
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {

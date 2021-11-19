@@ -61,7 +61,7 @@ proc write_powered_verilog {args} {
 
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
-        set_if_unset arg_values(-powered_netlist) $::env(yosys_tmp_file_tag).pg_define.v
+        set_if_unset arg_values(-powered_netlist) $::env(synthesis_tmp_file_tag).pg_define.v
     } else {
         set_if_unset arg_values(-powered_netlist) ""
     }

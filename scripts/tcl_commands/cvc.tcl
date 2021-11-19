@@ -76,12 +76,12 @@ BEGIN {  # Print power and standard_input definitions
             set lib_cdl $::env(STD_CELL_LIBRARY_CDL)
         }
             # Create power file
-            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(erc_result_file_tag).power
             # Create cdl file by combining cdl library with lef spice
 	        try_catch awk $cvc_cdl_awk $lib_cdl $::env(magic_result_file_tag).lef.spice \
-                > $::env(cvc_result_file_tag).cdl
+                > $::env(erc_result_file_tag).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
-                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cvc_log_file_tag)_screen.log]
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(erc_log_file_tag)_screen.log]
             TIMER::timer_stop
 		    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc"
             } else {

@@ -19,16 +19,16 @@ proc init_floorplan_or {args} {
 proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
 		TIMER::timer_start
-		set ::env(SAVE_DEF) [index_file $::env(init_floorplan_tmp_file_tag)_openroad.def]
-		set ::env(SAVE_SDC) [index_file $::env(init_floorplan_tmp_file_tag).sdc 0]
-		set report_tag_saver $::env(init_floorplan_report_file_tag)
-		set ::env(init_floorplan_report_file_tag) [index_file $::env(init_floorplan_report_file_tag) 0]
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]
+		set ::env(SAVE_DEF) [index_file $::env(floorplan_tmp_file_tag)_openroad.def]
+		set ::env(SAVE_SDC) [index_file $::env(floorplan_tmp_file_tag).sdc 0]
+		set report_tag_saver $::env(floorplan_report_file_tag)
+		set ::env(floorplan_report_file_tag) [index_file $::env(floorplan_report_file_tag) 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_log_file_tag).openroad.log 0]
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
 
-		set die_area_file [open $::env(init_floorplan_report_file_tag).die_area.rpt]
-		set core_area_file [open $::env(init_floorplan_report_file_tag).core_area.rpt]
+		set die_area_file [open $::env(floorplan_report_file_tag).die_area.rpt]
+		set core_area_file [open $::env(floorplan_report_file_tag).core_area.rpt]
 
 		set ::env(DIE_AREA) [read $die_area_file]
 		set ::env(CORE_AREA) [read $core_area_file]
@@ -62,7 +62,7 @@ proc init_floorplan {args} {
 		puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
 		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
 		
-		set ::env(init_floorplan_report_file_tag) $report_tag_saver
+		set ::env(floorplan_report_file_tag) $report_tag_saver
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openroad init_floorplan"
 		set_def $::env(SAVE_DEF)
@@ -106,7 +106,7 @@ proc place_io_ol {args} {
 		set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
 		set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-		set_if_unset arg_values(-output_def) [index_file $::env(ioPlacer_tmp_file_tag).def]
+		set_if_unset arg_values(-output_def) [index_file $::env(io_placement_tmp_file_tag).def]
 
 		set_if_unset arg_values(-extra_args) ""
 
@@ -131,9 +131,9 @@ proc place_io_ol {args} {
 proc place_io {args} {
 	puts_info "Running IO Placement..."
 	TIMER::timer_start
-	set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
+	set ::env(SAVE_DEF) [index_file $::env(io_placement_tmp_file_tag).def]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(io_placement_log_file_tag).log 0]
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
 	set_def $::env(SAVE_DEF)
@@ -153,22 +153,22 @@ proc place_contextualized_io {args} {
 
 
 				set prev_def $::env(CURRENT_DEF)
-				set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).context.def]
+				set ::env(SAVE_DEF) [index_file $::env(io_placement_tmp_file_tag).context.def]
 				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
 						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
 						-td $::env(TMP_DIR)/top_level.def   -tl $::env(TMP_DIR)/top_level.lef \
 						-o $::env(SAVE_DEF) |& \
-						tee [index_file $::env(ioPlacer_log_file_tag).contextualize.log 0]
+						tee [index_file $::env(io_placement_log_file_tag).contextualize.log 0]
 				puts_info "Custom floorplan created"
 
 				set_def $::env(SAVE_DEF)
 
-				set ::env(SAVE_DEF) [index_file $::env(ioPlacer_tmp_file_tag).def]
+				set ::env(SAVE_DEF) [index_file $::env(io_placement_tmp_file_tag).def]
 
 				set old_mode $::env(FP_IO_MODE)
 				set ::env(FP_IO_MODE) 0; # set matching mode
 				set ::env(CONTEXTUAL_IO_FLAG_) 1
-				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(ioPlacer_log_file_tag).log 0]
+				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(io_placement_log_file_tag).log 0]
 				set ::env(FP_IO_MODE) $old_mode
 
 				move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -245,13 +245,13 @@ proc run_power_grid_generation {args} {
 	} elseif { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
 		set ::env(VDD_NETS) [list]
 		set ::env(GND_NETS) [list]
-		# get the pins that are in $yosys_tmp_file_tag.pg_define.v
-		# that are not in $yosys_result_file_tag.v
+		# get the pins that are in $synthesis_tmp_file_tag.pg_define.v
+		# that are not in $synthesis_result_file_tag.v
 		#
-		set full_pins {*}[extract_pins_from_yosys_netlist $::env(yosys_tmp_file_tag).pg_define.v]
+		set full_pins {*}[extract_pins_from_yosys_netlist $::env(synthesis_tmp_file_tag).pg_define.v]
 		puts_info $full_pins
 
-		set non_pg_pins {*}[extract_pins_from_yosys_netlist $::env(yosys_result_file_tag).v]
+		set non_pg_pins {*}[extract_pins_from_yosys_netlist $::env(synthesis_result_file_tag).v]
 		puts_info $non_pg_pins
 
 		# assumes the pins are ordered correctly (e.g., vdd1, vss1, vcc1, vss1, ...)

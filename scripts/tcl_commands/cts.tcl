@@ -49,7 +49,7 @@ proc simple_cts {args} {
 	}
 	parse_key_args "simple_cts" args values $options
 	global script_path
-	set tmp $::env(yosys_tmp_file_tag).v
+	set tmp $::env(synthesis_tmp_file_tag).v
 	file copy -force $values(-verilog) $tmp
 	set script $script_path/../cts/cts_simple.pl
 	#set values(-clk_net) [string map {\\ \\\\} $values(-clk_net)]

@@ -15,7 +15,7 @@
 
 
 proc check_assign_statements {args} {
-    set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(yosys_result_file_tag).v ]
+    set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(synthesis_result_file_tag).v ]
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
@@ -27,7 +27,7 @@ proc check_assign_statements {args} {
 }
 
 proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(yosys_report_file_tag)_2.stat.rpt 0]}]
+    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_report_file_tag)_2.stat.rpt 0]}]
 
 
     if { ! $checker } {
@@ -138,7 +138,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_log_file_tag).openroad.log 0]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -153,7 +153,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(init_floorplan_log_file_tag).openroad.log 0]} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_log_file_tag).openroad.log 0]} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]
@@ -181,7 +181,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(replaceio_log_file_tag).log 0]} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(gplace_log_file_tag).log 0]} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -208,7 +208,7 @@ proc check_macro_placer_num_solns {args} {
 
 proc quit_on_tr_drc {args} {
     if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(tritonRoute_report_file_tag).drc ]
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(droute_report_file_tag).drc ]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."
