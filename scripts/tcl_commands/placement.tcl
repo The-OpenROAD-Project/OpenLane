@@ -214,10 +214,10 @@ proc remove_buffers {args} {
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.remove_buffers.def
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/dont_buffer.py\
-        --input_lef  $::env(MERGED_LEF)
-        --input_def $::env(CURRENT_DEF)
-        --dont_buffer $::env(DONT_BUFFER_PORTS)
-        --output_def $::env(SAVE_DEF)
+        --input_lef  $::env(MERGED_LEF)\
+        --input_def $::env(CURRENT_DEF)\
+        --dont_buffer $::env(DONT_BUFFER_PORTS)\
+        --output_def $::env(SAVE_DEF)\
     |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log 0]
 
     set_def $::env(SAVE_DEF)
