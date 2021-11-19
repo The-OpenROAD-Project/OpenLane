@@ -179,7 +179,7 @@ proc run_synthesis {args} {
 proc verilog_elaborate {args} {
     # usually run on structural verilog (top-level netlists)
     set synth_script_old $::env(SYNTH_SCRIPT)
-    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/synth_top.tcl
+    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/synth_top.tcl
     run_yosys {*}$args
     set ::env(SYNTH_SCRIPT) $synth_script_old
 }
@@ -197,7 +197,7 @@ proc yosys_rewrite_verilog {filename} {
 		puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
 
 		try_catch [get_yosys_bin] \
-		-c $::env(SCRIPTS_DIR)/yosys_rewrite_verilog.tcl \
+		-c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
 		-l [index_file $::env(synthesis_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
 		TIMER::timer_stop
@@ -235,7 +235,7 @@ proc logic_equiv_check {args} {
 
     if {[ catch {\
 		exec [get_yosys_bin] \
-			-c $::env(SCRIPTS_DIR)/logic_equiv_check.tcl \
+			-c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl \
 			-l [index_file $::env(synthesis_log_file_tag).equiv.log] \
 		|& tee $::env(TERMINAL_OUTPUT)\
 	} ]} {

@@ -11,17 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# inputs expected as env vars
-#set opt $::env(SYNTH_OPT)
-set buffering $::env(SYNTH_BUFFERING)
-set sizing $::env(SYNTH_SIZING)
-
 yosys -import
 
+# inputs expected as env vars
+set buffering $::env(SYNTH_BUFFERING)
+set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
-#set sdc_file $::env(SDC_FILE)
 set sclib $::env(LIB_SYNTH)
+#set opt $::env(SYNTH_OPT)
+#set sdc_file $::env(SDC_FILE)
 
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {

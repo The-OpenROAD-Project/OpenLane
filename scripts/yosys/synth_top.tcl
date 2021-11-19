@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+yosys -import
 
 set vtop $::env(DESIGN_NAME)
-#set sdc_file $::env(SDC_FILE)
 set sclib $::env(LIB_SYNTH)
-yosys -import
+#set sdc_file $::env(SDC_FILE)
 
 set stat_ext    ".stat.rpt"
 set chk_ext    ".chk.rpt"
