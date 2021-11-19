@@ -9,14 +9,14 @@ if {  [info exist ::env(EXTRA_LEFS)] } {
 	}
 }
 
-load $::env(magic_result_file_tag).mag -dereference
+load $::env(magic_results).mag -dereference
 
 cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
 
 # Write LEF
 if { $::env(MAGIC_WRITE_FULL_LEF) } {
 	puts "\[INFO\]: Writing non-abstract (full) LEF"
-	lef write $::env(magic_result_file_tag).lef
+	lef write $::env(magic_results).lef
 } else {
 	puts "\[INFO\]: Writing abstract LEF"
 	if { [info exists ::env(FP_PDN_CORE_RING)] && $::env(FP_PDN_CORE_RING) == 1 } {
@@ -25,11 +25,11 @@ if { $::env(MAGIC_WRITE_FULL_LEF) } {
 		# set cr_spacing [expr max($::env(FP_PDN_CORE_RING_HSPACING), $::env(FP_PDN_CORE_RING_VSPACING))]
 		# set cr_width [expr max($::env(FP_PDN_CORE_RING_HWIDTH), $::env(FP_PDN_CORE_RING_VWIDTH))]
 		# set cr_distance [expr $cr_offset + $cr_spacing + 2 * [llength $::env(VDD_NETS)] * ($cr_width - $tolerance)]
-		# lef write $::env(magic_result_file_tag).lef -hide [expr $cr_distance - $tolerance]um
-		# lef write $::env(magic_result_file_tag).lef -hide ${tolerance}um
-		lef write $::env(magic_result_file_tag).lef -hide
+		# lef write $::env(magic_results).lef -hide [expr $cr_distance - $tolerance]um
+		# lef write $::env(magic_results).lef -hide ${tolerance}um
+		lef write $::env(magic_results).lef -hide
 	} else {
-		lef write $::env(magic_result_file_tag).lef -hide
+		lef write $::env(magic_results).lef -hide
 	}
 }
 puts "\[INFO\]: LEF Write Complete"

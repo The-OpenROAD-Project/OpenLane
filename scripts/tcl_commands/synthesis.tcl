@@ -41,7 +41,7 @@ proc run_yosys {args} {
     if { [info exists arg_values(-output)] } {
 		set ::env(SAVE_NETLIST) $arg_values(-output)
     } else {
-		set ::env(SAVE_NETLIST) $::env(synthesis_result_file_tag).v
+		set ::env(SAVE_NETLIST) $::env(synthesis_results).v
     }
 	if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
 		set ::env(SYNTH_READ_BLACKBOX_LIB) 1
@@ -54,15 +54,15 @@ proc run_yosys {args} {
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
 	}
 
-	set report_tag_saver $::env(synthesis_report_file_tag)
-	set ::env(synthesis_report_file_tag) [index_file $::env(synthesis_report_file_tag)]
+	set report_tag_saver $::env(synthesis_reports)
+	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)]
 
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l [index_file $::env(synthesis_log_file_tag).log 0] \
+		-l [index_file $::env(synthesis_logs).log 0] \
 		|& tee $::env(TERMINAL_OUTPUT)
 
-	set ::env(synthesis_report_file_tag) $report_tag_saver
+	set ::env(synthesis_reports) $report_tag_saver
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
     	set_netlist $::env(SAVE_NETLIST)
@@ -98,7 +98,7 @@ proc run_sta {args} {
 	puts_info "Running Static Timing Analysis..."
 	TIMER::timer_start
 	if {[info exists ::env(CLOCK_PORT)]} {
-		set ::env(sta_report_file_tag) [index_file $::env(sta_report_file_tag)]
+		set ::env(sta_reports) [index_file $::env(sta_reports)]
 		if { $multi_corner == 1} {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
 			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
@@ -120,7 +120,7 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_log_file_tag).log 0] > $::env(synthesis_report_file_tag).exploration.html
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log 0] > $::env(synthesis_reports).exploration.html
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(REPORTS_DIR)/synthesis
     file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(REPORTS_DIR)/synthesis
 }
@@ -129,16 +129,16 @@ proc run_synthesis {args} {
     puts_info "Running Synthesis..."
 	set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
     # in-place insertion
-	if { [file exists $::env(synthesis_result_file_tag).v] } {
-		puts_warn "A netlist at $::env(synthesis_result_file_tag).v already exists..."
+	if { [file exists $::env(synthesis_results).v] } {
+		puts_warn "A netlist at $::env(synthesis_results).v already exists..."
 		puts_warn "Skipping synthesis"
-		set_netlist $::env(synthesis_result_file_tag).v
+		set_netlist $::env(synthesis_results).v
 	} else {
 		run_yosys
 	}
 
-	set output_log [index_file $::env(sta_log_file_tag) 0]
-	set runtime_log [index_file $::env(sta_log_file_tag)_runtime.txt 0]
+	set output_log [index_file $::env(sta_logs) 0]
+	set runtime_log [index_file $::env(sta_logs)_runtime.txt 0]
     run_sta -output_log $output_log -runtime_log $runtime_log
 
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
@@ -146,7 +146,7 @@ proc run_synthesis {args} {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
 		simple_cts \
-			-verilog $::env(synthesis_result_file_tag).v \
+			-verilog $::env(synthesis_results).v \
 			-fanout $::env(CLOCK_BUFFER_FANOUT) \
 			-clk_net $::env(CLOCK_NET) \
 			-root_clk_buf $::env(ROOT_CLK_BUFFER) \
@@ -154,7 +154,7 @@ proc run_synthesis {args} {
 			-clk_buf_input $::env(CLK_BUFFER_INPUT) \
 			-clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
 			-cell_clk_port $::env(CELL_CLK_PORT) \
-			-output $::env(synthesis_result_file_tag).v
+			-output $::env(synthesis_results).v
     }
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
@@ -171,7 +171,7 @@ proc run_synthesis {args} {
 			set ::env(SYNTH_DEFINES) [list]
 		}
 		lappend ::env(SYNTH_DEFINES) {*}$::env(SYNTH_USE_PG_PINS_DEFINES)
-		run_yosys -output $::env(synthesis_tmp_file_tag).pg_pins.v -no_set_netlist
+		run_yosys -output $::env(synthesis_tmpfiles).pg_pins.v -no_set_netlist
 	}
 
 }
@@ -198,7 +198,7 @@ proc yosys_rewrite_verilog {filename} {
 
 		try_catch [get_yosys_bin] \
 		-c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
-		-l [index_file $::env(synthesis_log_file_tag)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
+		-l [index_file $::env(synthesis_logs)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"
@@ -236,7 +236,7 @@ proc logic_equiv_check {args} {
     if {[ catch {\
 		exec [get_yosys_bin] \
 			-c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl \
-			-l [index_file $::env(synthesis_log_file_tag).equiv.log] \
+			-l [index_file $::env(synthesis_logs).equiv.log] \
 		|& tee $::env(TERMINAL_OUTPUT)\
 	} ]} {
 	    puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)"

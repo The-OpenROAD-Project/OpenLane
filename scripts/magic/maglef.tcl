@@ -14,7 +14,7 @@
 
 drc off
 
-lef read $::env(magic_result_file_tag).lef
+lef read $::env(magic_results).lef
 
 load $::env(DESIGN_NAME)
 

@@ -54,14 +54,14 @@ proc write_powered_verilog {args} {
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-output_def) [index_file $::env(TMP_DIR)/routing/$::env(DESIGN_NAME).powered.def]
-    set_if_unset arg_values(-output_verilog) $::env(lvs_result_file_tag).powered.v
+    set_if_unset arg_values(-output_verilog) $::env(lvs_results).powered.v
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
 
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
-        set_if_unset arg_values(-powered_netlist) $::env(synthesis_tmp_file_tag).pg_define.v
+        set_if_unset arg_values(-powered_netlist) $::env(synthesis_tmpfiles).pg_define.v
     } else {
         set_if_unset arg_values(-powered_netlist) ""
     }
@@ -124,18 +124,18 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
             }
         }
     }
-    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(lvs_result_file_tag).$extract_type.log -json"
+    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(lvs_results).$extract_type.log -json"
     close $lvs_file
     puts_info "$layout against $schematic"
 
     try_catch netgen -batch source $::env(TMP_DIR)/lvs/setup_file.$extract_type.lvs \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_log_file_tag).$extract_type.log]
-    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_result_file_tag).$extract_type.json \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_result_file_tag)_parsed.$extract_type.log
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_logs).$extract_type.log]
+    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_results).$extract_type.json \
+      |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_results)_parsed.$extract_type.log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $::env(lvs_result_file_tag)_parsed.$extract_type.log
+    quit_on_lvs_error -log $::env(lvs_results)_parsed.$extract_type.log
 }
 
 proc run_netgen {args} {

@@ -20,13 +20,13 @@ rep set_density $::env(PL_TARGET_DENSITY)
 
 rep import_lef $::env(MERGED_LEF)
 rep import_def $::env(CURRENT_DEF)
-rep set_output $::env(gplace_tmp_file_tag)
+rep set_output $::env(gplace_tmpfiles)
 
 if { $::env(PL_TIME_DRIVEN) } {
 	rep set_timing_driven true
 	rep import_lib $::env(PL_LIB)
 	rep import_sdc ./scripts/base.sdc
-	rep import_verilog $::env(synthesis_result_file_tag).v
+	rep import_verilog $::env(synthesis_results).v
 }
 
 if { $::env(PL_BASIC_PLACEMENT) } {
@@ -38,16 +38,16 @@ rep init_replace
 rep place_cell_nesterov_place
 # rep print_instances
 
-rep export_def $::env(gplace_tmp_file_tag)_place.def
+rep export_def $::env(gplace_tmpfiles)_place.def
 
 set hpwl [rep get_hpwl]
-exec echo $hpwl >> $::env(gplace_report_file_tag)_hpwl.rpt
+exec echo $hpwl >> $::env(gplace_reports)_hpwl.rpt
 
 if { $::env(PL_TIME_DRIVEN) } {
 	set wns [rep get_wns]
 	set tns [rep get_tns]
 	puts "\[INFO\]: TNS after placement $tns"
 	puts "\[INFO\]: WNS after placement $wns"
-	exec echo $wns >> $::env(gplace_report_file_tag)_wns.rpt
-	exec echo $tns >> $::env(gplace_report_file_tag)_tns.rpt
+	exec echo $wns >> $::env(gplace_reports)_wns.rpt
+	exec echo $tns >> $::env(gplace_reports)_tns.rpt
 }

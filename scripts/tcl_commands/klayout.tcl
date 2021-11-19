@@ -28,20 +28,20 @@ proc run_klayout {args} {
 			} else {
 				set cells_gds $::env(GDS_FILES)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_result_file_tag).gds "$cells_gds $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).log]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(klayout_results).gds "$cells_gds $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_logs).log]
 			if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
-				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(klayout_result_file_tag).lyp
+				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(klayout_results).lyp
 			} else {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
 			puts_info "Back-up GDS-II streamed out."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
-			scrot_klayout -layout $::env(klayout_result_file_tag).gds
+			scrot_klayout -layout $::env(klayout_results).gds
 			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
 				set conf_save $::env(RUN_KLAYOUT_DRC)
 				set ::env(RUN_KLAYOUT_DRC) 1
-				run_klayout_drc -gds $::env(klayout_result_file_tag).gds -stage klayout
+				run_klayout_drc -gds $::env(klayout_results).gds -stage klayout
 				set ::env(RUN_KLAYOUT_DRC) $conf_save
 			}
 		} else {
@@ -64,7 +64,7 @@ proc scrot_klayout {args} {
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-layout) $::env(CURRENT_GDS)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).scrot.log]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_logs).scrot.log]
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"
@@ -90,8 +90,8 @@ proc run_klayout_drc {args} {
 				set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
 			}
 			set_if_unset arg_values(-stage) magic
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).$arg_values(-stage).drc.log]
-			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_report_file_tag).$arg_values(-stage).lydrc 0]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_logs).$arg_values(-stage).drc.log]
+			file copy -force $arg_values(-gds).lydrc [index_file $::env(klayout_reports).$arg_values(-stage).lydrc 0]
 			puts_info "Klayout DRC Complete"
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc @ $arg_values(-stage) - klayout"
@@ -114,10 +114,10 @@ proc run_klayout_gds_xor {args} {
 				{-output_gds optional}
 			}
 			parse_key_args "run_klayout_gds_xor" args arg_values $options
-			set_if_unset arg_values(-layout1) $::env(magic_result_file_tag).gds
-			set_if_unset arg_values(-layout2) $::env(klayout_result_file_tag).gds
-			set_if_unset arg_values(-output_xml) $::env(klayout_result_file_tag).xor.xml
-			set_if_unset arg_values(-output_gds) $::env(klayout_result_file_tag).xor.gds
+			set_if_unset arg_values(-layout1) $::env(magic_results).gds
+			set_if_unset arg_values(-layout2) $::env(klayout_results).gds
+			set_if_unset arg_values(-output_xml) $::env(klayout_results).xor.xml
+			set_if_unset arg_values(-output_gds) $::env(klayout_results).xor.gds
 			if { [file exists $arg_values(-layout1)]} {
 				if { [file exists $arg_values(-layout2)] } {
 
@@ -125,10 +125,10 @@ proc run_klayout_gds_xor {args} {
 						try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
 							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
 							$arg_values(-output_gds) \
-							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_logs).xor.log]
 						try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
-							-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
-							-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+							-l [index_file $::env(klayout_logs).xor.log 0] \
+							-o [index_file $::env(klayout_reports).xor.rpt 0]
 						scrot_klayout -layout $arg_values(-output_gds)
 					}
 
@@ -136,10 +136,10 @@ proc run_klayout_gds_xor {args} {
 						try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
 							$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
 							$arg_values(-output_xml) \
-							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_log_file_tag).xor.log]
+							|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(klayout_logs).xor.log]
 						try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
-							-l [index_file $::env(klayout_log_file_tag).xor.log 0] \
-							-o [index_file $::env(klayout_report_file_tag).xor.rpt 0]
+							-l [index_file $::env(klayout_logs).xor.log 0] \
+							-o [index_file $::env(klayout_reports).xor.rpt 0]
 					}
 
 					puts_info "Klayout XOR Complete"

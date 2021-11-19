@@ -547,16 +547,16 @@ proc prep {args} {
     array set tmp_file_name [make_array $intermediate_output_prefices $::env(TMP_DIR)/]
 
     foreach {key value} [array get results_file_name] {
-        set ::env(${key}_result_file_tag) $value
+        set ::env(${key}_results) $value
     }
     foreach {key value} [array get reports_file_name] {
-        set ::env(${key}_report_file_tag) $value
+        set ::env(${key}_reports) $value
     }
     foreach {key value} [array get logs_file_name] {
-        set ::env(${key}_log_file_tag) $value
+        set ::env(${key}_logs) $value
     }
     foreach {key value} [array get tmp_file_name] {
-        set ::env(${key}_tmp_file_tag) $value
+        set ::env(${key}_tmpfiles) $value
     }
 
     set util 	$::env(FP_CORE_UTIL)
@@ -766,7 +766,7 @@ proc save_views {args} {
 proc heal_antenna_violators {args} {
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
-	# $::env(magic_tmp_file_tag).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
+	# $::env(magic_tmpfiles).antenna_violators.rpt or $::env(REPORTS_DIR)/routing/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         TIMER::timer_start
@@ -776,14 +776,14 @@ proc heal_antenna_violators {args} {
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
 		} else {
             #Magic Specific
-			set report_file [open [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0] r]
+			set report_file [open [index_file $::env(magic_reports).antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
 			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(droute_result_file_tag).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(droute_results).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"

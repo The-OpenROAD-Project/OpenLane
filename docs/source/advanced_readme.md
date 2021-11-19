@@ -19,7 +19,7 @@ Then, you should be able to run the following main commands:
 4. `run_placement`
 5. `run_cts`
 6. `run_routing`
-7. `write_powered_verilog` followed by `set_netlist $::env(lvs_result_file_tag).powered.v`
+7. `write_powered_verilog` followed by `set_netlist $::env(lvs_results).powered.v`
 8. `run_magic`
 9. `run_magic_spice_export`
 10. `run_magic_drc`

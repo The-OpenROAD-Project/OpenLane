@@ -65,7 +65,7 @@ if { $::env(PL_BASIC_PLACEMENT) } {
 
 if { $::env(PL_TIME_DRIVEN) } {
 	read_sdc $::env(CURRENT_SDC)
-	read_verilog $::env(synthesis_result_file_tag).v
+	read_verilog $::env(synthesis_results).v
 	lappend arg_list -timing_driven
 }
 

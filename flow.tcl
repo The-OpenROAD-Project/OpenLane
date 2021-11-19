@@ -32,7 +32,7 @@ proc run_placement_step {args} {
 }
 
 proc run_cts_step {args} {
-    # set_def $::env(dplace_result_file_tag).def
+    # set_def $::env(dplace_results).def
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -44,7 +44,7 @@ proc run_cts_step {args} {
 }
 
 proc run_routing_step {args} {
-    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
+    # set resizerdef_dirname [file dirname $::env(resizer_tmpfiles)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
     if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
@@ -56,7 +56,7 @@ proc run_routing_step {args} {
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    # set_def $::env(droute_result_file_tag).def
+    # set_def $::env(droute_results).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -70,7 +70,7 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_power_pins_insertion_step {args} {
-    # set_def $::env(droute_result_file_tag).def
+    # set_def $::env(droute_results).def
     if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
         set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -78,13 +78,13 @@ proc run_power_pins_insertion_step {args} {
     }
     if { $::env(LVS_INSERT_POWER_PINS) } {
 		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
+		set_netlist $::env(lvs_results).powered.v
     }
 
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    # set_def $::env(droute_result_file_tag).def
+    # set_def $::env(droute_results).def
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -196,12 +196,12 @@ proc run_non_interactive_mode {args} {
 		if { ! [info exists arg_values(-save_path)] } {
 			set arg_values(-save_path) ""
 		}
-		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+		save_views 	-lef_path $::env(magic_results).lef \
 			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_result_file_tag).gds \
-			-mag_path $::env(magic_result_file_tag).mag \
-			-maglef_path $::env(magic_result_file_tag).lef.mag \
-			-spice_path $::env(magic_result_file_tag).spice \
+			-gds_path $::env(magic_results).gds \
+			-mag_path $::env(magic_results).mag \
+			-maglef_path $::env(magic_results).lef.mag \
+			-spice_path $::env(magic_results).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)

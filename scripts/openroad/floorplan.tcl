@@ -21,7 +21,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-read_verilog $::env(synthesis_result_file_tag).v
+read_verilog $::env(synthesis_results).v
 link_design $::env(DESIGN_NAME)
 read_sdc -echo $::env(CURRENT_SDC)
 
@@ -82,13 +82,13 @@ if {$::env(FP_SIZING) == "absolute"} {
       lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
     }
 
-    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(floorplan_report_file_tag).die_area.rpt."
-    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(floorplan_report_file_tag).core_area.rpt."
+    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(floorplan_reports).die_area.rpt."
+    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(floorplan_reports).core_area.rpt."
 }
 source $::env(TRACKS_INFO_FILE) 
 
-set die_area_file [open $::env(floorplan_report_file_tag).die_area.rpt w]
-set core_area_file [open $::env(floorplan_report_file_tag).core_area.rpt w]
+set die_area_file [open $::env(floorplan_reports).die_area.rpt w]
+set core_area_file [open $::env(floorplan_reports).core_area.rpt w]
     puts $die_area_file $::env(DIE_AREA)
     puts $core_area_file $::env(CORE_AREA)
 close $core_area_file
