@@ -16,7 +16,6 @@ if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 	gds read $::env(CURRENT_GDS)
 } else {
 	lef read $::env(TECH_LEF)
-	#load $::env(magic_results).mag
 	if {  [info exist ::env(EXTRA_LEFS)] } {
 		set lefs_in $::env(EXTRA_LEFS)
 		foreach lef_file $lefs_in {
@@ -26,7 +25,8 @@ if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 	def read $::env(CURRENT_DEF)
 }
 
-set fout [open $::env(magic_reports).drc w]
+set drc_rpt_path $::env(drc_prefix).rpt
+set fout [open $drc_rpt_path w]
 set oscale [cif scale out]
 set cell_name $::env(DESIGN_NAME)
 magic::suspendall
@@ -66,12 +66,12 @@ close $fout
 
 puts stdout "\[INFO\]: COUNT: $count"
 puts stdout "\[INFO\]: Should be divided by 3 or 4"
-puts stdout "\[INFO\]: DRC Checking DONE ($::env(magic_reports).drc)"
+puts stdout "\[INFO\]: DRC Checking DONE ($drc_rpt_path)"
 flush stdout
 
-puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_results).drc.mag)"
+puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_results)/$::env(DESIGN_NAME).drc.mag)"
 # WARNING: changes the name of the cell; keep as last step
-save $::env(magic_results).drc.mag
+save $::env(magic_results)/$::env(DESIGN_NAME).drc.mag
 puts stdout "\[INFO\]: Saved"
 
 exit 0

@@ -15,18 +15,15 @@
 proc global_placement_or {args} {
     puts_info "Running Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)_global.def]
+    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
         random_global_placement
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
-
-    set report_tag_saver $::env(placement_reports)_global
-    set ::env(placement_reports)_global [index_file $::env(gplace_reports 0]
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)_global.log 0]
-    set ::env(placement_reports)_global $report_tag_saver
+    
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log 0]
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -49,11 +46,11 @@ proc global_placement {args} {
 proc random_global_placement {args} {
     puts_warn "Performing Random Global Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)_global.def]
+    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
         --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)_global.log 0]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log 0]
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - random_place.py"
@@ -63,23 +60,23 @@ proc random_global_placement {args} {
 proc detailed_placement_or {args} {
     puts_info "Running Detailed Placement..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) $::env(routing_results)_detailed.def
+    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)_detailed.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
     set_def $::env(SAVE_DEF)
 
-    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)_detailed.log 0]}] == 0}  {
-	puts_info "Error in detailed placement"
-	puts_info "Retrying detailed placement"
-	set ::env(SAVE_DEF) $::env(routing_results)_detailed.1.def
+    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)/detailed.log 0]}] == 0}  {
+        puts_info "Error in detailed placement"
+        puts_info "Retrying detailed placement"
+        set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME)_detailed.1.def
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)_detailed.log]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
     }
 
-    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)_detailed.log 0]}] == 0}  {
-	puts "Error: Check [index_file $::env(routing_logs)_detailed.log 0]"
-	puts stderr "\[ERROR\]: Check [index_file $::env(routing_logs)_detailed.log 0]"
-	exit 1
+    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)/detailed.log 0]}] == 0}  {
+        puts "Error: Check [index_file $::env(routing_logs)/detailed.log 0]"
+        puts stderr "\[ERROR\]: Check [index_file $::env(routing_logs)/detailed.log 0]"
+        exit 1
     }
 
     TIMER::timer_stop
@@ -164,17 +161,17 @@ proc run_resizer_timing {args} {
     if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Timing Optimizations..."
         TIMER::timer_start
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)_rsz_timing.def 0]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)_rsz_timing.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)_rsz_timing_optimization.log 0]
+        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/rsz_timing.def 0]
+        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/rsz_timing.sdc 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/rsz_timing_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
-        write_verilog $::env(placement_results)_rsz_optimized.v
-        set_netlist $::env(placement_results)_rsz_optimized.v
+        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -190,17 +187,17 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         puts_info "Running Resizer Design Optimizations..."
         TIMER::timer_start
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)_rsz.def 0]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)_rsz.sdc 0]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)_rsz_design_optimization.log 0]
+        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/rsz.def 0]
+        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/rsz.sdc 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/rsz_design_optimization.log 0]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
 
-        write_verilog $::env(placement_results)_rsz_optimized.v
-        set_netlist $::env(placement_results)_rsz_optimized.v
+        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

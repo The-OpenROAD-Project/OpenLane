@@ -19,11 +19,13 @@ gds rescale false
 
 # This comes afterwards, so that it would contain GDS pointers
 # And yes, we need to re-read the GDS we just generated...
-gds read $::env(magic_results).gds
-cellname filepath $::env(DESIGN_NAME) $::env(TMP_DIR)/magic
+gds read $::env(magic_results)/$::env(DESIGN_NAME).gds
+cellname filepath $::env(DESIGN_NAME) $::env(magic_tmpfiles)
 save
 
-file rename -force $::env(TMP_DIR)/magic/$::env(DESIGN_NAME).mag $::env(magic_tmpfiles)_gds_ptrs.mag
+set final_filepath $::env(magic_tmpfiles)/gds_ptrs.mag
 
-puts "\[INFO\]: Wrote $::env(magic_tmpfiles)_gds_ptrs.mag including GDS pointers."
+file rename -force $::env(magic_tmpfiles)/$::env(DESIGN_NAME).mag $final_filepath
+
+puts "\[INFO\]: Wrote $final_filepath including GDS pointers."
 exit 0

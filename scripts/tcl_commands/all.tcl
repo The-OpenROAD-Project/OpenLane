@@ -504,66 +504,31 @@ proc prep {args} {
         klayout
     ]
 
-    set intermediate_output_prefices [list \
-        [list synthesis synthesis/synthesis] \
-        [list floorplan floorplan/floorplan] \
-        [list placement placement/placement] \
-        [list routing routing/routing] \
-        [list magic magic/magic] \
-        [list klayout klayout/klayout] \
-        [list cts cts/cts] \
-        [list lvs lvs/lvs] \
-        [list erc erc/erc] \
-    ]
+    foreach subfolder $run_subfolder_structure {
 
-    set final_output_prefices [list \
-        [list synthesis synthesis/$::env(DESIGN_NAME).synthesis] \
-        [list floorplan floorplan/$::env(DESIGN_NAME).floorplan] \
-        [list placement placement/$::env(DESIGN_NAME).placement] \
-        [list routing routing/$::env(DESIGN_NAME)] \
-        [list cts cts/$::env(DESIGN_NAME).cts] \
-        [list magic magic/$::env(DESIGN_NAME)] \
-        [list lvs lvs/$::env(DESIGN_NAME).lvs] \
-        [list erc erc/$::env(DESIGN_NAME)] \
-        [list klayout klayout/$::env(DESIGN_NAME)]
-    ]
+        set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
+        file mkdir $::env(${subfolder}_reports)
         
+        set ::env(${subfolder}_logs) $::env(LOG_DIR)/$subfolder
+        file mkdir $::env(${subfolder}_logs)
+        
+        set ::env(${subfolder}_tmpfiles) $::env(TMP_DIR)/$subfolder
+        file mkdir $::env(${subfolder}_tmpfiles)
 
-    array set results_file_name [make_array $final_output_prefices $::env(RESULTS_DIR)/]
-    array set reports_file_name [make_array $intermediate_output_prefices $::env(REPORTS_DIR)/]
-    array set logs_file_name [make_array $intermediate_output_prefices $::env(LOG_DIR)/]
-    array set tmp_file_name [make_array $intermediate_output_prefices $::env(TMP_DIR)/]
+        if { ! [file exists $::env(${subfolder}_tmpfiles)/merged_unpadded.lef] } {
+            file link -symbolic $::env(${subfolder}_tmpfiles)/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
 
-    foreach {key value} [array get results_file_name] {
-        set ::env(${key}_results) $value
-    }
-    foreach {key value} [array get reports_file_name] {
-        set ::env(${key}_reports) $value
-    }
-    foreach {key value} [array get logs_file_name] {
-        set ::env(${key}_logs) $value
-    }
-    foreach {key value} [array get tmp_file_name] {
-        set ::env(${key}_tmpfiles) $value
+        set ::env(${subfolder}_results) $::env(RESULTS_DIR)/$subfolder
+        file mkdir $::env(${subfolder}_results)
+
+        if { ! [file exists $::env(${subfolder}_results)/merged_unpadded.lef] } {
+            file link -symbolic $::env(${subfolder}_results)/merged_unpadded.lef ../../tmp/merged_unpadded.lef
+        }
     }
 
     set util 	$::env(FP_CORE_UTIL)
     set density $::env(PL_TARGET_DENSITY)
-
-    foreach subfolder $run_subfolder_structure {
-        file mkdir\
-            $::env(RESULTS_DIR)/$subfolder \
-            $::env(TMP_DIR)/$subfolder  \
-            $::env(LOG_DIR)/$subfolder \
-            $::env(REPORTS_DIR)/$subfolder
-
-        if { ! [file exists $::env(TMP_DIR)/$subfolder/merged_unpadded.lef] } {
-            file link -symbolic $::env(TMP_DIR)/$subfolder/merged_unpadded.lef ../../tmp/merged_unpadded.lef
-        }
-        if { ! [file exists $::env(RESULTS_DIR)/$subfolder/merged_unpadded.lef] } {
-            file link -symbolic $::env(RESULTS_DIR)/$subfolder/merged_unpadded.lef ../../tmp/merged_unpadded.lef
-        }
-    }
 
     # Fill config file
     puts_info "Storing configs into config.tcl ..."
@@ -764,14 +729,14 @@ proc heal_antenna_violators {args} {
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(REPORTS_DIR)/routing/antenna.rpt 0] -o [index_file $::env(TMP_DIR)/vios.txt 0]
 		} else {
             #Magic Specific
-			set report_file [open [index_file $::env(magic_reports).antenna_violators.rpt 0] r]
+			set report_file [open [index_file $::env(magic_reports)/antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
 			exec echo $violators >> [index_file $::env(TMP_DIR)/vios.txt 0]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(routing_results)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(TMP_DIR)/vios.txt 0] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
 		puts_info "DONE HEALING ANTENNA VIOLATORS"
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"

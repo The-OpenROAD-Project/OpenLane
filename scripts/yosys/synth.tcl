@@ -260,7 +260,7 @@ if { $adder_type == "FA" } {
 opt
 opt_clean -purge
 
-tee -o "$::env(synthesis_reports)_pre.stat" stat
+tee -o "$::env(synth_report_prefix)_pre.stat" stat
 
 # Map tri-state buffers.
 if { $tbuf_map } {
@@ -294,7 +294,7 @@ if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP
 }
 
 dfflibmap -liberty $sclib
-tee -o "$::env(synthesis_reports)_dff.stat" stat
+tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
 if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	design -save myDesign
@@ -316,9 +316,9 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 		opt_clean -purge
 		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-		tee -o "$::env(synthesis_reports)_$index$chk_ext" check
-		tee -o "$::env(synthesis_reports)$index$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
-		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)_$index.v"
+		tee -o "$::env(synth_report_prefix)_$index$chk_ext" check
+		tee -o "$::env(synth_report_prefix)_$index$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)/$::env(DESIGN_NAME)_$index.v"
 		design -reset
 	}
 } else {
@@ -340,21 +340,21 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-	tee -o "$::env(synthesis_reports)_$strategy$chk_ext" check
-	tee -o "$::env(synthesis_reports)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)_$strategy$chk_ext" check
+	tee -o "$::env(synth_report_prefix)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
 	design -reset
 	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE_NO_PG)
-	file copy -force $::env(SAVE_NETLIST) $::env(synthesis_tmpfiles)_unflat.v
+	file copy -force $::env(SAVE_NETLIST) $::env(synthesis_tmpfiles)/hierarchical_netlist.v
 	read_verilog -sv $::env(SAVE_NETLIST)
 	synth -top $vtop -flatten
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
-	tee -o "$::env(synthesis_reports)_$strategy$chk_ext" check
-	tee -o "$::env(synthesis_reports)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)_$strategy$chk_ext" check
+	tee -o "$::env(synth_report_prefix)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 }

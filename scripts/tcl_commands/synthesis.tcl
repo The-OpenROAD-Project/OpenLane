@@ -41,7 +41,7 @@ proc run_yosys {args} {
     if { [info exists arg_values(-output)] } {
 		set ::env(SAVE_NETLIST) $arg_values(-output)
     } else {
-		set ::env(SAVE_NETLIST) $::env(synthesis_results).v
+		set ::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).v
     }
 	if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
 		set ::env(SYNTH_READ_BLACKBOX_LIB) 1
@@ -54,15 +54,13 @@ proc run_yosys {args} {
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $::env(TMP_DIR)/$fbasename.no_pg.lib
 	}
 
-	set report_tag_saver $::env(synthesis_reports)
-	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)]
+	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synth]
+	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log 0]
 
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l [index_file $::env(synthesis_logs).log 0] \
+		-l [index_file $::env(synthesis_logs)/synthesis.log 0] \
 		|& tee $::env(TERMINAL_OUTPUT)
-
-	set ::env(synthesis_reports) $report_tag_saver
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
     	set_netlist $::env(SAVE_NETLIST)
@@ -128,23 +126,24 @@ proc run_synthesis {args} {
     puts_info "Running Synthesis..."
 	set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
     # in-place insertion
-	if { [file exists $::env(synthesis_results).v] } {
-		puts_warn "A netlist at $::env(synthesis_results).v already exists..."
+	if { [file exists $::env(synthesis_results)/$::env(DESIGN_NAME).v] } {
+		puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists..."
 		puts_warn "Skipping synthesis"
-		set_netlist $::env(synthesis_results).v
+		set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
 	} else {
 		run_yosys
 	}
 
-	set output_log [index_file $::env(synthesis_logs)_sta.log 0]
+	set output_log [index_file $::env(synthesis_logs)/sta.log 0]
     run_sta -output_log $output_log
 
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
+
 		simple_cts \
-			-verilog $::env(synthesis_results).v \
+			-verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v \
 			-fanout $::env(CLOCK_BUFFER_FANOUT) \
 			-clk_net $::env(CLOCK_NET) \
 			-root_clk_buf $::env(ROOT_CLK_BUFFER) \
@@ -152,15 +151,15 @@ proc run_synthesis {args} {
 			-clk_buf_input $::env(CLK_BUFFER_INPUT) \
 			-clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
 			-cell_clk_port $::env(CELL_CLK_PORT) \
-			-output $::env(synthesis_results).v
+			-output $::env(synthesis_results)/$::env(DESIGN_NAME).v
     }
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
-	check_assign_statements
+		check_assign_statements
     }
 
     if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
-	check_synthesis_failure
+		check_synthesis_failure
     }
 
 	if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
@@ -196,7 +195,7 @@ proc yosys_rewrite_verilog {filename} {
 
 		try_catch [get_yosys_bin] \
 		-c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
-		-l [index_file $::env(synthesis_logs)_rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
+		-l [index_file $::env(synthesis_logs)/rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"

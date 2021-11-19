@@ -72,13 +72,13 @@ if { $::env(SYNTH_FLAT_TOP) } {
 
 setattr -set keep 1
 #synth -top $vtop
-tee -o "$::env(synthesis_reports)_synth.stat" stat
+tee -o "$::env(synth_report_prefix).stat" stat
 
 
 #debug opt_clean -purge
 #setundef -zero
 splitnets
 opt_clean -purge
-tee -o "$::env(synthesis_reports)_$chk_ext" check
-tee -o "$::env(synthesis_reports)$stat_ext" stat -top $vtop -liberty $sclib
+tee -o "$::env(synth_report_prefix)$chk_ext" check
+tee -o "$::env(synth_report_prefix)/$stat_ext" stat -top $vtop -liberty $sclib
 write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"

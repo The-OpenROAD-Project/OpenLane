@@ -49,7 +49,7 @@ proc simple_cts {args} {
 	}
 	parse_key_args "simple_cts" args values $options
 	global script_path
-	set tmp $::env(synthesis_tmpfiles).v
+	set tmp $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).v
 	file copy -force $values(-verilog) $tmp
 	set script $script_path/../cts/cts_simple.pl
 	#set values(-clk_net) [string map {\\ \\\\} $values(-clk_net)]
@@ -82,16 +82,16 @@ proc run_cts {args} {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 		}
 
-		set ::env(SAVE_DEF) $::env(cts_results).def
-		set ::env(SAVE_SDC) $::env(cts_results).sdc
+		set ::env(SAVE_DEF) $::env(cts_results)/$::env(DESIGN_NAME).def
+		set ::env(SAVE_SDC) $::env(cts_results)/$::env(DESIGN_NAME).sdc
 		set report_tag_holder $::env(cts_reports)
-        set ::env(cts_reports) [ index_file $::env(cts_reports) ]
+        set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt ]
 		# trim the lib to exclude cells with drc errors
 		if { ! [info exists ::env(LIB_CTS) ] } {
 			set ::env(LIB_CTS) $::env(TMP_DIR)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs).log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/cts.log 0]
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
 		TIMER::timer_stop
@@ -99,16 +99,16 @@ proc run_cts {args} {
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-		write_verilog $::env(cts_results)_resynth.v
-		set_netlist $::env(cts_results)_resynth.v
+		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v
+		set_netlist $::env(cts_results)/$::env(DESIGN_NAME).v
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
 		scrot_klayout -layout $::env(CURRENT_DEF)
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
-		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs).log]
+		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
 	} else {
-		exec echo "SKIPPED!" >> [index_file $::env(cts_logs).log]
+		exec echo "SKIPPED!" >> [index_file $::env(cts_logs)/cts.log]
 	}
 
 }

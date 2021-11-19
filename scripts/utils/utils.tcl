@@ -135,12 +135,7 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
 
 # puts a variable in a log file
 proc set_log {var val filepath log_flag} {
-	set cmd "set ${var} \"${val}\""
-	if { [string first {[} "$val"] != -1 } {
-			set cmd "set ${var} \{${val}\}"
-	} else {
-			set cmd "set ${var} \"${val}\""
-	}
+	set cmd "set ${var} \{${val}\}"
 	uplevel #0 ${cmd}
 	set global_cfg_file [open $filepath a+]
 	if { $log_flag } {
@@ -179,28 +174,23 @@ proc try_catch {args} {
     }
 }
 
-proc make_array {pseudo_dict prefix} {
-	foreach element $pseudo_dict {
-		set key [lindex $element 0]
-		set value [lindex $element 1]
-		set returned_array($key) ${prefix}${value}
-	}
-	return [array get returned_array]
-}
-
 proc index_file {args} {
 	set file_full_name [lindex $args 0]
+
 	set index_increment 1; # Default increment is 1
 	if { [llength $args] == 2} {
 		set index_increment [lindex $args 1]
 	}
 	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
+
 	if { $index_increment } {
-		puts_info "current step index: $::env(CURRENT_INDEX)"
+		puts_info "Incremented file index to $::env(CURRENT_INDEX) for $file_full_name."
 	}
+
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
+
 	set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"

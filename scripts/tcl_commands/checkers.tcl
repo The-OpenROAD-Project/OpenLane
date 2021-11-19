@@ -27,8 +27,7 @@ proc check_assign_statements {args} {
 }
 
 proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)_2.stat.rpt 0]}]
-
+    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt 0]}]
 
     if { ! $checker } {
         puts_err "Synthesis failed"
@@ -138,7 +137,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs).openroad.log 0]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/floorplan.log 0]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -153,7 +152,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs).openroad.log 0]} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/openroad.log 0]} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]
@@ -167,7 +166,7 @@ proc check_floorplan_missing_pins {args} {
 }
 
 proc check_cts_clock_nets {args} {
-    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_logs).log 0]} error]
+    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_logs)/cts.log 0]} error]
 
     if { ! $checker } {
         puts_err "Clock Tree Synthesis failed"
@@ -181,7 +180,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)_global.log 0]} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)/global.log 0]} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -208,7 +207,7 @@ proc check_macro_placer_num_solns {args} {
 
 proc quit_on_tr_drc {args} {
     if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(routing_reports)_detailed.drc ]
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(routing_reports)/detailed.drc ]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."
@@ -223,7 +222,12 @@ proc quit_on_tr_drc {args} {
 
 proc quit_on_magic_drc {args} {
     if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(magic_reports).tr.drc ]
+        set options {
+            {-log required}
+        }
+		parse_key_args "quit_on_magic_drc" args arg_values $options
+
+        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $arg_values(-log) ]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after Magic DRC."
@@ -273,7 +277,7 @@ proc quit_on_illegal_overlaps {args} {
 }
 
 proc quit_on_unconnected_pdn_nodes {args} {
-    set log_file [index_file $::env(floorplan_logs)_pdn.log 0]
+    set log_file [index_file $::env(floorplan_logs)/pdn.log 0]
     set checker [catch {exec grep -E "Unconnected PDN node" $log_file} error]
 
     if { ! $checker } {

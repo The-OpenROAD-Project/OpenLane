@@ -72,7 +72,7 @@ proc run_power_pins_insertion_step {args} {
     }
     if { $::env(LVS_INSERT_POWER_PINS) } {
 		write_powered_verilog
-		set_netlist $::env(lvs_results).powered.v
+		set_netlist $::env(lvs_results)/$::env(DESIGN_NAME).powered.v
     }
 
 }
@@ -135,21 +135,22 @@ proc run_non_interactive_mode {args} {
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
-    set steps [dict create "synthesis" {run_synthesis "" } \
-                "floorplan" {run_floorplan ""} \
-                "placement" {run_placement_step ""} \
-                "cts" {run_cts_step ""} \
-                "routing" {run_routing_step ""}\
-                "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                "power_pins_insertion" {run_power_pins_insertion_step ""} \
-                "gds_magic" {run_magic ""} \
-                "gds_drc_klayout" {run_klayout ""} \
-                "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                "lvs" "run_lvs_step $LVS_ENABLED" \
-                "drc" "run_drc_step $DRC_ENABLED" \
-                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                "cvc" {run_lef_cvc}
-        ]
+    set steps [dict create \
+		"synthesis" {run_synthesis "" } \
+		"floorplan" {run_floorplan ""} \
+		"placement" {run_placement_step ""} \
+		"cts" {run_cts_step ""} \
+		"routing" {run_routing_step ""}\
+		"diode_insertion" {run_diode_insertion_2_5_step ""} \
+		"power_pins_insertion" {run_power_pins_insertion_step ""} \
+		"gds_magic" {run_magic ""} \
+		"gds_drc_klayout" {run_klayout ""} \
+		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"lvs" "run_lvs_step $LVS_ENABLED" \
+		"drc" "run_drc_step $DRC_ENABLED" \
+		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+		"cvc" {run_lef_cvc}
+    ]
 
     set_if_unset arg_values(-to) "cvc";
 
@@ -189,12 +190,12 @@ proc run_non_interactive_mode {args} {
 		if { ! [info exists arg_values(-save_path)] } {
 			set arg_values(-save_path) ""
 		}
-		save_views 	-lef_path $::env(magic_results).lef \
+		save_views 	-lef_path $::env(magic_results)/$::env(DESIGN_NAME).lef \
 			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_results).gds \
-			-mag_path $::env(magic_results).mag \
-			-maglef_path $::env(magic_results).lef.mag \
-			-spice_path $::env(magic_results).spice \
+			-gds_path $::env(magic_results)/$::env(DESIGN_NAME).gds \
+			-mag_path $::env(magic_results)/$::env(DESIGN_NAME).mag \
+			-maglef_path $::env(magic_results)/$::env(DESIGN_NAME).lef.mag \
+			-spice_path $::env(magic_results)/$::env(DESIGN_NAME).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)
@@ -293,14 +294,14 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(magic_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
 	} else {
 		run_magic_spice_export
 	}
 
-	run_lvs; # requires run_magic_spice_export
+	run_lvs
 }
 
 
