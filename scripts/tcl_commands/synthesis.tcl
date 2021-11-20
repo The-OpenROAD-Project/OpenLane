@@ -47,7 +47,7 @@ proc run_yosys {args} {
 		set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 	}
 
-	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synth]
+	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synthesis]
 	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log 0]
 
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]

@@ -461,10 +461,6 @@ proc prep {args} {
             gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
         }
 
-        set tracks_processed $::env(TMP_DIR)/config.tracks
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-        set ::env(TRACKS_INFO_FILE) $tracks_processed
-
         if { $::env(USE_GPIO_PADS) } {
             if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
                 set ::env(VERILOG_FILES_BLACKBOX) ""
@@ -593,6 +589,11 @@ proc prep {args} {
     if { [info exists ::env(OPENLANE_VERSION) ] } {
         try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
     }
+
+    # Convert Tracks
+    set tracks_processed $::env(routing_tmpfiles)/config.tracks
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+    set ::env(TRACKS_INFO_FILE) $tracks_processed
 
     puts_info "Preparation complete"
     TIMER::timer_stop
@@ -877,10 +878,8 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     puts_info "Running OpenROAD Antenna Rule Checker..."
 	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/antenna.log]
-    try_catch mv -f $::env(routing_reports)/antenna.rpt [index_file $::env(REPORTS_DIR)/antenna.rpt]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
-
 }
 
 proc run_antenna_check {args} {

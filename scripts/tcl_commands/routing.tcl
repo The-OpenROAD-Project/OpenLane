@@ -267,7 +267,7 @@ proc ins_diode_cells_4 {args} {
 	}
 
 	# Custom script
-	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/diodes.log 0]
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log 0]
 
     set_def $::env(SAVE_DEF)
 
@@ -423,8 +423,8 @@ proc run_routing {args} {
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL)
 
 	# run sta at the typical corner using the extracted spef
-	set output_log [index_file $::env(routing_logs)/parasitics_sta.log 0] 
-	set ::env(FINAL_TIMING_REPORT_TAG) $output_log
+	set output_log [index_file $::env(routing_logs)/parasitics_sta.log 0]
+	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta 0]
 	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
 	run_sta -output_log $output_log
 

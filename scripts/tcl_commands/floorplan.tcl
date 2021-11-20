@@ -193,7 +193,7 @@ proc tap_decap_or {args} {
 
 			puts_info "Running Tap/Decap Insertion..."
 			TIMER::timer_start
-			set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME)_tap.def
+			set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME).def
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/tap.log]
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"

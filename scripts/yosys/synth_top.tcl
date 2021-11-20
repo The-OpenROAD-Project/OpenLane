@@ -80,5 +80,5 @@ tee -o "$::env(synth_report_prefix).stat" stat
 splitnets
 opt_clean -purge
 tee -o "$::env(synth_report_prefix)$chk_ext" check
-tee -o "$::env(synth_report_prefix)/$stat_ext" stat -top $vtop -liberty $sclib
+tee -o "$::env(synth_report_prefix)$stat_ext" stat -top $vtop -liberty $sclib
 write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"

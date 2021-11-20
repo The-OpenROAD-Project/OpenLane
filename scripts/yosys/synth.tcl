@@ -316,8 +316,8 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 		opt_clean -purge
 		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-		tee -o "$::env(synth_report_prefix)_$index$chk_ext" check
-		tee -o "$::env(synth_report_prefix)_$index$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+		tee -o "$::env(synth_report_prefix)$chk_ext.script$index" check
+		tee -o "$::env(synth_report_prefix)$stat_ext.script$index" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)/$::env(DESIGN_NAME)_$index.v"
 		design -reset
 	}
@@ -340,8 +340,8 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-	tee -o "$::env(synth_report_prefix)_$strategy$chk_ext" check
-	tee -o "$::env(synth_report_prefix)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
+	tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 }
 
@@ -355,6 +355,6 @@ if { $::env(SYNTH_NO_FLAT) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
-	tee -o "$::env(synth_report_prefix)_$strategy$chk_ext" check
-	tee -o "$::env(synth_report_prefix)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
+	tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 }
