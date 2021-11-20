@@ -3,6 +3,8 @@ import argparse
 import os
 import openroad
 import odb
+from collections import defaultdict
+import math
 
 parser = argparse.ArgumentParser(
     description='Converts a 23-spef_extraction_multi_corner_sta.min.rpt file to a eco insert buffer tcl file.')
@@ -37,6 +39,8 @@ block = chip.getBlock()
 insts = block.getInsts()
 insts_pin = block.getBTerms()  # pins boundary
 
+vio_dict = defaultdict(list)
+
 # iteration to find minus slack
 # create insert_buffer command
 # Converting Magic DRC
@@ -59,7 +63,7 @@ if os.path.exists(input_file):
             minus_time_str = re.search(
                 '(-[0-9]+\.[0-9]+) +slack', vio_name)
             if (minus_time_str != None):
-                vio_count += 1
+                #vio_count += 1
                 start_point_str = re.search('Startpoint: (.*?)[ \n]', vio_name)
                 if (start_point_str != None):
                     start_point = start_point_str.group(1)
@@ -73,23 +77,38 @@ if os.path.exists(input_file):
                                 if (mterm.getIoType() == "OUTPUT"):
                                     printArr.append("# Found SP: "+start_point+"mterm: "+mterm.getName())
                                     pin_name = start_point+'/'+mterm.getName()
-                                    pin_type="findITerm"
+                                    pin_type="ITerm"
                                     # master = inst.getMaster()
                                     break
                     # pin
                     if (pin_name == ''):
-                        # pin_name=start_point
-                        # pin_type="findBTerm"
-                        continue
- 
-                    insert_buffer_line = "insert_buffer " \
-                        + pin_name \
-                        + " " \
-                        + pin_type \
+                        pin_name=start_point
+                        pin_type="BTerm"
+                        #continue
+                    vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1)))                     
+
+        eco_iter=os.environ["ECO_ITER"]
+        for pin_unq in vio_dict.keys():
+            insert_times = math.floor(abs(min(vio_dict[pin_unq]))/0.03) # insert buffer conservatively
+            if insert_times == 0:
+                vio_count += 1
+                print("insert multiple buffers: ", insert_times+1) 
+                insert_buffer_line = "insert_buffer " \
+                        + pin_unq \
                         + " " \
                         + "sky130_fd_sc_hd__dlygate4sd3_1" \
-                        + " net_HOLD_NET_" + str(vio_count) \
-                        + " U_HOLD_FIX_BUF" + str(vio_count)
+                        + " net_HOLD_NET_" + str(eco_iter) + "_" + str(vio_count) \
+                        + " U_HOLD_FIX_BUF_" + str(eco_iter) + "_" + str(vio_count)
+                printArr.append(insert_buffer_line)
+                print(insert_buffer_line)
+            else:
+                print("insert multiple buffers: ", insert_times)
+                for i in range(0, insert_times):
+                    vio_count += 1
+                    print( "insert multiple buffers: ", insert_times+1)
+                    insert_buffer_line = "insert_buffer " + pin_unq + " " + "sky130_fd_sc_hd__dlygate4sd3_1" \
+                            + " net_HOLD_NET_" + str(eco_iter) + "_" + str(vio_count) \
+                            + " U_HOLD_FIX_BUF_" + str(eco_iter) + "_" + str(vio_count)
                     printArr.append(insert_buffer_line)
                     print(insert_buffer_line)
         if vio_count == 0:

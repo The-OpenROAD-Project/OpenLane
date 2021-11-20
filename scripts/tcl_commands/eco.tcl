@@ -13,17 +13,30 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
 
   # set iterm [$block findITerm $pin_name]
   # pin_type is the command "findxTerm"
-  set iterm [$block $pin_type $pin_name]
+  set find_command "find$pin_type"
+  set tmp1 "_connect"
+  set connect_command "odb::db$pin_type$tmp1"
+  set tmp2 "_disconnect"
+  set disconnect_command "odb::db$pin_type$tmp2"
+  set get_command "get$pin_type"
+  puts $find_command
+  puts $connect_command
+  puts $disconnect_command
+  puts $get_command
+  set iterm [$block $find_command $pin_name]
   puts "Successfully find old net"
   set old_net [$iterm getNet]
   puts "OLD_NET"
   puts $old_net
-  odb::dbITerm_disconnect $iterm
+  #odb::dbITerm_disconnect $iterm
+  $disconnect_command $iterm
   puts "Successfully create new net"
   set new_net [odb::dbNet_create $block $net_name]
-  odb::dbITerm_connect $iterm $new_net
+  #odb::dbITerm_connect $iterm $new_net
+  $connect_command $iterm $new_net
   puts "Successfully create new instance"
   set inst [odb::dbInst_create $block $new_master $inst_name]
+  puts "create new master"
 
   # Figure out the inputs & outputs of the master
   foreach mterm [$new_master getMTerms] {
@@ -40,22 +53,43 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
           set output $mterm
       }
   }
-
-  set in_iterm [$inst getITerm $input]
-  set out_iterm [$inst getITerm $output]
+  puts "get the input and output"
+  puts $input
+  puts $output
+  if {$pin_type=="ITerm"} {
+      set in_iterm [$inst getITerm $input]
+      puts "get in iterm"
+      set out_iterm [$inst getITerm $output]
+      puts "get out iterm"
+ #set in_iterm [$inst $get_command $input]
+ # set out_iterm [$inst $get_command $output]
 # define the instance to which the buffer inserted will connected to
-  set master_inst [$iterm getInst]
+      set master_inst [$iterm getInst]
 # get the geometry of the instance, geometry means its shape, the coordinate of its vertex...
-  set box [$master_inst getBBox]
+      set box [$master_inst getBBox]
 # get the position of the lower left point of this instance
-  set x_min [$box xMin]
-  set y_min [$box yMin]
+      set x_min [$box xMin]
+      set y_min [$box yMin]
 # $inst is the buffer we want to insert, now insert it in the position of the instance it is connected to, using setLocation, and detail_place will help us separate them
-  [$inst setLocation $x_min $y_min]
-  [$inst setPlacementStatus PLACED]
+      [$inst setLocation $x_min $y_min]
+      [$inst setPlacementStatus PLACED]
 # done inserting the buffer
-  odb::dbITerm_connect $in_iterm $old_net
-  odb::dbITerm_connect $out_iterm $new_net
+      puts "done insert buffer"
+      odb::dbITerm_connect $in_iterm $old_net
+      puts "connect to in_iterm"
+      odb::dbITerm_connect $out_iterm $new_net
+      puts "connect to out_iterm "
+  #$connect_command $in_iterm $old_net
+  #$connect_command $out_iterm $new_net
+} else {
+      set out_iterm [$inst getITerm $output]
+      puts "start insert buffer"
+      odb::dbITerm_connect $out_iterm $new_net
+      puts "connect to out iterm"
+      odb::dbITerm_connect $inst $old_net $input
+      puts "connect to input pin!!!!!!!"     
+}
+
 }
 
 

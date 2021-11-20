@@ -254,7 +254,7 @@ proc run_non_interactive_mode {args} {
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
-
+    
     set steps [dict create "synthesis" {run_synthesis "" } \
                 "floorplan" {run_floorplan ""} \
                 "placement" {run_placement_step ""} \
@@ -282,6 +282,7 @@ proc run_non_interactive_mode {args} {
         set ::env(CURRENT_STEP) "synthesis";
     }
 
+    # set_if_unset arg_values(-from) "eco";
     set_if_unset arg_values(-from) $::env(CURRENT_STEP);
     set exe 0;
     dict for {step_name step_exe} $steps {
