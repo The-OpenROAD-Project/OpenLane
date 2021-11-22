@@ -53,11 +53,11 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     # Tracking Magic DRC, LVS, Antenna Logs:
     run_path = run_path or utils.get_run_path(design, tag)
 
-    _, arc_antenna_report = get_name(
-        os.path.join(run_path, "reports", "routing"), "antenna.rpt"
-    )
     _, magic_antenna_report = get_name(
         os.path.join(run_path, "reports", "routing"), "antenna_violators.rpt"
+    )
+    _, arc_antenna_report = get_name(
+        os.path.join(run_path, "reports", "qor"), "antenna.rpt"
     )
     _, magic_drc_report = get_name(
         os.path.join(run_path, "reports", "qor"), "drc.rpt"

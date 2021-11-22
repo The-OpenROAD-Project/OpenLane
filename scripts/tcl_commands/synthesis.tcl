@@ -80,7 +80,7 @@ proc run_yosys {args} {
 
 proc run_sta {args} {
 	set options {
-		{-output_log required}
+		{-log required}
 		{-runtime_log -required} 
 	}
     set flags {
@@ -89,19 +89,21 @@ proc run_sta {args} {
     parse_key_args "run_sta" args arg_values $options flags_map $flags
 	set multi_corner [info exists flags_map(-multi_corner)]
     set ::env(RUN_STANDALONE) 1
-
-	puts_info "Running Static Timing Analysis..."
+	
+	increment_index
 	TIMER::timer_start
+	puts_info "Running Static Timing Analysis..."
+
 	if {[info exists ::env(CLOCK_PORT)]} {
 		if { $multi_corner == 1 } {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
+			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 		} else {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-output_log)
+			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 		}
 	} else {
-		puts_warn "No CLOCK_PORT found. Skipping STA..."
+		puts_warn "CLOCK_PORT is not set. STA will be skipped..."
 	}
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
@@ -137,7 +139,7 @@ proc run_synthesis {args} {
 
 	
 	set output_log [index_file $::env(synthesis_logs)/sta.log]
-    run_sta -output_log $output_log
+    run_sta -log $output_log
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)

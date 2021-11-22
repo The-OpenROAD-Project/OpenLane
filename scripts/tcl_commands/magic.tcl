@@ -290,7 +290,7 @@ antennacheck
 	# about the underlying devices, layers, etc.
 	set ::env(MAGTYPE) mag
 
-	set antenna_log [index_file $::env(routing_reports)/antenna.log]
+	set antenna_log [index_file $::env(qor_logs)/antenna.log]
 	try_catch magic \
 			-noconsole \
 			-dnull \
@@ -301,7 +301,7 @@ antennacheck
 
 	# process the log
 	set ::env(finishing_logs) $log_tag_saver
-	try_catch awk "/Cell:/ {print \$2}" [index_file $::env(routing_reports)/antenna.log] \
+	try_catch awk "/Cell:/ {print \$2}" [index_file $::env(qor_logs)/antenna.log] \
 			> $antenna_log
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"

@@ -336,6 +336,7 @@ proc add_route_obs {args} {
 
 proc run_spef_extraction {args} {
 	set options {
+		{-log required}
 		{-rcx_lib optional}
 		{-output_spef optional}
 	}
@@ -353,9 +354,9 @@ proc run_spef_extraction {args} {
 		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
 			set tool "def2spef"
 			set ::env(MPLCONFIGDIR) /tmp
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/spef_extraction.log]
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 		}
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
@@ -413,7 +414,6 @@ proc run_routing {args} {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-
     # detailed routing
     detailed_routing
 	scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(routing_logs)/screenshot.log]
@@ -423,20 +423,19 @@ proc run_routing {args} {
 	set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
 	set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
 
-    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL)
+    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log [index_file $::env(routing_logs)/parasitics_extraction.tt.log]
+    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log [index_file $::env(routing_logs)/parasitics_extraction.ss.log]
+    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log [index_file $::env(routing_logs)/parasitics_extraction.ff.log]
 
 	# run sta at the typical corner using the extracted spef
 	set output_log [index_file $::env(routing_logs)/parasitics_sta.log]
 	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
 	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-	run_sta -output_log $output_log
-
-    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST)
-    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST)
+	run_sta -log $output_log
 	
 	# run sta at the three corners 
 	set output_log [index_file $::env(routing_logs)/parasitics_multi_corner_sta.log] 
-	run_sta -output_log $output_log -multi_corner
+	run_sta -log $output_log -multi_corner
 
 	## Calculate Runtime To Routing
 	set ::env(timer_routed) [clock seconds]

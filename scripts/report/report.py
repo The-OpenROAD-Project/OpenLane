@@ -454,7 +454,7 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, 'reports', "routing", "antenna.rpt")
+        arc_antenna_report = Artifact(rp, "reports", "qor", "antenna.rpt")
         aar_content = arc_antenna_report.get_content()
 
         antenna_violations = -1

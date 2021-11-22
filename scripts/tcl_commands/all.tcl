@@ -711,7 +711,6 @@ proc save_views {args} {
 proc heal_antenna_violators {args} {
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
-	# $::env(finishing_tmpfiles)/antenna_violators.rpt or $::env(routing_reports)/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         increment_index
@@ -719,7 +718,7 @@ proc heal_antenna_violators {args} {
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(routing_reports)/antenna.rpt] -o [index_file $::env(routing_reports)/violators.txt]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(qor_logs)/antenna.log] -o [index_file $::env(routing_reports)/violators.txt]
 		} else {
             #Magic Specific
 			set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
@@ -823,6 +822,7 @@ proc label_macro_pins {args} {
 
 
 proc write_verilog {filename args} {
+    increment_index
     TIMER::timer_start
     puts_info "Writing Verilog..."
     set ::env(SAVE_NETLIST) $filename
@@ -868,7 +868,7 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/antenna.log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/antenna.log]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }
