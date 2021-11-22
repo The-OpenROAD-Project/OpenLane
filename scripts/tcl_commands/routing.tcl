@@ -413,7 +413,7 @@ proc run_routing {args} {
 
     # detailed routing
     detailed_routing
-	scrot_klayout -layout $::env(CURRENT_DEF)
+	scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(routing_logs)/screenshot.log 0]
 
 	# spef extraction at the three corners 
 	set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;

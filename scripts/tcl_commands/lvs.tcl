@@ -54,7 +54,7 @@ proc write_powered_verilog {args} {
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-output_def) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).powered.def]
-    set_if_unset arg_values(-output_verilog) $::env(lvs_results)/$::env(DESIGN_NAME).powered.v
+    set_if_unset arg_values(-output_verilog) $::env(routing_results)/$::env(DESIGN_NAME).powered.v
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
@@ -73,7 +73,7 @@ proc write_powered_verilog {args} {
       --ground-port $arg_values(-ground) \
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_logs)/write_powered_verilog.log 0]
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log 0]
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)  -log [index_file $::env(routing_logs)/write_verilog.log 0] -canonical
 }
 
@@ -124,18 +124,18 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
             }
         }
     }
-    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(lvs_results)/$::env(DESIGN_NAME).$extract_type.log -json"
+    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(qor_results)/$::env(DESIGN_NAME).$extract_type.log -json"
     close $lvs_file
     puts_info "$layout against $schematic"
 
     try_catch netgen -batch source $::env(lvs_tmpfiles)/setup_file.$extract_type.lvs \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(lvs_logs)/$extract_type.log]
-    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(lvs_results)/$::env(DESIGN_NAME).$extract_type.json \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(lvs_results)/$::env(DESIGN_NAME)_parsed.$extract_type.log
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/$extract_type.log]
+    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(qor_results)/$::env(DESIGN_NAME).$extract_type.json \
+      |& tee $::env(TERMINAL_OUTPUT) $::env(qor_logs)/$::env(DESIGN_NAME)_parsed.$extract_type.log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $::env(lvs_results)/$::env(DESIGN_NAME)_parsed.$extract_type.log
+    quit_on_lvs_error -log $::env(qor_logs)/$::env(DESIGN_NAME)_parsed.$extract_type.log
 }
 
 proc run_netgen {args} {

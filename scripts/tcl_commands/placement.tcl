@@ -154,7 +154,7 @@ proc run_placement {args} {
         remove_buffers
     }
     detailed_placement_or
-    scrot_klayout -layout $::env(CURRENT_DEF)
+    scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(placement_logs)/screenshot.log 0]
 }
 
 proc run_resizer_timing {args} {

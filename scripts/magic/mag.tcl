@@ -20,8 +20,8 @@ gds rescale false
 puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
 # This comes afterwards, so that it would contain GDS pointers
 # And yes, we need to re-read the GDS we just generated...
-gds read $::env(magic_results)/$::env(DESIGN_NAME).gds
-cellname filepath $::env(DESIGN_NAME) $::env(magic_results)
+gds read $::env(finishing_results)/$::env(DESIGN_NAME).gds
+cellname filepath $::env(DESIGN_NAME) $::env(finishing_results)
 save
 
 puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"

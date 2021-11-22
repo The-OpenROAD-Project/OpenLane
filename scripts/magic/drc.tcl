@@ -69,9 +69,10 @@ puts stdout "\[INFO\]: Should be divided by 3 or 4"
 puts stdout "\[INFO\]: DRC Checking DONE ($drc_rpt_path)"
 flush stdout
 
-puts stdout "\[INFO\]: Saving mag view with DRC errors($::env(magic_results)/$::env(DESIGN_NAME).drc.mag)"
+set mag_view $::env(qor_results)/$::env(DESIGN_NAME).drc.mag
+puts stdout "\[INFO\]: Saving mag view with DRC errors ($mag_view)"
 # WARNING: changes the name of the cell; keep as last step
-save $::env(magic_results)/$::env(DESIGN_NAME).drc.mag
+save $mag_view
 puts stdout "\[INFO\]: Saved"
 
 exit 0

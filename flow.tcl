@@ -72,7 +72,7 @@ proc run_power_pins_insertion_step {args} {
     }
     if { $::env(LVS_INSERT_POWER_PINS) } {
 		write_powered_verilog
-		set_netlist $::env(lvs_results)/$::env(DESIGN_NAME).powered.v
+		set_netlist $::env(routing_results)/$::env(DESIGN_NAME).powered.v
     }
 
 }
@@ -191,12 +191,12 @@ proc run_non_interactive_mode {args} {
 			set arg_values(-save_path) ""
 		}
 		save_views \
-			-lef_path $::env(magic_results)/$::env(DESIGN_NAME).lef \
 			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_results)/$::env(DESIGN_NAME).gds \
-			-mag_path $::env(magic_results)/$::env(DESIGN_NAME).mag \
-			-maglef_path $::env(magic_results)/$::env(DESIGN_NAME).lef.mag \
-			-spice_path $::env(magic_results)/$::env(DESIGN_NAME).spice \
+			-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
+			-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
+			-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
+			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
+			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)
@@ -278,7 +278,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(magic_results)/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
@@ -293,7 +293,7 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(magic_results)/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
 	} else {

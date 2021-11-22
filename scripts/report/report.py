@@ -616,7 +616,7 @@ class Report(object):
                 lvs_total_errors = int(match[1])
 
         # CVC Total Errors
-        cvc_log = Artifact(rp, 'logs', "erc", "erc_screen.log")
+        cvc_log = Artifact(rp, 'logs', "qor", "erc_screen.log")
         cvc_log_content = cvc_log.get_content()
 
         cvc_total_errors = -1

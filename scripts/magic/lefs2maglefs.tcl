@@ -30,7 +30,7 @@ cellname delete \(UNNAMED\)
 foreach design_name [cellname list allcells] {
 	load $design_name
 
-	cellname filepath $design_name $::env(magic_results)
+	cellname filepath $design_name $::env(finishing_results)
 
 	save
 

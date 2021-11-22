@@ -65,7 +65,7 @@ BEGIN {  # Print power and standard_input definitions
         
         # merge cdl views of the optimization library and the base library if they are different
         if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY)} {
-            set lib_cdl $::env(erc_tmpfiles)/merged.cdl
+            set lib_cdl $::env(qor_tempfiles)/merged.cdl
             file copy -force $::env(STD_CELL_LIBRARY_CDL) $lib_cdl
             set out [open $lib_cdl a]
             set in [open $::env(STD_CELL_LIBRARY_OPT_CDL)]
@@ -76,12 +76,12 @@ BEGIN {  # Print power and standard_input definitions
             set lib_cdl $::env(STD_CELL_LIBRARY_CDL)
         }
             # Create power file
-            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(erc_results)/$::env(DESIGN_NAME).power
+            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(qor_results)/$::env(DESIGN_NAME).power
             # Create cdl file by combining cdl library with lef spice
-	        try_catch awk $cvc_cdl_awk $lib_cdl $::env(magic_results)/$::env(DESIGN_NAME).lef.spice \
-                > $::env(erc_results)/$::env(DESIGN_NAME).cdl
+	        try_catch awk $cvc_cdl_awk $lib_cdl $::env(finishing_results)/$::env(DESIGN_NAME).lef.spice \
+                > $::env(qor_results)/$::env(DESIGN_NAME).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
-                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(erc_logs)/erc_screen.log]
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/erc_screen.log]
             TIMER::timer_stop
 		    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc"
             } else {

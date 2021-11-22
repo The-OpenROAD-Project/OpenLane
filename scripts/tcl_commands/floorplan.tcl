@@ -387,7 +387,7 @@ proc run_floorplan {args} {
 
 		# tapcell
 		tap_decap_or
-		scrot_klayout -layout $::env(CURRENT_DEF)
+		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(floorplan_logs)/screenshot.log 0]
 		# power grid generation
 		run_power_grid_generation
 }

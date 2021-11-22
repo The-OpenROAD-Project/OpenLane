@@ -271,6 +271,7 @@ Most of the following commands' implementation exists in this [file][17]
 |---------------|------------------------|-----------------------------------------|
 | `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
 | `scrot_klayout` | | Export a PNG view of a given GDS-II or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
+|    | `[-log <log_file>]` | Output log file. |
 |    | `[-layout <layout_file>]` | The input GDS or DEF file, the default is `::env(CURRENT_GDS)`. |
 | `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |

@@ -91,7 +91,7 @@ proc run_cts {args} {
 			set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/cts.log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/cts.log]
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
 		TIMER::timer_stop
@@ -104,7 +104,7 @@ proc run_cts {args} {
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
-		scrot_klayout -layout $::env(CURRENT_DEF)
+		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(cts_logs)/screenshot.log 0]
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
 		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
 	} else {

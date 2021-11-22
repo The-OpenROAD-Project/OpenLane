@@ -78,6 +78,7 @@ proc prep_lefs {args} {
     
     puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
     puts_info "Merging LEF Files..."
+
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
 
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
@@ -422,55 +423,6 @@ proc prep {args} {
 
     puts_info "Current run directory is $::env(RUN_DIR)"
 
-    if { ! $skip_basic_prep } {
-        prep_lefs
-
-        # trim synthesis library
-        set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
-        set ::env(LIB_SYNTH) $::env(TMP_DIR)/trimmed.lib
-        trim_lib
-
-        # trim resizer library 
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) [list]
-            foreach lib $::env(LIB_SYNTH_COMPLETE) {
-            	set fbasename [file rootname [file tail $lib]]
-                set lib_resizer $::env(TMP_DIR)/resizer_$fbasename.lib
-                file copy -force $lib $lib_resizer 
-                lappend ::env(LIB_RESIZER_OPT) $lib_resizer
-            }
-
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                foreach lib $::env(LIB_SYNTH_OPT) {
-                    set fbasename [file rootname [file tail $lib]]
-                    set lib_resizer $::env(TMP_DIR)/resizer_opt_$fbasename.lib
-                    file copy -force $lib $lib_resizer 
-                    lappend ::env(LIB_RESIZER_OPT) $lib_resizer
-                }
-            }
-        } 
-        
-        if { ! [info exists ::env(DONT_USE_CELLS)] } {
-            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
-            } else {
-                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
-            }
-            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(TMP_DIR)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
-        }
-
-        if { $::env(USE_GPIO_PADS) } {
-            if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-                set ::env(VERILOG_FILES_BLACKBOX) ""
-            }
-            if { [info exists ::env(GPIO_PADS_VERILOG)] } {
-                lappend ::env(VERILOG_FILES_BLACKBOX) {*}$::env(GPIO_PADS_VERILOG)
-            } else {
-                puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
-            }
-        }
-    }
-
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_info "Removing $::env(GLB_CFG_FILE)"
@@ -486,16 +438,16 @@ proc prep {args} {
         }
     }
 
+
     set run_subfolder_structure [list \
         synthesis\
         floorplan\
         placement\
         cts\
         routing\
-        magic\
+        finishing\
         lvs\
-        erc\
-        klayout
+        qor
     ]
 
     foreach subfolder $run_subfolder_structure {
@@ -509,16 +461,8 @@ proc prep {args} {
         set ::env(${subfolder}_tmpfiles) $::env(TMP_DIR)/$subfolder
         file mkdir $::env(${subfolder}_tmpfiles)
 
-        if { ! [file exists $::env(${subfolder}_tmpfiles)/merged_unpadded.lef] } {
-            file link -symbolic $::env(${subfolder}_tmpfiles)/merged_unpadded.lef ../../tmp/merged_unpadded.lef
-        }
-
         set ::env(${subfolder}_results) $::env(RESULTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_results)
-
-        if { ! [file exists $::env(${subfolder}_results)/merged_unpadded.lef] } {
-            file link -symbolic $::env(${subfolder}_results)/merged_unpadded.lef ../../tmp/merged_unpadded.lef
-        }
     }
 
     set util 	$::env(FP_CORE_UTIL)
@@ -532,6 +476,56 @@ proc prep {args} {
         if { $index != "INIT_ENV_VAR_ARRAY" } {
             if { $index ni $::env(INIT_ENV_VAR_ARRAY) } {
                 set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+            }
+        }
+    }
+
+    # Process LEFs and LIB files
+    if { ! $skip_basic_prep } {
+        prep_lefs
+
+        # trim synthesis library
+        set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
+        set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
+        trim_lib
+
+        # trim resizer library 
+        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
+            set ::env(LIB_RESIZER_OPT) [list]
+            foreach lib $::env(LIB_SYNTH_COMPLETE) {
+            	set fbasename [file rootname [file tail $lib]]
+                set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
+                file copy -force $lib $lib_resizer 
+                lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+            }
+
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                foreach lib $::env(LIB_SYNTH_OPT) {
+                    set fbasename [file rootname [file tail $lib]]
+                    set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
+                    file copy -force $lib $lib_resizer 
+                    lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+                }
+            }
+        } 
+        
+        if { ! [info exists ::env(DONT_USE_CELLS)] } {
+            if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
+            } else {
+                set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
+            }
+            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(synthesis_tmpfiles)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
+        }
+
+        if { $::env(USE_GPIO_PADS) } {
+            if { ! [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+                set ::env(VERILOG_FILES_BLACKBOX) ""
+            }
+            if { [info exists ::env(GPIO_PADS_VERILOG)] } {
+                lappend ::env(VERILOG_FILES_BLACKBOX) {*}$::env(GPIO_PADS_VERILOG)
+            } else {
+                puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
             }
         }
     }
@@ -718,7 +712,7 @@ proc save_views {args} {
 proc heal_antenna_violators {args} {
     # requires a pre-existing report containing a list of cells (-pins?)
 	# that need the real diode in place of the fake diode:
-	# $::env(magic_tmpfiles)/antenna_violators.rpt or $::env(routing_reports)/antenna.rpt
+	# $::env(finishing_tmpfiles)/antenna_violators.rpt or $::env(routing_reports)/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         TIMER::timer_start
@@ -728,7 +722,7 @@ proc heal_antenna_violators {args} {
 			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(routing_reports)/antenna.rpt 0] -o [index_file $::env(routing_reports)/violators.txt 0]
 		} else {
             #Magic Specific
-			set report_file [open [index_file $::env(magic_reports)/antenna_violators.rpt 0] r]
+			set report_file [open [index_file $::env(finishing_reports)/antenna_violators.rpt 0] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
@@ -755,7 +749,6 @@ proc li1_hack_end {args} {
 }
 
 proc widen_site_width {args} {
-
     set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
     set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)
 
@@ -824,7 +817,7 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(lvs_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        {*}$extra_args |& tee [index_file $::env(qor_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
