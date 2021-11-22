@@ -446,7 +446,6 @@ proc prep {args} {
         cts\
         routing\
         finishing\
-        lvs\
         qor
     ]
 
@@ -715,22 +714,22 @@ proc heal_antenna_violators {args} {
 	# $::env(finishing_tmpfiles)/antenna_violators.rpt or $::env(routing_reports)/antenna.rpt
 	# => fixes the routed def
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(routing_reports)/antenna.rpt 0] -o [index_file $::env(routing_reports)/violators.txt 0]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(routing_reports)/antenna.rpt] -o [index_file $::env(routing_reports)/violators.txt]
 		} else {
             #Magic Specific
-			set report_file [open [index_file $::env(finishing_reports)/antenna_violators.rpt 0] r]
+			set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
 			set violators [split [string trim [read $report_file]]]
 			close $report_file
 			# may need to speed this up for extremely huge files using hash tables
-			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt 0]
+			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt 0] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
-		puts_info "DONE HEALING ANTENNA VIOLATORS"
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
 	}
@@ -867,6 +866,7 @@ proc set_layer_tracks {args} {
 
 proc run_or_antenna_check {args} {
     TIMER::timer_start
+    increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
 	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/antenna.log]
     TIMER::timer_stop

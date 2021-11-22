@@ -174,18 +174,13 @@ proc try_catch {args} {
     }
 }
 
+proc increment_index {args} {
+	puts_info "Incremented step index to $::env(CURRENT_INDEX)."
+	set ::env(CURRENT_INDEX) [expr 1 + $::env(CURRENT_INDEX)]
+}
+
 proc index_file {args} {
 	set file_full_name [lindex $args 0]
-
-	set index_increment 1; # Default increment is 1
-	if { [llength $args] == 2} {
-		set index_increment [lindex $args 1]
-	}
-	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
-
-	if { $index_increment } {
-		puts_info "Incremented file index to $::env(CURRENT_INDEX) for $file_full_name."
-	}
 
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
@@ -295,7 +290,6 @@ proc generate_final_summary_report {args} {
 			--tag $::env(RUN_TAG) \
 			--output_file $arg_values(-output) \
 			--man_report $arg_values(-man_report) \
-			--runtime_summary $arg_values(-runtime_summary) \
 			--run_path $::env(RUN_DIR)
 
         puts_info [read [open $arg_values(-man_report) r]]

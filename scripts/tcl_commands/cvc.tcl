@@ -21,6 +21,7 @@ proc run_lef_cvc {args} {
             puts_info "Your design uses the advanced power settings, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
         } else {
             if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
+		    increment_index
             puts_info "Running CVC"
             TIMER::timer_start
             set cvc_power_awk "\

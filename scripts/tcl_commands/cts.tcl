@@ -74,6 +74,7 @@ proc run_cts {args} {
 	}
 
 	if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
+		increment_index
 		puts_info "Running TritonCTS..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
@@ -99,15 +100,17 @@ proc run_cts {args} {
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log [index_file $::env(cts_logs)/write_verilog.log 0]
+		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log [index_file $::env(cts_logs)/write_verilog.log]
 		set_netlist $::env(cts_results)/$::env(DESIGN_NAME).v
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
-		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(cts_logs)/screenshot.log 0]
+		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(cts_logs)/screenshot.log]
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
+		increment_index
 		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
 	} else {
+		increment_index
 		exec echo "SKIPPED!" >> [index_file $::env(cts_logs)/cts.log]
 	}
 

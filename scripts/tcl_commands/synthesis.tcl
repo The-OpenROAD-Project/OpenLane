@@ -27,8 +27,6 @@ proc convert_pg_pins {lib_in lib_out} {
 proc run_yosys {args} {
 	set ::env(CURRENT_STAGE) synthesis
 
-	TIMER::timer_start
-
 	set options {
 		{-output optional}
 	}
@@ -48,19 +46,19 @@ proc run_yosys {args} {
 	}
 
 	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synthesis]
-	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log 0]
+	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log]
 
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]
 	foreach lib $::env(LIB_SYNTH_COMPLETE) {
 		set fbasename [file rootname [file tail $lib]]
-		set lib_path [index_file $::env(synthesis_tmpfiles)/$fbasename.no_pg.lib 0]
+		set lib_path [index_file $::env(synthesis_tmpfiles)/$fbasename.no_pg.lib]
 		convert_pg_pins $lib $lib_path
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $lib_path
 	}
 
 	try_catch [get_yosys_bin] \
 		-c $::env(SYNTH_SCRIPT) \
-		-l [index_file $::env(synthesis_logs)/synthesis.log 0] \
+		-l [index_file $::env(synthesis_logs)/synthesis.log] \
 		|& tee $::env(TERMINAL_OUTPUT)
 
 	if { ! [info exists flags_map(-no_set_netlist)] } {
@@ -78,8 +76,6 @@ proc run_yosys {args} {
     } else {
         try_catch sed -i {/defparam/d} $::env(SAVE_NETLIST)
     }
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 }
 
 proc run_sta {args} {
@@ -118,12 +114,14 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log 0] > $::env(synthesis_reports)/exploration_analysis.html
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log] > $::env(synthesis_reports)/exploration_analysis.html
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(synthesis_reports)
     file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(synthesis_reports)
 }
 
 proc run_synthesis {args} {
+	increment_index
+	TIMER::timer_start
     puts_info "Running Synthesis..."
 	set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
     # in-place insertion
@@ -134,10 +132,12 @@ proc run_synthesis {args} {
 	} else {
 		run_yosys
 	}
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
-	set output_log [index_file $::env(synthesis_logs)/sta.log 0]
+	
+	set output_log [index_file $::env(synthesis_logs)/sta.log]
     run_sta -output_log $output_log
-
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
@@ -184,7 +184,6 @@ proc verilog_elaborate {args} {
 
 proc yosys_rewrite_verilog {filename} {
 	if { $::env(LEC_ENABLE) || ! [info exists ::env(YOSYS_REWRITE_VERILOG)] || $::env(YOSYS_REWRITE_VERILOG) } {
-		TIMER::timer_start
 		if { ! [file exists $filename] } {
 			puts_err "$filename does not exist to be re-written"
 			return -code error
@@ -192,6 +191,8 @@ proc yosys_rewrite_verilog {filename} {
 
 		set ::env(SAVE_NETLIST) $filename
 
+		increment_index
+		TIMER::timer_start
 		puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
 
 		try_catch [get_yosys_bin] \
@@ -207,7 +208,6 @@ proc yosys_rewrite_verilog {filename} {
 
 
 proc logic_equiv_check {args} {
-	TIMER::timer_start
 	set options {
 		{-lhs required}
 		{-rhs required}
@@ -229,6 +229,8 @@ proc logic_equiv_check {args} {
 	} else {
 		set ::env(LEC_RHS_NETLIST) $arg_values(-rhs)
 	}
+	increment_index
+	TIMER::timer_start
     puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
 
     if {[ catch {\

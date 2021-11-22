@@ -18,13 +18,14 @@ proc init_floorplan_or {args} {
 
 proc init_floorplan {args} {
 		puts_info "Running Initial Floorplanning..."
+		increment_index
 		TIMER::timer_start
 		set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
-		set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc 0]
+		set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
 
-		set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/fp 0]
+		set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/fp]
 		
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/floorplan.log 0]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/floorplan.log]
 
 		check_floorplan_missing_lef
 		check_floorplan_missing_pins
@@ -72,6 +73,8 @@ proc init_floorplan {args} {
 
 
 proc place_io_ol {args} {
+	increment_index
+	puts_info "Running IO Placement..."
 	TIMER::timer_start
 	set options {
 			{-lef optional}
@@ -123,7 +126,7 @@ proc place_io_ol {args} {
 		--ver-extension $arg_values(-vertical_ext)\
 		--length $arg_values(-length)\
 		-o $arg_values(-output_def)\
-		{*}$arg_values(-extra_args) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log 0] $::env(TERMINAL_OUTPUT)
+		{*}$arg_values(-extra_args) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
 
 	set_def $arg_values(-output_def)
 	
@@ -132,65 +135,67 @@ proc place_io_ol {args} {
 }
 
 proc place_io {args} {
+	increment_index
 	puts_info "Running IO Placement..."
 	TIMER::timer_start
 	set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log 0]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
 	set_def $::env(SAVE_DEF)
 }
 
 proc place_contextualized_io {args} {
-		puts_info "Running Contextualized IO Placement..."
-		set options {{-lef required} {-def required}}
-		set flags {}
-		parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
+	increment_index
+	puts_info "Running Contextualized IO Placement..."
+	set options {{-lef required} {-def required}}
+	set flags {}
+	parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
 
-		if {[file exists $arg_values(-def)] && [file exists $arg_values(-lef)]} {
-				TIMER::timer_start
+	if {[file exists $arg_values(-def)] && [file exists $arg_values(-lef)]} {
+			TIMER::timer_start
 
-				file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
-				file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
+			file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
+			file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
 
-				set prev_def $::env(CURRENT_DEF)
-				set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
-				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
-						-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
-						-td $::env(placement_tmpfiles)/top_level.def   -tl $::env(placement_tmpfiles)/top_level.lef \
-						-o $::env(SAVE_DEF) |& \
-						tee [index_file $::env(floorplan_logs)/io.contextualize.log 0]
-				puts_info "Custom floorplan created"
+			set prev_def $::env(CURRENT_DEF)
+			set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
+					-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
+					-td $::env(placement_tmpfiles)/top_level.def   -tl $::env(placement_tmpfiles)/top_level.lef \
+					-o $::env(SAVE_DEF) |& \
+					tee [index_file $::env(floorplan_logs)/io.contextualize.log]
+			puts_info "Custom floorplan created"
 
-				set_def $::env(SAVE_DEF)
+			set_def $::env(SAVE_DEF)
 
-				set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
+			set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-				set old_mode $::env(FP_IO_MODE)
-				set ::env(FP_IO_MODE) 0; # set matching mode
-				set ::env(CONTEXTUAL_IO_FLAG) 1
-				try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log 0]
-				set ::env(FP_IO_MODE) $old_mode
+			set old_mode $::env(FP_IO_MODE)
+			set ::env(FP_IO_MODE) 0; # set matching mode
+			set ::env(CONTEXTUAL_IO_FLAG) 1
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
+			set ::env(FP_IO_MODE) $old_mode
 
-				move_pins -from $::env(SAVE_DEF) -to $prev_def
-				set_def $prev_def
+			move_pins -from $::env(SAVE_DEF) -to $prev_def
+			set_def $prev_def
 
-				TIMER::timer_stop
+			TIMER::timer_stop
 
-				exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad (contextual)"
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad (contextual)"
 
-		} else {
-				puts_err "Contextual IO placement: def/lef files don't exist, exiting"
-				return -code error
-		}
+	} else {
+			puts_err "Contextual IO placement: def/lef files don't exist, exiting"
+			return -code error
+	}
 }
 
 proc tap_decap_or {args} {
 	if { $::env(TAP_DECAP_INSERTION) } {
 		if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
-
+			increment_index
 			puts_info "Running Tap/Decap Insertion..."
 			TIMER::timer_start
 			set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME).def
@@ -384,11 +389,11 @@ proc run_floorplan {args} {
 				basic_macro_placement
 			}
 		}
-
-		# tapcell
+		
 		tap_decap_or
-		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(floorplan_logs)/screenshot.log 0]
-		# power grid generation
+
+		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(floorplan_logs)/screenshot.log]
+
 		run_power_grid_generation
 }
 

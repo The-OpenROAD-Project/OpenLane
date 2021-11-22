@@ -337,7 +337,8 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |
 | `puts_info <text>` | | Prints `[INFO]: ` followed by the `<text>` in cyan. |
 | `copy_gds_properties <arg_1.mag> <arg2.mag>` | | copies the GDS properties from `<arg_1.mag>` to `<arg2.mag>`. |
-| `index_file <file> [<increment>]` | | Adds an index prefix to the file name keeping it's path. The prefix is governed by `CURRENT_INDEX`+`increment`, and `CURRENT_INDEX` is stored/overwritten every time an increment is added. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. The default increment is `1`. |
+| `increment_index` | |  Increments `CURRENT_INDEX` by 1. |
+| `index_file <file>` | | Adds an index prefix to the file name keeping it's path. The prefix is `CURRENT_INDEX`. The current value of the `CURRENT_INDEX` could be found in `<run_path>/config.tcl`. |
 | `calc_total_runtime` | | Finalizes the generated `runtime.yaml` file for the design followed  with the total runtime from the beginning of the flow. |
 |    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `flow completed`. |
 | `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `flow failed`, and finally prints `Flow Failed` to the terminal. |

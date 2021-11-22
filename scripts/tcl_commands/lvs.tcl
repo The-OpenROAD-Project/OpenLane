@@ -40,6 +40,7 @@ proc verilog_to_verilogPower {args} {
 
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
+    increment_index
     puts_info "Writing Powered Verilog..."
     set options {
       {-def optional}
@@ -73,17 +74,18 @@ proc write_powered_verilog {args} {
       --ground-port $arg_values(-ground) \
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log 0]
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)  -log [index_file $::env(routing_logs)/write_verilog.log 0] -canonical
+      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log]
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)  -log [index_file $::env(routing_logs)/write_verilog.log] -canonical
 }
 
 # "layout": a spice netlist
 # "schematic": a verilog netlist
 proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)"}} {
-    # LEF LVS output to lvs.lef.log, design.lvs_parsed.lef.log, design.lvs.lef.json, design.lvs.lef.log
-    # GDS LVS output to lvs.gds.log, design.lvs_parsed.gds.log, design.lvs.gds.json, design.lvs.gds.log
+    # LEF LVS output to lvs.lef.log, design.lvs.lef.log, design.lvs.lef.json, design.lvs.lef.log
+    # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
     # GDS LVS uses STD_CELL_LIBRARY spice and
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
+    increment_index
     TIMER::timer_start
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type gds
@@ -99,7 +101,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     set setup_file $::env(NETGEN_SETUP_FILE)
     set module_name $::env(DESIGN_NAME)
     #writes setup_file_*_lvs to tmp directory.
-    set lvs_file [open $::env(lvs_tmpfiles)/setup_file.$extract_type.lvs w]
+    set lvs_file [open $::env(qor_tmpfiles)/setup_file.$extract_type.lvs w]
     if { "$extract_type" == "gds" } {
         if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
             set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)
@@ -128,14 +130,14 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     close $lvs_file
     puts_info "$layout against $schematic"
 
-    try_catch netgen -batch source $::env(lvs_tmpfiles)/setup_file.$extract_type.lvs \
+    try_catch netgen -batch source $::env(qor_tmpfiles)/setup_file.$extract_type.lvs \
       |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/$extract_type.log]
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(qor_results)/$::env(DESIGN_NAME).$extract_type.json \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(qor_logs)/$::env(DESIGN_NAME)_parsed.$extract_type.log
+      |& tee $::env(TERMINAL_OUTPUT) $::env(qor_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $::env(qor_logs)/$::env(DESIGN_NAME)_parsed.$extract_type.log
+    quit_on_lvs_error -log $::env(qor_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log
 }
 
 proc run_netgen {args} {

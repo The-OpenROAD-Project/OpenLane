@@ -27,7 +27,7 @@ proc check_assign_statements {args} {
 }
 
 proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt 0]}]
+    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt]}]
 
     if { ! $checker } {
         puts_err "Synthesis failed"
@@ -137,7 +137,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/floorplan.log 0]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/floorplan.log]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -152,7 +152,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/openroad.log 0]} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/openroad.log]} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]
@@ -166,7 +166,7 @@ proc check_floorplan_missing_pins {args} {
 }
 
 proc check_cts_clock_nets {args} {
-    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_logs)/cts.log 0]} error]
+    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_logs)/cts.log]} error]
 
     if { ! $checker } {
         puts_err "Clock Tree Synthesis failed"
@@ -180,7 +180,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)/global.log 0]} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)/global.log]} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -193,7 +193,7 @@ proc check_replace_divergence {args} {
 }
 
 proc check_macro_placer_num_solns {args} {
-    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(placement_logs)/basic_mp.log 0]} error]
+    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(placement_logs)/basic_mp.log]} error]
 
     if { ! $checker } {
         puts_err "Macro placement failed"
@@ -277,7 +277,7 @@ proc quit_on_illegal_overlaps {args} {
 }
 
 proc quit_on_unconnected_pdn_nodes {args} {
-    set log_file [index_file $::env(floorplan_logs)/pdn.log 0]
+    set log_file [index_file $::env(floorplan_logs)/pdn.log]
     set checker [catch {exec grep -E "Unconnected PDN node" $log_file} error]
 
     if { ! $checker } {

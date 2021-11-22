@@ -428,7 +428,7 @@ class Report(object):
                     other_violations -= 1
             
         # Magic Violations
-        magic_drc = Artifact(rp, 'reports', "magic", "drc.rpt")
+        magic_drc = Artifact(rp, 'reports', "qor", "drc.rpt")
         magic_drc_content = magic_drc.get_content()
 
         magic_violations = -1
@@ -443,7 +443,7 @@ class Report(object):
 
         
         # Klayout DRC Violations
-        klayout_drc = Artifact(rp, 'reports', 'klayout', 'magic.lydrc', True)
+        klayout_drc = Artifact(rp, 'reports', 'qor', 'magic.lydrc', True)
         klayout_drc_content = klayout_drc.get_content()
 
         klayout_violations = -1
@@ -465,7 +465,7 @@ class Report(object):
                 antenna_violations = int(match[1])
         else:
             # Old Magic-Based Check: Just Count The Lines
-            magic_antenna_report = Artifact(rp, 'reports', "magic", "magic.antenna_violators.rpt")
+            magic_antenna_report = Artifact(rp, 'reports', "routing", "antenna_violators.rpt")
             mar_content = magic_antenna_report.get_content()
 
             if mar_content is not None:
@@ -605,7 +605,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, 'results', "lvs", f"{self.design_name}_parsed.lef.log")
+        lvs_report = Artifact(rp, 'results', "qor", f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
         
         lvs_total_errors = -1
