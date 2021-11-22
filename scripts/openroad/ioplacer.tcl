@@ -40,8 +40,8 @@ if { $::env(FP_IO_MODE) == 1 } {
     set opts "-random"
 }
 
-set HMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL)-1}]]
-set VMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL)-1}]]
+set HMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+set VMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
 place_pins $opts\
 	-min_distance $::env(FP_IO_MIN_DISTANCE)\
 	-random_seed 42 \

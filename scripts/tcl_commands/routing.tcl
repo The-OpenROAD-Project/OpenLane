@@ -436,7 +436,7 @@ proc run_routing {args} {
 	run_sta -output_log $output_log -multi_corner
 
 	## Calculate Runtime To Routing
-	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/routed_runtime.txt
+	set ::env(timer_routed) [clock seconds]
 }
 
 proc run_resizer_timing_routing {args} {

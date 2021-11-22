@@ -86,7 +86,7 @@ set abc_ext     ".abc"
 
 
 # get old sdc, add library specific stuff for abc scripts
-set sdc_file $::env(synthesis_tmpfiles).sdc
+set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
 #puts $outfile $sdc_data
 puts $outfile "set_driving_cell ${driver}"

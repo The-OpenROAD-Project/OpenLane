@@ -14,6 +14,7 @@
 
 import os
 import sys
+import yaml
 from typing import Iterable, Optional
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -312,25 +313,24 @@ class Report(object):
             return matches[-1]
 
         # Runtime
+
         flow_status = "flow_exceptional_failure"
         total_runtime = -1
-        try:
-            total_runtime_content = open(os.path.join(rp, "reports", "total_runtime.txt")).read().strip()
-            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-\.]+)\s+in\s+(\w+)", total_runtime_content)
-            if match is not None:
-                flow_status = re.sub(r" ", "_", match[1])
-                total_runtime = match[4]
-        except Exception as e:
-            print(f"Warning: failed to get extract runtime info for {self.design}/{self.tag}: {e}", file=sys.stderr)
-
         routed_runtime = -1
         try:
-            routed_runtime_content = open(os.path.join(rp, "reports", "routed_runtime.txt")).read().strip()
-            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-]+)\s+in\s+(\w+)", routed_runtime_content)
-            if match is not None:
-                routed_runtime = match[4]
+            runtime_yaml_str = open(os.path.join(rp, "runtime.yaml")).read()
+            yaml_docs = list(yaml.safe_load_all(runtime_yaml_str))
+            if len(yaml_docs) != 2:
+                raise Exception("Attempted to generate report on a non-finalized run.")
+            
+            routed_info, total_info = yaml_docs[1]
+
+            flow_status = total_info["status"]
+            total_runtime = total_info["runtime_ts"]
+            routed_runtime = routed_info["runtime_ts"]
         except Exception as e:
-            pass
+            print(f"Failed to extract runtime info for {self.design_name}/{self.tag}: {e}", file=sys.stderr)
+
 
         # Cell Count
         cell_count = -1

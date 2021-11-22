@@ -190,7 +190,8 @@ proc run_non_interactive_mode {args} {
 		if { ! [info exists arg_values(-save_path)] } {
 			set arg_values(-save_path) ""
 		}
-		save_views 	-lef_path $::env(magic_results)/$::env(DESIGN_NAME).lef \
+		save_views \
+			-lef_path $::env(magic_results)/$::env(DESIGN_NAME).lef \
 			-def_path $::env(CURRENT_DEF) \
 			-gds_path $::env(magic_results)/$::env(DESIGN_NAME).gds \
 			-mag_path $::env(magic_results)/$::env(DESIGN_NAME).mag \
@@ -201,15 +202,13 @@ proc run_non_interactive_mode {args} {
 			-tag $::env(RUN_TAG)
 	}
 
-
-
 	calc_total_runtime
 	save_state
 	generate_final_summary_report
 	
 	check_timing_violations
 
-	puts_success "Flow Completed Without Fatal Errors."
+	puts_success "Flow complete."
 }
 
 proc run_interactive_mode {args} {

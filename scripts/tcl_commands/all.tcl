@@ -72,13 +72,11 @@ proc set_guide {guide} {
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_metal_layers.py -t $::env(TECH_LEF) -o $::env(TMP_DIR)/met_layers_list.txt
-    set tech_metal_layers_string [exec cat $::env(TMP_DIR)/met_layers_list.txt]
-    set tech_metal_layers_string_strip [join $tech_metal_layers_string " "]
-    set ::env(TECH_METAL_LAYERS) [split $tech_metal_layers_string_strip]
+    
+    set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $::env(TECH_LEF)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
-    puts_info "The number of available metal layers is $::env(MAX_METAL_LAYER)"
-    puts_info "The available metal layers are $tech_metal_layers_string_strip"
+    
+    puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
     puts_info "Merging LEF Files..."
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
 

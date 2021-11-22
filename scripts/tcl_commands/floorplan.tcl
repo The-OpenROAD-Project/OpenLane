@@ -65,7 +65,7 @@ proc init_floorplan {args} {
 		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
 		
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openroad init_floorplan"
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 }

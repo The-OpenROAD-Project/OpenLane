@@ -203,7 +203,7 @@ proc flow_fail {args} {
 		calc_total_runtime -status "flow failed"
 		generate_final_summary_report
         save_state
-		puts_err "Flow Failed."
+		puts_err "Flow failed."
 	}
 }
 
@@ -219,21 +219,8 @@ proc calc_total_runtime {args} {
 		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
 		set_if_unset arg_values(-status) "flow completed"
 		set timer_end [clock seconds]
-		set timer_start $::env(timer_start)
-		set datetime $::env(datetime)
 
-		set runtime_s [expr {($timer_end - $timer_start)}]
-		set runtime_h [expr {$runtime_s/3600}]
-
-		set runtime_s [expr {$runtime_s-$runtime_h*3600}]
-		set runtime_m [expr {$runtime_s/60}]
-
-		set runtime_s [expr {$runtime_s-$runtime_m*60}]
-		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-		puts_info $total_time
-		set runtime_log [open $arg_values(-report) w]
-		puts $runtime_log $total_time
-		close $runtime_log
+		exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $timer_end $arg_values(-status)
 	}
 }
 
@@ -260,7 +247,7 @@ proc puts_err {txt} {
   set message "\[ERROR\]: $txt"
   puts "[color_text 1 "$message"]"
   if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
@@ -268,7 +255,7 @@ proc puts_success {txt} {
   set message "\[SUCCESS\]: $txt"
   puts "[color_text 2 "$message"]"
   if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
@@ -276,7 +263,7 @@ proc puts_warn {txt} {
   set message "\[WARNING\]: $txt"
   puts "[color_text 3 "$message"]"
   if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
@@ -284,7 +271,7 @@ proc puts_info {txt} {
   set message "\[INFO\]: $txt"
   puts "[color_text 6 "$message"]"
   if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(LOGS_DIR)/flow_summary.log
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
