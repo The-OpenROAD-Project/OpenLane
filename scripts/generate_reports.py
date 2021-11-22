@@ -63,7 +63,7 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         os.path.join(run_path, "reports", "qor"), "drc.rpt"
     )
     _, lvs_report = get_name(
-        os.path.join(run_path, "results", "qor"), f"{design_name}.lvs.lef.log"
+        os.path.join(run_path, "logs", "qor"), f"{design_name}.lvs.lef.log"
     )
 
     printArr = []

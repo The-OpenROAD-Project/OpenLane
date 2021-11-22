@@ -605,7 +605,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, 'results', "qor", f"{self.design_name}.lvs.lef.log")
+        lvs_report = Artifact(rp, "logs", "qor", f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
         
         lvs_total_errors = -1
