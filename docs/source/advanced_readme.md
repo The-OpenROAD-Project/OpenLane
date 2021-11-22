@@ -41,5 +41,5 @@ A more detailed list of all the commands supported by openlane could be found [h
 
 **Note 3:** You can pass the -design, -tag, etc.. flags to ```./flow.tcl -interactive``` directly without the need of entering the interactive mode and then executing the prep command.
 
-[0]:./OpenLANE_commands.md
+[0]:./openlane_commands.md
 

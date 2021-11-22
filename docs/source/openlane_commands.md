@@ -1,4 +1,4 @@
-# OpenLANE Interactive Mode Commands
+# OpenLane Interactive Mode Commands
 
 This page describes the list of commands available in openlane, their functionality, and their expected inputs and outputs.
 
@@ -287,7 +287,7 @@ Most of the following commands' implementation exists in this [file][5]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_lvs` | | Runs an lvs check between an extracted spice netlist `EXT_NETLIST` (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. The LVS could be on the block/cell level or on the device/transistor level, this is controlled by the extraction type set by `MAGIC_EXT_USE_GDS`. If the GDS is used in extraction then the LVS will be run down to the device/transistor level, otherwise it will be run on the block/cell level which is the default behavior in OpenLANE. |
+| `run_lvs` | | Runs an lvs check between an extracted spice netlist `EXT_NETLIST` (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. The LVS could be on the block/cell level or on the device/transistor level, this is controlled by the extraction type set by `MAGIC_EXT_USE_GDS`. If the GDS is used in extraction then the LVS will be run down to the device/transistor level, otherwise it will be run on the block/cell level which is the default behavior in OpenLane. |
 
 ## CVC Commands
 

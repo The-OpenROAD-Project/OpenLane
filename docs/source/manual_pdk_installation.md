@@ -27,7 +27,7 @@
             - sky130_fd_sc_ls
             - sky130_fd_sc_hdll
 
-- Setup the configurations and tech files for Magic, Netgen, OpenLANE using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
+- Setup the configurations and tech files for Magic, Netgen, OpenLane using [open_pdks](https://github.com/RTimothyEdwards/open_pdks):
 
     ```bash
         cd $PDK_ROOT

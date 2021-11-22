@@ -520,7 +520,7 @@ To check the original author list of OpenLane, check [this][33].
 # Additional Material
 
 ## Papers
-- Ahmed Ghazy and Mohamed Shalan, "OpenLane: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
+- Ahmed Ghazy and Mohamed Shalan, "OpenLANE: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
 - M. Shalan and T. Edwards, "Building OpenLANE: A 130nm OpenROAD-based Tapeout- Proven Flow : Invited Paper," 2020 IEEE/ACM International Conference On Computer Aided Design (ICCAD), San Diego, CA, USA, 2020, pp. 1-6. [Paper](https://ieeexplore.ieee.org/document/9256623/)
 - R. Timothy Edwards, M. Shalan and M. Kassem, "Real Silicon using Open Source EDA," in IEEE Design & Test, doi: 10.1109/MDAT.2021.3050000. [Paper](https://ieeexplore.ieee.org/document/9336682)
 
@@ -560,16 +560,16 @@ To check the original author list of OpenLane, check [this][33].
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./regression_results/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
-[24]: ./docs/source/PDK_STRUCTURE.md
+[24]: ./docs/source/pdk_structure.md
 [25]: ./docs/source/advanced_readme.md
 [26]: ./docs/source/chip_integration.md
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
 [29]: ./docs/source/hardening_macros.md
-[30]: ./docs/source/Manual_PDK_installation.md
+[30]: ./docs/source/manual_pdk_installation.md
 [31]: https://github.com/d-m-bailey/cvc
 [32]: ./CONTRIBUTING.md
 [33]: ./AUTHORS.md
-[34]: ./docs/source/OpenLANE_commands.md
+[34]: ./docs/source/openlane_commands.md
 [35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr
