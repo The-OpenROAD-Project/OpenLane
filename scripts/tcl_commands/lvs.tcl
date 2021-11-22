@@ -101,7 +101,8 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
     set setup_file $::env(NETGEN_SETUP_FILE)
     set module_name $::env(DESIGN_NAME)
     #writes setup_file_*_lvs to tmp directory.
-    set lvs_file [open $::env(qor_tmpfiles)/setup_file.$extract_type.lvs w]
+    set lvs_file_path [index_file $::env(finishing_tmpfiles)/setup_file.$extract_type.lvs]
+    set lvs_file [open $lvs_file_path w]
     if { "$extract_type" == "gds" } {
         if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
             set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)
@@ -126,18 +127,26 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
             }
         }
     }
-    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $::env(qor_results)/$::env(DESIGN_NAME).$extract_type.log -json"
+
+    set extraction_prefix [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).$extract_type]
+
+    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
     close $lvs_file
+
     puts_info "$layout against $schematic"
 
-    try_catch netgen -batch source $::env(qor_tmpfiles)/setup_file.$extract_type.lvs \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/$extract_type.log]
-    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py -f $::env(qor_results)/$::env(DESIGN_NAME).$extract_type.json \
-      |& tee $::env(TERMINAL_OUTPUT) $::env(qor_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log
+    try_catch netgen -batch source $lvs_file_path \
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/$extract_type.log]
+
+    set count_lvs_log [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
+
+    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
+        -f $extraction_prefix.json \
+        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $::env(qor_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log
+    quit_on_lvs_error -log $count_lvs_log
 }
 
 proc run_netgen {args} {

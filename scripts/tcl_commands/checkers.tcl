@@ -271,7 +271,7 @@ proc quit_on_illegal_overlaps {args} {
             flow_fail
             return -code error
         } else {
-            puts_info "No Illegal overlaps detected during extraction."
+            puts_info "No illegal overlaps detected during extraction."
         }
     }
 }

@@ -88,21 +88,22 @@ proc run_magic {args} {
 
 
 proc run_magic_drc {args} {
-	TIMER::timer_start
 	increment_index
+	TIMER::timer_start
 	puts_info "Running Magic DRC..."
-	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-	# the following MAGTYPE has to be maglef for the purpose of DRC checking
-	
-	set ::env(drc_prefix) [index_file $::env(qor_reports)/drc]
+
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"	
+	set ::env(drc_prefix) $::env(finishing_reports)/drc
+	# Has to be maglef for DRC Checking
 	set ::env(MAGTYPE) maglef
+
 	try_catch magic \
 			-noconsole \
 			-dnull \
 			-rcfile $::env(MAGIC_MAGICRC) \
 			$::env(SCRIPTS_DIR)/magic/drc.tcl \
 			</dev/null \
-			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/drc.log]
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/drc.log]
 
 	puts_info "Converting Magic DRC Violations to Magic Readable Format..."
 	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
@@ -126,7 +127,7 @@ proc run_magic_drc {args} {
 			--rdb_out $::env(drc_prefix).rdb
 		puts_info "Converted DRC Violations to RDB Format"
 	}
-	file copy -force $::env(MAGIC_MAGICRC) $::env(qor_results)/.magicrc
+	file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
 	
@@ -290,7 +291,7 @@ antennacheck
 	# about the underlying devices, layers, etc.
 	set ::env(MAGTYPE) mag
 
-	set antenna_log [index_file $::env(qor_logs)/antenna.log]
+	set antenna_log [index_file $::env(finishing_logs)/antenna.log]
 	try_catch magic \
 			-noconsole \
 			-dnull \
@@ -301,7 +302,7 @@ antennacheck
 
 	# process the log
 	set ::env(finishing_logs) $log_tag_saver
-	try_catch awk "/Cell:/ {print \$2}" [index_file $::env(qor_logs)/antenna.log] \
+	try_catch awk "/Cell:/ {print \$2}" [index_file $::env(finishing_logs)/antenna.log] \
 			> $antenna_log
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"

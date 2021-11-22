@@ -445,8 +445,7 @@ proc prep {args} {
         placement\
         cts\
         routing\
-        finishing\
-        qor
+        finishing
     ]
 
     foreach subfolder $run_subfolder_structure {
@@ -718,7 +717,7 @@ proc heal_antenna_violators {args} {
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(qor_logs)/antenna.log] -o [index_file $::env(routing_reports)/violators.txt]
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(finishing_logs)/antenna.log] -o [index_file $::env(routing_reports)/violators.txt]
 		} else {
             #Magic Specific
 			set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
@@ -815,7 +814,7 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(qor_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        {*}$extra_args |& tee [index_file $::env(finishing_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
@@ -868,7 +867,7 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(qor_logs)/antenna.log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/antenna.log]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }

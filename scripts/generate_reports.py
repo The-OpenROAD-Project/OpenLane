@@ -57,13 +57,13 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         os.path.join(run_path, "reports", "routing"), "antenna_violators.rpt"
     )
     _, arc_antenna_report = get_name(
-        os.path.join(run_path, "reports", "qor"), "antenna.rpt"
+        os.path.join(run_path, "reports", "finishing"), "antenna.rpt"
     )
     _, magic_drc_report = get_name(
-        os.path.join(run_path, "reports", "qor"), "drc.rpt"
+        os.path.join(run_path, "reports", "finishing"), "drc.rpt"
     )
     _, lvs_report = get_name(
-        os.path.join(run_path, "logs", "qor"), f"{design_name}.lvs.lef.log"
+        os.path.join(run_path, "logs", "finishing"), f"{design_name}.lvs.lef.log"
     )
 
     printArr = []
