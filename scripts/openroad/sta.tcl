@@ -37,7 +37,9 @@ if { $::env(RUN_STANDALONE) == 1 } {
 	    }
     }
 
-    read_liberty $::env(LIB_SYNTH_COMPLETE)
+    foreach lib $::env(LIB_SYNTH_COMPLETE) {
+            read_liberty $lib
+    }
     read_sdc -echo $::env(CURRENT_SDC)
 }
 
