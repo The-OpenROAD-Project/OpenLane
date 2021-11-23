@@ -371,8 +371,9 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-    puts_info $::env(ECO_ITER)
+    puts_info "Current at ECO iteration: $::env(ECO_ITER)"
 
+    # ---------- SKIP ----------
     run_resizer_timing_routing
     
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
@@ -390,6 +391,7 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
+    # ---------- SKIP ---------- END
     use_original_lefs
 
     add_route_obs

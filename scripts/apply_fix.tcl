@@ -39,5 +39,6 @@ source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
 
 write_verilog $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
 write_def     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
-set ::env(CURRENT_DEF) $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 

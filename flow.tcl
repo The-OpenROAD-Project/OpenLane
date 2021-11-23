@@ -143,12 +143,15 @@ proc eco_read_fix {args} {
 }
 
 proc eco_gen_buffer {args} {
+    # Re-organize report files here
+    exec sh $::env(OPENLANE_ROOT)/scripts/reorg.sh
+
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
     try_catch $::env(OPENROAD_BIN) \
         -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-        -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing \
-                         *multi_corner_sta.min*] end] \
+        -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
+        *multi_corner_sta.min*] end] \
         -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
                          *.lef] end] \
         -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
@@ -272,8 +275,23 @@ proc run_non_interactive_mode {args} {
                 "cvc" {run_lef_cvc}
         ]
 
+    # set steps [dict create "synthesis" {run_synthesis "" } \
+    #             "floorplan" {run_floorplan ""} \
+    #             "placement" {run_placement_step ""} \
+    #             "cts" {run_cts_step ""} \
+    #             "routing" {run_routing_step ""} \
+    #             "diode_insertion" {run_diode_insertion_2_5_step ""} \
+    #             "power_pins_insertion" {run_power_pins_insertion_step ""} \
+    #             "gds_magic" {run_magic ""} \
+    #             "gds_drc_klayout" {run_klayout ""} \
+    #             "gds_xor_klayout" {run_klayout_gds_xor ""} \
+    #             "lvs" "run_lvs_step $LVS_ENABLED" \
+    #             "drc" "run_drc_step $DRC_ENABLED" \
+    #             "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+    #             "cvc" {run_lef_cvc}
+    #     ]
 
-    set_if_unset arg_values(-to) "eco";
+    set_if_unset arg_values(-to) "cvc";
 
 	if {  [info exists ::env(CURRENT_STEP) ] } {
         puts "\[INFO\]:Picking up where last execution left off"
@@ -284,6 +302,7 @@ proc run_non_interactive_mode {args} {
 
     # set_if_unset arg_values(-from) "eco";
     set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+
     set exe 0;
     dict for {step_name step_exe} $steps {
         puts "################################################"

@@ -84,7 +84,7 @@ if os.path.exists(input_file):
                     if (pin_name == ''):
                         pin_name=start_point
                         pin_type="BTerm"
-                        #continue
+                        # continue
                     vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1)))                     
 
         eco_iter=os.environ["ECO_ITER"]
