@@ -13,7 +13,7 @@
 # limitations under the License.
 
 proc global_placement_or {args} {
-	increment_index
+    increment_index
     TIMER::timer_start
     puts_info "Running Global Placement..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
@@ -23,7 +23,7 @@ proc global_placement_or {args} {
         random_global_placement
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
-    
+
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
@@ -45,7 +45,7 @@ proc global_placement {args} {
 
 
 proc random_global_placement {args} {
-	increment_index
+    increment_index
     TIMER::timer_start
     puts_warn "Performing Random Global Placement..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
@@ -95,7 +95,7 @@ proc add_macro_placement {args} {
     puts_info "Adding Macro Placement..."
     set ori "NONE"
     if { [llength $args] == 4 } {
-	set ori [lindex $args 3]
+        set ori [lindex $args 3]
     }
     try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
 }
@@ -132,11 +132,11 @@ proc basic_macro_placement {args} {
 }
 
 proc run_placement {args} {
-	puts_info "Running Placement..."
-# |----------------------------------------------------|
-# |----------------   3. PLACEMENT   ------------------|
-# |----------------------------------------------------|
-	set ::env(CURRENT_STAGE) placement
+    puts_info "Running Placement..."
+    # |----------------------------------------------------|
+    # |----------------   3. PLACEMENT   ------------------|
+    # |----------------------------------------------------|
+    set ::env(CURRENT_STAGE) placement
 
     if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
         set old_pl_target_density $::env(PL_TARGET_DENSITY)
@@ -170,8 +170,8 @@ proc run_resizer_design {args} {
         increment_index
         TIMER::timer_start
         puts_info "Running Resizer Design Optimizations..."
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/rsz.def]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/rsz.sdc]
+        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
+        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
         try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
@@ -200,7 +200,7 @@ proc remove_buffers {args} {
         --input_def $::env(CURRENT_DEF)\
         --dont_buffer $::env(DONT_BUFFER_PORTS)\
         --output_def $::env(SAVE_DEF)\
-    |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log]
 
     set_def $::env(SAVE_DEF)
 }

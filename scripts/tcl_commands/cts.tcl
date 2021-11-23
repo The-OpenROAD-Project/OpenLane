@@ -86,7 +86,7 @@ proc run_cts {args} {
 		set ::env(SAVE_DEF) $::env(cts_results)/$::env(DESIGN_NAME).def
 		set ::env(SAVE_SDC) $::env(cts_results)/$::env(DESIGN_NAME).sdc
 		set report_tag_holder $::env(cts_reports)
-        set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt ]
+		set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt ]
 		# trim the lib to exclude cells with drc errors
 		if { ! [info exists ::env(LIB_CTS) ] } {
 			set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
@@ -117,29 +117,29 @@ proc run_cts {args} {
 }
 
 proc run_resizer_timing {args} {
-    if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
-        increment_index
-        TIMER::timer_start
-        puts_info "Running Resizer Timing Optimizations..."
-        set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/rsz_timing.def]
-        set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/rsz_timing.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/resizer.log]
-        set_def $::env(SAVE_DEF)
-        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+	if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
+		increment_index
+		TIMER::timer_start
+		puts_info "Running Resizer Timing Optimizations..."
+		set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
+		set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/resizer.log]
+		set_def $::env(SAVE_DEF)
+		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
+		TIMER::timer_stop
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
-        write_verilog $::env(cts_results)/$::env(DESIGN_NAME).resized.v -log $::env(cts_logs)/write_verilog.log
-        set_netlist $::env(cts_results)/$::env(DESIGN_NAME).resized.v
+		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).resized.v -log $::env(cts_logs)/write_verilog.log
+		set_netlist $::env(cts_results)/$::env(DESIGN_NAME).resized.v
 
-        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
+		if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+		}
 
-    } else {
-        puts_info "Skipping Resizer Timing Optimizations."
-    }
+	} else {
+		puts_info "Skipping Resizer Timing Optimizations."
+	}
 }
 
 

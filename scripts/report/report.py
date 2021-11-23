@@ -12,18 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .get_file_name import get_name
+from utils.utils import *
 import os
 import sys
 import yaml
 from typing import Iterable, Optional
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utils.utils import *
-from .get_file_name import get_name
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
         print(*args, **kwargs, file=sys.stderr)
+
 
 def parse_to_report(input_log: str, output_report: str, start: str, end: Optional[str] = None):
     """
@@ -51,6 +52,7 @@ def parse_to_report(input_log: str, output_report: str, start: str, end: Optiona
         if not started:
             f.write("SKIPPED!")
 
+
 class Artifact(object):
     def __init__(self, run_path: str, kind: str, step: str, filename: str, find_by_partial_match: bool = False):
         self.run_path = run_path
@@ -60,7 +62,8 @@ class Artifact(object):
         self.pathname = os.path.join(self.run_path, self.kind, self.step)
         self.filename = filename
 
-        self.index, self.path = get_name(self.pathname, self.filename, find_by_partial_match)
+        self.index, self.path = get_name(
+            self.pathname, self.filename, find_by_partial_match)
 
         if self.is_valid():
             debug(f"Resolved {kind}, {step}, {filename} to {self.path}")
@@ -77,10 +80,12 @@ class Artifact(object):
         return open(self.path).read()
 
     def is_logtoreport_valid(self) -> bool:
-        return self.is_valid() and os.path.getsize(self.path) > 10 # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
+        # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
+        return self.is_valid() and os.path.getsize(self.path) > 10
 
     def log_to_report(self, report_name: str, start: str, end: Optional[str] = None):
-        report_path = os.path.join(self.run_path, "reports", self.step, report_name)
+        report_path = os.path.join(
+            self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
             with open(report_path, "w") as f:
                 f.write(f"{self.step}:{self.filename} not found or empty.")
@@ -106,7 +111,7 @@ class Report(object):
         self.tag = tag
         self.current_directory = os.path.dirname(__file__)
         if run_path is None:
-            run_path=get_run_path(design=design_path, tag=tag)
+            run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params
         self.raw_report = None
@@ -120,7 +125,7 @@ class Report(object):
         'total_runtime',
         'routed_runtime',
         'DIEAREA_mm^2',
-        'CellPer_mm^2' ,
+        'CellPer_mm^2',
         'OpenDP_Util',
         'Peak_Memory_Usage_MB',
         'cell_count',
@@ -145,7 +150,7 @@ class Report(object):
         'tns',
         'pl_tns',
         'optimized_tns',
-        'fastroute_tns' ,
+        'fastroute_tns',
         'spef_tns',
         'HPWL',
         'routing_layer1_pct',
@@ -178,7 +183,7 @@ class Report(object):
         'Diodes',
         'Total_Physical_Cells'
     ]
-    
+
     @classmethod
     def get_header(Self):
         header = ','.join(Self.values)
@@ -207,15 +212,15 @@ class Report(object):
             ("groute_sta.wns.rpt", "wns_report"),
             ("groute_sta.tns.rpt", "tns_report")
         )
-        
+
         placement_log = Artifact(rp, "logs", "placement", "global.log")
         placement_log.generate_reports(
-            ("gplace_sta.rpt", "check_report"),
-            ("gplace_sta.clock_skew.rpt", "clock_skew"),
-            ("gplace_sta.min.rpt", "min_report"),
-            ("gplace_sta.max.rpt", "max_report"),
-            ("gplace_sta.wns.rpt", "wns_report"),
-            ("gplace_sta.tns.rpt", "tns_report")
+            ("global_sta.rpt", "check_report"),
+            ("global_sta.clock_skew.rpt", "clock_skew"),
+            ("global_sta.min.rpt", "min_report"),
+            ("global_sta.max.rpt", "max_report"),
+            ("global_sta.wns.rpt", "wns_report"),
+            ("global_sta.tns.rpt", "tns_report")
         )
 
         sta_log = Artifact(rp, "logs", "synthesis", "sta.log")
@@ -246,7 +251,8 @@ class Report(object):
             ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "cts", "resizer.log")
+        sta_post_resizer_timing_log = Artifact(
+            rp, "logs", "cts", "resizer.log")
         sta_post_resizer_timing_log.generate_reports(
             ("resizer_sta.rpt", "check_report"),
             ("resizer_sta.max.rpt", "min_report"),
@@ -260,7 +266,8 @@ class Report(object):
             ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer.log")
+        sta_post_resizer_routing_timing_log = Artifact(
+            rp, "logs", "routing", "resizer.log")
         sta_post_resizer_routing_timing_log.generate_reports(
             ("resizer_sta.rpt", "check_report"),
             ("resizer_sta.min.rpt", "min_report"),
@@ -288,7 +295,8 @@ class Report(object):
             ("parasitics_sta.area.rpt", "area_report")
         )
 
-        sta_spef_multi_corner_log = Artifact(rp, "logs", "routing", "parasitics_multi_corner_sta.log")
+        sta_spef_multi_corner_log = Artifact(
+            rp, "logs", "routing", "parasitics_multi_corner_sta.log")
         sta_spef_multi_corner_log.generate_reports(
             ("parasitics_multi_corner_sta.rpt", "check_report"),
             ("parasitics_multi_corner_sta.min.rpt", "min_report"),
@@ -321,38 +329,44 @@ class Report(object):
             runtime_yaml_str = open(os.path.join(rp, "runtime.yaml")).read()
             yaml_docs = list(yaml.safe_load_all(runtime_yaml_str))
             if len(yaml_docs) != 2:
-                raise Exception("Attempted to generate report on a non-finalized run.")
-            
+                raise Exception(
+                    "Attempted to generate report on a non-finalized run.")
+
             routed_info, total_info = yaml_docs[1]
 
             flow_status = total_info["status"]
             total_runtime = total_info["runtime_ts"]
             routed_runtime = routed_info["runtime_ts"]
         except Exception as e:
-            print(f"Failed to extract runtime info for {self.design_name}/{self.tag}: {e}", file=sys.stderr)
-
+            print(
+                f"Failed to extract runtime info for {self.design_name}/{self.tag}: {e}", file=sys.stderr)
 
         # Cell Count
         cell_count = -1
-        yosys_report = Artifact(rp, 'reports', "synthesis", "synthesis.stat.rpt", True)
+        yosys_report = Artifact(
+            rp, 'reports', "synthesis", "synthesis.stat.rpt", True)
         yosys_report_content = yosys_report.get_content()
         if yosys_report_content is not None:
-            match = re.search(r"Number of cells:\s*(\d+)", yosys_report_content)
+            match = re.search(r"Number of cells:\s*(\d+)",
+                              yosys_report_content)
             if match is not None:
                 cell_count = int(match[1])
 
         # Die Area
         die_area = -1
-        placed_def = Artifact(rp, 'results', "floorplan", f"{self.design_name}.def")
+        placed_def = Artifact(rp, 'results', "floorplan",
+                              f"{self.design_name}.def")
         def_content = placed_def.get_content()
         if def_content is not None:
-            match = re.search(r"DIEAREA\s*\(\s*(\d+)\s+(\d+)\s*\)\s*\(\s*(\d+)\s+(\d+)\s*\)", def_content)
+            match = re.search(
+                r"DIEAREA\s*\(\s*(\d+)\s+(\d+)\s*\)\s*\(\s*(\d+)\s+(\d+)\s*\)", def_content)
             if match is not None:
-                lx, ly, ux, uy = float(match[1]), float(match[2]), float(match[3]), float(match[4])
-            
+                lx, ly, ux, uy = float(match[1]), float(
+                    match[2]), float(match[3]), float(match[4])
+
                 die_area = ((ux - lx) / 1000) * ((uy - ly) / 1000)
 
-                die_area /= 1000000 # To mm^2
+                die_area /= 1000000  # To mm^2
 
         # Cells per micrometer
         cells_per_mm = - 1
@@ -361,41 +375,46 @@ class Report(object):
 
         # OpenDP Utilization and HPWL
         utilization = -1
-        hpwl = -1 # Half Perimeter Wire Length?
+        hpwl = -1  # Half Perimeter Wire Length?
         global_placement_log = Artifact(rp, 'logs', "placement", "global.log")
-        gplace_log_content = global_placement_log.get_content()
-        if gplace_log_content is not None:
-            match = re.search(r"Util\(%\):\s*([\d\.]+)", gplace_log_content)
+        global_log_content = global_placement_log.get_content()
+        if global_log_content is not None:
+            match = re.search(r"Util\(%\):\s*([\d\.]+)", global_log_content)
 
             if match is not None:
                 utilization = float(match[1])
 
-            match = re_get_last_capture(r"HPWL:\s*([\d\.]+)", gplace_log_content)
+            match = re_get_last_capture(
+                r"HPWL:\s*([\d\.]+)", global_log_content)
             if match is not None:
                 hpwl = float(match)
 
         # TritonRoute Logged Info Extraction
         tr_log = Artifact(rp, 'logs', "routing", "detailed.log")
         tr_log_content = tr_log.get_content()
-        
+
         tr_memory_peak = -1
         tr_violations = -1
         wire_length = -1
         vias = -1
         if tr_log_content is not None:
-            match = re_get_last_capture(r"peak\s*=\s*([\d\.]+)", tr_log_content)
+            match = re_get_last_capture(
+                r"peak\s*=\s*([\d\.]+)", tr_log_content)
             if match is not None:
                 tr_memory_peak = float(match)
 
-            match = re_get_last_capture(r"Number of violations\s*=\s*(\d+)", tr_log_content)
+            match = re_get_last_capture(
+                r"Number of violations\s*=\s*(\d+)", tr_log_content)
             if match is not None:
                 tr_violations = int(match)
 
-            match = re_get_last_capture(r"Total wire length = ([\d\.]+)\s*\wm", tr_log_content)
+            match = re_get_last_capture(
+                r"Total wire length = ([\d\.]+)\s*\wm", tr_log_content)
             if match is not None:
                 wire_length = int(match)
 
-            match = re_get_last_capture(r"Total number of vias = (\d+)", tr_log_content)
+            match = re_get_last_capture(
+                r"Total number of vias = (\d+)", tr_log_content)
             if match is not None:
                 vias = int(match)
 
@@ -426,7 +445,7 @@ class Report(object):
                 if "MinHole" in line:
                     minhole_violations += 1
                     other_violations -= 1
-            
+
         # Magic Violations
         magic_drc = Artifact(rp, "reports", "finishing", "drc.rpt")
         magic_drc_content = magic_drc.get_content()
@@ -441,7 +460,6 @@ class Report(object):
                 # Not really sure why we do this
                 magic_violations = (magic_violations_raw + 3) // 4
 
-        
         # Klayout DRC Violations
         klayout_drc = Artifact(rp, 'reports', 'finishing', 'magic.lydrc', True)
         klayout_drc_content = klayout_drc.get_content()
@@ -454,18 +472,20 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, "reports", "finishing", "antenna.rpt")
+        arc_antenna_report = Artifact(
+            rp, "reports", "finishing", "antenna.rpt")
         aar_content = arc_antenna_report.get_content()
 
         antenna_violations = -1
         if aar_content is not None:
             match = re.search(r"Number of pins violated:\s*(\d+)", aar_content)
-            
+
             if match is not None:
                 antenna_violations = int(match[1])
         else:
             # Old Magic-Based Check: Just Count The Lines
-            magic_antenna_report = Artifact(rp, 'reports', "routing", "antenna_violators.rpt")
+            magic_antenna_report = Artifact(
+                rp, 'reports', "routing", "antenna_violators.rpt")
             mar_content = magic_antenna_report.get_content()
 
             if mar_content is not None:
@@ -481,22 +501,33 @@ class Report(object):
                 if match is not None:
                     value = float(match[1])
                 else:
-                    debug(f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}")
+                    debug(
+                        f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}")
             else:
                 debug(f"Can't find {sta_report_filename}")
             return value
 
-        wns = sta_report_extraction("synthesis_sta.wns.rpt", 'wns', step="synthesis")
-        spef_wns = sta_report_extraction("parasitics_sta.wns.rpt", 'wns', step="routing")
-        opt_wns = sta_report_extraction("resizer_sta.wns.rpt", 'wns', step="routing")
-        pl_wns = sta_report_extraction("global.log", 'wns', kind='logs', step="placement")
-        fr_wns = sta_report_extraction("global.log", 'wns', kind='logs', step="routing")
+        wns = sta_report_extraction(
+            "synthesis_sta.wns.rpt", 'wns', step="synthesis")
+        spef_wns = sta_report_extraction(
+            "parasitics_sta.wns.rpt", 'wns', step="routing")
+        opt_wns = sta_report_extraction(
+            "resizer_sta.wns.rpt", 'wns', step="routing")
+        pl_wns = sta_report_extraction(
+            "global.log", 'wns', kind='logs', step="placement")
+        fr_wns = sta_report_extraction(
+            "global.log", 'wns', kind='logs', step="routing")
 
-        tns = sta_report_extraction("synthesis_sta.tns.rpt", 'tns', step="synthesis")
-        spef_tns = sta_report_extraction("parasitics_sta.tns.rpt", 'tns', step="routing")
-        opt_tns = sta_report_extraction("resizer_sta.tns.rpt", 'tns', step="routing")
-        pl_tns = sta_report_extraction("global.log", 'tns', kind='logs', step="placement")
-        fr_tns = sta_report_extraction("global.log", 'tns', kind='logs', step="routing")
+        tns = sta_report_extraction(
+            "synthesis_sta.tns.rpt", 'tns', step="synthesis")
+        spef_tns = sta_report_extraction(
+            "parasitics_sta.tns.rpt", 'tns', step="routing")
+        opt_tns = sta_report_extraction(
+            "resizer_sta.tns.rpt", 'tns', step="routing")
+        pl_tns = sta_report_extraction(
+            "global.log", 'tns', kind='logs', step="placement")
+        fr_tns = sta_report_extraction(
+            "global.log", 'tns', kind='logs', step="routing")
 
         # Yosys Metrics
         yosys_metrics = [
@@ -527,8 +558,9 @@ class Report(object):
             if yosys_log_content is not None:
                 metric_value = 0
                 metric_name_escaped = re.escape(metric)
-                
-                match = re.search(rf"{metric_name_escaped}\s*(\d+)", yosys_log_content)
+
+                match = re.search(
+                    rf"{metric_name_escaped}\s*(\d+)", yosys_log_content)
 
                 if match is not None:
                     metric_value = int(match[1])
@@ -540,7 +572,8 @@ class Report(object):
         abc_level = -1
 
         if yosys_log_content is not None:
-            match = re.search(r"ABC:\s*netlist\s*:\s*i\/o\s*=\s*(\d+)\/\s*(\d+)\s+lat\s*=\s*(\d+)\s+nd\s*=\s*(\d+)\s*edge\s*=\s*(\d+)\s*area\s*=\s*([\d\.]+)\s+delay\s*=\s*([\d\.]+)\s*lev\s*=\s*(\d+)", yosys_log_content)
+            match = re.search(
+                r"ABC:\s*netlist\s*:\s*i\/o\s*=\s*(\d+)\/\s*(\d+)\s+lat\s*=\s*(\d+)\s+nd\s*=\s*(\d+)\s*edge\s*=\s*(\d+)\s*area\s*=\s*([\d\.]+)\s+delay\s*=\s*([\d\.]+)\s*lev\s*=\s*(\d+)", yosys_log_content)
 
             if match is not None:
                 abc_i = match[1]
@@ -556,7 +589,7 @@ class Report(object):
         layer_usage = [-1] * 6
         if routing_log_content is not None:
             routing_log_lines = routing_log_content.split("\n")
-            
+
             final_congestion_report_start_line = None
             for i, line in enumerate(routing_log_lines):
                 if "Final congestion report" in line:
@@ -575,7 +608,8 @@ class Report(object):
                         layer_usage[i] = float(match[1])
 
         # Process Filler Cells
-        tapcell_log = Artifact(rp, 'logs', 'floorplan', 'tap.log') # Also includes endcap info
+        # Also includes endcap info
+        tapcell_log = Artifact(rp, 'logs', 'floorplan', 'tap.log')
         tapcell_log_content = tapcell_log.get_content()
 
         diode_log = Artifact(rp, 'logs', 'routing', 'diodes.log')
@@ -583,12 +617,14 @@ class Report(object):
 
         tapcells, endcaps, diodes = 0, 0, 0
         if tapcell_log_content is not None:
-            match = re.search(r"Inserted (\d+) end\s*caps\.", tapcell_log_content)
+            match = re.search(r"Inserted (\d+) end\s*caps\.",
+                              tapcell_log_content)
 
             if match is not None:
                 endcaps = int(match[1])
 
-            match = re.search(r"Inserted (\d+) tap\s*cells\.", tapcell_log_content)
+            match = re.search(r"Inserted (\d+) tap\s*cells\.",
+                              tapcell_log_content)
 
             if match is not None:
                 tapcells = int(match[1])
@@ -596,18 +632,21 @@ class Report(object):
         if diode_log_content is not None:
             match = None
             if "inserted!" in diode_log_content:
-                match = re.search(r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
+                match = re.search(
+                    r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
             else:
-                match = re.search(r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
+                match = re.search(
+                    r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
             if match is not None:
                 diodes = int(match[1])
 
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, "logs", "finishing", f"{self.design_name}.lvs.lef.log")
+        lvs_report = Artifact(rp, "logs", "finishing",
+                              f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
-        
+
         lvs_total_errors = -1
         if lvs_report_content is not None:
             lvs_total_errors = 0

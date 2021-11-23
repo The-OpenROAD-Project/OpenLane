@@ -13,62 +13,62 @@
 # limitations under the License.
 
 proc init_floorplan_or {args} {
-    handle_deprecated_command init_floorplan
+	handle_deprecated_command init_floorplan
 }
 
 proc init_floorplan {args} {
-		puts_info "Running Initial Floorplanning..."
-		increment_index
-		TIMER::timer_start
-		set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
-		set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
+	puts_info "Running Initial Floorplanning..."
+	increment_index
+	TIMER::timer_start
+	set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
+	set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
 
-		set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/fp]
-		
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/floorplan.log]
+	set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/initial_fp]
 
-		check_floorplan_missing_lef
-		check_floorplan_missing_pins
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/initial_fp.log]
 
-		set die_area_file [open $::env(fp_report_prefix)_die_area.rpt]
-		set core_area_file [open $::env(fp_report_prefix)_core_area.rpt]
+	check_floorplan_missing_lef
+	check_floorplan_missing_pins
 
-		set ::env(DIE_AREA) [read $die_area_file]
-		set ::env(CORE_AREA) [read $core_area_file]
+	set die_area_file [open $::env(fp_report_prefix)_die_area.rpt]
+	set core_area_file [open $::env(fp_report_prefix)_core_area.rpt]
 
-		close $die_area_file
-		close $core_area_file
+	set ::env(DIE_AREA) [read $die_area_file]
+	set ::env(CORE_AREA) [read $core_area_file]
 
-		set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
-		set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
+	close $die_area_file
+	close $core_area_file
 
-		puts_info "Core area width: $core_width"
-		puts_info "Core area height: $core_height"
+	set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
+	set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
 
-		if { $::env(FP_PDN_AUTO_ADJUST) } {
-			if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
-				$core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
-					puts_warn "Current core area is too small for a power grid"
-					puts_warn "!!! THE POWER GRID WILL BE MINIMIZED. !!!"
+	puts_info "Core area width: $core_width"
+	puts_info "Core area height: $core_height"
 
-					set ::env(FP_PDN_VOFFSET) [expr {$core_width/6.0}]
-					set ::env(FP_PDN_HOFFSET) [expr {$core_height/6.0}]
+	if { $::env(FP_PDN_AUTO_ADJUST) } {
+		if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
+			$core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
+				puts_warn "Current core area is too small for a power grid"
+			puts_warn "!!! THE POWER GRID WILL BE MINIMIZED. !!!"
 
-					set ::env(FP_PDN_VPITCH) [expr {$core_width/3.0}]
-					set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
-				}
+			set ::env(FP_PDN_VOFFSET) [expr {$core_width/6.0}]
+			set ::env(FP_PDN_HOFFSET) [expr {$core_height/6.0}]
 
+			set ::env(FP_PDN_VPITCH) [expr {$core_width/3.0}]
+			set ::env(FP_PDN_HPITCH) [expr {$core_height/3.0}]
 		}
-		puts_info "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
-		puts_info "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
 
-		puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
-		puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
-		
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
-		set_def $::env(SAVE_DEF)
-		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+	}
+	puts_info "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
+	puts_info "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
+
+	puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
+	puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
+
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
+	set_def $::env(SAVE_DEF)
+	set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 }
 
 
@@ -77,19 +77,19 @@ proc place_io_ol {args} {
 	puts_info "Running IO Placement..."
 	TIMER::timer_start
 	set options {
-			{-lef optional}
-			{-def optional}
-			{-cfg optional}
-			{-horizontal_layer optional}
-			{-vertical_layer optional}
-			{-horizontal_mult optional}
-			{-horizontal_ext optional}
-			{-vertical_layer optional}
-			{-vertical_mult optional}
-			{-vertical_ext optional}
-			{-length optional}
-			{-output_def optional}
-			{-extra_args optional}
+		{-lef optional}
+		{-def optional}
+		{-cfg optional}
+		{-horizontal_layer optional}
+		{-vertical_layer optional}
+		{-horizontal_mult optional}
+		{-horizontal_ext optional}
+		{-vertical_layer optional}
+		{-vertical_mult optional}
+		{-vertical_ext optional}
+		{-length optional}
+		{-output_def optional}
+		{-extra_args optional}
 	}
 	set flags {}
 
@@ -129,7 +129,7 @@ proc place_io_ol {args} {
 		{*}$arg_values(-extra_args) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
 
 	set_def $arg_values(-output_def)
-	
+
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - io_place.py"
 }
@@ -154,41 +154,41 @@ proc place_contextualized_io {args} {
 	parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
 
 	if {[file exists $arg_values(-def)] && [file exists $arg_values(-lef)]} {
-			TIMER::timer_start
+		TIMER::timer_start
 
-			file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
-			file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
+		file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
+		file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
 
-			set prev_def $::env(CURRENT_DEF)
-			set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
-					-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
-					-td $::env(placement_tmpfiles)/top_level.def   -tl $::env(placement_tmpfiles)/top_level.lef \
-					-o $::env(SAVE_DEF) |& \
-					tee [index_file $::env(floorplan_logs)/io.contextualize.log]
-			puts_info "Custom floorplan created"
+		set prev_def $::env(CURRENT_DEF)
+		set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/contextualize.py \
+			-md $prev_def                       -ml $::env(MERGED_LEF_UNPADDED) \
+			-td $::env(placement_tmpfiles)/top_level.def   -tl $::env(placement_tmpfiles)/top_level.lef \
+			-o $::env(SAVE_DEF) |& \
+			tee [index_file $::env(floorplan_logs)/io.contextualize.log]
+		puts_info "Custom floorplan created"
 
-			set_def $::env(SAVE_DEF)
+		set_def $::env(SAVE_DEF)
 
-			set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
+		set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-			set old_mode $::env(FP_IO_MODE)
-			set ::env(FP_IO_MODE) 0; # set matching mode
-			set ::env(CONTEXTUAL_IO_FLAG) 1
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
-			set ::env(FP_IO_MODE) $old_mode
+		set old_mode $::env(FP_IO_MODE)
+		set ::env(FP_IO_MODE) 0; # set matching mode
+		set ::env(CONTEXTUAL_IO_FLAG) 1
+		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
+		set ::env(FP_IO_MODE) $old_mode
 
-			move_pins -from $::env(SAVE_DEF) -to $prev_def
-			set_def $prev_def
+		move_pins -from $::env(SAVE_DEF) -to $prev_def
+		set_def $prev_def
 
-			TIMER::timer_stop
+		TIMER::timer_stop
 
-			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad (contextual)"
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad (contextual)"
 
 	} else {
-			puts_err "Contextual IO placement: def/lef files don't exist, exiting"
-			return -code error
+		puts_err "Contextual IO placement: def/lef files don't exist, exiting"
+		return -code error
 	}
 }
 
@@ -213,21 +213,21 @@ proc tap_decap_or {args} {
 
 
 proc padframe_extract_area {args} {
-		puts_info "Extracting Padframe area..."
-		set options {{-cfg required}}
-		set flags {}
-		parse_key_args "padframe_extract_area" args arg_values $options flags_map $flags
-		set area [exec $::env(SCRIPTS_DIR)/padframe_extract_area.sh $arg_values(-cfg)]
-		return $area
+	puts_info "Extracting Padframe area..."
+	set options {{-cfg required}}
+	set flags {}
+	parse_key_args "padframe_extract_area" args arg_values $options flags_map $flags
+	set area [exec $::env(SCRIPTS_DIR)/padframe_extract_area.sh $arg_values(-cfg)]
+	return $area
 }
 
 proc chip_floorplan {args} {
-		puts_info "Running Chip Floorplanning..."
-		# intial fp
-		init_floorplan
-		# remove pins section and others
-		remove_pins -input $::env(CURRENT_DEF)
-		remove_empty_nets -input $::env(CURRENT_DEF)
+	puts_info "Running Chip Floorplanning..."
+	# intial fp
+	init_floorplan
+	# remove pins section and others
+	remove_pins -input $::env(CURRENT_DEF)
+	remove_empty_nets -input $::env(CURRENT_DEF)
 }
 
 proc apply_def_template {args} {
@@ -247,7 +247,7 @@ proc run_power_grid_generation {args} {
 			puts_err "VDD_NETS and GND_NETS must *both* either be defined or undefined"
 			return -code error
 		}
-		# standard cell power and ground nets are assumed to be the first net 
+		# standard cell power and ground nets are assumed to be the first net
 		set ::env(VDD_PIN) [lindex $::env(VDD_NETS) 0]
 		set ::env(GND_PIN) [lindex $::env(GND_NETS) 0]
 	} elseif { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
@@ -285,7 +285,7 @@ proc run_power_grid_generation {args} {
 		return -code error
 	}
 
-	# internal macros power connections 
+	# internal macros power connections
 	if {[info exists ::env(FP_PDN_MACRO_HOOKS)]} {
 		set macro_hooks [dict create]
 		set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
@@ -295,17 +295,17 @@ proc run_power_grid_generation {args} {
 			set ground_net [lindex $pdn_hook 2]
 			dict append macro_hooks $instance_name [subst {$power_net $ground_net}]
 		}
-		
+
 		set power_net_indx [lsearch $::env(VDD_NETS) $power_net]
 		set ground_net_indx [lsearch $::env(GND_NETS) $ground_net]
 
 		# make sure that the specified power domains exist.
 		if { $power_net_indx == -1  || $ground_net_indx == -1 || $power_net_indx != $ground_net_indx } {
 			puts_err "Can't find $power_net and $ground_net domain. \
-			Make sure that both exist in $::env(VDD_NETS) and $::env(GND_NETS)." 
-		} 
+				Make sure that both exist in $::env(VDD_NETS) and $::env(GND_NETS)."
+		}
 	}
-	
+
 	# generate multiple power grids per pair of (VDD,GND)
 	# offseted by WIDTH + SPACING
 	foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
@@ -321,18 +321,18 @@ proc run_power_grid_generation {args} {
 				set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
 				foreach {instance_name hooks} $macro_hooks {
 					set power [lindex $hooks 0]
-					set ground [lindex $hooks 1]			 
+					set ground [lindex $hooks 1]
 					if { $power == $::env(VDD_NET) && $ground == $::env(GND_NET) } {
 						set ::env(FP_PDN_ENABLE_MACROS_GRID) 1
 						puts_info "Connecting $instance_name to $power and $ground nets."
 						lappend ::env(FP_PDN_MACROS) $instance_name
 					}
 				}
-			} 
+			}
 		} else {
 			puts_warn "All internal macros will not be connected to power."
 		}
-		
+
 		gen_pdn
 
 		set ::env(FP_PDN_ENABLE_RAILS) 0
@@ -342,11 +342,12 @@ proc run_power_grid_generation {args} {
 		catch {set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]}
 		catch {set ::env(FP_PDN_HOFFSET) [expr $::env(FP_PDN_HOFFSET)+$::env(FP_PDN_HWIDTH)+$::env(FP_PDN_HSPACING)]}
 
-		catch {set ::env(FP_PDN_CORE_RING_VOFFSET) \
+		catch {set ::env(FP_PDN_CORE_RING_VOFFSET)\
 			[expr $::env(FP_PDN_CORE_RING_VOFFSET)\
 			+2*($::env(FP_PDN_CORE_RING_VWIDTH)\
 			+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
-		catch {set ::env(FP_PDN_CORE_RING_HOFFSET) [expr $::env(FP_PDN_CORE_RING_HOFFSET)\
+		catch {set ::env(FP_PDN_CORE_RING_HOFFSET) \
+			[expr $::env(FP_PDN_CORE_RING_HOFFSET)\
 			+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
 			max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
 	}
@@ -354,47 +355,47 @@ proc run_power_grid_generation {args} {
 }
 
 proc run_floorplan {args} {
-		puts_info "Running Floorplanning..."
-		# |----------------------------------------------------|
-		# |----------------   2. FLOORPLAN   ------------------|
-		# |----------------------------------------------------|
-		#
-		# intial fp
-		init_floorplan
+	puts_info "Running Floorplanning..."
+	# |----------------------------------------------------|
+	# |----------------   2. FLOORPLAN   ------------------|
+	# |----------------------------------------------------|
+	#
+	# intial fp
+	init_floorplan
 
 
-		# place io
-		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
-				place_io_ol
+	# place io
+	if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
+		place_io_ol
+	} else {
+		if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
+			place_io
+			global_placement_or
+			place_contextualized_io \
+				-lef $::env(FP_CONTEXT_LEF) \
+				-def $::env(FP_CONTEXT_DEF)
 		} else {
-			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
-				place_io
-				global_placement_or
-				place_contextualized_io \
-					-lef $::env(FP_CONTEXT_LEF) \
-					-def $::env(FP_CONTEXT_DEF)
-			} else {
-				place_io
-			}
+			place_io
 		}
+	}
 
-		apply_def_template
+	apply_def_template
 
-		if { [info exist ::env(EXTRA_LEFS)] } {
-			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
-				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
-				manual_macro_placement f
-			} else {
-				global_placement_or
-				basic_macro_placement
-			}
+	if { [info exist ::env(EXTRA_LEFS)] } {
+		if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
+			file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
+			manual_macro_placement f
+		} else {
+			global_placement_or
+			basic_macro_placement
 		}
-		
-		tap_decap_or
+	}
 
-		scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
+	tap_decap_or
 
-		run_power_grid_generation
+	scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
+
+	run_power_grid_generation
 }
 
 package provide openlane 0.9

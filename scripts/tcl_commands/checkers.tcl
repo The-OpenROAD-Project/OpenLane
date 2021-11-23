@@ -39,7 +39,7 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_timing_violations {args} {
-    set hold_report $::env(FINAL_TIMING_REPORT_TAG).min.rpt 
+    set hold_report $::env(FINAL_TIMING_REPORT_TAG).min.rpt
     set setup_report $::env(FINAL_TIMING_REPORT_TAG).max.rpt
     set slew_report $::env(FINAL_TIMING_REPORT_TAG).slew.rpt
 
@@ -51,7 +51,7 @@ proc check_timing_violations {args} {
         }
     }
 
-    check_slew_violations -report_file $slew_report -corner "typical" 
+    check_slew_violations -report_file $slew_report -corner "typical"
     if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
         check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_VIOLATIONS)
         check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $::env(QUIT_ON_SETUP_VIOLATIONS)
@@ -137,7 +137,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/floorplan.log]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/initial_fp.log]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -225,7 +225,7 @@ proc quit_on_magic_drc {args} {
         set options {
             {-log required}
         }
-		parse_key_args "quit_on_magic_drc" args arg_values $options
+        parse_key_args "quit_on_magic_drc" args arg_values $options
 
         set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $arg_values(-log) ]
 
@@ -242,9 +242,9 @@ proc quit_on_magic_drc {args} {
 proc quit_on_lvs_error {args} {
     if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
         set options {
-				{-log required}
-			}
-		parse_key_args "quit_on_lvs_error" args arg_values $options
+            {-log required}
+        }
+        parse_key_args "quit_on_lvs_error" args arg_values $options
         set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
