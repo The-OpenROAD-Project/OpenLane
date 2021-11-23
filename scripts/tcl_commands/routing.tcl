@@ -374,32 +374,34 @@ proc run_routing {args} {
     puts_info "Current at ECO iteration: $::env(ECO_ITER)"
 
     # ---------- SKIP ----------
-    run_resizer_timing_routing
-    
-    if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-            ins_diode_cells_1
+    if {$::env(ECO_ITER) == 0} {
+        run_resizer_timing_routing
+        
+        if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+            if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
+                ins_diode_cells_1
+            }
+            if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+                ins_diode_cells_4
+            }
         }
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-            ins_diode_cells_4
+
+        # if diode insertion does *not* happen as part of global routing, then
+        # we can insert fill cells early on
+        if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+            ins_fill_cells
+        }
+
+        use_original_lefs
+
+        add_route_obs
+
+        #legalize if not yet legalized
+        if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+            detailed_placement_or
         }
     }
-
-    # if diode insertion does *not* happen as part of global routing, then
-    # we can insert fill cells early on
-    if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
-        ins_fill_cells
-    }
-
     # ---------- SKIP ---------- END
-    use_original_lefs
-
-    add_route_obs
-
-    #legalize if not yet legalized
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-        detailed_placement_or
-    }
     
     global_routing
 

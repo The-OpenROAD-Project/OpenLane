@@ -248,8 +248,6 @@ proc run_non_interactive_mode {args} {
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
-    set ::env(ECO_FINISH) 0
-    set ::env(ECO_ITER) 0
 	
     prep {*}$args
     # signal trap SIGINT save_state;
@@ -258,38 +256,47 @@ proc run_non_interactive_mode {args} {
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
     
-    set steps [dict create "synthesis" {run_synthesis "" } \
-                "floorplan" {run_floorplan ""} \
-                "placement" {run_placement_step ""} \
-                "cts" {run_cts_step ""} \
-                "routing" {run_routing_step ""} \
-                "eco" {run_eco_step ""} \
-                "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                "power_pins_insertion" {run_power_pins_insertion_step ""} \
-                "gds_magic" {run_magic ""} \
-                "gds_drc_klayout" {run_klayout ""} \
-                "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                "lvs" "run_lvs_step $LVS_ENABLED" \
-                "drc" "run_drc_step $DRC_ENABLED" \
-                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                "cvc" {run_lef_cvc}
-        ]
+	if {  ![info exists ::env(ECO_ENABLE) ] } {
+        set ::env(ECO_ENABLE) 1
+        set ::env(ECO_FINISH) 0
+        set ::env(ECO_ITER) 0
+    } 
 
-    # set steps [dict create "synthesis" {run_synthesis "" } \
-    #             "floorplan" {run_floorplan ""} \
-    #             "placement" {run_placement_step ""} \
-    #             "cts" {run_cts_step ""} \
-    #             "routing" {run_routing_step ""} \
-    #             "diode_insertion" {run_diode_insertion_2_5_step ""} \
-    #             "power_pins_insertion" {run_power_pins_insertion_step ""} \
-    #             "gds_magic" {run_magic ""} \
-    #             "gds_drc_klayout" {run_klayout ""} \
-    #             "gds_xor_klayout" {run_klayout_gds_xor ""} \
-    #             "lvs" "run_lvs_step $LVS_ENABLED" \
-    #             "drc" "run_drc_step $DRC_ENABLED" \
-    #             "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-    #             "cvc" {run_lef_cvc}
-    #     ]
+    if {$::env(ECO_ENABLE) == 1} {
+        set steps [dict create "synthesis" {run_synthesis "" } \
+                    "floorplan" {run_floorplan ""} \
+                    "placement" {run_placement_step ""} \
+                    "cts" {run_cts_step ""} \
+                    "routing" {run_routing_step ""} \
+                    "eco" {run_eco_step ""} \
+                    "diode_insertion" {run_diode_insertion_2_5_step ""} \
+                    "power_pins_insertion" {run_power_pins_insertion_step ""} \
+                    "gds_magic" {run_magic ""} \
+                    "gds_drc_klayout" {run_klayout ""} \
+                    "gds_xor_klayout" {run_klayout_gds_xor ""} \
+                    "lvs" "run_lvs_step $LVS_ENABLED" \
+                    "drc" "run_drc_step $DRC_ENABLED" \
+                    "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+                    "cvc" {run_lef_cvc}
+            ]
+    } else {
+        set steps [dict create "synthesis" {run_synthesis "" } \
+                    "floorplan" {run_floorplan ""} \
+                    "placement" {run_placement_step ""} \
+                    "cts" {run_cts_step ""} \
+                    "routing" {run_routing_step ""} \
+                    "diode_insertion" {run_diode_insertion_2_5_step ""} \
+                    "power_pins_insertion" {run_power_pins_insertion_step ""} \
+                    "gds_magic" {run_magic ""} \
+                    "gds_drc_klayout" {run_klayout ""} \
+                    "gds_xor_klayout" {run_klayout_gds_xor ""} \
+                    "lvs" "run_lvs_step $LVS_ENABLED" \
+                    "drc" "run_drc_step $DRC_ENABLED" \
+                    "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+                    "cvc" {run_lef_cvc}
+            ]
+    }
+
 
     set_if_unset arg_values(-to) "cvc";
 
