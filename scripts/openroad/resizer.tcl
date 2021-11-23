@@ -61,7 +61,7 @@ if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WI
                   -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 }
 
-if { $::env(PL_RESZIER_REPIAR_TIE_FANOUT) == 1} {
+if { $::env(PL_RESIZER_REPAIR_TIE_FANOUT) == 1} {
     # repair tie lo fanout
     repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIELO_PORT) 0]/[lindex $::env(SYNTH_TIELO_PORT) 1]
     # repair tie hi fanout
