@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if { [info exists ::env(CONTEXTUAL_IO_FLAG_)] } {
-	read_lef $::env(TMP_DIR)/top_level.lef
+if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
+	read_lef $::env(placement_tmpfiles)/top_level.lef
 	#ppl::set_num_slots 2
 }
 
@@ -40,8 +40,8 @@ if { $::env(FP_IO_MODE) == 1 } {
     set opts "-random"
 }
 
-set HMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL)-1}]]
-set VMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL)-1}]]
+set HMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+set VMETAL [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
 place_pins $opts\
 	-min_distance $::env(FP_IO_MIN_DISTANCE)\
 	-random_seed 42 \

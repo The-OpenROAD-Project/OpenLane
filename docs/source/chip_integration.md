@@ -46,7 +46,7 @@ You can follow the same instructions provided [here][8] for the rest of the hard
 
 In case you want to manually place the macros in specific locations, [this][9] should provide a good example on how to do it. This is done by creating a configuration file containing an endline separated list of `instance_name X_pos Y_pos Orientation` and pointing to it with this configuartion: `::env(MACRO_PLACEMENT_CFG)`.
 
-[Here][0] you can find a list of all the available OpenLANE configuartions.
+[Here][0] you can find a list of all the available OpenLane configuartions.
 
 Check this [section](#power-routing) for more details on power routing setup.
 
@@ -119,12 +119,12 @@ When you use the `power_routing` command in the chip interactive script, the pow
 
 [This][2] includes more guidance on how to create an interactive script.
 
-[This][0] documents all OpenLANE configurations.
+[This][0] documents all OpenLane configurations.
 
-[This][1] has a description for all OpenLANE commands.
+[This][1] has a description for all OpenLane commands.
 
 [0]: ./../../configuration/README.md
-[1]: ./OpenLANE_commands.md
+[1]: ./openlane_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/interactive.tcl

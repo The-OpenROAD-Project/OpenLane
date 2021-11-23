@@ -133,22 +133,15 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
 	return -code ok
 }
 
-
-
 # puts a variable in a log file
 proc set_log {var val filepath log_flag} {
-        set cmd "set ${var} \"${val}\""
-        if { [string first {[} "$val"] != -1 } {
-                set cmd "set ${var} \{${val}\}"
-        } else {
-                set cmd "set ${var} \"${val}\""
-        }
-        uplevel #0 ${cmd}
-        set global_cfg_file [open $filepath a+]
-		if { $log_flag } {
-			puts $global_cfg_file $cmd
-		}
-        close $global_cfg_file
+	set cmd "set ${var} \{${val}\}"
+	uplevel #0 ${cmd}
+	set global_cfg_file [open $filepath a+]
+	if { $log_flag } {
+		puts $global_cfg_file $cmd
+	}
+	close $global_cfg_file
 }
 
 # a minimal try catch block
@@ -181,28 +174,18 @@ proc try_catch {args} {
     }
 }
 
-proc make_array {pseudo_dict prefix} {
-	foreach element $pseudo_dict {
-		set key [lindex $element 0]
-		set value [lindex $element 1]
-		set returned_array($key) ${prefix}${value}
-	}
-	return [array get returned_array]
+proc increment_index {args} {
+	puts_info "Incremented step index to $::env(CURRENT_INDEX)."
+	set ::env(CURRENT_INDEX) [expr 1 + $::env(CURRENT_INDEX)]
 }
 
 proc index_file {args} {
 	set file_full_name [lindex $args 0]
-	set index_increment 1; # Default increment is 1
-	if { [llength $args] == 2} {
-		set index_increment [lindex $args 1]
-	}
-	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
-	if { $index_increment } {
-		puts_info "current step index: $::env(CURRENT_INDEX)"
-	}
+
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
+
 	set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -215,7 +198,7 @@ proc flow_fail {args} {
 		calc_total_runtime -status "flow failed"
 		generate_final_summary_report
         save_state
-		puts_err "Flow Failed."
+		puts_err "Flow failed."
 	}
 }
 
@@ -223,6 +206,7 @@ proc calc_total_runtime {args} {
 	## Calculate Total Runtime
 	if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
 		puts_info "Calculating Runtime From the Start..."
+		set ::env(timer_end) [clock seconds]
 		set options {
 			{-report optional}
 			{-status optional}
@@ -230,22 +214,8 @@ proc calc_total_runtime {args} {
 		parse_key_args "calc_total_runtime" args arg_values $options
 		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
 		set_if_unset arg_values(-status) "flow completed"
-		set timer_end [clock seconds]
-		set timer_start $::env(timer_start)
-		set datetime $::env(datetime)
 
-		set runtime_s [expr {($timer_end - $timer_start)}]
-		set runtime_h [expr {$runtime_s/3600}]
-
-		set runtime_s [expr {$runtime_s-$runtime_h*3600}]
-		set runtime_m [expr {$runtime_s/60}]
-
-		set runtime_s [expr {$runtime_s-$runtime_m*60}]
-		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-		puts_info $total_time
-		set runtime_log [open $arg_values(-report) w]
-		puts $runtime_log $total_time
-		close $runtime_log
+		exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
 	}
 }
 
@@ -271,32 +241,32 @@ proc color_text {color txt} {
 proc puts_err {txt} {
   set message "\[ERROR\]: $txt"
   puts "[color_text 1 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_success {txt} {
   set message "\[SUCCESS\]: $txt"
   puts "[color_text 2 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_warn {txt} {
   set message "\[WARNING\]: $txt"
   puts "[color_text 3 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_info {txt} {
   set message "\[INFO\]: $txt"
   puts "[color_text 6 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
@@ -320,7 +290,6 @@ proc generate_final_summary_report {args} {
 			--tag $::env(RUN_TAG) \
 			--output_file $arg_values(-output) \
 			--man_report $arg_values(-man_report) \
-			--runtime_summary $arg_values(-runtime_summary) \
 			--run_path $::env(RUN_DIR)
 
         puts_info [read [open $arg_values(-man_report) r]]

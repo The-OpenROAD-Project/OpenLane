@@ -119,12 +119,13 @@ These variables are optional that can be specified in the design configuration f
 | `PL_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
-| `LIB_RESIZER_OPT` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: `$::env(TMP_DIR)/resizer_<library-name>.lib` |
+| `LIB_RESIZER_OPT` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
 | `DONT_USE_CELLS` | The list of cells to not use during resizer optimizations. <br> Default: the contents of `DRC_EXCLUDE_CELL_LIST`. |
 | `PL_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global placement using OpenROAD's estimate_parasitics -placement and generates reports under `logs/placement`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_RESIZER_BUFFER_INPUT_PORTS` | Specifies whether or not to insert buffers on input ports whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_RESIZER_BUFFER_OUTPUT_PORTS` | Specifies whether or not to insert buffers on output ports whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `PL_RESZIER_REPIAR_TIE_FANOUT` | Specifies whether or not to repair tie cells fanout whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_MAX_DISPLACEMENT_X` | Specifies how far an instance can be moved along the X-axis when finding a site where it can be placed during detailed placement. <br> (Default: `500`um) |
 | `PL_MAX_DISPLACEMENT_Y` | Specifies how far an instance can be moved along the Y-axis when finding a site where it can be placed during detailed placement. <br> (Default: `100`um) |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros. |
@@ -148,7 +149,7 @@ These variables are optional that can be specified in the design configuration f
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
 | `CTS_REPORT_TIMING` | Specifies whether or not to run STA after clock tree synthesis using OpenROAD's estimate_parasitics -placement and generates reports under `logs/cts`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
-| `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(TMP_DIR)/cts.lib`) |
+| `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
 
 ### Routing
 

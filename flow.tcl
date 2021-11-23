@@ -22,9 +22,6 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
-    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
-    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
-    # set_def $pdndef
     if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
         set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -35,7 +32,6 @@ proc run_placement_step {args} {
 }
 
 proc run_cts_step {args} {
-    # set_def $::env(opendp_result_file_tag).def
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -47,9 +43,6 @@ proc run_cts_step {args} {
 }
 
 proc run_routing_step {args} {
-    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
-    # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
-    # set_def $resizerdef
     if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
         set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -59,7 +52,6 @@ proc run_routing_step {args} {
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -73,7 +65,6 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_power_pins_insertion_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
         set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -81,13 +72,12 @@ proc run_power_pins_insertion_step {args} {
     }
     if { $::env(LVS_INSERT_POWER_PINS) } {
 		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
+		set_netlist $::env(routing_results)/$::env(DESIGN_NAME).powered.v
     }
 
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -145,21 +135,22 @@ proc run_non_interactive_mode {args} {
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
-    set steps [dict create "synthesis" {run_synthesis "" } \
-                "floorplan" {run_floorplan ""} \
-                "placement" {run_placement_step ""} \
-                "cts" {run_cts_step ""} \
-                "routing" {run_routing_step ""}\
-                "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                "power_pins_insertion" {run_power_pins_insertion_step ""} \
-                "gds_magic" {run_magic ""} \
-                "gds_drc_klayout" {run_klayout ""} \
-                "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                "lvs" "run_lvs_step $LVS_ENABLED" \
-                "drc" "run_drc_step $DRC_ENABLED" \
-                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                "cvc" {run_lef_cvc}
-        ]
+    set steps [dict create \
+		"synthesis" {run_synthesis "" } \
+		"floorplan" {run_floorplan ""} \
+		"placement" {run_placement_step ""} \
+		"cts" {run_cts_step ""} \
+		"routing" {run_routing_step ""}\
+		"diode_insertion" {run_diode_insertion_2_5_step ""} \
+		"power_pins_insertion" {run_power_pins_insertion_step ""} \
+		"gds_magic" {run_magic ""} \
+		"gds_drc_klayout" {run_klayout ""} \
+		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"lvs" "run_lvs_step $LVS_ENABLED" \
+		"drc" "run_drc_step $DRC_ENABLED" \
+		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+		"cvc" {run_lef_cvc}
+    ]
 
     set_if_unset arg_values(-to) "cvc";
 
@@ -199,18 +190,17 @@ proc run_non_interactive_mode {args} {
 		if { ! [info exists arg_values(-save_path)] } {
 			set arg_values(-save_path) ""
 		}
-		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+		save_views \
 			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_result_file_tag).gds \
-			-mag_path $::env(magic_result_file_tag).mag \
-			-maglef_path $::env(magic_result_file_tag).lef.mag \
-			-spice_path $::env(magic_result_file_tag).spice \
+			-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
+			-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
+			-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
+			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
+			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)
 	}
-
-
 
 	calc_total_runtime
 	save_state
@@ -218,7 +208,7 @@ proc run_non_interactive_mode {args} {
 	
 	check_timing_violations
 
-	puts_success "Flow Completed Without Fatal Errors."
+	puts_success "Flow complete."
 }
 
 proc run_interactive_mode {args} {
@@ -288,7 +278,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
@@ -303,14 +293,14 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
 	} else {
 		run_magic_spice_export
 	}
 
-	run_lvs; # requires run_magic_spice_export
+	run_lvs
 }
 
 

@@ -162,17 +162,20 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "clock_skew_end"
 }
 
-puts "power_report"
-puts "\n==========================================================================="
-puts " report_power"
-puts "============================================================================"
-puts "\n\n======================= Slowest Corner =================================\n"
-report_power -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_power -corner tt
-puts "\n\n======================= Fastest Corner =================================\n"
-report_power -corner ff
-puts "power_report_end"
+# this sometimes segfaults on corner cases 
+if { $::env(STA_REPORT_POWER) == 1 } {
+    puts "power_report"
+    puts "\n==========================================================================="
+    puts " report_power"
+    puts "============================================================================"
+    puts "\n\n======================= Slowest Corner =================================\n"
+    report_power -corner ss
+    puts "\n======================= Typical Corner ===================================\n"
+    report_power -corner tt
+    puts "\n\n======================= Fastest Corner =================================\n"
+    report_power -corner ff
+    puts "power_report_end"
+}
 
 
 puts "area_report"

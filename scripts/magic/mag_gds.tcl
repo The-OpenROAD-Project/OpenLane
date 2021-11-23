@@ -65,7 +65,7 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 
 select top cell
 
-cellname filepath $::env(DESIGN_NAME) $::env(RESULTS_DIR)/magic
+cellname filepath $::env(DESIGN_NAME) $::env(finishing_results)
 
 save
 
@@ -94,7 +94,7 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 
 	gds nodatestamp yes
 
-	gds write $::env(magic_result_file_tag).gds
+	gds write $::env(finishing_results)/$::env(DESIGN_NAME).gds
 	puts "\[INFO\]: GDS Write Complete"
 }
 

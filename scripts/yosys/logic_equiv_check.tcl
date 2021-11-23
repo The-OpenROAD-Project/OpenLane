@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+yosys -import
 
 if { [info exists ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
 	set well_tap_cell "$::env(FP_WELLTAP_CELL)"
@@ -18,7 +19,6 @@ if { [info exists ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
 set decap_cell_wildcard "$::env(DECAP_CELL)*"
 set fill_cell_wildcard "$::env(FILL_CELL)*"
 
-yosys -import
 set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
 

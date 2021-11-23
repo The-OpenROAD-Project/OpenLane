@@ -44,6 +44,11 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
+OPEN_PDK_ARGS ?= ""
+ifeq ($(INSTALL_SRAM), enabled) 
+OPEN_PDK_ARGS ?= --enable-sram-sky130
+endif 
+
 ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
 ifneq ($(OPENLANE_TAG),)
@@ -136,7 +141,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM)"
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
@@ -153,7 +158,7 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \

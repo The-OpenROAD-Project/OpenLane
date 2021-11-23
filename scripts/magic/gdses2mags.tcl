@@ -29,14 +29,14 @@ if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 		select top cell
 		set design_name [cellname list self]
 
-		cellname filepath $design_name $::env(RESULTS_DIR)/magic
+		cellname filepath $design_name $::env(finishing_results)
 
 		save
 
 		# maglefs reserve the original names
-		file rename $::env(RESULTS_DIR)/magic/$design_name.mag $::env(RESULTS_DIR)/magic/$design_name.full.mag
+		file rename $::env(finishing_results)/$design_name.mag $::env(finishing_results)/$design_name.full.mag
 
-		puts "\[INFO]: Saved mag view from $gds_file under $::env(RESULTS_DIR)/magic"
+		puts "\[INFO]: Saved mag view from $gds_file under $::env(finishing_results)"
 	}
 }
 

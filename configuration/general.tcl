@@ -69,6 +69,7 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
+set ::env(STA_REPORT_POWER) 1
 # psn
 if { [file exists /build/transforms/] } {
 	set ::env(PSN_TRANSFORM_PATH) /build/transforms

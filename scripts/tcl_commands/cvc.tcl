@@ -21,6 +21,7 @@ proc run_lef_cvc {args} {
             puts_info "Your design uses the advanced power settings, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
         } else {
             if {$::env(RUN_CVC) == 1 && [file exist $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK)]} {
+		    increment_index
             puts_info "Running CVC"
             TIMER::timer_start
             set cvc_power_awk "\
@@ -65,7 +66,7 @@ BEGIN {  # Print power and standard_input definitions
         
         # merge cdl views of the optimization library and the base library if they are different
         if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY)} {
-            set lib_cdl $::env(TMP_DIR)/cvc/merged.cdl
+            set lib_cdl $::env(qor_tempfiles)/merged.cdl
             file copy -force $::env(STD_CELL_LIBRARY_CDL) $lib_cdl
             set out [open $lib_cdl a]
             set in [open $::env(STD_CELL_LIBRARY_OPT_CDL)]
@@ -76,14 +77,14 @@ BEGIN {  # Print power and standard_input definitions
             set lib_cdl $::env(STD_CELL_LIBRARY_CDL)
         }
             # Create power file
-            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(cvc_result_file_tag).power
+            try_catch awk $cvc_power_awk $::env(CURRENT_NETLIST) > $::env(finishing_tmpfiles)/$::env(DESIGN_NAME).power
             # Create cdl file by combining cdl library with lef spice
-	    try_catch awk $cvc_cdl_awk $lib_cdl $::env(magic_result_file_tag).lef.spice \
-                > $::env(cvc_result_file_tag).cdl
+	        try_catch awk $cvc_cdl_awk $lib_cdl $::env(finishing_results)/$::env(DESIGN_NAME).lef.spice \
+                > $::env(finishing_tmpfiles)/$::env(DESIGN_NAME).cdl
             try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
-                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cvc_log_file_tag)_screen.log]
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/erc_screen.log]
             TIMER::timer_stop
-		    exec echo "[TIMER::get_runtime]" >> [index_file $::env(cvc_log_file_tag)_runtime.txt 0]
+		    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc"
             } else {
                 puts_info "Skipping CVC"
             }

@@ -14,13 +14,13 @@
 
 drc off
 
-lef read $::env(magic_result_file_tag).lef
+lef read $::env(finishing_results)/$::env(DESIGN_NAME).lef
 
 load $::env(DESIGN_NAME)
 
 cellname rename $::env(DESIGN_NAME) $::env(DESIGN_NAME).lef
 
-cellname filepath $::env(DESIGN_NAME).lef $::env(RESULTS_DIR)/magic
+cellname filepath $::env(DESIGN_NAME).lef $::env(finishing_results)
 save
 
 puts "\[INFO\]: DONE GENERATING MAGLEF VIEW"

@@ -343,20 +343,21 @@ def run_design(designs_queue):
 
         if args.benchmark is not None:
             try:
-
                 log.info(
                     "{design} {tag} Comparing with benchmark results...".format(
                         design=design, tag=tag
                     )
                 )
-                design_benchmark_comp_cmd = "python3 scripts/compare_regression_design.py -b {benchmark} -r {this_run} -o {output_report} -d {design} -rp {run_path}".format(
-                    benchmark=args.benchmark,
-                    this_run=report_file_name + ".csv",
-                    output_report=report_file_name + "_design_test_report.csv",
-                    design=design,
-                    run_path=run_path,
-                )
-                subprocess.check_output(design_benchmark_comp_cmd.split(), stderr=subprocess.PIPE)
+                
+                subprocess.check_output([
+                    "python3",
+                    "./scripts/compare_regression_design.py",
+                    "-b", args.benchmark,
+                    "-r", f"{report_file_name}.csv",
+                    "-o", f"{report_file_name}_design_test_report.csv",
+                    "-d", design,
+                    "-p", run_path
+                ], stderr=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
                 error_msg = e.stderr.decode(sys.getfilesystemencoding())
                 log.error(

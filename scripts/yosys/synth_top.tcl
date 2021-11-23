@@ -11,11 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+yosys -import
 
 set vtop $::env(DESIGN_NAME)
-#set sdc_file $::env(SDC_FILE)
 set sclib $::env(LIB_SYNTH)
-yosys -import
+#set sdc_file $::env(SDC_FILE)
 
 set stat_ext    ".stat.rpt"
 set chk_ext    ".chk.rpt"
@@ -62,7 +62,7 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 select -module $vtop
-show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop
@@ -72,13 +72,13 @@ if { $::env(SYNTH_FLAT_TOP) } {
 
 setattr -set keep 1
 #synth -top $vtop
-tee -o "$::env(yosys_report_file_tag)_synth.stat" stat
+tee -o "$::env(synth_report_prefix).stat" stat
 
 
 #debug opt_clean -purge
 #setundef -zero
 splitnets
 opt_clean -purge
-tee -o "$::env(yosys_report_file_tag)_$chk_ext" check
-tee -o "$::env(yosys_report_file_tag)$stat_ext" stat -top $vtop -liberty $sclib
+tee -o "$::env(synth_report_prefix)$chk_ext" check
+tee -o "$::env(synth_report_prefix)$stat_ext" stat -top $vtop -liberty $sclib
 write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
