@@ -14,15 +14,17 @@
 
 import os
 import sys
+import yaml
 from typing import Iterable, Optional
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utils.utils import *
 from .get_file_name import get_name
+from utils.utils import *
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
-        print(*args, **kwargs)
+        print(*args, **kwargs, file=sys.stderr)
+
 
 def parse_to_report(input_log: str, output_report: str, start: str, end: Optional[str] = None):
     """
@@ -50,6 +52,7 @@ def parse_to_report(input_log: str, output_report: str, start: str, end: Optiona
         if not started:
             f.write("SKIPPED!")
 
+
 class Artifact(object):
     def __init__(self, run_path: str, kind: str, step: str, filename: str, find_by_partial_match: bool = False):
         self.run_path = run_path
@@ -59,7 +62,8 @@ class Artifact(object):
         self.pathname = os.path.join(self.run_path, self.kind, self.step)
         self.filename = filename
 
-        self.index, self.path = get_name(self.pathname, self.filename, find_by_partial_match)
+        self.index, self.path = get_name(
+            self.pathname, self.filename, find_by_partial_match)
 
         if self.is_valid():
             debug(f"Resolved {kind}, {step}, {filename} to {self.path}")
@@ -76,10 +80,12 @@ class Artifact(object):
         return open(self.path).read()
 
     def is_logtoreport_valid(self) -> bool:
-        return self.is_valid() and os.path.getsize(self.path) > 10 # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
+        # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
+        return self.is_valid() and os.path.getsize(self.path) > 10
 
     def log_to_report(self, report_name: str, start: str, end: Optional[str] = None):
-        report_path = os.path.join(self.run_path, "reports", self.step, report_name)
+        report_path = os.path.join(
+            self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
             with open(report_path, "w") as f:
                 f.write(f"{self.step}:{self.filename} not found or empty.")
@@ -105,7 +111,7 @@ class Report(object):
         self.tag = tag
         self.current_directory = os.path.dirname(__file__)
         if run_path is None:
-            run_path=get_run_path(design=design_path, tag=tag)
+            run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params
         self.raw_report = None
@@ -119,7 +125,7 @@ class Report(object):
         'total_runtime',
         'routed_runtime',
         'DIEAREA_mm^2',
-        'CellPer_mm^2' ,
+        'CellPer_mm^2',
         'OpenDP_Util',
         'Peak_Memory_Usage_MB',
         'cell_count',
@@ -144,7 +150,7 @@ class Report(object):
         'tns',
         'pl_tns',
         'optimized_tns',
-        'fastroute_tns' ,
+        'fastroute_tns',
         'spef_tns',
         'HPWL',
         'routing_layer1_pct',
@@ -177,7 +183,7 @@ class Report(object):
         'Diodes',
         'Total_Physical_Cells'
     ]
-    
+
     @classmethod
     def get_header(Self):
         header = ','.join(Self.values)
@@ -197,108 +203,111 @@ class Report(object):
             ("cts_sta.clock_skew.rpt", "clock_skew")
         )
 
-        routing_log = Artifact(rp, "logs", "routing", "fastroute.log")
+        routing_log = Artifact(rp, "logs", "routing", "global.log")
         routing_log.generate_reports(
-            ("fastroute_sta.rpt", "check_report"),
-            ("fastroute_sta.clock_skew.rpt", "clock_skew"),
-            ("fastroute_sta.min.rpt", "min_report"),
-            ("fastroute_sta.max.rpt", "max_report"),
-            ("fastroute_sta.wns.rpt", "wns_report"),
-            ("fastroute_sta.tns.rpt", "tns_report")
+            ("groute_sta.rpt", "check_report"),
+            ("groute_sta.clock_skew.rpt", "clock_skew"),
+            ("groute_sta.min.rpt", "min_report"),
+            ("groute_sta.max.rpt", "max_report"),
+            ("groute_sta.wns.rpt", "wns_report"),
+            ("groute_sta.tns.rpt", "tns_report")
         )
-        
-        placement_log = Artifact(rp, "logs", "placement", "replace.log")
+
+        placement_log = Artifact(rp, "logs", "placement", "global.log")
         placement_log.generate_reports(
-            ("replace_sta.rpt", "check_report"),
-            ("replace_sta.clock_skew.rpt", "clock_skew"),
-            ("replace_sta.min.rpt", "min_report"),
-            ("replace_sta.max.rpt", "max_report"),
-            ("replace_sta.wns.rpt", "wns_report"),
-            ("replace_sta.tns.rpt", "tns_report")
+            ("global_sta.rpt", "check_report"),
+            ("global_sta.clock_skew.rpt", "clock_skew"),
+            ("global_sta.min.rpt", "min_report"),
+            ("global_sta.max.rpt", "max_report"),
+            ("global_sta.wns.rpt", "wns_report"),
+            ("global_sta.tns.rpt", "tns_report")
         )
 
-        sta_log = Artifact(rp, "logs", "synthesis", "opensta")
+        sta_log = Artifact(rp, "logs", "synthesis", "sta.log")
         sta_log.generate_reports(
-            ("opensta.rpt", "check_report"),
-            ("opensta.min.rpt", "min_report"),
-            ("opensta.max.rpt", "max_report"),
-            ("opensta_wns.rpt", "wns_report"),
-            ("opensta_tns.rpt", "tns_report"),
-            ("opensta.slew.rpt", "check_slew"),
-            ("opensta.worst_slack.rpt", "worst_slack"),
-            ("opensta.clock_skew.rpt", "clock_skew"),
-            ("opensta.power.rpt", "power_report"),
-            ("opensta.area.rpt", "design_area")
+            ("synthesis_sta.rpt", "check_report"),
+            ("synthesis_sta.min.rpt", "min_report"),
+            ("synthesis_sta.max.rpt", "max_report"),
+            ("synthesis_sta.wns.rpt", "wns_report"),
+            ("synthesis_sta.tns.rpt", "tns_report"),
+            ("synthesis_sta.slew.rpt", "check_slew"),
+            ("synthesis_sta.worst_slack.rpt", "worst_slack"),
+            ("synthesis_sta.clock_skew.rpt", "clock_skew"),
+            ("synthesis_sta.power.rpt", "power_report"),
+            ("synthesis_sta.area.rpt", "design_area")
         )
 
-        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer_design_optimization.log")
+        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer.log")
         sta_post_resizer_log.generate_reports(
-            ("resizer_design_optimization_sta.rpt", "check_report"),
-            ("resizer_design_optimization_sta.min.rpt", "min_report"),
-            ("resizer_design_optimization_sta.max.rpt", "max_report"),
-            ("resizer_design_optimization_sta.wns.rpt", "wns_report"),
-            ("resizer_design_optimization_sta.tns.rpt", "tns_report"),
-            ("resizer_design_optimization_sta.slew.rpt", "check_slew"),
-            ("resizer_design_optimization_sta.worst_slack.rpt", "worst_slack"),
-            ("resizer_design_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_design_optimization_sta.power.rpt", "power_report"),
-            ("resizer_design_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.min.rpt", "min_report"),
+            ("resizer_sta.max.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "resizer_timing_optimization.log")
+        sta_post_resizer_timing_log = Artifact(
+            rp, "logs", "cts", "resizer.log")
         sta_post_resizer_timing_log.generate_reports(
-            ("resizer_timing_optimization_sta.rpt", "check_report"),
-            ("resizer_timing_optimization_sta.max.rpt", "min_report"),
-            ("resizer_timing_optimization_sta.min.rpt", "max_report"),
-            ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
-            ("resizer_timing_optimization_sta.tns.rpt", "tns_report"),
-            ("resizer_timing_optimization_sta.slew.rpt", "check_slew"),
-            ("resizer_timing_optimization_sta.worst_slack.rpt", "worst_slack"),
-            ("resizer_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_timing_optimization_sta.power.rpt", "power_report"),
-            ("resizer_timing_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.max.rpt", "min_report"),
+            ("resizer_sta.min.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer_timing_optimization.log")
+        sta_post_resizer_routing_timing_log = Artifact(
+            rp, "logs", "routing", "resizer.log")
         sta_post_resizer_routing_timing_log.generate_reports(
-            ("resizer_timing_optimization_sta.rpt", "check_report"),
-            ("resizer_timing_optimization_sta.min.rpt", "min_report"),
-            ("resizer_timing_optimization_sta.max.rpt", "max_report"),
-            ("resizer_timing_optimization_sta.wns.rpt", "wns_report"),
-            ("resizer_timing_optimization_sta.tns.rpt", "tns_report"),
-            ("resizer_timing_optimization_sta.slew.rpt", "check_slew"),
-            ("resizer_timing_optimization_sta.wost_slack.rpt", "worst_slack"),
-            ("resizer_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_timing_optimization_sta.power.rpt", "power_report"),
-            ("resizer_timing_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.min.rpt", "min_report"),
+            ("resizer_sta.max.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.wost_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_spef_log = Artifact(rp, "logs", "routing", "spef_extraction_sta")
+        sta_spef_log = Artifact(rp, "logs", "routing", "parasitics_sta.log")
         sta_spef_log.generate_reports(
-            ("spef_extraction_sta.rpt", "check_report"),
-            ("spef_extraction_sta.min.rpt", "min_report"),
-            ("spef_extraction_sta.max.rpt", "max_report"),
-            ("spef_extraction_sta.wns.rpt", "wns_report"),
-            ("spef_extraction_sta.tns.rpt", "tns_report"),
-            ("spef_extraction_sta.slew.rpt", "check_slew"),
-            ("spef_extraction_sta.worst_slack.rpt", "worst_slack"),
-            ("spef_extraction_sta.clock_skew.rpt", "clock_skew"),
-            ("spef_extraction_sta.power.rpt", "power_report"),
-            ("spef_extraction_sta.area.rpt", "area_report")
+            ("parasitics_sta.rpt", "check_report"),
+            ("parasitics_sta.min.rpt", "min_report"),
+            ("parasitics_sta.max.rpt", "max_report"),
+            ("parasitics_sta.wns.rpt", "wns_report"),
+            ("parasitics_sta.tns.rpt", "tns_report"),
+            ("parasitics_sta.slew.rpt", "check_slew"),
+            ("parasitics_sta.worst_slack.rpt", "worst_slack"),
+            ("parasitics_sta.clock_skew.rpt", "clock_skew"),
+            ("parasitics_sta.power.rpt", "power_report"),
+            ("parasitics_sta.area.rpt", "area_report")
         )
 
-        sta_spef_multi_corner_log = Artifact(rp, "logs", "routing", "spef_extraction_multi_corner_sta")
+        sta_spef_multi_corner_log = Artifact(
+            rp, "logs", "routing", "parasitics_multi_corner_sta.log")
         sta_spef_multi_corner_log.generate_reports(
-            ("spef_extraction_multi_corner_sta.rpt", "check_report"),
-            ("spef_extraction_multi_corner_sta.min.rpt", "min_report"),
-            ("spef_extraction_multi_corner_sta.max.rpt", "max_report"),
-            ("spef_extraction_multi_corner_sta.wns.rpt", "wns_report"),
-            ("spef_extraction_multi_corner_sta.tns.rpt", "tns_report"),
-            ("spef_extraction_multi_corner_sta.slew.rpt", "check_slew"),
-            ("spef_extraction_multi_corner_sta.worst_slack.rpt", "worst_slack"),
-            ("spef_extraction_multi_corner_sta.clock_skew.rpt", "clock_skew"),
-            ("spef_extraction_multi_corner_sta.power.rpt", "power_report"),
-            ("spef_extraction_multi_corner_sta.area.rpt", "area_report")
+            ("parasitics_multi_corner_sta.rpt", "check_report"),
+            ("parasitics_multi_corner_sta.min.rpt", "min_report"),
+            ("parasitics_multi_corner_sta.max.rpt", "max_report"),
+            ("parasitics_multi_corner_sta.wns.rpt", "wns_report"),
+            ("parasitics_multi_corner_sta.tns.rpt", "tns_report"),
+            ("parasitics_multi_corner_sta.slew.rpt", "check_slew"),
+            ("parasitics_multi_corner_sta.worst_slack.rpt", "worst_slack"),
+            ("parasitics_multi_corner_sta.clock_skew.rpt", "clock_skew"),
+            ("parasitics_multi_corner_sta.power.rpt", "power_report"),
+            ("parasitics_multi_corner_sta.area.rpt", "area_report")
         )
 
     def extract_all_values(self):
@@ -312,47 +321,52 @@ class Report(object):
             return matches[-1]
 
         # Runtime
+
         flow_status = "flow_exceptional_failure"
         total_runtime = -1
-        try:
-            total_runtime_content = open(os.path.join(rp, "reports", "total_runtime.txt")).read().strip()
-            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-\.]+)\s+in\s+(\w+)", total_runtime_content)
-            if match is not None:
-                flow_status = re.sub(r" ", "_", match[1])
-                total_runtime = match[4]
-        except Exception as e:
-            print(f"Warning: failed to get extract runtime info for {self.design}/{self.tag}: {e}", file=sys.stderr)
-
         routed_runtime = -1
         try:
-            routed_runtime_content = open(os.path.join(rp, "reports", "routed_runtime.txt")).read().strip()
-            match = re.search(r"([\w ]+?)\s+for\s+(\w+)\/([\w\-]+)\s+in\s+(\w+)", routed_runtime_content)
-            if match is not None:
-                routed_runtime = match[4]
+            runtime_yaml_str = open(os.path.join(rp, "runtime.yaml")).read()
+            yaml_docs = list(yaml.safe_load_all(runtime_yaml_str))
+            if len(yaml_docs) != 2:
+                raise Exception(
+                    "Attempted to generate report on a non-finalized run.")
+
+            routed_info, total_info = yaml_docs[1]
+
+            flow_status = total_info["status"]
+            total_runtime = total_info["runtime_ts"]
+            routed_runtime = routed_info["runtime_ts"]
         except Exception as e:
-            pass
+            print(
+                f"Failed to extract runtime info for {self.design_name}/{self.tag}: {e}", file=sys.stderr)
 
         # Cell Count
         cell_count = -1
-        yosys_report = Artifact(rp, 'reports', "synthesis", ".stat.rpt", True)
+        yosys_report = Artifact(
+            rp, 'reports', "synthesis", "synthesis.stat.rpt", True)
         yosys_report_content = yosys_report.get_content()
         if yosys_report_content is not None:
-            match = re.search(r"Number of cells:\s*(\d+)", yosys_report_content)
+            match = re.search(r"Number of cells:\s*(\d+)",
+                              yosys_report_content)
             if match is not None:
                 cell_count = int(match[1])
 
         # Die Area
         die_area = -1
-        placed_def = Artifact(rp, 'results', "placement", f"{self.design_name}.placement.def")
+        placed_def = Artifact(rp, 'results', "floorplan",
+                              f"{self.design_name}.def")
         def_content = placed_def.get_content()
         if def_content is not None:
-            match = re.search(r"DIEAREA\s*\(\s*(\d+)\s+(\d+)\s*\)\s*\(\s*(\d+)\s+(\d+)\s*\)", def_content)
+            match = re.search(
+                r"DIEAREA\s*\(\s*(\d+)\s+(\d+)\s*\)\s*\(\s*(\d+)\s+(\d+)\s*\)", def_content)
             if match is not None:
-                lx, ly, ux, uy = float(match[1]), float(match[2]), float(match[3]), float(match[4])
-            
+                lx, ly, ux, uy = float(match[1]), float(
+                    match[2]), float(match[3]), float(match[4])
+
                 die_area = ((ux - lx) / 1000) * ((uy - ly) / 1000)
 
-                die_area /= 1000000 # To mm^2
+                die_area /= 1000000  # To mm^2
 
         # Cells per micrometer
         cells_per_mm = - 1
@@ -361,46 +375,51 @@ class Report(object):
 
         # OpenDP Utilization and HPWL
         utilization = -1
-        hpwl = -1 # Half Perimeter Wire Length?
-        replace_log = Artifact(rp, 'logs', "placement", "replace.log")
-        replace_log_content = replace_log.get_content()
-        if replace_log_content is not None:
-            match = re.search(r"Util\(%\):\s*([\d\.]+)", replace_log_content)
+        hpwl = -1  # Half Perimeter Wire Length?
+        global_placement_log = Artifact(rp, 'logs', "placement", "global.log")
+        global_log_content = global_placement_log.get_content()
+        if global_log_content is not None:
+            match = re.search(r"Util\(%\):\s*([\d\.]+)", global_log_content)
 
             if match is not None:
                 utilization = float(match[1])
 
-            match = re_get_last_capture(r"HPWL:\s*([\d\.]+)", replace_log_content)
+            match = re_get_last_capture(
+                r"HPWL:\s*([\d\.]+)", global_log_content)
             if match is not None:
                 hpwl = float(match)
 
         # TritonRoute Logged Info Extraction
-        tr_log = Artifact(rp, 'logs', "routing", "tritonRoute.log")
+        tr_log = Artifact(rp, 'logs', "routing", "detailed.log")
         tr_log_content = tr_log.get_content()
-        
+
         tr_memory_peak = -1
         tr_violations = -1
         wire_length = -1
         vias = -1
         if tr_log_content is not None:
-            match = re_get_last_capture(r"peak\s*=\s*([\d\.]+)", tr_log_content)
+            match = re_get_last_capture(
+                r"peak\s*=\s*([\d\.]+)", tr_log_content)
             if match is not None:
                 tr_memory_peak = float(match)
 
-            match = re_get_last_capture(r"Number of violations\s*=\s*(\d+)", tr_log_content)
+            match = re_get_last_capture(
+                r"Number of violations\s*=\s*(\d+)", tr_log_content)
             if match is not None:
                 tr_violations = int(match)
 
-            match = re_get_last_capture(r"Total wire length = ([\d\.]+)\s*\wm", tr_log_content)
+            match = re_get_last_capture(
+                r"Total wire length = ([\d\.]+)\s*\wm", tr_log_content)
             if match is not None:
                 wire_length = int(match)
 
-            match = re_get_last_capture(r"Total number of vias = (\d+)", tr_log_content)
+            match = re_get_last_capture(
+                r"Total number of vias = (\d+)", tr_log_content)
             if match is not None:
                 vias = int(match)
 
         # TritonRoute DRC Extraction
-        tr_drc = Artifact(rp, 'reports', "routing", "tritonRoute.drc")
+        tr_drc = Artifact(rp, 'reports', "routing", "detailed.drc")
         tr_drc_content = tr_drc.get_content()
 
         other_violations = tr_violations
@@ -426,9 +445,9 @@ class Report(object):
                 if "MinHole" in line:
                     minhole_violations += 1
                     other_violations -= 1
-            
+
         # Magic Violations
-        magic_drc = Artifact(rp, 'reports', "magic", "magic.drc")
+        magic_drc = Artifact(rp, "reports", "finishing", "drc.rpt")
         magic_drc_content = magic_drc.get_content()
 
         magic_violations = -1
@@ -441,9 +460,8 @@ class Report(object):
                 # Not really sure why we do this
                 magic_violations = (magic_violations_raw + 3) // 4
 
-        
         # Klayout DRC Violations
-        klayout_drc = Artifact(rp, 'reports', 'klayout', 'magic.lydrc', True)
+        klayout_drc = Artifact(rp, 'reports', 'finishing', 'magic.lydrc', True)
         klayout_drc_content = klayout_drc.get_content()
 
         klayout_violations = -1
@@ -454,23 +472,26 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, 'reports', "routing", "antenna.rpt")
+        arc_antenna_report = Artifact(
+            rp, "reports", "finishing", "antenna.rpt")
         aar_content = arc_antenna_report.get_content()
-
-        magic_antenna_report = Artifact(rp, 'reports', "magic", "magic.antenna_violators.rpt")
-        mar_content = magic_antenna_report.get_content()
 
         antenna_violations = -1
         if aar_content is not None:
             match = re.search(r"Number of pins violated:\s*(\d+)", aar_content)
-            
+
             if match is not None:
                 antenna_violations = int(match[1])
-        elif mar_content is not None:
+        else:
             # Old Magic-Based Check: Just Count The Lines
-            antenna_violations = len(mar_content.split("\n"))
+            magic_antenna_report = Artifact(
+                rp, 'reports', "routing", "antenna_violators.rpt")
+            mar_content = magic_antenna_report.get_content()
 
-        # OpenSTA Extractions
+            if mar_content is not None:
+                antenna_violations = len(mar_content.split("\n"))
+
+        # STA Report Extractions
         def sta_report_extraction(sta_report_filename: str, filter: str, kind='reports', step="synthesis"):
             value = -1
             report = Artifact(rp, kind, step, sta_report_filename)
@@ -480,22 +501,33 @@ class Report(object):
                 if match is not None:
                     value = float(match[1])
                 else:
-                    debug(f"Didn't find {filter} in {sta_report_filename}")
+                    debug(
+                        f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}")
             else:
                 debug(f"Can't find {sta_report_filename}")
             return value
 
-        wns = sta_report_extraction("opensta_wns.rpt", 'wns')
-        spef_wns = sta_report_extraction("opensta_spef_wns.rpt", 'wns')
-        opt_wns = sta_report_extraction("sta_post_resizer_timing_wns.rpt", 'wns')
-        pl_wns = sta_report_extraction("replace.log", 'wns', kind='logs', step="placement")
-        fr_wns = sta_report_extraction("fastroute.log", 'wns', kind='logs', step="routing")
+        wns = sta_report_extraction(
+            "synthesis_sta.wns.rpt", 'wns', step="synthesis")
+        spef_wns = sta_report_extraction(
+            "parasitics_sta.wns.rpt", 'wns', step="routing")
+        opt_wns = sta_report_extraction(
+            "resizer_sta.wns.rpt", 'wns', step="routing")
+        pl_wns = sta_report_extraction(
+            "global.log", 'wns', kind='logs', step="placement")
+        fr_wns = sta_report_extraction(
+            "global.log", 'wns', kind='logs', step="routing")
 
-        tns = sta_report_extraction("opensta_tns.rpt", 'tns')
-        spef_tns = sta_report_extraction("opensta_spef_tns.rpt", 'tns')
-        opt_tns = sta_report_extraction("sta_post_resizer_timing_tns.rpt", 'tns')
-        pl_tns = sta_report_extraction("replace.log", 'tns', kind='logs', step="placement")
-        fr_tns = sta_report_extraction("fastroute.log", 'tns', kind='logs', step="routing")
+        tns = sta_report_extraction(
+            "synthesis_sta.tns.rpt", 'tns', step="synthesis")
+        spef_tns = sta_report_extraction(
+            "parasitics_sta.tns.rpt", 'tns', step="routing")
+        opt_tns = sta_report_extraction(
+            "resizer_sta.tns.rpt", 'tns', step="routing")
+        pl_tns = sta_report_extraction(
+            "global.log", 'tns', kind='logs', step="placement")
+        fr_tns = sta_report_extraction(
+            "global.log", 'tns', kind='logs', step="routing")
 
         # Yosys Metrics
         yosys_metrics = [
@@ -517,7 +549,7 @@ class Report(object):
             "\$_MUX"
         ]
 
-        yosys_log = Artifact(rp, 'logs', "synthesis", "yosys.log")
+        yosys_log = Artifact(rp, 'logs', "synthesis", "synthesis.log")
         yosys_log_content = yosys_log.get_content()
 
         yosys_metrics_values = []
@@ -526,8 +558,9 @@ class Report(object):
             if yosys_log_content is not None:
                 metric_value = 0
                 metric_name_escaped = re.escape(metric)
-                
-                match = re.search(rf"{metric_name_escaped}\s*(\d+)", yosys_log_content)
+
+                match = re.search(
+                    rf"{metric_name_escaped}\s*(\d+)", yosys_log_content)
 
                 if match is not None:
                     metric_value = int(match[1])
@@ -539,7 +572,8 @@ class Report(object):
         abc_level = -1
 
         if yosys_log_content is not None:
-            match = re.search(r"ABC:\s*netlist\s*:\s*i\/o\s*=\s*(\d+)\/\s*(\d+)\s+lat\s*=\s*(\d+)\s+nd\s*=\s*(\d+)\s*edge\s*=\s*(\d+)\s*area\s*=\s*([\d\.]+)\s+delay\s*=\s*([\d\.]+)\s*lev\s*=\s*(\d+)", yosys_log_content)
+            match = re.search(
+                r"ABC:\s*netlist\s*:\s*i\/o\s*=\s*(\d+)\/\s*(\d+)\s+lat\s*=\s*(\d+)\s+nd\s*=\s*(\d+)\s*edge\s*=\s*(\d+)\s*area\s*=\s*([\d\.]+)\s+delay\s*=\s*([\d\.]+)\s*lev\s*=\s*(\d+)", yosys_log_content)
 
             if match is not None:
                 abc_i = match[1]
@@ -548,13 +582,14 @@ class Report(object):
                 abc_level = match[8]
 
         # Fastroute Layer Usage Percentages
-        routing_log = Artifact(rp, 'logs', 'routing', 'fastroute.log')
+        routing_log = Artifact(rp, 'logs', 'routing', 'global.log')
         routing_log_content = routing_log.get_content()
 
-        layer_usage = [-1] * 6 # 6 layers magic number, much?
+        # MAGIC NUMBER ALERT
+        layer_usage = [-1] * 6
         if routing_log_content is not None:
             routing_log_lines = routing_log_content.split("\n")
-            
+
             final_congestion_report_start_line = None
             for i, line in enumerate(routing_log_lines):
                 if "Final congestion report" in line:
@@ -573,20 +608,23 @@ class Report(object):
                         layer_usage[i] = float(match[1])
 
         # Process Filler Cells
-        tapcell_log = Artifact(rp, 'logs', 'floorplan', "tapcell.log") # Also includes endcap info
+        # Also includes endcap info
+        tapcell_log = Artifact(rp, 'logs', 'floorplan', 'tap.log')
         tapcell_log_content = tapcell_log.get_content()
 
-        diode_log = Artifact(rp, 'logs', 'placement', 'diodes.log')
+        diode_log = Artifact(rp, 'logs', 'routing', 'diodes.log')
         diode_log_content = diode_log.get_content()
 
         tapcells, endcaps, diodes = 0, 0, 0
         if tapcell_log_content is not None:
-            match = re.search(r"Inserted (\d+) end\s*caps\.", tapcell_log_content)
+            match = re.search(r"Inserted (\d+) end\s*caps\.",
+                              tapcell_log_content)
 
             if match is not None:
                 endcaps = int(match[1])
 
-            match = re.search(r"Inserted (\d+) tap\s*cells\.", tapcell_log_content)
+            match = re.search(r"Inserted (\d+) tap\s*cells\.",
+                              tapcell_log_content)
 
             if match is not None:
                 tapcells = int(match[1])
@@ -594,18 +632,21 @@ class Report(object):
         if diode_log_content is not None:
             match = None
             if "inserted!" in diode_log_content:
-                match = re.search(r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
+                match = re.search(
+                    r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
             else:
-                match = re.search(r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
+                match = re.search(
+                    r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
             if match is not None:
                 diodes = int(match[1])
 
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, 'results', "lvs", f"{self.design_name}.lvs_parsed.lef.log")
+        lvs_report = Artifact(rp, "logs", "finishing",
+                              f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
-        
+
         lvs_total_errors = -1
         if lvs_report_content is not None:
             lvs_total_errors = 0
@@ -614,7 +655,7 @@ class Report(object):
                 lvs_total_errors = int(match[1])
 
         # CVC Total Errors
-        cvc_log = Artifact(rp, 'logs', "cvc", "cvc_screen.log")
+        cvc_log = Artifact(rp, "logs", "finishing", "erc_screen.log")
         cvc_log_content = cvc_log.get_content()
 
         cvc_total_errors = -1

@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,14 +39,7 @@ class ConfigHandler:
         'CELL_PAD',
         'DIODE_INSERTION_STRATEGY'
     ]
-
-    base_config_values = [
-        'DESIGN_NAME',
-        'VERILOG_FILES',
-        'CLOCK_PERIOD',
-        'CLOCK_PORT'
-    ]
-
+    
     configuration_files = [
         "synthesis.tcl",
         "floorplan.tcl",
@@ -93,32 +86,18 @@ class ConfigHandler:
     def get_config(Self, design, tag, run_path=None):
         if run_path is None:
             run_path = get_run_path(design=design, tag=tag)
-        config_params = " ".join(Self.configuration_values)
         config_relative_path = "config.tcl"
         config_path = os.path.join(os.getcwd(), run_path, config_relative_path)
-        cmd = "{script} {path} {params}".format(script=Self.config_getter_script, path=config_path, params=config_params)
-        config_coded = subprocess.check_output(cmd.split())
+        config_coded = subprocess.check_output([
+            Self.config_getter_script,
+            config_path,
+            *Self.configuration_values
+        ])
         config = config_coded.decode(sys.getfilesystemencoding()).strip()
         config = config.split("##")
         config = list(filter(None, config))
+        config = [element.strip("{}") for element in config]
         return config
-
-    @classmethod
-    def gen_base_config_legacy(Self, design, base_config_path):
-        config_params = " ".join(Self.base_config_values)
-        config_relative_path = "designs/{design}/config.tcl".format(design=design)
-        config_path = os.path.join(os.getcwd(), config_relative_path)
-        cmd = "{script} {path} {params}".format(script=Self.config_getter_script, path=config_path, params=config_params)
-        config_coded = subprocess.check_output(cmd.split())
-        config = config_coded.decode(sys.getfilesystemencoding()).strip()
-        config = config.split("##")
-        config = list(filter(None, config))
-
-        f = open(base_config_path, 'w')
-        for i in range(len(config)):
-            f.write("set ::env({var}) {val}\n".format(var=Self.base_config_values[i], val=config[i]))
-
-        f.close()
 
     @staticmethod
     def gen_base_config(design, base_config_file):

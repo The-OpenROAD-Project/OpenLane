@@ -128,9 +128,9 @@ def read_env(config_path: str, from_path: str, input_env={}) -> dict:
         if match is None:
             continue
         name = match[1]; value = match[2]
-        # remove double quotes
-        if value.startswith('"') and value.endswith('"'): 
-            value = value[1:-1]
+        # remove double quotes/{}
+        value = value.strip('"')
+        value = value.strip('{}')
         env[name] = value
 
     return env
