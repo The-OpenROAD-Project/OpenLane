@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -75,7 +75,8 @@ proc write_powered_verilog {args} {
       --powered-netlist $arg_values(-powered_netlist) \
       -o $arg_values(-output_def) \
       |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log]
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def)  -log [index_file $::env(routing_logs)/write_verilog.log] -canonical
+    
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $::env(routing_logs)/write_verilog.log -canonical
 }
 
 # "layout": a spice netlist

@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -100,12 +100,12 @@ proc run_cts {args} {
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log [index_file $::env(cts_logs)/write_verilog.log]
+		write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log $::env(cts_logs)/write_verilog.log
 		set_netlist $::env(cts_results)/$::env(DESIGN_NAME).v
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
-		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(cts_logs)/screenshot.log]
+		scrot_klayout -layout $::env(CURRENT_DEF) $::env(cts_logs)/screenshot.log
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
 		increment_index
 		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
@@ -115,5 +115,32 @@ proc run_cts {args} {
 	}
 
 }
+
+proc run_resizer_timing {args} {
+    if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
+        increment_index
+        TIMER::timer_start
+        puts_info "Running Resizer Timing Optimizations..."
+        set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/rsz_timing.def]
+        set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/rsz_timing.sdc]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/resizer.log]
+        set_def $::env(SAVE_DEF)
+        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
+
+        write_verilog $::env(cts_results)/$::env(DESIGN_NAME).resized.v -log $::env(cts_logs)/write_verilog.log
+        set_netlist $::env(cts_results)/$::env(DESIGN_NAME).resized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
+    } else {
+        puts_info "Skipping Resizer Timing Optimizations."
+    }
+}
+
 
 package provide openlane 0.9

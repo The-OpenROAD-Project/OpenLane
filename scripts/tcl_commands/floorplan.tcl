@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -392,7 +392,7 @@ proc run_floorplan {args} {
 		
 		tap_decap_or
 
-		scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(floorplan_logs)/screenshot.log]
+		scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
 
 		run_power_grid_generation
 }

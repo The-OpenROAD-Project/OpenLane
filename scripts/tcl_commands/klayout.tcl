@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ proc run_klayout {args} {
 			puts_info "Back-up GDS-II streamed out."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
-			scrot_klayout -layout $::env(finishing_results)/$::env(DESIGN_NAME).gds -log [index_file $::env(finishing_logs)/screenshot.klayout.log]
+			scrot_klayout -layout $::env(finishing_results)/$::env(DESIGN_NAME).gds -log $::env(finishing_logs)/screenshot.klayout.log
 			if { [info exists ::env(KLAYOUT_DRC_KLAYOUT_GDS)] && $::env(KLAYOUT_DRC_KLAYOUT_GDS) } {
 				set conf_save $::env(RUN_KLAYOUT_DRC)
 				set ::env(RUN_KLAYOUT_DRC) 1
@@ -56,6 +56,7 @@ proc run_klayout {args} {
 
 proc scrot_klayout {args} {
     if {[info exists ::env(TAKE_LAYOUT_SCROT)] && $::env(TAKE_LAYOUT_SCROT)} {
+		increment_index
 		TIMER::timer_start
 		puts_info "Taking a Screenshot of the Layout Using Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
@@ -67,7 +68,8 @@ proc scrot_klayout {args} {
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-layout) $::env(CURRENT_GDS)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) 
+			set log [index_file $arg_values(-log)]
+			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) $log
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"

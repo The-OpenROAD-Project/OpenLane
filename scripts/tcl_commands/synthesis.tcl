@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,13 +94,15 @@ proc run_sta {args} {
 	TIMER::timer_start
 	puts_info "Running Static Timing Analysis..."
 
+	set log [index_file $arg_values(-log)]
+
 	if {[info exists ::env(CLOCK_PORT)]} {
 		if { $multi_corner == 1 } {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+			|& tee $::env(TERMINAL_OUTPUT) $log
 		} else {
 			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+			|& tee $::env(TERMINAL_OUTPUT) $log
 		}
 	} else {
 		puts_warn "CLOCK_PORT is not set. STA will be skipped..."
@@ -137,9 +139,8 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
+    run_sta -log $::env(synthesis_logs)/sta.log
 	
-	set output_log [index_file $::env(synthesis_logs)/sta.log]
-    run_sta -log $output_log
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)

@@ -232,46 +232,46 @@ class Report(object):
             ("synthesis_sta.area.rpt", "design_area")
         )
 
-        sta_post_resizer_log = Artifact(rp, "logs", "placement", "rsz_design_optimization.log")
+        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer.log")
         sta_post_resizer_log.generate_reports(
-            ("rsz_design_optimization_sta.rpt", "check_report"),
-            ("rsz_design_optimization_sta.min.rpt", "min_report"),
-            ("rsz_design_optimization_sta.max.rpt", "max_report"),
-            ("rsz_design_optimization_sta.wns.rpt", "wns_report"),
-            ("rsz_design_optimization_sta.tns.rpt", "tns_report"),
-            ("rsz_design_optimization_sta.slew.rpt", "check_slew"),
-            ("rsz_design_optimization_sta.worst_slack.rpt", "worst_slack"),
-            ("rsz_design_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("rsz_design_optimization_sta.power.rpt", "power_report"),
-            ("rsz_design_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.min.rpt", "min_report"),
+            ("resizer_sta.max.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "placement", "rsz_timing_optimization.log")
+        sta_post_resizer_timing_log = Artifact(rp, "logs", "cts", "resizer.log")
         sta_post_resizer_timing_log.generate_reports(
-            ("rsz_timing_optimization_sta.rpt", "check_report"),
-            ("rsz_timing_optimization_sta.max.rpt", "min_report"),
-            ("rsz_timing_optimization_sta.min.rpt", "max_report"),
-            ("rsz_timing_optimization_sta.wns.rpt", "wns_report"),
-            ("rsz_timing_optimization_sta.tns.rpt", "tns_report"),
-            ("rsz_timing_optimization_sta.slew.rpt", "check_slew"),
-            ("rsz_timing_optimization_sta.worst_slack.rpt", "worst_slack"),
-            ("rsz_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("rsz_timing_optimization_sta.power.rpt", "power_report"),
-            ("rsz_timing_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.max.rpt", "min_report"),
+            ("resizer_sta.min.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.worst_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
-        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "rsz_timing_optimization.log")
+        sta_post_resizer_routing_timing_log = Artifact(rp, "logs", "routing", "resizer.log")
         sta_post_resizer_routing_timing_log.generate_reports(
-            ("rsz_timing_optimization_sta.rpt", "check_report"),
-            ("rsz_timing_optimization_sta.min.rpt", "min_report"),
-            ("rsz_timing_optimization_sta.max.rpt", "max_report"),
-            ("rsz_timing_optimization_sta.wns.rpt", "wns_report"),
-            ("rsz_timing_optimization_sta.tns.rpt", "tns_report"),
-            ("rsz_timing_optimization_sta.slew.rpt", "check_slew"),
-            ("rsz_timing_optimization_sta.wost_slack.rpt", "worst_slack"),
-            ("rsz_timing_optimization_sta.clock_skew.rpt", "clock_skew"),
-            ("rsz_timing_optimization_sta.power.rpt", "power_report"),
-            ("rsz_timing_optimization_sta.area.rpt", "area_report")
+            ("resizer_sta.rpt", "check_report"),
+            ("resizer_sta.min.rpt", "min_report"),
+            ("resizer_sta.max.rpt", "max_report"),
+            ("resizer_sta.wns.rpt", "wns_report"),
+            ("resizer_sta.tns.rpt", "tns_report"),
+            ("resizer_sta.slew.rpt", "check_slew"),
+            ("resizer_sta.wost_slack.rpt", "worst_slack"),
+            ("resizer_sta.clock_skew.rpt", "clock_skew"),
+            ("resizer_sta.power.rpt", "power_report"),
+            ("resizer_sta.area.rpt", "area_report")
         )
 
         sta_spef_log = Artifact(rp, "logs", "routing", "parasitics_sta.log")
@@ -481,20 +481,20 @@ class Report(object):
                 if match is not None:
                     value = float(match[1])
                 else:
-                    debug(f"Didn't find {filter} in {sta_report_filename}")
+                    debug(f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}")
             else:
                 debug(f"Can't find {sta_report_filename}")
             return value
 
         wns = sta_report_extraction("synthesis_sta.wns.rpt", 'wns', step="synthesis")
         spef_wns = sta_report_extraction("parasitics_sta.wns.rpt", 'wns', step="routing")
-        opt_wns = sta_report_extraction("rsz_timing_optimization_sta.wns.rpt", 'wns', step="routing")
+        opt_wns = sta_report_extraction("resizer_sta.wns.rpt", 'wns', step="routing")
         pl_wns = sta_report_extraction("global.log", 'wns', kind='logs', step="placement")
         fr_wns = sta_report_extraction("global.log", 'wns', kind='logs', step="routing")
 
         tns = sta_report_extraction("synthesis_sta.tns.rpt", 'tns', step="synthesis")
         spef_tns = sta_report_extraction("parasitics_sta.tns.rpt", 'tns', step="routing")
-        opt_tns = sta_report_extraction("rsz_timing_optimization_sta.tns.rpt", 'tns', step="routing")
+        opt_tns = sta_report_extraction("resizer_sta.tns.rpt", 'tns', step="routing")
         pl_tns = sta_report_extraction("global.log", 'tns', kind='logs', step="placement")
         fr_tns = sta_report_extraction("global.log", 'tns', kind='logs', step="routing")
 

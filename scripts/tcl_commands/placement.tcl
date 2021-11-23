@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -60,25 +60,25 @@ proc random_global_placement {args} {
 }
 
 proc detailed_placement_or {args} {
+    set options {
+        {-log required}
+        {-def required}
+    }
+    set flags {}
+    parse_key_args "detailed_placement_or" args arg_values $options flags_map $flags
+
     increment_index
     TIMER::timer_start
     puts_info "Running Detailed Placement..."
-    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def
+    set ::env(SAVE_DEF) $arg_values(-def)
+    set log [index_file $arg_values(-log)]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) $log
     set_def $::env(SAVE_DEF)
 
-    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)/detailed.log]}] == 0}  {
-        puts_info "Error in detailed placement"
-        puts_info "Retrying detailed placement"
-        set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME)_detailed.1.def
-
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
-    }
-
-    if {[catch {exec grep -q -i "fail" [index_file $::env(routing_logs)/detailed.log]}] == 0}  {
-        puts "Error: Check [index_file $::env(routing_logs)/detailed.log]"
-        puts stderr "\[ERROR\]: Check [index_file $::env(routing_logs)/detailed.log]"
+    if {[catch {exec grep -q -i "fail" $log}] == 0}  {
+        puts "Error: Check $log"
+        puts stderr "\[ERROR\]: Check $log"
         exit 1
     }
 
@@ -159,36 +159,11 @@ proc run_placement {args} {
     if { [info exists ::env(DONT_BUFFER_PORTS) ]} {
         remove_buffers
     }
-    detailed_placement_or
-    scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(placement_logs)/screenshot.log]
+
+    detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
+
+    scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(placement_logs)/screenshot.log
 }
-
-proc run_resizer_timing {args} {
-    if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
-        increment_index
-        TIMER::timer_start
-        puts_info "Running Resizer Timing Optimizations..."
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/rsz_timing.def]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/rsz_timing.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/rsz_timing_optimization.log]
-        set_def $::env(SAVE_DEF)
-        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
-
-        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(placement_logs)/write_verilog.log]
-        set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
-
-        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
-
-    } else {
-        puts_info "Skipping Resizer Timing Optimizations."
-    }
-}
-
 
 proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
@@ -197,15 +172,15 @@ proc run_resizer_design {args} {
         puts_info "Running Resizer Design Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/rsz.def]
         set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/rsz.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/rsz_design_optimization.log]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
 
-        write_verilog $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(placement_logs)/write_verilog.log]
-        set_netlist $::env(placement_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        write_verilog $::env(placement_results)/$::env(DESIGN_NAME).resized.v -log $::env(placement_logs)/write_verilog.log
+        set_netlist $::env(placement_results)/$::env(DESIGN_NAME).resized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

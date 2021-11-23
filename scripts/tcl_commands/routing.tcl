@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -124,7 +124,7 @@ proc detailed_routing_drcu {args} {
 		-guide $::env(CURRENT_GUIDE) \
 		-threads $::env(ROUTING_CORES) \
 		-tat 99999999 \
-		-output $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def \
+		-output $::env(routing_results)/$::env(DESIGN_NAME).def \
 		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
 }
 
@@ -132,7 +132,7 @@ proc detailed_routing {args} {
 	increment_index
     TIMER::timer_start
 	puts_info "Running Detailed Routing..."
-	set ::env(SAVE_DEF) [index_file $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def]
+	set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
 	set tool "openroad"
 	if {$::env(RUN_ROUTING_DETAILED)} {
 		if { $::env(DETAILED_ROUTER) == "drcu" } {
@@ -240,7 +240,7 @@ proc ins_diode_cells_1 {args} {
 
     set_def $::env(SAVE_DEF)
 
-    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log [index_file $::env(routing_logs)/write_verilog_diodes.log]
+    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
     set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
 
     TIMER::timer_stop
@@ -274,10 +274,10 @@ proc ins_diode_cells_4 {args} {
     set_def $::env(SAVE_DEF)
 
 	# Legalize
-	detailed_placement_or
+	detailed_placement_or -def $::env(CURRENT_DEF) -log $::env(routing_logs)/diode_legalization.log
 
 	# Update netlist
-	write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log [index_file $::env(routing_logs)/write_verilog_diodes.log]
+	write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
 	set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
 
 	TIMER::timer_stop
@@ -350,13 +350,14 @@ proc run_spef_extraction {args} {
 		set tool "openroad"
 		increment_index
 		TIMER::timer_start
+		set log [index_file $arg_values(-log)]
 		puts_info "Running SPEF Extraction..."
 		if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
 			set tool "def2spef"
 			set ::env(MPLCONFIGDIR) /tmp
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $log
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) $log
 		}
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
@@ -388,7 +389,7 @@ proc run_routing {args} {
 
 	#legalize if not yet legalized
 	if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-		detailed_placement_or
+		detailed_placement_or -def $::env(CURRENT_DEF) -log $::env(routing_logs)/diode_legalization.log
 	}
 
 	# if diode insertion does *not* happen as part of global routing, then
@@ -408,7 +409,7 @@ proc run_routing {args} {
 	}
 
     # for LVS
-    write_verilog $::env(routing_tmpfiles)/global.v -log [index_file $::env(routing_logs)/write_verilog.log]
+    write_verilog $::env(routing_tmpfiles)/global.v -log $::env(routing_logs)/write_verilog.log
     set_netlist $::env(routing_tmpfiles)/global.v
     if { $::env(LEC_ENABLE) } {
 		logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -416,26 +417,25 @@ proc run_routing {args} {
 
     # detailed routing
     detailed_routing
-	scrot_klayout -layout $::env(CURRENT_DEF) -log [index_file $::env(routing_logs)/screenshot.log]
+	scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
 	# spef extraction at the three corners 
-	set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
-	set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
-	set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+	set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef
+	set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef
+	set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef
 
-    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log [index_file $::env(routing_logs)/parasitics_extraction.tt.log]
-    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log [index_file $::env(routing_logs)/parasitics_extraction.ss.log]
-    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log [index_file $::env(routing_logs)/parasitics_extraction.ff.log]
+    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
+    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
+    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
+
+	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
 
 	# run sta at the typical corner using the extracted spef
-	set output_log [index_file $::env(routing_logs)/parasitics_sta.log]
+	run_sta -log $::env(routing_logs)/parasitics_sta.log
 	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
-	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-	run_sta -log $output_log
 	
-	# run sta at the three corners 
-	set output_log [index_file $::env(routing_logs)/parasitics_multi_corner_sta.log] 
-	run_sta -log $output_log -multi_corner
+	# run sta at the three corners
+	run_sta -log $::env(routing_logs)/parasitics_multi_corner_sta.log -multi_corner
 
 	## Calculate Runtime To Routing
 	set ::env(timer_routed) [clock seconds]
@@ -448,15 +448,15 @@ proc run_resizer_timing_routing {args} {
         puts_info "Running Resizer Timing Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/rsz_timing.def]
 	    set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/rsz_timing.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/rsz_timing_optimization.log]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 		
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
-        write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_rsz_optimized.v -log [index_file $::env(routing_logs)/write_verilog.log]
-        set_netlist $::env(routing_results)/$::env(DESIGN_NAME)_rsz_optimized.v
+        write_verilog $::env(routing_results)/$::env(DESIGN_NAME).resized.v -log $::env(routing_logs)/write_verilog.log
+        set_netlist $::env(routing_results)/$::env(DESIGN_NAME).resized.v
 
         if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

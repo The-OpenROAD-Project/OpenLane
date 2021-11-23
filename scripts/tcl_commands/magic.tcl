@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ proc run_magic {args} {
 	set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
 	file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
 	# Take a PNG screenshot
-	scrot_klayout -log [index_file $::env(cts_logs)/screenshot.log]
+	scrot_klayout -log $::env(cts_logs)/screenshot.log
 
 	if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
 		# Generate mag file that includes GDS pointers

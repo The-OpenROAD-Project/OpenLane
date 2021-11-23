@@ -727,7 +727,7 @@ proc heal_antenna_violators {args} {
 			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME)_detailed.def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
 	}
@@ -840,7 +840,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-log)]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {

@@ -206,6 +206,7 @@ proc calc_total_runtime {args} {
 	## Calculate Total Runtime
 	if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
 		puts_info "Calculating Runtime From the Start..."
+		set ::env(timer_end) [clock seconds]
 		set options {
 			{-report optional}
 			{-status optional}
@@ -213,9 +214,8 @@ proc calc_total_runtime {args} {
 		parse_key_args "calc_total_runtime" args arg_values $options
 		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
 		set_if_unset arg_values(-status) "flow completed"
-		set timer_end [clock seconds]
 
-		exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $timer_end $arg_values(-status)
+		exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
 	}
 }
 
