@@ -14,7 +14,7 @@
 
 # Synth defaults
 set ::env(SYNTH_BIN) yosys
-set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/synth.tcl
+set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/synth.tcl
 set ::env(SYNTH_NO_FLAT) 0
 set ::env(SYNTH_CLOCK_UNCERTAINITY) 0.25 
 set ::env(SYNTH_CLOCK_TRANSITION) 0.15

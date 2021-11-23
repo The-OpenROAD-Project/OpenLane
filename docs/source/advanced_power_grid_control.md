@@ -10,7 +10,7 @@ An example utilizing the controls and logic provided in this documentation is th
 
 ## Chip Level:
 
-According to the current methodology of [OpenLANE Chip Integration][0], the process goes as follows:
+According to the current methodology of [OpenLane Chip Integration][0], the process goes as follows:
 1. Hardening the hard/internal macros.
 2. Hardening the core with the hard macros inside it.
 3. Hardening the full chip with the padframe and the chip core.

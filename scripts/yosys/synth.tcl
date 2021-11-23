@@ -11,17 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# inputs expected as env vars
-#set opt $::env(SYNTH_OPT)
-set buffering $::env(SYNTH_BUFFERING)
-set sizing $::env(SYNTH_SIZING)
-
 yosys -import
 
+# inputs expected as env vars
+set buffering $::env(SYNTH_BUFFERING)
+set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
-#set sdc_file $::env(SDC_FILE)
 set sclib $::env(LIB_SYNTH)
+#set opt $::env(SYNTH_OPT)
+#set sdc_file $::env(SDC_FILE)
 
 if { [info exists ::env(SYNTH_DEFINES) ] } {
 	foreach define $::env(SYNTH_DEFINES) {
@@ -88,7 +86,7 @@ set abc_ext     ".abc"
 
 
 # get old sdc, add library specific stuff for abc scripts
-set sdc_file $::env(yosys_tmp_file_tag).sdc
+set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
 #puts $outfile $sdc_data
 puts $outfile "set_driving_cell ${driver}"
@@ -210,7 +208,7 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 select -module $vtop
-show -format dot -prefix $::env(TMP_DIR)/synthesis/hierarchy
+show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop
@@ -244,7 +242,7 @@ if { $::env(SYNTH_NO_FLAT) } {
 }
 
 # write a post techmap dot file
-show -format dot -prefix $::env(TMP_DIR)/synthesis/post_techmap
+show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
 	share -aggressive
@@ -262,7 +260,7 @@ if { $adder_type == "FA" } {
 opt
 opt_clean -purge
 
-tee -o "$::env(yosys_report_file_tag)_pre.stat" stat
+tee -o "$::env(synth_report_prefix)_pre.stat" stat
 
 # Map tri-state buffers.
 if { $tbuf_map } {
@@ -296,7 +294,7 @@ if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP
 }
 
 dfflibmap -liberty $sclib
-tee -o "$::env(yosys_report_file_tag)_dff.stat" stat
+tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
 if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	design -save myDesign
@@ -318,9 +316,9 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 		opt_clean -purge
 		insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-		tee -o "$::env(yosys_report_file_tag)_$index$chk_ext" check
-		tee -o "$::env(yosys_report_file_tag)$index$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
-		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(yosys_result_file_tag)_$index.v"
+		tee -o "$::env(synth_report_prefix)$chk_ext.script$index" check
+		tee -o "$::env(synth_report_prefix)$stat_ext.script$index" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+		write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)/$::env(DESIGN_NAME)_$index.v"
 		design -reset
 	}
 } else {
@@ -342,21 +340,21 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
+	tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
 }
 
 if { $::env(SYNTH_NO_FLAT) } {
 	design -reset
 	read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE_NO_PG)
-	file copy -force $::env(SAVE_NETLIST) $::env(yosys_tmp_file_tag)_unflat.v
+	file copy -force $::env(SAVE_NETLIST) $::env(synthesis_tmpfiles)/hierarchical_netlist.v
 	read_verilog -sv $::env(SAVE_NETLIST)
 	synth -top $vtop -flatten
 	splitnets
 	opt_clean -purge
 	insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 	write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
-	tee -o "$::env(yosys_report_file_tag)_$strategy$chk_ext" check
-	tee -o "$::env(yosys_report_file_tag)_$strategy$stat_ext" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+	tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
+	tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
 }
