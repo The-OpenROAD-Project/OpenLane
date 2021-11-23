@@ -83,9 +83,8 @@ estimate_parasitics -placement
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
-if { [check_placement -verbose] } {
-	exit 1
-}
+
+check_placement -verbose
 
 puts "cts_report"
 report_cts
