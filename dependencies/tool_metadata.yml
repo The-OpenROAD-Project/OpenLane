@@ -13,8 +13,8 @@
     cp iccad19gr $PREFIX/bin/cugr
   in_install: false
 - name: cvc
-  repo: https://github.com/donn/cvc
-  commit: 90e78b4598c1f5c35fcc3b8fc4d80fde7c881445
+  repo: https://github.com/d-m-bailey/cvc
+  commit: d172016a791af3089b28070d80ad92bdfef9c585
   build: |
     autoreconf -i
     ./configure --disable-nls --prefix=$PREFIX
@@ -78,7 +78,7 @@
     make PREFIX=$PREFIX install
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 6d56d36324b9ed2e59e8609fff5ddd3089c1c0bf
+  commit: 4f4d3cd8c2cc3871d1c04ac2c8572e38cff43645
   build: |
     mkdir -p ./build
     cd ./build

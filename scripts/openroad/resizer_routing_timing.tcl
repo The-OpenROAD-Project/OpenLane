@@ -111,7 +111,10 @@ if { [info exists ::env(GLB_OPTIMIZE_MIRRORING)] && $::env(GLB_OPTIMIZE_MIRRORIN
     optimize_mirroring
 }
 
-check_placement -verbose
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
+}
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)

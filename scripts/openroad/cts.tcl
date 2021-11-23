@@ -83,8 +83,9 @@ estimate_parasitics -placement
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
-if { [check_placement -verbose] } {
-	exit 1
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
 }
 
 puts "cts_report"
