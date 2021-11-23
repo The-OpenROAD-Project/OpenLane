@@ -323,4 +323,16 @@ namespace eval TIMER {
 	}
 }
 
+proc assert_files_exist {files} {
+	foreach f $files {
+		if { ! [file exists $f] } {
+			puts_err "$f doesn't exist."
+			exit 1
+		} else {
+			puts_info "$f exists."
+		}
+	}
+}
+
+
 package provide openlane_utils 0.9
