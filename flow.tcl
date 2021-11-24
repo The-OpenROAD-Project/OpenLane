@@ -148,15 +148,27 @@ proc eco_gen_buffer {args} {
 
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
-    try_catch $::env(OPENROAD_BIN) \
-        -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-        -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
-        *multi_corner_sta.min*] end] \
-        -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                         *.lef] end] \
-        -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                         *.def] end] \
-        -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
+    if { $::env(ECO_ITER) == 0 } {
+        try_catch $::env(OPENROAD_BIN) \
+            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+            -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
+            *multi_corner_sta.min*] end] \
+            -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                             *.lef] end] \
+            -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                             *.def] end] \
+            -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
+    } else {
+        try_catch $::env(OPENROAD_BIN) \
+            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+            -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
+            *multi_corner_sta.min*] end] \
+            -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                             *.lef] end] \
+            -d [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
+                             *.def] end] \
+            -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
+    }
 }
 
 proc eco_output_check {args} {
@@ -232,6 +244,7 @@ proc run_eco_step {args} {
         eco_output_check
     }
     # end of while
+
 }
 
 
