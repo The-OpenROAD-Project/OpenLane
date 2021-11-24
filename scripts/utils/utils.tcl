@@ -280,7 +280,7 @@ proc generate_final_summary_report {args} {
 		}
 		set flags {}
 		parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
-		
+
 		set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
@@ -327,7 +327,7 @@ proc assert_files_exist {files} {
 	foreach f $files {
 		if { ! [file exists $f] } {
 			puts_err "$f doesn't exist."
-			exit 1
+			return -code error
 		} else {
 			puts_info "$f exists."
 		}
