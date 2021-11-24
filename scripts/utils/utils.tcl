@@ -327,6 +327,7 @@ proc assert_files_exist {files} {
 	foreach f $files {
 		if { ! [file exists $f] } {
 			puts_err "$f doesn't exist."
+			flow_fail
 			return -code error
 		} else {
 			puts_info "$f exists."
