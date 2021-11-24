@@ -585,6 +585,11 @@ proc prep {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
     set ::env(TRACKS_INFO_FILE) $tracks_processed
 
+    if { [info exists ::env(EXTRA_GDS_FILES)] } {
+        puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
+        assert_files_exist $::env(EXTRA_GDS_FILES)
+    }
+
     puts_info "Preparation complete"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
