@@ -93,6 +93,8 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
     optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
-if { [check_placement -verbose] } {
-	exit 1
+
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
 }

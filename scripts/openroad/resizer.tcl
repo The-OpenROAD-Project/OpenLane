@@ -77,7 +77,11 @@ detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
-check_placement -verbose
+
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
+}
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)
