@@ -143,8 +143,6 @@ proc eco_read_fix {args} {
 }
 
 proc eco_gen_buffer {args} {
-    # Re-organize report files here
-    exec sh $::env(OPENLANE_ROOT)/scripts/reorg.sh
 
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
@@ -202,6 +200,10 @@ proc run_eco_step {args} {
 
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
+
+    # Re-organize report/result files here
+    exec sh $::env(OPENLANE_ROOT)/scripts/reorg_results.sh
+    exec sh $::env(OPENLANE_ROOT)/scripts/reorg_reports.sh
     eco_output_check
 
     while {$::env(ECO_FINISH) != 1} {
@@ -209,6 +211,9 @@ proc run_eco_step {args} {
         puts "Start ECO loop!"
         # Then run detailed placement again
         # Get the connections then destroy them
+
+        # Re-organize result files here
+        exec sh $::env(OPENLANE_ROOT)/scripts/reorg_results.sh
 
         set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}
@@ -241,10 +246,15 @@ proc run_eco_step {args} {
         }
         # end of dict
 
+        # Re-organize report files here
+        exec sh $::env(OPENLANE_ROOT)/scripts/reorg_reports.sh
         eco_output_check
     }
     # end of while
-
+    set post_eco_net [lindex [glob -directory $::env(RUN_DIR)/results/eco/net *.v]   end]
+    set post_eco_def [lindex [glob -directory $::env(RUN_DIR)/results/eco/def *.def] end] 
+    file copy -force $post_eco_net $::env(RUN_DIR)/results/synthesis/mgmt_core.synthesis_preroute.v
+    file copy -force $post_eco_def $::env(RUN_DIR)/results/routing/post_eco-mgmt_core.def
 }
 
 

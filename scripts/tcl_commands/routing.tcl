@@ -429,9 +429,15 @@ proc run_routing {args} {
 	scrot_klayout -layout $::env(CURRENT_DEF)
 
 	# spef extraction at the three corners 
-	set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
-	set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
-	set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+    if { $::env(ECO_ITER) == 0 } {
+        set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+        set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
+        set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
+    } else {
+        set ::env(SPEF_FASTEST) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.ff.spef;
+        set ::env(SPEF_TYPICAL) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.tt.spef;
+        set ::env(SPEF_SLOWEST) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.ss.spef;
+    }
 
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL)
 
@@ -439,7 +445,11 @@ proc run_routing {args} {
 	set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
 	set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
 	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(rcx_report_file_tag)_extraction_sta 0]
-	set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+    if { $::env(ECO_ITER) == 0 } {
+        set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+    } else {
+        set ::env(SAVE_SDF) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/sdf/mgmt_core.sdf
+    }
 	run_sta -output_log $output_log -runtime_log $runtime_log 
 
     run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST)
