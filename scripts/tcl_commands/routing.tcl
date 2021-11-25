@@ -370,7 +370,15 @@ proc run_spef_extraction {args} {
 
 proc run_routing {args} {
     puts_info "Routing..."
-
+    if { $::env(ECO_ITER) != 0 } {
+            set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+            set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+}
+    set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+    puts $::env(CURRENT_DEF)
+    puts $::env(ROUTING_CURRENT_DEF)
+    puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
