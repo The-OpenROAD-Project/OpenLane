@@ -50,11 +50,11 @@ set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).
 set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 
 # File post-processing for pre-eco
-if { $::env(ECO_ITER) == 1 } {
-    move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.def]  \
-                $::env(RUN_DIR)/results/routing/eco_[expr {$::env(ECO_ITER)-1}]/def
-    move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.spef] \
-                $::env(RUN_DIR)/results/routing/eco_[expr {$::env(ECO_ITER)-1}]/spef
-    move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.sdf]  \
-                $::env(RUN_DIR)/results/routing/eco_[expr {$::env(ECO_ITER)-1}]/sdf
-}
+# if { $::env(ECO_ITER) == 1 } {
+#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.def]  \
+#                 $::env(RUN_DIR)/results/eco/def
+#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.spef] \
+#                 $::env(RUN_DIR)/results/eco/spef
+#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.sdf]  \
+#                 $::env(RUN_DIR)/results/eco/sdf
+# }

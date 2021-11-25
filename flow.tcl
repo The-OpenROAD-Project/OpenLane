@@ -188,21 +188,26 @@ proc eco_output_check {args} {
 
 proc run_eco_step {args} {
 
-    set path     "$::env(RUN_DIR)/results/eco"
-    set fix_path "$::env(RUN_DIR)/results/eco/fix"
-    set def_path "$::env(RUN_DIR)/results/eco/def"
-    set net_path "$::env(RUN_DIR)/results/eco/net"
+    set path         "$::env(RUN_DIR)/results/eco"
+    set fix_path     "$::env(RUN_DIR)/results/eco/fix"
+    set def_path     "$::env(RUN_DIR)/results/eco/def"
+    set net_path     "$::env(RUN_DIR)/results/eco/net"
+    set spef_path    "$::env(RUN_DIR)/results/eco/spef"
+    set sdf_path     "$::env(RUN_DIR)/results/eco/sdf"
+    set arc_def_path "$::env(RUN_DIR)/results/eco/arcdef"
     file mkdir $path
     file mkdir $fix_path
     file mkdir $def_path
     file mkdir $net_path
+    file mkdir $spef_path
+    file mkdir $sdf_path
+    file mkdir $arc_def_path
 
 
     # Assume script generate fix commands
     puts "Generating Fix commands (resize/insert)"    
 
     # Re-organize report/result files here
-    exec sh $::env(OPENLANE_ROOT)/scripts/reorg_results.sh
     exec sh $::env(OPENLANE_ROOT)/scripts/reorg_reports.sh
     eco_output_check
 
@@ -212,8 +217,6 @@ proc run_eco_step {args} {
         # Then run detailed placement again
         # Get the connections then destroy them
 
-        # Re-organize result files here
-        exec sh $::env(OPENLANE_ROOT)/scripts/reorg_results.sh
 
         set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}

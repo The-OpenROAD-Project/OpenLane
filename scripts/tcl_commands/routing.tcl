@@ -134,7 +134,11 @@ proc detailed_routing_drcu {args} {
 proc detailed_routing {args} {
 	puts_info "Running Detailed Routing..."
     TIMER::timer_start
-	set ::env(SAVE_DEF) [index_file $::env(tritonRoute_result_file_tag).def 0]
+    if { $::env(ECO_ITER) == 0 } {
+        set ::env(SAVE_DEF) [index_file $::env(tritonRoute_result_file_tag).def 0]
+    } else {
+        set ::env(SAVE_DEF) $::env(RUN_DIR)/results/eco/arcdef/$::env(ECO_ITER)_post-route.def
+    }
     set report_tag_saver $::env(tritonRoute_report_file_tag)
     set ::env(tritonRoute_report_file_tag) [index_file $::env(tritonRoute_report_file_tag)]
     set tmp_tag_saver $::env(tritonRoute_tmp_file_tag)
@@ -434,9 +438,9 @@ proc run_routing {args} {
         set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
         set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
     } else {
-        set ::env(SPEF_FASTEST) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.ff.spef;
-        set ::env(SPEF_TYPICAL) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.tt.spef;
-        set ::env(SPEF_SLOWEST) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/spef/mgmt_core.ss.spef;
+        set ::env(SPEF_FASTEST) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.ff.spef;
+        set ::env(SPEF_TYPICAL) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.tt.spef;
+        set ::env(SPEF_SLOWEST) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.ss.spef;
     }
 
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL)
@@ -448,7 +452,7 @@ proc run_routing {args} {
     if { $::env(ECO_ITER) == 0 } {
         set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
     } else {
-        set ::env(SAVE_SDF) $::env(RUN_DIR)/results/routing/eco_$::env(ECO_ITER)/sdf/mgmt_core.sdf
+        set ::env(SAVE_SDF) $::env(RUN_DIR)/results/eco/sdf/$::env(ECO_ITER)_mgmt_core.sdf
     }
 	run_sta -output_log $output_log -runtime_log $runtime_log 
 
