@@ -152,6 +152,7 @@ proc run_apply_step {args} {
         -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
     # set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
     # set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+    pause;
 }
 
 proc eco_read_fix {args} {

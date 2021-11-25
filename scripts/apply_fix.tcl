@@ -61,7 +61,6 @@ puts $::env(CURRENT_NETLIST)
 puts $::env(CURRENT_DEF)
 puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
 
-pause;
 # File post-processing for pre-eco
 # if { $::env(ECO_ITER) == 1 } {
 #     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.def]  \
