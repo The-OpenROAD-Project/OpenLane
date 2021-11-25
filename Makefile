@@ -45,9 +45,9 @@ IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
 OPEN_PDK_ARGS ?= ""
-ifeq ($(INSTALL_SRAM), enabled) 
-OPEN_PDK_ARGS ?= --enable-sram-sky130
-endif 
+ifeq ($(INSTALL_SRAM), enabled)
+OPEN_PDK_ARGS += --enable-sram-sky130
+endif
 
 ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
