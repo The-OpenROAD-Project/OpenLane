@@ -50,11 +50,20 @@ proc run_routing_step {args} {
     # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
-    if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
-        set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    puts "-------------------------------------------"
+    puts $::env(CURRENT_DEF) 
+    puts $::env(CURRENT_NETLIST)
+    puts "-------------------------------------------"
+    if { $::env(ECO_ITER) == 0 } {
+        if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
+            set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+        } else {
+            set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
+        }
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
+
     run_routing
     puts "Generating Routing Timing reports!"
     generate_routing_report
@@ -129,6 +138,8 @@ proc run_apply_step {args} {
     puts "ECO: Applying Fixes!"
     try_catch $::env(OPENROAD_BIN) \
         -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
+    set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+    set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 }
 
 proc eco_read_fix {args} {

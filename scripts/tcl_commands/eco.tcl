@@ -83,6 +83,12 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   #$connect_command $out_iterm $new_net
 } else {
       set out_iterm [$inst getITerm $output]
+      #set master_inst [$iterm getInst] 
+      set box [$iterm getBBox] 
+      set x_min [$box xMin] 
+      set y_min [$box yMin]
+      [$inst setLocation $x_min $y_min]
+      [$inst setPlacementStatus PLACED] 
       puts "start insert buffer"
       odb::dbITerm_connect $out_iterm $new_net
       puts "connect to out iterm"

@@ -48,7 +48,10 @@ write_verilog $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
 write_def     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
 set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
-
+puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
+puts $::env(CURRENT_NETLIST)
+puts $::env(CURRENT_DEF)
+puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
 # File post-processing for pre-eco
 if { $::env(ECO_ITER) == 1 } {
     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.def]  \
