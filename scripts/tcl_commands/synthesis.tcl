@@ -46,7 +46,6 @@ proc run_yosys {args} {
 	}
 
 	set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synthesis]
-	set ::env(synthesis_reports) [index_file $::env(synthesis_reports)/synthesis.log]
 
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]
 	foreach lib $::env(LIB_SYNTH_COMPLETE) {
@@ -118,7 +117,9 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log] > $::env(synthesis_reports)/exploration_analysis.html
+    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log] > [index_file $::env(synthesis_reports)/exploration_analysis.html]
+
+	# Following two cannot be indexed- referenced by path in the HTML file.
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(synthesis_reports)
     file copy $::env(SCRIPTS_DIR)/synth_exp/utils.js $::env(synthesis_reports)
 }
@@ -172,7 +173,7 @@ proc run_synthesis {args} {
 			set ::env(SYNTH_DEFINES) [list]
 		}
 		lappend ::env(SYNTH_DEFINES) {*}$::env(SYNTH_USE_PG_PINS_DEFINES)
-		run_yosys -output $::env(synthesis_tmpfiles).pg_pins.v -no_set_netlist
+		run_yosys -output $::env(synthesis_tmpfiles)/pg_define.v -no_set_netlist
 	}
 
 }
