@@ -46,14 +46,26 @@ proc run_cts_step {args} {
     run_resizer_timing
 }
 
+proc pause {{message "Press enter to continue ==> "}} {
+    puts -nonewline $message
+    flush stdout
+    gets stdin
+}
+
+
 proc run_routing_step {args} {
     # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
+    puts "DEF/NETLIST used in Routing: "
     puts "-------------------------------------------"
     puts $::env(CURRENT_DEF) 
     puts $::env(CURRENT_NETLIST)
     puts "-------------------------------------------"
+
+    # Pause to see puts output
+    pause;
+
     if { $::env(ECO_ITER) == 0 } {
         if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
             set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -138,8 +150,8 @@ proc run_apply_step {args} {
     puts "ECO: Applying Fixes!"
     try_catch $::env(OPENROAD_BIN) \
         -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
-    set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-    set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+    # set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+    # set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 }
 
 proc eco_read_fix {args} {
@@ -224,10 +236,12 @@ proc run_eco_step {args} {
 
     while {$::env(ECO_FINISH) != 1} {
 
-        puts "Start ECO loop!"
+        puts "Start ECO loop $::env(ECO_ITER)!"
         # Then run detailed placement again
         # Get the connections then destroy them
-
+        
+        # Pause to see puts output
+        pause;
 
         set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}
