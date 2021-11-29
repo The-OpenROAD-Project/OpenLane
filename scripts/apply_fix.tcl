@@ -1,9 +1,3 @@
-proc pause {{message "Press enter to continue ==> "}} {
-    puts -nonewline $message
-    flush stdout
-    gets stdin
-}
-
 proc move_to_dir {filenames dirname} {
     foreach filename $filenames {
         file rename $filename [file join $dirname [file tail $filename]]
@@ -52,14 +46,11 @@ source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
 
 write_verilog $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
 write_def     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
-set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 
-puts "Set NET/DEF in apply_fix.tcl"
-puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
-puts $::env(CURRENT_NETLIST)
-puts $::env(CURRENT_DEF)
-puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
+# Now these variables are set in flow.tcl
+# right after this script is run
+# set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+# set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 
 # File post-processing for pre-eco
 # if { $::env(ECO_ITER) == 1 } {

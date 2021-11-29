@@ -370,15 +370,20 @@ proc run_spef_extraction {args} {
 
 proc run_routing {args} {
     puts_info "Routing..."
+
+    # Safety measure to make sure that generated net/def are read here
     if { $::env(ECO_ITER) != 0 } {
             set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
             set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-}
+    }
+    
     set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    
     puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
-    puts $::env(CURRENT_DEF)
-    puts $::env(ROUTING_CURRENT_DEF)
+    puts "Current DEF: $::env(CURRENT_DEF)"
+    puts "Routing Current DEF: $::env(ROUTING_CURRENT_DEF)"
     puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
@@ -386,33 +391,33 @@ proc run_routing {args} {
     puts_info "Current at ECO iteration: $::env(ECO_ITER)"
 
     # ---------- SKIP ----------
-    if {$::env(ECO_ITER) == 0} {
-        run_resizer_timing_routing
-        
-        if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-            if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-                ins_diode_cells_1
-            }
-            if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-                ins_diode_cells_4
-            }
-        }
+    # if {$::env(ECO_ITER) == 0} {
+    #     run_resizer_timing_routing
+    #     
+    #     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+    #         if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
+    #             ins_diode_cells_1
+    #         }
+    #         if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+    #             ins_diode_cells_4
+    #         }
+    #     }
 
-        # if diode insertion does *not* happen as part of global routing, then
-        # we can insert fill cells early on
-        if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
-            ins_fill_cells
-        }
+    #     # if diode insertion does *not* happen as part of global routing, then
+    #     # we can insert fill cells early on
+    #     if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+    #         ins_fill_cells
+    #     }
 
-        use_original_lefs
+    #     use_original_lefs
 
-        add_route_obs
+    #     add_route_obs
 
-        #legalize if not yet legalized
-        if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-            detailed_placement_or
-        }
-    }
+    #     #legalize if not yet legalized
+    #     if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+    #         detailed_placement_or
+    #     }
+    # }
     # ---------- SKIP ---------- END
     
     global_routing
@@ -457,11 +462,13 @@ proc run_routing {args} {
 	set output_log [index_file $::env(rcx_log_file_tag)_extraction_sta 0] 
 	set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_sta_runtime.txt 0] 
 	set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(rcx_report_file_tag)_extraction_sta 0]
+    
     if { $::env(ECO_ITER) == 0 } {
         set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
     } else {
         set ::env(SAVE_SDF) $::env(RUN_DIR)/results/eco/sdf/$::env(ECO_ITER)_mgmt_core.sdf
     }
+
 	run_sta -output_log $output_log -runtime_log $runtime_log 
 
     run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST)
@@ -471,7 +478,7 @@ proc run_routing {args} {
 	set output_log [index_file $::env(rcx_log_file_tag)_extraction_multi_corner_sta 0] 
 	set runtime_log [index_file  $::env(rcx_log_file_tag)_extraction_multi_corner_sta_runtime.txt 0] 
 	run_sta -output_log $output_log -runtime_log $runtime_log -multi_corner
-
+    
 	## Calculate Runtime To Routing
 	calc_total_runtime -status "Routing completed" -report $::env(REPORTS_DIR)/routed_runtime.txt
 }

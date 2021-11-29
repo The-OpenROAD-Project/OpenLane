@@ -57,6 +57,11 @@ proc run_routing_step {args} {
     # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
+    if {$::env(ECO_ITER) == 0} {
+        puts "Routing Pre-ECO"
+    } else {
+        puts "Routing for ECO iteration $::env(ECO_ITER)"
+    }
     puts "DEF/NETLIST used in Routing: "
     puts "-------------------------------------------"
     puts $::env(CURRENT_DEF) 
@@ -150,8 +155,15 @@ proc run_apply_step {args} {
     puts "ECO: Applying Fixes!"
     try_catch $::env(OPENROAD_BIN) \
         -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
-    # set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-    # set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+    set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+    set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+
+    puts "ECO Iteration $::env(ECO_ITER): "
+    puts "Set NET/DEF in apply_fix.tcl"
+    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
+    puts $::env(CURRENT_NETLIST)
+    puts $::env(CURRENT_DEF)
+    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
     pause;
 }
 
@@ -171,6 +183,18 @@ proc eco_gen_buffer {args} {
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
     if { $::env(ECO_ITER) == 0 } {
+        puts "Generating fixes for ECO iteration 0!"
+        puts "Parsing STA report: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
+                           *multi_corner_sta.min*] end]
+        puts "Input Lef File: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                         *.lef] end] 
+        puts "Input Def File: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                         *.def] end]
+        pause;
+
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
             -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
@@ -181,6 +205,18 @@ proc eco_gen_buffer {args} {
                              *.def] end] \
             -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
     } else {
+        puts "Generating fixes for ECO iteration $::env(ECO_ITER)!"
+        puts "Parsing STA report: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
+                    *multi_corner_sta.min*] end]
+        puts "Input Lef File: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
+                         *.lef] end] 
+        puts "Input Def File: "
+        puts [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
+                         *.def] end]
+        pause;
+
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
             -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
