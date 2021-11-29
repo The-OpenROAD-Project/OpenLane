@@ -75,9 +75,11 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       [$inst setPlacementStatus PLACED]
 # done inserting the buffer
       puts "done insert buffer"
-      odb::dbITerm_connect $in_iterm $old_net
+      odb::dbITerm_connect $out_iterm $old_net
+      #odb::dbITerm_connect $in_iterm $old_net
       puts "connect to in_iterm"
-      odb::dbITerm_connect $out_iterm $new_net
+      odb::dbITerm_connect $in_iterm $new_net  
+     #odb::dbITerm_connect $out_iterm $new_net
       puts "connect to out_iterm "
   #$connect_command $in_iterm $old_net
   #$connect_command $out_iterm $new_net
@@ -90,9 +92,11 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       [$inst setLocation $x_min $y_min]
       [$inst setPlacementStatus PLACED] 
       puts "start insert buffer"
-      odb::dbITerm_connect $out_iterm $new_net
+      odb::dbITerm_connect $inst $new_net $input 
+      #odb::dbITerm_connect $out_iterm $new_net
       puts "connect to out iterm"
-      odb::dbITerm_connect $inst $old_net $input
+      odb::dbITerm_connect $out_iterm $old_net 
+      #odb::dbITerm_connect $inst $old_net $input
       puts "connect to input pin!!!!!!!"     
 }
 
