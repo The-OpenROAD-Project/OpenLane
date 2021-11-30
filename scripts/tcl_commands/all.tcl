@@ -640,6 +640,9 @@ proc save_views {args} {
         {-gds_path optional}
         {-verilog_path optional}
         {-spice_path optional}
+        {-sdf_path optional}
+        {-spef_path optional}
+        {-sdc_path optional}
         {-save_path optional}
         {-tag required}
     }
@@ -706,6 +709,30 @@ proc save_views {args} {
         file mkdir $destination
         if { [file exists $arg_values(-spice_path)] } {
             file copy -force $arg_values(-spice_path) $destination/$arg_values(-tag).spice
+        }
+    }
+
+    if { [info exists arg_values(-spef_path)] } {
+        set destination $path/spef
+        file mkdir $destination
+        if { [file exists $arg_values(-spef_path)] } {
+            file copy -force $arg_values(-spef_path) $destination/$arg_values(-tag).spef
+        }
+    }
+
+    if { [info exists arg_values(-sdf_path)] } {
+        set destination $path/sdf
+        file mkdir $destination
+        if { [file exists $arg_values(-sdf_path)] } {
+            file copy -force $arg_values(-sdf_path) $destination/$arg_values(-tag).sdf
+        }
+    }
+
+    if { [info exists arg_values(-sdc_path)] } {
+        set destination $path/sdc
+        file mkdir $destination
+        if { [file exists $arg_values(-sdc_path)] } {
+            file copy -force $arg_values(-sdc_path) $destination/$arg_values(-tag).sdc
         }
     }
 }
