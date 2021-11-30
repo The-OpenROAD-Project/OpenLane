@@ -27,10 +27,8 @@ DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
 endif
 
 UNAME_S := $(shell uname -s)
-ifeq (1,$(DOCKER_DISPLAY))
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix
-endif
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
 endif
 
 THREADS ?= 1
@@ -186,7 +184,11 @@ pull-openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+		docker run -it --rm \
+			-e PDK_ROOT=$(PDK_ROOT) \
+			-v $(OPENLANE_DIR):/openlane \
+			-v $(PDK_ROOT):$(PDK_ROOT) \
+			$(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
