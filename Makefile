@@ -27,10 +27,8 @@ DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
 endif
 
 UNAME_S := $(shell uname -s)
-ifeq (1,$(DOCKER_DISPLAY))
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix
-endif
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
 endif
 
 THREADS ?= 1
@@ -187,13 +185,9 @@ pull-openlane:
 mount:
 	cd $(OPENLANE_DIR) && \
 		docker run -it --rm \
-			--net=host \
 			-e PDK_ROOT=$(PDK_ROOT) \
 			-v $(OPENLANE_DIR):/openlane \
 			-v $(PDK_ROOT):$(PDK_ROOT) \
-			-e DISPLAY=$(DISPLAY) \
-			-v $(HOME)/.Xauthority:/.Xauthority \
-			-v /tmp/.X11-unix:/tmp/.X11-unix \
 			$(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
