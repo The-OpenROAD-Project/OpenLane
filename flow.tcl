@@ -198,6 +198,9 @@ proc run_non_interactive_mode {args} {
 			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
 			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
+			-spef_path $::env(SPEF_TYPICAL) \
+			-sdf_path $::env(CURRENT_SDF) \
+			-sdc_path $::env(CURRENT_SDC) \
 			-save_path $arg_values(-save_path) \
 			-tag $::env(RUN_TAG)
 	}

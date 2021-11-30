@@ -434,6 +434,8 @@ proc run_routing {args} {
     run_sta -log $::env(routing_logs)/parasitics_sta.log
     set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
 
+    set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+
     # run sta at the three corners
     run_sta -log $::env(routing_logs)/parasitics_multi_corner_sta.log -multi_corner
 
