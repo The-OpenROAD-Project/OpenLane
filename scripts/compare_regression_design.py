@@ -13,30 +13,28 @@
 # limitations under the License.
 
 import os
+import yaml
 import click
 
 @click.command()
 @click.option(
-    '--benchmark', '-b', required=True,
+    '--benchmark', '-b', 'benchmark_file', required=True,
     help="The csv file from which to extract the benchmark results"
-)
-@click.option(
-    '--regression_results', '-r', required=True,
-    help="The csv file to be tested"
 )
 @click.option(
     '--design', '-d', required=True,
     help="The design to compare for between the two scripts. Same as -design in flow.tcl"
 )
 @click.option(
-    '--run_path', '-p', required=True,
+    '--run-path', '-p', required=True,
     help="The run path, will be used to search for any missing files."
 )
 @click.option(
-    '--output_report', '-o', required=True,
+    '--output-report', '-o', 'output_report_file', required=True,
     help="The file to print the final report in"
 )
-def cli(benchmark_file, regression_results_file, output_report_file, design, run_path):
+@click.argument("regression_results_file")
+def cli(benchmark_file, design, run_path, output_report_file, regression_results_file):
     tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':10, 'lvs_total_errors':0}
 
     critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations','lvs_total_errors']
@@ -55,7 +53,6 @@ def cli(benchmark_file, regression_results_file, output_report_file, design, run
             return True
         else:
             return False
-
 
     def parse_csv(csv_file):
         def get_csv_index(header, label):
@@ -118,24 +115,43 @@ def cli(benchmark_file, regression_results_file, output_report_file, design, run
     benchmark = parse_csv(benchmark_file)
     regression_result = parse_csv(regression_results_file)
 
+    did_pass = True
+    notes = None
+
     failure, reason = compare_status(benchmark, regression_result)
-
-    report = str(design)
     if failure:
-        report += ",FAILED,"+reason+"\n"
-    else:
-        failure, reason = critical_mismatch(benchmark, regression_result)
-        if failure:
-            report += ",FAILED,"+reason+"\n"
-        else:
-            failure, reason = missing_resulting_files(regression_result)
-            if failure:
-                report += ",FAILED,"+reason+"\n"
-            else:
-                report += ",PASSED,"+reason+"\n"
+        did_pass = False
+        notes = notes or reason
 
-    with open(output_report_file, 'a+') as f:
-        f.write(report)
+    failure, reason = critical_mismatch(benchmark, regression_result)
+    if failure:
+        did_pass = False
+        notes = notes or reason
 
-if __name__ == '__mail__':
+    failure, reason = missing_resulting_files(regression_result)
+    if failure:
+        did_pass = False
+        notes = notes or reason
+
+    design_report = {
+        "pass": did_pass,
+        "notes": notes
+    }
+
+    current_yaml_str = "{}"
+    try:
+        current_yaml_str = open(output_report_file).read()
+    except FileNotFoundError:
+        pass
+
+    current_yaml = yaml.safe_load(current_yaml_str)
+    current_yaml[design] = design_report
+
+    current_yaml_str = yaml.safe_dump(current_yaml, sort_keys=False)
+    import sys
+    print(output_report_file, file=sys.stderr)
+    with open(output_report_file, 'w') as f:
+        f.write(current_yaml_str)
+
+if __name__ == '__main__':
     cli()

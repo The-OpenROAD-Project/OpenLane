@@ -85,7 +85,7 @@ if {$::env(FP_SIZING) == "absolute"} {
     puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
     puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
 }
-source $::env(TRACKS_INFO_FILE) 
+source $::env(TRACKS_INFO_FILE_PROCESSED) 
 
 set die_area_file [open $::env(fp_report_prefix)_die_area.rpt w]
 set core_area_file [open $::env(fp_report_prefix)_core_area.rpt w]

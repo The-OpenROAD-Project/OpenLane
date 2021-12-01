@@ -93,6 +93,8 @@ class Artifact(object):
         parse_to_report(self.path, report_path, start, end)
 
     def generate_reports(self, *args: Iterable[Iterable[str]]):
+        if self.index is None:
+            self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"
             start = report[1]
@@ -174,7 +176,8 @@ class Report(object):
         'OR',
         'XOR',
         'XNOR',
-        'MUX',
+        'MUX'
+    ] + (['NOT'] if os.getenv("MORE_METRICS") else []) + [
         'inputs',
         'outputs',
         'level',
@@ -361,8 +364,7 @@ class Report(object):
             match = re.search(
                 r"DIEAREA\s*\(\s*(\d+)\s+(\d+)\s*\)\s*\(\s*(\d+)\s+(\d+)\s*\)", def_content)
             if match is not None:
-                lx, ly, ux, uy = float(match[1]), float(
-                    match[2]), float(match[3]), float(match[4])
+                lx, ly, ux, uy = float(match[1]), float(match[2]), float(match[3]), float(match[4])
 
                 die_area = ((ux - lx) / 1000) * ((uy - ly) / 1000)
 
@@ -539,15 +541,18 @@ class Report(object):
             "Number of memory bits:",
             "Number of processes:",
             "Number of cells:",
-            "\$_AND_",
-            "\$_DFF_",
-            "\$_NAND_",
-            "\$_NOR_",
-            "\$_OR",
-            "\$_XOR",
-            "\$_XNOR",
-            "\$_MUX"
+            "$_AND_",
+            "$_DFF_",
+            "$_NAND_",
+            "$_NOR_",
+            "$_OR_",
+            "$_XOR_",
+            "$_XNOR_",
+            "$_MUX_"
         ]
+
+        if os.getenv("MORE_METRICS"):
+            yosys_metrics.append("$_NOT_")
 
         yosys_log = Artifact(rp, 'logs', "synthesis", "synthesis.log")
         yosys_log_content = yosys_log.get_content()
@@ -559,8 +564,12 @@ class Report(object):
                 metric_value = 0
                 metric_name_escaped = re.escape(metric)
 
+                if metric == "$_DFF_":
+                    metric_name_escaped = r"\$_DFF_(?:\w+)?"
+
+
                 match = re.search(
-                    rf"{metric_name_escaped}\s*(\d+)", yosys_log_content)
+                    rf"{metric_name_escaped}\s+(\d+)", yosys_log_content)
 
                 if match is not None:
                     metric_value = int(match[1])

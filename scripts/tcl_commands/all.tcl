@@ -583,7 +583,7 @@ proc prep {args} {
     # Convert Tracks
     set tracks_processed $::env(routing_tmpfiles)/config.tracks
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-    set ::env(TRACKS_INFO_FILE) $tracks_processed
+    set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
         puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."

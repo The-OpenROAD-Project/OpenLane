@@ -16,6 +16,7 @@
 import re
 import os
 import sys
+import yaml
 import glob
 import shlex
 import getpass
@@ -25,6 +26,8 @@ from gh import gh
 threads_used = int(subprocess.check_output(["nproc"]).decode("utf-8")) - 1
 test_name = "TEST"
 design_list = sys.argv[1:]
+if len(design_list) == 0:
+    exit(0)
 test_set = os.getenv("TEST_SET")
 if test_set is not None:
     test_name = f"TEST_{test_set}"
@@ -63,10 +66,9 @@ docker_command = [
         "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
     ])
 ]
-print(os.getenv("PWD"))
-print("Running %s…" % shlex.join(docker_command))
-subprocess.run(docker_command, check=True)
 
+print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
+subprocess.run(docker_command, check=True)
 
 cat = lambda x: print(open(x).read())
 
@@ -78,15 +80,19 @@ for report in glob.glob(os.path.join(results_folder, f"{test_name}*.rpt")):
 print("Full report:")
 cat(os.path.join(results_folder, f"{test_name}.csv"))
 
-design_test_report = os.path.join(results_folder, f"{test_name}.csv")
+design_test_report = os.path.join(results_folder, f"{test_name}.rpt.yml")
 if not os.path.exists(design_test_report):
     print(f"Couldn't find final design test report at {design_test_report}.")
     exit(-1)
 
 cat(design_test_report)
 
-if "FAILED" in open(design_test_report).read():
-    print("At least one test has failed.")
-    exit(-1)
+dtr_str = open(design_test_report).read()
+dtr = yaml.safe_load(dtr_str)
+
+for design in design_list:
+    if not dtr[design]["pass"]:
+        print("At least one test has failed.")
+        exit(-1)
 
 print("Done.")

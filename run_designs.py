@@ -348,22 +348,19 @@ def run_design(designs_queue):
                         design=design, tag=tag
                     )
                 )
-                
                 subprocess.check_output([
                     "python3",
                     "./scripts/compare_regression_design.py",
-                    "-b", args.benchmark,
-                    "-r", f"{report_file_name}.csv",
-                    "-o", f"{report_file_name}_design_test_report.csv",
-                    "-d", design,
-                    "-p", run_path
+                    "--output-report", f"{report_file_name}.rpt.yml",
+                    "--benchmark", args.benchmark,
+                    "--design", design,
+                    "--run-path", run_path,
+                    f"{report_file_name}.csv"
                 ], stderr=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
                 error_msg = e.stderr.decode(sys.getfilesystemencoding())
                 log.error(
-                    "{design} {tag} failed to compare with benchmark: {error_msg}".format(
-                        design=design, tag=tag, error_msg=error_msg
-                    )
+                    f"{design} {tag} failed to compare with benchmark: {error_msg}"
                 )
 
         if args.clean:
@@ -526,10 +523,12 @@ for i in range(num_workers):
     print("Exiting thread", i)
 
 log.info("Getting top results...")
-best_result_cmd = "python3 ./scripts/report/get_best.py -i {input} -o {output}".format(
-    input=report_handler.baseFilename, output=report_file_name + "_best.csv"
-)
-subprocess.check_output(best_result_cmd.split())
+subprocess.check_output([
+    "python3",
+    "./scripts/report/get_best.py",
+    "-i", report_handler.baseFilename,
+    "-o", f"{report_file_name}_best.csv"
+])
 
 if args.htmlExtract:
     log.warn("htmlExtract is deprecated.")
@@ -541,12 +540,15 @@ utils.addComputedStatistics(report_file_name + "_best.csv")
 
 if args.benchmark is not None:
     log.info("Benchmarking...")
-    full_benchmark_comp_cmd = "python3 scripts/compare_regression_reports.py -ur -b {benchmark} -r {this_run} -o {output_report} -x {output_xlsx}".format(
-        benchmark=args.benchmark,
-        this_run=report_file_name + ".csv",
-        output_report=report_file_name + "_benchmark_written_report.rpt",
-        output_xlsx=report_file_name + "_benchmark_final_report.xlsx",
-    )
-    subprocess.check_output(full_benchmark_comp_cmd.split())
+    full_benchmark_comp_cmd = [
+        "python3",
+        "./scripts/compare_regression_reports.py",
+        "--no-full-benchmark",
+        "--benchmark", args.benchmark,
+        "--output-report", f"{report_file_name}.rpt",
+        "--output-xlsx", f"{report_file_name}.rpt.xlsx",
+        f"{report_file_name}.csv"
+    ]
+    subprocess.check_output(full_benchmark_comp_cmd)
 
 log.info("Done")

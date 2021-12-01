@@ -39,22 +39,22 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_timing_violations {args} {
-    set hold_report $::env(FINAL_TIMING_REPORT_TAG).min.rpt
-    set setup_report $::env(FINAL_TIMING_REPORT_TAG).max.rpt
-    set slew_report $::env(FINAL_TIMING_REPORT_TAG).slew.rpt
+    if { [info exists ::env(LAST_TIMING_REPORT_TAG)] } {
+        set hold_report $::env(LAST_TIMING_REPORT_TAG).min.rpt
+        set setup_report $::env(LAST_TIMING_REPORT_TAG).max.rpt
+        set slew_report $::env(LAST_TIMING_REPORT_TAG).slew.rpt
 
-    foreach file [ list $hold_report $setup_report $slew_report] {
-        if {![file exist $file]} {
-            puts_err "File $file doesn't exist."
-            flow_fail
-            return -code error
+        foreach file [ list $hold_report $setup_report $slew_report] {
+            if {![file exist $file]} {
+                puts_err "File $file doesn't exist."
+                flow_fail
+                return -code error
+            }
         }
-    }
 
-    check_slew_violations -report_file $slew_report -corner "typical"
-    if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
-        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_VIOLATIONS)
-        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $::env(QUIT_ON_SETUP_VIOLATIONS)
+        check_slew_violations -report_file $slew_report -corner "typical"
+        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
+        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
     }
 }
 
