@@ -301,9 +301,10 @@ antennacheck
 			|& tee $::env(TERMINAL_OUTPUT) $antenna_log
 
 	# process the log
-	set ::env(finishing_logs) $log_tag_saver
-	try_catch awk "/Cell:/ {print \$2}" [index_file $::env(finishing_logs)/antenna.log] \
-			> $antenna_log
+	try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_log
+
+	set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+	
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"
 
