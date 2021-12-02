@@ -120,9 +120,9 @@ The script can be used in two ways
 
 - If a file is provided to the --benchmark flag, the following files will also be generated:
 
-    6. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_design_test_report.csv` An incrementaly generated list of all designs in this run compared to the benchmark results and whether they PASSED or FAILED the regression test.
-    7. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_written_report.rpt` A detailed report pointing out the differences between this run of the test set and the benchmark results. It divides them into three categories: Critical, Note-worthy, and Configurations.
-    8. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>_benchmark_final_report.xlsx` A design to design comparison between benchmark results and this run of the test set. It includes whether or not a design failed or passed the test and it highlights the differences.
+    6. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.rpt.yml` An incrementaly generated list of all designs in this run compared to the benchmark results and whether they PASSED or FAILED the regression test.
+    7. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.rpt` A detailed report pointing out the differences between this run of the test set and the benchmark results. It divides them into three categories: Critical, Note-worthy, and Configurations.
+    8. `regression_results/<tag>_<timestamp>/<tag>_<timestamp>.rpt.xlsx` A design to design comparison between benchmark results and this run of the test set. It includes whether or not a design failed or passed the test and it highlights the differences.
 
 
 ## Command line arguments

@@ -124,12 +124,23 @@ proc run_non_interactive_mode {args} {
 		{-no_lvs optional}
 	    {-no_drc optional}
 	    {-no_antennacheck optional}
+	    {-override_env optional}
 	}
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
 	prep {*}$args
     # signal trap SIGINT save_state;
+
+	if { [info exists arg_values(-override_env)] } {
+		set env_overrides [split $arg_values(-override_env) ','] 
+		foreach override $env_overrides {
+			set kva [split $override '=']
+			set key [lindex $kva 0]
+			set value [lindex $kva 1]
+			set ::env(${key}) $value
+		}
+	}
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]

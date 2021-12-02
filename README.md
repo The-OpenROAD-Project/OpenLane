@@ -165,165 +165,26 @@ Having trouble running the flow? check [FAQs](https://github.com/The-OpenROAD-Pr
 
 The following are arguments that can be passed to `flow.tcl`
 
-<table>
-    <tr>
-        <th width="196">
-        Argument
-        </th>
-        <th >
-        Description
-        </th>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-design &lt;folder path&gt;</code> <br> (Required)
-        </td>
-        <td align="justify">
-            Specifies the design folder. A design folder should contain a config.tcl defining the design parameters. <br> If the folder is not found, ./designs directory is searched
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-from &lt;stage&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies stage to start flow execution from
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-to &lt;stage&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies stage to stop flow execution at (included)
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-config_file &lt;file&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design /spm -config_file /spm/config2.tcl</code> <br> By default <code>config.tcl</code> is used.
-        </td>
-    </tr>
-        <tr>
-        <td align="center">
-            <code>-config_tag &lt;name&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2</code> <br> By default <code>config</code> is used.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-tag &lt;name&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a <code>name</code> for a specific run. If the tag is not specified, a timestamp is generated for identification of that run. <br> Can Specify the configuration file name in case of using <code>-init_design_config</code>
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-run_path &lt;path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a <code>path</code> to save the run in. By default the run is in <code>design_path/</code>, where the design path is the one passed to <code>-design</code>
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-save <br> (Optional)
-        </td>
-        <td align="justify">
-            A flag to save a runs results like .mag and .lef in the design's folder
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-save_path &lt;path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a different path to save the design's result. This options is to be used with the <code>-save</code> flag
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-src &lt;verilog_source_file&gt; </code> <br> (Optional)
-        </td>
-        <td td align="justify">
-            Sets the verilog source code file(s) in case of using `-init_design_config`. <br> The default is that the source code files are under <code>design_path/src/</code>, where the design path is the one passed to <code>-design</code>
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-init_design_config </code> <br> (Optional)
-        </td>
-        <td td align="justify">
-            Creates a tcl configuration file for a design. <code>-tag &lt;name&gt;</code> can be added to rename the config file to <code>&lt;name&gt;.tcl</code>
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-overwrite</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Flag to overwirte an existing run with the same tag
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-interactive</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Flag to run openlane flow in interactive mode
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-file &lt;file_path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Passes a script of interactive commands in interactive mode
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-synth_explore</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-lvs</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -net DESIGN_NETLIST.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-drc</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -report OUTPUT_REPORT_PATH -magicrc MAGICRC.
-        </td>
-    </tr>
-</table>
-
+| Argument | Description |
+| - | - |
+| `-design <folder path>`  <br>(Required) | Specifies the design folder. A design folder should contain a config.tcl defining the design parameters.  <br>If the folder is not found, ./designs directory is searched |
+| `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
+| `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
+| `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `/spm/config2.tcl`  <br>Use run `./flow.tcl -design /spm -config_file /spm/config2.tcl`  <br>By default `config.tcl` is used. |
+| `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `KEY1=VALUE1,KEY2=VALUE2` |
+| `-config_tag <name>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design spm -config_tag config2`  <br>By default `config` is used. |
+| `-tag <name>`  <br>(Optional) | Specifies a `name` for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  <br>Can Specify the configuration file name in case of using `-init_design_config` |
+| `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
+| `-save`  <br>(Optional) | A flag to save a runs results like .mag and .lef in the design's folder |
+| `-save_path <path>`  <br>(Optional) | Specifies a different path to save the design's result. This options is to be used with the `-save` flag |
+| `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
+| `-init_design_config`  <br>(Optional) | Creates a tcl configuration file for a design. `-tag <name>` can be added to rename the config file to `<name>.tcl` |
+| `-overwrite`  <br>(Optional) | Flag to overwirte an existing run with the same tag |
+| `-interactive`  <br>(Optional) | Flag to run openlane flow in interactive mode |
+| `-file <file_path>`  <br>(Optional) | Passes a script of interactive commands in interactive mode |
+| `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
+| `-lvs`  <br>(Boolean) | If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -net DESIGN_NETLIST. |
+| `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
 
 ## Adding a design
 

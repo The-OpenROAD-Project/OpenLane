@@ -17,7 +17,7 @@ on:
 
 jobs:
   docker_build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -83,7 +83,7 @@ jobs:
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
     needs: docker_build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.docker_build.outputs.matrix) }}
@@ -126,6 +126,9 @@ jobs:
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
+      - name: Get Pyyaml
+        run: python3 -m pip install pyyaml
+
       - name: Run Test
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
         
@@ -151,7 +154,7 @@ jobs:
       name: Cleanup (and Possibly Deployment)
       needs: test
       if: always()
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
       steps:
       - name: Check If Going To Push An Image To Docker
         # # Uncomment the next line if you want to only build & push a container if entire test set succeeds

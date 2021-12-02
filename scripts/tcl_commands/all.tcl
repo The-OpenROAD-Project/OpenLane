@@ -583,7 +583,7 @@ proc prep {args} {
     # Convert Tracks
     set tracks_processed $::env(routing_tmpfiles)/config.tracks
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-    set ::env(TRACKS_INFO_FILE) $tracks_processed
+    set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
         puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
@@ -749,7 +749,12 @@ proc heal_antenna_violators {args} {
         puts_info "Healing Antenna Violators..."
 		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
 			#ARC specific
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i [index_file $::env(finishing_logs)/antenna.log] -o [index_file $::env(routing_reports)/violators.txt]
+            if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
+			    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o [index_file $::env(routing_reports)/violators.txt]
+            } else {
+                puts_err "Ran heal_antenna_violators without running the antenna check first."
+                flow_fail
+            }
 		} else {
             #Magic Specific
 			set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
@@ -899,7 +904,9 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/antenna.log]
+    set antenna_log [index_file $::env(finishing_logs)/antenna.log]
+	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $antenna_log
+    set ::env(ANTENNA_CHECKER_LOG) $antenna_log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }

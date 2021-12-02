@@ -432,7 +432,7 @@ proc run_routing {args} {
 
     # run sta at the typical corner using the extracted spef
     run_sta -log $::env(routing_logs)/parasitics_sta.log
-    set ::env(FINAL_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
+    set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
 
     set ::env(CURRENT_SDF) $::env(SAVE_SDF)
 
