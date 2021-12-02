@@ -251,7 +251,7 @@ class Installer(object):
                         sh("rm", "-rf", "current")
                         sh("git", "clone", package, "current")
                         with chdir("current"):
-                            sh("makepkg", "-si")
+                            sh("makepkg", "-si", "--noconfirm")
             if os_pick == "ubuntu-20.04":
                 raw = cat_all(join(openlane_dir, 'dependencies', 'ubuntu-20.04')).strip().split("\n")
 
