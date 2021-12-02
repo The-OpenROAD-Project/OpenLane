@@ -26,6 +26,7 @@ set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 
 set ::env(RUN_MAGIC) 1
+set ::env(RUN_MAGIC_DRC) 1
 set ::env(MAGIC_PAD) 0
 set ::env(MAGIC_ZEROIZE_ORIGIN) 0
 set ::env(MAGIC_GENERATE_GDS) 1
