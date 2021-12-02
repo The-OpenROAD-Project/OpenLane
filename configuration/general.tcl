@@ -22,6 +22,8 @@ if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
+set ::env(RUN_LVS) 1
+
 set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 
