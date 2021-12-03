@@ -46,7 +46,7 @@ proc run_cts_step {args} {
     run_resizer_timing
 }
 
-proc pause {{message "Press enter to continue ==> "}} {
+proc # pause {{message "Press enter to continue ==> "}} {
     puts -nonewline $message
     flush stdout
     gets stdin
@@ -62,14 +62,14 @@ proc run_routing_step {args} {
     } else {
         puts "Routing for ECO iteration $::env(ECO_ITER)"
     }
-    puts "DEF/NETLIST used in Routing: "
+    puts "NETLIST/DEF used in Routing: "
     puts "-------------------------------------------"
-    puts $::env(CURRENT_DEF) 
     puts $::env(CURRENT_NETLIST)
+    puts $::env(CURRENT_DEF) 
     puts "-------------------------------------------"
 
     # Pause to see puts output
-    pause;
+    # pause;
 
     if { $::env(ECO_ITER) == 0 } {
         if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
@@ -159,12 +159,12 @@ proc run_apply_step {args} {
     set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 
     puts "ECO Iteration $::env(ECO_ITER): "
-    puts "Set NET/DEF in apply_fix.tcl"
-    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
+    puts "Set NETLIST/DEF in apply_fix.tcl"
+    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
     puts $::env(CURRENT_NETLIST)
     puts $::env(CURRENT_DEF)
-    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&7"
-    pause;
+    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
+    # pause;
 }
 
 proc eco_read_fix {args} {
@@ -183,7 +183,7 @@ proc eco_gen_buffer {args} {
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
     if { $::env(ECO_ITER) == 0 } {
-        puts "Generating fixes for ECO iteration 0!"
+        puts "Generating fixes for ECO iteration 1!"
         puts "Parsing STA report: "
         puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
                            *multi_corner_sta.min*] end]
@@ -193,7 +193,7 @@ proc eco_gen_buffer {args} {
         puts "Input Def File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
                          *.def] end]
-        pause;
+        # pause;
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
@@ -205,7 +205,7 @@ proc eco_gen_buffer {args} {
                              *.def] end] \
             -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
     } else {
-        puts "Generating fixes for ECO iteration $::env(ECO_ITER)!"
+        puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
         puts "Parsing STA report: "
         puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
                     *multi_corner_sta.min*] end]
@@ -215,7 +215,7 @@ proc eco_gen_buffer {args} {
         puts "Input Def File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
                          *.def] end]
-        pause;
+        # pause;
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
@@ -278,7 +278,11 @@ proc run_eco_step {args} {
         # Get the connections then destroy them
         
         # Pause to see puts output
-        pause;
+        # pause;
+        if {$::env(ECO_ITER) > 10} {
+            puts "Ran for 10 itertations; Check files"
+            pause;
+        }
 
         set eco_steps [dict create "apply" {run_apply_step ""}\
             "routing" {run_routing_step ""}
