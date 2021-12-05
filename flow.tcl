@@ -46,7 +46,7 @@ proc run_cts_step {args} {
     run_resizer_timing
 }
 
-proc # pause {{message "Press enter to continue ==> "}} {
+proc pause {{message "Press enter to continue ==> "}} {
     puts -nonewline $message
     flush stdout
     gets stdin
@@ -154,7 +154,12 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 proc run_apply_step {args} {
     puts "ECO: Applying Fixes!"
     try_catch $::env(OPENROAD_BIN) \
-        -exit $::env(SCRIPTS_DIR)/apply_fix.tcl 
+        -exit $::env(SCRIPTS_DIR)/apply_fix.tcl \
+        |& tee $::env(TERMINAL_OUTPUT) $::env(RUN_DIR)/logs/eco/$::env(ECO_ITER)_eco.log
+
+    if { $::env(ECO_ITER) > 10 } {
+        pause;
+    }
     set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
     set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
 
@@ -248,6 +253,7 @@ proc eco_output_check {args} {
 
 proc run_eco_step {args} {
 
+    set log          "$::env(RUN_DIR)/logs/eco"
     set path         "$::env(RUN_DIR)/results/eco"
     set fix_path     "$::env(RUN_DIR)/results/eco/fix"
     set def_path     "$::env(RUN_DIR)/results/eco/def"
@@ -255,6 +261,7 @@ proc run_eco_step {args} {
     set spef_path    "$::env(RUN_DIR)/results/eco/spef"
     set sdf_path     "$::env(RUN_DIR)/results/eco/sdf"
     set arc_def_path "$::env(RUN_DIR)/results/eco/arcdef"
+    file mkdir $log
     file mkdir $path
     file mkdir $fix_path
     file mkdir $def_path
@@ -349,7 +356,7 @@ proc run_non_interactive_mode {args} {
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
     
 	if {  ![info exists ::env(ECO_ENABLE) ] } {
-        set ::env(ECO_ENABLE) 1
+        set ::env(ECO_ENABLE) 1 
         set ::env(ECO_FINISH) 0
         set ::env(ECO_ITER) 0
     } 

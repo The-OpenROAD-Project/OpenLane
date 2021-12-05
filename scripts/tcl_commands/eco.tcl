@@ -1,4 +1,10 @@
 
+proc pause {{message "Press enter to continue ==> "}} {
+    puts -nonewline $message
+    flush stdout
+    gets stdin
+}
+
 proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   puts "Successfully set db"
   set db [ord::get_db]
@@ -19,6 +25,7 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   set disconnect "_disconnect"
   set disconnect_command "odb::db$pin_type$disconnect"
   set get_command "get$pin_type"
+  
   puts $find_command
   puts $connect_command
   puts $disconnect_command
@@ -68,6 +75,7 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
   puts "get the input and output"
   puts $input
   puts $output
+  
   if {$pin_type=="ITerm"} {
       set in_iterm [$inst getITerm $input]
       puts "get in iterm"
@@ -92,30 +100,44 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       
       # done inserting the buffer
       puts "done insert buffer"
+      
       odb::dbITerm_connect $out_iterm $old_net
       #odb::dbITerm_connect $in_iterm $old_net
       puts "connect to in_iterm"
+      
       odb::dbITerm_connect $in_iterm $new_net  
-     #odb::dbITerm_connect $out_iterm $new_net
+      #odb::dbITerm_connect $out_iterm $new_net
       puts "connect to out_iterm "
-  #$connect_command $in_iterm $old_net
-  #$connect_command $out_iterm $new_net
+  
+      #$connect_command $in_iterm $old_net
+      #$connect_command $out_iterm $new_net
 } else {
+      # set iterm [$block $find_command $pin_name]
+      # set inst [odb::dbInst_create $block $new_master $inst_name]
       set out_iterm [$inst getITerm $output]
       #set master_inst [$iterm getInst] 
       set box [$iterm getBBox] 
+
+      # get the position of the lower left point of this instance
       set x_min [$box xMin] 
       set y_min [$box yMin]
+
+      # $inst is the buffer we want to insert, now insert it in the position of the instance it is connected to, 
+      # using setLocation, and detail_place will help us separate them
       [$inst setLocation $x_min $y_min]
       [$inst setPlacementStatus PLACED] 
+      
       puts "start insert buffer"
       odb::dbITerm_connect $inst $new_net $input 
       #odb::dbITerm_connect $out_iterm $new_net
+      
       puts "connect to out iterm"
       odb::dbITerm_connect $out_iterm $old_net 
       #odb::dbITerm_connect $inst $old_net $input
       puts "connect to input pin!!!!!!!"     
 }
+
+      # pause;
 
 }
 
