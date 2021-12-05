@@ -1,0 +1,51 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1286 -1286 1436 1622
+<< pwell >>
+rect -26 -26 176 362
+<< scnmos >>
+rect 60 0 90 336
+<< ndiff >>
+rect 0 185 60 336
+rect 0 151 8 185
+rect 42 151 60 185
+rect 0 0 60 151
+rect 90 185 150 336
+rect 90 151 108 185
+rect 142 151 150 185
+rect 90 0 150 151
+<< ndiffc >>
+rect 8 151 42 185
+rect 108 151 142 185
+<< poly >>
+rect 60 336 90 362
+rect 60 -26 90 0
+<< locali >>
+rect 8 185 42 201
+rect 8 135 42 151
+rect 108 185 142 201
+rect 108 135 142 151
+use contact_17  contact_17_0
+timestamp 1636140361
+transform 1 0 100 0 1 135
+box 0 0 1 1
+use contact_17  contact_17_1
+timestamp 1636140361
+transform 1 0 0 0 1 135
+box 0 0 1 1
+<< labels >>
+rlabel locali s 125 168 125 168 4 D
+port 1 nsew
+rlabel locali s 25 168 25 168 4 S
+port 2 nsew
+rlabel poly s 75 168 75 168 4 G
+port 3 nsew
+<< properties >>
+string FIXED_BBOX -25 -26 175 362
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 29452
+string GDS_START 28700
+<< end >>

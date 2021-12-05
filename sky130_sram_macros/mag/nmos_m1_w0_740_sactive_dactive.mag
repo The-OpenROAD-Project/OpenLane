@@ -1,0 +1,18 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1235 -1186 1385 1335
+<< labels >>
+rlabel poly s 75 74 75 74 4 G
+port 1 nsew
+rlabel mvpdiff s 125 74 125 74 4 D
+port 2 nsew
+rlabel mvpdiff s 25 74 25 74 4 S
+port 3 nsew
+<< properties >>
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 75856
+string GDS_START 75172
+<< end >>

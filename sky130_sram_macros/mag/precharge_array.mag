@@ -1,0 +1,1517 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1260 -1272 41820 2028
+<< metal1 >>
+rect 66 0 94 754
+rect 530 0 558 754
+rect 690 0 718 754
+rect 1154 0 1182 754
+rect 1314 0 1342 754
+rect 1778 0 1806 754
+rect 1938 0 1966 754
+rect 2402 0 2430 754
+rect 2562 0 2590 754
+rect 3026 0 3054 754
+rect 3186 0 3214 754
+rect 3650 0 3678 754
+rect 3810 0 3838 754
+rect 4274 0 4302 754
+rect 4434 0 4462 754
+rect 4898 0 4926 754
+rect 5058 0 5086 754
+rect 5522 0 5550 754
+rect 5682 0 5710 754
+rect 6146 0 6174 754
+rect 6306 0 6334 754
+rect 6770 0 6798 754
+rect 6930 0 6958 754
+rect 7394 0 7422 754
+rect 7554 0 7582 754
+rect 8018 0 8046 754
+rect 8178 0 8206 754
+rect 8642 0 8670 754
+rect 8802 0 8830 754
+rect 9266 0 9294 754
+rect 9426 0 9454 754
+rect 9890 0 9918 754
+rect 10050 0 10078 754
+rect 10514 0 10542 754
+rect 10674 0 10702 754
+rect 11138 0 11166 754
+rect 11298 0 11326 754
+rect 11762 0 11790 754
+rect 11922 0 11950 754
+rect 12386 0 12414 754
+rect 12546 0 12574 754
+rect 13010 0 13038 754
+rect 13170 0 13198 754
+rect 13634 0 13662 754
+rect 13794 0 13822 754
+rect 14258 0 14286 754
+rect 14418 0 14446 754
+rect 14882 0 14910 754
+rect 15042 0 15070 754
+rect 15506 0 15534 754
+rect 15666 0 15694 754
+rect 16130 0 16158 754
+rect 16290 0 16318 754
+rect 16754 0 16782 754
+rect 16914 0 16942 754
+rect 17378 0 17406 754
+rect 17538 0 17566 754
+rect 18002 0 18030 754
+rect 18162 0 18190 754
+rect 18626 0 18654 754
+rect 18786 0 18814 754
+rect 19250 0 19278 754
+rect 19410 0 19438 754
+rect 19874 0 19902 754
+rect 20034 0 20062 754
+rect 20498 0 20526 754
+rect 20658 0 20686 754
+rect 21122 0 21150 754
+rect 21282 0 21310 754
+rect 21746 0 21774 754
+rect 21906 0 21934 754
+rect 22370 0 22398 754
+rect 22530 0 22558 754
+rect 22994 0 23022 754
+rect 23154 0 23182 754
+rect 23618 0 23646 754
+rect 23778 0 23806 754
+rect 24242 0 24270 754
+rect 24402 0 24430 754
+rect 24866 0 24894 754
+rect 25026 0 25054 754
+rect 25490 0 25518 754
+rect 25650 0 25678 754
+rect 26114 0 26142 754
+rect 26274 0 26302 754
+rect 26738 0 26766 754
+rect 26898 0 26926 754
+rect 27362 0 27390 754
+rect 27522 0 27550 754
+rect 27986 0 28014 754
+rect 28146 0 28174 754
+rect 28610 0 28638 754
+rect 28770 0 28798 754
+rect 29234 0 29262 754
+rect 29394 0 29422 754
+rect 29858 0 29886 754
+rect 30018 0 30046 754
+rect 30482 0 30510 754
+rect 30642 0 30670 754
+rect 31106 0 31134 754
+rect 31266 0 31294 754
+rect 31730 0 31758 754
+rect 31890 0 31918 754
+rect 32354 0 32382 754
+rect 32514 0 32542 754
+rect 32978 0 33006 754
+rect 33138 0 33166 754
+rect 33602 0 33630 754
+rect 33762 0 33790 754
+rect 34226 0 34254 754
+rect 34386 0 34414 754
+rect 34850 0 34878 754
+rect 35010 0 35038 754
+rect 35474 0 35502 754
+rect 35634 0 35662 754
+rect 36098 0 36126 754
+rect 36258 0 36286 754
+rect 36722 0 36750 754
+rect 36882 0 36910 754
+rect 37346 0 37374 754
+rect 37506 0 37534 754
+rect 37970 0 37998 754
+rect 38130 0 38158 754
+rect 38594 0 38622 754
+rect 38754 0 38782 754
+rect 39218 0 39246 754
+rect 39378 0 39406 754
+rect 39842 0 39870 754
+rect 40002 0 40030 754
+rect 40466 0 40494 754
+<< metal2 >>
+rect 284 53 340 62
+rect 284 -12 340 -3
+rect 908 53 964 62
+rect 908 -12 964 -3
+rect 1532 53 1588 62
+rect 1532 -12 1588 -3
+rect 2156 53 2212 62
+rect 2156 -12 2212 -3
+rect 2780 53 2836 62
+rect 2780 -12 2836 -3
+rect 3404 53 3460 62
+rect 3404 -12 3460 -3
+rect 4028 53 4084 62
+rect 4028 -12 4084 -3
+rect 4652 53 4708 62
+rect 4652 -12 4708 -3
+rect 5276 53 5332 62
+rect 5276 -12 5332 -3
+rect 5900 53 5956 62
+rect 5900 -12 5956 -3
+rect 6524 53 6580 62
+rect 6524 -12 6580 -3
+rect 7148 53 7204 62
+rect 7148 -12 7204 -3
+rect 7772 53 7828 62
+rect 7772 -12 7828 -3
+rect 8396 53 8452 62
+rect 8396 -12 8452 -3
+rect 9020 53 9076 62
+rect 9020 -12 9076 -3
+rect 9644 53 9700 62
+rect 9644 -12 9700 -3
+rect 10268 53 10324 62
+rect 10268 -12 10324 -3
+rect 10892 53 10948 62
+rect 10892 -12 10948 -3
+rect 11516 53 11572 62
+rect 11516 -12 11572 -3
+rect 12140 53 12196 62
+rect 12140 -12 12196 -3
+rect 12764 53 12820 62
+rect 12764 -12 12820 -3
+rect 13388 53 13444 62
+rect 13388 -12 13444 -3
+rect 14012 53 14068 62
+rect 14012 -12 14068 -3
+rect 14636 53 14692 62
+rect 14636 -12 14692 -3
+rect 15260 53 15316 62
+rect 15260 -12 15316 -3
+rect 15884 53 15940 62
+rect 15884 -12 15940 -3
+rect 16508 53 16564 62
+rect 16508 -12 16564 -3
+rect 17132 53 17188 62
+rect 17132 -12 17188 -3
+rect 17756 53 17812 62
+rect 17756 -12 17812 -3
+rect 18380 53 18436 62
+rect 18380 -12 18436 -3
+rect 19004 53 19060 62
+rect 19004 -12 19060 -3
+rect 19628 53 19684 62
+rect 19628 -12 19684 -3
+rect 20252 53 20308 62
+rect 20252 -12 20308 -3
+rect 20876 53 20932 62
+rect 20876 -12 20932 -3
+rect 21500 53 21556 62
+rect 21500 -12 21556 -3
+rect 22124 53 22180 62
+rect 22124 -12 22180 -3
+rect 22748 53 22804 62
+rect 22748 -12 22804 -3
+rect 23372 53 23428 62
+rect 23372 -12 23428 -3
+rect 23996 53 24052 62
+rect 23996 -12 24052 -3
+rect 24620 53 24676 62
+rect 24620 -12 24676 -3
+rect 25244 53 25300 62
+rect 25244 -12 25300 -3
+rect 25868 53 25924 62
+rect 25868 -12 25924 -3
+rect 26492 53 26548 62
+rect 26492 -12 26548 -3
+rect 27116 53 27172 62
+rect 27116 -12 27172 -3
+rect 27740 53 27796 62
+rect 27740 -12 27796 -3
+rect 28364 53 28420 62
+rect 28364 -12 28420 -3
+rect 28988 53 29044 62
+rect 28988 -12 29044 -3
+rect 29612 53 29668 62
+rect 29612 -12 29668 -3
+rect 30236 53 30292 62
+rect 30236 -12 30292 -3
+rect 30860 53 30916 62
+rect 30860 -12 30916 -3
+rect 31484 53 31540 62
+rect 31484 -12 31540 -3
+rect 32108 53 32164 62
+rect 32108 -12 32164 -3
+rect 32732 53 32788 62
+rect 32732 -12 32788 -3
+rect 33356 53 33412 62
+rect 33356 -12 33412 -3
+rect 33980 53 34036 62
+rect 33980 -12 34036 -3
+rect 34604 53 34660 62
+rect 34604 -12 34660 -3
+rect 35228 53 35284 62
+rect 35228 -12 35284 -3
+rect 35852 53 35908 62
+rect 35852 -12 35908 -3
+rect 36476 53 36532 62
+rect 36476 -12 36532 -3
+rect 37100 53 37156 62
+rect 37100 -12 37156 -3
+rect 37724 53 37780 62
+rect 37724 -12 37780 -3
+rect 38348 53 38404 62
+rect 38348 -12 38404 -3
+rect 38972 53 39028 62
+rect 38972 -12 39028 -3
+rect 39596 53 39652 62
+rect 39596 -12 39652 -3
+rect 40220 53 40276 62
+rect 40220 -12 40276 -3
+<< via2 >>
+rect 284 -3 340 53
+rect 908 -3 964 53
+rect 1532 -3 1588 53
+rect 2156 -3 2212 53
+rect 2780 -3 2836 53
+rect 3404 -3 3460 53
+rect 4028 -3 4084 53
+rect 4652 -3 4708 53
+rect 5276 -3 5332 53
+rect 5900 -3 5956 53
+rect 6524 -3 6580 53
+rect 7148 -3 7204 53
+rect 7772 -3 7828 53
+rect 8396 -3 8452 53
+rect 9020 -3 9076 53
+rect 9644 -3 9700 53
+rect 10268 -3 10324 53
+rect 10892 -3 10948 53
+rect 11516 -3 11572 53
+rect 12140 -3 12196 53
+rect 12764 -3 12820 53
+rect 13388 -3 13444 53
+rect 14012 -3 14068 53
+rect 14636 -3 14692 53
+rect 15260 -3 15316 53
+rect 15884 -3 15940 53
+rect 16508 -3 16564 53
+rect 17132 -3 17188 53
+rect 17756 -3 17812 53
+rect 18380 -3 18436 53
+rect 19004 -3 19060 53
+rect 19628 -3 19684 53
+rect 20252 -3 20308 53
+rect 20876 -3 20932 53
+rect 21500 -3 21556 53
+rect 22124 -3 22180 53
+rect 22748 -3 22804 53
+rect 23372 -3 23428 53
+rect 23996 -3 24052 53
+rect 24620 -3 24676 53
+rect 25244 -3 25300 53
+rect 25868 -3 25924 53
+rect 26492 -3 26548 53
+rect 27116 -3 27172 53
+rect 27740 -3 27796 53
+rect 28364 -3 28420 53
+rect 28988 -3 29044 53
+rect 29612 -3 29668 53
+rect 30236 -3 30292 53
+rect 30860 -3 30916 53
+rect 31484 -3 31540 53
+rect 32108 -3 32164 53
+rect 32732 -3 32788 53
+rect 33356 -3 33412 53
+rect 33980 -3 34036 53
+rect 34604 -3 34660 53
+rect 35228 -3 35284 53
+rect 35852 -3 35908 53
+rect 36476 -3 36532 53
+rect 37100 -3 37156 53
+rect 37724 -3 37780 53
+rect 38348 -3 38404 53
+rect 38972 -3 39028 53
+rect 39596 -3 39652 53
+rect 40220 -3 40276 53
+<< metal3 >>
+rect 382 595 480 693
+rect 768 595 866 693
+rect 1630 595 1728 693
+rect 2016 595 2114 693
+rect 2878 595 2976 693
+rect 3264 595 3362 693
+rect 4126 595 4224 693
+rect 4512 595 4610 693
+rect 5374 595 5472 693
+rect 5760 595 5858 693
+rect 6622 595 6720 693
+rect 7008 595 7106 693
+rect 7870 595 7968 693
+rect 8256 595 8354 693
+rect 9118 595 9216 693
+rect 9504 595 9602 693
+rect 10366 595 10464 693
+rect 10752 595 10850 693
+rect 11614 595 11712 693
+rect 12000 595 12098 693
+rect 12862 595 12960 693
+rect 13248 595 13346 693
+rect 14110 595 14208 693
+rect 14496 595 14594 693
+rect 15358 595 15456 693
+rect 15744 595 15842 693
+rect 16606 595 16704 693
+rect 16992 595 17090 693
+rect 17854 595 17952 693
+rect 18240 595 18338 693
+rect 19102 595 19200 693
+rect 19488 595 19586 693
+rect 20350 595 20448 693
+rect 20736 595 20834 693
+rect 21598 595 21696 693
+rect 21984 595 22082 693
+rect 22846 595 22944 693
+rect 23232 595 23330 693
+rect 24094 595 24192 693
+rect 24480 595 24578 693
+rect 25342 595 25440 693
+rect 25728 595 25826 693
+rect 26590 595 26688 693
+rect 26976 595 27074 693
+rect 27838 595 27936 693
+rect 28224 595 28322 693
+rect 29086 595 29184 693
+rect 29472 595 29570 693
+rect 30334 595 30432 693
+rect 30720 595 30818 693
+rect 31582 595 31680 693
+rect 31968 595 32066 693
+rect 32830 595 32928 693
+rect 33216 595 33314 693
+rect 34078 595 34176 693
+rect 34464 595 34562 693
+rect 35326 595 35424 693
+rect 35712 595 35810 693
+rect 36574 595 36672 693
+rect 36960 595 37058 693
+rect 37822 595 37920 693
+rect 38208 595 38306 693
+rect 39070 595 39168 693
+rect 39456 595 39554 693
+rect 40318 595 40416 693
+rect 279 55 345 58
+rect 903 55 969 58
+rect 1527 55 1593 58
+rect 2151 55 2217 58
+rect 2775 55 2841 58
+rect 3399 55 3465 58
+rect 4023 55 4089 58
+rect 4647 55 4713 58
+rect 5271 55 5337 58
+rect 5895 55 5961 58
+rect 6519 55 6585 58
+rect 7143 55 7209 58
+rect 7767 55 7833 58
+rect 8391 55 8457 58
+rect 9015 55 9081 58
+rect 9639 55 9705 58
+rect 10263 55 10329 58
+rect 10887 55 10953 58
+rect 11511 55 11577 58
+rect 12135 55 12201 58
+rect 12759 55 12825 58
+rect 13383 55 13449 58
+rect 14007 55 14073 58
+rect 14631 55 14697 58
+rect 15255 55 15321 58
+rect 15879 55 15945 58
+rect 16503 55 16569 58
+rect 17127 55 17193 58
+rect 17751 55 17817 58
+rect 18375 55 18441 58
+rect 18999 55 19065 58
+rect 19623 55 19689 58
+rect 20247 55 20313 58
+rect 20871 55 20937 58
+rect 21495 55 21561 58
+rect 22119 55 22185 58
+rect 22743 55 22809 58
+rect 23367 55 23433 58
+rect 23991 55 24057 58
+rect 24615 55 24681 58
+rect 25239 55 25305 58
+rect 25863 55 25929 58
+rect 26487 55 26553 58
+rect 27111 55 27177 58
+rect 27735 55 27801 58
+rect 28359 55 28425 58
+rect 28983 55 29049 58
+rect 29607 55 29673 58
+rect 30231 55 30297 58
+rect 30855 55 30921 58
+rect 31479 55 31545 58
+rect 32103 55 32169 58
+rect 32727 55 32793 58
+rect 33351 55 33417 58
+rect 33975 55 34041 58
+rect 34599 55 34665 58
+rect 35223 55 35289 58
+rect 35847 55 35913 58
+rect 36471 55 36537 58
+rect 37095 55 37161 58
+rect 37719 55 37785 58
+rect 38343 55 38409 58
+rect 38967 55 39033 58
+rect 39591 55 39657 58
+rect 40215 55 40281 58
+rect 0 53 40560 55
+rect 0 -3 284 53
+rect 340 -3 908 53
+rect 964 -3 1532 53
+rect 1588 -3 2156 53
+rect 2212 -3 2780 53
+rect 2836 -3 3404 53
+rect 3460 -3 4028 53
+rect 4084 -3 4652 53
+rect 4708 -3 5276 53
+rect 5332 -3 5900 53
+rect 5956 -3 6524 53
+rect 6580 -3 7148 53
+rect 7204 -3 7772 53
+rect 7828 -3 8396 53
+rect 8452 -3 9020 53
+rect 9076 -3 9644 53
+rect 9700 -3 10268 53
+rect 10324 -3 10892 53
+rect 10948 -3 11516 53
+rect 11572 -3 12140 53
+rect 12196 -3 12764 53
+rect 12820 -3 13388 53
+rect 13444 -3 14012 53
+rect 14068 -3 14636 53
+rect 14692 -3 15260 53
+rect 15316 -3 15884 53
+rect 15940 -3 16508 53
+rect 16564 -3 17132 53
+rect 17188 -3 17756 53
+rect 17812 -3 18380 53
+rect 18436 -3 19004 53
+rect 19060 -3 19628 53
+rect 19684 -3 20252 53
+rect 20308 -3 20876 53
+rect 20932 -3 21500 53
+rect 21556 -3 22124 53
+rect 22180 -3 22748 53
+rect 22804 -3 23372 53
+rect 23428 -3 23996 53
+rect 24052 -3 24620 53
+rect 24676 -3 25244 53
+rect 25300 -3 25868 53
+rect 25924 -3 26492 53
+rect 26548 -3 27116 53
+rect 27172 -3 27740 53
+rect 27796 -3 28364 53
+rect 28420 -3 28988 53
+rect 29044 -3 29612 53
+rect 29668 -3 30236 53
+rect 30292 -3 30860 53
+rect 30916 -3 31484 53
+rect 31540 -3 32108 53
+rect 32164 -3 32732 53
+rect 32788 -3 33356 53
+rect 33412 -3 33980 53
+rect 34036 -3 34604 53
+rect 34660 -3 35228 53
+rect 35284 -3 35852 53
+rect 35908 -3 36476 53
+rect 36532 -3 37100 53
+rect 37156 -3 37724 53
+rect 37780 -3 38348 53
+rect 38404 -3 38972 53
+rect 39028 -3 39596 53
+rect 39652 -3 40220 53
+rect 40276 -3 40560 53
+rect 0 -5 40560 -3
+rect 279 -8 345 -5
+rect 903 -8 969 -5
+rect 1527 -8 1593 -5
+rect 2151 -8 2217 -5
+rect 2775 -8 2841 -5
+rect 3399 -8 3465 -5
+rect 4023 -8 4089 -5
+rect 4647 -8 4713 -5
+rect 5271 -8 5337 -5
+rect 5895 -8 5961 -5
+rect 6519 -8 6585 -5
+rect 7143 -8 7209 -5
+rect 7767 -8 7833 -5
+rect 8391 -8 8457 -5
+rect 9015 -8 9081 -5
+rect 9639 -8 9705 -5
+rect 10263 -8 10329 -5
+rect 10887 -8 10953 -5
+rect 11511 -8 11577 -5
+rect 12135 -8 12201 -5
+rect 12759 -8 12825 -5
+rect 13383 -8 13449 -5
+rect 14007 -8 14073 -5
+rect 14631 -8 14697 -5
+rect 15255 -8 15321 -5
+rect 15879 -8 15945 -5
+rect 16503 -8 16569 -5
+rect 17127 -8 17193 -5
+rect 17751 -8 17817 -5
+rect 18375 -8 18441 -5
+rect 18999 -8 19065 -5
+rect 19623 -8 19689 -5
+rect 20247 -8 20313 -5
+rect 20871 -8 20937 -5
+rect 21495 -8 21561 -5
+rect 22119 -8 22185 -5
+rect 22743 -8 22809 -5
+rect 23367 -8 23433 -5
+rect 23991 -8 24057 -5
+rect 24615 -8 24681 -5
+rect 25239 -8 25305 -5
+rect 25863 -8 25929 -5
+rect 26487 -8 26553 -5
+rect 27111 -8 27177 -5
+rect 27735 -8 27801 -5
+rect 28359 -8 28425 -5
+rect 28983 -8 29049 -5
+rect 29607 -8 29673 -5
+rect 30231 -8 30297 -5
+rect 30855 -8 30921 -5
+rect 31479 -8 31545 -5
+rect 32103 -8 32169 -5
+rect 32727 -8 32793 -5
+rect 33351 -8 33417 -5
+rect 33975 -8 34041 -5
+rect 34599 -8 34665 -5
+rect 35223 -8 35289 -5
+rect 35847 -8 35913 -5
+rect 36471 -8 36537 -5
+rect 37095 -8 37161 -5
+rect 37719 -8 37785 -5
+rect 38343 -8 38409 -5
+rect 38967 -8 39033 -5
+rect 39591 -8 39657 -5
+rect 40215 -8 40281 -5
+use contact_9  contact_9_0
+timestamp 1636140361
+transform 1 0 279 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_1
+timestamp 1636140361
+transform -1 0 624 0 1 0
+box 0 -8 624 768
+use precharge_0  precharge_0_0
+timestamp 1636140361
+transform 1 0 624 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_31
+timestamp 1636140361
+transform 1 0 903 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_31
+timestamp 1636140361
+transform -1 0 1872 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_30
+timestamp 1636140361
+transform 1 0 1527 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_30
+timestamp 1636140361
+transform 1 0 1872 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_29
+timestamp 1636140361
+transform 1 0 2151 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_29
+timestamp 1636140361
+transform -1 0 3120 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_28
+timestamp 1636140361
+transform 1 0 2775 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_28
+timestamp 1636140361
+transform 1 0 3120 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_27
+timestamp 1636140361
+transform 1 0 3399 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_27
+timestamp 1636140361
+transform -1 0 4368 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_26
+timestamp 1636140361
+transform 1 0 4023 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_26
+timestamp 1636140361
+transform 1 0 4368 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_25
+timestamp 1636140361
+transform 1 0 4647 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_25
+timestamp 1636140361
+transform -1 0 5616 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_24
+timestamp 1636140361
+transform 1 0 5271 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_24
+timestamp 1636140361
+transform 1 0 5616 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_23
+timestamp 1636140361
+transform 1 0 5895 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_23
+timestamp 1636140361
+transform -1 0 6864 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_22
+timestamp 1636140361
+transform 1 0 6519 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_22
+timestamp 1636140361
+transform 1 0 6864 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_21
+timestamp 1636140361
+transform 1 0 7143 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_21
+timestamp 1636140361
+transform -1 0 8112 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_20
+timestamp 1636140361
+transform 1 0 7767 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_20
+timestamp 1636140361
+transform 1 0 8112 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_19
+timestamp 1636140361
+transform 1 0 8391 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_19
+timestamp 1636140361
+transform -1 0 9360 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_18
+timestamp 1636140361
+transform 1 0 9015 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_18
+timestamp 1636140361
+transform 1 0 9360 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_17
+timestamp 1636140361
+transform 1 0 9639 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_17
+timestamp 1636140361
+transform -1 0 10608 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_16
+timestamp 1636140361
+transform 1 0 10263 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_16
+timestamp 1636140361
+transform 1 0 10608 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_15
+timestamp 1636140361
+transform 1 0 10887 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_15
+timestamp 1636140361
+transform -1 0 11856 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_14
+timestamp 1636140361
+transform 1 0 11511 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_14
+timestamp 1636140361
+transform 1 0 11856 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_13
+timestamp 1636140361
+transform 1 0 12135 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_13
+timestamp 1636140361
+transform -1 0 13104 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_12
+timestamp 1636140361
+transform 1 0 12759 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_12
+timestamp 1636140361
+transform 1 0 13104 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_11
+timestamp 1636140361
+transform 1 0 13383 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_11
+timestamp 1636140361
+transform -1 0 14352 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_10
+timestamp 1636140361
+transform 1 0 14007 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_10
+timestamp 1636140361
+transform 1 0 14352 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_9
+timestamp 1636140361
+transform 1 0 14631 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_9
+timestamp 1636140361
+transform -1 0 15600 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_8
+timestamp 1636140361
+transform 1 0 15255 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_8
+timestamp 1636140361
+transform 1 0 15600 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_7
+timestamp 1636140361
+transform 1 0 15879 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_7
+timestamp 1636140361
+transform -1 0 16848 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_6
+timestamp 1636140361
+transform 1 0 16503 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_6
+timestamp 1636140361
+transform 1 0 16848 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_5
+timestamp 1636140361
+transform 1 0 17127 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_5
+timestamp 1636140361
+transform -1 0 18096 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_4
+timestamp 1636140361
+transform 1 0 17751 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_4
+timestamp 1636140361
+transform 1 0 18096 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_3
+timestamp 1636140361
+transform 1 0 18375 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_3
+timestamp 1636140361
+transform -1 0 19344 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_2
+timestamp 1636140361
+transform 1 0 18999 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_2
+timestamp 1636140361
+transform 1 0 19344 0 1 0
+box 0 -8 624 768
+use precharge_0  precharge_0_64
+timestamp 1636140361
+transform -1 0 20592 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_1
+timestamp 1636140361
+transform 1 0 19623 0 1 -12
+box 0 0 1 1
+use contact_9  contact_9_64
+timestamp 1636140361
+transform 1 0 20247 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_32
+timestamp 1636140361
+transform 1 0 20592 0 1 0
+box 0 -8 624 768
+use precharge_0  precharge_0_63
+timestamp 1636140361
+transform -1 0 21840 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_63
+timestamp 1636140361
+transform 1 0 20871 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_62
+timestamp 1636140361
+transform 1 0 21840 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_62
+timestamp 1636140361
+transform 1 0 21495 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_61
+timestamp 1636140361
+transform -1 0 23088 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_61
+timestamp 1636140361
+transform 1 0 22119 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_60
+timestamp 1636140361
+transform 1 0 23088 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_60
+timestamp 1636140361
+transform 1 0 22743 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_59
+timestamp 1636140361
+transform -1 0 24336 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_59
+timestamp 1636140361
+transform 1 0 23367 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_58
+timestamp 1636140361
+transform 1 0 24336 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_58
+timestamp 1636140361
+transform 1 0 23991 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_57
+timestamp 1636140361
+transform -1 0 25584 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_57
+timestamp 1636140361
+transform 1 0 24615 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_56
+timestamp 1636140361
+transform 1 0 25584 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_56
+timestamp 1636140361
+transform 1 0 25239 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_55
+timestamp 1636140361
+transform -1 0 26832 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_55
+timestamp 1636140361
+transform 1 0 25863 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_54
+timestamp 1636140361
+transform 1 0 26832 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_54
+timestamp 1636140361
+transform 1 0 26487 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_53
+timestamp 1636140361
+transform -1 0 28080 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_53
+timestamp 1636140361
+transform 1 0 27111 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_52
+timestamp 1636140361
+transform 1 0 28080 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_52
+timestamp 1636140361
+transform 1 0 27735 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_51
+timestamp 1636140361
+transform -1 0 29328 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_51
+timestamp 1636140361
+transform 1 0 28359 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_50
+timestamp 1636140361
+transform 1 0 29328 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_50
+timestamp 1636140361
+transform 1 0 28983 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_49
+timestamp 1636140361
+transform -1 0 30576 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_49
+timestamp 1636140361
+transform 1 0 29607 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_48
+timestamp 1636140361
+transform 1 0 30576 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_48
+timestamp 1636140361
+transform 1 0 30231 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_47
+timestamp 1636140361
+transform -1 0 31824 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_47
+timestamp 1636140361
+transform 1 0 30855 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_46
+timestamp 1636140361
+transform 1 0 31824 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_46
+timestamp 1636140361
+transform 1 0 31479 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_45
+timestamp 1636140361
+transform -1 0 33072 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_45
+timestamp 1636140361
+transform 1 0 32103 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_44
+timestamp 1636140361
+transform 1 0 33072 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_44
+timestamp 1636140361
+transform 1 0 32727 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_43
+timestamp 1636140361
+transform -1 0 34320 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_43
+timestamp 1636140361
+transform 1 0 33351 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_42
+timestamp 1636140361
+transform 1 0 34320 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_42
+timestamp 1636140361
+transform 1 0 33975 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_41
+timestamp 1636140361
+transform -1 0 35568 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_41
+timestamp 1636140361
+transform 1 0 34599 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_40
+timestamp 1636140361
+transform 1 0 35568 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_40
+timestamp 1636140361
+transform 1 0 35223 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_39
+timestamp 1636140361
+transform -1 0 36816 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_39
+timestamp 1636140361
+transform 1 0 35847 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_38
+timestamp 1636140361
+transform 1 0 36816 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_38
+timestamp 1636140361
+transform 1 0 36471 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_37
+timestamp 1636140361
+transform -1 0 38064 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_37
+timestamp 1636140361
+transform 1 0 37095 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_36
+timestamp 1636140361
+transform 1 0 38064 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_36
+timestamp 1636140361
+transform 1 0 37719 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_35
+timestamp 1636140361
+transform -1 0 39312 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_35
+timestamp 1636140361
+transform 1 0 38343 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_34
+timestamp 1636140361
+transform 1 0 39312 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_34
+timestamp 1636140361
+transform 1 0 38967 0 1 -12
+box 0 0 1 1
+use precharge_0  precharge_0_33
+timestamp 1636140361
+transform -1 0 40560 0 1 0
+box 0 -8 624 768
+use contact_9  contact_9_33
+timestamp 1636140361
+transform 1 0 39591 0 1 -12
+box 0 0 1 1
+use contact_9  contact_9_32
+timestamp 1636140361
+transform 1 0 40215 0 1 -12
+box 0 0 1 1
+<< labels >>
+rlabel metal1 s 14432 377 14432 377 4 bl_23
+port 47 nsew
+rlabel metal1 s 7408 377 7408 377 4 br_11
+port 24 nsew
+rlabel metal1 s 1792 377 1792 377 4 bl_2
+port 5 nsew
+rlabel metal1 s 7568 377 7568 377 4 br_12
+port 26 nsew
+rlabel metal1 s 544 377 544 377 4 bl_0
+port 1 nsew
+rlabel metal1 s 5536 377 5536 377 4 bl_8
+port 17 nsew
+rlabel metal1 s 1168 377 1168 377 4 br_1
+port 4 nsew
+rlabel metal1 s 16304 377 16304 377 4 br_26
+port 54 nsew
+rlabel metal1 s 16768 377 16768 377 4 bl_26
+port 53 nsew
+rlabel metal1 s 12560 377 12560 377 4 br_20
+port 42 nsew
+rlabel metal1 s 2576 377 2576 377 4 br_4
+port 10 nsew
+rlabel metal1 s 9280 377 9280 377 4 bl_14
+port 29 nsew
+rlabel metal1 s 10528 377 10528 377 4 bl_16
+port 33 nsew
+rlabel metal1 s 19424 377 19424 377 4 bl_31
+port 63 nsew
+rlabel metal1 s 19264 377 19264 377 4 bl_30
+port 61 nsew
+rlabel metal1 s 10688 377 10688 377 4 bl_17
+port 35 nsew
+rlabel metal1 s 1952 377 1952 377 4 bl_3
+port 7 nsew
+rlabel metal1 s 80 377 80 377 4 br_0
+port 2 nsew
+rlabel metal1 s 11776 377 11776 377 4 bl_18
+port 37 nsew
+rlabel metal1 s 8656 377 8656 377 4 br_13
+port 28 nsew
+rlabel metal1 s 16928 377 16928 377 4 bl_27
+port 55 nsew
+rlabel metal1 s 14896 377 14896 377 4 br_23
+port 48 nsew
+rlabel metal1 s 10064 377 10064 377 4 br_16
+port 34 nsew
+rlabel metal1 s 2416 377 2416 377 4 br_3
+port 8 nsew
+rlabel metal1 s 11936 377 11936 377 4 bl_19
+port 39 nsew
+rlabel metal1 s 17552 377 17552 377 4 br_28
+port 58 nsew
+rlabel metal1 s 5072 377 5072 377 4 br_8
+port 18 nsew
+rlabel metal1 s 6784 377 6784 377 4 bl_10
+port 21 nsew
+rlabel metal1 s 14272 377 14272 377 4 bl_22
+port 45 nsew
+rlabel metal1 s 4288 377 4288 377 4 bl_6
+port 13 nsew
+rlabel metal1 s 19888 377 19888 377 4 br_31
+port 64 nsew
+rlabel metal1 s 13184 377 13184 377 4 bl_21
+port 43 nsew
+rlabel metal1 s 6320 377 6320 377 4 br_10
+port 22 nsew
+rlabel metal1 s 11312 377 11312 377 4 br_18
+port 38 nsew
+rlabel metal1 s 704 377 704 377 4 bl_1
+port 3 nsew
+rlabel metal1 s 18176 377 18176 377 4 bl_29
+port 59 nsew
+rlabel metal1 s 15520 377 15520 377 4 bl_24
+port 49 nsew
+rlabel metal1 s 18800 377 18800 377 4 br_30
+port 62 nsew
+rlabel metal1 s 3200 377 3200 377 4 bl_5
+port 11 nsew
+rlabel metal1 s 11152 377 11152 377 4 br_17
+port 36 nsew
+rlabel metal1 s 9904 377 9904 377 4 br_15
+port 32 nsew
+rlabel metal1 s 4448 377 4448 377 4 bl_7
+port 15 nsew
+rlabel metal1 s 6160 377 6160 377 4 br_9
+port 20 nsew
+rlabel metal1 s 13648 377 13648 377 4 br_21
+port 44 nsew
+rlabel metal1 s 3824 377 3824 377 4 br_6
+port 14 nsew
+rlabel metal1 s 15680 377 15680 377 4 bl_25
+port 51 nsew
+rlabel metal1 s 6944 377 6944 377 4 bl_11
+port 23 nsew
+rlabel metal1 s 8816 377 8816 377 4 br_14
+port 30 nsew
+rlabel metal1 s 8032 377 8032 377 4 bl_12
+port 25 nsew
+rlabel metal1 s 16144 377 16144 377 4 br_25
+port 52 nsew
+rlabel metal1 s 20048 377 20048 377 4 br_32
+port 66 nsew
+rlabel metal1 s 3664 377 3664 377 4 br_5
+port 12 nsew
+rlabel metal1 s 12400 377 12400 377 4 br_19
+port 40 nsew
+rlabel metal1 s 13808 377 13808 377 4 br_22
+port 46 nsew
+rlabel metal1 s 9440 377 9440 377 4 bl_15
+port 31 nsew
+rlabel metal1 s 5696 377 5696 377 4 bl_9
+port 19 nsew
+rlabel metal1 s 17392 377 17392 377 4 br_27
+port 56 nsew
+rlabel metal1 s 13024 377 13024 377 4 bl_20
+port 41 nsew
+rlabel metal1 s 1328 377 1328 377 4 br_2
+port 6 nsew
+rlabel metal1 s 4912 377 4912 377 4 br_7
+port 16 nsew
+rlabel metal1 s 15056 377 15056 377 4 br_24
+port 50 nsew
+rlabel metal1 s 8192 377 8192 377 4 bl_13
+port 27 nsew
+rlabel metal1 s 18640 377 18640 377 4 br_29
+port 60 nsew
+rlabel metal1 s 18016 377 18016 377 4 bl_28
+port 57 nsew
+rlabel metal1 s 3040 377 3040 377 4 bl_4
+port 9 nsew
+rlabel metal1 s 30032 377 30032 377 4 br_48
+port 98 nsew
+rlabel metal1 s 32528 377 32528 377 4 br_52
+port 106 nsew
+rlabel metal1 s 27536 377 27536 377 4 br_44
+port 90 nsew
+rlabel metal1 s 24416 377 24416 377 4 bl_39
+port 79 nsew
+rlabel metal1 s 28000 377 28000 377 4 bl_44
+port 89 nsew
+rlabel metal1 s 32368 377 32368 377 4 br_51
+port 104 nsew
+rlabel metal1 s 22544 377 22544 377 4 br_36
+port 74 nsew
+rlabel metal1 s 40480 377 40480 377 4 bl_64
+port 129 nsew
+rlabel metal1 s 32992 377 32992 377 4 bl_52
+port 105 nsew
+rlabel metal1 s 33616 377 33616 377 4 br_53
+port 108 nsew
+rlabel metal1 s 34864 377 34864 377 4 br_55
+port 112 nsew
+rlabel metal1 s 30656 377 30656 377 4 bl_49
+port 99 nsew
+rlabel metal1 s 37360 377 37360 377 4 br_59
+port 120 nsew
+rlabel metal1 s 40016 377 40016 377 4 br_64
+port 130 nsew
+rlabel metal1 s 21920 377 21920 377 4 bl_35
+port 71 nsew
+rlabel metal1 s 39232 377 39232 377 4 bl_62
+port 125 nsew
+rlabel metal1 s 35648 377 35648 377 4 bl_57
+port 115 nsew
+rlabel metal1 s 21760 377 21760 377 4 bl_34
+port 69 nsew
+rlabel metal1 s 36272 377 36272 377 4 br_58
+port 118 nsew
+rlabel metal1 s 36896 377 36896 377 4 bl_59
+port 119 nsew
+rlabel metal1 s 30496 377 30496 377 4 bl_48
+port 97 nsew
+rlabel metal1 s 27376 377 27376 377 4 br_43
+port 88 nsew
+rlabel metal1 s 26912 377 26912 377 4 bl_43
+port 87 nsew
+rlabel metal1 s 31120 377 31120 377 4 br_49
+port 100 nsew
+rlabel metal1 s 25040 377 25040 377 4 br_40
+port 82 nsew
+rlabel metal1 s 36112 377 36112 377 4 br_57
+port 116 nsew
+rlabel metal1 s 28784 377 28784 377 4 br_46
+port 94 nsew
+rlabel metal1 s 22384 377 22384 377 4 br_35
+port 72 nsew
+rlabel metal1 s 33152 377 33152 377 4 bl_53
+port 107 nsew
+rlabel metal1 s 34400 377 34400 377 4 bl_55
+port 111 nsew
+rlabel metal1 s 26288 377 26288 377 4 br_42
+port 86 nsew
+rlabel metal1 s 23792 377 23792 377 4 br_38
+port 78 nsew
+rlabel metal1 s 23008 377 23008 377 4 bl_36
+port 73 nsew
+rlabel metal1 s 39856 377 39856 377 4 br_63
+port 128 nsew
+rlabel metal1 s 35488 377 35488 377 4 bl_56
+port 113 nsew
+rlabel metal1 s 37984 377 37984 377 4 bl_60
+port 121 nsew
+rlabel metal1 s 29872 377 29872 377 4 br_47
+port 96 nsew
+rlabel metal1 s 29248 377 29248 377 4 bl_46
+port 93 nsew
+rlabel metal1 s 29408 377 29408 377 4 bl_47
+port 95 nsew
+rlabel metal1 s 28624 377 28624 377 4 br_45
+port 92 nsew
+rlabel metal1 s 34240 377 34240 377 4 bl_54
+port 109 nsew
+rlabel metal1 s 31744 377 31744 377 4 bl_50
+port 101 nsew
+rlabel metal1 s 21296 377 21296 377 4 br_34
+port 70 nsew
+rlabel metal1 s 33776 377 33776 377 4 br_54
+port 110 nsew
+rlabel metal1 s 23168 377 23168 377 4 bl_37
+port 75 nsew
+rlabel metal1 s 25504 377 25504 377 4 bl_40
+port 81 nsew
+rlabel metal1 s 39392 377 39392 377 4 bl_63
+port 127 nsew
+rlabel metal1 s 38768 377 38768 377 4 br_62
+port 126 nsew
+rlabel metal1 s 26128 377 26128 377 4 br_41
+port 84 nsew
+rlabel metal1 s 25664 377 25664 377 4 bl_41
+port 83 nsew
+rlabel metal1 s 20512 377 20512 377 4 bl_32
+port 65 nsew
+rlabel metal1 s 26752 377 26752 377 4 bl_42
+port 85 nsew
+rlabel metal1 s 28160 377 28160 377 4 bl_45
+port 91 nsew
+rlabel metal1 s 21136 377 21136 377 4 br_33
+port 68 nsew
+rlabel metal1 s 38608 377 38608 377 4 br_61
+port 124 nsew
+rlabel metal1 s 35024 377 35024 377 4 br_56
+port 114 nsew
+rlabel metal1 s 36736 377 36736 377 4 bl_58
+port 117 nsew
+rlabel metal1 s 24880 377 24880 377 4 br_39
+port 80 nsew
+rlabel metal1 s 24256 377 24256 377 4 bl_38
+port 77 nsew
+rlabel metal1 s 31904 377 31904 377 4 bl_51
+port 103 nsew
+rlabel metal1 s 20672 377 20672 377 4 bl_33
+port 67 nsew
+rlabel metal1 s 31280 377 31280 377 4 br_50
+port 102 nsew
+rlabel metal1 s 37520 377 37520 377 4 br_60
+port 122 nsew
+rlabel metal1 s 38144 377 38144 377 4 bl_61
+port 123 nsew
+rlabel metal1 s 23632 377 23632 377 4 br_37
+port 76 nsew
+rlabel metal3 s 6671 644 6671 644 4 vdd
+port 132 nsew
+rlabel metal3 s 35375 644 35375 644 4 vdd
+port 132 nsew
+rlabel metal3 s 37009 644 37009 644 4 vdd
+port 132 nsew
+rlabel metal3 s 19537 644 19537 644 4 vdd
+port 132 nsew
+rlabel metal3 s 15793 644 15793 644 4 vdd
+port 132 nsew
+rlabel metal3 s 34127 644 34127 644 4 vdd
+port 132 nsew
+rlabel metal3 s 8305 644 8305 644 4 vdd
+port 132 nsew
+rlabel metal3 s 28273 644 28273 644 4 vdd
+port 132 nsew
+rlabel metal3 s 18289 644 18289 644 4 vdd
+port 132 nsew
+rlabel metal3 s 38257 644 38257 644 4 vdd
+port 132 nsew
+rlabel metal3 s 32879 644 32879 644 4 vdd
+port 132 nsew
+rlabel metal3 s 19151 644 19151 644 4 vdd
+port 132 nsew
+rlabel metal3 s 5423 644 5423 644 4 vdd
+port 132 nsew
+rlabel metal3 s 17041 644 17041 644 4 vdd
+port 132 nsew
+rlabel metal3 s 3313 644 3313 644 4 vdd
+port 132 nsew
+rlabel metal3 s 29521 644 29521 644 4 vdd
+port 132 nsew
+rlabel metal3 s 35761 644 35761 644 4 vdd
+port 132 nsew
+rlabel metal3 s 13297 644 13297 644 4 vdd
+port 132 nsew
+rlabel metal3 s 39119 644 39119 644 4 vdd
+port 132 nsew
+rlabel metal3 s 10801 644 10801 644 4 vdd
+port 132 nsew
+rlabel metal3 s 5809 644 5809 644 4 vdd
+port 132 nsew
+rlabel metal3 s 40367 644 40367 644 4 vdd
+port 132 nsew
+rlabel metal3 s 34513 644 34513 644 4 vdd
+port 132 nsew
+rlabel metal3 s 24143 644 24143 644 4 vdd
+port 132 nsew
+rlabel metal3 s 27887 644 27887 644 4 vdd
+port 132 nsew
+rlabel metal3 s 23281 644 23281 644 4 vdd
+port 132 nsew
+rlabel metal3 s 22895 644 22895 644 4 vdd
+port 132 nsew
+rlabel metal3 s 12049 644 12049 644 4 vdd
+port 132 nsew
+rlabel metal3 s 9553 644 9553 644 4 vdd
+port 132 nsew
+rlabel metal3 s 25777 644 25777 644 4 vdd
+port 132 nsew
+rlabel metal3 s 24529 644 24529 644 4 vdd
+port 132 nsew
+rlabel metal3 s 37871 644 37871 644 4 vdd
+port 132 nsew
+rlabel metal3 s 29135 644 29135 644 4 vdd
+port 132 nsew
+rlabel metal3 s 31631 644 31631 644 4 vdd
+port 132 nsew
+rlabel metal3 s 21647 644 21647 644 4 vdd
+port 132 nsew
+rlabel metal3 s 32017 644 32017 644 4 vdd
+port 132 nsew
+rlabel metal3 s 36623 644 36623 644 4 vdd
+port 132 nsew
+rlabel metal3 s 25391 644 25391 644 4 vdd
+port 132 nsew
+rlabel metal3 s 14545 644 14545 644 4 vdd
+port 132 nsew
+rlabel metal3 s 22033 644 22033 644 4 vdd
+port 132 nsew
+rlabel metal3 s 30383 644 30383 644 4 vdd
+port 132 nsew
+rlabel metal3 s 2065 644 2065 644 4 vdd
+port 132 nsew
+rlabel metal3 s 4561 644 4561 644 4 vdd
+port 132 nsew
+rlabel metal3 s 30769 644 30769 644 4 vdd
+port 132 nsew
+rlabel metal3 s 27025 644 27025 644 4 vdd
+port 132 nsew
+rlabel metal3 s 9167 644 9167 644 4 vdd
+port 132 nsew
+rlabel metal3 s 15407 644 15407 644 4 vdd
+port 132 nsew
+rlabel metal3 s 7057 644 7057 644 4 vdd
+port 132 nsew
+rlabel metal3 s 39505 644 39505 644 4 vdd
+port 132 nsew
+rlabel metal3 s 12911 644 12911 644 4 vdd
+port 132 nsew
+rlabel metal3 s 20785 644 20785 644 4 vdd
+port 132 nsew
+rlabel metal3 s 431 644 431 644 4 vdd
+port 132 nsew
+rlabel metal3 s 2927 644 2927 644 4 vdd
+port 132 nsew
+rlabel metal3 s 20399 644 20399 644 4 vdd
+port 132 nsew
+rlabel metal3 s 26639 644 26639 644 4 vdd
+port 132 nsew
+rlabel metal3 s 10415 644 10415 644 4 vdd
+port 132 nsew
+rlabel metal3 s 16655 644 16655 644 4 vdd
+port 132 nsew
+rlabel metal3 s 1679 644 1679 644 4 vdd
+port 132 nsew
+rlabel metal3 s 33265 644 33265 644 4 vdd
+port 132 nsew
+rlabel metal3 s 17903 644 17903 644 4 vdd
+port 132 nsew
+rlabel metal3 s 817 644 817 644 4 vdd
+port 132 nsew
+rlabel metal3 s 11663 644 11663 644 4 vdd
+port 132 nsew
+rlabel metal3 s 4175 644 4175 644 4 vdd
+port 132 nsew
+rlabel metal3 s 7919 644 7919 644 4 vdd
+port 132 nsew
+rlabel metal3 s 14159 644 14159 644 4 vdd
+port 132 nsew
+rlabel metal3 s 20280 25 20280 25 4 en_bar
+port 131 nsew
+<< properties >>
+string FIXED_BBOX 40215 -12 40281 0
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 3403238
+string GDS_START 3373828
+<< end >>

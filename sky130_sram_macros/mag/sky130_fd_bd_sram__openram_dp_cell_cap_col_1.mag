@@ -1,0 +1,49 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1260 -1260 1884 1734
+<< metal1 >>
+rect 78 0 114 474
+rect 150 0 186 474
+rect 222 300 258 474
+rect 214 256 266 300
+rect 214 158 266 204
+rect 222 0 258 158
+rect 294 0 330 474
+rect 366 0 402 474
+<< via1 >>
+rect 214 204 266 256
+<< metal2 >>
+rect 0 256 624 284
+rect 0 204 214 256
+rect 266 204 624 256
+rect 0 174 624 204
+<< labels >>
+rlabel metal2 s 0 174 624 284 4 vdd
+port 1 nsew
+rlabel metal1 s 78 158 114 474 4 bl0
+port 2 nsew
+rlabel metal1 s 150 158 186 474 4 br0
+port 3 nsew
+rlabel metal1 s 294 158 330 474 4 bl1
+port 4 nsew
+rlabel metal1 s 366 158 402 474 4 br1
+port 5 nsew
+rlabel metal2 s 311 214 342 248 4 VDD
+port 6 nsew
+rlabel metal1 s 78 196 114 244 4 BL0
+port 7 nsew
+rlabel metal1 s 294 196 330 244 4 BL1
+port 8 nsew
+rlabel metal1 s 150 196 186 244 4 BR0
+port 9 nsew
+rlabel metal1 s 366 196 402 244 4 BR1
+port 10 nsew
+<< properties >>
+string FIXED_BBOX 0 0 624 474
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds
+string GDS_END 317716
+string GDS_START 315204
+<< end >>

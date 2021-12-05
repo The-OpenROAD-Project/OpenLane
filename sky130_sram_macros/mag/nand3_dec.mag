@@ -1,0 +1,189 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1260 -1320 2582 1734
+<< nwell >>
+rect 414 -60 1322 474
+<< pwell >>
+rect 36 390 170 440
+rect 36 351 372 390
+rect 172 20 372 351
+<< nmos >>
+rect 198 250 346 280
+rect 198 178 346 208
+rect 198 106 346 136
+<< pmos >>
+rect 584 206 808 236
+rect 584 106 808 136
+rect 1016 106 1240 136
+<< ndiff >>
+rect 198 330 346 364
+rect 198 296 261 330
+rect 295 296 346 330
+rect 198 280 346 296
+rect 198 208 346 250
+rect 198 136 346 178
+rect 198 88 346 106
+rect 198 54 259 88
+rect 293 54 346 88
+rect 198 46 346 54
+<< pdiff >>
+rect 584 288 808 296
+rect 584 254 679 288
+rect 713 254 808 288
+rect 584 236 808 254
+rect 584 188 808 206
+rect 584 154 679 188
+rect 713 154 808 188
+rect 584 136 808 154
+rect 1016 188 1240 204
+rect 1016 154 1111 188
+rect 1145 154 1240 188
+rect 1016 136 1240 154
+rect 584 88 808 106
+rect 584 54 679 88
+rect 713 54 808 88
+rect 584 46 808 54
+rect 1016 88 1240 106
+rect 1016 54 1111 88
+rect 1145 54 1240 88
+rect 1016 46 1240 54
+<< ndiffc >>
+rect 261 296 295 330
+rect 259 54 293 88
+<< pdiffc >>
+rect 679 254 713 288
+rect 679 154 713 188
+rect 1111 154 1145 188
+rect 679 54 713 88
+rect 1111 54 1145 88
+<< psubdiff >>
+rect 62 412 144 414
+rect 62 378 86 412
+rect 120 378 144 412
+rect 62 377 144 378
+<< nsubdiff >>
+rect 1086 288 1110 322
+rect 1144 288 1170 322
+<< psubdiffcont >>
+rect 86 378 120 412
+<< nsubdiffcont >>
+rect 1110 288 1144 322
+<< poly >>
+rect 116 300 170 316
+rect 116 266 126 300
+rect 160 280 170 300
+rect 394 326 970 356
+rect 394 280 424 326
+rect 160 266 198 280
+rect 116 250 198 266
+rect 346 250 424 280
+rect 6 210 60 226
+rect 6 176 16 210
+rect 50 208 60 210
+rect 470 208 584 236
+rect 50 178 198 208
+rect 346 206 584 208
+rect 808 206 834 236
+rect 346 178 500 206
+rect 50 176 60 178
+rect 6 160 60 176
+rect 940 136 970 326
+rect 116 106 198 136
+rect 346 106 584 136
+rect 808 106 834 136
+rect 940 106 1016 136
+rect 1240 106 1266 136
+rect 116 98 170 106
+rect 116 64 126 98
+rect 160 64 170 98
+rect 116 48 170 64
+<< polycont >>
+rect 126 266 160 300
+rect 16 176 50 210
+rect 126 64 160 98
+<< locali >>
+rect 70 412 250 415
+rect 70 378 86 412
+rect 120 378 250 412
+rect 70 377 250 378
+rect 210 330 250 377
+rect 110 266 126 300
+rect 160 266 176 300
+rect 210 296 254 330
+rect 295 296 342 330
+rect 1110 322 1148 338
+rect 511 288 687 289
+rect 1145 288 1148 322
+rect 511 255 679 288
+rect 0 176 16 210
+rect 50 176 66 210
+rect 110 64 126 98
+rect 160 64 176 98
+rect 511 88 545 255
+rect 662 254 679 255
+rect 713 254 730 288
+rect 1110 272 1148 288
+rect 662 154 679 188
+rect 713 154 1111 188
+rect 1145 154 1161 188
+rect 212 54 259 88
+rect 293 54 679 88
+rect 713 54 1111 88
+rect 1145 54 1322 88
+<< viali >>
+rect 254 296 261 330
+rect 261 296 288 330
+rect 1111 288 1144 322
+rect 1144 288 1145 322
+rect 679 154 713 188
+rect 1111 154 1145 188
+<< metal1 >>
+rect 248 330 294 418
+rect 248 296 254 330
+rect 288 296 294 330
+rect 248 -44 294 296
+rect 672 188 720 418
+rect 672 154 679 188
+rect 713 154 720 188
+rect 672 14 720 154
+rect 1104 322 1152 418
+rect 1104 288 1111 322
+rect 1145 288 1152 322
+rect 1104 188 1152 288
+rect 1104 154 1111 188
+rect 1145 154 1152 188
+rect 1104 14 1152 154
+<< labels >>
+rlabel locali s 140 284 140 284 4 C
+rlabel locali s 1294 71 1294 71 4 Z
+rlabel locali s 30 196 30 196 4 B
+rlabel locali s 140 84 140 84 4 A
+rlabel locali s 767 71 767 71 4 Z
+port 4 nsew
+rlabel locali s 143 81 143 81 4 A
+port 1 nsew
+rlabel locali s 143 283 143 283 4 C
+port 3 nsew
+rlabel locali s 33 193 33 193 4 B
+port 2 nsew
+rlabel metal1 s 1110 388 1146 406 4 vdd
+port 5 nsew
+rlabel metal1 s 678 382 714 400 4 vdd
+port 5 nsew
+rlabel metal1 s 254 380 290 398 4 gnd
+port 6 nsew
+rlabel metal1 s 1128 216 1128 216 4 vdd
+port 5 nsew
+rlabel metal1 s 696 216 696 216 4 vdd
+port 5 nsew
+rlabel metal1 s 271 187 271 187 4 gnd
+port 6 nsew
+<< properties >>
+string FIXED_BBOX 0 0 1312 395
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 12464
+string GDS_START 7054
+<< end >>

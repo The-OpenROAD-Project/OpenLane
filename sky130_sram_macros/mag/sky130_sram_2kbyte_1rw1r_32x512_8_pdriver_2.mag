@@ -1,0 +1,58 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1296 -1277 9984 2731
+<< nwell >>
+rect -36 679 8724 1471
+<< locali >>
+rect 0 1397 8688 1431
+rect 64 636 98 702
+rect 919 690 1293 724
+rect 1626 690 2093 724
+rect 2966 690 3973 724
+rect 6235 690 6269 724
+rect 196 652 449 686
+rect 547 653 817 687
+rect 919 670 953 690
+rect 0 -17 8688 17
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_10  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_10_0
+timestamp 1636140361
+transform 1 0 3892 0 1 0
+box -36 -17 4832 1471
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_9  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_9_0
+timestamp 1636140361
+transform 1 0 2012 0 1 0
+box -36 -17 1916 1471
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_8  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_8_0
+timestamp 1636140361
+transform 1 0 1212 0 1 0
+box -36 -17 836 1471
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_7  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_7_0
+timestamp 1636140361
+transform 1 0 736 0 1 0
+box -36 -17 512 1471
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_0  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_0_0
+timestamp 1636140361
+transform 1 0 368 0 1 0
+box -36 -17 404 1471
+use sky130_sram_2kbyte_1rw1r_32x512_8_pinv_0  sky130_sram_2kbyte_1rw1r_32x512_8_pinv_0_1
+timestamp 1636140361
+transform 1 0 0 0 1 0
+box -36 -17 404 1471
+<< labels >>
+rlabel locali s 6252 707 6252 707 4 Z
+port 1 nsew
+rlabel locali s 81 669 81 669 4 A
+port 2 nsew
+rlabel locali s 4344 0 4344 0 4 gnd
+port 3 nsew
+rlabel locali s 4344 1414 4344 1414 4 vdd
+port 4 nsew
+<< properties >>
+string FIXED_BBOX 0 0 8688 1414
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds
+string GDS_END 10977646
+string GDS_START 10975888
+<< end >>
