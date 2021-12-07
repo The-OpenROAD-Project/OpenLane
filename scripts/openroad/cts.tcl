@@ -54,7 +54,13 @@ puts "\[INFO]: Performing clock tree synthesis..."
 puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
 puts "\[INFO]: Running Clock Tree Synthesis..."
 
-clock_tree_synthesis\
+set arg_list [list]
+
+if { $::env(CTS_DISABLE_POST_PROCESSING) } {
+    lappend arg_list -post_cts_disable
+}
+
+clock_tree_synthesis {*}arg_list\
     -buf_list $::env(CTS_CLK_BUFFER_LIST)\
     -root_buf $::env(CTS_ROOT_BUFFER)\
     -clk_nets $::env(CLOCK_NET)\
