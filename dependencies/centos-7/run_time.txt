@@ -29,7 +29,6 @@ qt5-qtimageformats
 qt-settings
 qt-x11
 ruby
-rubygem
 rubygem-io-console
 rubygem-json
 rubygem-psych
