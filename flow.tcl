@@ -15,6 +15,11 @@
 
 
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
+
+if { [file exists $::env(OPENLANE_ROOT)/install/env.tcl ] } {
+	source $::env(OPENLANE_ROOT)/install/env.tcl
+}
+
 if { ! [info exists ::env(OPENROAD_BIN) ] } {
 	set ::env(OPENROAD_BIN) openroad
 }
