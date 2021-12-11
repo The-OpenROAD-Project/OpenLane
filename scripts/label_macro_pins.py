@@ -182,7 +182,7 @@ def labelITerm(iterm, pin_name, iotype, all_shapes_flag=False):
                          ur.getY())
 
 
-    odb.dbITerm_connect(pad_iterm, net)
+    pad_iterm.connect(net)
     pin_bterm.connect(net)
 
 

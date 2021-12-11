@@ -519,7 +519,7 @@ for inst in block_top.getInsts():
                         and pad_name_substr in master_name:  # pad pin
                     matched_special_net_name = special_net_name
                     print(inst.getName(), "connected to", net.getName())
-                    # odb.dbITerm_connect(iterm, net)
+                    # iterm.connect(net)
                     # iterm.setSpecial()
 
                     # get the pin shapes
@@ -533,7 +533,7 @@ for inst in block_top.getInsts():
                 elif pin_name == core_pin:               # macro ring
                     matched_special_net_name = special_net_name
                     print(inst.getName(), "will be connected to", master_name, "/", pin_name)
-                    # odb.dbITerm_connect(iterm, net)
+                    # iterm.connect(net)
                     # iterm.setSpecial()
 
                     iterm_boxes = getITermBoxes(iterm)

@@ -46,9 +46,7 @@ def remove_buffers(block_design, dont_buffer):
             input_net_master_cell = get_master_cells(input_net)[0]
             _, output_nets_2 = get_nets(input_net_master_cell)
             output_net_it = output_nets_2[0].getITerms()[0]
-
-            odb.dbITerm_disconnect(output_net_it)
-            odb.dbITerm_connect(output_net_it, net)
+            output_net_it.connect(net)
 
 
 def get_master_cells(net):
