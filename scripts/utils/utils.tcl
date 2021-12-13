@@ -335,5 +335,10 @@ proc assert_files_exist {files} {
 	}
 }
 
+proc count_matches {pattern search_file} {
+    set count [exec bash -c "grep $pattern $search_file | wc -l"]
+    return $count
+}
+
 
 package provide openlane_utils 0.9

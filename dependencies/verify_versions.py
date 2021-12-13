@@ -126,11 +126,11 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
     if no_tools:
         return mismatches
 
-    installed_versions_path = join(openlane_dir, "build", "versions")
-    installed = pathlib.Path(installed_versions_path).is_dir()
+    installed = os.getenv("OPENLANE_LOCAL_INSTALL") == "1"
     environment_manifest = None
     if installed:
         # 3a. Compare with installed versions
+        installed_versions_path = join(os.environ["OL_INSTALL_DIR"], "build", "versions")
         environment_manifest = []
         for tool in os.listdir(installed_versions_path):
             protocol, url, commit = open(join(installed_versions_path, tool)).read().split(':')

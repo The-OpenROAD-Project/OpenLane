@@ -15,7 +15,7 @@
 
 
 proc check_assign_statements {args} {
-    set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(synthesis_results).v ]
+    set checker [count_matches assign $::env(synthesis_results).v]
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
@@ -207,7 +207,7 @@ proc check_macro_placer_num_solns {args} {
 
 proc quit_on_tr_drc {args} {
     if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(routing_reports)/detailed.drc ]
+        set checker [count_matches violation $::env(routing_reports)/detailed.drc]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."
@@ -227,7 +227,7 @@ proc quit_on_magic_drc {args} {
         }
         parse_key_args "quit_on_magic_drc" args arg_values $options
 
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $arg_values(-log) ]
+        set checker [count_matches violation $arg_values(-log)]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after Magic DRC."

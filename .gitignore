@@ -31,4 +31,7 @@ pdks/
 # Misc
 /resolved_version
 
-docker_build/
+/docker_build/
+
+# Local Install
+/install

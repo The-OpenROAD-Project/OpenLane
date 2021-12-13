@@ -179,7 +179,7 @@ for cell in cells:
             print("Warning: power pin", pin_name, "of", cell_name, "is already connected")
             print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
         else:
-            odb.dbITerm_connect(VDD_ITERM, DEFAULT_VDD)
+            VDD_ITERM.connect(DEFAULT_VDD)
 
     for GND_ITERM in GND_ITERMS:
         if GND_ITERM.isConnected():
@@ -188,7 +188,7 @@ for cell in cells:
             print("Warning: ground pin", pin_name, "of", cell_name, "is already connected")
             print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
         else:
-            odb.dbITerm_connect(GND_ITERM, DEFAULT_GND)
+            GND_ITERM.connect(DEFAULT_GND)
 
     modified_cells += 1
 
@@ -254,8 +254,7 @@ if powered_netlist_file_name is not None \
             original_port = find_power_ground_port(port.getName(), VDD_PORTS+GND_PORTS)
             assert original_port is not None, port.getName() + " not found in the original netlist."
 
-            odb.dbITerm_disconnect(original_iterm)
-            odb.dbITerm_connect(original_iterm, original_port.getNet())
+            original_iterm.connect(original_port.getNet())
             print("Modified connections between", port.getName(), "and", inst_name)
 
 odb.write_def(block, output_file_name)

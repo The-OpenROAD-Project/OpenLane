@@ -1,3 +1,5 @@
+https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
+
 alsa-lib
 cairo
 gdb
@@ -29,7 +31,6 @@ qt5-qtimageformats
 qt-settings
 qt-x11
 ruby
-rubygem
 rubygem-io-console
 rubygem-json
 rubygem-psych
@@ -47,3 +48,4 @@ wget
 which
 Xvfb
 zlib
+

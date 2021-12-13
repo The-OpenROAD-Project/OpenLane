@@ -16,11 +16,11 @@
 proc verilog_to_verilogPower {args} {
     puts_info "Adding Power Nets to Verilog..."
     set options {
-      {-input required}
-      {-output required}
-      {-lef required}
-      {-power required}
-      {-ground required}
+        {-input required}
+        {-output required}
+        {-lef required}
+        {-power required}
+        {-ground required}
     }
     set flags {}
     parse_key_args "verilog_to_verilogPower" args arg_values $options flags_map $flags
@@ -32,10 +32,10 @@ proc verilog_to_verilogPower {args} {
     set lef $arg_values(-lef)
 
     try_catch $bin \
-      -v $power \
-      -g $gnd \
-      -l $lef \
-      $in |& tee $out
+            -v $power \
+            -g $gnd \
+            -l $lef \
+            $in |& tee $out
 }
 
 # WORKS ON DEF FILES
@@ -43,13 +43,13 @@ proc write_powered_verilog {args} {
     increment_index
     puts_info "Writing Powered Verilog..."
     set options {
-      {-def optional}
-      {-output_def optional}
-      {-output_verilog optional}
-      {-lef optional}
-      {-power optional}
-      {-ground optional}
-      {-powered_netlist optional}
+        {-def optional}
+        {-output_def optional}
+        {-output_verilog optional}
+        {-lef optional}
+        {-power optional}
+        {-ground optional}
+        {-powered_netlist optional}
     }
     set flags {}
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
@@ -68,86 +68,88 @@ proc write_powered_verilog {args} {
     }
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/write_powered_def.py \
-      -d $arg_values(-def) \
-      -l $arg_values(-lef) \
-      --power-port $arg_values(-power) \
-      --ground-port $arg_values(-ground) \
-      --powered-netlist $arg_values(-powered_netlist) \
-      -o $arg_values(-output_def) \
-      |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log]
-    
+            -d $arg_values(-def) \
+            -l $arg_values(-lef) \
+            --power-port $arg_values(-power) \
+            --ground-port $arg_values(-ground) \
+            --powered-netlist $arg_values(-powered_netlist) \
+            -o $arg_values(-output_def) \
+            |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log]
+
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $::env(routing_logs)/write_verilog.log -canonical
 }
 
 # "layout": a spice netlist
 # "schematic": a verilog netlist
 proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)"}} {
-    # LEF LVS output to lvs.lef.log, design.lvs.lef.log, design.lvs.lef.json, design.lvs.lef.log
-    # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
-    # GDS LVS uses STD_CELL_LIBRARY spice and
-    # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
-    increment_index
-    TIMER::timer_start
-    if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
-        set extract_type gds
-        puts_info "Running GDS LVS..."
-    } else {
-        set extract_type lef
-        puts_info "Running LEF LVS..."
-    }
-
-    set layout [subst $layout]
-    set schematic [subst $schematic]
-
-    set setup_file $::env(NETGEN_SETUP_FILE)
-    set module_name $::env(DESIGN_NAME)
-    #writes setup_file_*_lvs to tmp directory.
-    set lvs_file_path [index_file $::env(finishing_tmpfiles)/setup_file.$extract_type.lvs]
-    set lvs_file [open $lvs_file_path w]
-    if { "$extract_type" == "gds" } {
-        if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
-            set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)
-            foreach lib_file $libs_in {
-                puts $lvs_file "puts \"Reading spice netlist file $lib_file\""
-                puts $lvs_file "readnet spice $lib_file 1"
-            }
+    if { $::env(RUN_LVS) } {
+        # LEF LVS output to lvs.lef.log, design.lvs.lef.log, design.lvs.lef.json, design.lvs.lef.log
+        # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
+        # GDS LVS uses STD_CELL_LIBRARY spice and
+        # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
+        increment_index
+        TIMER::timer_start
+        if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
+            set extract_type gds
+            puts_info "Running GDS LVS..."
         } else {
-            if { [info exist ::env(STD_CELL_LIBRARY)] } {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
+            set extract_type lef
+            puts_info "Running LEF LVS..."
+        }
+
+        set layout [subst $layout]
+        set schematic [subst $schematic]
+
+        set setup_file $::env(NETGEN_SETUP_FILE)
+        set module_name $::env(DESIGN_NAME)
+        #writes setup_file_*_lvs to tmp directory.
+        set lvs_file_path [index_file $::env(finishing_tmpfiles)/setup_file.$extract_type.lvs]
+        set lvs_file [open $lvs_file_path w]
+        if { "$extract_type" == "gds" } {
+            if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
+                set libs_in $::env(LVS_EXTRA_STD_CELL_LIBRARY)
+                foreach lib_file $libs_in {
+                    puts $lvs_file "puts \"Reading spice netlist file $lib_file\""
+                    puts $lvs_file "readnet spice $lib_file 1"
+                }
             } else {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+                if { [info exist ::env(STD_CELL_LIBRARY)] } {
+                    set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
+                } else {
+                    set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+                }
+                puts $lvs_file "puts \"Reading spice netlist file $std_cell_source\""
+                puts $lvs_file "readnet spice $std_cell_source 1"
             }
-            puts $lvs_file "puts \"Reading spice netlist file $std_cell_source\""
-            puts $lvs_file "readnet spice $std_cell_source 1"
-        }
-        if { [info exist ::env(LVS_EXTRA_GATE_LEVEL_VERILOG)] } {
-            set libs_in $::env(LVS_EXTRA_GATE_LEVEL_VERILOG)
-            foreach lib_file $libs_in {
-                puts $lvs_file "puts \"Reading verilog netlist file $lib_file\""
-                puts $lvs_file "readnet verilog $lib_file 1"
+            if { [info exist ::env(LVS_EXTRA_GATE_LEVEL_VERILOG)] } {
+                set libs_in $::env(LVS_EXTRA_GATE_LEVEL_VERILOG)
+                foreach lib_file $libs_in {
+                    puts $lvs_file "puts \"Reading verilog netlist file $lib_file\""
+                    puts $lvs_file "readnet verilog $lib_file 1"
+                }
             }
         }
+
+        set extraction_prefix [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).$extract_type]
+
+        puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
+        close $lvs_file
+
+        puts_info "$layout against $schematic"
+
+        try_catch netgen -batch source $lvs_file_path \
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/$extract_type.log]
+
+        set count_lvs_log [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
+
+        exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
+                -f $extraction_prefix.json \
+                |& tee $::env(TERMINAL_OUTPUT) $count_lvs_log
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
+        quit_on_lvs_error -log $count_lvs_log
     }
-
-    set extraction_prefix [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).$extract_type]
-
-    puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
-    close $lvs_file
-
-    puts_info "$layout against $schematic"
-
-    try_catch netgen -batch source $lvs_file_path \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/$extract_type.log]
-
-    set count_lvs_log [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
-
-    exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
-        -f $extraction_prefix.json \
-        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_log
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $count_lvs_log
 }
 
 proc run_netgen {args} {
@@ -155,3 +157,4 @@ proc run_netgen {args} {
 }
 
 package provide openlane 0.9
+

@@ -22,10 +22,13 @@ if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
+set ::env(RUN_LVS) 1
+
 set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 
 set ::env(RUN_MAGIC) 1
+set ::env(RUN_MAGIC_DRC) 1
 set ::env(MAGIC_PAD) 0
 set ::env(MAGIC_ZEROIZE_ORIGIN) 0
 set ::env(MAGIC_GENERATE_GDS) 1

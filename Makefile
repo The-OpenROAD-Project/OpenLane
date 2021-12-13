@@ -65,7 +65,16 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+# designs is mounted over install so env.tcl is not found inside the Docker
+# container.
+ENV_START = docker run --rm\
+	-v $(OPENLANE_DIR):/openlane\
+	-v $(OPENLANE_DIR)/designs:/openlane/install\
+	-v $(PDK_ROOT):$(PDK_ROOT)\
+	-e PDK_ROOT=$(PDK_ROOT)\
+	$(DOCKER_OPTIONS)
+
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -184,11 +193,7 @@ pull-openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm \
-			-e PDK_ROOT=$(PDK_ROOT) \
-			-v $(OPENLANE_DIR):/openlane \
-			-v $(PDK_ROOT):$(PDK_ROOT) \
-			$(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
 
 MISC_REGRESSION_ARGS=
 .PHONY: regression regression_test
