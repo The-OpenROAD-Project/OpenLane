@@ -62,7 +62,7 @@ proc add_antenna_cell { iterm } {
 	$antenna_inst setLocation $avg_iterm_x $avg_iterm_y
 	$antenna_inst setOrient $inst_ori
 	$antenna_inst setPlacementStatus PLACED
-	odb::dbITerm_connect $antenna_iterm $iterm_net
+	$antenna_iterm connect $iterm_net
 
 	if { $::VERBOSE } {
 		puts "\[INFO\]: Adding $antenna_inst_name on subnet $antenna_subnet for cell $iterm_inst_name pin $iterm_pin_name"
