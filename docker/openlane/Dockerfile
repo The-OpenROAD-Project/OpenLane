@@ -61,10 +61,6 @@ ADD ./tool_metadata.yml /tool_metadata.yml
 ## Copy Version
 ADD ./git_version /git_version
 
-## RPM
-ADD ./klayout.tar.gz /
-RUN yum localinstall -y /build/klayout-*.rpm
-
 ## Tarballs
 ADD ./openroad_tools.tar.gz /
 ADD ./openlane.tar.gz $OPENLANE_ROOT
