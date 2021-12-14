@@ -19,7 +19,7 @@ PDK_ROOT ?= $(shell pwd)/pdks
 DOCKER_OPTIONS = $(shell python3 ./env.py docker-config)
 
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
-DOCKER_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
 endif
 ifneq (,$(DOCKER_MEMORY))
 DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
@@ -195,21 +195,6 @@ mount:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
 
-MISC_REGRESSION_ARGS=
-.PHONY: regression regression_test
-regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
-regression_test: regression
-regression:
-	cd $(OPENLANE_DIR) && \
-		$(ENV_COMMAND) sh -c "\
-			python3 run_designs.py\
-			--defaultTestSet\
-			--tag $(REGRESSION_TAG)\
-			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
-			$(MISC_REGRESSION_ARGS)\
-		"
-
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
 fastest_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set)
@@ -222,11 +207,11 @@ test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
-			--designs $(DESIGN_LIST)\
 			--tag $(DLTAG)\
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
+			$(DESIGN_LIST)\
 		"
 
 .PHONY: test

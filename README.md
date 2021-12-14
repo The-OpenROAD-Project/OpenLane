@@ -86,19 +86,6 @@ This should produce a clean run for the spm. The final layout will be generated 
 
 If everything is okay, you can skip forward to [running OpenLane](#running-openlane).
 
-## Running the Regression Test
-To run the regression test, which tests the flow against all available designs under [./designs/](./designs/) vs the the benchmark results, run the following command:
-
-```bash
-    make regression_test
-```
-
-Your results will be compared with: [sky130_fd_sc_hd](https://github.com/The-OpenROAD-Project/OpenLane/blob/master/regression_results/benchmark_results/SW_HD.csv).
-
-After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
-
-**Note**: if `flow_status` is `flow_failed`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
-
 ## Updating OpenLane
 
 If you already have the repo locally, then no need to re-clone it. You can directly run the following:
@@ -325,7 +312,7 @@ OpenLane provides `run_designs.py`, a script that can do multiple runs in a para
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
 ```
-python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
+python3 run_designs.py --tag test --threads 3 spm xtea md5 aes256 
 ```
 
 For more information on how to run this script, refer to this [file][21]

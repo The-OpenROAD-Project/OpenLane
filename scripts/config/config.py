@@ -96,7 +96,7 @@ class ConfigHandler:
         config = config_coded.decode(sys.getfilesystemencoding()).strip()
         config = config.split("##")
         config = list(filter(None, config))
-        config = [element.strip("{}") for element in config]
+        config = [element.strip('{}"') for element in config]
         return config
 
     @staticmethod
