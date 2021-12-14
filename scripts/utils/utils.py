@@ -54,7 +54,7 @@ def get_design_name(design, config):
             config_file_opener.close()
             pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
             for name in re.findall(pattern, configs):
-                return (None, name.rstrip('"').rstrip('{}'))
+                return (None, name.strip('"{}'))
             return ("Invalid configuration file", None)
         except OSError:
             return ("Configuration file not found", None)
