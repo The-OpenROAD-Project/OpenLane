@@ -69,19 +69,6 @@ proc run_diode_insertion_2_5_step {args} {
 
 }
 
-proc run_power_pins_insertion_step {args} {
-    if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
-        set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(POWER_PINS_INSERTION_CURRENT_DEF)
-    }
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(routing_results)/$::env(DESIGN_NAME).powered.v
-    }
-
-}
-
 proc run_lvs_step {{ lvs_enabled 1 }} {
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -158,7 +145,6 @@ proc run_non_interactive_mode {args} {
 		"cts" {run_cts_step ""} \
 		"routing" {run_routing_step ""}\
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
-		"power_pins_insertion" {run_power_pins_insertion_step ""} \
 		"gds_magic" {run_magic ""} \
 		"gds_drc_klayout" {run_klayout ""} \
 		"gds_xor_klayout" {run_klayout_gds_xor ""} \
@@ -202,24 +188,18 @@ proc run_non_interactive_mode {args} {
     set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
     set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
-	if {  [info exists flags_map(-save) ] } {
-		if { ! [info exists arg_values(-save_path)] } {
-			set arg_values(-save_path) ""
-		}
-		save_views \
-			-def_path $::env(CURRENT_DEF) \
-			-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
-			-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
-			-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
-			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
-			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
-			-verilog_path $::env(CURRENT_NETLIST) \
-			-spef_path $::env(SPEF_TYPICAL) \
-			-sdf_path $::env(CURRENT_SDF) \
-			-sdc_path $::env(CURRENT_SDC) \
-			-save_path $arg_values(-save_path) \
-			-tag $::env(RUN_TAG)
-	}
+	save_views \
+		-save_path $::env(RESULTS_DIR)/final \
+		-def_path $::env(CURRENT_DEF) \
+		-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
+		-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
+		-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
+		-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
+		-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
+		-verilog_path $::env(CURRENT_NETLIST) \
+		-spef_path $::env(SPEF_TYPICAL) \
+		-sdf_path $::env(CURRENT_SDF) \
+		-sdc_path $::env(CURRENT_SDC)
 
 	calc_total_runtime
 	save_state
