@@ -644,7 +644,7 @@ proc save_views {args} {
         {-spef_path optional}
         {-sdc_path optional}
         {-save_path optional}
-        {-tag required}
+        {-tag optional}
     }
 
     set flags {}
@@ -653,7 +653,7 @@ proc save_views {args} {
         && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
     } else {
-        set path $::env(DESIGN_DIR)
+        set path $::env(RESULTS_DIR)/final
     }
     puts_info "Saving Magic Views in $path"
 
@@ -661,7 +661,7 @@ proc save_views {args} {
         set destination $path/lef
         file mkdir $destination
         if { [file exists $arg_values(-lef_path)] } {
-            file copy -force $arg_values(-lef_path) $destination/$arg_values(-tag).lef
+            file copy -force $arg_values(-lef_path) $destination/$::env(DESIGN_NAME).lef
         }
     }
 
@@ -669,7 +669,7 @@ proc save_views {args} {
         set destination $path/mag
         file mkdir $destination
         if { [file exists $arg_values(-mag_path)] } {
-            file copy -force $arg_values(-mag_path) $destination/$arg_values(-tag).mag
+            file copy -force $arg_values(-mag_path) $destination/$::env(DESIGN_NAME).mag
         }
     }
 
@@ -677,7 +677,7 @@ proc save_views {args} {
         set destination $path/maglef
         file mkdir $destination
         if { [file exists $arg_values(-maglef_path)] } {
-            file copy -force $arg_values(-maglef_path) $destination/$arg_values(-tag).mag
+            file copy -force $arg_values(-maglef_path) $destination/$::env(DESIGN_NAME).mag
         }
     }
 
@@ -685,7 +685,7 @@ proc save_views {args} {
         set destination $path/def
         file mkdir $destination
         if { [file exists $arg_values(-def_path)] } {
-            file copy -force $arg_values(-def_path) $destination/$arg_values(-tag).def
+            file copy -force $arg_values(-def_path) $destination/$::env(DESIGN_NAME).def
         }
     }
 
@@ -693,14 +693,14 @@ proc save_views {args} {
         set destination $path/gds
         file mkdir $destination
         if { [file exists $arg_values(-gds_path)] } {
-            file copy -force $arg_values(-gds_path) $destination/$arg_values(-tag).gds
+            file copy -force $arg_values(-gds_path) $destination/$::env(DESIGN_NAME).gds
         }
     }
     if { [info exists arg_values(-verilog_path)] } {
         set destination $path/verilog/gl
         file mkdir $destination
         if { [file exists $arg_values(-verilog_path)] } {
-            file copy -force $arg_values(-verilog_path) $destination/$arg_values(-tag).v
+            file copy -force $arg_values(-verilog_path) $destination/$::env(DESIGN_NAME).v
         }
     }
 
@@ -708,7 +708,7 @@ proc save_views {args} {
         set destination $path/spi/lvs
         file mkdir $destination
         if { [file exists $arg_values(-spice_path)] } {
-            file copy -force $arg_values(-spice_path) $destination/$arg_values(-tag).spice
+            file copy -force $arg_values(-spice_path) $destination/$::env(DESIGN_NAME).spice
         }
     }
 
@@ -716,7 +716,7 @@ proc save_views {args} {
         set destination $path/spef
         file mkdir $destination
         if { [file exists $arg_values(-spef_path)] } {
-            file copy -force $arg_values(-spef_path) $destination/$arg_values(-tag).spef
+            file copy -force $arg_values(-spef_path) $destination/$::env(DESIGN_NAME).spef
         }
     }
 
@@ -724,7 +724,7 @@ proc save_views {args} {
         set destination $path/sdf
         file mkdir $destination
         if { [file exists $arg_values(-sdf_path)] } {
-            file copy -force $arg_values(-sdf_path) $destination/$arg_values(-tag).sdf
+            file copy -force $arg_values(-sdf_path) $destination/$::env(DESIGN_NAME).sdf
         }
     }
 
@@ -732,7 +732,7 @@ proc save_views {args} {
         set destination $path/sdc
         file mkdir $destination
         if { [file exists $arg_values(-sdc_path)] } {
-            file copy -force $arg_values(-sdc_path) $destination/$arg_values(-tag).sdc
+            file copy -force $arg_values(-sdc_path) $destination/$::env(DESIGN_NAME).sdc
         }
     }
 }

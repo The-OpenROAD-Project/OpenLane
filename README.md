@@ -175,8 +175,6 @@ The following are arguments that can be passed to `flow.tcl`
 | `-config_tag <name>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design spm -config_tag config2`  <br>By default `config` is used. |
 | `-tag <name>`  <br>(Optional) | Specifies a `name` for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  <br>Can Specify the configuration file name in case of using `-init_design_config` |
 | `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
-| `-save`  <br>(Optional) | A flag to save a runs results like .mag and .lef in the design's folder |
-| `-save_path <path>`  <br>(Optional) | Specifies a different path to save the design's result. This options is to be used with the `-save` flag |
 | `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
 | `-init_design_config`  <br>(Optional) | Creates a tcl configuration file for a design. `-tag <name>` can be added to rename the config file to `<name>.tcl` |
 | `-overwrite`  <br>(Optional) | Flag to overwirte an existing run with the same tag |
@@ -185,6 +183,8 @@ The following are arguments that can be passed to `flow.tcl`
 | `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
 | `-lvs`  <br>(Boolean) | If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -net DESIGN_NETLIST. |
 | `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
+| `-save`  <br>(Optional) | **Removed: Always saved**: A flag to save a runs results like .mag and .lef in the design's folder. |
+| `-save_path <path>`  <br>(Optional) | **Removed: Always <run_path>/results/final**: Specifies a different path to save the design's result. This options is to be used with the `-save` flag |
 
 ## Adding a design
 
@@ -260,46 +260,26 @@ designs/<design_name>
 ├── runs
 │   ├── <tag>
 │   │   ├── config.tcl
-│   │   ├── logs
+│   │   ├── {logs, reports, tmp}
 │   │   │   ├── cts
-│   │   │   ├── cvc
+│   │   │   ├── finishing
 │   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
-│   │   │   ├── placement
-│   │   │   ├── routing
-│   │   │   └── synthesis
-│   │   ├── reports
-│   │   │   ├── cts
-│   │   │   ├── cvc
-│   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
 │   │   │   └── synthesis
 │   │   ├── results
+│   │   │   ├── final
 │   │   │   ├── cts
-│   │   │   ├── cvc
+│   │   │   ├── finishing
 │   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
 │   │   │   └── synthesis
-│   │   └── tmp
-│   │       ├── cts
-│   │       ├── cvc
-│   │       ├── floorplan
-│   │       ├── klayout
-│   │       ├── magic
-│   │       ├── placement
-│   │       ├── routing
-│   │       └── synthesis
 ```
 
 To delete all generated runs under all designs:
 `make clean_runs`
+
 ## Flow configuration
 
 1. PDK / technology specific
