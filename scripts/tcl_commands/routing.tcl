@@ -408,8 +408,24 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
+    set global_routed_netlist [index_file $::env(routing_tmpfiles)/global.v]
+    write_verilog $global_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_global.log]
+    set_netlist $global_routed_netlist
+    if { $::env(LEC_ENABLE) } {
+        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    }
+
     # detailed routing
     detailed_routing
+
+    set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
+    write_verilog $detailed_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_detailed.log]
+    set_netlist $detailed_routed_netlist
+    if { $::env(LEC_ENABLE) } {
+        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    }
+
+
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
     # spef extraction at the three corners

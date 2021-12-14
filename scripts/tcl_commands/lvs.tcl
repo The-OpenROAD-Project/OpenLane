@@ -100,19 +100,22 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         }
 
         # Write Netlist
-        set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
-        set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
-        write_powered_verilog\
-            -output_verilog $powered_netlist_name\
-            -output_def $powered_def_name\
-            -log [index_file $::env(finishing_logs)/write_verilog.log]\
-            -def_log [index_file $::env(finishing_logs)/write_powered_def.log]
+        if { $::env(LVS_INSERT_POWER_PINS) } {
+            set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
+            set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
+            write_powered_verilog\
+                -output_verilog $powered_netlist_name\
+                -output_def $powered_def_name\
+                -log [index_file $::env(finishing_logs)/write_verilog.log]\
+                -def_log [index_file $::env(finishing_logs)/write_powered_def.log]
 
-        set_netlist $powered_netlist_name
-        
-        if { $::env(LEC_ENABLE) } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+            set_netlist $powered_netlist_name
+
+            if { $::env(LEC_ENABLE) } {
+                logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+            }
         }
+
         set schematic $::env(CURRENT_NETLIST)
 
         set layout [subst $layout]
