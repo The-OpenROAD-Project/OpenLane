@@ -48,6 +48,7 @@ group = subprocess.check_output(["id", "-g", username]).decode("utf8")[:-1]
 docker_command = [
     "docker", "run",
     "-v", f"{os.path.realpath(gh.root)}:/openlane",
+    "-v", f"{os.path.realpath(gh.root)}/designs:/openlane/install",
     "-v", f"{gh.pdk}:{gh.pdk}",
     # "-u", f"{user}:{group}",
     "-e", f"PDK_ROOT={gh.pdk}",
@@ -56,19 +57,23 @@ docker_command = [
     shlex.join([
         "python3",
         "run_designs.py",
-        "--tarList", "all",
+        "--tar_list", "all",
         "--disable_timestamp",
-        "--designs",
-    ] + design_list + [
         "--tag", test_name,
         "--threads", str(threads_used),
         "--print_rem", "30",
-        "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv")
-    ])
+        "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
+        "--show_output"
+    ] + design_list)
 ]
 
 print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
-subprocess.run(docker_command, check=True)
+
+try:
+    subprocess.run(docker_command, check=True)
+except subprocess.CalledProcessError as e:
+    if e.returncode != 2:
+        raise e
 
 cat = lambda x: print(open(x).read())
 
@@ -77,8 +82,6 @@ results_folder = os.path.join(gh.root, "regression_results", test_name)
 print("Verbose differences within the benchmark:")
 for report in glob.glob(os.path.join(results_folder, f"{test_name}*.rpt")):
     cat(report)
-print("Full report:")
-cat(os.path.join(results_folder, f"{test_name}.csv"))
 
 design_test_report = os.path.join(results_folder, f"{test_name}.rpt.yml")
 if not os.path.exists(design_test_report):

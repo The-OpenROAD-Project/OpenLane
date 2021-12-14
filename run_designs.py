@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,541 +15,359 @@
 
 import os
 import sys
-import copy
-import time
+import click
 import queue
+import shutil
 import logging
 import datetime
-import argparse
 import threading
 import subprocess
-from collections import OrderedDict
 
 from scripts.report.report import Report
 from scripts.config.config import ConfigHandler
 import scripts.utils.utils as utils
 
+@click.command()
+@click.option("-c", "--config_tag", default="config", help="Configuration file")
+@click.option("-r", "--regression", default=None, help="Regression file")
+@click.option("-t", "--tag", default="regression", help="Tag for the log file")
+@click.option("-j", "--threads", help="Number of designs in parallel")
+@click.option("-p", "--configuration_parameters", default=None, help="File containing configuration parameters to append to report: You can also put 'all' to report all possible configurations")
+@click.option("-T", "--tar_list", default="", help="Tarball the following comma,delimited,directories then delete them, leaving only the compressed version.")
+@click.option("-e", "--excluded_designs", default="", help="Exclude the following comma,delimited,designs from the run")
+@click.option("-b", "--benchmark", default=None, help="Benchmark report file to compare with.")
+@click.option("-p", "--print_rem", default=0, help="If provided with a number >0, a list of remaining designs is printed every <print_rem> seconds.")
+@click.option("--enable_timestamp/--disable_timestamp", default=True, help="Enables or disables appending the timestamp to the file names and tags.")
+@click.option("--append_configurations/--dont_append_configurations", default=False, help="Append configuration parameters provided to the existing default printed configurations")
+@click.option("--delete/--retain", default=False, help="Delete the entire run directory upon completion, leaving only the final_report.txt file.")
+@click.option("--show_output/--hide_output", default=False, help="Enables showing the output from flow invocations into stdout. Will be forced to be false if more than one design is specified.")
+@click.argument("designs", nargs=-1)
+def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list, excluded_designs, benchmark, print_rem, enable_timestamp, append_configurations, delete, show_output, designs):
+    """
+    Run multiple designs in parallel, for testing or exploration.
+    """
+    
+    designs = list(designs)
+    excluded_designs = excluded_designs.split(",")
 
-parser = argparse.ArgumentParser(description="Run multiple designs in parallel, for testing or exploration.")
-parser.add_argument(
-    "--config_tag", "-c", action="store", default="config", help="config file"
-)
-parser.add_argument(
-    "--regression", "-r", action="store", default=None, help="regression file"
-)
-parser.add_argument(
-    "--designs", "-d", nargs="+", default=["spm"], help="designs to run"
-)
-parser.add_argument(
-    "--tag", "-t", action="store", default="regression", help="tag the log file"
-)
-parser.add_argument(
-    "--threads",
-    "-th",
-    action="store",
-    type=int,
-    default=5,
-    help="number of designs in parallel",
-)
-parser.add_argument(
-    "--configuration_parameters",
-    "-cp",
-    action="store",
-    default=None,
-    help="file containing configuration parameters to write in report, to report all possible configurations add: all ",
-)
-parser.add_argument(
-    "--append_configurations",
-    "-app",
-    action="store_true",
-    default=False,
-    help="append configuration parameters provided to the existing default printed configurations",
-)
-parser.add_argument(
-    "--clean",
-    "-cl",
-    action="store_true",
-    default=False,
-    help="cleans all intermediate files in runs",
-)
-parser.add_argument(
-    "--delete",
-    "-dl",
-    action="store_true",
-    default=False,
-    help="deletes the whole run directory upon completion leaving only the final_report.txt file",
-)
-parser.add_argument(
-    "--tarList",
-    "-tar",
-    nargs="+",
-    default=None,
-    help="tars the specified sub directories and deletes the whole directory leaving only the compressed version",
-)
-parser.add_argument(
-    "--htmlExtract",
-    "-html",
-    action="store_true",
-    default=False,
-    help="An option to extract an html summary of the final csv summary (Deprecated)",
-)
-parser.add_argument(
-    "--defaultTestSet",
-    "-dts",
-    action="store_true",
-    default=False,
-    help="Runs the default test set (all designs under ./designs/) to generate the regression sheet",
-)
-parser.add_argument(
-    "--excluded_designs",
-    "-e",
-    nargs="+",
-    default=[],
-    help="designs to exclude from the run",
-)
-parser.add_argument(
-    "--benchmark",
-    "-b",
-    action="store",
-    default=None,
-    help="benchmark report file to compare with",
-)
-parser.add_argument(
-    "--print_rem",
-    "-p",
-    action="store",
-    default=None,
-    help="Takes a time period, and prints the list of remaining designs periodically based on it",
-)
-parser.add_argument(
-    "--disable_timestamp",
-    "-dt",
-    action="store_true",
-    default=False,
-    help="Disables appending the timestamp to the file names and tags.",
-)
-parser.add_argument(
-    "--show_output",
-    "-so",
-    action="store_true",
-    default=False,
-    help="Enables showing the ./flow.tcl output into the stdout. If more than one design/more than one configuration is run, this flag will be treated as False, even if specified otherwise.",
-)
+    for excluded_design in excluded_designs:
+        if excluded_design in designs:
+            designs.remove(excluded_design)
+
+    show_log_output = show_output and (len(designs) == 1) and (regression is None)
 
 
-args = parser.parse_args()
-
-regression = args.regression
-tag = args.tag
-if args.defaultTestSet:
-    designs = [x for x in os.listdir("./designs/")]
-    for i in designs:
-        if os.path.isdir("./designs/" + i) == False:
-            designs.remove(i)
-else:
-    designs = list(OrderedDict.fromkeys(args.designs))
-
-excluded_designs = list(OrderedDict.fromkeys(args.excluded_designs))
-
-
-for excluded_design in excluded_designs:
-    if excluded_design in designs:
-        designs.remove(excluded_design)
-
-show_log_output = args.show_output & (len(designs) == 1) & (args.regression is None)
-
-
-if args.print_rem is not None and show_log_output == False:
-    if float(args.print_rem) > 0:
-        mutex = threading.Lock()
-        print_rem_time = float(args.print_rem)
+    if print_rem is not None and show_log_output == False:
+        if float(print_rem) > 0:
+            mutex = threading.Lock()
+            print_rem_time = float(print_rem)
+        else:
+            print_rem_time = None
     else:
         print_rem_time = None
-else:
-    print_rem_time = None
 
 
-if print_rem_time is not None:
-    rem_designs = dict.fromkeys(designs, 1)
+    if print_rem_time is not None:
+        rem_designs = dict.fromkeys(designs, 1)
 
-num_workers = args.threads
-config = args.config_tag
-tarList = [""]
-if args.tarList is not None:
-    tarList = list(OrderedDict.fromkeys(args.tarList))
+    num_workers = int(threads)
+    config = config_tag
+    tarList = tar_list.split(",")
 
-if args.regression is not None:
-    regressionConfigurationsList = []
-    regressionFileOpener = open(regression, "r")
-    regressionFileContent = regressionFileOpener.read().split()
-    regressionFileOpener.close()
-    for k in regressionFileContent:
-        if k.find("=") == -1:
-            continue
+    if regression is not None:
+        regressionConfigurationsList = []
+        regressionFileOpener = open(regression, "r")
+        regressionFileContent = regressionFileOpener.read().split()
+        regressionFileOpener.close()
+        for k in regressionFileContent:
+            if k.find("=") == -1:
+                continue
 
-        if k.find("extra") != -1:
-            break
-        else:
-            regressionConfigurationsList.append(k.split("=")[0])
-    if len(regressionConfigurationsList):
-        ConfigHandler.update_configuration_values(regressionConfigurationsList, True)
-
-if args.configuration_parameters is not None:
-    if args.configuration_parameters == "all":
-        ConfigHandler.update_configuration_values_to_all(args.append_configurations)
-    else:
-        try:
-            tmpFile = open(args.configuration_parameters, "r")
-            if tmpFile.mode == "r":
-                configuration_parameters = tmpFile.read().split(",")
-                ConfigHandler.update_configuration_values(
-                    configuration_parameters, args.append_configurations
-                )
-        except OSError:
-            print("Could not open/read file:", args.configuration_parameters)
-            sys.exit()
-
-store_dir = ""
-report_file_name = ""
-if args.disable_timestamp:
-    store_dir = "./regression_results/{tag}/".format(tag=tag)
-    report_file_name = "{store_dir}/{tag}".format(store_dir=store_dir, tag=tag)
-else:
-    store_dir = "./regression_results/{tag}_{date}/".format(
-        tag=tag, date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
-    )
-    report_file_name = "{store_dir}/{tag}_{date}".format(
-        store_dir=store_dir,
-        tag=tag,
-        date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M"),
-    )
-
-if os.path.exists(store_dir) == False:
-    os.makedirs(store_dir, exist_ok=True)
-
-log = logging.getLogger("log")
-log_formatter = logging.Formatter("[%(asctime)s - %(levelname)5s] %(message)s")
-handler1 = logging.FileHandler(
-    "{report_file_name}.log".format(report_file_name=report_file_name), "w"
-)
-handler1.setFormatter(log_formatter)
-log.addHandler(handler1)
-handler2 = logging.StreamHandler()
-handler2.setFormatter(log_formatter)
-log.addHandler(handler2)
-log.setLevel(logging.INFO)
-
-report_log = logging.getLogger("report_log")
-report_formatter = logging.Formatter("%(message)s")
-report_handler = logging.FileHandler(
-    "{report_file_name}.csv".format(report_file_name=report_file_name), "w"
-)
-report_handler.setFormatter(report_formatter)
-report_log.addHandler(report_handler)
-report_log.setLevel(logging.INFO)
-
-report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
-
-
-allow_print_rem_designs = False
-
-
-def printRemDesignList():
-    t = threading.Timer(print_rem_time, printRemDesignList)
-    t.start()
-    if allow_print_rem_designs:
-        print("Remaining designs (design, # of times): ", rem_designs)
-    if len(rem_designs) == 0:
-        t.cancel()
-
-
-def rmDesignFromPrintList(design):
-    if design in rem_designs.keys():
-        mutex.acquire()
-        try:
-            rem_designs[design] -= 1
-            if rem_designs[design] == 0:
-                rem_designs.pop(design)
-        finally:
-            mutex.release()
-
-
-if print_rem_time is not None:
-    printRemDesignList()
-    allow_print_rem_designs = True
-
-
-def run_design(designs_queue):
-    while not designs_queue.empty():
-        design, config, tag, design_name = designs_queue.get(timeout=3)  # 3s timeout
-        run_path = utils.get_run_path(design=design, tag=tag)
-        log.info("{design} {tag} running".format(design=design, tag=tag))
-        command = ""
-        if show_log_output:
-            command = "{ol_entry} -design {design} -tag {tag} -overwrite -config_tag {config} -no_save".format(
-                ol_entry=os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
-                design=design,
-                tag=tag,
-                config=config,
-            )
-        else:
-            command = "{ol_entry} -design {design} -tag {tag} -overwrite -disable_output -config_tag {config} -no_save".format(
-                ol_entry=os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
-                design=design,
-                tag=tag,
-                config=config,
-            )
-        skip_rm_from_rems = False
-        try:
-            if show_log_output:
-                process = subprocess.Popen(
-                    command.split(), stderr=subprocess.PIPE, stdout=subprocess.PIPE
-                )
-                while True:
-                    output = process.stdout.readline()
-                    if not output:
-                        break
-                    if output:
-                        print(str(output.strip())[2:-1])
+            if k.find("extra") != -1:
+                break
             else:
-                subprocess.check_output(command.split(), stderr=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
-            if print_rem_time is not None:
-                rmDesignFromPrintList(design)
-                skip_rm_from_rems = True
-            error_msg = e.stderr.decode(sys.getfilesystemencoding())
-            log.error(
-                "{design} {tag} failed check {run_path}error.txt".format(
-                    design=design, run_path=run_path, tag=tag
-                )
-            )
-            with open(run_path + "error.txt", "w") as error_file:
-                error_file.write(error_msg)
+                regressionConfigurationsList.append(k.split("=")[0])
+        if len(regressionConfigurationsList):
+            ConfigHandler.update_configuration_values(regressionConfigurationsList, True)
 
-        if print_rem_time is not None and not skip_rm_from_rems:
-            rmDesignFromPrintList(design)
+    if configuration_parameters is not None:
+        if configuration_parameters == "all":
+            ConfigHandler.update_configuration_values_to_all(append_configurations)
+        else:
+            try:
+                with open(configuration_parameters, "r") as f:
+                    configuration_parameters = f.read().split(",")
+                    ConfigHandler.update_configuration_values(
+                        configuration_parameters, append_configurations
+                    )
+            except OSError:
+                print("Could not open/read file:", configuration_parameters)
+                sys.exit()
 
-        log.info(
-            "{design} {tag} finished\t Writing report...".format(design=design, tag=tag)
+    store_dir = ""
+    report_file_name = ""
+    if enable_timestamp:
+        store_dir = "./regression_results/{tag}_{date}/".format(
+            tag=tag, date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
         )
-        params = ConfigHandler.get_config(design, tag)
-
-        report = Report(design, tag, design_name, params).get_report()
-        report_log.info(report)
-
-        with open(run_path + "report.csv", "w") as report_file:
-            report_file.write(Report.get_header() + "," + ConfigHandler.get_header())
-            report_file.write("\n")
-            report_file.write(report)
-
-        if args.benchmark is not None:
-            try:
-                log.info(
-                    "{design} {tag} Comparing with benchmark results...".format(
-                        design=design, tag=tag
-                    )
-                )
-                subprocess.check_output([
-                    "python3",
-                    "./scripts/compare_regression_design.py",
-                    "--output-report", f"{report_file_name}.rpt.yml",
-                    "--benchmark", args.benchmark,
-                    "--design", design,
-                    "--run-path", run_path,
-                    f"{report_file_name}.csv"
-                ], stderr=subprocess.PIPE)
-            except subprocess.CalledProcessError as e:
-                error_msg = e.stderr.decode(sys.getfilesystemencoding())
-                log.error(
-                    f"{design} {tag} failed to compare with benchmark: {error_msg}"
-                )
-
-        if args.clean:
-            try:
-                log.info(
-                    "{design} {tag} Cleaning tmp/...".format(
-                        design=design, tag=tag
-                    )
-                )
-                moveUnPadded_cmd = (
-                    "cp {run_path}/tmp/merged_unpadded.lef {run_path}/results/".format(
-                        run_path=run_path, tag=tag
-                    )
-                )
-                subprocess.check_output(moveUnPadded_cmd.split())
-
-                clean_cmd = "rm -rf {run_path}/tmp/".format(run_path=run_path, tag=tag)
-                subprocess.check_output(clean_cmd.split())
-                log.info(
-                    "{design} {tag} tmp/  cleaned.".format(
-                        design=design, tag=tag
-                    )
-                )
-            except subprocess.CalledProcessError as e:
-                error_msg = e.stderr.decode(sys.getfilesystemencoding())
-                log.error(
-                    "{design} {tag} failed to clean the tmp directory: {error_msg}".format(
-                        design=design, tag=tag, error_msg=error_msg
-                    )
-                )
-
-        if tarList[0] != "":
-            log.info(
-                "{design} {tag} Compressing run directory...".format(
-                    design=design, tag=tag
-                )
-            )
-            try:
-                if "all" in tarList:
-                    tarAll_cmd = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz {run_path}".format(
-                        run_path=run_path, design_name=design_name, tag=tag
-                    )
-                    subprocess.check_output(tarAll_cmd.split())
-                else:
-                    tarString = "tar -cvzf {run_path}../{design_name}_{tag}.tar.gz"
-                    for dirc in tarList:
-                        tarString += " {run_path}" + dirc
-                    tar_cmd = tarString.format(
-                        run_path=run_path, design_name=design_name, tag=tag
-                    )
-                    subprocess.check_output(tar_cmd.split())
-                log.info(
-                    "{design} {tag} Compressing Run Directory Finished".format(
-                        design=design, tag=tag
-                    )
-                )
-            except subprocess.CalledProcessError as e:
-                log.info(
-                    "{design} {tag} Compressing Run Directory Failed".format(
-                        design=design, tag=tag
-                    )
-                )
-
-        if args.delete:
-            try:
-                log.info(
-                    "{design} {tag} Deleting run directory...".format(
-                        design=design, tag=tag
-                    )
-                )
-                deleteDirectory = "rm -rf {run_path}".format(run_path=run_path)
-                subprocess.check_output(deleteDirectory.split())
-
-                log.info(
-                    "{design} {tag} Run directory deleted.".format(
-                        design=design, tag=tag
-                    )
-                )
-            except subprocess.CalledProcessError as e:
-                error_msg = e.stderr.decode(sys.getfilesystemencoding())
-                log.error(
-                    "{design} {tag} failed to delete the run directory: {error_msg}".format(
-                        design=design, tag=tag, error_msg=error_msg
-                    )
-                )
-
-
-que = queue.Queue()
-total_runs = 0
-if regression is not None:
-    regression_file = os.path.join(os.getcwd(), regression)
-    number_of_configs = 0
-    for design in designs:
-        base_path = utils.get_design_path(design=design)
-        if base_path is None:
-            log.error("{design} not found, skipping...".format(design=design))
-            if print_rem_time is not None:
-                if design in rem_designs.keys():
-                    rem_designs.pop(design)
-            continue
-        design_name = utils.get_design_name(design, config)
-        if design_name.startswith("[INVALID]:"):
-            log.error(
-                "{design} will not Run, {reason}".format(
-                    design=design, reason=design_name
-                )
-            )
-            continue
-        base_config_path = base_path + "base_config.tcl"
-
-        ConfigHandler.gen_base_config(design, base_config_path)
-        gen_config_cmd = "./scripts/config/generate_config.sh {base_config} {output_path} config_{tag} {regression_file}".format(
-            base_config=base_config_path,
-            output_path=base_path,
+        report_file_name = "{store_dir}/{tag}_{date}".format(
+            store_dir=store_dir,
             tag=tag,
-            regression_file=regression_file,
+            date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M"),
         )
+    else:
+        store_dir = "./regression_results/{tag}/".format(tag=tag)
+        report_file_name = "{store_dir}/{tag}".format(store_dir=store_dir, tag=tag)
 
-        number_of_configs = subprocess.check_output(gen_config_cmd.split())
-        number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
-        total_runs = total_runs + number_of_configs
-        if print_rem_time is not None:
-            rem_designs[design] = number_of_configs
-        for i in range(number_of_configs):
-            config_tag = "config_{tag}_{idx}".format(tag=tag, idx=i)
-            config_file = "{base_path}/{config_tag}".format(
-                base_path=base_path,
-                config_tag=config_tag,
-            )
-            que.put((design, config_tag, config_tag, design_name))
-else:
-    for design in designs:
-        base_path = utils.get_design_path(design=design)
-        if base_path is None:
-            log.error("{design} not found, skipping...".format(design=design))
-            if print_rem_time is not None:
-                if design in rem_designs.keys():
+    if os.path.exists(store_dir) == False:
+        os.makedirs(store_dir, exist_ok=True)
+
+    log = logging.getLogger("log")
+    log_formatter = logging.Formatter("[%(asctime)s - %(levelname)5s] %(message)s")
+    handler1 = logging.FileHandler(
+        "{report_file_name}.log".format(report_file_name=report_file_name), "w"
+    )
+    handler1.setFormatter(log_formatter)
+    log.addHandler(handler1)
+    handler2 = logging.StreamHandler()
+    handler2.setFormatter(log_formatter)
+    log.addHandler(handler2)
+    log.setLevel(logging.INFO)
+
+    report_log = logging.getLogger("report_log")
+    report_formatter = logging.Formatter("%(message)s")
+    report_handler = logging.FileHandler(
+        "{report_file_name}.csv".format(report_file_name=report_file_name), "w"
+    )
+    report_handler.setFormatter(report_formatter)
+    report_log.addHandler(report_handler)
+    report_log.setLevel(logging.INFO)
+
+    report_log.info(Report.get_header() + "," + ConfigHandler.get_header())
+
+
+    allow_print_rem_designs = False
+
+    def printRemDesignList():
+        t = threading.Timer(print_rem_time, printRemDesignList)
+        t.start()
+        if allow_print_rem_designs:
+            print("Remaining designs (design, # of times): ", rem_designs)
+        if len(rem_designs) == 0:
+            t.cancel()
+
+    def rmDesignFromPrintList(design):
+        if design in rem_designs.keys():
+            mutex.acquire()
+            try:
+                rem_designs[design] -= 1
+                if rem_designs[design] == 0:
                     rem_designs.pop(design)
-            continue
-        default_config_tag = "config_{tag}".format(tag=tag)
-        design_name = utils.get_design_name(design, config)
-        if design_name.startswith("[INVALID]:"):
-            log.error(
-                "{design} Will not Run, {reason}".format(
-                    design=design, reason=design_name
+            finally:
+                mutex.release()
+
+
+    if print_rem_time is not None:
+        printRemDesignList()
+        allow_print_rem_designs = True
+
+    def update(status: str, design: str, message: str = None, error: bool = False):
+        str = "[%-5s] %-20s" % (status, design)
+        if message is not None:
+            str += f": {message}"
+
+        if error:
+            log.error(str)
+        else:
+            log.info(str)
+
+    flow_failure_flag = False
+    design_failure_flag = False
+
+    def run_design(designs_queue):
+        nonlocal design_failure_flag, flow_failure_flag
+        while not designs_queue.empty():
+            design, config, tag, design_name = designs_queue.get(timeout=3)  # 3s timeout
+            run_path = utils.get_run_path(design=design, tag=tag)
+            update("START", design)
+            command = [
+                os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
+                "-design", design,
+                "-tag", tag,
+                "-config_tag", config,
+                "-overwrite",
+                "-no_save"
+            ] + ([] if show_log_output else ["-disable_output"])
+            skip_rm_from_rems = False
+            try:
+                if show_log_output:
+                    subprocess.check_call(command)
+                else:
+                    subprocess.check_output(command, stderr=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                if print_rem_time is not None:
+                    rmDesignFromPrintList(design)
+                    skip_rm_from_rems = True
+                run_path_relative = os.path.relpath(run_path, ".")
+                update("FAIL", design, f"Check {run_path_relative}/flow_summary.log", error=True)
+                design_failure_flag = True
+
+            if print_rem_time is not None and not skip_rm_from_rems:
+                rmDesignFromPrintList(design)
+
+            update("DONE", design, "Writing report...")
+            params = ConfigHandler.get_config(design, tag)
+
+            report = Report(design, tag, design_name, params).get_report()
+            report_log.info(report)
+
+            with open(f"{run_path}/report.csv", "w") as report_file:
+                report_file.write(Report.get_header() + "," + ConfigHandler.get_header())
+                report_file.write("\n")
+                report_file.write(report)
+
+            if benchmark is not None:
+                try:
+                    update("DONE", design, "Comparing with benchmark results...")
+                    subprocess.check_output([
+                        "python3",
+                        "./scripts/compare_regression_design.py",
+                        "--output-report", f"{report_file_name}.rpt.yml",
+                        "--benchmark", benchmark,
+                        "--design", design,
+                        "--run-path", run_path,
+                        f"{report_file_name}.csv"
+                    ], stderr=subprocess.PIPE)
+                except subprocess.CalledProcessError as e:
+                    error_msg = e.stderr.decode("utf8")
+                    update("ERROR", design, f"Failed to compare with benchmark: {error_msg}")
+                    flow_failure_flag = True
+
+            if tarList[0] != "":
+                update("DONE", design, "Compressing run directory...")
+                try:
+                    tarball_path = os.path.realpath(os.path.join(run_path, "..", f"{design_name}_{tag}.tar.gz"))
+                    tar_cmd = [
+                        "tar",
+                        "-czvf", tarball_path
+                    ]
+                    if "all" in tarList:
+                        tar_cmd += [run_path]
+                    else:
+                        tar_cmd += list(map(lambda x: f"{run_path}/{x}", tarList))
+                    subprocess.check_output(tar_cmd)
+                    update("DONE", design, "Compressed run directory.")
+                except subprocess.CalledProcessError as e:
+                    update("ERROR", design, "Failed to compress run directory.", error=True)
+                    flow_failure_flag = True
+
+            if delete:
+                try:
+                    update("DONE", design, "Deleting run directory...")
+                    shutil.rmtree(run_path)
+                    update("DONE", design, "Deleted run directory.")
+                except FileNotFoundError as e:
+                    pass
+                except Exception as e:
+                    update("ERROR", design, "Failed to delete run directory.", error=True)
+                    flow_failure_flag = True
+
+    q = queue.Queue()
+    total_runs = 0
+    if regression is not None:
+        regression_file = os.path.join(os.getcwd(), regression)
+        number_of_configs = 0
+        for design in designs:
+            base_path = utils.get_design_path(design=design)
+            if base_path is None:
+                update("ERROR", design, f"Cannot run: Not found", error=True)
+                if print_rem_time is not None:
+                    if design in rem_designs.keys():
+                        rem_designs.pop(design)
+                continue
+            err, design_name = utils.get_design_name(design, config)
+            if err is not None:
+                update("ERROR", design, f"Cannot run: {err}", error=True)
+                continue
+            base_config_path = base_path + "base_config.tcl"
+
+            ConfigHandler.gen_base_config(design, base_config_path)
+
+            number_of_configs = subprocess.check_output([
+                "./scripts/config/generate_config.sh",
+                base_config_path,
+                base_path,
+                f"config_{tag}",
+                regression_file
+            ])
+            number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
+            total_runs = total_runs + number_of_configs
+            if print_rem_time is not None:
+                rem_designs[design] = number_of_configs
+            for i in range(number_of_configs):
+                config_tag = f"config_{tag}_{i}"
+                config_file = f"{base_path}/{config_tag}".format(
+                    base_path=base_path,
+                    config_tag=config_tag,
                 )
-            )
-            continue
-        que.put((design, config, default_config_tag, design_name))
+                q.put((design, config_file, config_tag, design_name))
+    else:
+        for design in designs:
+            base_path = utils.get_design_path(design=design)
+            if base_path is None:
+                update("ALERT", design, "Not found, skipping...")
+                if print_rem_time is not None:
+                    if design in rem_designs.keys():
+                        rem_designs.pop(design)
+                continue
+            default_config_tag = "config_{tag}".format(tag=tag)
+            err, design_name = utils.get_design_name(design, config)
+            if err is not None:
+                update("ERROR", design, f"Cannot run: {err}")
+                continue
+            q.put((design, config, default_config_tag, design_name))
 
 
-workers = []
-for i in range(num_workers):
-    workers.append(threading.Thread(target=run_design, args=(que,)))
-    workers[i].start()
+    workers = []
+    for i in range(num_workers):
+        workers.append(threading.Thread(target=run_design, args=(q,)))
+        workers[i].start()
 
-for i in range(num_workers):
-    while workers[i].is_alive() == True:
-        workers[i].join(100)
-    print("Exiting thread", i)
+    for i in range(num_workers):
+        while workers[i].is_alive() == True:
+            workers[i].join(100)
+        log.info(f"Exiting thread {i}...")
 
-log.info("Getting top results...")
-subprocess.check_output([
-    "python3",
-    "./scripts/report/get_best.py",
-    "-i", report_handler.baseFilename,
-    "-o", f"{report_file_name}_best.csv"
-])
-
-if args.htmlExtract:
-    log.warn("htmlExtract is deprecated.")
-
-utils.addComputedStatistics(report_file_name + ".csv")
-
-utils.addComputedStatistics(report_file_name + "_best.csv")
-
-
-if args.benchmark is not None:
-    log.info("Benchmarking...")
-    full_benchmark_comp_cmd = [
+    log.info("Getting top results...")
+    subprocess.check_output([
         "python3",
-        "./scripts/compare_regression_reports.py",
-        "--no-full-benchmark",
-        "--benchmark", args.benchmark,
-        "--output-report", f"{report_file_name}.rpt",
-        "--output-xlsx", f"{report_file_name}.rpt.xlsx",
-        f"{report_file_name}.csv"
-    ]
-    subprocess.check_output(full_benchmark_comp_cmd)
+        "./scripts/report/get_best.py",
+        "-i", report_handler.baseFilename,
+        "-o", f"{report_file_name}_best.csv"
+    ])
 
-log.info("Done")
+    utils.add_computed_statistics(report_file_name + ".csv")
+    utils.add_computed_statistics(report_file_name + "_best.csv")
+
+    if benchmark is not None:
+        log.info("Benchmarking...")
+        full_benchmark_comp_cmd = [
+            "python3",
+            "./scripts/compare_regression_reports.py",
+            "--no-full-benchmark",
+            "--benchmark", benchmark,
+            "--output-report", f"{report_file_name}.rpt",
+            "--output-xlsx", f"{report_file_name}.rpt.xlsx",
+            f"{report_file_name}.csv"
+        ]
+        subprocess.check_output(full_benchmark_comp_cmd)
+
+    log.info("Done.")
+
+    if design_failure_flag:
+        exit(2)
+    if flow_failure_flag:
+        exit(1)
+
+if __name__ == '__main__':
+    cli()

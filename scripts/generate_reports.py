@@ -48,7 +48,7 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         f.write(report)
 
     # Adding Extra Attributes computed from configs and reported statistics
-    utils.addComputedStatistics(output_file)
+    utils.add_computed_statistics(output_file)
 
     # Tracking Magic DRC, LVS, Antenna Logs:
     run_path = run_path or utils.get_run_path(design, tag)

@@ -10,7 +10,6 @@ just a few small guidelines you need to follow.
     - `make fastest_test_set`: to run the same test set that the basic CI uses, which will be used to evaluate your Pull Request.
     - [This](./regression_results/README.md) for custom test sets. (check the `-b` flag).
     - `make test`: tests the flow against one design `$TEST_DESIGN`. The default is `spm`.
-    - `make regression_test`: tests the flow against all available designs and compares the resulting statistics with benchmark results and produces a human readable report and summary. This can take hours and is only really recommended for major changes.
 
 ## Code reviews
 
