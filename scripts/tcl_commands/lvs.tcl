@@ -81,8 +81,16 @@ proc write_powered_verilog {args} {
 
 # "layout": a spice netlist
 # "schematic": a verilog netlist
-proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)"}} {
-    if { $::env(RUN_LVS) } {
+proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
+    if { $::env(RUN_LVS) } {        
+        # Write Netlist
+        write_verilog $::env(finishing_tmpfiles)/final_glnl.v -log $::env(finishing_logs)/write_verilog.log
+        set_netlist $::env(finishing_tmpfiles)/final_glnl.v
+        if { $::env(LEC_ENABLE) } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+        set schematic $::env(CURRENT_NETLIST)
+
         # LEF LVS output to lvs.lef.log, design.lvs.lef.log, design.lvs.lef.json, design.lvs.lef.log
         # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
         # GDS LVS uses STD_CELL_LIBRARY spice and
@@ -98,7 +106,6 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
         }
 
         set layout [subst $layout]
-        set schematic [subst $schematic]
 
         set setup_file $::env(NETGEN_SETUP_FILE)
         set module_name $::env(DESIGN_NAME)

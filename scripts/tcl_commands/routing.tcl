@@ -408,13 +408,6 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
-    # for LVS
-    write_verilog $::env(routing_tmpfiles)/global.v -log $::env(routing_logs)/write_verilog.log
-    set_netlist $::env(routing_tmpfiles)/global.v
-    if { $::env(LEC_ENABLE) } {
-        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-    }
-
     # detailed routing
     detailed_routing
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
