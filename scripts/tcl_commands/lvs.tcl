@@ -44,21 +44,23 @@ proc write_powered_verilog {args} {
     puts_info "Writing Powered Verilog..."
     set options {
         {-def optional}
-        {-output_def optional}
-        {-output_verilog optional}
         {-lef optional}
         {-power optional}
         {-ground optional}
         {-powered_netlist optional}
+        {-def_log optional}
+        {-output_def required}
+        {-output_verilog required}
     }
     set flags {}
+
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
-    set_if_unset arg_values(-output_def) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).powered.def]
-    set_if_unset arg_values(-output_verilog) $::env(routing_results)/$::env(DESIGN_NAME).powered.v
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
+    set_if_unset arg_values(-def_log) /dev/null
+    set_if_unset arg_values(-log) /dev/null
 
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
@@ -74,23 +76,15 @@ proc write_powered_verilog {args} {
             --ground-port $arg_values(-ground) \
             --powered-netlist $arg_values(-powered_netlist) \
             -o $arg_values(-output_def) \
-            |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/write_powered_verilog.log]
+            |& tee $::env(TERMINAL_OUTPUT) $arg_values(-def_log)
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $::env(routing_logs)/write_verilog.log -canonical
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $arg_values(-log) -canonical
 }
 
 # "layout": a spice netlist
 # "schematic": a verilog netlist
 proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     if { $::env(RUN_LVS) } {        
-        # Write Netlist
-        write_verilog $::env(finishing_tmpfiles)/final_glnl.v -log $::env(finishing_logs)/write_verilog.log
-        set_netlist $::env(finishing_tmpfiles)/final_glnl.v
-        if { $::env(LEC_ENABLE) } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
-        set schematic $::env(CURRENT_NETLIST)
-
         # LEF LVS output to lvs.lef.log, design.lvs.lef.log, design.lvs.lef.json, design.lvs.lef.log
         # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
         # GDS LVS uses STD_CELL_LIBRARY spice and
@@ -104,6 +98,22 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
             set extract_type lef
             puts_info "Running LEF LVS..."
         }
+
+        # Write Netlist
+        set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
+        set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
+        write_powered_verilog\
+            -output_verilog $powered_netlist_name\
+            -output_def $powered_def_name\
+            -log [index_file $::env(finishing_logs)/write_verilog.log]\
+            -def_log [index_file $::env(finishing_logs)/write_powered_def.log]
+
+        set_netlist $powered_netlist_name
+        
+        if { $::env(LEC_ENABLE) } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+        set schematic $::env(CURRENT_NETLIST)
 
         set layout [subst $layout]
 
