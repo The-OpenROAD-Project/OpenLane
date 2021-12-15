@@ -90,10 +90,10 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       # done inserting the buffer
       puts "done insert buffer"
       
-      odb::dbITerm_connect $out_iterm $old_net
+      odb::dbITerm_connect $in_iterm $old_net
       puts "connect to in_iterm"
       
-      odb::dbITerm_connect $in_iterm $new_net  
+      odb::dbITerm_connect $out_iterm $new_net  
       puts "connect to out_iterm "
 
       puts "Done Inserting buffer for reg-* cases"
@@ -102,7 +102,35 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       # Finding the block with pin name
       set bterm [$block findBTerm $pin_name]
       set old_net [$bterm getNet]
-      
+      puts [odb::dbNet_get1stITerm $old_net]
+      puts "aaa"
+      set  net_out_iterm [odb::dbNet_get1stITerm $old_net]
+      puts "bbb"
+      # $old_net get1stITerm $net_out_iterm      
+      set old_net_inst [$net_out_iterm getInst]
+      puts "ccc"
+      set net_mterm [$net_out_iterm getMTerm]
+      puts [$net_mterm getSigType]
+      set old_net_input $net_mterm
+      puts "ddd"
+      odb::dbITerm_disconnect $net_out_iterm
+      #puts [$old_net getFirstOutput]
+      #set print2 [$new_net getWireType]
+      #set print3 [$old_net isIO]
+      #set print4 [$new_net isIO]
+      #puts $print1
+      #puts $print2
+      #puts $print3
+      #puts $print4
+      #set new_net_name [$new_net getName]
+      #set old_net_name [$old_net getName]
+      #puts $old_net_name
+      #puts $new_net_name
+      #puts [$old_net rename $new_net_name]
+      #puts [$new_net rename $old_net_name]
+      #puts [$old_net getName] 
+      #puts [$new_net getName]     
+
       set box [$bterm getBBox] 
 
       # get the position of the lower left point of this instance
@@ -121,17 +149,31 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       puts "get out iterm"
 
       # Disconnect pin from the old net
-      $bterm disconnect
+      #$bterm disconnect
 
       # Connect old net to output of iterm
-      odb::dbITerm_connect $out_iterm $old_net
+      #odb::dbITerm_connect $out_iterm $old_net
 
       # Connect pin (BTerm) to new net
-      $bterm connect $new_net
+      #$bterm connect $new_net
     
       # Connect input of iterm to new net
-      odb::dbITerm_connect $in_iterm $new_net
+      #odb::dbITerm_connect $in_iterm $new_net
+
+      
+      odb::dbITerm_connect $out_iterm $new_net
+      puts "1111"
+      odb::dbITerm_connect $net_out_iterm $new_net
+      puts "2222"
+      odb::dbITerm_connect $in_iterm $old_net
+
       puts "Done Inserting buffer for pin-* cases"
+      #$new_net setIOflag
+      #$old_net setIOflag
+      #set print5 [$old_net isIO]
+      #set pritn6 [$new_net isIO]
+      #puts print5
+      #puts print6
   }
 }
 

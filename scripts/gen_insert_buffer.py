@@ -89,7 +89,7 @@ if os.path.exists(input_file):
 
         eco_iter=os.environ["ECO_ITER"]
         for pin_unq in vio_dict.keys():
-            insert_times = math.floor(abs(min(vio_dict[pin_unq]))/0.03) # insert buffer conservatively
+            insert_times = math.floor(abs(max(vio_dict[pin_unq]))/0.06) # insert buffer conservatively
             if insert_times == 0:
                 vio_count += 1
                 print("insert multiple buffers: ", insert_times+1) 
