@@ -15,11 +15,10 @@
 FROM openlane-build-base
 
 # Build Boost
-RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
-    tar -xf download && \
-    cd boost_1_72_0 && \
+WORKDIR /boost
+RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
     ./bootstrap.sh && \
-    ./b2 install --with-iostreams --with-test -j $(nproc)
+    ./b2 install --with-iostreams --with-test --with-serialization --with-system --with-thread -j $(nproc)
 
 # Build Eigen
 WORKDIR /eigen
