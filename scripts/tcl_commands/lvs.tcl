@@ -41,6 +41,7 @@ proc verilog_to_verilogPower {args} {
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
     increment_index
+    TIMER::timer_start
     puts_info "Writing Powered Verilog..."
     set options {
         {-def optional}
@@ -76,9 +77,11 @@ proc write_powered_verilog {args} {
             --ground-port $arg_values(-ground) \
             --powered-netlist $arg_values(-powered_netlist) \
             -o $arg_values(-output_def) \
-            |& tee $::env(TERMINAL_OUTPUT) $arg_values(-def_log)
+            |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $arg_values(-log) -canonical
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log [index_file $arg_values(-log)] -canonical
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write powered verilog - openlane"
 }
 
 # "layout": a spice netlist
@@ -89,6 +92,23 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         # GDS LVS output to lvs.gds.log, design.lvs.gds.log, design.lvs.gds.json, design.lvs.gds.log
         # GDS LVS uses STD_CELL_LIBRARY spice and
         # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
+        # Write Netlist
+        if { $::env(LVS_INSERT_POWER_PINS) } {
+            set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
+            set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
+            write_powered_verilog\
+                -output_verilog $powered_netlist_name\
+                -output_def $powered_def_name\
+                -log $::env(finishing_logs)/write_verilog.log\
+                -def_log $::env(finishing_logs)/write_powered_def.log
+
+            set_netlist $powered_netlist_name
+
+            if { $::env(LEC_ENABLE) } {
+                logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+            }
+        }
+        
         increment_index
         TIMER::timer_start
         if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
@@ -99,22 +119,6 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
             puts_info "Running LEF LVS..."
         }
 
-        # Write Netlist
-        if { $::env(LVS_INSERT_POWER_PINS) } {
-            set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
-            set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
-            write_powered_verilog\
-                -output_verilog $powered_netlist_name\
-                -output_def $powered_def_name\
-                -log [index_file $::env(finishing_logs)/write_verilog.log]\
-                -def_log [index_file $::env(finishing_logs)/write_powered_def.log]
-
-            set_netlist $powered_netlist_name
-
-            if { $::env(LEC_ENABLE) } {
-                logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-            }
-        }
 
         set schematic $::env(CURRENT_NETLIST)
 

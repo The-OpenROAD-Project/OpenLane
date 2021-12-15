@@ -182,6 +182,11 @@ proc increment_index {args} {
 proc index_file {args} {
 	set file_full_name [lindex $args 0]
 
+	if { $file_full_name == "/dev/null" } {
+		# Can't index that :)
+		return $file_full_name
+	}
+
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
