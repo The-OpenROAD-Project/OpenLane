@@ -92,7 +92,7 @@ proc run_cts {args} {
 			set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/cts.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/cts.log]
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log [index_file $::env(cts_logs)/cts.log]
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
 		TIMER::timer_stop
@@ -123,7 +123,7 @@ proc run_resizer_timing {args} {
 		puts_info "Running Resizer Timing Optimizations..."
 		set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
 		set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(cts_logs)/resizer.log]
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log [index_file $::env(cts_logs)/resizer.log]
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

@@ -114,7 +114,6 @@ Most of the following commands' implementation exists in this [file][9]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `get_yosys_bin` | | Returns the used binary for yosys. |
 | `run_yosys` | | Runs yosys synthesis on the design processed in the flow (the design is set by the `prep` command). if `LEC_ENABLE` is set to 1, a logic verification will be run after generating the new netlist vs the previous netlist if it exists. |
 |    | `[-output <output_file>]` | Sets the outputfile from yosys synthesis. <br> Defaults to `/<run_path>/results/synthesis/<design_name>.synthesis.v`  <br> Optional flag.       |
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/synthesis/` and timing reports under `/<run_path>/reports/synthesis/`. |
@@ -139,6 +138,7 @@ Most of the following commands' implementation exists in this [file][9]
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-powered_netlist <verilog_netlist_file>]` | The verilog netlist parsed from yosys that contains the internal power connections in case the design has internal macros file. <br> Defaults to `/<run_path>/tmp/synthesis/synthesis.pg_define.v` if `::env(SYNTH_USE_PG_PINS_DEFINES)` is defined, and to empty string otherwise. |
+| `get_yosys_bin` | | **Deprecated** Returns the used binary for yosys. |
 
 
 ## Floorplan Commands

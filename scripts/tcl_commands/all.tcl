@@ -18,7 +18,7 @@ package require openlane_utils
 
 proc save_state {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-    puts_info "Saving Runtime Environment"
+    puts_info "Saving runtime environment..."
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
@@ -877,7 +877,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-log)]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl -indexed_log [index_file $arg_values(-log)]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {
@@ -905,7 +905,7 @@ proc run_or_antenna_check {args} {
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
     set antenna_log [index_file $::env(finishing_logs)/antenna.log]
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $antenna_log
+	run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
     set ::env(ANTENNA_CHECKER_LOG) $antenna_log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
