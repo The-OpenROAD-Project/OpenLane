@@ -87,12 +87,12 @@ Two scripts were created for this purpose:
 
 To run the script to create new (empty) configurations for a (PDK,STD_CELL_LIBRARY) pair:
 ```bash
-    python3 ./scripts/replicateDesignsConfigs.py --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
+    python3 ./scripts/replicate_design_configs.py --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
 ```
 
 To run the script to replicate configurations from one (PDK,STD_CELL_LIBRARY) pair to another:
 ```bash
-    python3 ./scripts/replicateDesignsConfigs.py --from-pdk PDK_FROM --from-std-cell-lib STD_CELL_LIBRARY_FROM --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
+    python3 ./scripts/replicate_design_configs.py --from-pdk PDK_FROM --from-std-cell-lib STD_CELL_LIBRARY_FROM --to-pdk PDK --to-std-cell-lib STD_CELL_LIBRARY
 ```
 
 The following is the list of flags used with the script:
@@ -153,7 +153,7 @@ The following is the list of flags used with the script:
 
 To run the script to update configurations for a (PDK,STD_CELL_LIBRARY) pair after an exploration:
 ```bash
-    python3 ./scripts/updateDesignsConfigs.py --pdk PDK --std-cell-lib STD_CELL_LIBRARY --best_results SW_exploration_best.csv
+    python3 ./scripts/update_designs_configs.py --pdk PDK --std-cell-lib STD_CELL_LIBRARY --best_results SW_exploration_best.csv
 ```
 
 Check [this][1] for more details on the log files.
@@ -233,9 +233,9 @@ The following is the list of flags used with the script:
     </tr>
 </table>
 
-**Note:** updateDesignsConfigs.py skips designs that fail during the exploration, which means their flow_status is not `flow_completed`.
+**Note:** `update_designs_configs.py` skips designs that fail during the exploration, which means their flow_status is not `flow_completed`.
 
-**Important Note:** *The updateDesignsConfigs script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the replicateDesignsConfigs copies the whole file.*
+**Important Note:** *The `update_designs_configs` script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the `replicate_design_configs` script copies the whole file.*
 
 [1]: ../regression_results/README.md
 [2]: ../configuration/README.md
