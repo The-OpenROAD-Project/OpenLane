@@ -33,7 +33,7 @@ proc global_routing_cugr {args} {
 
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set_def $::env(SAVE_DEF)
         set_guide $::env(SAVE_GUIDE)
@@ -53,7 +53,7 @@ proc global_routing_fastroute {args} {
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
-            try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
             set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
@@ -107,7 +107,7 @@ proc detailed_routing_tritonroute {args} {
     set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
     set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
         -i $::env(routing_reports)/detailed.drc \
@@ -162,7 +162,7 @@ proc ins_fill_cells {args} {
         TIMER::timer_start
         puts_info "Running Fill Insertion..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/fill.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/fill.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log [index_file $::env(routing_logs)/fill.log]
         set_def $::env(SAVE_DEF)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
@@ -217,8 +217,8 @@ proc gen_pdn {args} {
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
     set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/pdn.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
+        |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
 
 
     TIMER::timer_stop
@@ -236,7 +236,7 @@ proc ins_diode_cells_1 {args} {
     puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log [index_file $::env(routing_logs)/diodes.log]
 
     set_def $::env(SAVE_DEF)
 
@@ -357,7 +357,7 @@ proc run_spef_extraction {args} {
             set ::env(MPLCONFIGDIR) /tmp
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $log
         } else {
-            try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) $log
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
         }
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
@@ -459,7 +459,7 @@ proc run_resizer_timing_routing {args} {
         puts_info "Running Resizer Timing Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/resizer_timing.def]
         set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/resizer_timing.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/resizer.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log [index_file $::env(routing_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

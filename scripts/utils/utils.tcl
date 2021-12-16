@@ -160,15 +160,75 @@ proc try_catch {args} {
         puts_err "$print_error_msg"
         puts_err "Exit code: $exit_code"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-        puts_err "Please check ${tool} log file"
 
+		flow_fail
+		return -code error
+    }
+}
 
-        if { ! [catch { set error_log_file [open $::env(RUN_DIR)/error.log a+] } ]} {
-            puts_err "Dumping to $::env(RUN_DIR)/error.log"
-            puts $error_log_file "$print_error_msg"
-            puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-            close $error_log_file
-        }
+proc relpath {args} {
+	set from [lindex $args 0]
+	set to [lindex $args 1]
+	return [exec python3 -c "import os; print(os.path.relpath('$to', '$from'), end='')"]
+}
+
+proc run_openroad_script {args} {
+    # Note that this proc is not responsible for indexing its own logs.
+    set options {
+        {-indexed_log optional}
+    }
+
+	set flags {-netlist_in}
+
+    parse_key_args "run_openroad_script" args arg_values $options flag_map $flags
+
+    set_if_unset arg_values(-indexed_log) /dev/null
+
+	set script [lindex $args 0]
+
+	set args "$::env(OPENROAD_BIN) -exit $script"
+
+    if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
+        set timestamp [clock format [clock seconds]]
+        puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
+        close $cmd_log_file
+    }
+
+    set exit_code [catch {exec $::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
+
+    if { $exit_code } {
+        set tool [string range $args 0 [string first " " $args]]
+        set print_error_msg "during executing openroad script $script"
+
+        puts_err "$print_error_msg"
+        puts_err "Exit code: $exit_code"
+        puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+
+		puts_info "Creating reproducible..."
+
+		save_state
+		
+		set reproducible_dir $::env(RUN_DIR)/openroad_issue_reproducible
+		set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
+
+		set or_issue_arg_list [list]
+
+		lappend or_issue_arg_list --output-dir $reproducible_dir
+		lappend or_issue_arg_list --or-script $script
+		lappend or_issue_arg_list --run-path $::env(RUN_DIR)
+
+		if { [info exists flag_map(-netlist_in)] } {
+			lappend or_issue_arg_list --netlist $::env(CURRENT_NETLIST)
+		} else {
+			lappend or_issue_arg_list $::env(CURRENT_DEF)
+		}
+
+		if {[catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
+			puts_info "Reproducible packaged: Please tarball and upload $reproducible_dir_relative if you're going to submit an issue."	
+		} else { 
+			puts_err "Failed to package reproducible."
+		} 
+
 		flow_fail
 		return -code error
     }

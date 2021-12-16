@@ -40,11 +40,14 @@ parser.add_argument('--run-path', '-r', default=None, help='The run path. If not
 parser.add_argument('--output', '-o', default="./out.def", help='Name of def file to be generated [default: ./out.def]')
 parser.add_argument('--verbose', action="store_true", default=False, help='Verbose output of all found environment variables.')
 parser.add_argument('--netlist', '-n', action="store_true", default=False, help='Use the netlist as an input instead of a def file. Useful for evaluating some scripts such as floorplan.tcl.')
+parser.add_argument('--output-dir', default=None, help='Output to this directory.')
 parser.add_argument('input', help='Name of input into the OR script (usually denoted by environment variable CURRENT_NETLIST or CURRENT_DEF: get it from the logs) [required]')
 args = parser.parse_args()
 
 OPEN_SOURCE_PDKS = ["sky130A"]
 print("""
+or_issue.py OpenROAD Issue Packager
+
 EFABLESS CORPORATION AND ALL AUTHORS OF THE OPENLANE PROJECT SHALL NOT BE HELD
 LIABLE FOR ANY LEAKS THAT MAY OCCUR TO ANY PROPRIETARY DATA AS A RESULT OF USING
 THIS SCRIPT. THIS SCRIPT IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OR
@@ -147,7 +150,7 @@ env["SAVE_DEF"] = save_def
 
 # Phase 2: Set up destination folder
 script_basename = basename(args.or_script)[:-4]
-destination_folder = abspath(join(".", "_build", f"{run_name}_{script_basename}_packaged"))
+destination_folder = args.output_dir or abspath(join(".", "_build", f"{run_name}_{script_basename}_packaged"))
 print(f"Setting up {destination_folder}…", file=sys.stderr)
 
 def mkdirp(path):

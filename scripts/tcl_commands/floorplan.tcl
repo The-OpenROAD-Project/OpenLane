@@ -25,7 +25,7 @@ proc init_floorplan {args} {
 
 	set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/initial_fp]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/floorplan.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/initial_fp.log]
+	run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log] -netlist_in
 
 	check_floorplan_missing_lef
 	check_floorplan_missing_pins
@@ -140,7 +140,7 @@ proc place_io {args} {
 	TIMER::timer_start
 	set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
+	run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log [index_file $::env(floorplan_logs)/io.log]
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
 	set_def $::env(SAVE_DEF)
@@ -176,7 +176,7 @@ proc place_contextualized_io {args} {
 		set old_mode $::env(FP_IO_MODE)
 		set ::env(FP_IO_MODE) 0; # set matching mode
 		set ::env(CONTEXTUAL_IO_FLAG) 1
-		try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/io.log]
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log [index_file $::env(floorplan_logs)/io.log]
 		set ::env(FP_IO_MODE) $old_mode
 
 		move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -199,7 +199,7 @@ proc tap_decap_or {args} {
 			puts_info "Running Tap/Decap Insertion..."
 			TIMER::timer_start
 			set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME).def
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/tapcell.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/tap.log]
+			run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl -indexed_log [index_file $::env(floorplan_logs)/tap.log]
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
 			set_def $::env(SAVE_DEF)

@@ -24,7 +24,7 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/replace.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/replace.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -73,7 +73,7 @@ proc detailed_placement_or {args} {
     set ::env(SAVE_DEF) $arg_values(-def)
     set log [index_file $arg_values(-log)]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/opendp.tcl |& tee $::env(TERMINAL_OUTPUT) $log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/opendp.tcl -indexed_log $log
     set_def $::env(SAVE_DEF)
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
@@ -121,10 +121,9 @@ proc basic_macro_placement {args} {
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/basic_mp.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log [index_file $::env(placement_logs)/basic_mp.log]
 
     check_macro_placer_num_solns
-
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "macro placement - basic_mp.tcl"
@@ -172,7 +171,7 @@ proc run_resizer_design {args} {
         puts_info "Running Resizer Design Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
         set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/resizer.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log [index_file $::env(placement_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
