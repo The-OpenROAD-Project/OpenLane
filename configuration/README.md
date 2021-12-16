@@ -59,8 +59,6 @@ These variables are optional that can be specified in the design configuration f
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
 | `FP_SIZING`  | Whether to use relative sizing by making use of `FP_CORE_UTIL` or absolute one using `DIE_AREA`. <br> (Default: `"relative"` - accepts "absolute" as well)|
 | `DIE_AREA`  | Specific die area to be used in floorplanning. Specified as a 4-corner rectangle "x0 y0 x1 y1". Units in um <br> (Default: unset)|
-| `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `4`)|
-| `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `3`)|
 | `FP_IO_MODE`  | Decides the mode of the random IO placement option. 0=matching mode, 1=random equidistant mode <br> (Default: `1`)|
 | `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. |
 | `FP_ENDCAP_CELL`  | The name of the endcap cell during endcap insertion. |
@@ -97,6 +95,16 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_USE_PG_PINS_DEFINES` | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
 | `FP_PDN_IRDROP` | Enable calculation of power grid IR drop during PDN generation. <br> (Default: `1`)|
 | `FP_IO_MIN_DISTANCE`  | The minmimum distance between the IOs in microns. <br> (Default: `3`) |
+
+#### Deprecated I/O Layer variables
+These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be used, but it's recommended to update your configuration to use `FP_IO_HLAYER` and `FP_IO_VLAYER`, which are defined in the PDK.
+
+| Variable      | Description                                                   |
+|---------------|---------------------------------------------------------------|
+| `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `4`)|
+| `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `3`)|
+
+
 ### Placement
 
 | Variable      | Description                                                   |
@@ -178,10 +186,9 @@ These variables are optional that can be specified in the design configuration f
 | `GLB_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
 | `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
-| `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Default: `0.99,0,0,0,0,0`)
 
 #### Deprecated Layer Adjustment Variables
-These variables worked initially, but they were too sky130 specific to be scalable. Currently, if they exist, they'll be concatenated into GLB_RT_LAYER_ADJUSTMENTS, but it's recommended to update your configuration to use `GLB_RT_LAYER_ADJUSTMENTS`.
+These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be concatenated into GLB_RT_LAYER_ADJUSTMENTS, but it's recommended to update your configuration to use `GLB_RT_LAYER_ADJUSTMENTS`, which is defined in the PDK.
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
