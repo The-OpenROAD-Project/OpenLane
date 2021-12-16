@@ -79,20 +79,20 @@ proc prep_lefs {args} {
     puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
     puts_info "Merging LEF Files..."
 
-    try_catch $::env(SCRIPTS_DIR)/merge_lef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
 
     set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
     # pad lef
     set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
 
     if { [info exist ::env(EXTRA_LEFS)] } {
-        try_catch $::env(SCRIPTS_DIR)/merge_lef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
         puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
     
     # merge optimization library lef if it is different from the STD_CELL_LIBRARY
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-        try_catch $::env(SCRIPTS_DIR)/merge_lef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT) 
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT) 
         puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
     }
 
@@ -105,10 +105,10 @@ proc prep_lefs {args} {
         puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
 
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
-        try_catch $::env(SCRIPTS_DIR)/merge_lef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
 
         file copy $::env(CELLS_LEF_UNPADDED) $::env(CELLS_LEF_UNPADDED).old
-        try_catch $::env(SCRIPTS_DIR)/merge_lef.py -i $::env(CELLS_LEF_UNPADDED).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF_UNPADDED)
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF_UNPADDED).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF_UNPADDED)
 
         file delete $::env(CELLS_LEF).old $::env(CELLS_LEF_UNPADDED).old
     }
