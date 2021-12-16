@@ -109,7 +109,7 @@ proc detailed_routing_tritonroute {args} {
 
     try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
         -i $::env(routing_reports)/detailed.drc \
         -o $::env(routing_reports)/detailed.klayout.xml \
         --design-name $::env(DESIGN_NAME)

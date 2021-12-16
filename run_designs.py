@@ -294,10 +294,9 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list
             ConfigHandler.gen_base_config(design, base_config_path)
 
             number_of_configs = subprocess.check_output([
-                "./scripts/config/generate_config.sh",
+                "./scripts/config/generate_config.py",
+                f"{base_path}/config_{tag}_",
                 base_config_path,
-                base_path,
-                f"config_{tag}",
                 regression_file
             ])
             number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
