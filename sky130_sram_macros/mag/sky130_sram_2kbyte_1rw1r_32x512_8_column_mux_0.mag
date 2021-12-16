@@ -1,0 +1,145 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1195 -1260 1935 2576
+<< pwell >>
+rect 573 596 675 730
+<< psubdiff >>
+rect 599 680 649 704
+rect 599 646 607 680
+rect 641 646 649 680
+rect 599 622 649 646
+<< psubdiffcont >>
+rect 607 646 641 680
+<< poly >>
+rect 297 630 327 684
+rect 297 28 327 54
+<< locali >>
+rect 77 1277 111 1293
+rect 111 1243 379 1277
+rect 77 1227 111 1243
+rect 245 989 279 1005
+rect 345 972 379 1243
+rect 245 939 279 955
+rect 607 680 641 696
+rect 607 630 641 646
+rect 345 359 379 375
+rect 245 73 279 342
+rect 345 309 379 325
+rect 541 73 575 89
+rect 245 39 541 73
+rect 541 23 575 39
+<< viali >>
+rect 77 1243 111 1277
+rect 245 955 279 989
+rect 607 646 641 680
+rect 345 325 379 359
+rect 541 39 575 73
+<< metal1 >>
+rect 80 1283 108 1316
+rect 65 1277 123 1283
+rect 65 1243 77 1277
+rect 111 1243 123 1277
+rect 65 1237 123 1243
+rect 233 989 291 995
+rect 233 955 245 989
+rect 279 955 291 989
+rect 233 949 291 955
+rect 248 412 276 949
+rect 544 832 572 1316
+rect 80 384 276 412
+rect 348 804 572 832
+rect 80 0 108 384
+rect 348 365 376 804
+rect 592 637 598 689
+rect 650 637 656 689
+rect 333 359 391 365
+rect 333 325 345 359
+rect 379 325 391 359
+rect 333 319 391 325
+rect 529 73 587 79
+rect 529 39 541 73
+rect 575 39 587 73
+rect 529 33 587 39
+rect 544 0 572 33
+<< via1 >>
+rect 598 680 650 689
+rect 598 646 607 680
+rect 607 646 641 680
+rect 641 646 650 680
+rect 598 637 650 646
+<< metal2 >>
+rect 596 691 652 700
+rect 596 626 652 635
+<< via2 >>
+rect 596 689 652 691
+rect 596 637 598 689
+rect 598 637 650 689
+rect 650 637 652 689
+rect 596 635 652 637
+<< metal3 >>
+rect 575 691 673 712
+rect 575 635 596 691
+rect 652 635 673 691
+rect 575 614 673 635
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_7  sky130_sram_2kbyte_1rw1r_32x512_8_contact_7_0
+timestamp 1636140361
+transform 1 0 591 0 1 626
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_19  sky130_sram_2kbyte_1rw1r_32x512_8_contact_19_0
+timestamp 1636140361
+transform 1 0 592 0 1 631
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_14  sky130_sram_2kbyte_1rw1r_32x512_8_contact_14_0
+timestamp 1636140361
+transform 1 0 595 0 1 630
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_15  sky130_sram_2kbyte_1rw1r_32x512_8_contact_15_0
+timestamp 1636140361
+transform 1 0 599 0 1 622
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_14  sky130_sram_2kbyte_1rw1r_32x512_8_contact_14_1
+timestamp 1636140361
+transform 1 0 333 0 1 309
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_14  sky130_sram_2kbyte_1rw1r_32x512_8_contact_14_2
+timestamp 1636140361
+transform 1 0 233 0 1 939
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_14  sky130_sram_2kbyte_1rw1r_32x512_8_contact_14_3
+timestamp 1636140361
+transform 1 0 529 0 1 23
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_14  sky130_sram_2kbyte_1rw1r_32x512_8_contact_14_4
+timestamp 1636140361
+transform 1 0 65 0 1 1227
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_nmos_m1_w2_880_sli_dli  sky130_sram_2kbyte_1rw1r_32x512_8_nmos_m1_w2_880_sli_dli_0
+timestamp 1636140361
+transform 1 0 237 0 1 684
+box -26 -26 176 602
+use sky130_sram_2kbyte_1rw1r_32x512_8_nmos_m1_w2_880_sli_dli  sky130_sram_2kbyte_1rw1r_32x512_8_nmos_m1_w2_880_sli_dli_1
+timestamp 1636140361
+transform 1 0 237 0 1 54
+box -26 -26 176 602
+<< labels >>
+rlabel metal3 s 575 614 673 712 4 gnd
+port 1 nsew
+rlabel metal1 s 80 1260 108 1316 4 bl
+port 2 nsew
+rlabel metal1 s 544 1260 572 1316 4 br
+port 3 nsew
+rlabel metal1 s 80 0 108 56 4 bl_out
+port 4 nsew
+rlabel metal1 s 544 0 572 56 4 br_out
+port 5 nsew
+rlabel poly s 312 41 312 41 4 sel
+port 6 nsew
+<< properties >>
+string FIXED_BBOX 0 0 624 597
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds
+string GDS_END 225496
+string GDS_START 222404
+<< end >>

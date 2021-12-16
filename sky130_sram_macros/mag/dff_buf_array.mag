@@ -1,0 +1,175 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1309 -1311 3236 4139
+<< locali >>
+rect -17 2848 17 2863
+rect -17 2847 1940 2848
+rect 17 2813 1940 2847
+rect -17 2812 1940 2813
+rect -17 2797 17 2812
+rect -17 1432 17 1447
+rect -17 1431 1940 1432
+rect 17 1397 1940 1431
+rect -17 1396 1940 1397
+rect -17 1381 17 1396
+rect -17 16 17 31
+rect -17 15 1940 16
+rect 17 -19 1940 15
+rect -17 -20 1940 -19
+rect -17 -35 17 -20
+<< viali >>
+rect -17 2813 17 2847
+rect -17 1397 17 1431
+rect -17 -19 17 15
+<< metal1 >>
+rect -32 2804 -26 2856
+rect 26 2804 32 2856
+rect -32 1388 -26 1440
+rect 26 1388 32 1440
+rect -32 -28 -26 24
+rect 26 -28 32 24
+<< via1 >>
+rect -26 2847 26 2856
+rect -26 2813 -17 2847
+rect -17 2813 17 2847
+rect 17 2813 26 2847
+rect -26 2804 26 2813
+rect -26 1431 26 1440
+rect -26 1397 -17 1431
+rect -17 1397 17 1431
+rect 17 1397 26 1431
+rect -26 1388 26 1397
+rect -26 15 26 24
+rect -26 -19 -17 15
+rect -17 -19 17 15
+rect 17 -19 26 15
+rect -26 -28 26 -19
+<< metal2 >>
+rect -28 2858 28 2867
+rect -28 2793 28 2802
+rect 137 2238 203 2290
+rect -28 1442 28 1451
+rect -28 1377 28 1386
+rect 137 538 203 590
+rect -28 26 28 35
+rect 369 0 397 2828
+rect 1856 2309 1884 2337
+rect 1512 1922 1540 1950
+rect 1512 878 1540 906
+rect 1856 491 1884 519
+rect -28 -39 28 -30
+<< via2 >>
+rect -28 2856 28 2858
+rect -28 2804 -26 2856
+rect -26 2804 26 2856
+rect 26 2804 28 2856
+rect -28 2802 28 2804
+rect -28 1440 28 1442
+rect -28 1388 -26 1440
+rect -26 1388 26 1440
+rect 26 1388 28 1440
+rect -28 1386 28 1388
+rect -28 24 28 26
+rect -28 -28 -26 24
+rect -26 -28 26 24
+rect 26 -28 28 24
+rect -28 -30 28 -28
+<< metal3 >>
+rect -49 2858 49 2879
+rect -49 2802 -28 2858
+rect 28 2802 49 2858
+rect -49 2781 49 2802
+rect -49 1442 49 1463
+rect -49 1386 -28 1442
+rect 28 1386 49 1442
+rect -49 1365 49 1386
+rect -49 26 49 47
+rect -49 -30 -28 26
+rect 28 -30 49 26
+rect -49 -51 49 -30
+use contact_7  contact_7_3
+timestamp 1636140361
+transform 1 0 -29 0 1 1381
+box 0 0 1 1
+use contact_8  contact_8_3
+timestamp 1636140361
+transform 1 0 -32 0 1 1382
+box 0 0 1 1
+use contact_9  contact_9_3
+timestamp 1636140361
+transform 1 0 -33 0 1 1377
+box 0 0 1 1
+use contact_7  contact_7_2
+timestamp 1636140361
+transform 1 0 -29 0 1 -35
+box 0 0 1 1
+use contact_8  contact_8_2
+timestamp 1636140361
+transform 1 0 -32 0 1 -34
+box 0 0 1 1
+use contact_9  contact_9_2
+timestamp 1636140361
+transform 1 0 -33 0 1 -39
+box 0 0 1 1
+use contact_7  contact_7_1
+timestamp 1636140361
+transform 1 0 -29 0 1 1381
+box 0 0 1 1
+use contact_8  contact_8_1
+timestamp 1636140361
+transform 1 0 -32 0 1 1382
+box 0 0 1 1
+use contact_9  contact_9_1
+timestamp 1636140361
+transform 1 0 -33 0 1 1377
+box 0 0 1 1
+use contact_7  contact_7_0
+timestamp 1636140361
+transform 1 0 -29 0 1 2797
+box 0 0 1 1
+use contact_8  contact_8_0
+timestamp 1636140361
+transform 1 0 -32 0 1 2798
+box 0 0 1 1
+use contact_9  contact_9_0
+timestamp 1636140361
+transform 1 0 -33 0 1 2793
+box 0 0 1 1
+use dff_buf_0  dff_buf_0_1
+timestamp 1636140361
+transform 1 0 0 0 1 0
+box -8 -43 1976 1471
+use dff_buf_0  dff_buf_0_0
+timestamp 1636140361
+transform 1 0 0 0 -1 2828
+box -8 -43 1976 1471
+<< labels >>
+rlabel metal2 s 170 2264 170 2264 4 din_1
+port 2 nsew
+rlabel metal2 s 170 564 170 564 4 din_0
+port 1 nsew
+rlabel metal2 s 1870 505 1870 505 4 dout_0
+port 3 nsew
+rlabel metal2 s 1526 892 1526 892 4 dout_bar_0
+port 4 nsew
+rlabel metal2 s 1526 1936 1526 1936 4 dout_bar_1
+port 6 nsew
+rlabel metal2 s 383 1414 383 1414 4 clk
+port 7 nsew
+rlabel metal2 s 1870 2323 1870 2323 4 dout_1
+port 5 nsew
+rlabel metal3 s 0 1414 0 1414 4 vdd
+port 8 nsew
+rlabel metal3 s 0 2830 0 2830 4 gnd
+port 9 nsew
+rlabel metal3 s 0 -2 0 -2 4 gnd
+port 9 nsew
+<< properties >>
+string FIXED_BBOX -33 -39 33 0
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 5260326
+string GDS_START 5257704
+<< end >>

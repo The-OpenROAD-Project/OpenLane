@@ -1,0 +1,58 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1296 -1277 2954 2731
+<< nwell >>
+rect -36 679 1694 1471
+<< locali >>
+rect 0 1397 1658 1431
+rect 64 636 98 702
+rect 196 652 449 686
+rect 547 670 707 704
+rect 805 674 965 708
+rect 1063 690 1223 724
+rect 1338 690 1481 724
+rect 1579 690 1613 724
+rect 547 669 581 670
+rect 0 -17 1658 17
+use pinv_11  pinv_11_0
+timestamp 1636140361
+transform 1 0 1400 0 1 0
+box -36 -17 294 1471
+use pinv_10  pinv_10_0
+timestamp 1636140361
+transform 1 0 1142 0 1 0
+box -36 -17 294 1471
+use pinv_9  pinv_9_0
+timestamp 1636140361
+transform 1 0 884 0 1 0
+box -36 -17 294 1471
+use pinv_8  pinv_8_0
+timestamp 1636140361
+transform 1 0 626 0 1 0
+box -36 -17 294 1471
+use pinv_7  pinv_7_0
+timestamp 1636140361
+transform 1 0 368 0 1 0
+box -36 -17 294 1471
+use pinv_6  pinv_6_0
+timestamp 1636140361
+transform 1 0 0 0 1 0
+box -36 -17 404 1471
+<< labels >>
+rlabel locali s 1596 707 1596 707 4 Z
+port 2 nsew
+rlabel locali s 81 669 81 669 4 A
+port 1 nsew
+rlabel locali s 829 1414 829 1414 4 vdd
+port 3 nsew
+rlabel locali s 829 0 829 0 4 gnd
+port 4 nsew
+<< properties >>
+string FIXED_BBOX 0 0 1658 1414
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 5256380
+string GDS_START 5254684
+<< end >>

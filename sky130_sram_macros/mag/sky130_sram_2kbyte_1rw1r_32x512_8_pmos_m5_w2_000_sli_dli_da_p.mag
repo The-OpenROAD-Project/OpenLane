@@ -1,0 +1,115 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1319 -1316 1901 1714
+<< nwell >>
+rect -54 284 636 454
+rect -59 116 641 284
+rect -54 -54 636 116
+<< scpmos >>
+rect 60 0 90 400
+rect 168 0 198 400
+rect 276 0 306 400
+rect 384 0 414 400
+rect 492 0 522 400
+<< pdiff >>
+rect 0 217 60 400
+rect 0 183 8 217
+rect 42 183 60 217
+rect 0 0 60 183
+rect 90 217 168 400
+rect 90 183 112 217
+rect 146 183 168 217
+rect 90 0 168 183
+rect 198 217 276 400
+rect 198 183 220 217
+rect 254 183 276 217
+rect 198 0 276 183
+rect 306 217 384 400
+rect 306 183 328 217
+rect 362 183 384 217
+rect 306 0 384 183
+rect 414 217 492 400
+rect 414 183 436 217
+rect 470 183 492 217
+rect 414 0 492 183
+rect 522 217 582 400
+rect 522 183 540 217
+rect 574 183 582 217
+rect 522 0 582 183
+<< pdiffc >>
+rect 8 183 42 217
+rect 112 183 146 217
+rect 220 183 254 217
+rect 328 183 362 217
+rect 436 183 470 217
+rect 540 183 574 217
+<< poly >>
+rect 60 400 90 426
+rect 168 400 198 426
+rect 276 400 306 426
+rect 384 400 414 426
+rect 492 400 522 426
+rect 60 -26 90 0
+rect 168 -26 198 0
+rect 276 -26 306 0
+rect 384 -26 414 0
+rect 492 -26 522 0
+rect 60 -56 522 -26
+<< locali >>
+rect 8 217 42 233
+rect 8 167 42 183
+rect 112 217 146 233
+rect 112 133 146 183
+rect 220 217 254 233
+rect 220 167 254 183
+rect 328 217 362 233
+rect 328 133 362 183
+rect 436 217 470 233
+rect 436 167 470 183
+rect 540 217 574 233
+rect 540 133 574 183
+rect 112 99 574 133
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_0
+timestamp 1636140361
+transform 1 0 532 0 1 167
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_1
+timestamp 1636140361
+transform 1 0 428 0 1 167
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_2
+timestamp 1636140361
+transform 1 0 320 0 1 167
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_3
+timestamp 1636140361
+transform 1 0 212 0 1 167
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_4
+timestamp 1636140361
+transform 1 0 104 0 1 167
+box 0 0 1 1
+use sky130_sram_2kbyte_1rw1r_32x512_8_contact_12  sky130_sram_2kbyte_1rw1r_32x512_8_contact_12_5
+timestamp 1636140361
+transform 1 0 0 0 1 167
+box 0 0 1 1
+<< labels >>
+rlabel locali s 25 200 25 200 4 S
+port 1 nsew
+rlabel locali s 237 200 237 200 4 S
+port 1 nsew
+rlabel locali s 453 200 453 200 4 S
+port 1 nsew
+rlabel locali s 343 116 343 116 4 D
+port 2 nsew
+rlabel poly s 291 -41 291 -41 4 G
+port 3 nsew
+<< properties >>
+string FIXED_BBOX -54 -56 636 116
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds
+string GDS_END 161964
+string GDS_START 160144
+<< end >>

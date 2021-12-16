@@ -1,0 +1,70 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1319 -1316 1577 1714
+<< nwell >>
+rect -54 284 312 454
+rect -59 116 317 284
+rect -54 -54 312 116
+<< scpmos >>
+rect 60 0 90 400
+rect 168 0 198 400
+<< pdiff >>
+rect 0 217 60 400
+rect 0 183 8 217
+rect 42 183 60 217
+rect 0 0 60 183
+rect 90 217 168 400
+rect 90 183 112 217
+rect 146 183 168 217
+rect 90 0 168 183
+rect 198 217 258 400
+rect 198 183 216 217
+rect 250 183 258 217
+rect 198 0 258 183
+<< pdiffc >>
+rect 8 183 42 217
+rect 112 183 146 217
+rect 216 183 250 217
+<< poly >>
+rect 60 400 90 426
+rect 168 400 198 426
+rect 60 -26 90 0
+rect 168 -26 198 0
+rect 60 -56 198 -26
+<< locali >>
+rect 8 217 42 233
+rect 8 167 42 183
+rect 112 217 146 233
+rect 112 167 146 183
+rect 216 217 250 233
+rect 216 167 250 183
+use sky130_sram_1kbyte_1rw1r_32x256_8_contact_12  sky130_sram_1kbyte_1rw1r_32x256_8_contact_12_0
+timestamp 1636140361
+transform 1 0 208 0 1 167
+box 0 0 1 1
+use sky130_sram_1kbyte_1rw1r_32x256_8_contact_12  sky130_sram_1kbyte_1rw1r_32x256_8_contact_12_1
+timestamp 1636140361
+transform 1 0 104 0 1 167
+box 0 0 1 1
+use sky130_sram_1kbyte_1rw1r_32x256_8_contact_12  sky130_sram_1kbyte_1rw1r_32x256_8_contact_12_2
+timestamp 1636140361
+transform 1 0 0 0 1 167
+box 0 0 1 1
+<< labels >>
+rlabel locali s 25 200 25 200 4 S
+port 1 nsew
+rlabel locali s 233 200 233 200 4 S
+port 1 nsew
+rlabel locali s 129 200 129 200 4 D
+port 2 nsew
+rlabel poly s 129 -41 129 -41 4 G
+port 3 nsew
+<< properties >>
+string FIXED_BBOX -54 -56 312 116
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds
+string GDS_END 160284
+string GDS_START 159178
+<< end >>

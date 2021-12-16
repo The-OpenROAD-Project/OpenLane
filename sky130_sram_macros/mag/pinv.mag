@@ -1,0 +1,82 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1296 -1277 1664 2437
+<< nwell >>
+rect -36 538 404 1177
+<< pwell >>
+rect 232 25 334 159
+<< psubdiff >>
+rect 258 109 308 133
+rect 258 75 266 109
+rect 300 75 308 109
+rect 258 51 308 75
+<< nsubdiff >>
+rect 258 1045 308 1069
+rect 258 1011 266 1045
+rect 300 1011 308 1045
+rect 258 987 308 1011
+<< psubdiffcont >>
+rect 266 75 300 109
+<< nsubdiffcont >>
+rect 266 1011 300 1045
+<< poly >>
+rect 114 574 144 819
+rect 48 558 144 574
+rect 48 524 64 558
+rect 98 524 144 558
+rect 48 508 144 524
+rect 114 225 144 508
+<< polycont >>
+rect 64 524 98 558
+<< locali >>
+rect 0 1103 368 1137
+rect 62 924 96 1103
+rect 266 1045 300 1103
+rect 266 995 300 1011
+rect 64 558 98 574
+rect 64 508 98 524
+rect 162 558 196 990
+rect 162 524 213 558
+rect 162 92 196 524
+rect 266 109 300 125
+rect 62 17 96 92
+rect 266 17 300 75
+rect 0 -17 368 17
+use contact_12  contact_12_0
+timestamp 1636140361
+transform 1 0 48 0 1 508
+box 0 0 1 1
+use contact_24  contact_24_0
+timestamp 1636140361
+transform 1 0 258 0 1 51
+box 0 0 1 1
+use contact_23  contact_23_0
+timestamp 1636140361
+transform 1 0 258 0 1 987
+box 0 0 1 1
+use nmos_m2_w0_740_sli_dli_da_p  nmos_m2_w0_740_sli_dli_da_p_0
+timestamp 1636140361
+transform 1 0 54 0 1 51
+box -26 -26 176 174
+use pmos_m2_w1_120_sli_dli_da_p  pmos_m2_w1_120_sli_dli_da_p_0
+timestamp 1636140361
+transform 1 0 54 0 1 845
+box -59 -54 209 278
+<< labels >>
+rlabel locali s 196 541 196 541 4 Z
+port 2 nsew
+rlabel locali s 81 541 81 541 4 A
+port 1 nsew
+rlabel locali s 184 1120 184 1120 4 vdd
+port 3 nsew
+rlabel locali s 184 0 184 0 4 gnd
+port 4 nsew
+<< properties >>
+string FIXED_BBOX 0 0 368 1120
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sram_1rw1r_32_256_8_sky130.gds
+string GDS_END 21204
+string GDS_START 19486
+<< end >>

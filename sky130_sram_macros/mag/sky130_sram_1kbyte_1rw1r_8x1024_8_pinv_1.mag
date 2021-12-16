@@ -1,0 +1,82 @@
+magic
+tech sky130A
+magscale 1 2
+timestamp 1636140361
+<< checkpaint >>
+rect -1296 -1277 1664 2731
+<< nwell >>
+rect -36 679 404 1471
+<< pwell >>
+rect 232 25 334 159
+<< psubdiff >>
+rect 258 109 308 133
+rect 258 75 266 109
+rect 300 75 308 109
+rect 258 51 308 75
+<< nsubdiff >>
+rect 258 1339 308 1363
+rect 258 1305 266 1339
+rect 300 1305 308 1339
+rect 258 1281 308 1305
+<< psubdiffcont >>
+rect 266 75 300 109
+<< nsubdiffcont >>
+rect 266 1305 300 1339
+<< poly >>
+rect 114 702 144 1113
+rect 48 686 144 702
+rect 48 652 64 686
+rect 98 652 144 686
+rect 48 636 144 652
+rect 114 149 144 636
+<< polycont >>
+rect 64 652 98 686
+<< locali >>
+rect 0 1397 368 1431
+rect 62 1218 96 1397
+rect 266 1339 300 1397
+rect 266 1289 300 1305
+rect 64 686 98 702
+rect 64 636 98 652
+rect 162 686 196 1284
+rect 162 652 213 686
+rect 162 54 196 652
+rect 266 109 300 125
+rect 62 17 96 54
+rect 266 17 300 75
+rect 0 -17 368 17
+use sky130_sram_1kbyte_1rw1r_8x1024_8_contact_16  sky130_sram_1kbyte_1rw1r_8x1024_8_contact_16_0
+timestamp 1636140361
+transform 1 0 48 0 1 636
+box 0 0 1 1
+use sky130_sram_1kbyte_1rw1r_8x1024_8_contact_29  sky130_sram_1kbyte_1rw1r_8x1024_8_contact_29_0
+timestamp 1636140361
+transform 1 0 258 0 1 51
+box 0 0 1 1
+use sky130_sram_1kbyte_1rw1r_8x1024_8_contact_28  sky130_sram_1kbyte_1rw1r_8x1024_8_contact_28_0
+timestamp 1636140361
+transform 1 0 258 0 1 1281
+box 0 0 1 1
+use sky130_sram_1kbyte_1rw1r_8x1024_8_nmos_m1_w0_360_sli_dli_da_p  sky130_sram_1kbyte_1rw1r_8x1024_8_nmos_m1_w0_360_sli_dli_da_p_0
+timestamp 1636140361
+transform 1 0 54 0 1 51
+box -26 -26 176 98
+use sky130_sram_1kbyte_1rw1r_8x1024_8_pmos_m1_w1_120_sli_dli_da_p  sky130_sram_1kbyte_1rw1r_8x1024_8_pmos_m1_w1_120_sli_dli_da_p_0
+timestamp 1636140361
+transform 1 0 54 0 1 1139
+box -59 -54 209 278
+<< labels >>
+rlabel locali s 81 669 81 669 4 A
+port 1 nsew
+rlabel locali s 196 669 196 669 4 Z
+port 2 nsew
+rlabel locali s 184 0 184 0 4 gnd
+port 3 nsew
+rlabel locali s 184 1414 184 1414 4 vdd
+port 4 nsew
+<< properties >>
+string FIXED_BBOX 0 0 368 1414
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_8x1024_8.gds
+string GDS_END 350484
+string GDS_START 348614
+<< end >>

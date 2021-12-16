@@ -1,0 +1,19 @@
+magic
+tech sky130A
+timestamp 1636140361
+<< checkpaint >>
+rect -630 -630 726 726
+<< metal1 >>
+rect 0 3 3 93
+rect 93 3 96 93
+<< via1 >>
+rect 3 3 93 93
+<< metal2 >>
+rect 3 93 93 96
+rect 3 0 93 3
+<< properties >>
+string FIXED_BBOX 0 0 96 96
+string GDS_FILE $PDKPATH/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_8x1024_8.gds
+string GDS_END 7021716
+string GDS_START 7020880
+<< end >>
