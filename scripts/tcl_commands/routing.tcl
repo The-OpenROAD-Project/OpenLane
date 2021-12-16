@@ -16,6 +16,37 @@ proc global_routing_or {args} {
     handle_deprecated_command global_routing
 }
 
+proc translate_min_max_layer_variables {args} {
+    if { [info exists ::env(GLB_RT_MINLAYER) ] } {
+		set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_MAXLAYER) ] } {
+		set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_CLOCK_MINLAYER) ] } {
+		set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_CLOCK_MAXLAYER) ] } {
+		set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
+    }
+        
+}
+
 proc global_routing_cugr {args} {
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         puts_err "DIODE_INSERTION_STRATEGY 3 is only valid when OpenROAD is used for global routing."
@@ -33,6 +64,8 @@ proc global_routing_cugr {args} {
 
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
+
+    translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set_def $::env(SAVE_DEF)
@@ -107,6 +140,7 @@ proc detailed_routing_tritonroute {args} {
     set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
     set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
 
+    translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \

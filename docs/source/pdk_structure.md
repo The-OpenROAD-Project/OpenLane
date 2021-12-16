@@ -62,6 +62,8 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Default: `0.99,0,0,0,0,0`)
 | `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `met3`)|
 | `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `met2`)|
+| `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Default: `met1`)|
+| `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Default: `met5`)|
 
 ## Standard cell library-specific variables
 

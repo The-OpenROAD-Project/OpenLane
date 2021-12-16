@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ set_thread_count $::env(ROUTING_CORES)
 
 detailed_route\
     -guide $::env(CURRENT_GUIDE)\
+    -bottom_routing_layer $::env(RT_MIN_LAYER)\
+    -top_routing_layer $::env(RT_MAX_LAYER)\
     -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\
     -output_maze $::env(TRITONROUTE_FILE_PREFIX)_maze.log\
     -output_drc $::env(TRITONROUTE_RPT_PREFIX).drc\
