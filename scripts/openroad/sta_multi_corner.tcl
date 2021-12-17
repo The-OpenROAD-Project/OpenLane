@@ -55,11 +55,11 @@ puts "\n========================================================================
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
 puts "\n======================= Slowest Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ss
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ss
 puts "\n======================= Typical Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner tt
 puts "\n======================= Fastest Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ff
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ff
 puts "min_report_end"
 
 
@@ -68,11 +68,11 @@ puts "\n========================================================================
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
 puts "\n======================= Slowest Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ss
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ss
 puts "\n======================= Typical Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner tt
 puts "\n======================= Fastest Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner ff
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ff
 puts "max_report_end"
 
 

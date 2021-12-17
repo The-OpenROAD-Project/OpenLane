@@ -60,8 +60,12 @@ if os.path.exists(input_file):
         # if (len(drcSections) > 2):
         for i in range(0, len(drcSections)):
             vio_name = drcSections[i].strip()
+            report_end_str = re.search('min_report_end',vio_name)
+            if (report_end_str != None):
+                print("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+                break
             minus_time_str = re.search(
-                '(-[0-9]+\.[0-9]+) +slack', vio_name)
+                '([0-9]+\.[0-9]+) +slack +\(VIOLATED\)', vio_name)
             if (minus_time_str != None):
                 #vio_count += 1
                 start_point_str = re.search('Startpoint: (.*?)[ \n]', vio_name)
@@ -89,7 +93,7 @@ if os.path.exists(input_file):
 
         eco_iter=os.environ["ECO_ITER"]
         for pin_unq in vio_dict.keys():
-            insert_times = math.floor(abs(max(vio_dict[pin_unq]))/0.06) # insert buffer conservatively
+            insert_times = math.floor(abs(min(vio_dict[pin_unq]))/0.06) # insert buffer conservatively
             if insert_times == 0:
                 vio_count += 1
                 print("insert multiple buffers: ", insert_times+1) 

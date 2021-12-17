@@ -16,25 +16,23 @@ OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-DOCKER_OPTIONS = $(shell python3 ./env.py docker-config)
-
+DOCKER_MEMORY_OPTIONS :=
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
-DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
+DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
 endif
 ifneq (,$(DOCKER_MEMORY))
-DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
+DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
-endif
+DOCKER_UID_OPTIONS = $(shell python3 ./env.py docker-config)
+DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
 
 THREADS ?= 1
 
+ROUTING_CORES_OPTION := 
 ifneq (,$(ROUTING_CORES))
-DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
+ROUTING_CORES_OPTION += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -42,18 +40,14 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-OPEN_PDK_ARGS ?= ""
-ifeq ($(INSTALL_SRAM), enabled)
-OPEN_PDK_ARGS += --enable-sram-sky130
-endif
+# ifeq ($(OPENLANE_IMAGE_NAME),)
+# OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+# ifneq ($(OPENLANE_TAG),)
+# OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
+# endif
+# endif
 
-ifeq ($(OPENLANE_IMAGE_NAME),)
-OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
-ifneq ($(OPENLANE_TAG),)
-export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
-endif
-endif
-
+OPENLANE_IMAGE_NAME = efabless/openlane:current
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
@@ -65,16 +59,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-# designs is mounted over install so env.tcl is not found inside the Docker
-# container.
-ENV_START = docker run --rm\
-	-v $(OPENLANE_DIR):/openlane\
-	-v $(OPENLANE_DIR)/designs:/openlane/install\
-	-v $(PDK_ROOT):$(PDK_ROOT)\
-	-e PDK_ROOT=$(PDK_ROOT)\
-	$(DOCKER_OPTIONS)
-
-ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
+ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -106,7 +91,7 @@ $(PDK_ROOT)/skywater-pdk:
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout main && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main -f && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -148,7 +133,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)"
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM)"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
@@ -165,7 +150,7 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
 	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS) && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
 		cd sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) && \
@@ -174,26 +159,37 @@ native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
-	printf "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
 	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	printf "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	printf "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
 openlane:
-	$(MAKE) -C docker openlane
-
-pull-openlane:
-	@echo "Pulling most recent OpenLane image relative to your commit..."
 	docker pull $(OPENLANE_IMAGE_NAME)
 
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
+		docker run -it --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+
+MISC_REGRESSION_ARGS=
+.PHONY: regression regression_test
+regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
+regression_test: regression
+regression:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "\
+			python3 run_designs.py\
+			--defaultTestSet\
+			--tag $(REGRESSION_TAG)\
+			--threads $(THREADS)\
+			--print $(PRINT_REM_DESIGNS_TIME)\
+			$(MISC_REGRESSION_ARGS)\
+		"
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
@@ -207,18 +203,18 @@ test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
+			--designs $(DESIGN_LIST)\
 			--tag $(DLTAG)\
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
-			$(DESIGN_LIST)\
 		"
 
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
-	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/finishing/$(TEST_DESIGN).gds ] && \
+	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
 

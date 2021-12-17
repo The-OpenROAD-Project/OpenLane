@@ -190,11 +190,11 @@ proc eco_gen_buffer {args} {
     if { $::env(ECO_ITER) == 0 } {
         puts "Generating fixes for ECO iteration 1!"
         puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
-                           *multi_corner_sta.min*] end]
+        puts [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
+                           *multi_corner_sta*] end]
         puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                         *.lef] end] 
+        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
+                         *_unpadded.lef] end] 
         puts "Input Def File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
                          *.def] end]
@@ -202,21 +202,21 @@ proc eco_gen_buffer {args} {
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
-            *multi_corner_sta.min*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                             *.lef] end] \
+            -i [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
+            *multi_corner_sta*] end] \
+            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
+                             *_unpadded.lef] end] \
             -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
                              *.def] end] \
             -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
     } else {
         puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
         puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
-                    *multi_corner_sta.min*] end]
+        puts [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
+                    *multi_corner_sta*] end]
         puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                         *.lef] end] 
+        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
+                         *_unpadded.lef] end] 
         puts "Input Def File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
                          *.def] end]
@@ -224,10 +224,10 @@ proc eco_gen_buffer {args} {
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -i [lindex [glob -directory $::env(RUN_DIR)/reports/routing/eco_$::env(ECO_ITER)\
-            *multi_corner_sta.min*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                             *.lef] end] \
+            -i [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
+            *multi_corner_sta*] end] \
+            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
+                             *_unpadded.lef] end] \
             -d [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
                              *.def] end] \
             -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
