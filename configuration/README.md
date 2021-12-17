@@ -182,8 +182,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
 | `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GLB_RT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0`)|
-| `RT_CLOCK_MIN_LAYER` | **Deprecated**: The number of lowest layer to be used in routing the clock net. <br> (Default: `RT_MIN_LAYER`)|
-| `RT_CLOCK_MAX_LAYER` | **Deprecated**: The number of highest layer to be used in routing the clock net. <br> (Default: `RT_MAX_LAYER`)|
+| `RT_CLOCK_MIN_LAYER` | The name of lowest layer to be used in routing the clock net. <br> (Default: `RT_MIN_LAYER`)|
+| `RT_CLOCK_MAX_LAYER` | The name of highest layer to be used in routing the clock net. <br> (Default: `RT_MAX_LAYER`)|
+| `DRT_MIN_LAYER` | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
+| `DRT_MAX_LAYER` | An optional override to the highest layer used in detailed routing. <br> (Default: `RT_MAX_LAYER`)|
 
 #### Deprecated Layer Adjustment Variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be concatenated into GLB_RT_LAYER_ADJUSTMENTS, but it's recommended to update your configuration to use `GLB_RT_LAYER_ADJUSTMENTS`, which is defined in the PDK.
