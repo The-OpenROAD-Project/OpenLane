@@ -30,7 +30,7 @@ This is the expected folder structure for a PDK:
 
 ## PDK Variables
 
-This section defines the neccessary variables for PDK configuration file
+This section defines the neccessary variables for PDK configuration file. Note that all defaults are for sky130A.
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
@@ -59,6 +59,11 @@ This section defines the neccessary variables for PDK configuration file
 | `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
 | `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
 | `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> Default: `met1`.|
+| `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Default: `0.99,0,0,0,0,0`)
+| `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `met3`)|
+| `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `met2`)|
+| `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Default: `met1`)|
+| `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Default: `met5`)|
 
 ## Standard cell library-specific variables
 

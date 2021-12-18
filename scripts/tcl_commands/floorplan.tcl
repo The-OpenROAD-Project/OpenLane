@@ -100,8 +100,8 @@ proc place_io_ol {args} {
 
 	set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
-	set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HMETAL)
-	set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VMETAL)
+	set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HLAYER)
+	set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VLAYER)
 
 	set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
 	set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
@@ -116,7 +116,6 @@ proc place_io_ol {args} {
 
 	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/io_place.py\
 		--input-lef $arg_values(-lef)\
-		--input-def $arg_values(-def)\
 		--config $arg_values(-cfg)\
 		--hor-layer $arg_values(-horizontal_layer)\
 		--ver-layer $arg_values(-vertical_layer)\
@@ -126,7 +125,8 @@ proc place_io_ol {args} {
 		--ver-extension $arg_values(-vertical_ext)\
 		--length $arg_values(-length)\
 		-o $arg_values(-output_def)\
-		{*}$arg_values(-extra_args) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
+		{*}$arg_values(-extra_args)\
+		$arg_values(-def) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
 
 	set_def $arg_values(-output_def)
 
@@ -362,6 +362,21 @@ proc run_floorplan {args} {
 	#
 	# intial fp
 	init_floorplan
+
+	# check for deprecated io variables
+	if { [info exists ::env(FP_IO_HMETAL)]} {
+		set ::env(FP_IO_HLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+		puts_warn "You're using FP_IO_HMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_HLAYER) {$::env(FP_IO_HLAYER)}"
+	}
+
+	if { [info exists ::env(FP_IO_VMETAL)]} {
+		set ::env(FP_IO_VLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
+		puts_warn "You're using FP_IO_VMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_VLAYER) {$::env(FP_IO_VLAYER)}"
+	}
 
 
 	# place io
