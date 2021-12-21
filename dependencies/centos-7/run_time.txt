@@ -22,9 +22,9 @@ pciutils
 pciutils-libs
 perl
 perl-Switch
-python36u
-python36u-pip
-python36u-tkinter
+python36
+python36-pip
+python36-tkinter
 qt
 qt5-qtbase
 qt5-qtimageformats
