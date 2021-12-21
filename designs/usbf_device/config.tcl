@@ -1,6 +1,6 @@
 set ::env(DESIGN_NAME) "usbf_device"
 
-set ::env(VERILOG_FILES) "./designs/usbf_device/src/usbf_device.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/usbf_device.v"
 
 set ::env(CLOCK_PORT) "clk_i"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "y_huff"
 
-set ::env(VERILOG_FILES) "./designs/y_huff/src/y_huff.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/y_huff.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

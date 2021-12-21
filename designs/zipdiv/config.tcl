@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "zipdiv"
 
-set ::env(VERILOG_FILES) "./designs/zipdiv/src/zipdiv.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/zipdiv.v"
 
 set ::env(CLOCK_PORT) "i_clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

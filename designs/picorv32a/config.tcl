@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "picorv32a"
 
-set ::env(VERILOG_FILES) "./designs/picorv32a/src/picorv32a.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/picorv32a.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "point_scalar_mult"
 
-set ::env(VERILOG_FILES) [glob ./designs/point_scalar_mult/src/*.v]
+set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

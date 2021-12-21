@@ -79,3 +79,5 @@ if { [file exists /build/transforms/] } {
 } else {
 	set ::env(PSN_TRANSFORM_PATH) $::env(HOME)/.local/transforms
 }
+
+set ::env(SAVE_FINAL_VIEWS) {1}

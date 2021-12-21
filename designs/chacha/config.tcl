@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "chacha"
 
-set ::env(VERILOG_FILES) "./designs/chacha/src/chacha.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/chacha.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

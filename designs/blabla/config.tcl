@@ -1,6 +1,6 @@
 set ::env(DESIGN_NAME) "blabla"
 
-set ::env(VERILOG_FILES) "./designs/blabla/src/blabla.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/blabla.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

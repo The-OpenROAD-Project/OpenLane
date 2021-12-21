@@ -87,13 +87,12 @@ class Artifact(object):
         report_path = os.path.join(
             self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
-            with open(report_path, "w") as f:
-                f.write(f"{self.step}:{self.filename} not found or empty.")
+            debug(f"{self.step}:{self.filename} not found or empty.")
             return
         parse_to_report(self.path, report_path, start, end)
 
     def generate_reports(self, *args: Iterable[Iterable[str]]):
-        if self.index is None:
+        if (self.index or "") == "":
             self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"

@@ -3,7 +3,7 @@
 # Design
 set ::env(DESIGN_NAME) "jpeg_encoder"
 
-set ::env(VERILOG_FILES) "./designs/jpeg_encoder/src/jpeg.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/jpeg.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

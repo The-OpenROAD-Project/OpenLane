@@ -1,7 +1,7 @@
 # Design
 set ::env(DESIGN_NAME) "PPU"
 
-set ::env(VERILOG_FILES) "./designs/PPU/src/PPU.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/PPU.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

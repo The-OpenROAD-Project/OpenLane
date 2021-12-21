@@ -1,7 +1,7 @@
 # Design
 set ::env(DESIGN_NAME) "ldpc_decoder_802_3an"
 
-set ::env(VERILOG_FILES) "./designs/ldpc_decoder_802_3an/src/*.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/*.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

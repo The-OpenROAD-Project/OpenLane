@@ -1,7 +1,7 @@
 # Design
 set ::env(DESIGN_NAME) "aes256"
 
-set ::env(VERILOG_FILES) "./designs/aes256/src/aes256.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/aes256.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

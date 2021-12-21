@@ -2,7 +2,7 @@
 # Design
 set ::env(DESIGN_NAME) "aes"
 
-set ::env(VERILOG_FILES) "./designs/aes/src/aes.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/aes.v"
 
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)

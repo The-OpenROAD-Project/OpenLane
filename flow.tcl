@@ -188,19 +188,20 @@ proc run_non_interactive_mode {args} {
     set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
     set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
-	save_views \
-		-save_path $::env(RESULTS_DIR)/final \
-		-def_path $::env(CURRENT_DEF) \
-		-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
-		-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
-		-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
-		-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
-		-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
-		-verilog_path $::env(CURRENT_NETLIST) \
-		-spef_path $::env(SPEF_TYPICAL) \
-		-sdf_path $::env(CURRENT_SDF) \
-		-sdc_path $::env(CURRENT_SDC)
-
+	if { $::env(SAVE_FINAL_VIEWS) == "1" } {
+		save_views \
+			-save_path $::env(RESULTS_DIR)/final \
+			-def_path $::env(CURRENT_DEF) \
+			-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
+			-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
+			-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
+			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
+			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
+			-verilog_path $::env(CURRENT_NETLIST) \
+			-spef_path $::env(SPEF_TYPICAL) \
+			-sdf_path $::env(CURRENT_SDF) \
+			-sdc_path $::env(CURRENT_SDC)
+	}
 	calc_total_runtime
 	save_state
 	generate_final_summary_report

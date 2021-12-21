@@ -1,7 +1,7 @@
 # Design
 set ::env(DESIGN_NAME) "genericfir"
 
-set ::env(VERILOG_FILES) "./designs/genericfir/src/genericfir.v"
+set ::env(VERILOG_FILES) "$::env(DESIGN_DIR)/src/genericfir.v"
 
 set ::env(CLOCK_PORT) "i_clk"
 set ::env(CLOCK_NET) $::env(CLOCK_PORT)
