@@ -89,8 +89,8 @@ source $::env(TRACKS_INFO_FILE_PROCESSED)
 
 set die_area_file [open $::env(fp_report_prefix)_die_area.rpt w]
 set core_area_file [open $::env(fp_report_prefix)_core_area.rpt w]
-    puts $die_area_file $::env(DIE_AREA)
-    puts $core_area_file $::env(CORE_AREA)
+    puts -nonewline $die_area_file $::env(DIE_AREA)
+    puts -nonewline $core_area_file $::env(CORE_AREA)
 close $core_area_file
 close $die_area_file
 

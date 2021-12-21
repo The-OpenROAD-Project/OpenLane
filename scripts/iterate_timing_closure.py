@@ -108,6 +108,9 @@ def process_report_csv(csv_in: str) -> Dict[str, str]:
             metric_dict[key] = value
     return metric_dict
 
+presynth_end_step = "placement"
+iteration_start_step = "routing"
+
 def presynthesize(design: str) -> Tuple[str, Dict[str, float]]:
     run_tag = f"{datetime.datetime.now().isoformat()}"
 
@@ -121,7 +124,7 @@ def presynthesize(design: str) -> Tuple[str, Dict[str, float]]:
         "-design",
         design,
         "-to",
-        "synthesis",
+        presynth_end_step,
         "-override_env",
         override_env_str(override_env),
         tag=f"{design_name}_presynth",
@@ -145,7 +148,7 @@ def run_and_quantify_closure(
             "-design",
             design,
             "-from",
-            "floorplan",
+            "routing",
             "-to",
             "routing",
             "-override_env",
@@ -175,23 +178,27 @@ def run_and_quantify_closure(
 
     return worst_slack
 
-@click.group()
-def cli():
-    pass
-
-@click.command()
-@click.argument("design")
-def presynth(design):
-    run_tag = presynthesize(design)
-    print(run_tag)
-
-cli.add_command(presynth)
-
 @click.command()
 @click.option("--inputs", default="", help="Comma,delimited,KEY=VALUE,pairs")
-@click.option("--run-tag", required=True, help="Run tag from presynth case")
+@click.option("--iterate-routing/--iterate-pnr", "iterate_routing_only", default=True, help="Pick whether to iterate on only routing or both placement and routing (latter takes a bit longer)")
+@click.option("--run-tag", required=None, help="Run tag from a previous run")
 @click.argument("design")
-def run(inputs, run_tag, design):
+def cli(inputs, iterate_routing_only, run_tag, design):
+    global presynth_end_step, iteration_start_step
+
+    if not iterate_routing_only:
+        presynth_end_step = "floorplan"
+        iteration_start_step = "placement"
+
+    if design.endswith("/"):
+        design = design[:-1]
+
+    if run_tag is None:
+        print("Presynthesizing...")
+        run_tag = presynthesize(design)
+        print(f"Done, presynthesized to {run_tag}")
+
+    
     input_dict = {}
     for kvp in inputs.split(","):
         if not kvp:
@@ -200,6 +207,8 @@ def run(inputs, run_tag, design):
         input_dict[key] = value
 
     count = len(glob.glob(get_run_dir(design, run_tag) + "*"))
+
+    print(f"Running exploration {count} with inputs {input_dict}...")
     
     design_basename = os.path.basename(design)
 
@@ -210,8 +219,6 @@ def run(inputs, run_tag, design):
     else:
         print(f"Timing closure failed: worst slack {worst_slack}.")
         exit(os.EX_DATAERR)
-
-cli.add_command(run)
 
 if __name__ == '__main__':
     cli()
