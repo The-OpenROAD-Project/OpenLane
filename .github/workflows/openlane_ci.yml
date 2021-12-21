@@ -66,9 +66,9 @@ jobs:
           path: /tmp/sky130A.tar
 
       - name: Determine If Running Extended Test Set
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         run: |
-          echo "USE_ETS=1" >> $GITHUB_ENV
+          export EVENT_NAME=${{ github.event_name }};
+          python3 ./.github/scripts/determine_test_set.py
 
       - name: Prepare Test Matrix
         id: set-matrix
