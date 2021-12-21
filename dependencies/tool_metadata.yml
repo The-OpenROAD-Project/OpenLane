@@ -58,16 +58,16 @@
     ninja clean
     ninja
     cp padring $PREFIX/bin
-- name: vlog2Verilog
+- name: vlogtoverilog
   repo: https://github.com/RTimothyEdwards/qflow
   commit: a550469b63e910ede6e3022e2886bca96462c540
   build: |
-    # Note that vlog2Verilog is part of the qflow repository.
+    # Note that vlogtoverilog is part of the qflow repository.
     ./configure
     cd src
     make clean
-    make -j$(nproc) vlog2Verilog
-    cp vlog2Verilog $PREFIX/bin
+    make -j$(nproc) vlogtoverilog
+    cp vlogtoverilog $PREFIX/bin
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: d061b0e41a2023b5e72794563b94d6a9b5ab41a1
