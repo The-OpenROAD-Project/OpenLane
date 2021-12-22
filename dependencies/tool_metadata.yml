@@ -43,7 +43,7 @@
     make install
 - name: netgen
   repo: https://github.com/rtimothyedwards/netgen
-  commit: 738c1f7b3705bca2f1cc66fbc1cfb20f12d49a06
+  commit: ab614b63f750fc5d84079dca71708cbca046f7a0
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
