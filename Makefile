@@ -46,7 +46,9 @@ INSTALL_SRAM ?= disabled
 
 OPEN_PDK_ARGS ?= ""
 ifeq ($(INSTALL_SRAM), enabled) 
-OPEN_PDK_ARGS ?= --enable-sram-sky130
+OPEN_PDK_ARGS += --enable-sram-sky130
+else ifneq ($(INSTALL_SRAM), disabled)
+OPEN_PDK_ARGS += --enable-sram-sky130=$(INSTALL_SRAM)
 endif 
 
 ifeq ($(OPENLANE_IMAGE_NAME),)
