@@ -163,7 +163,7 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 .PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
+		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first.") && \
 		sleep 5 && \
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true

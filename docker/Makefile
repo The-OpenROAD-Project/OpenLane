@@ -32,6 +32,7 @@ base_image: ./base/Dockerfile
 
 $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile base_image
 	mkdir -p logs
+	cp ./utils.py $*
 	$(BUILD_COMMAND)\
 		$(shell python3 ../dependencies/tool.py --docker-args $*)\
 		-t $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
