@@ -66,10 +66,11 @@ ADD ./openroad_tools.tar.gz /
 ADD ./openlane.tar.gz $OPENLANE_ROOT
 
 ## Tclsh RC
-COPY ./.tclshrc /
-COPY ./.tclshrc /root
+COPY ./.tclshrc /.tclshrc
+COPY ./.tclshrc /root/.tclshrc
 
 ## Bash RC
+COPY ./.bashrc /.bashrc
 COPY ./.bashrc /root/.bashrc
 
 WORKDIR $OPENLANE_ROOT
