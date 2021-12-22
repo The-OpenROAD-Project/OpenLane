@@ -445,15 +445,24 @@ def issue_survey():
             Container Engine: {os_info.container_info.engine} v{os_info.container_info.version}
         """)
     else:
-        alert = "Critical Alert: No Docker or Docker-compatible container engine was found."
-        final_report += f"\n{alert}\n"
+        try:
+            subprocess.check_output(["systemd-detect-virt", "-c"]) # Check if running inside container
+            if not os.path.exists("/openlane"):
+                raise Exception()
+            alert = "Alert: You appear to be running this script inside the OpenLane container. This is not the intended usecase for this file."
+        except Exception as e:
+            print(e)
+            alert = "Critical Alert: No Docker or Docker-compatible container engine was found."
+        final_report += f"{alert}\n"
         print(alert, file=alerts)
 
+    git_ok = True
     try:
         final_report += textwrap.dedent(f"""\
             OpenLane Git Version: {get_tag()}
         """)
     except:
+        git_ok = False
         alert = "Critical Alert: OpenLane does not appear to be using a Git repository. This will impair considerable functionality."
         final_report += f"\n{alert}\n"
         print(alert, file=alerts)
@@ -473,32 +482,32 @@ def issue_survey():
         print(alert, file=alerts)
 
     try:
-        import yaml
-
-        from dependencies.verify_versions import verify_versions
-
-        with io.StringIO() as f:
-            status = 'OK'
-            try:
-                mismatches = verify_versions(no_tools=True, report_file=f)
-                if mismatches:
-                    status = 'MISMATCH'
-            except Exception as e:
-                status = 'FAILED'
-                f.write(f"Failed to compare PDKs.")
-                f.write("\n")
-            final_report += f"---\nPDK Version Verification Status: {status}\n" + f.getvalue()
-        
-
+        import yaml        
     except ImportError:
         alert = "Critical Alert: Pyyaml is not installed."
         final_report += f"\n{alert}\n"
         print(alert, file=alerts)
 
-    try:
-        git_log = subprocess.check_output(["git", "log", "-n", "3"]).decode("utf8")
 
-        final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
+    from dependencies.verify_versions import verify_versions
+
+    with io.StringIO() as f:
+        status = 'OK'
+        try:
+            mismatches = verify_versions(no_tools=True, report_file=f)
+            if mismatches:
+                status = 'MISMATCH'
+        except Exception as e:
+            status = 'FAILED'
+            f.write(f"Failed to compare PDKs.")
+            f.write("\n")
+        final_report += f"---\nPDK Version Verification Status: {status}\n" + f.getvalue()
+
+    try:
+        if git_ok:
+            git_log = subprocess.check_output(["git", "log", "-n", "3"]).decode("utf8")
+
+            final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
     except:
         alert = "Critical Alert: Could not launch git: Are you sure git is installed properly?"
         final_report += f"\n{alert}\n"
