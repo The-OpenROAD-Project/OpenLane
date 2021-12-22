@@ -57,7 +57,6 @@ docker_command = [
     shlex.join([
         "python3",
         "run_designs.py",
-        "--tar_list", "all",
         "--disable_timestamp",
         "--tag", test_name,
         "--threads", str(threads_used),
