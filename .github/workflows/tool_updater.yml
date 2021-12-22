@@ -30,12 +30,6 @@ jobs:
         with:
           ref: ${{ secrets.MAIN_BRANCH }}
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
       - name: Export TOOL Name
         run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
 
@@ -44,7 +38,15 @@ jobs:
 
       - name: Build TOOL
         if: ${{ env.NO_UPDATE != '1' }}
-        run: cd ${GITHUB_WORKSPACE}/docker && make build-${{ env.TOOL }}
+        run: |
+          cd ${GITHUB_WORKSPACE}/docker
+          export TOOL_REPOSITORY=${{ secrets.TOOL_DOCKER_IMAGE }}
+          make build-${{ env.TOOL }}
+      
+      - name: Push Image
+        if: ${{ env.NO_UPDATE != '1' }}
+        run: |
+          docker push ${{ secrets.TOOL_DOCKER_IMAGE }}:$(python3 $(python3 ../dependencies/tool.py --docker-tag-for-os=centos-7)
 
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}

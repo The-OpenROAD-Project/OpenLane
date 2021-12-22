@@ -59,6 +59,7 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Get Tool Info")
+    parser.add_argument("--docker-tag-for-os", default=None)
     parser.add_argument("--docker-args", action="store_true")
     parser.add_argument("--field", "-f")
     parser.add_argument("tool")
@@ -67,7 +68,9 @@ def main():
     
     tool = tools[args.tool]
     
-    if args.docker_args:
+    if args.docker_tag_for_os:
+        print(f"{tool.name}-{tool.commit}-{args.docker_tag_for_os}")
+    elif args.docker_args:
         print(f"--build-arg {tool.name.upper()}_REPO={tool.repo} --build-arg {tool.name.upper()}_COMMIT={tool.commit}", end="")
     elif args.field:
         field = tool.__dict__[args.field]

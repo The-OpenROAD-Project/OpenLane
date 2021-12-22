@@ -31,6 +31,7 @@ ifeq ($(UNAME_S),Linux)
 DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
 endif
 
+NPROC ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
 THREADS ?= 1
 
 ifneq (,$(ROUTING_CORES))
@@ -118,7 +119,7 @@ skywater-library: $(PDK_ROOT)/skywater-pdk
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
 		git submodule update --init libraries/sky130_fd_pr/latest && \
-		$(MAKE) timing
+		$(MAKE) -j$(NPROC) timing
 
 .PHONY: all-skywater-libraries
 all-skywater-libraries: skywater-pdk
@@ -130,7 +131,7 @@ all-skywater-libraries: skywater-pdk
 		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
 		git submodule update --init libraries/sky130_fd_sc_hvl/latest && \
 		git submodule update --init libraries/sky130_fd_io/latest && \
-		$(MAKE) -j$(THREADS) timing
+		$(MAKE) -j$(NPROC) timing
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
@@ -139,45 +140,37 @@ $(PDK_ROOT)/open_pdks:
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
-		git checkout master && git pull && \
+		git checkout master && \
+		git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
 .PHONY: build-pdk
+native-build-pdk: ENV_COMMAND=env
+native-build-pdk: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
-		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
-		true
-	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)"
+	[ -d $(PDK_ROOT)/sky130A ] && rm -rf $(PDK_ROOT)/sky130A || true
+	$(ENV_COMMAND) sh -c "\
+		cd $(PDK_ROOT)/open_pdks && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)\
+	"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
-	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
+	$(ENV_COMMAND) sh -c "\
+		cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
 		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
-		make clean"
-
-.PHONY: native-build-pdk
-native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
-		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
-		true
-	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS) && \
-		cd sky130 && \
-		$(MAKE) veryclean && \
-		$(MAKE) && \
-		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
+		make clean \
+	"
 
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
 	printf "openlane " > $(PDK_ROOT)/sky130A/SOURCES
 	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "magic " >> $(PDK_ROOT)/sky130A/SOURCES
+	python3 ./dependencies/tool.py -f commit magic >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "\n" >> $(PDK_ROOT)/sky130A/SOURCES
 	printf "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 	printf "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES

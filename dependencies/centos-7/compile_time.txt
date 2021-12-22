@@ -43,15 +43,10 @@ ncurses-devel
 ninja-build
 patch
 pcre-devel
-python-devel
-python36u
-python36u-devel
-python36u-libs
-python36u-pip
-python36u-tkinter
+python36-devel
+python36-libs
 qt5-qtbase-devel
 readline-devel
-rh-python35
 strace
 spdlog-devel
 swig3

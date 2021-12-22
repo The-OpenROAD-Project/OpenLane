@@ -1,19 +1,25 @@
 #DOCKER_BUILD_OPTS ?= --rm --no-cache
-DOCKER_BUILD_OPTS ?= --rm
 DOCKERFILE_PATH ?= ./openlane/Dockerfile
 OPENLANE_IMAGE_NAME ?= efabless/openlane:current
-#ROOT = sudo
+TOOL_REPOSITORY ?= efabless/openlane-tools
 
-TOOLS = cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc
+OS_NAME ?= centos-7
+OS_IMAGE ?= centos:centos7
+
+DOCKER_BUILD_OPTS ?= --rm
+DOCKER_BUILD_INVOCATION ?= docker build # docker buildx build --platform linux/amd64 --load
+BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
+
+TOOLS = cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc git
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
-TOOL_EXPORT_TARGETS_PHONY = $(foreach tool,$(TOOLS),export-$(tool))
-TOOL_EXPORT_TARGETS_REAL = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
+TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 # Build Tools
 # ==============================================================================
-build-all: $(TOOL_BUILD_TARGETS) export-all
+all: openlane
 
+build-all: $(TOOL_BUILD_TARGETS)
 base_image: ./base/Dockerfile
 	cat ../dependencies/centos-7/precompile_time.txt > ./base/yum_precompile_dependencies.txt
 	cat ../dependencies/centos-7/compile_time.txt > ./base/yum_compile_dependencies.txt
@@ -22,27 +28,29 @@ base_image: ./base/Dockerfile
 	cat ../dependencies/python/compile_time.txt > ./base/pip_compile_dependencies.txt
 	cat ../dependencies/python/run_time.txt > ./base/pip_dependencies.txt
 	mkdir -p logs
-	docker build $(DOCKER_BUILD_OPTS) -t openlane-build-base base | tee logs/base.build.txt
+	$(BUILD_COMMAND) -t openlane-build-base --build-arg OS_IMAGE=$(OS_IMAGE) base | tee logs/base.build.txt
 
 $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile base_image
 	mkdir -p logs
-	docker build $(DOCKER_BUILD_OPTS) $(shell python3 ../dependencies/tool.py --docker-args $*) -t $* $* | tee logs/$*.build.txt
-	${MAKE} export-$*
+	cp ./utils.py $*
+	$(BUILD_COMMAND)\
+		$(shell python3 ../dependencies/tool.py --docker-args $*)\
+		-t $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
+		$* |\
+		tee logs/$*.build.txt
 
 # ==============================================================================
 # Export Tools
 # ==============================================================================
-.PHONY: $(TOOL_EXPORT_TARGETS)
-$(TOOL_EXPORT_TARGETS_PHONY): export-% :
+$(TOOL_EXPORT_TARGETS): tar/%.tar.gz : FORCE
 	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
-	id=$$(${ROOT} docker create $*) ; \
+	python3 ./utils.py pull-if-doesnt-exist $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)
+	id=$$(${ROOT} docker create $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)) ; \
 	  ${ROOT} docker cp $$id:/build.tar.gz tar/$*.tar.gz ; \
 	  ${ROOT} docker rm -v $$id
 
-.PHONY: export-all
-export-all: tar/openroad_tools.tar.gz
-tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS_REAL)
+tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS)
 	for tarFile in $(foreach tool,$(TOOLS),tar/$(tool).tar.gz); do \
 	  tar -xzf $$tarFile ; \
 	done
@@ -60,10 +68,16 @@ openlane: merge
 merge: tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	cat ../dependencies/python/run_time.txt > ./tar/pip_dependencies.txt
+	cat ../dependencies/centos-7/precompile_time.txt > ./tar/yum_repos.txt
 	cat ../dependencies/centos-7/run_time.txt > ./tar/yum_dependencies.txt
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version
 	mkdir -p logs/tar
-	docker build --build-arg CACHE_INVALIDATOR=$(shell date +%s) $(DOCKER_BUILD_OPTS) -t $(OPENLANE_IMAGE_NAME) -f $(DOCKERFILE_PATH) ./tar | tee logs/$<.build.txt ; \
+	$(BUILD_COMMAND)\
+		--build-arg CACHE_INVALIDATOR=$(shell date +%s)\
+		--build-arg OS_IMAGE=$(OS_IMAGE)\
+		-t $(OPENLANE_IMAGE_NAME)\
+		-f $(DOCKERFILE_PATH) ./tar\
+		| tee logs/$<.build.txt
 
 .PHONY: clean_merge
 clean_merge:

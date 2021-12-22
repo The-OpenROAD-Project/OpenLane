@@ -45,7 +45,8 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
 
     manifest_names_by_SOURCES_name = {
         "open_pdks": "open_pdks",
-        "skywater": "sky130"
+        "skywater": "sky130",
+        "magic": "magic"
     }
     pdk_manifest_names = set(manifest_names_by_SOURCES_name.values())
 
@@ -73,6 +74,9 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
             # Format: {tool} {commit}
             
             if sources_str.startswith("-ne"):
+                # Broken file on BSD/macOS where echo -ne is not a thing
+                # Solution: Translate to proper format
+                #
                 # Format:
                 # -ne {tool}
                 # {commit} 
@@ -112,8 +116,8 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                 
                 if commit != manifest_commit:
                     mismatches = True
-                    print(f"The version of {manifest_name} installed does not match the one required by the OpenLane flow scripts (installed: {commit}, expected: {manifest_commit})", file=report_file)
-                    print(f"You may want to re-install the PDK by invoking `make pdk`.", file=report_file)
+                    print(f"The version of {manifest_name} used in building PDK does not match the version OpenLane was tested on (installed: {commit}, tested: {manifest_commit})", file=report_file)
+                    print(f"This may introduce some issues. You may want to re-install the PDK by invoking `make pdk`.", file=report_file)
 
                 pdk_manifest_names.add(manifest_name)
         else:
