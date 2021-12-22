@@ -30,7 +30,19 @@ proc run_klayout {args} {
 			} else {
 				set cells_gds $::env(GDS_FILES)
 			}
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/def2gds.sh $::env(KLAYOUT_TECH) $::env(CURRENT_DEF) $::env(DESIGN_NAME) $::env(finishing_results)/$::env(DESIGN_NAME).klayout.gds "$cells_gds $gds_files_in" |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gdsii-klayout.log]
+
+			try_catch klayout -b\
+				-rm $::env(SCRIPTS_DIR)/klayout/def2gds.py\
+				-rd out_gds=$::env(finishing_results)/$::env(DESIGN_NAME).klayout.gds\
+				-rd tech_file=$::env(KLAYOUT_TECH)\
+				-rd design_name=$::env(DESIGN_NAME)\
+				-rd in_def=$::env(CURRENT_DEF)\
+				-rd "in_gds=$cells_gds $gds_files_in"\
+				-rd "config_file="\
+				-rd "seal_gds="\
+				-rd lef_file=$::env(MERGED_LEF)\
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gdsii-klayout.log]
+
 			if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
 				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(finishing_results)/$::env(DESIGN_NAME).lyp
 			} else {

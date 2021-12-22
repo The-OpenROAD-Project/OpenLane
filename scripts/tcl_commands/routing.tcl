@@ -443,7 +443,7 @@ proc run_routing {args} {
     }
 
     set global_routed_netlist [index_file $::env(routing_tmpfiles)/global.v]
-    write_verilog $global_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_global.log]
+    write_verilog $global_routed_netlist -log $::env(routing_logs)/write_verilog_global.log
     set_netlist $global_routed_netlist
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -453,7 +453,7 @@ proc run_routing {args} {
     detailed_routing
 
     set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
-    write_verilog $detailed_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_detailed.log]
+    write_verilog $detailed_routed_netlist -log $::env(routing_logs)/write_verilog_detailed.log
     set_netlist $detailed_routed_netlist
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
