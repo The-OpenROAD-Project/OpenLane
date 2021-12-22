@@ -10,7 +10,7 @@ on:
 
 jobs:
   create-cid-tools-branches:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         tools: [magic, netgen, yosys, openroad_app]
@@ -64,7 +64,7 @@ jobs:
           push-to-fork: ${{ secrets.FORK_NAME }}
           delete-branch: true
   create-cid-pdk-branch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       # EXPORT BLOCK
       - name: Export Repo URL

@@ -227,7 +227,7 @@ class DiodeInserter:
 		diode_inst.setPlacementStatus('PLACED')
 
 		ait = diode_inst.findITerm(self.diode_pin)
-		odb.dbITerm_connect(ait, it.getNet())
+		ait.connect(it.getNet())
 
 	def execute(self):
 		# Scan all nets

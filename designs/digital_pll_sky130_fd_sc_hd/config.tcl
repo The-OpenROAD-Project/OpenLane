@@ -4,7 +4,7 @@
 set ::env(DESIGN_NAME) digital_pll
 
 # Change if needed
-set ::env(VERILOG_FILES) ./designs/digital_pll_sky130_fd_sc_hd/src/digital_pll.v
+set ::env(VERILOG_FILES) $::env(DESIGN_DIR)/src/digital_pll.v
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 
 # Fill this

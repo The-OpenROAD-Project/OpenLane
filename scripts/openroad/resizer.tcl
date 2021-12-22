@@ -61,11 +61,12 @@ if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WI
                   -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 }
 
-# repair tie lo fanout
-repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIELO_PORT) 0]/[lindex $::env(SYNTH_TIELO_PORT) 1]
-
-# repair tie hi fanout
-repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIEHI_PORT) 0]/[lindex $::env(SYNTH_TIEHI_PORT) 1]
+if { $::env(PL_RESIZER_REPAIR_TIE_FANOUT) == 1} {
+    # repair tie lo fanout
+    repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIELO_PORT) 0]/[lindex $::env(SYNTH_TIELO_PORT) 1]
+    # repair tie hi fanout
+    repair_tie_fanout -separation $::env(PL_RESIZER_TIE_SEPERATION) [lindex $::env(SYNTH_TIEHI_PORT) 0]/[lindex $::env(SYNTH_TIEHI_PORT) 1]
+}
 
 report_floating_nets -verbose
 
@@ -76,7 +77,11 @@ detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
-check_placement -verbose
+
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
+}
 
 write_def $::env(SAVE_DEF)
 write_sdc $::env(SAVE_SDC)

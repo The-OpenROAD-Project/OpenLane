@@ -19,7 +19,7 @@ PDK_ROOT ?= $(shell pwd)/pdks
 DOCKER_OPTIONS = $(shell python3 ./env.py docker-config)
 
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
-DOCKER_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
 endif
 ifneq (,$(DOCKER_MEMORY))
 DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
@@ -27,10 +27,8 @@ DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
 endif
 
 UNAME_S := $(shell uname -s)
-ifeq (1,$(DOCKER_DISPLAY))
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix
-endif
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
 endif
 
 THREADS ?= 1
@@ -45,7 +43,7 @@ IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
 OPEN_PDK_ARGS ?= ""
-ifeq ($(INSTALL_SRAM), enabled) 
+ifeq ($(INSTALL_SRAM), enabled)
 OPEN_PDK_ARGS += --enable-sram-sky130
 else ifneq ($(INSTALL_SRAM), disabled)
 OPEN_PDK_ARGS += --enable-sram-sky130=$(INSTALL_SRAM)
@@ -69,7 +67,16 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+# designs is mounted over install so env.tcl is not found inside the Docker
+# container.
+ENV_START = docker run --rm\
+	-v $(OPENLANE_DIR):/openlane\
+	-v $(OPENLANE_DIR)/designs:/openlane/install\
+	-v $(PDK_ROOT):$(PDK_ROOT)\
+	-e PDK_ROOT=$(PDK_ROOT)\
+	$(DOCKER_OPTIONS)
+
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -188,22 +195,7 @@ pull-openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
-
-MISC_REGRESSION_ARGS=
-.PHONY: regression regression_test
-regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
-regression_test: regression
-regression:
-	cd $(OPENLANE_DIR) && \
-		$(ENV_COMMAND) sh -c "\
-			python3 run_designs.py\
-			--defaultTestSet\
-			--tag $(REGRESSION_TAG)\
-			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
-			$(MISC_REGRESSION_ARGS)\
-		"
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
@@ -217,18 +209,18 @@ test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
-			--designs $(DESIGN_LIST)\
 			--tag $(DLTAG)\
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
+			$(DESIGN_LIST)\
 		"
 
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
-	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
+	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/finishing/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
 
@@ -236,7 +228,7 @@ test:
 clean_all: clean_runs clean_results
 
 clean_runs:
-	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
+	@rm -rf ./designs/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
 
 clean_results:
 	@{ find regression_results -mindepth 1 -maxdepth 1 -type d | grep -v benchmark | xargs rm -rf ; } && echo "Results cleaned successfully." || echo "Failed to delete results."

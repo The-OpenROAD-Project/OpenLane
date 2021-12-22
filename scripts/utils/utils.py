@@ -34,20 +34,16 @@ def get_design_path(design):
         return None
 
 def get_run_path(design, tag):
-    DEFAULT_PATH = os.path.join(
+    return os.path.join(
         get_design_path(design),
-        'runs/{tag}/'.format(
-            tag=tag
-        )
+        "runs",
+        tag
     )
-
-    return DEFAULT_PATH
 
 def get_design_name(design, config):
         design_path= get_design_path(design=design)
         if design_path is None:
-            print("{design} not found, skipping...".format(design=design))
-            return "[INVALID]: design path doesn't exist"
+            return ("Design path not found", None)
         config_file = "{design_path}/{config}.tcl".format(
                 design_path=design_path,
                 config=config,
@@ -58,13 +54,13 @@ def get_design_name(design, config):
             config_file_opener.close()
             pattern = re.compile(r'\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*')
             for name in re.findall(pattern, configs):
-                    return name.replace("\"","")
-            return "[INVALID]: design name doesn't exist inside the config file!"
+                return (None, name.strip('"{}'))
+            return ("Invalid configuration file", None)
         except OSError:
-            return "[INVALID]: design config doesn't exist"
+            return ("Configuration file not found", None)
 
-# addComputedStatistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
-def addComputedStatistics(filename):
+# add_computed_statistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
+def add_computed_statistics(filename):
     data = pd.read_csv(filename)
     df = pd.DataFrame(data)
 

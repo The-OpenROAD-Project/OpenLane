@@ -1,6 +1,5 @@
 # SCL Configs
 set ::env(CLOCK_PERIOD) "10"
-set ::env(FP_CORE_UTIL) 25
 set ::env(SYNTH_STRATEGY) "DELAY 0"
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.2
 set ::env(PL_RESIZER_ALLOW_SETUP_VIOS) 1

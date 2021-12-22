@@ -19,7 +19,7 @@ Then, you should be able to run the following main commands:
 4. `run_placement`
 5. `run_cts`
 6. `run_routing`
-7. `write_powered_verilog` followed by `set_netlist $::env(lvs_result_file_tag).powered.v`
+7. `write_powered_verilog` followed by `set_netlist $::env(routing_logs)/$::env(DESIGN_NAME).powered.v`
 8. `run_magic`
 9. `run_magic_spice_export`
 10. `run_magic_drc`
@@ -41,5 +41,5 @@ A more detailed list of all the commands supported by openlane could be found [h
 
 **Note 3:** You can pass the -design, -tag, etc.. flags to ```./flow.tcl -interactive``` directly without the need of entering the interactive mode and then executing the prep command.
 
-[0]:./OpenLANE_commands.md
+[0]:./openlane_commands.md
 

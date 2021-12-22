@@ -17,6 +17,8 @@ set ::env(PL_TARGET_DENSITY) 0.75
 set ::env(FP_HORIZONTAL_HALO) 6
 set ::env(FP_VERTICAL_HALO) $::env(FP_HORIZONTAL_HALO)
 
+set ::env(DIODE_INSERTION_STRATEGY) 3
+
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename

@@ -13,8 +13,8 @@
     cp iccad19gr $PREFIX/bin/cugr
   in_install: false
 - name: cvc
-  repo: https://github.com/donn/cvc
-  commit: 90e78b4598c1f5c35fcc3b8fc4d80fde7c881445
+  repo: https://github.com/d-m-bailey/cvc
+  commit: d172016a791af3089b28070d80ad92bdfef9c585
   build: |
     autoreconf -i
     ./configure --disable-nls --prefix=$PREFIX
@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 0bb6ac1fa98b5371c73156b6e876925397fb7cbc
+  commit: bee0039e437efca8889a9e1a75cdeaf84183fbe7
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -78,7 +78,7 @@
     make PREFIX=$PREFIX install
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: b79f266fe41540eabc064bcaddfe19ed715ac5c2
+  commit: e9d88df58cd6e61dec17d0cd7d355f7d6ec25778
   build: |
     mkdir -p ./build
     cd ./build
@@ -88,7 +88,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: c5730b574461889c82858b08d12ba42423d9c2cb
+  commit: 476f7428f7f686de51a5164c702629a9b9f2da46
   build: ''
   in_install: false
   in_container: false

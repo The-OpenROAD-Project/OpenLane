@@ -36,19 +36,16 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
-set signal_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER)-1}]]
-set signal_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER)-1}]]
+set signal_min_layer $::env(RT_MIN_LAYER)
+set signal_max_layer $::env(RT_MAX_LAYER)
+set clock_min_layer $::env(RT_MIN_LAYER)
+set clock_max_layer $::env(RT_MAX_LAYER)
 
-if { ![info exists ::env(GLB_RT_CLOCK_MINLAYER)] } {
-    set clock_min_layer $signal_min_layer
-} else {
-    set clock_min_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER)-1}]]
+if { [info exists ::env(RT_CLOCK_MIN_LAYER)]} {
+    set clock_min_layer $::env(RT_CLOCK_MIN_LAYER)
 }
-
-if { ![info exists ::env(GLB_RT_CLOCK_MAXLAYER)] } {
-    set clock_max_layer $signal_max_layer
-} else {
-    set clock_max_layer [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER)-1}]]
+if { [info exists ::env(RT_CLOCK_MAX_LAYER)]} {
+    set clock_max_layer $::env(RT_CLOCK_MAX_LAYER)
 }
 
 puts "\[INFO]: Setting signal min routing layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "

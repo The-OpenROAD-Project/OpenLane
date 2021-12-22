@@ -62,7 +62,7 @@ proc add_antenna_cell { iterm } {
 	$antenna_inst setLocation $avg_iterm_x $avg_iterm_y
 	$antenna_inst setOrient $inst_ori
 	$antenna_inst setPlacementStatus PLACED
-	odb::dbITerm_connect $antenna_iterm $iterm_net
+	$antenna_iterm connect $iterm_net
 
 	if { $::VERBOSE } {
 		puts "\[INFO\]: Adding $antenna_inst_name on subnet $antenna_subnet for cell $iterm_inst_name pin $iterm_pin_name"
@@ -93,6 +93,8 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
     optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
-if { [check_placement -verbose] } {
-	exit 1
+
+if { [catch {check_placement -verbose} errmsg] } {
+    puts stderr $errmsg
+    exit 1
 }

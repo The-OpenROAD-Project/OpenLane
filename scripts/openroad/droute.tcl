@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,8 +24,20 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 set_thread_count $::env(ROUTING_CORES)
 
+set min_layer $::env(RT_MIN_LAYER)
+if { [info exists ::env(DRT_MIN_LAYER)] } {
+    set min_layer $::env(DRT_MIN_LAYER)
+}
+
+set max_layer $::env(RT_MAX_LAYER)
+if { [info exists ::env(DRT_MAX_LAYER)] } {
+    set max_layer $::env(DRT_MAX_LAYER)
+}
+
 detailed_route\
     -guide $::env(CURRENT_GUIDE)\
+    -bottom_routing_layer $min_layer\
+    -top_routing_layer $max_layer\
     -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\
     -output_maze $::env(TRITONROUTE_FILE_PREFIX)_maze.log\
     -output_drc $::env(TRITONROUTE_RPT_PREFIX).drc\

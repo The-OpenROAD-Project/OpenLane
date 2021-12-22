@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-read_verilog $::env(yosys_result_file_tag).v
+read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
 link_design $::env(DESIGN_NAME)
 read_sdc -echo $::env(CURRENT_SDC)
 
@@ -32,19 +32,19 @@ set right_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(RIGHT_MARGIN_MULT)]
 
 if {$::env(FP_SIZING) == "absolute"} {
   if { ! [info exists ::env(CORE_AREA)] } {
-	set die_ll_x [lindex $::env(DIE_AREA) 0]
-	set die_ll_y [lindex $::env(DIE_AREA) 1]
-	set die_ur_x [lindex $::env(DIE_AREA) 2]
-	set die_ur_y [lindex $::env(DIE_AREA) 3]
+    set die_ll_x [lindex $::env(DIE_AREA) 0]
+    set die_ll_y [lindex $::env(DIE_AREA) 1]
+    set die_ur_x [lindex $::env(DIE_AREA) 2]
+    set die_ur_y [lindex $::env(DIE_AREA) 3]
 
-	set core_ll_x [expr {$die_ll_x + $left_margin}]
-	set core_ll_y [expr {$die_ll_y + $bottom_margin}]
-	set core_ur_x [expr {$die_ur_x - $right_margin}]
-	set core_ur_y [expr {$die_ur_y - $top_margin}]
+    set core_ll_x [expr {$die_ll_x + $left_margin}]
+    set core_ll_y [expr {$die_ll_y + $bottom_margin}]
+    set core_ur_x [expr {$die_ur_x - $right_margin}]
+    set core_ur_y [expr {$die_ur_y - $top_margin}]
 
-	set ::env(CORE_AREA) [list $core_ll_x $core_ll_y $core_ur_x $core_ur_y]
+    set ::env(CORE_AREA) [list $core_ll_x $core_ll_y $core_ur_x $core_ur_y]
   } else {
-	puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
+	  puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
   }
 
   initialize_floorplan \
@@ -82,15 +82,15 @@ if {$::env(FP_SIZING) == "absolute"} {
       lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
     }
 
-    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(init_floorplan_report_file_tag).die_area.rpt."
-    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(init_floorplan_report_file_tag).core_area.rpt."
+    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
+    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
 }
-source $::env(TRACKS_INFO_FILE) 
+source $::env(TRACKS_INFO_FILE_PROCESSED) 
 
-set die_area_file [open $::env(init_floorplan_report_file_tag).die_area.rpt w]
-set core_area_file [open $::env(init_floorplan_report_file_tag).core_area.rpt w]
-    puts $die_area_file $::env(DIE_AREA)
-    puts $core_area_file $::env(CORE_AREA)
+set die_area_file [open $::env(fp_report_prefix)_die_area.rpt w]
+set core_area_file [open $::env(fp_report_prefix)_core_area.rpt w]
+    puts -nonewline $die_area_file $::env(DIE_AREA)
+    puts -nonewline $core_area_file $::env(CORE_AREA)
 close $core_area_file
 close $die_area_file
 

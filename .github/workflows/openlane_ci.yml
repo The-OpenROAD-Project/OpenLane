@@ -17,7 +17,7 @@ on:
 
 jobs:
   docker_build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -66,9 +66,9 @@ jobs:
           path: /tmp/sky130A.tar
 
       - name: Determine If Running Extended Test Set
-        if: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
         run: |
-          echo "USE_ETS=1" >> $GITHUB_ENV
+          export EVENT_NAME=${{ github.event_name }};
+          python3 ./.github/scripts/determine_test_set.py
 
       - name: Prepare Test Matrix
         id: set-matrix
@@ -83,7 +83,7 @@ jobs:
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
     needs: docker_build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.docker_build.outputs.matrix) }}
@@ -126,12 +126,15 @@ jobs:
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
+      - name: Get Pyyaml
+        run: python3 -m pip install pyyaml
+
       - name: Run Test
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
         
-      ## This is temporarily disabled. It has no way of uploading logs for
+      ## This is disabled. It has no way of uploading logs for
       ## PRs outside using a self-hosted runner on the same cloud platform as
-      ## the bucket and some special permissions trickery.
+      ## the storage bucket and some special permissions trickery.
       # - name: Upload Logs To Cloud Service
       #   if: ${{ always() }}
       #   env:
@@ -144,14 +147,14 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: run_tarballs
+          name: ${{ matrix.design }}_run_tarball
           path: ${{ github.workspace }}/designs/*/runs/*.tar.gz
         
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
       needs: test
       if: always()
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-20.04
       steps:
       - name: Check If Going To Push An Image To Docker
         # # Uncomment the next line if you want to only build & push a container if entire test set succeeds
