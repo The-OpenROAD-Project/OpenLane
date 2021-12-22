@@ -11,12 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+PYTHON_BIN ?= python3
 
 OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-DOCKER_OPTIONS = $(shell python3 ./env.py docker-config)
+DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
 DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
@@ -50,7 +51,7 @@ OPEN_PDK_ARGS += --enable-sram-sky130=$(INSTALL_SRAM)
 endif 
 
 ifeq ($(OPENLANE_IMAGE_NAME),)
-OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
+OPENLANE_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
 ifneq ($(OPENLANE_TAG),)
 export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
 endif
@@ -64,8 +65,8 @@ FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
-OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
+SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
+OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
 # designs is mounted over install so env.tcl is not found inside the Docker
 # container.
@@ -103,7 +104,7 @@ $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk:
-	git clone $(shell python3 ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
+	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
@@ -134,7 +135,7 @@ all-skywater-libraries: skywater-pdk
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone $(shell python3 ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
+	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
