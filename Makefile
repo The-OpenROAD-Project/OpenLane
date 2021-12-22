@@ -137,13 +137,14 @@ $(PDK_ROOT)/open_pdks:
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
-		git checkout master && git pull && \
+		git checkout master && \
+		git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
 .PHONY: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
+		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first.") && \
 		sleep 5 && \
 		rm -rf $(PDK_ROOT)/sky130A) || \
 		true
@@ -152,10 +153,12 @@ build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
-	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
+	$(ENV_COMMAND) sh -c "\
+		cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
 		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
-		make clean"
+		make clean \
+	"
 
 .PHONY: native-build-pdk
 native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk

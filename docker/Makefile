@@ -19,8 +19,7 @@ TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 # ==============================================================================
 all: openlane
 
-build-all: $(TOOL_BUILD_TARGETS) export-all
-
+build-all: $(TOOL_BUILD_TARGETS)
 base_image: ./base/Dockerfile
 	cat ../dependencies/centos-7/precompile_time.txt > ./base/yum_precompile_dependencies.txt
 	cat ../dependencies/centos-7/compile_time.txt > ./base/yum_compile_dependencies.txt

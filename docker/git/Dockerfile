@@ -17,7 +17,7 @@ ARG GIT_REPO
 ARG GIT_COMMIT
 
 WORKDIR /git
-RUN curl -L https://github.com/git/git/archive/refs/tags/v2.34.1.tar.gz |\
+RUN curl -L ${GIT_REPO}/tarball/${GIT_COMMIT} |\
 	tar -xzC . --strip-components=1 &&\
 	make configure &&\
 	./configure --prefix=/build &&\
