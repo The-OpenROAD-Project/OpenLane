@@ -63,10 +63,8 @@ proc run_routing_step {args} {
         puts "Routing for ECO iteration $::env(ECO_ITER)"
     }
     puts "NETLIST/DEF used in Routing: "
-    puts "-------------------------------------------"
     puts $::env(CURRENT_NETLIST)
     puts $::env(CURRENT_DEF) 
-    puts "-------------------------------------------"
 
     # Pause to see puts output
     # pause;
@@ -165,11 +163,8 @@ proc run_apply_step {args} {
 
     puts "ECO Iteration $::env(ECO_ITER): "
     puts "Set NETLIST/DEF in apply_fix.tcl"
-    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
     puts $::env(CURRENT_NETLIST)
     puts $::env(CURRENT_DEF)
-    puts "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&"
-    # pause;
 }
 
 proc eco_read_fix {args} {
@@ -300,10 +295,8 @@ proc run_eco_step {args} {
 
         set exe 0;
         dict for {step_name step_exe} $eco_steps {
-            puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
             puts "Re-running"
             puts $step_name
-            puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
             if { [ string equal $arg_values(-from) $step_name ] } {
                 set exe 1;
             }
@@ -411,9 +404,7 @@ proc run_non_interactive_mode {args} {
 
     set exe 0;
     dict for {step_name step_exe} $steps {
-        puts "################################################"
         puts $step_name
-        puts "################################################"
         if { [ string equal $arg_values(-from) $step_name ] } {
             set exe 1;
         }
