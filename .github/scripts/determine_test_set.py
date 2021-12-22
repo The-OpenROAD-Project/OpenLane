@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Copyright 2021 Efabless Corporation
+# -*- coding: utf-8 -*-
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,28 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from gh import gh
 import os
-import re
-import sys
 import json
 
-args = sys.argv[1:]
+github_event_name = os.environ["EVENT_NAME"]
 
-if len(args) < 1:
-    print(f"Usage: {__file__} [test set 0 name [test set 1 name [...]]]", file=sys.stderr)
-    exit(os.EX_USAGE)
+if github_event_name in ['schedule', 'workflow_dispatch']:
+    gh.export_env("USE_ETS", "1")
+elif github_event_name == 'pull_request':
+    gh_event_str = open(os.environ["GITHUB_EVENT_PATH"]).read()
+    gh_event = json.loads(gh_event_str)
+    pr_body = gh_event["pull_request"]["body"]
 
-directory = os.path.dirname(os.path.realpath(__file__))
-
-files = [os.path.join(directory, x) for x in args]
-
-designs = []
-
-for file in files:
-    designs_temp = re.split(r"\s+", open(file).read().strip())
-    for design in designs_temp:
-        if design.startswith("#") or design == "":
-            continue
-        designs.append(design)
-
-print(json.dumps({ "design": designs }))
+    if "[ci ets]" in pr_body:
+        gh.export_env("USE_ETS", "1")
+    else:
+        gh.export_env("USE_ETS", "0")
+else:
+    gh.export_env("USE_ETS", "0")
