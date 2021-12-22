@@ -1,5 +1,6 @@
 # OpenLane .bashrc file
-alias ll='ls -lAGFh';
+# Source global definitions
+alias ll='ls -lAFh';
 
 export OL_GIT_VERSION=$(cat /git_version);
 
