@@ -340,32 +340,6 @@ proc add_route_obs {args} {
     if {[info exists ::env(GLB_RT_OBS)]} {
         apply_route_obs
     }
-    if {[info exists ::env(GLB_RT_MAXLAYER)] && [info exists ::env(MAX_METAL_LAYER)] && [info exists ::env(TECH_METAL_LAYERS)] && $::env(GLB_RT_MAXLAYER) < $::env(MAX_METAL_LAYER)} {
-        set cnt 0
-        set obs ""
-        foreach layer $::env(TECH_METAL_LAYERS) {
-            set cnt [expr $cnt + 1]
-            if { $cnt == $::env(GLB_RT_MAXLAYER) + 1 } {
-                set obs "$layer $::env(DIE_AREA)"
-            } else {
-                if { $cnt > $::env(GLB_RT_MAXLAYER) } {
-                    set new_obs ",$layer $::env(DIE_AREA)"
-                    append obs $new_obs
-                }
-            }
-        }
-        set obs  [join $obs " "]
-        puts_info "Obstructions will be added over the whole die area: $obs"
-        if {[info exists ::env(GLB_RT_OBS)]} {
-            set store_obs $::env(GLB_RT_OBS)
-        }
-
-        set ::env(GLB_RT_OBS) $obs
-        apply_route_obs
-        if {[info exists store_obs]} {
-            set ::env(GLB_RT_OBS) $store_obs
-        }
-    }
 }
 
 proc run_spef_extraction {args} {
