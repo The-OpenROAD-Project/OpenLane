@@ -49,7 +49,11 @@ pipeline {
         stage('Build Docker image with openroad/master') {
             steps {
                 sh 'make -C docker build-openroad_app';
-                sh 'make -C docker export-openroad_app';
+            }
+        }
+
+        stage('Merge Docker images') {
+            steps {
                 sh 'make -C docker merge';
             }
         }
