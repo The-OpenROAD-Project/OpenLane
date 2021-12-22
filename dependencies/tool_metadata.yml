@@ -70,7 +70,7 @@
     cp vlog2Verilog $PREFIX/bin
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
-  commit: d061b0e41a2023b5e72794563b94d6a9b5ab41a1
+  commit: d015c2b48aa831bd96080d85ade14591debdd56d
   build: |
     make clean
     make PREFIX=$PREFIX config-gcc
