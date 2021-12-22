@@ -4,6 +4,9 @@ pipeline {
     options {
         timeout(time: 8, unit: 'HOURS');
     }
+    environment {
+        ROUTING_CORES = 32;
+    }
     stages {
 
         stage("Setup") {
@@ -18,6 +21,7 @@ pipeline {
                 checkout([$class: "GitSCM",
                         branches: [[name: "*/master"]],
                         doGenerateSubmoduleConfigurations: false,
+                        extensions: [[$class: 'CleanBeforeCheckout']],
                         submoduleCfg: [],
                         userRemoteConfigs: [[credentialsId: "openroad-ci", url: "https://github.com/The-OpenROAD-Project/OpenLane"]]
                 ]);
@@ -50,22 +54,23 @@ pipeline {
             }
         }
 
-        stage('Clone Tech') {
-            environment {
-                ROUTING_CORES = 32;
-            }
+        stage('Run Tests') {
             matrix {
                 axes {
                     axis {
                         name 'DESIGN';
-                        // current red designs "BM64", "aes", "aes128", "aes_cipher", "blabla", "chacha", "ldpcenc", "sha512", "y_huff";
-                        values "APU", "PPU", "aes_core", "des", "digital_pll_sky130_fd_sc_hd", "genericfir", "inverter", "manual_macro_placement_test", "picorv32a", "s44", "salsa20", "spm", "usb", "usb_cdc_core", "wbqspiflash", "xtea", "zipdiv";
+                        // designs disabled "aes128", "chacha", "ldpcenc", "sha512";
+                        values "aes", "aes_cipher", "aes_core", "APU", "blabla", "BM64", "des", "digital_pll_sky130_fd_sc_hd", "genericfir", "inverter", "manual_macro_placement_test", "picorv32a", "PPU", "s44", "salsa20", "spm", "usb", "usb_cdc_core", "wbqspiflash", "xtea", "y_huff", "zipdiv";
                     }
                 }
                 stages {
-                    stage('test') {
+                    stage('Test') {
                         steps {
-                            sh "make OPENLANE_TAG=current TEST_DESIGN=$DESIGN test";
+                            script {
+                                stage("${DESIGN}") {
+                                    sh "make OPENLANE_TAG=current TEST_DESIGN=${DESIGN} test";
+                                }
+                            }
                         }
                     }
                 }
@@ -76,7 +81,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: "**/runs/**/*";
+            archiveArtifacts artifacts: "designs/**/*.log, designs/**/openroad_issue_reproducible/**/*";
         }
         failure {
             emailext (
