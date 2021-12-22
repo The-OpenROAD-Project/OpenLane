@@ -432,22 +432,20 @@ proc run_non_interactive_mode {args} {
     set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
     set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
-	if {  [info exists flags_map(-save) ] } {
-		if { ! [info exists arg_values(-save_path)] } {
-			set arg_values(-save_path) ""
-		}
-		save_views 	-lef_path $::env(magic_result_file_tag).lef \
+	if { $::env(SAVE_FINAL_VIEWS) == "1" } {
+		save_views \
+			-save_path $::env(RESULTS_DIR)/final \
 			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_result_file_tag).gds \
-			-mag_path $::env(magic_result_file_tag).mag \
-			-maglef_path $::env(magic_result_file_tag).lef.mag \
-			-spice_path $::env(magic_result_file_tag).spice \
+			-lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef \
+			-gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds \
+			-mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag \
+			-maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag \
+			-spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice \
 			-verilog_path $::env(CURRENT_NETLIST) \
-			-save_path $arg_values(-save_path) \
-			-tag $::env(RUN_TAG)
+			-spef_path $::env(SPEF_TYPICAL) \
+			-sdf_path $::env(CURRENT_SDF) \
+			-sdc_path $::env(CURRENT_SDC)
 	}
-
-
 
 	calc_total_runtime
 	save_state
