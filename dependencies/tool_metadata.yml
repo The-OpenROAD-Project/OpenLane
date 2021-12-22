@@ -79,12 +79,12 @@
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: e9d88df58cd6e61dec17d0cd7d355f7d6ec25778
-  build: |
-    mkdir -p ./build
-    cd ./build
-    cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin ..
-    make clean
-    make -j$(nproc)
+  build: ''
+  in_install: false
+- name: git
+  repo: https://github.com/git/git
+  commit: e9d7761bb94f20acc98824275e317fa82436c25d
+  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks

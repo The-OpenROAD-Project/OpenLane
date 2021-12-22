@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:centos7
+ARG OS_IMAGE="centos:centos7"
+FROM ${OS_IMAGE}
 
 # Install Yum Dependencies
 COPY ./yum_precompile_dependencies.txt /yum_precompile_dependencies.txt

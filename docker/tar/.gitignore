@@ -1,7 +1,4 @@
-openroad_build.tar.gz
-openroad_tools.tar.gz
-openlane.tar.gz
-openLANE_flow.tar.gz
+/*.tar.gz
 /*.yml
 /*.txt
 /git_version
