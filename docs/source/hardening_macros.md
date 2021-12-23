@@ -136,12 +136,12 @@ If you don't want all the clock ports to be used in clock tree synthesis, then y
 
 You can skip reading this section and jump ahead to reading the advanced power grid controls to get an overall vision of how the whole chip would be powered and as such make a more educated decision in this stage. This detailed documentation exists [here][9].
 
-Each macro in your design should configure the `common_pdn.tcl` for it's use. Generally, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4 (layer 5). This is done by setting the following configs:
+Each macro in your design should configure the `common_pdn.tcl` for it's use. Generally, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4. This is done by setting the following configs:
 
 ```tcl
 set ::env(DESIGN_IS_CORE) 0
 set ::env(FP_PDN_CORE_RING) 0
-set ::env(GLB_RT_MAXLAYER) 5
+set ::env(RT_MAX_LAYER) "met4"
 ```
 
 Pdngen configs for macros contain a special stdcell section, instead of the one used for the core in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top level.
