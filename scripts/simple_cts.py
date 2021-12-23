@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Original code by M. Shalan, Translated to Python by M. Gaber
+# Original code by M. Shalan, Translated to Python by Donn
 
 import io
 import re

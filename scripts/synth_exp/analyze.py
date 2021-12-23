@@ -14,12 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Translated to Python By Donn
-# (This is more along the lines of a direct translation)
+# Direct-translated from Perl to Python by Donn.
 
-import os
 import re
-import sys
 import click
 
 @click.command()
@@ -28,7 +25,7 @@ import click
 def cli(output, input_file):
   output_file_handle = open(output, 'w')
   def write(string):
-      print(string, end='', file=output_file_handle)
+      print(string, file=output_file_handle)
 
   file_str = open(input_file).read()
   file_lines = file_str.split("\n")
@@ -137,7 +134,7 @@ def cli(output, input_file):
     if "none" in line:
       c += 1
       sn = f"S{c}"
-      write("<tr>\n")
+      write("<tr>")
 
       delay_m = delay_rx.search(line)
       delay = float(delay_m[1])
@@ -153,49 +150,49 @@ def cli(output, input_file):
       aratio = int(area/minArea*1000)/1000
       gratio = int(gates/minGates*1000)/1000
 
-      write(f"<td>{sn}</td>\n")
+      write(f"<td>{sn}</td>")
 
       if gratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{gates}</td>\n")
+        write(f"<td bgcolor='#ccff99'>{gates}</td>")
       else:
-        write(f"<td>{gates}</td>\n")
+        write(f"<td>{gates}</td>")
       
 
       if aratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{area}</td>\n")
+        write(f"<td bgcolor='#ccff99'>{area}</td>")
       else:
-        write(f"<td>{area}</td>\n")
+        write(f"<td>{area}</td>")
 
       if dratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{delay}</td>\n")
+        write(f"<td bgcolor='#ccff99'>{delay}</td>")
       else:
         write(f"<td>{delay}</td>\n")
       
       if gratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{gratio}</td>\n")
+        write(f"<td bgcolor='#fffacd'>{gratio}</td>")
       else:
-        write(f"<td>{gratio}</td>\n")
+        write(f"<td>{gratio}</td>")
 
       if aratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{aratio}</td>\n")
+        write(f"<td bgcolor='#fffacd'>{aratio}</td>")
       else:
-        write(f"<td>{aratio}</td>\n")
+        write(f"<td>{aratio}</td>")
 
       if dratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{dratio}</td>\n")
+        write(f"<td bgcolor='#fffacd'>{dratio}</td>")
       else:
-        write(f"<td>{dratio}</td>\n")
+        write(f"<td>{dratio}</td>")
       #print " + Best Area" if(aratio < 1.0001)
       #print " + Best Delay" if(dratio < 1.0001)
 
-      write("</tr>\n")
+      write("</tr>")
 
       #if((dratio < 1.15) && (aratio < 1.15)){
       #  printf (" <== Best Ratio: %.3f - %.3f\n", aratio, dratio)
       #} else {
       #  print "\n"
       #}
-  write("</table>\n")
+  write("</table>")
 
 
   #printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
@@ -294,10 +291,7 @@ def cli(output, input_file):
   </body>
 
   </html>
-
   """)
-
-  write("\n")
   output_file_handle.close()
 
 if __name__ == '__main__':
