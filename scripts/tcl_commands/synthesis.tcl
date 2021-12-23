@@ -113,7 +113,10 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log] > [index_file $::env(synthesis_reports)/exploration_analysis.html]
+	puts_info "Generating exploration report..."
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
+		--output [index_file $::env(synthesis_reports)/exploration_analysis.html]\
+		[index_file $::env(synthesis_logs)/synthesis.log]
 
 	# Following two cannot be indexed- referenced by path in the HTML file.
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(synthesis_reports)
