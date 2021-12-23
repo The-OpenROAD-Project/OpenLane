@@ -353,6 +353,12 @@ proc run_non_interactive_mode {args} {
         set ::env(ECO_FINISH) 0
         set ::env(ECO_ITER) 0
     } 
+	if {  $::env(ECO_ENABLE) == 0 } {
+        set ::env(ECO_ENABLE) 0 
+        set ::env(ECO_FINISH) 1
+        set ::env(ECO_ITER) 0
+    } 
+
 
     if {$::env(ECO_ENABLE) == 1} {
         set steps [dict create "synthesis" {run_synthesis "" } \
