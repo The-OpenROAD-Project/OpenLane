@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,142 +13,147 @@
 # limitations under the License.
 
 proc run_magic {args} {
-		TIMER::timer_start
-		puts_info "Running Magic to generate various views..."
-		# |----------------------------------------------------|
-		# |----------------   6. TAPE-OUT ---------------------|
-		# |----------------------------------------------------|
-		puts_info "Streaming out GDS II..."
-		set ::env(CURRENT_STAGE) finishing
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-		# the following MAGTYPE better be mag for clean GDS generation
-		# use load -dereference to ignore it later if needed
+	TIMER::timer_start
+	increment_index
+	puts_info "Running Magic to generate various views..."
+	# |----------------------------------------------------|
+	# |----------------   6. TAPE-OUT ---------------------|
+	# |----------------------------------------------------|
+	puts_info "Streaming out GDS II..."
+	set ::env(CURRENT_STAGE) finishing
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
+	# the following MAGTYPE better be mag for clean GDS generation
+	# use load -dereference to ignore it later if needed
 
+	set ::env(MAGTYPE) mag
+	# Generate GDS and MAG views
+	try_catch magic \
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gdsii.log]
+	set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
+	file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
+	# Take a PNG screenshot
+	scrot_klayout -log $::env(cts_logs)/screenshot.log
+
+	if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+		# Generate mag file that includes GDS pointers
 		set ::env(MAGTYPE) mag
-		# Generate GDS and MAG views
 		try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).log]
-		set ::env(CURRENT_GDS) $::env(magic_result_file_tag).gds
-		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
-		# Take a PNG screenshot
-		scrot_klayout
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gds_ptrs.log]
+		# Only keep the properties section in the file
+		try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(finishing_tmpfiles)/gds_ptrs.mag
+	}
 
-		if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
-			# Generate mag file that includes GDS pointers
-			set ::env(MAGTYPE) mag
-			try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).mag.gds_ptrs.log]
-			# Only keep the properties section in the file
-			try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(magic_tmp_file_tag)_gds_ptrs.mag
-		}
+	# If desired, copy GDS_* properties into the mag/ view
+	if { $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+		copy_gds_properties $::env(finishing_tmpfiles)/gds_ptrs.mag $::env(finishing_results)/$::env(DESIGN_NAME).mag
+	}
 
-		# If desired, copy GDS_* properties into the mag/ view
-		if { $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
-			copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).mag
-		}
-
-		if { $::env(MAGIC_GENERATE_LEF) } {
-			# Generate LEF view
-			set ::env(MAGTYPE) maglef
-			try_catch magic \
-					-noconsole \
-					-dnull \
-					-rcfile $::env(MAGIC_MAGICRC) \
-					$::env(SCRIPTS_DIR)/magic/lef.tcl \
-					</dev/null \
-					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).lef.log]
-			if { $::env(MAGIC_GENERATE_MAGLEF) } {
-				# Generate MAGLEF view
-				set ::env(MAGTYPE) maglef
-				try_catch magic \
-						-noconsole \
-						-dnull \
-						-rcfile $::env(MAGIC_MAGICRC) \
-						$::env(SCRIPTS_DIR)/magic/maglef.tcl \
-						</dev/null \
-						|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).maglef.log]
-				# By default, copy the GDS properties into the maglef/ view
-				copy_gds_properties $::env(magic_tmp_file_tag)_gds_ptrs.mag $::env(magic_result_file_tag).lef.mag
-			}
-		}
-		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_gen_runtime.txt 0]
-}
-
-
-proc run_magic_drc {args} {
-		TIMER::timer_start
-		puts_info "Running Magic DRC..."
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-		# the following MAGTYPE has to be maglef for the purpose of DRC checking
-		set report_tag_saver $::env(magic_report_file_tag)
-		set ::env(magic_report_file_tag) [index_file $::env(magic_report_file_tag)]
+	if { $::env(MAGIC_GENERATE_LEF) } {
+		# Generate LEF view
 		set ::env(MAGTYPE) maglef
 		try_catch magic \
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/drc.tcl \
+				$::env(SCRIPTS_DIR)/magic/lef.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag).drc.log 0]
-
-		puts_info "Converting Magic DRC Violations to Magic Readable Format..."
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
-			-i $::env(magic_report_file_tag).drc \
-			-o $::env(magic_report_file_tag).drc.tcl
-
-		puts_info "Converting Magic DRC Violations to Klayout XML Database..."
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
-			-i $::env(magic_report_file_tag).drc \
-			-o $::env(magic_report_file_tag).tr.drc
-
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
-			-i $::env(magic_report_file_tag).tr.drc \
-			-o $::env(magic_report_file_tag).drc.klayout.xml \
-			--design-name $::env(DESIGN_NAME)
-
-		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
-			puts_info "Converting DRC Violations to RDB Format..."
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
-				--magic_drc_in $::env(magic_report_file_tag).drc \
-				--rdb_out $::env(magic_report_file_tag).drc.rdb
-			puts_info "Converted DRC Violations to RDB Format"
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/lef.log]
+		if { $::env(MAGIC_GENERATE_MAGLEF) } {
+			# Generate MAGLEF view
+			set ::env(MAGTYPE) maglef
+			try_catch magic \
+					-noconsole \
+					-dnull \
+					-rcfile $::env(MAGIC_MAGICRC) \
+					$::env(SCRIPTS_DIR)/magic/maglef.tcl \
+					</dev/null \
+					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/maglef.log]
+			# By default, copy the GDS properties into the maglef/ view
+			copy_gds_properties $::env(finishing_tmpfiles)/gds_ptrs.mag $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag
 		}
-		file copy -force $::env(MAGIC_MAGICRC) $::env(RESULTS_DIR)/magic/.magicrc
-		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_drc_runtime.txt 0]
-		quit_on_magic_drc
-
-		set ::env(magic_report_file_tag) $report_tag_saver
+	}
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 }
 
 
+proc run_magic_drc {args} {
+    if { $::env(RUN_MAGIC_DRC) } {
+        increment_index
+        TIMER::timer_start
+        puts_info "Running Magic DRC..."
+
+        set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
+        set ::env(drc_prefix) $::env(finishing_reports)/drc
+        # Has to be maglef for DRC Checking
+        set ::env(MAGTYPE) maglef
+
+        try_catch magic \
+                -noconsole \
+                -dnull \
+                -rcfile $::env(MAGIC_MAGICRC) \
+                $::env(SCRIPTS_DIR)/magic/drc.tcl \
+                </dev/null \
+                |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/drc.log]
+
+        puts_info "Converting Magic DRC Violations to Magic Readable Format..."
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
+            -i $::env(drc_prefix).rpt \
+            -o $::env(drc_prefix).tcl
+
+        puts_info "Converting Magic DRC Violations to Klayout XML Database..."
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
+            -i $::env(drc_prefix).rpt \
+            -o $::env(drc_prefix).tr
+
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
+            -i $::env(drc_prefix).tr \
+            -o $::env(drc_prefix).klayout.xml \
+            --design-name $::env(DESIGN_NAME)
+
+        if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
+            puts_info "Converting DRC Violations to RDB Format..."
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
+                --magic_drc_in $::env(drc_prefix).rpt \
+                --rdb_out $::env(drc_prefix).rdb
+            puts_info "Converted DRC Violations to RDB Format"
+        }
+        file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
+
+        quit_on_magic_drc -log $::env(drc_prefix).tr
+    }
+}
+
 proc run_magic_spice_export {args} {
-		TIMER::timer_start
-		if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
-			set extract_type "gds.spice"
-			puts_info "Running Magic Spice Export from GDS..."
-			# GDS extracted file design.gds.spice, log file magic_gds.spice.log
-		} else {
-			set extract_type "spice"
-			puts_info "Running Magic Spice Export from LEF..."
-			# LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
-		}
-		set log_tag_saver $::env(magic_log_file_tag)
-		set ::env(magic_log_file_tag) [index_file $::env(magic_log_file_tag)]
-		set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).$extract_type
-		set magic_export $::env(TMP_DIR)/magic_$extract_type.tcl
-		set commands \
+	TIMER::timer_start
+	increment_index
+	if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
+		set extract_type "gds.spice"
+		puts_info "Running Magic Spice Export from GDS..."
+		# GDS extracted file design.gds.spice, log file magic_gds.spice.log
+	} else {
+		set extract_type "spice"
+		puts_info "Running Magic Spice Export from LEF..."
+		# LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
+	}
+
+	set ::env(magic_extract_prefix) [index_file $::env(finishing_logs)/ext2]
+
+	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).$extract_type
+	set magic_export $::env(finishing_tmpfiles)/$extract_type.tcl
+	set commands \
 "
 if { \[info exist ::env(MAGIC_EXT_USE_GDS)\] && \$::env(MAGIC_EXT_USE_GDS) } {
 	gds flatglob \"*_example_*\"
@@ -165,7 +170,7 @@ if { \[info exist ::env(MAGIC_EXT_USE_GDS)\] && \$::env(MAGIC_EXT_USE_GDS) } {
 	def read $::env(CURRENT_DEF)
 }
 load $::env(DESIGN_NAME) -dereference
-cd $::env(RESULTS_DIR)/magic/
+cd $::env(finishing_results)/
 extract do local
 extract no capacitance
 extract no coupling
@@ -179,44 +184,44 @@ extract
 
 ext2spice lvs
 ext2spice -o $::env(EXT_NETLIST) $::env(DESIGN_NAME).ext
-feedback save $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt
-# exec cp $::env(DESIGN_NAME).spice $::env(magic_result_file_tag).spice
+feedback save $::env(magic_extract_prefix)$extract_type.feedback.txt
+# exec cp $::env(DESIGN_NAME).spice $::env(finishing_results)/$::env(DESIGN_NAME).spice
 "
-		set magic_export_file [open $magic_export w]
-		puts $magic_export_file $commands
-		close $magic_export_file
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
-		# the following MAGTYPE has to be maglef for the purpose of LVS
-		# otherwise underlying device circuits would be considered
-		set ::env(MAGTYPE) maglef
-		try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$magic_export \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_$extract_type.log
-		set ::env(magic_log_file_tag) $log_tag_saver
-		if { $extract_type == "spice" } {
-			file copy -force $::env(magic_result_file_tag).spice $::env(magic_result_file_tag).lef.spice
-		}
-    file rename -force {*}[glob $::env(RESULTS_DIR)/magic/*.ext] $::env(TMP_DIR)/magic
-	TIMER::timer_stop
-	exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_ext_$extract_type\_runtime.txt 0]
+	set magic_export_file [open $magic_export w]
+	puts $magic_export_file $commands
+	close $magic_export_file
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
+	# the following MAGTYPE has to be maglef for the purpose of LVS
+	# otherwise underlying device circuits would be considered
+	set ::env(MAGTYPE) maglef
+	try_catch magic \
+		-noconsole \
+		-dnull \
+		-rcfile $::env(MAGIC_MAGICRC) \
+		$magic_export \
+		</dev/null \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/$extract_type.log]
 
-	quit_on_illegal_overlaps -log [index_file $::env(magic_log_file_tag)_ext2$extract_type.feedback.txt 0]
+	if { $extract_type == "spice" } {
+		file copy -force $::env(finishing_results)/$::env(DESIGN_NAME).spice $::env(finishing_results)/$::env(DESIGN_NAME).lef.spice
+	}
+    file rename -force {*}[glob $::env(finishing_results)/*.ext] $::env(finishing_tmpfiles)
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
+
+	quit_on_illegal_overlaps -log [index_file $::env(finishing_logs)/ext2$extract_type.feedback.txt]
 }
 
 proc export_magic_view {args} {
-		TIMER::timer_start
-		set options {
-				{-def required}
-				{-output required}
-		}
-		set flags {}
-		parse_key_args "export_magic_views" args arg_values $options flags_map $flags
-		set script_dir $::env(TMP_DIR)/magic_mag_save.tcl
-		set commands \
+	TIMER::timer_start
+	set options {
+			{-def required}
+			{-output required}
+	}
+	set flags {}
+	parse_key_args "export_magic_views" args arg_values $options flags_map $flags
+	set script_dir $::env(finishing_tmpfiles)/magic_mag_save.tcl
+	set commands \
 "
 lef read $::env(TECH_LEF)
 if {  \[info exist ::env(EXTRA_LEFS)\] } {
@@ -229,28 +234,28 @@ def read $arg_values(-def)
 save $arg_values(-output)
 puts \"\[INFO\]: Done exporting $arg_values(-output)\"
 "
-		set stream [open $script_dir w]
-		puts $stream $commands
-		close $stream
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
-		try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$script_dir \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(magic_log_file_tag)_save_mag.log]
-		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_save_mag_runtime.txt 0]
+	set stream [open $script_dir w]
+	puts $stream $commands
+	close $stream
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
+	try_catch magic \
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$script_dir \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/save_mag.log]
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "mag export - magic"
 }
 
 proc run_magic_antenna_check {args} {
-		TIMER::timer_start
-		puts_info "Running Magic Antenna Checks..."
-		set magic_export $::env(TMP_DIR)/magic_antenna.tcl
-		set log_tag_saver $::env(magic_log_file_tag)
-		set ::env(magic_log_file_tag) [index_file $::env(magic_log_file_tag)]
-		set commands \
+	increment_index
+	TIMER::timer_start
+	puts_info "Running Magic Antenna Checks..."
+	set feedback_file [index_file $::env(finishing_logs)/ext2spice.antenna.feedback.txt]
+	set magic_export $::env(finishing_tmpfiles)/magic_antenna.tcl
+	set commands \
 "
 lef read \$::env(TECH_LEF)
 if {  \[info exist ::env(EXTRA_LEFS)\] } {
@@ -261,7 +266,7 @@ if {  \[info exist ::env(EXTRA_LEFS)\] } {
 }
 def read \$::env(CURRENT_DEF)
 load \$::env(DESIGN_NAME) -dereference
-cd \$::env(TMP_DIR)/magic/
+cd \$::env(finishing_tmpfiles)
 select top cell
 
 # for now, do extraction anyway; can be optimized by reading the maglef ext
@@ -277,31 +282,35 @@ if { ! \[file exists \$::env(DESIGN_NAME).ext\] } {
 	}
 	# extract warn all
 	extract
-	feedback save $::env(magic_log_file_tag)_ext2spice.antenna.feedback.txt
+	feedback save $feedback_file
 }
 antennacheck debug
 antennacheck
 "
-		set magic_export_file [open $magic_export w]
-		puts $magic_export_file $commands
-		close $magic_export_file
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
-		# the following MAGTYPE has to be mag; antennacheck needs to know
-		# about the underlying devices, layers, etc.
-		set ::env(MAGTYPE) mag
-		try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$magic_export \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) $::env(magic_log_file_tag)_antenna.log
-		# process the log
-		set ::env(magic_log_file_tag) $log_tag_saver
-		try_catch awk "/Cell:/ {print \$2}" [index_file $::env(magic_log_file_tag)_antenna.log 0] \
-				> [index_file $::env(magic_report_file_tag).antenna_violators.rpt 0]
-		TIMER::timer_stop
-	    exec echo "[TIMER::get_runtime]" >> [index_file $::env(magic_log_file_tag)_antenna_runtime.txt 0]
+	set magic_export_file [open $magic_export w]
+	puts $magic_export_file $commands
+	close $magic_export_file
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)/"
+	# the following MAGTYPE has to be mag; antennacheck needs to know
+	# about the underlying devices, layers, etc.
+	set ::env(MAGTYPE) mag
+
+	set antenna_log [index_file $::env(finishing_logs)/antenna.log]
+	try_catch magic \
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$magic_export \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) $antenna_log
+
+	# process the log
+	try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_log
+
+	set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"
 
 }
 

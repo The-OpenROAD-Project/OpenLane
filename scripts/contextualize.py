@@ -117,7 +117,7 @@ for net in nets_macro:
     iterms = net.getITerms()  # asssumption: no pins (bterms) on top level
     if not keep_flag:
         for iterm in iterms:
-            odb.dbITerm_disconnect(iterm)
+            iterm.disconnect()
     if net.getName() in to_connect:
         for node_iterm in to_connect[net.getName()]:
             node_master = node_iterm.getMTerm().getMaster()
@@ -132,6 +132,6 @@ for net in nets_macro:
                 new_inst.setPlacementStatus("FIRM")
             else:
                 new_inst = block_macro.findInst(node_inst_name)
-            odb.dbITerm_connect(new_inst.findITerm(node_iterm.getMTerm().getName()), net)
+            new_inst.findITerm(node_iterm.getMTerm().getName()).connect(net)
 
 odb.write_def(block_macro, output_def_file_name)

@@ -8,4 +8,5 @@
 */*.csv
 */*.html
 */*.xlsx
+*/*.yml
 !benchmark_results/*

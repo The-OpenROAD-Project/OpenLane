@@ -25,7 +25,7 @@ import pathlib
 import getpass
 import textwrap
 import subprocess
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, realpath
 from typing import Tuple, Union, List
 
 openlane_dir = dirname(abspath(__file__))
@@ -149,7 +149,7 @@ class Installer(object):
                     {tools["openroad_app"].version_string}
         """))
 
-        install_dir = self.input_default("INSTALL_DIR", "Where do you want to install Openlane?", "/usr/local/opt/openlane")
+        install_dir = realpath("./install")
 
         sh("mkdir", "-p", install_dir, root="retry")
 
@@ -210,7 +210,7 @@ class Installer(object):
 
         install_packages = "no"
         if os_pick != "other":
-            install_packages = self.input_options("INSTALL_PACKAGES", "Do you want to install packages for development?", ["no", "yes"])
+            install_packages = self.input_options("INSTALL_PACKAGES", "Do you want to install dependencies using your package manager?", ["no", "yes"])
         if install_packages != "no":
             def cat_all(dir):
                 result = ""
@@ -241,7 +241,6 @@ class Installer(object):
                     else:
                         arch_packages.append(entry)
 
-
                 sh("pacman", "-S", "--noconfirm", "--needed", *arch_packages, root="retry")
 
                 temp_dir = tempfile.gettempdir()
@@ -252,7 +251,7 @@ class Installer(object):
                         sh("rm", "-rf", "current")
                         sh("git", "clone", package, "current")
                         with chdir("current"):
-                            sh("makepkg", "-si")
+                            sh("makepkg", "-si", "--noconfirm")
             if os_pick == "ubuntu-20.04":
                 raw = cat_all(join(openlane_dir, 'dependencies', 'ubuntu-20.04')).strip().split("\n")
 
@@ -280,7 +279,7 @@ class Installer(object):
         run_env = os.environ.copy()
         run_env["PREFIX"] = install_dir
 
-        path_elements = ["$PATH", "$OL_DIR/bin"]
+        path_elements = ["$OL_INSTALL_DIR/venv/bin", "$OL_INSTALL_DIR/bin"]
 
         if os_pick == "centos-7":
             run_env["CC"] = "/opt/rh/devtoolset-8/root/usr/bin/gcc"
@@ -321,11 +320,7 @@ class Installer(object):
             print("Copying files...")
             for folder in ["bin", "lib", "share", "build", "dependencies"]:
                 sh("mkdir", "-p", folder)
-            copy("configuration")
-            copy("scripts")
-            copy("flow.tcl")
-            copy("dependencies/")
-
+            
             print("Building Python virtual environment...")
             venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
             venv_builder.create("./venv")
@@ -333,9 +328,9 @@ class Installer(object):
             subprocess.run([
                 "bash", "-c", f"""
                     source ./venv/bin/activate
-                    python3 -m pip install --upgrade -r ./dependencies/python/precompile_time.txt
-                    python3 -m pip install --upgrade -r ./dependencies/python/compile_time.txt
-                    python3 -m pip install --upgrade -r ./dependencies/python/run_time.txt
+                    python3 -m pip install --upgrade -r ../dependencies/python/precompile_time.txt
+                    python3 -m pip install --upgrade -r ../dependencies/python/compile_time.txt
+                    python3 -m pip install --upgrade -r ../dependencies/python/run_time.txt
                 """
             ])
 
@@ -382,21 +377,15 @@ class Installer(object):
                         f.write(tool.version_string)
 
             path_elements.reverse()
-            with open("openlane", "w") as f:
+            with open("env.tcl", "w") as f:
                 f.write(textwrap.dedent(f"""\
-                #!/bin/bash
-                OL_DIR="$(dirname "$(test -L "$0" && readlink "$0" || echo "$0")")"
+                set OL_INSTALL_DIR [file dirname [file normalize [info script]]]
 
-                export PATH={":".join(path_elements)}
-
-                FLOW_TCL=${{FLOW_TCL:-$OL_DIR/flow.tcl}}
-                FLOW_TCL=$(realpath $FLOW_TCL)
-
-                source $OL_DIR/venv/bin/activate
-
-                tclsh $FLOW_TCL $@
+                set ::env(OPENLANE_LOCAL_INSTALL) 1
+                set ::env(OL_INSTALL_DIR) "$OL_INSTALL_DIR"
+                set ::env(PATH) "{":".join(path_elements)}:$::env(PATH)"
+                set ::env(VIRTUAL_ENV) "$OL_INSTALL_DIR/venv"
                 """))
-            sh("chmod", "+x", "./openlane")
 
             with open("installed_version", "w") as f:
                 f.write(ol_version)
@@ -404,7 +393,7 @@ class Installer(object):
             install()
 
         print("Done.")
-        print(f"To invoke Openlane from now on, invoke {install_dir}/openlane then pass on the same options you would flow.tcl.")
+        print(f"To invoke Openlane from now on, invoke ./flow.tcl from the OpenLane root without the Makefile.")
 
 # Commands
 def tool_list():
@@ -456,15 +445,24 @@ def issue_survey():
             Container Engine: {os_info.container_info.engine} v{os_info.container_info.version}
         """)
     else:
-        alert = "Critical Alert: No Docker or Docker-compatible container engine was found."
-        final_report += f"\n{alert}\n"
+        try:
+            subprocess.check_output(["systemd-detect-virt", "-c"]) # Check if running inside container
+            if not os.path.exists("/openlane"):
+                raise Exception()
+            alert = "Alert: You appear to be running this script inside the OpenLane container. This is not the intended usecase for this file."
+        except Exception as e:
+            print(e)
+            alert = "Critical Alert: No Docker or Docker-compatible container engine was found."
+        final_report += f"{alert}\n"
         print(alert, file=alerts)
 
+    git_ok = True
     try:
         final_report += textwrap.dedent(f"""\
             OpenLane Git Version: {get_tag()}
         """)
     except:
+        git_ok = False
         alert = "Critical Alert: OpenLane does not appear to be using a Git repository. This will impair considerable functionality."
         final_report += f"\n{alert}\n"
         print(alert, file=alerts)
@@ -484,31 +482,32 @@ def issue_survey():
         print(alert, file=alerts)
 
     try:
-        import yaml
-
-        from dependencies.verify_versions import verify_versions
-
-        with io.StringIO() as f:
-            status = 'OK'
-            try:
-                mismatches = verify_versions(no_tools=True, report_file=f)
-                if mismatches:
-                    status = 'MISMATCH'
-            except Exception as e:
-                status = 'FAILED'
-                f.write(f"Failed to compare PDKs: {e}")
-            final_report += f"---\nPDK Version Verification Status: {status}\n\n" + f.getvalue()
-        
-
+        import yaml        
     except ImportError:
         alert = "Critical Alert: Pyyaml is not installed."
         final_report += f"\n{alert}\n"
         print(alert, file=alerts)
 
-    try:
-        git_log = subprocess.check_output(["git", "log", "-n", "5"]).decode("utf8")
 
-        final_report += "---\nGit Log (Last 5 Commits)\n\n" + git_log
+    from dependencies.verify_versions import verify_versions
+
+    with io.StringIO() as f:
+        status = 'OK'
+        try:
+            mismatches = verify_versions(no_tools=True, report_file=f)
+            if mismatches:
+                status = 'MISMATCH'
+        except Exception as e:
+            status = 'FAILED'
+            f.write(f"Failed to compare PDKs.")
+            f.write("\n")
+        final_report += f"---\nPDK Version Verification Status: {status}\n" + f.getvalue()
+
+    try:
+        if git_ok:
+            git_log = subprocess.check_output(["git", "log", "-n", "3"]).decode("utf8")
+
+            final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
     except:
         alert = "Critical Alert: Could not launch git: Are you sure git is installed properly?"
         final_report += f"\n{alert}\n"

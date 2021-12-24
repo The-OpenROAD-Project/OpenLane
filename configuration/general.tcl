@@ -22,10 +22,13 @@ if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
+set ::env(RUN_LVS) 1
+
 set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 
 set ::env(RUN_MAGIC) 1
+set ::env(RUN_MAGIC_DRC) 1
 set ::env(MAGIC_PAD) 0
 set ::env(MAGIC_ZEROIZE_ORIGIN) 0
 set ::env(MAGIC_GENERATE_GDS) 1
@@ -69,9 +72,12 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
+set ::env(STA_REPORT_POWER) 1
 # psn
 if { [file exists /build/transforms/] } {
 	set ::env(PSN_TRANSFORM_PATH) /build/transforms
 } else {
 	set ::env(PSN_TRANSFORM_PATH) $::env(HOME)/.local/transforms
 }
+
+set ::env(SAVE_FINAL_VIEWS) {1}

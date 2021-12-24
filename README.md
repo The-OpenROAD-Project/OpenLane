@@ -47,7 +47,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
     cd OpenLane/
-    make openlane
+    make pull-openlane
 ```
 
 ---
@@ -86,19 +86,6 @@ This should produce a clean run for the spm. The final layout will be generated 
 
 If everything is okay, you can skip forward to [running OpenLane](#running-openlane).
 
-## Running the Regression Test
-To run the regression test, which tests the flow against all available designs under [./designs/](./designs/) vs the the benchmark results, run the following command:
-
-```bash
-    make regression_test
-```
-
-Your results will be compared with: [sky130_fd_sc_hd](https://github.com/The-OpenROAD-Project/OpenLane/blob/master/regression_results/benchmark_results/SW_HD.csv).
-
-After running you'll find a directory added under [./regression_results/](./regression_results) it will contain all the reports needed for you to know whether you've been successful or not. Check [this](./regression_results/README.md#output) for more details.
-
-**Note**: if `flow_status` is `flow_failed`, that means the design failed. Any reported statistics from any run after the failure of the design is reported as `-1` as well.
-
 ## Updating OpenLane
 
 If you already have the repo locally, then no need to re-clone it. You can directly run the following:
@@ -108,7 +95,7 @@ If you already have the repo locally, then no need to re-clone it. You can direc
     git checkout master
     git pull
     export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make openlane
+    make pull-openlane
     make pdk
     make test # This is to test that the flow and the pdk were properly installed
 ```
@@ -117,14 +104,8 @@ This should install the latest openlane docker container, and re-install the pdk
 
 ## Pulling or Building the OpenLane Docker Container
 
-**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make openlane`.**
+**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make pull-openlane`.**
 
-To setup OpenLane you can pull the Docker container by following these instructions:
-
-```bash
-    git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-    make openlane
-```
 For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
 
 
@@ -171,165 +152,26 @@ Having trouble running the flow? check [FAQs](https://github.com/The-OpenROAD-Pr
 
 The following are arguments that can be passed to `flow.tcl`
 
-<table>
-    <tr>
-        <th width="196">
-        Argument
-        </th>
-        <th >
-        Description
-        </th>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-design &lt;folder path&gt;</code> <br> (Required)
-        </td>
-        <td align="justify">
-            Specifies the design folder. A design folder should contain a config.tcl defining the design parameters. <br> If the folder is not found, ./designs directory is searched
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-from &lt;stage&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies stage to start flow execution from
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-to &lt;stage&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies stage to stop flow execution at (included)
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <code>-config_file &lt;file&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design /spm -config_file /spm/config2.tcl</code> <br> By default <code>config.tcl</code> is used.
-        </td>
-    </tr>
-        <tr>
-        <td align="center">
-            <code>-config_tag &lt;name&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2</code> <br> By default <code>config</code> is used.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-tag &lt;name&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a <code>name</code> for a specific run. If the tag is not specified, a timestamp is generated for identification of that run. <br> Can Specify the configuration file name in case of using <code>-init_design_config</code>
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-run_path &lt;path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a <code>path</code> to save the run in. By default the run is in <code>design_path/</code>, where the design path is the one passed to <code>-design</code>
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-save <br> (Optional)
-        </td>
-        <td align="justify">
-            A flag to save a runs results like .mag and .lef in the design's folder
-        </td>
-    </tr>
-        <tr>
-        </tr>
-        <td align="center">
-            <code>-save_path &lt;path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Specifies a different path to save the design's result. This options is to be used with the <code>-save</code> flag
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-src &lt;verilog_source_file&gt; </code> <br> (Optional)
-        </td>
-        <td td align="justify">
-            Sets the verilog source code file(s) in case of using `-init_design_config`. <br> The default is that the source code files are under <code>design_path/src/</code>, where the design path is the one passed to <code>-design</code>
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-init_design_config </code> <br> (Optional)
-        </td>
-        <td td align="justify">
-            Creates a tcl configuration file for a design. <code>-tag &lt;name&gt;</code> can be added to rename the config file to <code>&lt;name&gt;.tcl</code>
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-overwrite</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Flag to overwirte an existing run with the same tag
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-interactive</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Flag to run openlane flow in interactive mode
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-file &lt;file_path&gt;</code> <br> (Optional)
-        </td>
-        <td align="justify">
-            Passes a script of interactive commands in interactive mode
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-synth_explore</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-lvs</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -net DESIGN_NETLIST.
-        </td>
-    </tr>
-    <tr>
-        </tr>
-        <td align="center">
-            <code>-drc</code> <br> (Boolean)
-        </td>
-        <td align="justify">
-            If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN_DIR -gds DESIGN_GDS -report OUTPUT_REPORT_PATH -magicrc MAGICRC.
-        </td>
-    </tr>
-</table>
-
+| Argument | Description |
+| - | - |
+| `-design <folder path>`  <br>(Required) | Specifies the design folder. A design folder should contain a config.tcl defining the design parameters.  <br>If the folder is not found, ./designs directory is searched |
+| `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
+| `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
+| `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `/spm/config2.tcl`  <br>Use run `./flow.tcl -design /spm -config_file /spm/config2.tcl`  <br>By default `config.tcl` is used. |
+| `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `KEY1=VALUE1,KEY2=VALUE2` |
+| `-config_tag <name>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design spm -config_tag config2`  <br>By default `config` is used. |
+| `-tag <name>`  <br>(Optional) | Specifies a `name` for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  <br>Can Specify the configuration file name in case of using `-init_design_config` |
+| `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
+| `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
+| `-init_design_config`  <br>(Optional) | Creates a tcl configuration file for a design. `-tag <name>` can be added to rename the config file to `<name>.tcl` |
+| `-overwrite`  <br>(Optional) | Flag to overwirte an existing run with the same tag |
+| `-interactive`  <br>(Optional) | Flag to run openlane flow in interactive mode |
+| `-file <file_path>`  <br>(Optional) | Passes a script of interactive commands in interactive mode |
+| `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
+| `-lvs`  <br>(Boolean) | If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -net DESIGN_NETLIST. |
+| `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
+| `-save`  <br>(Optional) | **Removed: Always saved**: A flag to save a runs results like .mag and .lef in the design's folder. |
+| `-save_path <path>`  <br>(Optional) | **Removed: Always <run_path>/results/final**: Specifies a different path to save the design's result. This options is to be used with the `-save` flag |
 
 ## Adding a design
 
@@ -405,46 +247,26 @@ designs/<design_name>
 ├── runs
 │   ├── <tag>
 │   │   ├── config.tcl
-│   │   ├── logs
+│   │   ├── {logs, reports, tmp}
 │   │   │   ├── cts
-│   │   │   ├── cvc
+│   │   │   ├── finishing
 │   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
-│   │   │   ├── placement
-│   │   │   ├── routing
-│   │   │   └── synthesis
-│   │   ├── reports
-│   │   │   ├── cts
-│   │   │   ├── cvc
-│   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
 │   │   │   └── synthesis
 │   │   ├── results
+│   │   │   ├── final
 │   │   │   ├── cts
-│   │   │   ├── cvc
+│   │   │   ├── finishing
 │   │   │   ├── floorplan
-│   │   │   ├── klayout
-│   │   │   ├── magic
 │   │   │   ├── placement
 │   │   │   ├── routing
 │   │   │   └── synthesis
-│   │   └── tmp
-│   │       ├── cts
-│   │       ├── cvc
-│   │       ├── floorplan
-│   │       ├── klayout
-│   │       ├── magic
-│   │       ├── placement
-│   │       ├── routing
-│   │       └── synthesis
 ```
 
 To delete all generated runs under all designs:
 `make clean_runs`
+
 ## Flow configuration
 
 1. PDK / technology specific
@@ -490,7 +312,7 @@ OpenLane provides `run_designs.py`, a script that can do multiple runs in a para
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
 ```
-python3 run_designs.py --designs spm xtea md5 aes256 --tag test --threads 3
+python3 run_designs.py --tag test --threads 3 spm xtea md5 aes256 
 ```
 
 For more information on how to run this script, refer to this [file][21]
@@ -526,7 +348,7 @@ To check the original author list of OpenLane, check [this][33].
 # Additional Material
 
 ## Papers
-- Ahmed Ghazy and Mohamed Shalan, "OpenLane: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
+- Ahmed Ghazy and Mohamed Shalan, "OpenLANE: The Open-Source Digital ASIC Implementation Flow", Article No.21, Workshop on Open-Source EDA Technology (WOSET), 2020. [Paper](https://github.com/woset-workshop/woset-workshop.github.io/blob/master/PDFs/2020/a21.pdf)
 - M. Shalan and T. Edwards, "Building OpenLANE: A 130nm OpenROAD-based Tapeout- Proven Flow : Invited Paper," 2020 IEEE/ACM International Conference On Computer Aided Design (ICCAD), San Diego, CA, USA, 2020, pp. 1-6. [Paper](https://ieeexplore.ieee.org/document/9256623/)
 - R. Timothy Edwards, M. Shalan and M. Kassem, "Real Silicon using Open Source EDA," in IEEE Design & Test, doi: 10.1109/MDAT.2021.3050000. [Paper](https://ieeexplore.ieee.org/document/9336682)
 
@@ -545,7 +367,7 @@ To check the original author list of OpenLane, check [this][33].
 - [FOSSi Dial-Up - Skywater PDK: Fully open source manufacturable PDK for a 130nm process, Tim Ansell](https://www.youtube.com/watch?v=EczW2IWdnOM&)
 - [Skywater 130nm PDK - Initial Discovery, Sylvain Munaut](https://www.youtube.com/watch?v=gRYBdTXbxiU)
 
-[1]: ./docker_build/README.md
+[1]: ./docker/README.md
 [2]: ./configuration/README.md
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ifp
@@ -566,16 +388,16 @@ To check the original author list of OpenLane, check [this][33].
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation
 [21]: ./regression_results/README.md
 [22]: https://github.com/RTimothyEdwards/netgen
-[24]: ./docs/source/PDK_STRUCTURE.md
+[24]: ./docs/source/pdk_structure.md
 [25]: ./docs/source/advanced_readme.md
 [26]: ./docs/source/chip_integration.md
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
 [29]: ./docs/source/hardening_macros.md
-[30]: ./docs/source/Manual_PDK_installation.md
+[30]: ./docs/source/manual_pdk_installation.md
 [31]: https://github.com/d-m-bailey/cvc
 [32]: ./CONTRIBUTING.md
 [33]: ./AUTHORS.md
-[34]: ./docs/source/OpenLANE_commands.md
+[34]: ./docs/source/openlane_commands.md
 [35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr

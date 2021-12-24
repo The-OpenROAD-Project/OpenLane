@@ -57,8 +57,8 @@ LEF2OA_MAP = {"N": "R0",
               "E": "R270",
               "FN": "MY",
               "FS": "MX",
-              "FW": "MX90",
-              "FE": "MY90"}
+              "FW": "MXR90",
+              "FE": "MYR90"}
 def lef_rot_to_oa_rot(rot):
     if rot in LEF2OA_MAP:
         return LEF2OA_MAP[rot]

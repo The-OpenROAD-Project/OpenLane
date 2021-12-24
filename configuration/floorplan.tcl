@@ -13,9 +13,6 @@
 # limitations under the License.
 
 # Floorplan defaults
-set ::env(FP_IO_VMETAL) 3
-set ::env(FP_IO_HMETAL) 4
-
 set ::env(FP_SIZING) relative
 set ::env(FP_CORE_UTIL) 50
 set ::env(FP_CORE_MARGIN) 0
@@ -41,7 +38,7 @@ set ::env(FP_IO_VEXTEND) -1
 set ::env(FP_IO_HEXTEND) -1
 set ::env(FP_IO_VTHICKNESS_MULT) 2
 set ::env(FP_IO_HTHICKNESS_MULT) 2
-set ::env(FP_IO_MIN_DISTANCE) 5
+set ::env(FP_IO_MIN_DISTANCE) 3
 
 set ::env(BOTTOM_MARGIN_MULT) 4
 set ::env(TOP_MARGIN_MULT) 4

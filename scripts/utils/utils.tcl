@@ -133,17 +133,15 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
 	return -code ok
 }
 
-
-
 # puts a variable in a log file
 proc set_log {var val filepath log_flag} {
-        set cmd "set ${var} \"${val}\""
-        uplevel #0 ${cmd}
-        set global_cfg_file [open $filepath a+]
-		if { $log_flag } {
-			puts $global_cfg_file $cmd
-		}
-        close $global_cfg_file
+	set cmd "set ${var} \{${val}\}"
+	uplevel #0 ${cmd}
+	set global_cfg_file [open $filepath a+]
+	if { $log_flag } {
+		puts $global_cfg_file $cmd
+	}
+	close $global_cfg_file
 }
 
 # a minimal try catch block
@@ -162,42 +160,97 @@ proc try_catch {args} {
         puts_err "$print_error_msg"
         puts_err "Exit code: $exit_code"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-        puts_err "Please check ${tool} log file"
 
-
-        if { ! [catch { set error_log_file [open $::env(RUN_DIR)/error.log a+] } ]} {
-            puts_err "Dumping to $::env(RUN_DIR)/error.log"
-            puts $error_log_file "$print_error_msg"
-            puts $error_log_file "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-            close $error_log_file
-        }
 		flow_fail
 		return -code error
     }
 }
 
-proc make_array {pesudo_dict prefix} {
-	foreach element $pesudo_dict {
-		set key [lindex $element 0]
-		set value [lindex $element 1]
-		set returned_array($key) ${prefix}${value}
-	}
-	return [array get returned_array]
+proc relpath {args} {
+	set from [lindex $args 0]
+	set to [lindex $args 1]
+	return [exec python3 -c "import os; print(os.path.relpath('$to', '$from'), end='')"]
+}
+
+proc run_openroad_script {args} {
+    # Note that this proc is not responsible for indexing its own logs.
+    set options {
+        {-indexed_log optional}
+    }
+
+	set flags {-netlist_in}
+
+    parse_key_args "run_openroad_script" args arg_values $options flag_map $flags
+
+    set_if_unset arg_values(-indexed_log) /dev/null
+
+	set script [lindex $args 0]
+
+	set args "$::env(OPENROAD_BIN) -exit $script"
+
+    if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
+        set timestamp [clock format [clock seconds]]
+        puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
+        close $cmd_log_file
+    }
+
+    set exit_code [catch {exec $::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
+
+    if { $exit_code } {
+        set tool [string range $args 0 [string first " " $args]]
+        set print_error_msg "during executing openroad script $script"
+
+        puts_err "$print_error_msg"
+        puts_err "Exit code: $exit_code"
+        puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+
+		puts_info "Creating reproducible..."
+
+		save_state
+		
+		set reproducible_dir $::env(RUN_DIR)/openroad_issue_reproducible
+		set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
+
+		set or_issue_arg_list [list]
+
+		lappend or_issue_arg_list --output-dir $reproducible_dir
+		lappend or_issue_arg_list --or-script $script
+		lappend or_issue_arg_list --run-path $::env(RUN_DIR)
+
+		if { [info exists flag_map(-netlist_in)] } {
+			lappend or_issue_arg_list --netlist $::env(CURRENT_NETLIST)
+		} else {
+			lappend or_issue_arg_list $::env(CURRENT_DEF)
+		}
+
+		if {[catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
+			puts_info "Reproducible packaged: Please tarball and upload $reproducible_dir_relative if you're going to submit an issue."	
+		} else { 
+			puts_err "Failed to package reproducible."
+		} 
+
+		flow_fail
+		return -code error
+    }
+}
+
+proc increment_index {args} {
+	puts_info "Incremented step index to $::env(CURRENT_INDEX)."
+	set ::env(CURRENT_INDEX) [expr 1 + $::env(CURRENT_INDEX)]
 }
 
 proc index_file {args} {
 	set file_full_name [lindex $args 0]
-	set index_increment 1; # Default increment is 1
-	if { [llength $args] == 2} {
-		set index_increment [lindex $args 1]
+
+	if { $file_full_name == "/dev/null" } {
+		# Can't index that :)
+		return $file_full_name
 	}
-	set ::env(CURRENT_INDEX) [expr $index_increment + $::env(CURRENT_INDEX)]
-	if { $index_increment } {
-		puts_info "current step index: $::env(CURRENT_INDEX)"
-	}
+
 	set file_path [file dirname $file_full_name]
 	set fbasename [file tail $file_full_name]
 	set fbasename "$::env(CURRENT_INDEX)-$fbasename"
+
 	set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -210,7 +263,7 @@ proc flow_fail {args} {
 		calc_total_runtime -status "flow failed"
 		generate_final_summary_report
         save_state
-		puts_err "Flow Failed."
+		puts_err "Flow failed."
 	}
 }
 
@@ -218,6 +271,7 @@ proc calc_total_runtime {args} {
 	## Calculate Total Runtime
 	if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
 		puts_info "Calculating Runtime From the Start..."
+		set ::env(timer_end) [clock seconds]
 		set options {
 			{-report optional}
 			{-status optional}
@@ -225,22 +279,8 @@ proc calc_total_runtime {args} {
 		parse_key_args "calc_total_runtime" args arg_values $options
 		set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
 		set_if_unset arg_values(-status) "flow completed"
-		set timer_end [clock seconds]
-		set timer_start $::env(timer_start)
-		set datetime $::env(datetime)
 
-		set runtime_s [expr {($timer_end - $timer_start)}]
-		set runtime_h [expr {$runtime_s/3600}]
-
-		set runtime_s [expr {$runtime_s-$runtime_h*3600}]
-		set runtime_m [expr {$runtime_s/60}]
-
-		set runtime_s [expr {$runtime_s-$runtime_m*60}]
-		set total_time  "$arg_values(-status) for $::env(DESIGN_NAME)/$datetime in ${runtime_h}h${runtime_m}m${runtime_s}s"
-		puts_info $total_time
-		set runtime_log [open $arg_values(-report) w]
-		puts $runtime_log $total_time
-		close $runtime_log
+		exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
 	}
 }
 
@@ -266,32 +306,32 @@ proc color_text {color txt} {
 proc puts_err {txt} {
   set message "\[ERROR\]: $txt"
   puts "[color_text 1 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_success {txt} {
   set message "\[SUCCESS\]: $txt"
   puts "[color_text 2 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_warn {txt} {
   set message "\[WARNING\]: $txt"
   puts "[color_text 3 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
 proc puts_info {txt} {
   set message "\[INFO\]: $txt"
   puts "[color_text 6 "$message"]"
-  if { [info exists ::env(LOG_DIR)] } {
-    exec echo $message >> $::env(LOG_DIR)/flow_summary.log
+  if { [info exists ::env(LOGS_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
   }
 }
 
@@ -305,7 +345,7 @@ proc generate_final_summary_report {args} {
 		}
 		set flags {}
 		parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
-		
+
 		set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
 		set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
 		set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
@@ -315,7 +355,6 @@ proc generate_final_summary_report {args} {
 			--tag $::env(RUN_TAG) \
 			--output_file $arg_values(-output) \
 			--man_report $arg_values(-man_report) \
-			--runtime_summary $arg_values(-runtime_summary) \
 			--run_path $::env(RUN_DIR)
 
         puts_info [read [open $arg_values(-man_report) r]]
@@ -348,5 +387,23 @@ namespace eval TIMER {
 		return $runtime
 	}
 }
+
+proc assert_files_exist {files} {
+	foreach f $files {
+		if { ! [file exists $f] } {
+			puts_err "$f doesn't exist."
+			flow_fail
+			return -code error
+		} else {
+			puts_info "$f exists."
+		}
+	}
+}
+
+proc count_matches {pattern search_file} {
+    set count [exec bash -c "grep $pattern $search_file | wc -l"]
+    return $count
+}
+
 
 package provide openlane_utils 0.9

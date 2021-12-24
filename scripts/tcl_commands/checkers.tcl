@@ -15,7 +15,7 @@
 
 
 proc check_assign_statements {args} {
-    set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh assign $::env(yosys_result_file_tag).v ]
+    set checker [count_matches assign $::env(synthesis_results).v]
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
@@ -27,8 +27,7 @@ proc check_assign_statements {args} {
 }
 
 proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(yosys_report_file_tag)_2.stat.rpt 0]}]
-
+    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt]}]
 
     if { ! $checker } {
         puts_err "Synthesis failed"
@@ -40,22 +39,22 @@ proc check_synthesis_failure {args} {
 }
 
 proc check_timing_violations {args} {
-    set hold_report $::env(FINAL_TIMING_REPORT_TAG).min.rpt 
-    set setup_report $::env(FINAL_TIMING_REPORT_TAG).max.rpt
-    set slew_report $::env(FINAL_TIMING_REPORT_TAG).slew.rpt
+    if { [info exists ::env(LAST_TIMING_REPORT_TAG)] } {
+        set hold_report $::env(LAST_TIMING_REPORT_TAG).min.rpt
+        set setup_report $::env(LAST_TIMING_REPORT_TAG).max.rpt
+        set slew_report $::env(LAST_TIMING_REPORT_TAG).slew.rpt
 
-    foreach file [ list $hold_report $setup_report $slew_report] {
-        if {![file exist $file]} {
-            puts_err "File $file doesn't exist."
-            flow_fail
-            return -code error
+        foreach file [ list $hold_report $setup_report $slew_report] {
+            if {![file exist $file]} {
+                puts_err "File $file doesn't exist."
+                flow_fail
+                return -code error
+            }
         }
-    }
 
-    check_slew_violations -report_file $slew_report -corner "typical" 
-    if { $::env(QUIT_ON_TIMING_VIOLATIONS) } {
-        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $::env(QUIT_ON_HOLD_VIOLATIONS)
-        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $::env(QUIT_ON_SETUP_VIOLATIONS)
+        check_slew_violations -report_file $slew_report -corner "typical"
+        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
+        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
     }
 }
 
@@ -138,7 +137,7 @@ proc check_slew_violations {args} {
 }
 
 proc check_floorplan_missing_lef {args} {
-    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(verilog2def_log_file_tag).openroad.log 0]} missing_lefs]
+    set checker [catch {exec grep -E -o "module \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/initial_fp.log]} missing_lefs]
 
     if { ! $checker } {
         puts_err "Floorplanning failed"
@@ -153,7 +152,7 @@ proc check_floorplan_missing_lef {args} {
 }
 
 proc check_floorplan_missing_pins {args} {
-    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(verilog2def_log_file_tag).openroad.log 0]} mismatches]
+    set checker [catch {exec grep -E -o "instance \[^\[:space:]]+ port \[^\[:space:]]+ not found" [index_file $::env(floorplan_logs)/openroad.log]} mismatches]
 
     if { ! $checker } {
         set lines [split $mismatches "\n"]
@@ -167,7 +166,7 @@ proc check_floorplan_missing_pins {args} {
 }
 
 proc check_cts_clock_nets {args} {
-    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_log_file_tag).log 0]} error]
+    set checker [catch {exec grep -E -o "Error: No clock nets have been found." [index_file $::env(cts_logs)/cts.log]} error]
 
     if { ! $checker } {
         puts_err "Clock Tree Synthesis failed"
@@ -181,7 +180,7 @@ proc check_cts_clock_nets {args} {
 }
 
 proc check_replace_divergence {args} {
-    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(replaceio_log_file_tag).log 0]} error]
+    set checker [catch {exec grep -E -o "RePlAce diverged. Please tune the parameters again" [index_file $::env(placement_logs)/global.log]} error]
 
     if { ! $checker } {
         puts_err "Global placement failed"
@@ -194,7 +193,7 @@ proc check_replace_divergence {args} {
 }
 
 proc check_macro_placer_num_solns {args} {
-    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(LOG_DIR)/placement/basic_mp.log 0]} error]
+    set checker [catch {exec grep -E -o "NumFinalSols = 0" [index_file $::env(placement_logs)/basic_mp.log]} error]
 
     if { ! $checker } {
         puts_err "Macro placement failed"
@@ -208,7 +207,7 @@ proc check_macro_placer_num_solns {args} {
 
 proc quit_on_tr_drc {args} {
     if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(tritonRoute_report_file_tag).drc ]
+        set checker [count_matches violation $::env(routing_reports)/detailed.drc]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."
@@ -223,7 +222,12 @@ proc quit_on_tr_drc {args} {
 
 proc quit_on_magic_drc {args} {
     if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
-        set checker [ exec sh $::env(SCRIPTS_DIR)/grepCount.sh violation $::env(magic_report_file_tag).tr.drc ]
+        set options {
+            {-log required}
+        }
+        parse_key_args "quit_on_magic_drc" args arg_values $options
+
+        set checker [count_matches violation $arg_values(-log)]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after Magic DRC."
@@ -238,9 +242,9 @@ proc quit_on_magic_drc {args} {
 proc quit_on_lvs_error {args} {
     if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
         set options {
-				{-log required}
-			}
-		parse_key_args "quit_on_lvs_error" args arg_values $options
+            {-log required}
+        }
+        parse_key_args "quit_on_lvs_error" args arg_values $options
         set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
@@ -267,13 +271,13 @@ proc quit_on_illegal_overlaps {args} {
             flow_fail
             return -code error
         } else {
-            puts_info "No Illegal overlaps detected during extraction."
+            puts_info "No illegal overlaps detected during extraction."
         }
     }
 }
 
 proc quit_on_unconnected_pdn_nodes {args} {
-    set log_file [index_file $::env(pdn_log_file_tag).log 0]
+    set log_file [index_file $::env(floorplan_logs)/pdn.log]
     set checker [catch {exec grep -E "Unconnected PDN node" $log_file} error]
 
     if { ! $checker } {
