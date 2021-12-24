@@ -11,6 +11,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+proc set_core_dims {args} {
+	puts_info "Setting Core Dimensions..."
+	set options {}
+	parse_key_args "set_core_dims" args values $options
+	set def_units $::env(DEF_UNITS_PER_MICRON)
+
+	set out_tmp $::env(TMP_DIR)/dimensions.txt
+
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py\
+		extract_core_dims\
+		--output-data $out_tmp\
+		--input-lef $::env(MERGED_LEF)\
+		$::env(CURRENT_DEF)
+
+	set dims [join [exec cat $out_tmp] " "]
+	
+	set ::env(CORE_WIDTH) [lindex $dims 0]
+	set ::env(CORE_HEIGHT) [lindex $dims 1]
+}
 
 proc init_floorplan_or {args} {
 	handle_deprecated_command init_floorplan
@@ -69,6 +88,8 @@ proc init_floorplan {args} {
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
 	set_def $::env(SAVE_DEF)
 	set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+
+	set_core_dims
 }
 
 
@@ -233,7 +254,9 @@ proc chip_floorplan {args} {
 proc apply_def_template {args} {
 	if { [info exists ::env(FP_DEF_TEMPLATE)] } {
 		puts_info "Applying DEF template..."
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/apply_def_template.py -t $::env(FP_DEF_TEMPLATE) -u $::env(CURRENT_DEF) -s $::env(SCRIPTS_DIR)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/apply_def_template.py\
+			--def-template $::env(FP_DEF_TEMPLATE)\
+			$::env(CURRENT_DEF)
 	}
 
 
