@@ -137,11 +137,8 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
         set lvs_file_path [index_file $::env(finishing_tmpfiles)/setup_file.$extract_type.lvs]
         set lvs_file [open $lvs_file_path w]
         if { "$extract_type" == "gds" } {
-            if { [info exist ::env(STD_CELL_LIBRARY)] } {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
-            } else {
-                set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
-            }
+            set std_cell_source $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/spice/$::env(STD_CELL_LIBRARY).spice
+
             puts $lvs_file "puts \"Reading spice netlist file $std_cell_source\""
             puts $lvs_file "readnet spice $std_cell_source 1"
             if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
@@ -151,7 +148,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"} {schematic "$::env(CURRENT_NETLIST)
                     puts $lvs_file "readnet spice $lib_file 1"
                 }
             } 
-            if { [info ::exist(LVS_EXTRA_SPICE)]} {
+            if { [info ::exist(LVS_EXTRA_SPICE)] } {
                 set libs_in $::env(LVS_EXTRA_SPICE)
                 foreach lib_file $libs_in {
                     puts $lvs_file "puts \"Reading spice netlist file $lib_file\""
