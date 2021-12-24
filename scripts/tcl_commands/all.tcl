@@ -194,7 +194,11 @@ proc trim_lib {args} {
 	set fid [open $arg_values(-output).exclude.list w]
 	close $fid
     }
-    try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $arg_values(-output).exclude.list > $arg_values(-output)
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
+        --cell-file $arg_values(-output).exclude.list\
+        --output $arg_values(-output)\
+        $arg_values(-input)
 }
 
 proc source_config {config_file} {

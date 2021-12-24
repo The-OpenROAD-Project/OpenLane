@@ -51,18 +51,18 @@ proc simple_cts {args} {
 	global script_path
 	set tmp $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).v
 	file copy -force $values(-verilog) $tmp
-	set script $script_path/../cts/cts_simple.pl
+	set script $script_path/../simple_cts.py
 	#set values(-clk_net) [string map {\\ \\\\} $values(-clk_net)]
-	try_catch $script \
-		$tmp \
-		$values(-fanout) \
-		$values(-clk_net) \
-		$values(-root_clk_buf) \
-		$values(-clk_buf) \
-		$values(-clk_buf_input) \
-		$values(-clk_buf_output) \
-		$values(-cell_clk_port) \
-		|& tee $values(-output)
+	try_catch $::env(OPENROAD_BIN) -python $script \
+		--fanout $values(-fanout) \
+		--clk-net $values(-clk_net) \
+		--root-clkbuf $values(-root_clk_buf) \
+		--clkbuf $values(-clk_buf) \
+		--clkbuf-input-pin $values(-clk_buf_input) \
+		--clkbuf-output-pin $values(-clk_buf_output) \
+		--clk-port $values(-cell_clk_port) \
+		--output $values(-output) \
+		$tmp
 }
 
 
