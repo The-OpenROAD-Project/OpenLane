@@ -46,7 +46,7 @@ jobs:
       - name: Push Image
         if: ${{ env.NO_UPDATE != '1' }}
         run: |
-          docker push ${{ secrets.TOOL_DOCKER_IMAGE }}:$(python3 ../dependencies/tool.py --docker-tag-for-os=centos-7)
+          docker push ${{ secrets.TOOL_DOCKER_IMAGE }}:$(python3 ./dependencies/tool.py --docker-tag-for-os=centos-7)
 
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}
