@@ -648,7 +648,6 @@ proc save_views {args} {
         {-spef_path optional}
         {-sdc_path optional}
         {-save_path optional}
-        {-tag optional}
     }
 
     set flags {}
