@@ -110,7 +110,7 @@ proc save_final_views {args} {
 		{-save_path optional}
 	}
 	set flags {}
-	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
+	parse_key_args "save_final_views" args arg_values $options flags_map $flags
 
 	set arg_list [list]
 
@@ -137,8 +137,8 @@ proc save_final_views {args} {
 	}
 
 	# Add the path if it exists...
-	if { [info exists arg_values(save_path) ] } {
-		lappend arg_list -save_path $arg_values(save_path)
+	if { [info exists arg_values(-save_path) ] } {
+		lappend arg_list -save_path $arg_values(-save_path)
 	}
 
 	# Aaand fire!

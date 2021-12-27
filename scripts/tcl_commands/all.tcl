@@ -658,7 +658,7 @@ proc save_views {args} {
     } else {
         set path $::env(RESULTS_DIR)/final
     }
-    puts_info "Saving Magic Views in $path"
+    puts_info "Saving final set of views in '$path'..."
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
