@@ -31,6 +31,10 @@ files = [os.path.join(directory, x) for x in args]
 designs = []
 
 for file in files:
-    designs += re.split(r"\s+", open(file).read().strip())
+    designs_temp = re.split(r"\s+", open(file).read().strip())
+    for design in designs_temp:
+        if design.startswith("#") or design == "":
+            continue
+        designs.append(design)
 
 print(json.dumps({ "design": designs }))

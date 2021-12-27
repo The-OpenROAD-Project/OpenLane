@@ -15,13 +15,8 @@ openlane
 ```
 
 ## Building the OpenLane Image
-Tool binaries are currently stored under `tar/`. This was not a good idea, but it's what has happened.
-
-If you want to just build the OpenLane image with the binaries checked into the Repo history, you can invoke:
-
 ```bash
-make merge
-# or alternatively: `make openlane`
+make # or make openlane # or make merge
 ```
 
 ## Updating a Tool Binary
@@ -34,5 +29,7 @@ make build-<tool_name>
 The following are the available tools:
 
 ```bash
-cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc
+cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc git
 ```
+
+Be sure to make openlane after.

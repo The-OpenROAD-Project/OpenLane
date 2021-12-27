@@ -1,0 +1,148 @@
+import re
+import os
+import sys
+import json
+import click
+import shutil
+import pathlib
+import tempfile
+import subprocess
+import urllib.parse
+
+@click.group()
+def cli():
+    pass
+
+@click.command("pull-if-doesnt-exist")
+@click.argument("image")
+def pull_if_doesnt_exist(image):
+    images = subprocess.check_output([
+        "docker",
+        "images",
+        image
+    ]).decode("utf8").rstrip().split("\n")[1:]
+    if len(images) < 1:
+        print(f"{image} not found, pulling...")
+        subprocess.check_call([
+            "docker",
+            "pull",
+            image
+        ])
+cli.add_command(pull_if_doesnt_exist)
+
+@click.command("fetch-submodules-from-tarballs")
+@click.option("--filter", default=".", help="regular expression to match submodule paths")
+@click.argument("repository")
+@click.argument("commit")
+def fetch_submodules_from_tarballs(filter, repository, commit):
+    """
+    Must be run from inside an extracted repository tarball.
+
+    Given the repository's URL and commit, which are available, a table of the
+    git submodules with their repositories, commits and paths is constructed and
+    then promptly downloaded and extracted using only the GitHub APIs (and curl),
+    no git involved.
+
+    This makes things much faster than having to clone an repo's entire history then
+    its submodule's entire history.
+    """
+
+    repository_path_info: urllib.parse.SplitResult = urllib.parse.urlsplit(repository)
+
+    # 1. Get Commits Of Submodules
+    api_result = None
+
+    try:
+        api_result = subprocess.check_output([
+            "curl",
+            "--fail",
+            "-s",
+            "-L",
+            "-H", "Accept: application/vnd.github.v3+json",
+            f"https://api.github.com/repos{repository_path_info.path}/git/trees/{commit}?recursive=True"
+        ])
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(os.EX_DATAERR)
+
+    api_result_parsed = json.loads(api_result)
+    api_result_tree = api_result_parsed["tree"]
+    submodules = [element for element in api_result_tree if element['type'] == 'commit']
+    shas_by_path = { submodule['path']: submodule['sha'] for submodule in submodules }
+
+    # 2. Get Submodule Manifest
+    api_result = None
+
+    try:
+        api_result = subprocess.check_output([
+            "curl",
+            "--fail",
+            "-s",
+            "-L",
+            f"https://raw.githubusercontent.com/{repository_path_info.path}/{commit}/.gitmodules"
+        ])
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(os.EX_DATAERR)
+
+    gitmodules = api_result.decode("utf8")
+
+    section_line_rx = re.compile(r"\[\s*submodule\s+\"([\w\-\.\/]+)\"\]")
+    key_value_line_rx = re.compile(r"(\w+)\s*=\s*(.+)")
+
+    submodules_by_name = {}
+    current = {} # First one is discarded
+    for line in gitmodules.split("\n"):
+        section_match = section_line_rx.search(line)
+        if section_match is not None:
+            name = section_match[1]
+            submodules_by_name[name] = {}
+            current = submodules_by_name[name]
+        
+        kvl_match = key_value_line_rx.search(line)
+        if kvl_match is not None:
+            key, value = kvl_match[1], kvl_match[2]
+            current[key] = value
+
+    for name, submodule in submodules_by_name.items():
+        submodule["commit"] = shas_by_path.get(submodule["path"])
+        if submodule["url"].endswith(".git"):
+            submodule["url"] = submodule["url"][:-4]
+
+    # 3. Extract Submodules
+    temp_dir = tempfile.gettempdir()
+    filter_rx = re.compile(filter, flags=re.I)
+    for (name, values) in submodules_by_name.items():
+        path = values["path"]
+
+        if filter_rx.match(path) is None:
+            print(f"Skipping {path}...", flush=True)
+            continue
+        else:
+            print(f"Expanding {path}...", flush=True)
+
+        name_fs = re.sub(r"\/", "_", name)
+        tarball = os.path.join(temp_dir, f"{name_fs}.tar.gz")
+
+        url = values["url"]
+        commit = values["commit"]
+
+        url = os.path.join(url, "tarball", commit)
+
+        print(f"Downloading {url} to {path}...", file=sys.stderr)
+        subprocess.check_call([
+            "curl", "-sL", "-o", tarball, url        
+        ])
+
+        shutil.rmtree(path, ignore_errors=True)
+        
+        pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+        
+        subprocess.check_call([
+            "tar", "-xzf", tarball, "--strip-components=1", "-C", path
+        ])
+cli.add_command(fetch_submodules_from_tarballs)
+
+
+if __name__ == '__main__':
+    cli()

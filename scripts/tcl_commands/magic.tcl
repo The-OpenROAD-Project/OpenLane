@@ -116,7 +116,7 @@ proc run_magic_drc {args} {
             -i $::env(drc_prefix).rpt \
             -o $::env(drc_prefix).tr
 
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
             -i $::env(drc_prefix).tr \
             -o $::env(drc_prefix).klayout.xml \
             --design-name $::env(DESIGN_NAME)

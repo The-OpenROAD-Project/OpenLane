@@ -12,21 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM centos:centos7
+ARG OS_IMAGE="centos:centos7"
+FROM ${OS_IMAGE}
 
 # Install Yum Dependencies
 COPY ./yum_dependencies.txt /yum_dependencies.txt
-RUN yum install -y https://repo.ius.io/ius-release-el$(rpm -E '%{rhel}').rpm && \
-	yum install -y $(cat /yum_dependencies.txt) && \
+COPY ./yum_repos.txt /yum_repos.txt
+RUN yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_repos.txt) && \
+	yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_dependencies.txt) && \
 	yum clean all && \
 	rm -rf /var/cache/yum
 
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
-## Update and Configure Git
-RUN yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm && \
-	yum install -y git
-
+## Set Git
 RUN git config --global user.name "OpenLane User" 
 RUN git config --global user.email "openlane.user@localhost"
 
@@ -66,10 +65,11 @@ ADD ./openroad_tools.tar.gz /
 ADD ./openlane.tar.gz $OPENLANE_ROOT
 
 ## Tclsh RC
-COPY ./.tclshrc /
-COPY ./.tclshrc /root
+COPY ./.tclshrc /.tclshrc
+COPY ./.tclshrc /root/.tclshrc
 
 ## Bash RC
+COPY ./.bashrc /.bashrc
 COPY ./.bashrc /root/.bashrc
 
 WORKDIR $OPENLANE_ROOT

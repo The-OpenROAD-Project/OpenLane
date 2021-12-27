@@ -17,6 +17,37 @@ proc global_routing_or {args} {
     handle_deprecated_command global_routing
 }
 
+proc translate_min_max_layer_variables {args} {
+    if { [info exists ::env(GLB_RT_MINLAYER) ] } {
+		set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_MAXLAYER) ] } {
+		set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_CLOCK_MINLAYER) ] } {
+		set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
+    }
+
+    if { [info exists ::env(GLB_RT_CLOCK_MAXLAYER) ] } {
+		set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
+		puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
+    }
+        
+}
+
 proc global_routing_cugr {args} {
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         puts_err "DIODE_INSERTION_STRATEGY 3 is only valid when OpenROAD is used for global routing."
@@ -34,7 +65,9 @@ proc global_routing_cugr {args} {
 
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+
+    translate_min_max_layer_variables
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         set_def $::env(SAVE_DEF)
         set_guide $::env(SAVE_GUIDE)
@@ -54,7 +87,7 @@ proc global_routing_fastroute {args} {
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
-            try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/groute.tcl |& tee $::env(TERMINAL_OUTPUT) $saveLOG
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
             set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
@@ -108,9 +141,10 @@ proc detailed_routing_tritonroute {args} {
     set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
     set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/droute.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
+    translate_min_max_layer_variables
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr2klayout.py \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
         -i $::env(routing_reports)/detailed.drc \
         -o $::env(routing_reports)/detailed.klayout.xml \
         --design-name $::env(DESIGN_NAME)
@@ -168,7 +202,7 @@ proc ins_fill_cells {args} {
         TIMER::timer_start
         puts_info "Running Fill Insertion..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/fill.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/fill.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log [index_file $::env(routing_logs)/fill.log]
         set_def $::env(SAVE_DEF)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
@@ -223,8 +257,8 @@ proc gen_pdn {args} {
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
     set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(floorplan_logs)/pdn.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
+        |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
 
 
     TIMER::timer_stop
@@ -242,7 +276,7 @@ proc ins_diode_cells_1 {args} {
     puts_info "Running Diode Insertion..."
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/diodes.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log [index_file $::env(routing_logs)/diodes.log]
 
     set_def $::env(SAVE_DEF)
 
@@ -312,32 +346,6 @@ proc add_route_obs {args} {
     if {[info exists ::env(GLB_RT_OBS)]} {
         apply_route_obs
     }
-    if {[info exists ::env(GLB_RT_MAXLAYER)] && [info exists ::env(MAX_METAL_LAYER)] && [info exists ::env(TECH_METAL_LAYERS)] && $::env(GLB_RT_MAXLAYER) < $::env(MAX_METAL_LAYER)} {
-        set cnt 0
-        set obs ""
-        foreach layer $::env(TECH_METAL_LAYERS) {
-            set cnt [expr $cnt + 1]
-            if { $cnt == $::env(GLB_RT_MAXLAYER) + 1 } {
-                set obs "$layer $::env(DIE_AREA)"
-            } else {
-                if { $cnt > $::env(GLB_RT_MAXLAYER) } {
-                    set new_obs ",$layer $::env(DIE_AREA)"
-                    append obs $new_obs
-                }
-            }
-        }
-        set obs  [join $obs " "]
-        puts_info "Obstructions will be added over the whole die area: $obs"
-        if {[info exists ::env(GLB_RT_OBS)]} {
-            set store_obs $::env(GLB_RT_OBS)
-        }
-
-        set ::env(GLB_RT_OBS) $obs
-        apply_route_obs
-        if {[info exists store_obs]} {
-            set ::env(GLB_RT_OBS) $store_obs
-        }
-    }
 }
 
 proc run_spef_extraction {args} {
@@ -363,7 +371,7 @@ proc run_spef_extraction {args} {
             set ::env(MPLCONFIGDIR) /tmp
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $log
         } else {
-            try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/rcx.tcl |& tee $::env(TERMINAL_OUTPUT) $log
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
         }
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
@@ -425,7 +433,7 @@ proc run_routing {args} {
     }
 
     set global_routed_netlist [index_file $::env(routing_tmpfiles)/global.v]
-    write_verilog $global_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_global.log]
+    write_verilog $global_routed_netlist -log $::env(routing_logs)/write_verilog_global.log
     set_netlist $global_routed_netlist
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -435,13 +443,14 @@ proc run_routing {args} {
     detailed_routing
 
     set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
-    write_verilog $detailed_routed_netlist -log [index_file $::env(routing_logs)/write_verilog_detailed.log]
+    
+    write_verilog $detailed_routed_netlist -log $::env(routing_logs)/write_verilog_detailed.log
     if {[expr {$::env(ECO_ITER) == 0}]} {
-		# for LVS
-		set_netlist $detailed_routed_netlist
-	} else {
-        set_netlist $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-	}
+		  # for LVS
+		  set_netlist $detailed_routed_netlist
+	  } else {
+      set_netlist $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+	  }
     
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
@@ -495,7 +504,7 @@ proc run_resizer_timing_routing {args} {
         puts_info "Running Resizer Timing Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/resizer_timing.def]
         set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/resizer_timing.sdc]
-        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/resizer.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log [index_file $::env(routing_logs)/resizer.log]
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

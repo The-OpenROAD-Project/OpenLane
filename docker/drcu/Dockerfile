@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,46 +11,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# syntax = docker/dockerfile:1.0-experimental
-FROM centos:centos7 as build
-
-# # install gcc 8
-RUN yum -y install centos-release-scl && \
-    yum -y install devtoolset-8 devtoolset-8-libatomic-devel
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
-
-RUN yum install -y git python-devel glibc-static wget bzip2
-
-# Installing cmake for build dependency
-RUN wget https://cmake.org/files/v3.14/cmake-3.14.0-Linux-x86_64.sh && \
-    chmod +x cmake-3.14.0-Linux-x86_64.sh  && \
-    ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
+FROM openlane-build-base
 
 # Installing boost for build dependency
-RUN wget https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download && \
-    tar -xf download
-RUN cd boost_1_72_0 && \
+RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
     ./bootstrap.sh && \
-    ./b2 install --with-system --with-filesystem --with-program_options link=static -j $(nproc)
+    ./b2 install --with-iostreams --with-test --with-serialization --with-system --with-filesystem --with-thread --with-program_options link=static -j $(nproc)
+
+# needed to get the xxd binaries needed to package the *.dat files
+# into C arrays to be linked directly into the executable
+RUN yum -y install vim-common
 
 ARG DRCU_REPO
 ARG DRCU_COMMIT
-RUN git clone ${DRCU_REPO} drcu_18012021
 
-WORKDIR drcu_18012021
+WORKDIR /drcu
+RUN curl -L ${DRCU_REPO}/tarball/${DRCU_COMMIT} | tar -xzC . --strip-components=1
 
-RUN git checkout ${DRCU_COMMIT}
-
-RUN python scripts/build.py -o release
+RUN python scripts/build.py -o release -t ispd19dr
 
 RUN mkdir -p /build/bin/ && \
     cp run/ispd19dr /build/bin/drcu
 
 RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/drcu.version
-RUN git rev-parse HEAD >> /build/version/drcu.version
+RUN echo ${DRCU_COMMIT} >> /build/version/drcu.version
 RUN tar -czf /build.tar.gz /build

@@ -18,7 +18,7 @@ package require openlane_utils
 
 proc save_state {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-    puts_info "Saving Runtime Environment"
+    puts_info "Saving runtime environment..."
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
@@ -194,7 +194,11 @@ proc trim_lib {args} {
 	set fid [open $arg_values(-output).exclude.list w]
 	close $fid
     }
-    try_catch $::env(SCRIPTS_DIR)/libtrim.pl $arg_values(-input) $arg_values(-output).exclude.list > $arg_values(-output)
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
+        --cell-file $arg_values(-output).exclude.list\
+        --output $arg_values(-output)\
+        $arg_values(-input)
 }
 
 proc source_config {config_file} {
@@ -603,7 +607,7 @@ proc padframe_gen {args} {
     parse_key_args "padframe_gen" args arg_values $options flags_map $flags
     set pf_src_tmp [file normalize $arg_values(-folder)]
     #
-    set pfg_exec $::env(SCRIPTS_DIR)/pfg.py
+    set pfg_exec $::env(SCRIPTS_DIR)/padframe_generator.py
     #   set pf_src $::env(DESIGN_DIR)/src
     #   set pf_src_tmp $::env(TMP_DIR)/src
     #   file copy $pf_src $pf_src_tmp
@@ -617,7 +621,7 @@ proc padframe_gen {args} {
 }
 
 proc padframe_gen_legacy {args} {
-    set pfg_exec $::env(SCRIPTS_DIR)/pfg.py
+    set pfg_exec $::env(SCRIPTS_DIR)/padframe_generator.py
     set pf_src $::env(DESIGN_DIR)/src
     set pf_src_tmp $::env(TMP_DIR)/src
     file copy $pf_src $pf_src_tmp
@@ -764,7 +768,7 @@ proc heal_antenna_violators {args} {
 			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
 		}
 		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fakeDiodeReplace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fake_diode_replace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
 	}
@@ -794,12 +798,12 @@ proc widen_site_width {args} {
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
         set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
         if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
 
         } else {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widenSiteLef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
         }
     }
 }
@@ -877,7 +881,7 @@ proc write_verilog {filename args} {
 
     set ::env(INPUT_DEF) $arg_values(-def)
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-log)]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl -indexed_log [index_file $arg_values(-log)]
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {
@@ -896,7 +900,7 @@ proc set_layer_tracks {args} {
     set flags {}
     parse_key_args "set_layer_tracks" args arg_values $options flags_map $flags
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/setLayerTracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/set_layer_tracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
 
 }
 
@@ -905,7 +909,7 @@ proc run_or_antenna_check {args} {
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
     set antenna_log [index_file $::env(finishing_logs)/antenna.log]
-	try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl |& tee $::env(TERMINAL_OUTPUT) $antenna_log
+	run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
     set ::env(ANTENNA_CHECKER_LOG) $antenna_log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"

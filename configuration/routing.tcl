@@ -18,12 +18,9 @@ if {! [info exists ::env(ROUTING_CORES)] } {
     set ::env(ROUTING_CORES) 2
 }
 set ::env(GLB_RT_ADJUSTMENT) 0.0
-set ::env(GLB_RT_LAYER_ADJUSTMENTS) 0.99,0,0,0,0,0
 
 set ::env(GLB_RT_ALLOW_CONGESTION) 0
 set ::env(GLB_RT_OVERFLOW_ITERS) 50
-set ::env(GLB_RT_MINLAYER) 1
-set ::env(GLB_RT_MAXLAYER) 6
 set ::env(GLB_RT_ANT_ITERS) 3
 set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) 1
 set ::env(GLB_OPTIMIZE_MIRRORING) 1

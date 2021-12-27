@@ -53,9 +53,9 @@ if { [info exists ::env(GLB_RT_L6_ADJUSTMENT)] } {
 if { $conversion_flag } {
     set ::env(GLB_RT_LAYER_ADJUSTMENTS) "$l1_adj,$l2_adj,$l3_adj,$l4_adj,$l5_adj,$l6_adj"
 
-    puts stderr "\[DEPRECATION WARNING] A GLB_RT_LX_ADJUSTMENT variable is still used by your design and will be removed in a future version of OpenLane. We recommend you update to GLB_RT_LAYER_ADJUSTMENTS. Check configuration/README.md for more info."
-
-    puts stderr "Recommended replacement:\nset ::env(GLB_RT_LAYER_ADJUSTMENTS) $::env(GLB_RT_LAYER_ADJUSTMENTS)"
+    puts stderr "You're using a GLB_RT_LX_ADJUSTMENT variable in your configuration, which is a deprecated variable that will be removed in the future."
+    puts stderr "We recommend you update your configuration as follows:"
+    puts stderr "\tset ::env(GLB_RT_LAYER_ADJUSTMENTS) $::env(GLB_RT_LAYER_ADJUSTMENTS)"
 }
 
 set i 0

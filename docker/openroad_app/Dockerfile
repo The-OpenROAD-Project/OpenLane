@@ -46,10 +46,14 @@ RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
 ARG OPENROAD_APP_REPO
 ARG OPENROAD_APP_COMMIT
 
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+ENV LC_CTYPE en_US.UTF-8
+
 WORKDIR /openroad
 RUN curl -L ${OPENROAD_APP_REPO}/tarball/${OPENROAD_APP_COMMIT} | tar -xzC . --strip-components=1
-COPY ./fetch_submodules_from_tarballs.py .
-RUN python3 ./fetch_submodules_from_tarballs.py ${OPENROAD_APP_REPO} ${OPENROAD_APP_COMMIT}
+COPY ./utils.py .
+RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPENROAD_APP_COMMIT}
 
 # Build OpenROAD
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake

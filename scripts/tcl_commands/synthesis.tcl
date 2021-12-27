@@ -13,11 +13,7 @@
 # limitations under the License.
 
 proc get_yosys_bin {} {
-    set synth_bin yosys
-    if { [info exists ::env(SYNTH_BIN)] } {
-		set synth_bin $::env(SYNTH_BIN)
-    }
-    return $synth_bin
+    return $::env(SYNTH_BIN)
 }
 
 proc convert_pg_pins {lib_in lib_out} {
@@ -55,7 +51,7 @@ proc run_yosys {args} {
 		lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $lib_path
 	}
 
-	try_catch [get_yosys_bin] \
+	try_catch $::env(SYNTH_BIN) \
 		-c $::env(SYNTH_SCRIPT) \
 		-l [index_file $::env(synthesis_logs)/synthesis.log] \
 		|& tee $::env(TERMINAL_OUTPUT)
@@ -97,11 +93,11 @@ proc run_sta {args} {
 
 	if {[info exists ::env(CLOCK_PORT)]} {
 		if { $multi_corner == 1 } {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $log
+			run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
+				-indexed_log $log
 		} else {
-			try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/sta.tcl \
-			|& tee $::env(TERMINAL_OUTPUT) $log
+			run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl \
+				-indexed_log $log
 		}
 	} else {
 		puts_warn "CLOCK_PORT is not set. STA will be skipped..."
@@ -117,7 +113,10 @@ proc run_synth_exploration {args} {
 
     run_yosys
 
-    try_catch perl $::env(SCRIPTS_DIR)/synth_exp/analyze.pl [index_file $::env(synthesis_logs).log] > [index_file $::env(synthesis_reports)/exploration_analysis.html]
+	puts_info "Generating exploration report..."
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
+		--output [index_file $::env(synthesis_reports)/exploration_analysis.html]\
+		[index_file $::env(synthesis_logs)/synthesis.log]
 
 	# Following two cannot be indexed- referenced by path in the HTML file.
     file copy $::env(SCRIPTS_DIR)/synth_exp/table.css $::env(synthesis_reports)
@@ -200,9 +199,9 @@ proc yosys_rewrite_verilog {filename} {
 		TIMER::timer_start
 		puts_info "Rewriting $filename into $::env(SAVE_NETLIST)"
 
-		try_catch [get_yosys_bin] \
-		-c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
-		-l [index_file $::env(synthesis_logs)/rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
+		try_catch $::env(SYNTH_BIN) \
+			-c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
+			-l [index_file $::env(synthesis_logs)/rewrite_verilog.log]; #|& tee $::env(TERMINAL_OUTPUT)
 
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"
@@ -239,7 +238,7 @@ proc logic_equiv_check {args} {
     puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
 
     if {[ catch {\
-		exec [get_yosys_bin] \
+		exec $::env(SYNTH_BIN) \
 			-c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl \
 			-l [index_file $::env(synthesis_logs).equiv.log] \
 		|& tee $::env(TERMINAL_OUTPUT)\

@@ -100,12 +100,12 @@ At this stage you have automated the power grid generation for the Core Module.
 
 For the skywater libraries the hierarchy typically can go one level down at most otherwise you will only have two routing layers, which is usually not recommended. Therefore, although it's supported, your macros will typically have no nested macros inside them.
 
-To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4 (layer 5). This is done by setting the following configs:
+To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4. This is done by setting the following configs:
 
 ```tcl
 set ::env(DESIGN_IS_CORE) 0
 set ::env(FP_PDN_CORE_RING) 0
-set ::env(GLB_RT_MAXLAYER) 5
+set ::env(RT_MAX_LAYER) "met4"
 ```
 
 Then, you should use the same `VDD_NETS` and `GND_NETS` set in the core level by adding these two lines to your `config.tcl`:

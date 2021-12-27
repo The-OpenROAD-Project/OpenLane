@@ -50,7 +50,7 @@ class ContainerInfo(StringRepresentable):
             try:
                 info = subprocess.check_output([ "docker", "info", "--format", "{{json .}}" ]).decode("utf8")
             except:
-                raise Exception(f"Failed to run Docker info.")
+                return None
 
             try:
                 info = json.loads(info)

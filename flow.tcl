@@ -453,7 +453,7 @@ proc run_non_interactive_mode {args} {
 			-sdf_path $::env(CURRENT_SDF) \
 			-sdc_path $::env(CURRENT_SDC)
 	}
-
+  
 	calc_total_runtime
 	save_state
 	generate_final_summary_report

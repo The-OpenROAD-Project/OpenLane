@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: bee0039e437efca8889a9e1a75cdeaf84183fbe7
+  commit: 0bb6ac1fa98b5371c73156b6e876925397fb7cbc
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -58,16 +58,16 @@
     ninja clean
     ninja
     cp padring $PREFIX/bin
-- name: vlog2Verilog
+- name: vlogtoverilog
   repo: https://github.com/RTimothyEdwards/qflow
   commit: a550469b63e910ede6e3022e2886bca96462c540
   build: |
-    # Note that vlog2Verilog is part of the qflow repository.
+    # Note that vlogtoverilog is part of the qflow repository.
     ./configure
     cd src
     make clean
-    make -j$(nproc) vlog2Verilog
-    cp vlog2Verilog $PREFIX/bin
+    make -j$(nproc) vlogtoverilog
+    cp vlogtoverilog $PREFIX/bin
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: d061b0e41a2023b5e72794563b94d6a9b5ab41a1
@@ -79,16 +79,16 @@
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: e9d88df58cd6e61dec17d0cd7d355f7d6ec25778
-  build: |
-    mkdir -p ./build
-    cd ./build
-    cmake -DCMAKE_INSTALL_PREFIX=$PREFIX/bin ..
-    make clean
-    make -j$(nproc)
+  build: ''
+  in_install: false
+- name: git
+  repo: https://github.com/git/git
+  commit: e9d7761bb94f20acc98824275e317fa82436c25d
+  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: c5730b574461889c82858b08d12ba42423d9c2cb
+  commit: 476f7428f7f686de51a5164c702629a9b9f2da46
   build: ''
   in_install: false
   in_container: false

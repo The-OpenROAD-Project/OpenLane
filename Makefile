@@ -1,5 +1,4 @@
 # Copyright 2020-2021 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,28 +11,32 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+PYTHON_BIN ?= python3
 
 OPENLANE_DIR ?= $(shell pwd)
 
 PDK_ROOT ?= $(shell pwd)/pdks
 
-DOCKER_MEMORY_OPTIONS :=
+DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
+
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
-DOCKER_MEMORY_OPTIONS +=  --memory-swap=$(DOCKER_SWAP)
+DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
 endif
 ifneq (,$(DOCKER_MEMORY))
-DOCKER_MEMORY_OPTIONS += --memory=$(DOCKER_MEMORY)
+DOCKER_OPTIONS += --memory=$(DOCKER_MEMORY)
 # To verify: cat /sys/fs/cgroup/memory/memory.limit_in_bytes inside the container
 endif
 
-DOCKER_UID_OPTIONS = $(shell python3 ./env.py docker-config)
-DOCKER_OPTIONS = $(DOCKER_MEMORY_OPTIONS) $(DOCKER_UID_OPTIONS)
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
+endif
 
+NPROC ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
 THREADS ?= 1
 
-ROUTING_CORES_OPTION := 
 ifneq (,$(ROUTING_CORES))
-ROUTING_CORES_OPTION += -e ROUTING_CORES=$(ROUTING_CORES)
+DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -41,14 +44,20 @@ SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
 INSTALL_SRAM ?= disabled
 
-# ifeq ($(OPENLANE_IMAGE_NAME),)
-# OPENLANE_TAG ?= $(shell python3 ./dependencies/get_tag.py)
-# ifneq ($(OPENLANE_TAG),)
-# OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
-# endif
-# endif
+OPEN_PDK_ARGS ?= ""
+ifeq ($(INSTALL_SRAM), enabled)
+OPEN_PDK_ARGS += --enable-sram-sky130
+else ifneq ($(INSTALL_SRAM), disabled)
+OPEN_PDK_ARGS += --enable-sram-sky130=$(INSTALL_SRAM)
+endif 
 
-OPENLANE_IMAGE_NAME = efabless/openlane:current
+ifeq ($(OPENLANE_IMAGE_NAME),)
+OPENLANE_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
+ifneq ($(OPENLANE_TAG),)
+export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
+endif
+endif
+
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
@@ -57,10 +66,19 @@ FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= $(shell python3 ./dependencies/tool.py sky130 -f commit)
-OPEN_PDKS_COMMIT ?= $(shell python3 ./dependencies/tool.py open_pdks -f commit)
+SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
+OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
-ENV_COMMAND ?= docker run --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(ROUTING_CORES_OPTION) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
+# designs is mounted over install so env.tcl is not found inside the Docker
+# container.
+ENV_START = docker run --rm\
+	-v $(OPENLANE_DIR):/openlane\
+	-v $(OPENLANE_DIR)/designs:/openlane/install\
+	-v $(PDK_ROOT):$(PDK_ROOT)\
+	-e PDK_ROOT=$(PDK_ROOT)\
+	$(DOCKER_OPTIONS)
+
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 
 ifndef PDK_ROOT
 $(error PDK_ROOT is undefined, please export it before running make)
@@ -87,12 +105,12 @@ $(PDK_ROOT)/:
 	mkdir -p $(PDK_ROOT)
 
 $(PDK_ROOT)/skywater-pdk:
-	git clone $(shell python3 ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
+	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/ $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout main -f && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
@@ -102,7 +120,7 @@ skywater-library: $(PDK_ROOT)/skywater-pdk
 		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
 		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
 		git submodule update --init libraries/sky130_fd_pr/latest && \
-		$(MAKE) timing
+		$(MAKE) -j$(NPROC) timing
 
 .PHONY: all-skywater-libraries
 all-skywater-libraries: skywater-pdk
@@ -114,83 +132,64 @@ all-skywater-libraries: skywater-pdk
 		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
 		git submodule update --init libraries/sky130_fd_sc_hvl/latest && \
 		git submodule update --init libraries/sky130_fd_io/latest && \
-		$(MAKE) -j$(THREADS) timing
+		$(MAKE) -j$(NPROC) timing
 
 ### OPEN_PDKS
 $(PDK_ROOT)/open_pdks:
-	git clone $(shell python3 ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
+	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f repo) $(PDK_ROOT)/open_pdks
 
 .PHONY: open_pdks
 open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 	cd $(PDK_ROOT)/open_pdks && \
-		git checkout master && git pull && \
+		git checkout master && \
+		git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
 .PHONY: build-pdk
+native-build-pdk: ENV_COMMAND=env
+native-build-pdk: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
-		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
-		true
-	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM)"
+	[ -d $(PDK_ROOT)/sky130A ] && rm -rf $(PDK_ROOT)/sky130A || true
+	$(ENV_COMMAND) sh -c "\
+		cd $(PDK_ROOT)/open_pdks && \
+		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)\
+	"
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
-	$(ENV_COMMAND) sh -c " cd $(PDK_ROOT)/open_pdks/sky130 && \
+	$(ENV_COMMAND) sh -c "\
+		cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \
 		make SHARED_PDKS_PATH=$(PDK_ROOT) install && \
-		make clean"
-
-.PHONY: native-build-pdk
-native-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
-	[ -d $(PDK_ROOT)/sky130A ] && \
-		(echo "Warning: A sky130A build already exists under $(PDK_ROOT). It will be deleted first!" && \
-		sleep 5 && \
-		rm -rf $(PDK_ROOT)/sky130A) || \
-		true
-	cd $(PDK_ROOT)/open_pdks && \
-		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries --enable-sram-sky130=$(INSTALL_SRAM) && \
-		cd sky130 && \
-		$(MAKE) veryclean && \
-		$(MAKE) && \
-		$(MAKE) SHARED_PDKS_PATH=$(PDK_ROOT) install
+		make clean \
+	"
 
 gen-sources: $(PDK_ROOT)/sky130A
 	touch $(PDK_ROOT)/sky130A/SOURCES
 	OPENLANE_COMMIT=$(git rev-parse HEAD)
-	echo -ne "openlane " > $(PDK_ROOT)/sky130A/SOURCES
+	printf "openlane " > $(PDK_ROOT)/sky130A/SOURCES
 	cd $(OPENLANE_DIR) && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "magic " >> $(PDK_ROOT)/sky130A/SOURCES
+	python3 ./dependencies/tool.py -f commit magic >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "\n" >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "skywater-pdk " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/skywater-pdk && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
-	echo -ne "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
+	printf "open_pdks " >> $(PDK_ROOT)/sky130A/SOURCES
 	cd $(PDK_ROOT)/open_pdks && git rev-parse HEAD >> $(PDK_ROOT)/sky130A/SOURCES
 
 ### OPENLANE
 .PHONY: openlane
 openlane:
+	$(MAKE) -C docker openlane
+
+pull-openlane:
+	@echo "Pulling most recent OpenLane image relative to your commit..."
 	docker pull $(OPENLANE_IMAGE_NAME)
 
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		docker run -it --rm -v $(OPENLANE_DIR):/openlane -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT) $(DOCKER_OPTIONS) $(OPENLANE_IMAGE_NAME)
-
-MISC_REGRESSION_ARGS=
-.PHONY: regression regression_test
-regression_test: MISC_REGRESSION_ARGS=--benchmark $(BENCHMARK)
-regression_test: regression
-regression:
-	cd $(OPENLANE_DIR) && \
-		$(ENV_COMMAND) sh -c "\
-			python3 run_designs.py\
-			--defaultTestSet\
-			--tag $(REGRESSION_TAG)\
-			--threads $(THREADS)\
-			--print $(PRINT_REM_DESIGNS_TIME)\
-			$(MISC_REGRESSION_ARGS)\
-		"
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
@@ -204,18 +203,18 @@ test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
 			python3 run_designs.py\
-			--designs $(DESIGN_LIST)\
 			--tag $(DLTAG)\
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
+			$(DESIGN_LIST)\
 		"
 
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
-	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/magic/$(TEST_DESIGN).gds ] && \
+	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/finishing/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
 
@@ -223,7 +222,7 @@ test:
 clean_all: clean_runs clean_results
 
 clean_runs:
-	@rm -rf ./designs/*/runs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
+	@rm -rf ./designs/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
 
 clean_results:
 	@{ find regression_results -mindepth 1 -maxdepth 1 -type d | grep -v benchmark | xargs rm -rf ; } && echo "Results cleaned successfully." || echo "Failed to delete results."
