@@ -170,8 +170,8 @@ The following are arguments that can be passed to `flow.tcl`
 | `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
 | `-lvs`  <br>(Boolean) | If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -net DESIGN_NETLIST. |
 | `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
-| `-save`  <br>(Optional) | **Removed: Always saved**: A flag to save a runs results like .mag and .lef in the design's folder. |
-| `-save_path <path>`  <br>(Optional) | **Removed: Always <run_path>/results/final**: Specifies a different path to save the design's result. This options is to be used with the `-save` flag |
+| `-save`  <br>(Optional) |  A flag to save a runs results like .mag and .lef in the design's folder. |
+| `-save_path <path>`  <br>(Optional) | Specifies a different path to save the design's result. This option is to be used with the `-save` flag. |
 
 ## Adding a design
 
