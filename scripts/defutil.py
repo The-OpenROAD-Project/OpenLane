@@ -132,7 +132,7 @@ cli.add_command(merge_pins)
 
 @click.command("remove_components")
 @click.option("--rx/--not-rx", default=True, help="Treat instance name as a regular expression")
-@click.option("-n", "--instance-name", default=".", help="Instance name to be removed (Default '.', as a regular expression, removes everything.)")
+@click.option("-n", "--instance-name", default=".+", help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)")
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
@@ -151,11 +151,12 @@ cli.add_command(remove_components)
 
 @click.command("remove_nets")
 @click.option("--rx/--not-rx", default=True, help="Treat net name as a regular expression")
-@click.option("-n", "--net-name", default=".", help="Net name to be removed (Default '.', as a regular expression, removes everything.)")
+@click.option("-n", "--net-name", default=".+", help="Net name to be removed (Default '.+', as a regular expression, removes everything.)")
 @click.option("-o", "--output", default="./out.def")
+@click.option("--empty-only", is_flag=True, default=False, help="Only remove empty nets.")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
-def remove_nets(rx, net_name, output, input_lef, input_def):
+def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     matcher = re.compile(net_name if rx else f"^{re.escape(net_name)}$")
     nets = reader.block.getNets()
@@ -163,6 +164,8 @@ def remove_nets(rx, net_name, output, input_lef, input_def):
         name = net.getName()
         name_m = matcher.search(name)
         if name_m is not None:
+            if empty_only and len(net.getITerms()) > 0:
+                continue
             odb.dbNet.destroy(net)
     
     assert(odb.write_def(reader.block, output) == 1)
@@ -170,7 +173,7 @@ cli.add_command(remove_nets)
 
 @click.command("remove_pins")
 @click.option("--rx/--not-rx", default=True, help="Treat pin name as a regular expression")
-@click.option("-n", "--pin-name", default=".", help="Pin name to be removed (Default '.', as a regular expression, removes everything.)")
+@click.option("-n", "--pin-name", default=".+", help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)")
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")

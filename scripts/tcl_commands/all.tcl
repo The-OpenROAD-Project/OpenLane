@@ -774,18 +774,6 @@ proc heal_antenna_violators {args} {
 	}
 }
 
-
-proc li1_hack_start {args} {
-    puts_info "Starting the li1 Hack..."
-    try_catch touch $::env(TMP_DIR)/li1HackTmpFile.txt
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_start.py -d $::env(CURRENT_DEF) -l $::env(MERGED_LEF_UNPADDED) -t $::env(TMP_DIR)/li1HackTmpFile.txt
-}
-
-proc li1_hack_end {args} {
-    puts_info "Ending the li1 Hack..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
-}
-
 proc widen_site_width {args} {
     set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
     set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)

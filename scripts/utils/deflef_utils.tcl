@@ -16,7 +16,11 @@ proc remove_empty_nets {args} {
   set options {{-input required}}
   set flags {}
   parse_key_args "remove_empty_nets" args arg_values $options flags_map $flags
-  try_catch $::env(SCRIPTS_DIR)/remove_empty_nets.sh $arg_values(-input)
+    try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_nets\
+    --empty-only\
+    --input-lef $::env(MERGED_LEF)\
+    --output $arg_values(-input)\
+    $arg_values(-input)
 }
 
 proc resize_die {args} {
