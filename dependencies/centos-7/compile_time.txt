@@ -3,6 +3,9 @@ https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
 devtoolset-8
 devtoolset-8-libatomic-devel
 
+llvm-toolset-7.0-clang
+llvm-toolset-7.0-libomp-devel
+
 Xvfb
 autoconf
 automake

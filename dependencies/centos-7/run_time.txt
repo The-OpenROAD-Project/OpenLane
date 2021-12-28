@@ -15,6 +15,7 @@ libXft
 libXinerama
 libXrandr
 libyaml
+llvm-toolset-7-libomp
 make
 mesa-libGLU
 patch
@@ -48,4 +49,3 @@ wget
 which
 Xvfb
 zlib
-

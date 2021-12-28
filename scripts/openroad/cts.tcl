@@ -56,17 +56,18 @@ puts "\[INFO]: Running Clock Tree Synthesis..."
 
 set arg_list [list]
 
+lappend arg_list -buf_list $::env(CTS_CLK_BUFFER_LIST)
+lappend arg_list -root_buf $::env(CTS_ROOT_BUFFER)
+lappend arg_list -clk_nets $::env(CLOCK_NET)
+lappend arg_list -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)
+lappend arg_list -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
+lappend arg_list -sink_clustering_enable 
+
 if { $::env(CTS_DISABLE_POST_PROCESSING) } {
     lappend arg_list -post_cts_disable
 }
 
-clock_tree_synthesis {*}arg_list\
-    -buf_list $::env(CTS_CLK_BUFFER_LIST)\
-    -root_buf $::env(CTS_ROOT_BUFFER)\
-    -clk_nets $::env(CLOCK_NET)\
-    -sink_clustering_enable\
-    -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)\
-    -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
+clock_tree_synthesis {*}$arg_list
 
 set_propagated_clock [all_clocks]
 
