@@ -31,7 +31,7 @@ The script can be used in two ways
 1. Running one or more designs.
     
     ```bash
-    python3 run_designs.py --designs spm xtea PPU APU
+    python3 run_designs.py --threads 4 spm xtea PPU APU
     ```
 
     You can run the defualt test set consisting of all designs under [./designs](../designs/) through running the following command along with any of the flags:
