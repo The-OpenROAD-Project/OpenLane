@@ -51,13 +51,6 @@ RUN curl -L https://github.com/swig/swig/archive/refs/tags/v4.0.1.tar.gz | tar -
     ./configure --prefix=/usr && \
     make -j $(nproc) && \
     make install
-    
-# GCC segfaults
-RUN yum install -y llvm-toolset-7.0-clang llvm-toolset-7.0-libomp-devel
-ENV CC=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang \
-    CXX=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang++ \
-    PATH=/opt/rh/llvm-toolset-7.0/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:/opt/rh/llvm-toolset-7.0/root/usr/lib64/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:$LD_LIBRARY_PATH
 
 ARG OPENROAD_APP_REPO
 ARG OPENROAD_APP_COMMIT
