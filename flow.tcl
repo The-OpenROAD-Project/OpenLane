@@ -321,10 +321,12 @@ proc run_eco_step {args} {
         eco_output_check
     }
     # end of while
-    set post_eco_net [lindex [glob -directory $::env(RUN_DIR)/results/eco/net *.v]   end]
-    set post_eco_def [lindex [glob -directory $::env(RUN_DIR)/results/eco/def *.def] end] 
-    file copy -force $post_eco_net $::env(RUN_DIR)/results/synthesis/mgmt_core.synthesis_preroute.v
-    file copy -force $post_eco_def $::env(RUN_DIR)/results/routing/post_eco-mgmt_core.def
+    if { $::env(ECO_ITER) != 0 } {
+        set post_eco_net [lindex [glob -directory $::env(RUN_DIR)/results/eco/net *.v]   end]
+        set post_eco_def [lindex [glob -directory $::env(RUN_DIR)/results/eco/def *.def] end] 
+        file copy -force $post_eco_net $::env(RUN_DIR)/results/synthesis/mgmt_core.synthesis_preroute.v
+        file copy -force $post_eco_def $::env(RUN_DIR)/results/routing/post_eco-mgmt_core.def
+    }
 }
 
 
