@@ -57,14 +57,14 @@ set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -
 
 source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 
-if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
-    global_route -verbose 3\
-        -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)\
-        -allow_congestion
-} else {
-    global_route -verbose 3 \
-    -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)
-}
+# set arg_list [list]
+# lappend arg_list -verbose 3
+# lappend arg_list -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)
+# if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
+#     lappend arg_list -allow_congestion
+# }
+# puts $arg_list
+global_route
 
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
