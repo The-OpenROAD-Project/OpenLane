@@ -31,17 +31,27 @@ RUN curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3/eigen-3.3.tar.gz | t
 
 # Build Lemon
 WORKDIR /lemon
-RUN curl -L http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz | tar --strip-components=1 -xzC . \
-    && cmake -B build . \
-    && cmake --build build -j $(nproc) --target install
+RUN curl -L http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz | tar --strip-components=1 -xzC . && \
+    cmake -B build . && \
+    cmake --build build -j $(nproc) --target install
 
 # Build Spdlog
-RUN git clone -b v1.8.1 https://github.com/gabime/spdlog \
-    && cd spdlog \
-    && mkdir build \
-    && cd build \
-    && cmake .. \
-    && make install -j $(nproc)
+WORKDIR /spdlog
+RUN curl -L https://github.com/gabime/spdlog/archive/refs/tags/v1.8.1.tar.gz | tar --strip-components=1 -xzC . && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make install -j $(nproc)
+
+# Build Swig
+RUN yum remove -y swig3
+WORKDIR /swig
+RUN curl -L https://github.com/swig/swig/archive/refs/tags/v4.0.1.tar.gz | tar --strip-components=1 -xzC . && \
+    ./autogen.sh && \
+    ./configure --prefix=/usr && \
+    make -j $(nproc) && \
+    make install
+    
 
 ARG OPENROAD_APP_REPO
 ARG OPENROAD_APP_COMMIT
@@ -58,7 +68,8 @@ RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPE
 # Build OpenROAD
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
 RUN mkdir build && mkdir -p /build/version && mkdir install
-RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install .. && make -j$(nproc)
+RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
+RUN cd build && make -j$(nproc)
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
