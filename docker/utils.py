@@ -27,8 +27,17 @@ def cli():
     pass
 
 @click.command("pull-if-doesnt-exist")
-@click.argument("image")
-def pull_if_doesnt_exist(image):
+@click.option("-r", "--repository", required=True)
+@click.option("-o", "--os", "operating_system", required=True, type=click.Choice('centos-7'))
+@click.argument("tool")
+def pull_if_doesnt_exist(repository, operating_system, tool):
+    image_tag = subprocess.check_output([
+        "python3",
+        "../dependencies/tool.py",
+        f"--docker-tag-for-os={operating_system}",
+        tool
+    ]).decode("utf8").rstrip()
+    image = f"{repository}:{image_tag}"
     images = subprocess.check_output([
         "docker",
         "images",
@@ -36,11 +45,28 @@ def pull_if_doesnt_exist(image):
     ]).decode("utf8").rstrip().split("\n")[1:]
     if len(images) < 1:
         print(f"{image} not found, pulling...")
-        subprocess.check_call([
-            "docker",
-            "pull",
-            image
-        ])
+        try:
+            subprocess.check_call([
+                "docker",
+                "pull",
+                image
+            ])
+            print(f"Pulled {image}.")
+        except Exception as e:
+            if os.getenv("BUILD_IF_CANT_PULL") == "1":
+                print(f"{image} not found in the repository, building...")
+                subprocess.check_call([
+                    "make", f"build-{tool}"
+                ])
+                print(f"Built {image}.")
+                if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
+                    print(f"Pushing {image} to the container repository...")
+                    subprocess.check_call([
+                        "docker", "push", image
+                    ])
+                    print(f"Pushed {image}.")
+            else:
+                raise e
 cli.add_command(pull_if_doesnt_exist)
 
 @click.command("fetch-submodules-from-tarballs")

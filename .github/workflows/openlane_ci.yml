@@ -37,7 +37,16 @@ jobs:
         run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
       - name: Docker Build
+        env:
+          BUILD_IF_CANT_PULL: '1'
+          BUILD_IF_CANT_PULL_THEN_PUSH: '1'
         run: cd docker/ && make merge
 
       - name: Export Docker Image
