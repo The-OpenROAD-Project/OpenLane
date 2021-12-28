@@ -52,6 +52,12 @@ RUN curl -L https://github.com/swig/swig/archive/refs/tags/v4.0.1.tar.gz | tar -
     make -j $(nproc) && \
     make install
     
+# GCC segfaults
+RUN yum install -y llvm-toolset-7.0-clang llvm-toolset-7.0-libomp-devel
+ENV CC=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang \
+    CXX=/opt/rh/llvm-toolset-7.0/root/usr/bin/clang++ \
+    PATH=/opt/rh/llvm-toolset-7.0/root/usr/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:/opt/rh/llvm-toolset-7.0/root/usr/lib64/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:$LD_LIBRARY_PATH
 
 ARG OPENROAD_APP_REPO
 ARG OPENROAD_APP_COMMIT
@@ -69,7 +75,9 @@ RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPE
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
-RUN cd build && make -j$(nproc)
+# Max will be four cores: more than that and there are too many files open at the same time
+# To clarify, llvm-ar *crashes*.
+RUN cd build && make -j2
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
