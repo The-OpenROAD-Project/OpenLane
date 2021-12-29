@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openlane-build-base
+FROM openlane-build-base AS builder
 
 # Build Boost
 WORKDIR /boost
@@ -77,3 +77,11 @@ RUN cp -r build/install/bin /build/
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN echo ${OPENROAD_APP_COMMIT} >> /build/version/openroad.version
 RUN tar -czf /build.tar.gz /build
+
+# ---
+FROM openlane-run-base AS runnable
+
+ENV PATH /build/bin:$PATH
+
+COPY --from=builder /build /build
+COPY --from=builder /build.tar.gz /build.tar.gz
