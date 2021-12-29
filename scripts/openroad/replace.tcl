@@ -79,7 +79,10 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
-puts stderr $arg_list
+set_placement_padding -global -right $::env(CELL_PAD)
+
+set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+
 global_placement {*}$arg_list
 
 write_def $::env(SAVE_DEF)
