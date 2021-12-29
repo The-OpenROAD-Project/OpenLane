@@ -40,12 +40,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker base image') {
-            steps {
-                sh 'make -C docker base_image';
-            }
-        }
-
         stage('Build Docker image with openroad/master') {
             steps {
                 sh 'make -C docker build-openroad_app';
