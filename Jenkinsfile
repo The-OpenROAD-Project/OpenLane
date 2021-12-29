@@ -11,7 +11,7 @@ pipeline {
 
         stage("Setup") {
             steps {
-                sh 'python3 -m pip install --user pyyaml';
+                sh 'python3 -m pip install --user pyyaml click';
                 sh 'docker system prune -a -f';
             }
         }
