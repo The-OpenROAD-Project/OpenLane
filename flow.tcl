@@ -371,7 +371,6 @@ proc run_non_interactive_mode {args} {
                     "routing" {run_routing_step ""} \
                     "eco" {run_eco_step ""} \
                     "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                    "power_pins_insertion" {run_power_pins_insertion_step ""} \
                     "gds_magic" {run_magic ""} \
                     "gds_drc_klayout" {run_klayout ""} \
                     "gds_xor_klayout" {run_klayout_gds_xor ""} \
@@ -387,7 +386,6 @@ proc run_non_interactive_mode {args} {
                     "cts" {run_cts_step ""} \
                     "routing" {run_routing_step ""} \
                     "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                    "power_pins_insertion" {run_power_pins_insertion_step ""} \
                     "gds_magic" {run_magic ""} \
                     "gds_drc_klayout" {run_klayout ""} \
                     "gds_xor_klayout" {run_klayout_gds_xor ""} \
