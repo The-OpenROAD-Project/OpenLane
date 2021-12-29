@@ -20,21 +20,30 @@ TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
 all: openlane
 
 build-all: $(TOOL_BUILD_TARGETS)
-base_image: ./base/Dockerfile
-	cat ../dependencies/centos-7/precompile_time.txt > ./base/yum_precompile_dependencies.txt
-	cat ../dependencies/centos-7/compile_time.txt > ./base/yum_compile_dependencies.txt
-	cat ../dependencies/centos-7/run_time.txt > ./base/yum_dependencies.txt
-	cat ../dependencies/python/precompile_time.txt > ./base/pip_precompile_dependencies.txt
-	cat ../dependencies/python/compile_time.txt > ./base/pip_compile_dependencies.txt
-	cat ../dependencies/python/run_time.txt > ./base/pip_dependencies.txt
+build_base_image: ./build_base/Dockerfile
+	cat ../dependencies/centos-7/precompile_time.txt > ./build_base/yum_precompile_dependencies.txt
+	cat ../dependencies/centos-7/compile_time.txt > ./build_base/yum_compile_dependencies.txt
+	cat ../dependencies/centos-7/run_time.txt > ./build_base/yum_dependencies.txt
+	cat ../dependencies/python/precompile_time.txt > ./build_base/pip_precompile_dependencies.txt
+	cat ../dependencies/python/compile_time.txt > ./build_base/pip_compile_dependencies.txt
+	cat ../dependencies/python/run_time.txt > ./build_base/pip_dependencies.txt
 	mkdir -p logs
-	$(BUILD_COMMAND) -t openlane-build-base --build-arg OS_IMAGE=$(OS_IMAGE) base | tee logs/base.build.txt
+	$(BUILD_COMMAND) -t openlane-build-base --build-arg OS_IMAGE=$(OS_IMAGE) build_base | tee logs/base.build.txt
 
-$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile base_image
+run_base_image: ./run_base/Dockerfile
+	cat ../dependencies/python/run_time.txt > ./run_base/pip_dependencies.txt
+	cat ../dependencies/centos-7/precompile_time.txt > ./run_base/yum_repos.txt
+	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
+	mkdir -p logs
+	$(BUILD_COMMAND) -t openlane-run-base --build-arg OS_IMAGE=$(OS_IMAGE) run_base | tee logs/base.run.txt
+
+
+$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 	mkdir -p logs
 	cp ./utils.py $*
 	$(BUILD_COMMAND)\
 		$(shell python3 ../dependencies/tool.py --docker-args $*)\
+		--target runnable\
 		-t $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
 		$* |\
 		tee logs/$*.build.txt
@@ -65,16 +74,12 @@ FORCE:
 
 .PHONY: merge openlane
 openlane: merge
-merge: tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
+merge: run_base_image tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
-	cat ../dependencies/python/run_time.txt > ./tar/pip_dependencies.txt
-	cat ../dependencies/centos-7/precompile_time.txt > ./tar/yum_repos.txt
-	cat ../dependencies/centos-7/run_time.txt > ./tar/yum_dependencies.txt
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version
 	mkdir -p logs/tar
 	$(BUILD_COMMAND)\
 		--build-arg CACHE_INVALIDATOR=$(shell date +%s)\
-		--build-arg OS_IMAGE=$(OS_IMAGE)\
 		-t $(OPENLANE_IMAGE_NAME)\
 		-f $(DOCKERFILE_PATH) ./tar\
 		| tee logs/$<.build.txt

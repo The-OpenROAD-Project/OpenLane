@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openlane-build-base
+FROM openlane-build-base AS builder
 
 # git clone yosys
 ARG KLAYOUT_REPO
@@ -38,3 +38,10 @@ RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/klayout.version
 RUN echo "klayout-${KLAYOUT_VERSION}.x86_64" >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 
+# ---
+FROM openlane-run-base AS runnable
+
+ENV PATH /build/bin:$PATH
+
+COPY --from=builder /build /build
+COPY --from=builder /build.tar.gz /build.tar.gz

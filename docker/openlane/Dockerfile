@@ -12,28 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG OS_IMAGE="centos:centos7"
-FROM ${OS_IMAGE}
-
-# Install Yum Dependencies
-COPY ./yum_dependencies.txt /yum_dependencies.txt
-COPY ./yum_repos.txt /yum_repos.txt
-RUN yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_repos.txt) && \
-	yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_dependencies.txt) && \
-	yum clean all && \
-	rm -rf /var/cache/yum
-
-RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
-
-## Set Git
-RUN git config --global user.name "OpenLane User" 
-RUN git config --global user.email "openlane.user@localhost"
-
-# Install Python Dependencies
-## Wheel Build Dependencies
-RUN python3 -m pip install --no-cache-dir --upgrade pip
-COPY ./pip_dependencies.txt /pip_dependencies.txt
-RUN python3 -m pip install --no-cache-dir -r /pip_dependencies.txt
+FROM openlane-run-base
 
 # Environment Configuration
 ENV OPENLANE_ROOT=/openlane

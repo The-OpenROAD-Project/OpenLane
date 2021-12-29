@@ -14,7 +14,7 @@
 
 # WIP, probably will never make it to the image because it's taking forever to build
 
-FROM openlane-build-base AS build
+FROM openlane-build-base AS builder
 
 ARG SKY130_REPO
 ARG SKY130_COMMIT
@@ -66,5 +66,9 @@ RUN make SHARED_PDKS_PATH=${PDK_ROOT} install
 
 
 # ---
-FROM openlane-build-base 
+FROM openlane-run-base AS runnable
+
+COPY --from=builder /build/pdk/pdk.log /build/pdk/pdk.log
+COPY --from=builder /build/pdk/sky130A /build/pdk/sky130A
+
 

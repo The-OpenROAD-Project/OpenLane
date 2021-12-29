@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM openlane-build-base
+FROM openlane-build-base AS builder
 
 ARG VLOGTOVERILOG_REPO
 ARG VLOGTOVERILOG_COMMIT
@@ -29,3 +29,10 @@ RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/vlog2Verilog.ver
 RUN echo ${VLOGTOVERILOG_COMMIT} >> /build/version/vlog2Verilog.version
 RUN tar -czf /build.tar.gz /build
 
+# ---
+FROM openlane-run-base AS runnable
+
+ENV PATH /build/bin:$PATH
+
+COPY --from=builder /build /build
+COPY --from=builder /build.tar.gz /build.tar.gz
