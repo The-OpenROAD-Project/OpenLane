@@ -28,7 +28,7 @@ def cli():
 
 @click.command("pull-if-doesnt-exist")
 @click.option("-r", "--repository", required=True)
-@click.option("-o", "--os", "operating_system", required=True, type=click.Choice('centos-7'))
+@click.option("-o", "--os", "operating_system", required=True, type=click.Choice(['centos-7']))
 @click.argument("tool")
 def pull_if_doesnt_exist(repository, operating_system, tool):
     image_tag = subprocess.check_output([
