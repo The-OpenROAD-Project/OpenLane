@@ -57,8 +57,8 @@ pipeline {
                 axes {
                     axis {
                         name 'DESIGN';
-                        // designs disabled "aes128", "chacha", "ldpcenc", "sha512";
-                        values "aes", "aes_cipher", "aes_core", "APU", "blabla", "BM64", "des", "digital_pll_sky130_fd_sc_hd", "genericfir", "inverter", "manual_macro_placement_test", "picorv32a", "PPU", "s44", "salsa20", "spm", "usb", "usb_cdc_core", "wbqspiflash", "xtea", "y_huff", "zipdiv";
+                        // designs disabled "aes128", "chacha", "ldpcenc", "sha512", "des";
+                        values "aes", "aes_cipher", "aes_core", "APU", "blabla", "BM64", "digital_pll_sky130_fd_sc_hd", "genericfir", "inverter", "manual_macro_placement_test", "picorv32a", "PPU", "s44", "salsa20", "spm", "usb", "usb_cdc_core", "wbqspiflash", "xtea", "y_huff", "zipdiv";
                     }
                 }
                 stages {
