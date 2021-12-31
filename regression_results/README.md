@@ -31,7 +31,7 @@ The script can be used in two ways
 1. Running one or more designs.
     
     ```bash
-    python3 run_designs.py --designs spm xtea PPU APU
+    python3 run_designs.py --threads 4 spm xtea PPU APU
     ```
 
     You can run the defualt test set consisting of all designs under [./designs](../designs/) through running the following command along with any of the flags:
@@ -43,7 +43,7 @@ The script can be used in two ways
 2. An exploration run that generates configuration files of all possible combinations of the passed regression file and runs them on the provided designs.
     
     ```bash
-    python3 run_designs.py --designs spm xtea --regression ./scripts/config/regression.config
+    python3 run_designs.py --regression ./scripts/config/regression.config --threads 2 spm xtea
     ```
 
     These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example

@@ -15,25 +15,6 @@
 global script_path
 set script_path [ file dirname [ file normalize [ info script ] ] ]
 
-proc set_core_dims {args} {
-	puts_info "Setting Core Dimensions..."
-	set options {{-log_path required}}
-	parse_key_args "set_core_dims" args values $options
-	set log_path $values(-log_path)
-	set FpOutDef $::env(CURRENT_DEF)
-	set def_units $::env(DEF_UNITS_PER_MICRON)
-	set coreinfo [join [exec $::env(SCRIPTS_DIR)/extract_coreinfo.sh $FpOutDef] " "]
-	set sites_per_row [lindex $coreinfo 8]
-	set step [lindex $coreinfo 9]
-	set core_area_llx [expr { [lindex $coreinfo 4]/double($def_units) }]
-	set core_area_urx [expr { ([lindex $coreinfo 6]+$step*$sites_per_row)/double($def_units) }]
-	set core_area_lly [expr { [lindex $coreinfo 5]/double($def_units) }]
-	set core_area_ury [expr { [lindex $coreinfo 7]/double($def_units) }]
-	set ::env(CORE_WIDTH) [expr {$core_area_urx - $core_area_llx} ]
-	set ::env(CORE_HEIGHT) [expr {$core_area_ury - $core_area_lly} ]
-	puts "$::env(CORE_WIDTH) $::env(CORE_HEIGHT)"
-}
-
 proc simple_cts {args} {
 	puts_info "Running Simple CTS..."
 	set options {

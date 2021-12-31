@@ -58,8 +58,6 @@ padframe_gen
 padframe_gen_legacy
 save_views
 heal_antenna_violators
-li1_hack_start
-li1_hack_end
 widen_site_width
 use_widened_lefs
 use_original_lefs

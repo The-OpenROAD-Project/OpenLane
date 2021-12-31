@@ -648,7 +648,6 @@ proc save_views {args} {
         {-spef_path optional}
         {-sdc_path optional}
         {-save_path optional}
-        {-tag optional}
     }
 
     set flags {}
@@ -659,7 +658,7 @@ proc save_views {args} {
     } else {
         set path $::env(RESULTS_DIR)/final
     }
-    puts_info "Saving Magic Views in $path"
+    puts_info "Saving final set of views in '$path'..."
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
@@ -772,18 +771,6 @@ proc heal_antenna_violators {args} {
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
 	}
-}
-
-
-proc li1_hack_start {args} {
-    puts_info "Starting the li1 Hack..."
-    try_catch touch $::env(TMP_DIR)/li1HackTmpFile.txt
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_start.py -d $::env(CURRENT_DEF) -l $::env(MERGED_LEF_UNPADDED) -t $::env(TMP_DIR)/li1HackTmpFile.txt
-}
-
-proc li1_hack_end {args} {
-    puts_info "Ending the li1 Hack..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/li1_hack_end.py -d $::env(CURRENT_DEF) -t $::env(TMP_DIR)/li1HackTmpFile.txt
 }
 
 proc widen_site_width {args} {

@@ -25,23 +25,26 @@ if { $::env(CURRENT_DEF) != 0 } {
     }
 }
 
-if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
-}
-
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
 define_corners ss tt ff
+
 read_liberty -corner ss $::env(LIB_SLOWEST)
 read_liberty -corner tt $::env(LIB_SYNTH_COMPLETE)
 read_liberty -corner ff $::env(LIB_FASTEST)
 
+foreach corner {ss tt ff} {
+    if { [info exists ::env(EXTRA_LIBS) ] } {
+        foreach lib $::env(EXTRA_LIBS) {
+            read_liberty -corner $corner $lib
+        }
+    }
+}
+
 read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)
 
-# read spef files if they are generated
+# read spef files if they are generated prior to this point
 if { [info exists ::env(SPEF_TYPICAL)] } {
     read_spef -corner ss $::env(SPEF_SLOWEST)
     read_spef -corner tt $::env(SPEF_TYPICAL)

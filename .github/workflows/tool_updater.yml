@@ -36,18 +36,6 @@ jobs:
       - name: Update TOOL
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py ${{ env.TOOL }}
 
-      - name: Build TOOL
-        if: ${{ env.NO_UPDATE != '1' }}
-        run: |
-          cd ${GITHUB_WORKSPACE}/docker
-          export TOOL_REPOSITORY=${{ secrets.TOOL_DOCKER_IMAGE }}
-          make build-${{ env.TOOL }}
-      
-      - name: Push Image
-        if: ${{ env.NO_UPDATE != '1' }}
-        run: |
-          docker push ${{ secrets.TOOL_DOCKER_IMAGE }}:$(python3 ../dependencies/tool.py --docker-tag-for-os=centos-7)
-
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}
         uses: peter-evans/create-pull-request@v3

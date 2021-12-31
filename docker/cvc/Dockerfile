@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openlane-build-base
+FROM openlane-build-base AS builder
 
 ARG CVC_REPO
 ARG CVC_COMMIT
@@ -30,4 +30,11 @@ RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cvc.version
 RUN echo ${CVC_COMMIT} >> /build/version/cvc.version
 RUN tar -czf /build.tar.gz /build
 
- 
+# ---
+FROM openlane-run-base AS runnable
+
+ENV PATH /build/bin:$PATH
+
+COPY --from=builder /build /build
+COPY --from=builder /build.tar.gz /build.tar.gz
+
