@@ -94,7 +94,7 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 
 	gds nodatestamp yes
 
-	gds write $::env(finishing_results)/$::env(DESIGN_NAME).gds
+	gds write $::env(MAGIC_GDS)
 	puts "\[INFO\]: GDS Write Complete"
 }
 

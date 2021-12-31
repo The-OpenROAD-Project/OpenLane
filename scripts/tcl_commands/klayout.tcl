@@ -13,11 +13,10 @@
 # limitations under the License.
 
 proc run_klayout {args} {
-    if {[info exists ::env(RUN_KLAYOUT)] && $::env(RUN_KLAYOUT)} {
-
+    if {$::env(RUN_KLAYOUT)} {
 		TIMER::timer_start
 		set ::env(CURRENT_STAGE) finishing
-		puts_info "Running Klayout to re-generate GDS-II..."
+		puts_info "Generting GDS II with Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			increment_index
 			puts_info "Streaming out GDS II..."
@@ -31,9 +30,10 @@ proc run_klayout {args} {
 				set cells_gds $::env(GDS_FILES)
 			}
 
+			set klayout_out $::env(finishing_results)/$::env(DESIGN_NAME).klayout.gds
 			try_catch klayout -b\
 				-rm $::env(SCRIPTS_DIR)/klayout/def2gds.py\
-				-rd out_gds=$::env(finishing_results)/$::env(DESIGN_NAME).klayout.gds\
+				-rd out_gds=$klayout_out\
 				-rd tech_file=$::env(KLAYOUT_TECH)\
 				-rd design_name=$::env(DESIGN_NAME)\
 				-rd in_def=$::env(CURRENT_DEF)\
@@ -42,6 +42,11 @@ proc run_klayout {args} {
 				-rd "seal_gds="\
 				-rd lef_file=$::env(MERGED_LEF)\
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gdsii-klayout.log]
+
+			if { $::env(PRIMARY_SIGNOFF_TOOL) == "klayout" } {
+				set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
+				file copy -force $klayout_out $::env(CURRENT_GDS)
+			}
 
 			if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
 				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(finishing_results)/$::env(DESIGN_NAME).lyp
@@ -58,16 +63,18 @@ proc run_klayout {args} {
 				run_klayout_drc -gds $::env(finishing_results)/$::env(DESIGN_NAME).gds -stage klayout
 				set ::env(RUN_KLAYOUT_DRC) $conf_save
 			}
-		} else {
+		} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
 			puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDS-II streaming out using Klayout will be skipped."
-			puts_warn "Magic is the main source of streaming-out GDS-II, extraction, and DRC. So, this is not a major issue."
 			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
+		} else {
+			puts_err "::env(KLAYOUT_TECH) is not defined for the current PDK, however Klayout is set as the primary signoff tool. This is a critical error."
+			flow_fail
 		}
     }
 }
 
 proc scrot_klayout {args} {
-    if {[info exists ::env(TAKE_LAYOUT_SCROT)] && $::env(TAKE_LAYOUT_SCROT)} {
+    if {$::env(TAKE_LAYOUT_SCROT)} {
 		increment_index
 		TIMER::timer_start
 		puts_info "Taking a Screenshot of the Layout Using Klayout..."
@@ -94,7 +101,7 @@ proc scrot_klayout {args} {
 }
 
 proc run_klayout_drc {args} {
-    if {[info exists ::env(RUN_KLAYOUT_DRC)] && $::env(RUN_KLAYOUT_DRC)} {
+    if {$::env(RUN_KLAYOUT_DRC)} {
 		TIMER::timer_start
 		puts_info "Running DRC on the layout using Klayout..."
 		if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] } {
@@ -122,7 +129,7 @@ proc run_klayout_drc {args} {
 }
 
 proc run_klayout_gds_xor {args} {
-    if {[info exists ::env(RUN_KLAYOUT_XOR)] && $::env(RUN_KLAYOUT_XOR)} {
+    if {$::env(RUN_KLAYOUT_XOR)} {
 		increment_index
 		index_file $::env(finishing_logs)/xor.log
 		TIMER::timer_start
