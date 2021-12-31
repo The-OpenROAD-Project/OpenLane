@@ -1,6 +1,5 @@
 #!/usr/bin/tclsh
 # Copyright 2020-2021 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,6 +15,11 @@
 
 
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
+
+if { [file exists $::env(OPENLANE_ROOT)/install/env.tcl ] } {
+	source $::env(OPENLANE_ROOT)/install/env.tcl
+}
+
 if { ! [info exists ::env(OPENROAD_BIN) ] } {
 	set ::env(OPENROAD_BIN) openroad
 }
@@ -23,9 +27,6 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
-    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
-    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
-    # set_def $pdndef
     if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
         set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -36,7 +37,6 @@ proc run_placement_step {args} {
 }
 
 proc run_cts_step {args} {
-    # set_def $::env(opendp_result_file_tag).def
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -47,46 +47,16 @@ proc run_cts_step {args} {
     run_resizer_timing
 }
 
-proc pause {{message "Press enter to continue ==> "}} {
-    puts -nonewline $message
-    flush stdout
-    gets stdin
-}
-
-
 proc run_routing_step {args} {
-    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
-    # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
-    # set_def $resizerdef
-    if {$::env(ECO_ITER) == 0} {
-        puts "Routing Pre-ECO"
-    } else {
-        puts "Routing for ECO iteration $::env(ECO_ITER)"
-    }
-    puts "NETLIST/DEF used in Routing: "
-    puts $::env(CURRENT_NETLIST)
-    puts $::env(CURRENT_DEF) 
-
-    # Pause to see puts output
-    # pause;
-
-    if { $::env(ECO_ITER) == 0 } {
-        if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
-            set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
-        } else {
-            set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
-        }
+    if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
+        set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
-
     run_routing
-    puts "Generating Routing Timing reports!"
-    generate_routing_report
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -99,22 +69,7 @@ proc run_diode_insertion_2_5_step {args} {
 
 }
 
-proc run_power_pins_insertion_step {args} {
-    # set_def $::env(tritonRoute_result_file_tag).def
-    if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
-        set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(POWER_PINS_INSERTION_CURRENT_DEF)
-    }
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
-}
-
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -150,184 +105,12 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
-proc run_apply_step {args} {
-    puts "ECO: Applying Fixes!"
-    try_catch $::env(OPENROAD_BIN) \
-        -exit $::env(SCRIPTS_DIR)/apply_fix.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(RUN_DIR)/logs/eco/$::env(ECO_ITER)_eco.log
-
-    if { $::env(ECO_ITER) > 10 } {
-        pause;
-    }
-    set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-    set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
-
-    puts "ECO Iteration $::env(ECO_ITER): "
-    puts "Set NETLIST/DEF in apply_fix.tcl"
-    puts $::env(CURRENT_NETLIST)
-    puts $::env(CURRENT_DEF)
-}
-
-proc eco_read_fix {args} {
-    set path "$::env(RUN_DIR)/results/eco/fix"
-
-    set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
-    set   fd   [read  $fp]
-    set   txt  [split $fd "\n"]
-    close $fp
-
-    return $txt
-}
-
-proc eco_gen_buffer {args} {
-
-    # Generate fixes via the gen_insert_buffer Python script
-    # It reads in the LATEST multi-corner sta min report
-    if { $::env(ECO_ITER) == 0 } {
-        puts "Generating fixes for ECO iteration 1!"
-        puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
-                           *multi_corner_sta*] end]
-        puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                         *_unpadded.lef] end] 
-        puts "Input Def File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                         *.def] end]
-        # pause;
-
-        try_catch $::env(OPENROAD_BIN) \
-            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -i [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
-            *multi_corner_sta*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                             *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(RUN_DIR)/results/routing \
-                             *.def] end] \
-            -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
-    } else {
-        puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
-        puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
-                    *multi_corner_sta*] end]
-        puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                         *_unpadded.lef] end] 
-        puts "Input Def File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
-                         *.def] end]
-        # pause;
-
-        try_catch $::env(OPENROAD_BIN) \
-            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -i [lindex [glob -directory $::env(RUN_DIR)/logs/routing \
-            *multi_corner_sta*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                             *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(RUN_DIR)/results/eco/def \
-                             *.def] end] \
-            -o $::env(RUN_DIR)/results/eco/fix/eco_fix_$::env(ECO_ITER).tcl
-    }
-}
-
-proc eco_output_check {args} {
-        puts "Entering eco_output_check subproc!"
-
-        eco_gen_buffer
-
-        set lines [eco_read_fix]
-        foreach line $lines {
-            # Use regex to determine if finished here
-            if {[regexp {No violations} $line]} {
-                set ::env(ECO_FINISH) 1;
-            } else {
-                incr ::env(ECO_ITER) 1;
-            }
-            break
-        }
-}
-
 proc run_eco_step {args} {
-
-    set log          "$::env(RUN_DIR)/logs/eco"
-    set path         "$::env(RUN_DIR)/results/eco"
-    set fix_path     "$::env(RUN_DIR)/results/eco/fix"
-    set def_path     "$::env(RUN_DIR)/results/eco/def"
-    set net_path     "$::env(RUN_DIR)/results/eco/net"
-    set spef_path    "$::env(RUN_DIR)/results/eco/spef"
-    set sdf_path     "$::env(RUN_DIR)/results/eco/sdf"
-    set arc_def_path "$::env(RUN_DIR)/results/eco/arcdef"
-    file mkdir $log
-    file mkdir $path
-    file mkdir $fix_path
-    file mkdir $def_path
-    file mkdir $net_path
-    file mkdir $spef_path
-    file mkdir $sdf_path
-    file mkdir $arc_def_path
-
-
-    # Assume script generate fix commands
-    puts "Generating Fix commands (resize/insert)"    
-
-    # Re-organize report/result files here
-    exec sh $::env(OPENLANE_ROOT)/scripts/reorg_reports.sh
-    eco_output_check
-
-    while {$::env(ECO_FINISH) != 1} {
-
-        puts "Start ECO loop $::env(ECO_ITER)!"
-        # Then run detailed placement again
-        # Get the connections then destroy them
-        
-        # Pause to see puts output
-        # pause;
-        if {$::env(ECO_ITER) > 10} {
-            puts "Ran for 10 itertations; Check files"
-            pause;
-        }
-
-        set eco_steps [dict create "apply" {run_apply_step ""}\
-            "routing" {run_routing_step ""}
-        ]
-
-        set_if_unset arg_values(-from) "apply";
-        set_if_unset arg_values(-to) "routing";
-
-        set exe 0;
-        dict for {step_name step_exe} $eco_steps {
-            puts "Re-running"
-            puts $step_name
-            if { [ string equal $arg_values(-from) $step_name ] } {
-                set exe 1;
-            }
-
-            if { $exe } {
-                # For when it fails
-                set ::env(CURRENT_STEP) $step_name
-                [lindex $step_exe 0] [lindex $step_exe 1] ;
-            }
-
-            if { [ string equal $arg_values(-to) $step_name ] } {
-                set exe 0:
-                break;
-            }
-
-        }
-        # end of dict
-
-        # Re-organize report files here
-        exec sh $::env(OPENLANE_ROOT)/scripts/reorg_reports.sh
-        eco_output_check
-    }
-    # end of while
-    if { $::env(ECO_ITER) != 0 } {
-        set post_eco_net [lindex [glob -directory $::env(RUN_DIR)/results/eco/net *.v]   end]
-        set post_eco_def [lindex [glob -directory $::env(RUN_DIR)/results/eco/def *.def] end] 
-        file copy -force $post_eco_net $::env(RUN_DIR)/results/synthesis/mgmt_core.synthesis_preroute.v
-        file copy -force $post_eco_def $::env(RUN_DIR)/results/routing/post_eco-mgmt_core.def
+	if {  $::env(ECO_ENABLE) == 1 } {
+        run_eco
     }
 }
+
 proc save_final_views {args} {
 	set options {
 		{-save_path optional}
@@ -378,63 +161,44 @@ proc run_non_interactive_mode {args} {
 		{-no_lvs optional}
 	    {-no_drc optional}
 	    {-no_antennacheck optional}
+	    {-override_env optional}
 	}
 	set flags {-save}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
-	
-    prep {*}$args
+	prep {*}$args
     # signal trap SIGINT save_state;
+
+	if { [info exists arg_values(-override_env)] } {
+		set env_overrides [split $arg_values(-override_env) ','] 
+		foreach override $env_overrides {
+			set kva [split $override '=']
+			set key [lindex $kva 0]
+			set value [lindex $kva 1]
+			set ::env(${key}) $value
+		}
+	}
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
     set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
-    
-	if {  ![info exists ::env(ECO_ENABLE) ] } {
-        set ::env(ECO_ENABLE) 1 
-        set ::env(ECO_FINISH) 0
-        set ::env(ECO_ITER) 0
-    } 
-	if {  $::env(ECO_ENABLE) == 0 } {
-        set ::env(ECO_ENABLE) 0 
-        set ::env(ECO_FINISH) 1
-        set ::env(ECO_ITER) 0
-    } 
 
-
-    if {$::env(ECO_ENABLE) == 1} {
-        set steps [dict create "synthesis" {run_synthesis "" } \
-                    "floorplan" {run_floorplan ""} \
-                    "placement" {run_placement_step ""} \
-                    "cts" {run_cts_step ""} \
-                    "routing" {run_routing_step ""} \
-                    "eco" {run_eco_step ""} \
-                    "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                    "gds_magic" {run_magic ""} \
-                    "gds_drc_klayout" {run_klayout ""} \
-                    "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                    "lvs" "run_lvs_step $LVS_ENABLED" \
-                    "drc" "run_drc_step $DRC_ENABLED" \
-                    "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                    "cvc" {run_lef_cvc}
-            ]
-    } else {
-        set steps [dict create "synthesis" {run_synthesis "" } \
-                    "floorplan" {run_floorplan ""} \
-                    "placement" {run_placement_step ""} \
-                    "cts" {run_cts_step ""} \
-                    "routing" {run_routing_step ""} \
-                    "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                    "gds_magic" {run_magic ""} \
-                    "gds_drc_klayout" {run_klayout ""} \
-                    "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                    "lvs" "run_lvs_step $LVS_ENABLED" \
-                    "drc" "run_drc_step $DRC_ENABLED" \
-                    "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                    "cvc" {run_lef_cvc}
-            ]
-    }
-
+    set steps [dict create \
+		"synthesis" {run_synthesis "" } \
+		"floorplan" {run_floorplan ""} \
+		"placement" {run_placement_step ""} \
+		"cts" {run_cts_step ""} \
+		"routing" {run_routing_step ""}\
+        "eco" {run_eco_step ""} \
+		"diode_insertion" {run_diode_insertion_2_5_step ""} \
+		"gds_magic" {run_magic ""} \
+		"gds_drc_klayout" {run_klayout ""} \
+		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"lvs" "run_lvs_step $LVS_ENABLED" \
+		"drc" "run_drc_step $DRC_ENABLED" \
+		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+		"cvc" {run_lef_cvc}
+    ]
 
     set_if_unset arg_values(-to) "cvc";
 
@@ -445,12 +209,9 @@ proc run_non_interactive_mode {args} {
         set ::env(CURRENT_STEP) "synthesis";
     }
 
-    # set_if_unset arg_values(-from) "eco";
     set_if_unset arg_values(-from) $::env(CURRENT_STEP);
-
     set exe 0;
     dict for {step_name step_exe} $steps {
-        puts $step_name
         if { [ string equal $arg_values(-from) $step_name ] } {
             set exe 1;
         }
@@ -458,12 +219,7 @@ proc run_non_interactive_mode {args} {
         if { $exe } {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
-            if {$step_name == "eco"} {
-                [lindex $step_exe 0] [lindex $step_exe 1] \
-                |& tee $::env(TERMINAL_OUTPUT) $::env(RUN_DIR)/debug.log;
-            } else {
-                [lindex $step_exe 0] [lindex $step_exe 1] ;
-            }
+            [lindex $step_exe 0] [lindex $step_exe 1] ;
         }
 
         if { [ string equal $arg_values(-to) $step_name ] } {
@@ -492,14 +248,13 @@ proc run_non_interactive_mode {args} {
 			-save_path $arg_values(-save_path)\
 			-tag $::env(RUN_TAG)
 	}
-  
 	calc_total_runtime
 	save_state
 	generate_final_summary_report
 	
 	check_timing_violations
 
-	puts_success "Flow Completed Without Fatal Errors."
+	puts_success "Flow complete."
 }
 
 proc run_interactive_mode {args} {
@@ -549,7 +304,7 @@ proc run_magic_drc_batch {args} {
 			-noconsole \
 			-dnull \
 			$::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
-			</dev/null |& /dev/tty
+			</dev/null |& tee /dev/tty
 	}
 }
 
@@ -569,7 +324,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
@@ -584,14 +339,14 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(RESULTS_DIR)/magic/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
 	} else {
 		run_magic_spice_export
 	}
 
-	run_lvs; # requires run_magic_spice_export
+	run_lvs
 }
 
 

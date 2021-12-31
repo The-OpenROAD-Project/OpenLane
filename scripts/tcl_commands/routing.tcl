@@ -168,11 +168,11 @@ proc detailed_routing {args} {
     TIMER::timer_start
     puts_info "Running Detailed Routing..."
     
-    if { $::env(ECO_ITER) == 0 } {
-        set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
-    } else {
-        set ::env(SAVE_DEF) $::env(RUN_DIR)/results/eco/arcdef/$::env(ECO_ITER)_post-route.def
+    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
+        set ::env(SAVE_DEF) $::env(eco_results)/arcdef/$::env(ECO_ITER)_post-route.def
     }
+
     set tool "openroad"
     if {$::env(RUN_ROUTING_DETAILED)} {
         if { $::env(DETAILED_ROUTER) == "drcu" } {
@@ -380,9 +380,10 @@ proc run_spef_extraction {args} {
 
 proc run_routing {args} {
     puts_info "Routing..."
-    if { $::env(ECO_ITER) != 0 } {
-            set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
-            set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
+
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+        set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
+        set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
     }
     set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     
@@ -394,33 +395,36 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-    puts_info "Current at ECO iteration: $::env(ECO_ITER)"
 
-    # run_resizer_timing_routing
+    if { $::env(ECO_ENABLE) == 1 } {
+        puts_info "Current at ECO iteration: $::env(ECO_ITER)"
+    }
 
-    # if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-    #     if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-    #         ins_diode_cells_1
-    #     }
-    #     if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-    #         ins_diode_cells_4
-    #     }
-    # }
+    run_resizer_timing_routing
 
-    # use_original_lefs
+    if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
+            ins_diode_cells_1
+        }
+        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+            ins_diode_cells_4
+        }
+    }
 
-    # add_route_obs
+    use_original_lefs
 
-    # #legalize if not yet legalized
-    # if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
-    #     detailed_placement_or -def $::env(CURRENT_DEF) -log $::env(routing_logs)/diode_legalization.log
-    # }
+    add_route_obs
 
-    # # if diode insertion does *not* happen as part of global routing, then
-    # # we can insert fill cells early on
-    # if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
-    #     ins_fill_cells
-    # }
+    #legalize if not yet legalized
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+        detailed_placement_or -def $::env(CURRENT_DEF) -log $::env(routing_logs)/diode_legalization.log
+    }
+
+    # if diode insertion does *not* happen as part of global routing, then
+    # we can insert fill cells early on
+    if { $::env(DIODE_INSERTION_STRATEGY) != 3 } {
+        ins_fill_cells
+    }
 
     global_routing
 
@@ -445,43 +449,39 @@ proc run_routing {args} {
     set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
     
     write_verilog $detailed_routed_netlist -log $::env(routing_logs)/write_verilog_detailed.log
-    if {[expr {$::env(ECO_ITER) == 0}]} {
-		  # for LVS
-		  set_netlist $detailed_routed_netlist
-	  } else {
-      set_netlist $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-	  }
+    
+    # for lvs
+    set_netlist $detailed_routed_netlist
+
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+		set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+    }
     
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
     # spef extraction at the three corners
-    if { $::env(ECO_ITER) == 0 } {
-        set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
-        set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
-        set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
-    } else {
-        set ::env(SPEF_FASTEST) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.ff.spef;
-        set ::env(SPEF_TYPICAL) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.tt.spef;
-        set ::env(SPEF_SLOWEST) $::env(RUN_DIR)/results/eco/spef/$::env(ECO_ITER)_mgmt_core.ss.spef;
+    set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+    set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
+    set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
+    
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
+        set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.ff.spef;
+        set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.tt.spef;
+        set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.ss.spef;
     }
-    # set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef
-    # set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef
-    # set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef
 
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
     run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
     run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
 
-    # set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-    if { $::env(ECO_ITER) == 0 } {
-        set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-    } else {
-        set ::env(SAVE_SDF) $::env(RUN_DIR)/results/eco/sdf/$::env(ECO_ITER)_mgmt_core.sdf
+    set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+    
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_mgmt_core.sdf
     }
 
     # run sta at the typical corner using the extracted spef

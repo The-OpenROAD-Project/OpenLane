@@ -449,6 +449,7 @@ proc prep {args} {
         placement\
         cts\
         routing\
+        eco\
         finishing
     ]
 

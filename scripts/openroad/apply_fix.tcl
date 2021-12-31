@@ -42,12 +42,12 @@ if {[expr {$cur_iter == 0}]} {
     read_verilog $::env(CURRENT_NETLIST)
 } else {
     if {[catch {read_def \
-            $::env(RUN_DIR)/results/eco/def/eco_$cur_iter.def} errmsg]} {
+            $::env(eco_results)/def/eco_$cur_iter.def} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
     puts "Reading results/eco/net/eco_$cur_iter.v"
-    read_verilog $::env(RUN_DIR)/results/eco/net/eco_$cur_iter.v
+    read_verilog $::env(eco_results)/net/eco_$cur_iter.v
 }
 puts "ECO: Successfully read Verilog!"
 
@@ -55,23 +55,23 @@ read_sdc -echo $::env(CURRENT_SDC)
 puts "ECO: Successfully read SDC!"
 
 puts "ECO: Sourcing eco.tcl!"
-source $::env(SCRIPTS_DIR)/tcl_commands/eco.tcl
+source $::env(SCRIPTS_DIR)/openroad/eco.tcl
 
 
-write_verilog $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-write_def     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+write_verilog $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+write_def     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
 
 # Now these variables are set in flow.tcl
 # right after this script is run
-# set ::env(CURRENT_NETLIST) $::env(RUN_DIR)/results/eco/net/eco_$::env(ECO_ITER).v
-# set ::env(CURRENT_DEF)     $::env(RUN_DIR)/results/eco/def/eco_$::env(ECO_ITER).def
+# set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+# set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
 
 # File post-processing for pre-eco
 # if { $::env(ECO_ITER) == 1 } {
-#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.def]  \
-#                 $::env(RUN_DIR)/results/eco/def
-#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.spef] \
-#                 $::env(RUN_DIR)/results/eco/spef
-#     move_to_dir [glob -directory $::env(RUN_DIR)/results/routing *.sdf]  \
-#                 $::env(RUN_DIR)/results/eco/sdf
+#     move_to_dir [glob -directory $::env(routing_results) *.def]  \
+#                 $::env(eco_results)/def
+#     move_to_dir [glob -directory $::env(routing_results) *.spef] \
+#                 $::env(eco_results)/spef
+#     move_to_dir [glob -directory $::env(routing_results) *.sdf]  \
+#                 $::env(eco_results)/sdf
 # }
