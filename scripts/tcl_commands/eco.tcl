@@ -184,8 +184,8 @@ proc run_eco {args} {
     if { $::env(ECO_ITER) != 0 } {
         set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
         set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end] 
-        file copy -force $post_eco_net $::env(synthesis_results)/mgmt_core.synthesis_preroute.v
-        file copy -force $post_eco_def $::env(routing_results)/post_eco-mgmt_core.def
+        file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
+        file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
     }
 }
 

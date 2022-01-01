@@ -469,9 +469,9 @@ proc run_routing {args} {
     set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
     
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
-        set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.ff.spef;
-        set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.tt.spef;
-        set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_mgmt_core.ss.spef;
+        set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ff.spef;
+        set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).tt.spef;
+        set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ss.spef;
     }
 
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
@@ -481,7 +481,7 @@ proc run_routing {args} {
     set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
     
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_mgmt_core.sdf
+        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
     }
 
     # run sta at the typical corner using the extracted spef
