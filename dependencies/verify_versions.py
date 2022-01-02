@@ -147,7 +147,7 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
     else: 
         # 3b. Compare Container And Installation Manifests
         try:
-            container_manifest_path = join("/", "tool_metadata.yml")
+            container_manifest_path = join(openlane_dir, "dependencies", "tool_metadata.yml")
             environment_manifest = yaml.safe_load(open(container_manifest_path))
         except FileNotFoundError:
             raise Exception("Container manifest not found. What this likely means is that the container is severely out of date.")

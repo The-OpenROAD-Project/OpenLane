@@ -20,13 +20,13 @@ WORKDIR /qflow
 RUN curl -L ${VLOGTOVERILOG_REPO}/tarball/${VLOGTOVERILOG_COMMIT} | tar -xzC . --strip-components=1 && \
     ./configure && \
     cd src && \
-    make vlog2Verilog
+    make vlogtoverilog
 
-RUN mkdir -p /build/bin && cp /qflow/src/vlog2Verilog /build/bin/
+RUN mkdir -p /build/bin && cp /qflow/src/vlogtoverilog /build/bin/
 
 RUN mkdir -p /build/version/
-RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/vlog2Verilog.version
-RUN echo ${VLOGTOVERILOG_COMMIT} >> /build/version/vlog2Verilog.version
+RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/vlogtoverilog.version
+RUN echo ${VLOGTOVERILOG_COMMIT} >> /build/version/vlogtoverilog.version
 RUN tar -czf /build.tar.gz /build
 
 # ---

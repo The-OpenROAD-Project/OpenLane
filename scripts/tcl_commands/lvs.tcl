@@ -24,7 +24,7 @@ proc verilog_to_verilogPower {args} {
     }
     set flags {}
     parse_key_args "verilog_to_verilogPower" args arg_values $options flags_map $flags
-    set bin vlog2Verilog
+    set bin vlogtoverilog
     set in $arg_values(-input)
     set out $arg_values(-output)
     set power $arg_values(-power)
