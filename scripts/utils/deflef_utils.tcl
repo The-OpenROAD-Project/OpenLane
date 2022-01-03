@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ proc remove_empty_nets {args} {
   set options {{-input required}}
   set flags {}
   parse_key_args "remove_empty_nets" args arg_values $options flags_map $flags
-    try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_nets\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_nets\
     --empty-only\
     --input-lef $::env(MERGED_LEF)\
     --output $arg_values(-input)\
@@ -141,7 +141,7 @@ proc remove_pins {args} {
   set options {{-input required}}
   set flags {}
   parse_key_args "remove_pins" args arg_values $options flags_map $flags
-  try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_pins\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_pins\
     --input-lef $::env(MERGED_LEF)\
     --output $arg_values(-input)\
     $arg_values(-input)
@@ -152,7 +152,7 @@ proc remove_nets {args} {
   set options {{-input required}}
   set flags {}
   parse_key_args "remove_nets" args arg_values $options flags_map $flags
-  try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_nets\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_nets\
     --input-lef $::env(MERGED_LEF)\
     --output $arg_values(-input)\
     $arg_values(-input)
@@ -162,7 +162,7 @@ proc remove_components {args} {
   set options {{-input required}}
   set flags {}
   parse_key_args "remove_components" args arg_values $options flags_map $flags
-  try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_components\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_components\
     --input-lef $::env(MERGED_LEF)\
     --output $arg_values(-input)\
     $arg_values(-input)
@@ -175,7 +175,7 @@ proc remove_component {args} {
   }
   set flags {}
   parse_key_args "remove_component" args arg_values $options flags_map $flags
-  try_catch $::(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_components\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py remove_components\
     --input-lef $::env(MERGED_LEF)\
     --instance-name $arg_values(-instance_name) --not-rx\
     --output $arg_values(-input)\
