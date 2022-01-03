@@ -74,24 +74,24 @@ else:
         current_dir = dirname(current_dir)
 
     if run_path is None:
-        print(f"❌ No run path provided and {input_file} is not in the run path.", file=sys.stderr)
+        print(f"[ERR] No run path provided and {input_file} is not in the run path.", file=sys.stderr)
         exit(os.EX_USAGE)
     else:
-        print(f"ℹ Resolved run path to {run_path}.")
+        print(f"[INF] Resolved run path to {run_path}.")
 
 save_def = args.output
 verbose = args.verbose
 
 if not os.path.exists(input_file):
-    print(f"❌ {input_file} not found.", file=sys.stderr)
+    print(f"[ERR] {input_file} not found.", file=sys.stderr)
     exit(os.EX_NOINPUT)
 
 if not script_path.startswith(or_scripts_path):
-    print(f"❌ The OpenROAD script {script_path} does not appear to be in {or_scripts_path}.", file=sys.stderr)
+    print(f"[ERR] The OpenROAD script {script_path} does not appear to be in {or_scripts_path}.", file=sys.stderr)
     exit(os.EX_CONFIG)
 
 if not os.path.exists(run_path) and os.path.isdir(run_path):
-    print(f"❌ The run path {run_path} is not a valid folder.", file=sys.stderr)
+    print(f"[ERR] The run path {run_path} is not a valid folder.", file=sys.stderr)
     exit(os.EX_CONFIG)
 
 run_name = basename(run_path)
@@ -204,7 +204,7 @@ while current is not None:
                         tcls.add(value_substituted)
                         tcls_to_process.append(value_substituted)
     except:
-        print(f"⚠ {current} was not found, might be a product. Skipping", file=sys.stderr)
+        print(f"[WRN] {current} was not found, might be a product. Skipping", file=sys.stderr)
 
     current = shift(tcls_to_process)
 
@@ -244,7 +244,7 @@ def copy(frm, to):
         else:
             do_copy()
     except Exception as e:
-        warnings.append(f"ℹ Couldn't copy {frm}: {e}. Skipped.")
+        warnings.append(f"[WRN] Couldn't copy {frm}: {e}. Skipped.")
 
 if verbose:
     print("\nProcessing environment variables…\n---", file=sys.stderr)
@@ -273,7 +273,7 @@ for key in env_keys_used:
             if pdk in value_components:
                 nonfree_warning = False
         if nonfree_warning:
-            warnings.append(f"⚠ CAUTION: {value} appears to be a confidential PDK file. ENSURE THAT YOU INSPECT THE RESULTS.") 
+            warnings.append(f"[WRN] {value} appears to be a confidential PDK file. ENSURE THAT YOU INSPECT THE RESULTS.") 
         relative = relpath(value, pdk_root)
         final_value = join("pdk", relative)
         final_path = join(destination_folder, final_value)
@@ -339,5 +339,5 @@ with open(lldb_env, "w") as f:
 {env_list}
     """)
 
-print("⭕️ Done.", file=sys.stderr)
+print("[FIN] Done.", file=sys.stderr)
 print(destination_folder)

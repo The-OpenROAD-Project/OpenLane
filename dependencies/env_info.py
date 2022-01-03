@@ -19,7 +19,11 @@ import sys
 import json
 import platform
 import subprocess
-from typing import Tuple, Union, List, Optional
+
+try:
+    from typing import Tuple, Union, List, Optional
+except ImportError:
+    pass
 
 class StringRepresentable(object):
     def __str__(self):
@@ -30,10 +34,10 @@ class StringRepresentable(object):
 
 
 class ContainerInfo(StringRepresentable):
-    engine: str
-    version: str
-    conmon: bool
-    rootless: bool
+    engine = "UNKNOWN" # type: str
+    version = "UNKNOWN" # type: str
+    conmon = False # type: bool
+    rootless = False # type : bool
 
     def __init__(self):
         self.engine = "UNKNOWN"
@@ -42,7 +46,8 @@ class ContainerInfo(StringRepresentable):
         self.rootless = False
 
     @staticmethod
-    def get() -> Optional['ContainerInfo']:
+    def get():
+        # type: () -> Optional['ContainerInfo']
         try:
             cinfo = ContainerInfo()
             
@@ -86,12 +91,12 @@ class ContainerInfo(StringRepresentable):
     
 
 class OSInfo(StringRepresentable):
-    kernel: str
-    python_version: str
-    kernel_version: str
-    distro: Optional[str]
-    distro_version: Optional[str]
-    container_info: Optional[ContainerInfo]
+    kernel = "" # type: str
+    python_version = "" # type: str
+    kernel_version = "" # type: str
+    distro = None # type: Optional[str]
+    distro_version = None # type: Optional[str]
+    container_info = None # type: Optional[ContainerInfo]
 
     def __init__(self):
         self.kernel = platform.system()
@@ -102,11 +107,12 @@ class OSInfo(StringRepresentable):
         self.container_info = None
 
     @staticmethod
-    def get() -> Optional['OSInfo']:
+    def get():
+        # type: () -> Optional['OSInfo']
         osinfo = OSInfo()
 
         if osinfo.kernel not in ["Linux", "Darwin"]:
-            print(f"Platform {osinfo.name} is unsupported.", file=sys.stderr)
+            print("Platform %s is unsupported." % osinfo.name, file=sys.stderr)
             return None
 
 
@@ -147,7 +153,7 @@ class OSInfo(StringRepresentable):
 
                 
             else:
-                print(f"Failed to get distribution info.", file=sys.stderr)
+                print("Failed to get distribution info.", file=sys.stderr)
 
         osinfo.container_info = ContainerInfo.get()
 
