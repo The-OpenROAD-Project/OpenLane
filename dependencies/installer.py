@@ -25,7 +25,7 @@ import subprocess
 from os.path import join, abspath, dirname, exists, realpath
 from typing import Tuple, Union, List
 
-openlane_dir = dirname(abspath(__file__))
+openlane_dir = dirname(dirname(abspath(__file__)))
 is_root = os.geteuid() == 0
 
 class chdir(object):
