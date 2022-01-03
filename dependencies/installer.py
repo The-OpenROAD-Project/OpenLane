@@ -124,8 +124,6 @@ class Installer(object):
             exit(-1)
 
         tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
-        if self.input_options("RISK_ACKNOWLEDGED", "I affirm that I have read docs/source/local_installs.md and agree to the outlined risks.", ["n", "y"]) != "y":
-            return
 
         print(textwrap.dedent(f"""\
             OpenLane Local Installer ALPHA
@@ -274,6 +272,7 @@ class Installer(object):
         
         run_env = os.environ.copy()
         run_env["PREFIX"] = install_dir
+        run_env["PATH"] = f"{install_dir}/bin:{os.getenv('PATH')}"
 
         path_elements = ["$OL_INSTALL_DIR/venv/bin", "$OL_INSTALL_DIR/bin"]
 
@@ -336,11 +335,22 @@ class Installer(object):
                     sh("mkdir", "-p", folder)
                     
                 skip_tools = re.compile(os.getenv("SKIP_TOOLS") or "Unmatchable")
-                for tool in tools.values():
-                    if not tool.in_install:
+                tool_queue = list(tools.values()).copy()
+                pop = lambda: tool_queue.pop(0) if len(tool_queue) else None
+                installed = set()
+                tool = pop()
+                while tool is not None:
+                    if not (tool.in_install and (skip_tools.match(tool.name) is None)):
+                        tool = pop()
                         continue
-                    if skip_tools.match(tool.name) is not None:
-                        continue
+
+                    if len(tool.dependencies):
+                        dependencies = set(tool.dependencies)
+                        if not dependencies.issubset(installed):
+                            tool_queue.append(tool)
+                            tool = pop()
+                            continue
+
                     installed_version = ""
                     version_path = f"versions/{tool.name}"
                     try:
@@ -349,28 +359,30 @@ class Installer(object):
                         pass
                     if installed_version == tool.version_string and os.getenv("FORCE_REINSTALL") != "1":
                         print(f"{tool.version_string} already installed, skipping...")
-                        continue
-                    
-                    print(f"Installing {tool.name}...")
-                    
-                    with chdir("repos"):
-                        if not exists(tool.name):
-                            sh("git", "clone", tool.repo, tool.name)
+                    else:
+                        print(f"Installing {tool.name}...")
                         
-                        with chdir(tool.name):
-                            sh("git", "fetch")
-                            sh("git", "submodule", "update", "--init")
-                            sh("git", "checkout", tool.commit)
-                            subprocess.run([
-                                "bash", "-c", f"""\
-                                    set -e
-                                    source {install_dir}/venv/bin/activate
-                                    {tool.build_script}
-                                """
-                            ], env=run_env, check=True)
+                        with chdir("repos"):
+                            if not exists(tool.name):
+                                sh("git", "clone", tool.repo, tool.name)
+                            
+                            with chdir(tool.name):
+                                sh("git", "fetch")
+                                sh("git", "submodule", "update", "--init")
+                                sh("git", "checkout", tool.commit)
+                                subprocess.run([
+                                    "bash", "-c", f"""\
+                                        set -e
+                                        source {install_dir}/venv/bin/activate
+                                        {tool.build_script}
+                                    """
+                                ], env=run_env, check=True)
 
-                    with open(version_path, "w") as f:
-                        f.write(tool.version_string)
+                        with open(version_path, "w") as f:
+                            f.write(tool.version_string)
+
+                    installed.add(tool.name)
+                    tool = pop()
 
             path_elements.reverse()
             with open("env.tcl", "w") as f:
