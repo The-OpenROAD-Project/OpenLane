@@ -136,7 +136,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_RESIZER_REPAIR_TIE_FANOUT` | Specifies whether or not to repair tie cells fanout whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_MAX_DISPLACEMENT_X` | Specifies how far an instance can be moved along the X-axis when finding a site where it can be placed during detailed placement. <br> (Default: `500`um) |
 | `PL_MAX_DISPLACEMENT_Y` | Specifies how far an instance can be moved along the Y-axis when finding a site where it can be placed during detailed placement. <br> (Default: `100`um) |
-| `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros. |
+| `PL_MACRO_HALO` | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
+| `PL_MACRO_CHANNEL` | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
+| `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros |
 | `LIB_OPT` | **Removed**: Points to the lib file, corresponding to the slowest corner, for max delay calculation during OpenPhySyn optimizations. This is usually a trimmed version of `LIB_SYNTH`. <br> Default: `$::env(TMP_DIR)/opt.lib` |
 | `PL_DIAMOND_SEARCH_HEIGHT` | **Removed: Use PL_MAX_DISPLACEMENT_(X/Y) instead**: Specifies the diamond search height used for legalizing the cells during detailed placement. The search width is calculated internally as `heigh*5`. For designs that contain big macros, increasing this value to above 400 will allow for more search space and more potentail for successful legalization. <br> (Default: `100`) |
 | `PL_OPENPHYSYN_OPTIMIZATIONS` | **Removed**: Specifies whether OpenPhySyn should be used to perform timing optimizations or not. 0 = false, 1 = true <br> (Default: `0`) |

@@ -25,6 +25,8 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }  
 
-macro_placement -channel {0 0} -halo {0 0}
+macro_placement\
+    -channel $::env(PL_MACRO_CHANNEL)\
+    -halo $::env(PL_MACRO_HALO)
 
 write_def $::env(SAVE_DEF)
