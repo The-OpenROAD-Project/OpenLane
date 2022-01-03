@@ -120,9 +120,9 @@ proc move_pins {args} {
   }
   set flags {}
   parse_key_args "move_pins" args arg_values $options flags_map $flags
-  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py merge_pins\
     --output $arg_values(-to)\
-    --lef-input $::env(MERGED_LEF)\
+    --input-lef $::env(MERGED_LEF)\
     $arg_values(-to) $arg_values(-from)
 }
 
