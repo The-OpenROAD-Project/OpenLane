@@ -66,8 +66,8 @@
     ./configure
     cd src
     make clean
-    make -j$(nproc) vlogtoverilog
-    cp vlogtoverilog $PREFIX/bin
+    make -j$(nproc) vlog2Verilog
+    cp vlog2Verilog $PREFIX/bin
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: d061b0e41a2023b5e72794563b94d6a9b5ab41a1
