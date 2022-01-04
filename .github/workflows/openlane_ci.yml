@@ -73,7 +73,7 @@ jobs:
         run: |
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
-          make pdk
+          make -j 1 NPROC=1 pdk
 
       - name: Tarball PDK
         run: |
