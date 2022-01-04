@@ -58,8 +58,8 @@ SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit
 OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
 PDK_OPTS = 
-# ifeq ($(EXTERNAL_PDK_INSTALLATION), 1)
-ifneq ($(EXTERNAL_PDK_INSTALLATION), 1)
+EXTERNAL_PDK_INSTALLATION ?= 1
+ifeq ($(EXTERNAL_PDK_INSTALLATION), 1)
 export PDK_ROOT ?= ./pdks
 export PDK_ROOT := $(shell python3 -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
