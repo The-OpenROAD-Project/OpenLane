@@ -20,7 +20,7 @@ from typing import Dict, List
 class Tool(object):
     by_name: Dict[str, 'Tool']
 
-    def __init__(self, name, repo, commit, build_script="make && make install", default_branch=None, in_install=True, in_container=True, dependencies=[]):
+    def __init__(self, name, repo, commit, build_script="make && make install", default_branch=None, in_install=True, in_container=True, dependencies=[], pdk=False):
         self.name = name
         self.repo = repo
         self.commit = commit
@@ -29,6 +29,7 @@ class Tool(object):
         self.in_install = in_install
         self.in_container = in_container
         self.dependencies = dependencies
+        self.pdk = pdk
 
     def __repr__(self) -> str:
         return f"<Tool {self.name} (using {self.repo_pretty or 'None'}@{self.commit or 'None'})>"
@@ -70,7 +71,8 @@ class Tool(object):
                 default_branch=tool.get('default_branch') or None,
                 in_container=tool['in_container'] if tool.get('in_container') is not None else True,
                 in_install=tool['in_install'] if tool.get('in_install') is not None else True,
-                dependencies= tool.get('dependencies') or []
+                dependencies= tool.get('dependencies') or [],
+                pdk=tool.get('pdk') or False
             )
         return final_dict
 
@@ -83,10 +85,20 @@ def main():
     parser = argparse.ArgumentParser(description="Get Tool Info")
     parser.add_argument("--containerized", action="store_true")
     parser.add_argument("--docker-args", action="store_true")
+    parser.add_argument("--no-pdks", action="store_true")
     parser.add_argument("--docker-tag-for-os", default=None)
     parser.add_argument("--field", "-f")
     parser.add_argument("tool")
     args = parser.parse_args()
+
+    if args.no_pdks:
+        pdk_keys = []
+        for key, value in Tool.by_name.items():
+            if value.pdk:
+                pdk_keys.append(key)
+
+        for key in pdk_keys:
+                del Tool.by_name[key]
 
     if args.containerized:
         for tool in Tool.by_name.values():

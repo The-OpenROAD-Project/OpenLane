@@ -10,7 +10,13 @@ DOCKER_BUILD_OPTS ?= --rm
 DOCKER_BUILD_INVOCATION ?= docker build # docker buildx build --platform linux/amd64 --load
 BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
 
-TOOLS = $(shell python3 ../dependencies/tool.py --containerized .)
+NO_PDKS_ARGS =
+NO_PDKS ?= 1
+ifeq ($(NO_PDKS), 1)
+NO_PDKS_ARGS = --no-pdks
+endif
+
+TOOLS = $(shell python3 ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
@@ -60,13 +66,13 @@ $(TOOL_EXPORT_TARGETS): tar/%.tar.gz : FORCE
 	  ${ROOT} docker rm -v $$id
 
 ./tar/build: $(TOOL_EXPORT_TARGETS)
-	for tarFile in $(foreach tool,$(TOOLS),tar/$(tool).tar.gz); do \
-	  tar -xzf $$tarFile ; \
-	done
-	chmod -R +x ./build/bin
-	find ./build/ -name "*.tcl" -exec chmod +x {} \;
 	rm -rf ./tar/build
-	mv ./build/ ./tar/build
+	cd tar && \
+	for tarFile in $(foreach tool,$(TOOLS),$(tool).tar.gz); do \
+	  	tar -xzf $$tarFile ; \
+		chmod -R +x ./build/bin ; \
+		find ./build/ -name "*.tcl" -exec chmod +x {} \; ;\
+	done
 
 OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
 ./tar/openlane: FORCE

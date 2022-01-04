@@ -39,7 +39,6 @@ RUN git submodule update --init libraries/sky130_fd_sc_hd/latest &&\
     git submodule update --init libraries/sky130_fd_sc_hvl/latest &&\
     git submodule update --init libraries/sky130_fd_io/latest &&\
     git submodule update --init libraries/sky130_fd_pr/latest
-RUN sed -i 's/sky130_\*_sc_\*/sky130_\*_sc_\*\/latest/' ./Makefile
 RUN make -j 1 NPROC=1 timing 2>&1 | tee /build/pdk_timing.log 
 
 ARG MAGIC_REPO
