@@ -81,11 +81,18 @@ def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Get Tool Info")
+    parser.add_argument("--containerized", action="store_true")
     parser.add_argument("--docker-args", action="store_true")
     parser.add_argument("--docker-tag-for-os", default=None)
     parser.add_argument("--field", "-f")
     parser.add_argument("tool")
     args = parser.parse_args()
+
+    if args.containerized:
+        for tool in Tool.by_name.values():
+            if tool.in_container:
+                print(tool.name, end=" ")
+        exit(0)
     
     try:
         tool = Tool.by_name[args.tool]
@@ -97,12 +104,20 @@ def main():
         print(tool.get_docker_tag(for_os=args.docker_tag_for_os))
     elif args.docker_args:
         arg_list = tool.docker_args
+
+        # 1. Dependents
         dependents = []
         for dependent in Tool.by_name.values():
             if tool.name in dependent.dependencies:
                 dependents.append(dependent)
         for dependent in dependents:
             arg_list += dependent.docker_args
+
+        # 2. Dependencies
+        for dependency_name in tool.dependencies:
+            dependency = Tool.by_name[dependency_name]
+            arg_list += dependency.docker_args
+
         print(" ".join(arg_list), end="")
     elif args.field:
         field = tool.__dict__[args.field]

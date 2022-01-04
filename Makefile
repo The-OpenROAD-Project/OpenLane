@@ -15,8 +15,6 @@ PYTHON_BIN ?= python3
 
 OPENLANE_DIR ?= $(shell pwd)
 
-PDK_ROOT ?= $(shell pwd)/pdks
-
 DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
@@ -71,18 +69,22 @@ OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f co
 
 # designs is mounted over install so env.tcl is not found inside the Docker
 # container.
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
+
+PDK_OPTS = 
+ifeq ($(INSTALL_SRAM), enabled)
+ifdef PDK_ROOT
+$(error PDK_ROOT is undefined, please export it before running make)
+else
+PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
+endif
+endif
+
 ENV_START = docker run --rm\
 	-v $(OPENLANE_DIR):/openlane\
 	-v $(OPENLANE_DIR)/designs:/openlane/install\
-	-v $(PDK_ROOT):$(PDK_ROOT)\
-	-e PDK_ROOT=$(PDK_ROOT)\
+	$(PDK_OPTS)\
 	$(DOCKER_OPTIONS)
-
-ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
-
-ifndef PDK_ROOT
-$(error PDK_ROOT is undefined, please export it before running make)
-endif
 
 .DEFAULT_GOAL := all
 

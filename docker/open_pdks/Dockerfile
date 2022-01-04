@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,8 +37,10 @@ RUN git submodule update --init libraries/sky130_fd_sc_hd/latest &&\
     git submodule update --init libraries/sky130_fd_sc_ms/latest &&\
     git submodule update --init libraries/sky130_fd_sc_ls/latest &&\
     git submodule update --init libraries/sky130_fd_sc_hvl/latest &&\
-    git submodule update --init libraries/sky130_fd_io/latest
-RUN make -j$(nproc) timing > /build/pdk_timing.log 2>&1
+    git submodule update --init libraries/sky130_fd_io/latest &&\
+    git submodule update --init libraries/sky130_fd_pr/latest
+RUN sed -i 's/sky130_\*_sc_\*/sky130_\*_sc_\*\/latest/' ./Makefile
+RUN make -j 1 NPROC=1 timing 2>&1 | tee /build/pdk_timing.log 
 
 ARG MAGIC_REPO
 ARG MAGIC_COMMIT
@@ -59,16 +61,24 @@ RUN git checkout master &&\
 	git checkout -qf ${OPEN_PDKS_COMMIT}
 RUN ./configure --enable-sky130-pdk=${PDK_ROOT}/skywater-pdk/libraries --enable-sram-sky130
 WORKDIR ${PDK_ROOT}/open_pdks/sky130
-RUN make alpha-repo xschem-repo sram-repo > /build/pdk_prereq.log 2>&1 
-RUN make > ./build/pdk.log 2>&1
+RUN make alpha-repo xschem-repo sram-repo 2>&1 | tee /build/pdk_prereq.log
+RUN make 2>&1 | tee /build/pdk.log
 RUN make SHARED_PDKS_PATH=${PDK_ROOT} install
 
+RUN printf "skywater-pdk ${SKY130_COMMIT}" > ${PDK_ROOT}/sky130A/SOURCES
+RUN printf "magic ${MAGIC_COMMIT}" >> ${PDK_ROOT}/sky130A/SOURCES
+RUN printf "open_pdks ${OPEN_PDKS_COMMIT}" >> ${PDK_ROOT}/sky130A/SOURCES
 
+RUN rm -rf ${PDK_ROOT}/skywater-pdk
+RUN rm -rf ${PDK_ROOT}/open_pdks
+
+
+RUN tar -c /build | gzip -1 > /build.tar.gz
 
 # ---
-FROM openlane-run-base AS runnable
+# pdk can't really be runnable, might as well shed a few layers
+FROM centos:centos7 as runnable
 
-COPY --from=builder /build/pdk/pdk.log /build/pdk/pdk.log
-COPY --from=builder /build/pdk/sky130A /build/pdk/sky130A
+COPY --from=builder /build.tar.gz /build.tar.gz
 
 

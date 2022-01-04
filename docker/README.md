@@ -26,16 +26,8 @@ make # or make openlane # or make merge
 ```
 
 ## Updating a Tool Binary
-You can update a tool binary as follows:
+You can build a tool runnable using the following command: `make build-<tool_name>`.
 
-```
-make build-<tool_name>
-```
+To list the available tools, `python3 ../dependencies/tool.py --containerized`.
 
-The following are the available tools:
-
-```bash
-cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc git
-```
-
-Be sure to make openlane after.
+Be sure to `make openlane` after building any tool.

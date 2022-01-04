@@ -91,7 +91,9 @@
   commit: 476f7428f7f686de51a5164c702629a9b9f2da46
   build: ''
   in_install: false
-  in_container: false
+  dependencies:
+  - sky130
+  - magic
 - name: sky130
   repo: https://github.com/google/skywater-pdk
   commit: c094b6e83a4f9298e47f696ec5a7fd53535ec5eb
