@@ -43,8 +43,8 @@ if { $::env(FP_IO_MODE) == 1 } {
 set HMETAL $::env(FP_IO_HLAYER)
 set VMETAL $::env(FP_IO_VLAYER)
 
-place_pins $opts\
-	-min_distance $::env(FP_IO_MIN_DISTANCE)\
+place_pins {*}$opts \
+	-min_distance $::env(FP_IO_MIN_DISTANCE) \
 	-random_seed 42 \
 	-hor_layers $HMETAL \
 	-ver_layers $VMETAL

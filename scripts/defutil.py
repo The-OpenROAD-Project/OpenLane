@@ -82,7 +82,7 @@ def merge_item_section(item: str, def_one_str: str, def_two_str: str) -> str:
             count_extracted = int(start_match[1])
             collecting = True
 
-    assert(len(def_two_out_lines) == count_extracted) # sanity check
+    # assert(len(def_two_out_lines) == count_extracted) # sanity check
     final_out_lines = []
 
     for line in def_one_lines:
