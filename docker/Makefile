@@ -10,7 +10,13 @@ DOCKER_BUILD_OPTS ?= --rm
 DOCKER_BUILD_INVOCATION ?= docker build # docker buildx build --platform linux/amd64 --load
 BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
 
-TOOLS = cugr drcu yosys magic openroad_app padring netgen vlogtoverilog cvc git
+NO_PDKS_ARGS =
+NO_PDKS ?= 1
+ifeq ($(NO_PDKS), 1)
+NO_PDKS_ARGS = --no-pdks
+endif
+
+TOOLS = $(shell python3 ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
 
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),tar/$(tool).tar.gz)
@@ -59,22 +65,28 @@ $(TOOL_EXPORT_TARGETS): tar/%.tar.gz : FORCE
 	  ${ROOT} docker cp $$id:/build.tar.gz tar/$*.tar.gz ; \
 	  ${ROOT} docker rm -v $$id
 
-tar/openroad_tools.tar.gz: $(TOOL_EXPORT_TARGETS)
-	for tarFile in $(foreach tool,$(TOOLS),tar/$(tool).tar.gz); do \
-	  tar -xzf $$tarFile ; \
+./tar/build: $(TOOL_EXPORT_TARGETS)
+	rm -rf ./tar/build
+	cd tar && \
+	for tarFile in $(foreach tool,$(TOOLS),$(tool).tar.gz); do \
+	  	tar -xzf $$tarFile ; \
+		chmod -R +x ./build/bin ; \
+		find ./build/ -name "*.tcl" -exec chmod +x {} \; ;\
 	done
-	chmod -R +x ./build/bin
-	find ./build/ -name "*.tcl" -exec chmod +x {} \;
-	cd tar && tar -czf openroad_tools.tar.gz ../build
 
-tar/openlane.tar.gz: FORCE
-	cd tar && tar --exclude='../../.git' --exclude='../../docker' --exclude="../../designs" --exclude="../../pdks" --exclude="../../logs/*" -czf openlane.tar.gz ../../
+OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
+./tar/openlane: FORCE
+	rm -rf ./tar/openlane
+	mkdir -p ./tar/openlane
+	for file in $(OPENLANE_SKELETON); do \
+		cp -r ../$$file ./tar/openlane/$$file ; \
+	done
 
 FORCE:
 
 .PHONY: merge openlane
 openlane: merge
-merge: run_base_image tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependencies/tool_metadata.yml
+merge: run_base_image ./tar/build ./tar/openlane ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version
 	mkdir -p logs/tar
@@ -86,12 +98,8 @@ merge: run_base_image tar/openroad_tools.tar.gz tar/openlane.tar.gz ../dependenc
 
 .PHONY: clean_merge
 clean_merge:
-ifneq (,$(wildcard ./tar/openroad_tools.tar.gz))
-ifneq (,$(wildcard ./tar/openlane.tar.gz))
-		rm ./tar/openlane.tar.gz
-		rm ./tar/openroad_tools.tar.gz
-endif
-endif
+	rm -rf ./tar/openlane
+	rm -rf ./tar/build
 
 clean_export: 
 	rm -rf export/*.tar.gz

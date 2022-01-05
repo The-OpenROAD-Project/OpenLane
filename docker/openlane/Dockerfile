@@ -25,6 +25,7 @@ ENV MANPATH=$OPENROAD/share/man:$MANPATH
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
+ENV PDK_ROOT /build/pdk
 
 # Tools
 ARG CACHE_INVALIDATOR=1
@@ -39,9 +40,9 @@ ADD ./tool_metadata.yml /tool_metadata.yml
 ## Copy Version
 ADD ./git_version /git_version
 
-## Tarballs
-ADD ./openroad_tools.tar.gz /
-ADD ./openlane.tar.gz $OPENLANE_ROOT
+## Artifacts
+COPY ./build /build
+COPY ./openlane /openlane
 
 ## Tclsh RC
 COPY ./.tclshrc /.tclshrc
