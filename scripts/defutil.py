@@ -59,7 +59,7 @@ def mark_component_fixed(cell_name, output, input_lef, input_def):
     assert(odb.write_def(reader.block, output) == 1)
 cli.add_command(mark_component_fixed)
 
-def merge_item_section(item: str, def_one_str: str, def_two_str: str) -> str:
+def merge_item_section(item: str, def_one_str: str, def_two_str: str, replace_two: bool=False) -> str:
     import re
     section_start_rx = re.compile(rf"{item}\s+(\d+)\s*;\s*")
     section_end_rx = re.compile(rf"END\s+{item}")
@@ -69,7 +69,7 @@ def merge_item_section(item: str, def_one_str: str, def_two_str: str) -> str:
 
     collecting = False
     def_two_out_lines = []
-    count_extracted = 0
+    def_two_count = 0
     for line in def_two_lines:
         start_match = section_start_rx.search(line)
         end_match = section_end_rx.search(line)
@@ -79,21 +79,25 @@ def merge_item_section(item: str, def_one_str: str, def_two_str: str) -> str:
         if collecting:
             def_two_out_lines.append(line)
         if start_match is not None:
-            count_extracted = int(start_match[1])
+            def_two_count = int(start_match[1])
             collecting = True
 
-    # assert(len(def_two_out_lines) == count_extracted) # sanity check
+    # assert(len(def_two_out_lines) == def_two_count) # sanity check
     final_out_lines = []
 
+    def_one_count = 0
     for line in def_one_lines:
         start_match = section_start_rx.search(line)
         end_match = section_end_rx.search(line)
         if start_match is not None:
-            count_extracted = int(start_match[1])
-            final_count = len(def_two_out_lines) + count_extracted
+            def_one_count = int(start_match[1])
+            final_count = def_one_count
+            if not replace_two:
+                final_count += def_two_count
             final_out_lines.append(f"{item} {final_count} ;")
         elif end_match is not None:
-            final_out_lines += def_two_out_lines
+            if not replace_two:
+                final_out_lines += def_two_out_lines
             final_out_lines.append(f"END {item}")
         else:
             final_out_lines.append(line)
@@ -128,7 +132,20 @@ def merge_pins(output, input_lef, def_one, def_two):
     with open(output, 'w') as f:
         f.write(merge_item_section("PINS", def_one_str, def_two_str))
 
-cli.add_command(merge_pins)
+@click.command("replace_pins")
+@click.option("-o", "--output", default="./out.def")
+@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
+@click.argument("def_one")
+@click.argument("def_two")
+def replace_pins(output, input_lef, def_one, def_two):
+    # TODO: Rewrite in OpenDB if possible
+    def_one_str = open(def_one).read()
+    def_two_str = open(def_two).read()
+
+    with open(output, 'w') as f:
+        f.write(merge_item_section("PINS", def_one_str, def_two_str, replace_two=True))
+
+cli.add_command(replace_pins)
 
 @click.command("remove_components")
 @click.option("--rx/--not-rx", default=True, help="Treat instance name as a regular expression")
@@ -166,7 +183,13 @@ def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
         if name_m is not None:
             if empty_only and len(net.getITerms()) > 0:
                 continue
-            odb.dbNet.destroy(net)
+            # BTerms = PINS, if it has a pin we need to keep the net
+            if len(net.getBTerms()) > 0:
+                for port in net.getITerms():
+                    odb.dbITerm.disconnect(port)
+            else:
+                odb.dbNet.destroy(net)
+
     
     assert(odb.write_def(reader.block, output) == 1)
 cli.add_command(remove_nets)

@@ -12,6 +12,8 @@ default.cvcrc
 *.log
 # Python cache
 **/__pycache__
+/*.lef
+/*.def
 
 # Mac
 .DS_Store
