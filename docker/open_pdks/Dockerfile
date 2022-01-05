@@ -39,7 +39,26 @@ RUN git submodule update --init libraries/sky130_fd_sc_hd/latest &&\
     git submodule update --init libraries/sky130_fd_sc_hvl/latest &&\
     git submodule update --init libraries/sky130_fd_io/latest &&\
     git submodule update --init libraries/sky130_fd_pr/latest
-RUN make -j 1 NPROC=1 timing 2>&1 | tee /build/pdk_timing.log 
+RUN python3 -m pip install -e scripts/python-skywater-pdk
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hd/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hd/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hd/latest all --ccsnoise
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hdll/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hdll/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hdll/latest all --ccsnoise
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hs/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hs/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hs/latest all --ccsnoise
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hvl/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hvl/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_hvl/latest all --ccsnoise
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ls/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ls/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ls/latest all --ccsnoise
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ms/latest all --leakage
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ms/latest
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ms/latest all
+RUN python3 -m skywater_pdk.liberty libraries/sky130_fd_sc_ms/latest all --ccsnoise
 
 ARG MAGIC_REPO
 ARG MAGIC_COMMIT
