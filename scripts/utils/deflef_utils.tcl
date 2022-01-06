@@ -115,15 +115,16 @@ proc merge_components {args} {
 
 
 proc move_pins {args} {
+  # To be precise, this REPLACES pins in to with the ones in from.
   set options {{-from required} \
     {-to required} \
   }
   set flags {}
   parse_key_args "move_pins" args arg_values $options flags_map $flags
-  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py merge_pins\
+  try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/defutil.py replace_pins\
     --output $arg_values(-to)\
     --input-lef $::env(MERGED_LEF)\
-    $arg_values(-to) $arg_values(-from)
+    $arg_values(-from) $arg_values(-to)
 }
 
 proc zeroize_origin_lef {args} {
