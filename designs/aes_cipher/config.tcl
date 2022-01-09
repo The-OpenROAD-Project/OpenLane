@@ -10,6 +10,8 @@ set ::env(FP_CORE_UTIL) {10}
 
 set ::env(GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT) {60}
 
+set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) {1}
+
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
