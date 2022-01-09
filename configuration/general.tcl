@@ -83,3 +83,8 @@ if { [file exists /build/transforms/] } {
 }
 
 set ::env(SAVE_FINAL_VIEWS) {1}
+
+set ::env(ECO_ENABLE) {0}
+set ::env(ECO_STARTED) {0}
+set ::env(ECO_ITER) {0}
+set ::env(ECO_FINISH) {0}

@@ -105,6 +105,12 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
+proc run_eco_step {args} {
+	if {  $::env(ECO_ENABLE) == 1 } {
+        run_eco
+    }
+}
+
 proc save_final_views {args} {
 	set options {
 		{-save_path optional}
@@ -183,6 +189,7 @@ proc run_non_interactive_mode {args} {
 		"placement" {run_placement_step ""} \
 		"cts" {run_cts_step ""} \
 		"routing" {run_routing_step ""}\
+        "eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
 		"gds_drc_klayout" {run_klayout ""} \

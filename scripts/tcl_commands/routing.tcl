@@ -1,4 +1,5 @@
 # Copyright 2020-2021 Efabless Corporation
+# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -166,7 +167,12 @@ proc detailed_routing {args} {
     increment_index
     TIMER::timer_start
     puts_info "Running Detailed Routing..."
+    
     set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
+        set ::env(SAVE_DEF) $::env(eco_results)/arcdef/$::env(ECO_ITER)_post-route.def
+    }
+
     set tool "openroad"
     if {$::env(RUN_ROUTING_DETAILED)} {
         if { $::env(DETAILED_ROUTER) == "drcu" } {
@@ -375,10 +381,24 @@ proc run_spef_extraction {args} {
 proc run_routing {args} {
     puts_info "Routing..."
 
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+        set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
+        set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+    }
+    set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+    
+    puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+    puts "Current DEF: $::env(CURRENT_DEF)"
+    puts "Routing Current DEF: $::env(ROUTING_CURRENT_DEF)"
+    puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
+
+    if { $::env(ECO_ENABLE) == 1 } {
+        puts_info "Current at ECO iteration: $::env(ECO_ITER)"
+    }
 
     run_resizer_timing_routing
 
@@ -427,25 +447,42 @@ proc run_routing {args} {
     detailed_routing
 
     set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
+    
     write_verilog $detailed_routed_netlist -log $::env(routing_logs)/write_verilog_detailed.log
+    
+    # for lvs
     set_netlist $detailed_routed_netlist
+
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+		set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+    }
+    
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 
-
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
     # spef extraction at the three corners
-    set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef
-    set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef
-    set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef
+    set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
+    set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
+    set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
+    
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
+        set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ff.spef;
+        set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).tt.spef;
+        set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ss.spef;
+    }
 
     run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
     run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
     run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
 
     set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+    
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
+    }
 
     # run sta at the typical corner using the extracted spef
     run_sta -log $::env(routing_logs)/parasitics_sta.log
