@@ -1,4 +1,4 @@
-# The ECO Flow
+# The ECO Flow (Alpha)
 The ECO flow starts from checking the report generated in the route step. A python script is used to check the report, insert buffers, and do the resize. Inside the ECO loop, the python script, cts and route step are called sequentially.  The reports are generated each time, and the loop stops until no hold time violations are found. See overview diagram below:
 
 ![image](../_static/eco_flow.png)
