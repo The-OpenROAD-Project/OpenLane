@@ -18,7 +18,7 @@ You'll have to extract three key elements from the error:
 
 ***You must run or_issue.py from the same filesystem you've run OpenLane with. i.e., if you ran it inside the Docker container, you need to `make mount` first.***
 
-As a practical example, for this log from flow_summary.txt:
+As a practical example, for this log from openlane.log:
 
 ```log
 [INFO]: Changing layout from /openlane/designs/spm/runs/config_TEST_fastestTestSet1/results/cts/spm.cts.def to /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def

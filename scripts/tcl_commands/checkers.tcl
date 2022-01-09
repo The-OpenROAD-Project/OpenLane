@@ -20,7 +20,6 @@ proc check_assign_statements {args} {
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist"
         flow_fail
-        return -code error
     } else {
         puts_info "No assign statement in netlist"
     }
@@ -32,7 +31,6 @@ proc check_synthesis_failure {args} {
     if { ! $checker } {
         puts_err "Synthesis failed"
         flow_fail
-        return -code error
     } else {
         puts_info "Synthesis was successful"
     }
@@ -48,7 +46,6 @@ proc check_timing_violations {args} {
             if {![file exist $file]} {
                 puts_err "File $file doesn't exist."
                 flow_fail
-                return -code error
             }
         }
 
@@ -75,7 +72,6 @@ proc check_hold_violations {args} {
         if { $quit_on_vios } {
             puts_err "There are hold violations in the design at the $corner corner. Please refer to $report_file."
             flow_fail
-            return -code error
         } else {
             puts_warn "There are hold violations in the design at the $corner corner. Please refer to $report_file."
         }
@@ -101,7 +97,6 @@ proc check_setup_violations {args} {
         if { $quit_on_vios } {
             puts_err "There are setup violations in the design at the $corner corner. Please refer to $report_file."
             flow_fail
-            return -code error
         } else {
             puts_warn "There are setup violations in the design at the $corner corner. Please refer to $report_file."
         }
@@ -127,7 +122,6 @@ proc check_slew_violations {args} {
         if { $quit_on_vios } {
             puts_err "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
             flow_fail
-            return -code error
         } else {
             puts_warn "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
         }
@@ -147,7 +141,6 @@ proc check_floorplan_missing_lef {args} {
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately"
         flow_fail
-        return -code error
     }
 }
 
@@ -161,7 +154,6 @@ proc check_floorplan_missing_pins {args} {
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately and if they have the referenced pins."
         flow_fail
-        return -code error
     }
 }
 
@@ -173,7 +165,6 @@ proc check_cts_clock_nets {args} {
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
         flow_fail
-        return -code error
     } else {
         puts_info "Clock Tree Synthesis was successful"
     }
@@ -186,7 +177,6 @@ proc check_replace_divergence {args} {
         puts_err "Global placement failed"
         puts_err $error
         flow_fail
-        return -code error
     } else {
         puts_info "Global placement was successful"
     }
@@ -199,7 +189,6 @@ proc check_macro_placer_num_solns {args} {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
         flow_fail
-        return -code error
     } else {
         puts_info "Macro placement was successful"
     }
@@ -213,7 +202,6 @@ proc quit_on_tr_drc {args} {
             puts_err "There are violations in the design after detailed routing."
             puts_err "Total Number of violations is $checker"
             flow_fail
-            return -code error
         } else {
             puts_info "No DRC violations after detailed routing."
         }
@@ -250,7 +238,6 @@ proc quit_on_lvs_error {args} {
         if { $checker != 0 } {
             puts_err "There are LVS errors in the design according to Netgen LVS."
             flow_fail
-            return -code error
         } else {
             puts_info "No LVS mismatches."
         }
@@ -269,7 +256,6 @@ proc quit_on_illegal_overlaps {args} {
             puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
             puts_err "See $arg_values(-log) for more."
             flow_fail
-            return -code error
         } else {
             puts_info "No illegal overlaps detected during extraction."
         }
@@ -286,7 +272,6 @@ proc quit_on_unconnected_pdn_nodes {args} {
             offsets/pitches to power all standard cell rails (or other PDN stripes) \
             in your design."
         flow_fail
-        return -code error
     } else {
         puts_info "PDN generation was successful."
     }

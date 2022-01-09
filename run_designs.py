@@ -209,7 +209,7 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list
                     rmDesignFromPrintList(design)
                     skip_rm_from_rems = True
                 run_path_relative = os.path.relpath(run_path, ".")
-                update("FAIL", design, f"Check {run_path_relative}/flow_summary.log", error=True)
+                update("FAIL", design, f"Check {run_path_relative}/openlane.log", error=True)
                 design_failure_flag = True
 
             if print_rem_time is not None and not skip_rm_from_rems:

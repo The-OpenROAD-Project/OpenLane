@@ -130,8 +130,7 @@ proc run_synthesis {args} {
 	set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
     # in-place insertion
 	if { [file exists $::env(synthesis_results)/$::env(DESIGN_NAME).v] } {
-		puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists..."
-		puts_warn "Skipping synthesis"
+		puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists. Synthesis will be skipped."
 		set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
 	} else {
 		run_yosys

@@ -595,6 +595,17 @@ proc prep {args} {
         assert_files_exist $::env(EXTRA_GDS_FILES)
     }
 
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { [info exists ::env(MISMATCHES_OK)] && $::env(MISMATCHES_OK) == "1" } {
+            puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
+        } else {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            flow_fail
+        }
+    }
+
     puts_info "Preparation complete"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"

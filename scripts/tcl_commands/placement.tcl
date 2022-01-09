@@ -47,7 +47,7 @@ proc global_placement {args} {
 proc random_global_placement {args} {
     increment_index
     TIMER::timer_start
-    puts_warn "Performing Random Global Placement..."
+    puts_info "Performing Random Global Placement..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
