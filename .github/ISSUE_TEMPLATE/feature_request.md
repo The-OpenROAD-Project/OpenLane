@@ -1,6 +1,6 @@
 ---
 name: Feature Requests and Enhancements
-about: Find any shortcomings? Feel free to share them.
+about: Have any ideas? Find any shortcomings? Feel free to share them.
 title: ''
 labels: ''
 assignees: ''
