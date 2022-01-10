@@ -254,8 +254,7 @@ proc run_non_interactive_mode {args} {
 
 	puts_success "Flow complete."
 
-	puts_info "Note that the following warnings have been generated:"
-	show_warnings
+	show_warnings "Note that the following warnings have been generated:"
 }
 
 proc run_interactive_mode {args} {

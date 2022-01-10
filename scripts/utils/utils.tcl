@@ -263,8 +263,7 @@ proc flow_fail {args} {
 		generate_final_summary_report
         save_state
 		puts_err "Flow failed."
-		puts_info "The failure may have been because of the following warnings:"
-		show_warnings
+		show_warnings "The failure may have been because of the following warnings:"
 		return -code error
 	}
 }
@@ -339,8 +338,9 @@ proc puts_info {txt} {
   }
 }
 
-proc show_warnings {} {
+proc show_warnings {msg} {
   if { [info exists ::env(RUN_DIR)] && [file exists $::env(RUN_DIR)/warnings.log] } {
+	puts_info $msg
 	set warnings_file [open $::env(RUN_DIR)/warnings.log "r"]
 	set warnings [read $warnings_file]
 	close $warnings_file
