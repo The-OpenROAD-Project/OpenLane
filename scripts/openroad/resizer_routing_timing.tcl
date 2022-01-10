@@ -104,7 +104,7 @@ if { [catch {repair_timing -setup \
 
 detailed_placement
 
-if { [info exists ::env(GLB_OPTIMIZE_MIRRORING)] && $::env(GLB_OPTIMIZE_MIRRORING) } {
+if { $::env(GLB_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
 

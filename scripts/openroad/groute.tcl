@@ -53,6 +53,7 @@ puts "\[INFO]: Setting signal max routing layer to: $signal_max_layer and clock 
 
 set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
 
+set_macro_extension $::env(GLB_RT_MACRO_EXTENSION)
 
 source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 

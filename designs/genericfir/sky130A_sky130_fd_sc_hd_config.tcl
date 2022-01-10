@@ -1,7 +1,6 @@
 # SCL Configs
 set ::env(CLOCK_PERIOD) "15.0"
 set ::env(FP_CORE_UTIL) 45
-set ::env(GLB_RT_ADJUSTMENT) 0.1
 set ::env(SYNTH_STRATEGY) "DELAY 0"
 set ::env(SYNTH_MAX_FANOUT) 7
 set ::env(PL_RESIZER_HOLD_SLACK_MARGIN) 0.16
