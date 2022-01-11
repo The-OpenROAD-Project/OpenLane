@@ -151,24 +151,13 @@ jobs:
 
       - name: Run Test
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
-        
-      ## This is disabled. It has no way of uploading logs for
-      ## PRs outside using a self-hosted runner on the same cloud platform as
-      ## the storage bucket and some special permissions trickery.
-      # - name: Upload Logs To Cloud Service
-      #   if: ${{ always() }}
-      #   env:
-      #     LOG_UPLOAD_INFO: ${{ secrets.LOG_UPLOAD_INFO }}
-      #   run: |
-      #     python3 -m pip install apache-libcloud==3.3.1
-      #     cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/upload_log_tarballs.py
 
-      - name: Upload Logs As Artifacts
+      - name: Upload Reproducible Artifacts
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.design }}_run_tarball
-          path: ${{ github.workspace }}/designs/*/runs/*.tar.gz
+          name: ${{ matrix.design }}
+          path: ${{ github.workspace }}/designs/${{ matrix.design }}
         
   cleanup_and_deploy:
       name: Cleanup (and Possibly Deployment)
