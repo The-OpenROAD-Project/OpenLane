@@ -24,22 +24,9 @@ import subprocess
 from gh import gh
 
 threads_used = int(subprocess.check_output(["nproc"]).decode("utf-8")) - 1
-test_name = "TEST"
-design_list = sys.argv[1:]
-if len(design_list) == 0:
-    exit(0)
-test_set = os.getenv("TEST_SET")
-if test_set is not None:
-    test_name = f"TEST_{test_set}"
-    test_set_file = os.path.join(gh.root, ".github", "test_sets", test_set)
-    if os.path.exists(test_set_file):
-        design_list = open(test_set_file).read().split()
-    else:
-        raise Exception(f"Test set {test_set} not found.")
-
-    print(f"Running test set {test_set} using {threads_used} threads…")
-else:
-    print(f"Running on designs {design_list} using {threads_used} threads…")
+test_name = "ci_test"
+design = sys.argv[1]
+print(f"Running on designs {test_name} using {threads_used} threads…")
 
 username = getpass.getuser()
 user = subprocess.check_output(["id", "-u", username]).decode("utf8")[:-1]
@@ -50,7 +37,7 @@ docker_command = [
     "-v", f"{os.path.realpath(gh.root)}:/openlane",
     "-v", f"{os.path.realpath(gh.root)}/designs:/openlane/install",
     "-v", f"{gh.pdk}:{gh.pdk}",
-    # "-u", f"{user}:{group}",
+    "-u", f"{user}:{group}",
     "-e", f"PDK_ROOT={gh.pdk}",
     gh.image,
     "bash", "-c",
@@ -60,10 +47,10 @@ docker_command = [
         "--disable_timestamp",
         "--tag", test_name,
         "--threads", str(threads_used),
-        "--print_rem", "30",
         "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
-        "--show_output"
-    ] + design_list)
+        "--show_output",
+        design,
+    ])
 ]
 
 print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
@@ -92,9 +79,15 @@ cat(design_test_report)
 dtr_str = open(design_test_report).read()
 dtr = yaml.safe_load(dtr_str)
 
-for design in design_list:
-    if not dtr[design]["pass"]:
-        print("At least one test has failed.")
-        exit(-1)
+print("Tarballing run...")
+subprocess.check_call([
+    "tar", "-czf", "./reproducible.tar.gz",
+    os.path.join("designs", design, "runs")
+])
+print("Created ./reproducible.tar.gz.")
+
+if not dtr[design]["pass"]:
+    print("Testing the design has failed.")
+    exit(-1)
 
 print("Done.")
