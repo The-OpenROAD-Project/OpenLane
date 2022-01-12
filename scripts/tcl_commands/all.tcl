@@ -382,9 +382,10 @@ proc prep {args} {
     source_config $::env(DESIGN_CONFIG)
 
     # DEPRECATED CONFIGS
-    handle_deprecated_config LIB_MIN LIB_FASTEST
-    handle_deprecated_config LIB_MAX LIB_SLOWEST
-    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE; # typo
+    handle_deprecated_config LIB_MIN LIB_FASTEST;
+    handle_deprecated_config LIB_MAX LIB_SLOWEST;
+    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
+    handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
 
     if { [info exists arg_values(-run_path)] } {
         set run_path "[file normalize $arg_values(-run_path)]/$tag"

@@ -41,7 +41,7 @@ detailed_route\
     -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\
     -output_maze $::env(TRITONROUTE_FILE_PREFIX)_maze.log\
     -output_drc $::env(TRITONROUTE_RPT_PREFIX).drc\
-    -droute_end_iter $::env(ROUTING_OPT_ITERS)\
+    -droute_end_iter $::env(DRT_OPT_ITERS)\
     -or_seed 42\
     -verbose 1
 

@@ -21,7 +21,6 @@ set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) 0
 set ::env(SYNTH_MAX_FANOUT) 6
 set ::env(FP_CORE_UTIL) 49
 set ::env(PL_TARGET_DENSITY) [ expr ($::env(FP_CORE_UTIL)+5) / 100.0 ]
-set ::env(CELL_PAD) 4
 
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
