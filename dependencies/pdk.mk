@@ -40,11 +40,11 @@ native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk 
 $(PDK_ROOT):
 	mkdir -p $(PDK_ROOT)
 
-$(PDK_ROOT)/skywater-pdk: $(PDK_ROOT)
+$(PDK_ROOT)/skywater-pdk/LICENSE: $(PDK_ROOT)
 	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
-skywater-pdk: $(PDK_ROOT)/skywater-pdk
+skywater-pdk: $(PDK_ROOT)/skywater-pdk/LICENSE
 	cd $(PDK_ROOT)/skywater-pdk && \
 		git checkout main && git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)

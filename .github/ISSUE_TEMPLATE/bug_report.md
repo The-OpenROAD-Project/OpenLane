@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: If you encounter an issue while using OpenLane
+about: If OpenLane is not behaving as expected, please report here.
 title: ''
 labels: ''
 assignees: ''
@@ -26,6 +26,8 @@ If there's no env.py, you are using an out of date version of OpenLane and shoul
 ### Reproduction Material
 * Upload a tarball containing the relevant design.
 * List the commands used to run the design.
+
+If you see a message like `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue` in your logs, please also tarball and include that path. This will greatly speed up the fixing process.
 
 ### Expected behavior
 A clear and concise description of what you expected to happen.

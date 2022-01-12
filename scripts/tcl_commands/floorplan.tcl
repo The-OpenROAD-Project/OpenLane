@@ -67,8 +67,7 @@ proc init_floorplan {args} {
 	if { $::env(FP_PDN_AUTO_ADJUST) } {
 		if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
 			$core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
-				puts_warn "Current core area is too small for a power grid"
-			puts_warn "!!! THE POWER GRID WILL BE MINIMIZED. !!!"
+			puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
 
 			set ::env(FP_PDN_VOFFSET) [expr {$core_width/6.0}]
 			set ::env(FP_PDN_HOFFSET) [expr {$core_height/6.0}]

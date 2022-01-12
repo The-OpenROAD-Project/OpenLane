@@ -270,7 +270,7 @@ proc prep {args} {
 
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {
-        set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)/]
+        set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)]
     }
 
     if { [info exists flags_map(-init_design_config)] } {
@@ -594,6 +594,17 @@ proc prep {args} {
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
         puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
         assert_files_exist $::env(EXTRA_GDS_FILES)
+    }
+
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { [info exists ::env(MISMATCHES_OK)] && $::env(MISMATCHES_OK) == "1" } {
+            puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
+        } else {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            flow_fail
+        }
     }
 
     puts_info "Preparation complete"
