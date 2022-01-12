@@ -78,7 +78,7 @@
     make PREFIX=$PREFIX install
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 719c6dc617d4b8d6896500bb41cdf057864f9e09
+  commit: efe37844ddca350c4a44eea93bf4c9ca882d6777
   build: ''
   in_install: false
 - name: git
