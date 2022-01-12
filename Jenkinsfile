@@ -16,7 +16,7 @@ pipeline {
             }
         }
 
-        stage("Checkout master branch") {
+        stage("Checkout") {
             steps {
                 checkout([$class: "GitSCM",
                         branches: [[name: "*/master"]],
@@ -30,6 +30,7 @@ pipeline {
 
         stage('Checkout PDKs') {
             steps {
+                sh 'git switch -c main';
                 sh 'make -j 1 NPROC=1 pdk';
             }
         }
