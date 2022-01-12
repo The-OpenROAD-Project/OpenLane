@@ -33,7 +33,6 @@ import scripts.utils.utils as utils
 @click.option("-t", "--tag", default="regression", help="Tag for the log file")
 @click.option("-j", "--threads", help="Number of designs in parallel")
 @click.option("-p", "--configuration_parameters", default=None, help="File containing configuration parameters to append to report: You can also put 'all' to report all possible configurations")
-@click.option("-T", "--tar_list", default="", help="Tarball the following comma,delimited,directories then delete them, leaving only the compressed version.")
 @click.option("-e", "--excluded_designs", default="", help="Exclude the following comma,delimited,designs from the run")
 @click.option("-b", "--benchmark", default=None, help="Benchmark report file to compare with.")
 @click.option("-p", "--print_rem", default=0, help="If provided with a number >0, a list of remaining designs is printed every <print_rem> seconds.")
@@ -42,7 +41,7 @@ import scripts.utils.utils as utils
 @click.option("--delete/--retain", default=False, help="Delete the entire run directory upon completion, leaving only the final_report.txt file.")
 @click.option("--show_output/--hide_output", default=False, help="Enables showing the output from flow invocations into stdout. Will be forced to be false if more than one design is specified.")
 @click.argument("designs", nargs=-1)
-def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list, excluded_designs, benchmark, print_rem, enable_timestamp, append_configurations, delete, show_output, designs):
+def cli(config_tag, regression, tag, threads, configuration_parameters, excluded_designs, benchmark, print_rem, enable_timestamp, append_configurations, delete, show_output, designs):
     """
     Run multiple designs in parallel, for testing or exploration.
     """
@@ -72,7 +71,6 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list
 
     num_workers = int(threads)
     config = config_tag
-    tarList = tar_list.split(",")
 
     if regression is not None:
         regressionConfigurationsList = []
@@ -209,7 +207,7 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list
                     rmDesignFromPrintList(design)
                     skip_rm_from_rems = True
                 run_path_relative = os.path.relpath(run_path, ".")
-                update("FAIL", design, f"Check {run_path_relative}/flow_summary.log", error=True)
+                update("FAIL", design, f"Check {run_path_relative}/openlane.log", error=True)
                 design_failure_flag = True
 
             if print_rem_time is not None and not skip_rm_from_rems:
@@ -241,24 +239,6 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, tar_list
                 except subprocess.CalledProcessError as e:
                     error_msg = e.stderr.decode("utf8")
                     update("ERROR", design, f"Failed to compare with benchmark: {error_msg}")
-                    flow_failure_flag = True
-
-            if tarList[0] != "":
-                update("DONE", design, "Compressing run directory...")
-                try:
-                    tarball_path = os.path.realpath(os.path.join(run_path, "..", f"{design_name}_{tag}.tar.gz"))
-                    tar_cmd = [
-                        "tar",
-                        "-czvf", tarball_path
-                    ]
-                    if "all" in tarList:
-                        tar_cmd += [run_path]
-                    else:
-                        tar_cmd += list(map(lambda x: f"{run_path}/{x}", tarList))
-                    subprocess.check_output(tar_cmd)
-                    update("DONE", design, "Compressed run directory.")
-                except subprocess.CalledProcessError as e:
-                    update("ERROR", design, "Failed to compress run directory.", error=True)
                     flow_failure_flag = True
 
             if delete:

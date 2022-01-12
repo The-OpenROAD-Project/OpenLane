@@ -163,7 +163,6 @@ proc try_catch {args} {
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
 
 		flow_fail
-		return -code error
     }
 }
 
@@ -231,7 +230,6 @@ proc run_openroad_script {args} {
 		} 
 
 		flow_fail
-		return -code error
     }
 }
 
@@ -265,6 +263,8 @@ proc flow_fail {args} {
 		generate_final_summary_report
         save_state
 		puts_err "Flow failed."
+		show_warnings "The failure may have been because of the following warnings:"
+		return -code error
 	}
 }
 
@@ -307,32 +307,44 @@ proc color_text {color txt} {
 proc puts_err {txt} {
   set message "\[ERROR\]: $txt"
   puts "[color_text 1 "$message"]"
-  if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
+  if { [info exists ::env(RUN_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/openlane.log
+    exec echo $message >> $::env(RUN_DIR)/errors.log
   }
 }
 
 proc puts_success {txt} {
   set message "\[SUCCESS\]: $txt"
   puts "[color_text 2 "$message"]"
-  if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
+  if { [info exists ::env(RUN_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/openlane.log
   }
 }
 
 proc puts_warn {txt} {
   set message "\[WARNING\]: $txt"
   puts "[color_text 3 "$message"]"
-  if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
+  if { [info exists ::env(RUN_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/openlane.log
+    exec echo $message >> $::env(RUN_DIR)/warnings.log
   }
 }
 
 proc puts_info {txt} {
   set message "\[INFO\]: $txt"
   puts "[color_text 6 "$message"]"
-  if { [info exists ::env(LOGS_DIR)] } {
-    exec echo $message >> $::env(RUN_DIR)/flow_summary.log
+  if { [info exists ::env(RUN_DIR)] } {
+    exec echo $message >> $::env(RUN_DIR)/openlane.log
+  }
+}
+
+proc show_warnings {msg} {
+  if { [info exists ::env(RUN_DIR)] && [file exists $::env(RUN_DIR)/warnings.log] } {
+	puts_info $msg
+	set warnings_file [open $::env(RUN_DIR)/warnings.log "r"]
+	set warnings [read $warnings_file]
+	close $warnings_file
+	puts $warnings
   }
 }
 
@@ -354,6 +366,9 @@ proc generate_routing_report {args} {
 
 
 proc generate_final_summary_report {args} {
+	if { ![info exists ::env(GENERATE_FINAL_SUMMARY_REPORT)] } {
+		set ::env(GENERATE_FINAL_SUMMARY_REPORT) {0}
+	}
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
 		puts_info "Generating Final Summary Report..."
 		set options {
@@ -411,7 +426,6 @@ proc assert_files_exist {files} {
 		if { ! [file exists $f] } {
 			puts_err "$f doesn't exist."
 			flow_fail
-			return -code error
 		} else {
 			puts_info "$f exists."
 		}

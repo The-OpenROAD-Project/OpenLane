@@ -10,6 +10,8 @@ run.param
 macrocell.list
 default.cvcrc
 *.log
+*.tar.gz
+
 # Python cache
 **/__pycache__
 /*.lef

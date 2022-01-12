@@ -12,8 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
 
 if { [file exists $::env(OPENLANE_ROOT)/install/env.tcl ] } {
@@ -255,6 +253,8 @@ proc run_non_interactive_mode {args} {
 	check_timing_violations
 
 	puts_success "Flow complete."
+
+	show_warnings "Note that the following warnings have been generated:"
 }
 
 proc run_interactive_mode {args} {
@@ -341,7 +341,7 @@ proc run_lvs_batch {args} {
 	set ::env(MAGIC_EXT_USE_GDS) 1
 	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
-		puts_warn "Reusing $::env(EXT_NETLIST). Delete to remake."
+		puts_warn "The file $::env(EXT_NETLIST) will be used. If you would like the file re-exported, please delete it."
 	} else {
 		run_magic_spice_export
 	}
@@ -383,11 +383,6 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/installed_version} ::env(OPENLANE_VER
 }
 
 puts_info "Version: $::env(OPENLANE_VERSION)"
-
-if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-	puts_warn $::env(VCHECK_OUTPUT)
-	puts_warn "OpenLane may not function properly."
-}
 
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"
