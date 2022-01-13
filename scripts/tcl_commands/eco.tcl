@@ -35,18 +35,20 @@ proc eco_gen_buffer {args} {
         puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
                          *_unpadded.lef] end] 
         puts "Input Def File: "
-        puts [lindex [glob -directory $::env(routing_results) \
-                         *.def] end]
+        puts $::env(routing_results)
+        puts [lindex [glob -directory $::env(eco_results)/arcdef \
+                         $::env(ECO_ITER)_post-route.def] end]
         # pause;
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+            -s $::env(ECO_SKIP_PIN) \
             -i [lindex [glob -directory $::env(routing_logs) \
             *multi_corner_sta*] end] \
             -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
                              *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(routing_results) \
-                             *.def] end] \
+            -d [lindex [glob -directory $::env(eco_results)/arcdef \
+                             $::env(ECO_ITER)_post-route.def] end] \
             -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
     } else {
         puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
@@ -108,23 +110,23 @@ proc run_apply_step {args} {
     puts $::env(CURRENT_DEF)
 }
 
-proc run_eco {args} {
-    set log          "$::env(eco_logs)"
-    set path         "$::env(eco_results)"
-    set fix_path     "$::env(eco_results)/fix"
-    set def_path     "$::env(eco_results)/def"
-    set net_path     "$::env(eco_results)/net"
-    set spef_path    "$::env(eco_results)/spef"
-    set sdf_path     "$::env(eco_results)/sdf"
-    set arc_def_path "$::env(eco_results)/arcdef"
-    file mkdir $log
-    file mkdir $path
-    file mkdir $fix_path
-    file mkdir $def_path
-    file mkdir $net_path
-    file mkdir $spef_path
-    file mkdir $sdf_path
-    file mkdir $arc_def_path
+proc run_eco_flow {args} {
+    #set log          "$::env(eco_logs)"
+    #set path         "$::env(eco_results)"
+    #set fix_path     "$::env(eco_results)/fix"
+    #set def_path     "$::env(eco_results)/def"
+    #set net_path     "$::env(eco_results)/net"
+    #set spef_path    "$::env(eco_results)/spef"
+    #set sdf_path     "$::env(eco_results)/sdf"
+    #set arc_def_path "$::env(eco_results)/arcdef"
+    #file mkdir $log
+    #file mkdir $path
+    #file mkdir $fix_path
+    #file mkdir $def_path
+    #file mkdir $net_path
+    #file mkdir $spef_path
+    #file mkdir $sdf_path
+    #file mkdir $arc_def_path
 
 
     # Assume script generate fix commands

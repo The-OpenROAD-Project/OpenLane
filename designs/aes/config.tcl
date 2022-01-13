@@ -12,4 +12,9 @@ set ::env(FP_CORE_UTIL) {15}
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
+
 }
+
+set ::env(ECO_ENABLE) 1
+set ::env(DIODE_INSERTION_STRATEGY) 5
+set ::env(DIODE_PADDING) 1

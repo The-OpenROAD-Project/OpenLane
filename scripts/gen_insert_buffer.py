@@ -23,6 +23,7 @@ import math
 parser = argparse.ArgumentParser(
     description='Converts a 23-spef_extraction_multi_corner_sta.min.rpt file to a eco insert buffer tcl file.')
 
+parser.add_argument('--skip_pin', '-s', required=True, help='skip input ouput cases')
 parser.add_argument('--input_file', '-i', required=True,
                     help='input 23-spef_extraction_multi_corner_sta.min.rpt')
 
@@ -38,7 +39,8 @@ input_file = args.input_file
 output_file = args.output_file
 def_file = args.def_file
 lef_file = args.lef_file
-
+skip_pin = args.skip_pin
+print(skip_pin)
 
 splitLine = "\n\n\n"
 printArr = []
@@ -76,7 +78,7 @@ if os.path.exists(input_file):
             vio_name = drcSections[i].strip()
             report_end_str = re.search('min_report_end',vio_name)
             if (report_end_str != None):
-                print("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
+                print("not complete report")
                 break
             minus_time_str = re.search(
                 '([0-9]+\.[0-9]+) +slack +\(VIOLATED\)', vio_name)
@@ -97,13 +99,14 @@ if os.path.exists(input_file):
                                     pin_name = start_point+'/'+mterm.getName()
                                     pin_type="ITerm"
                                     # master = inst.getMaster()
+                                    vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1))) 
                                     break
                     # pin
-                    if (pin_name == ''):
+                    if (pin_name == '' and skip_pin == 0 ):
                         pin_name=start_point
                         pin_type="BTerm"
                         # continue
-                    vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1)))                     
+                        vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1)))                     
 
         eco_iter=os.environ["ECO_ITER"]
         for pin_unq in vio_dict.keys():

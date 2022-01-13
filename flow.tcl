@@ -52,7 +52,7 @@ proc run_routing_step {args} {
         set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
-    }
+    } 
     run_routing
 }
 
@@ -107,7 +107,7 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
-        run_eco
+        run_eco_flow
     }
 }
 
