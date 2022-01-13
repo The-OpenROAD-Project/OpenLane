@@ -14,8 +14,6 @@
 # limitations under the License.
 
 # takes a lef file and a y position => obstructs everything above
-import re
-import os
 import sys
 
 ARGV = sys.argv
@@ -28,10 +26,12 @@ URX = float(ARGV[3])
 URY = float(ARGV[4])
 LAYER_LIST = ["li1", "met1", "met2", "met3", "met4", "met5"]
 
+
 def print_obs_section():
     for layer in LAYERS:
-        print("     LAYER %s ;" %(layer))
+        print("     LAYER %s ;" % (layer))
         print("       RECT %f %f %s %s ;" % (LLX, LLY, URX, URY))
+
 
 obs_section = False
 macro_name = None
@@ -41,11 +41,11 @@ for line in sys.stdin:
 
     if line.startswith("MACRO"):
         macro_name = line.split()[1]
-        LAYERS = {layer:False for layer in LAYER_LIST}
+        LAYERS = {layer: False for layer in LAYER_LIST}
 
     if macro_name and line.startswith("END " + macro_name):
         macro_name = None
-        if not any(l[1] for l in LAYERS.items()):
+        if not any(layer[1] for layer in LAYERS.items()):
             print("   OBS")
             print_obs_section()
             print("   END")
@@ -58,12 +58,10 @@ for line in sys.stdin:
             if not LAYERS[layer]:
                 LAYERS[layer] = True
                 print("     LAYER %s ;" % (layer))
-                print("       RECT %.3f %.3f %.3f %.3f ;" %
-                      (LLX, LLY, URX, URY))
+                print("       RECT %.3f %.3f %.3f %.3f ;" % (LLX, LLY, URX, URY))
 
-    print(line, end='')
+    print(line, end="")
     if obs_section and line.find("LAYER") != -1:
         line = line.split()
         LAYERS[line[1]] = True
-        print("       RECT %.3f %.3f %.3f %.3f ;" %
-              (LLX, LLY, URX, URY))
+        print("       RECT %.3f %.3f %.3f %.3f ;" % (LLX, LLY, URX, URY))

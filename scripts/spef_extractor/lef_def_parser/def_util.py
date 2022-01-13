@@ -1,17 +1,17 @@
 # MIT License
-# 
+#
 # Copyright (c) 2020 Tri Minh Cao
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ Email: tricao@utdallas.edu
 Date: August 2016
 """
 from .util import *
+
 
 class Pins:
     """
@@ -121,7 +122,7 @@ class Pin:
         return s
 
     def to_def_format(self):
-        #- N1 + NET N1 + DIRECTION INPUT + USE SIGNAL
+        # - N1 + NET N1 + DIRECTION INPUT + USE SIGNAL
         #  + LAYER metal2 ( -70 0 ) ( 70 140 )
         #  + PLACED ( 27930 0 ) N ;
         s = ""
@@ -302,7 +303,7 @@ class Nets:
                     new_routed.points.append(new_pt)
                 else:
                     # this should be via end point
-                    if(info[idx] != ';'):
+                    if info[idx] != ";":
                         new_routed.end_via = info[idx]
                     # the location of end_via is the last point in the route
                     new_routed.end_via_loc = new_routed.points[-1]
@@ -366,6 +367,7 @@ class Net:
         s += " ;"
         return s
 
+
 class Routed:
     """
     Represents a ROUTED definition inside a NET.
@@ -410,6 +412,7 @@ class Tracks:
     """
     Represents a TRACKS definition inside the DEF file.
     """
+
     def __init__(self, name):
         self.type = "TRACKS_DEF"
         self.name = name
@@ -433,6 +436,7 @@ class GCellGrid:
     """
     Represents a GCELLGRID definition in the DEF file.
     """
+
     def __init__(self, name):
         self.type = "GCELLGRID_DEF"
         self.name = name
@@ -447,10 +451,12 @@ class GCellGrid:
         s += " ;"
         return s
 
+
 class Row:
     """
     Represents a ROW definition in the DEF file.
     """
+
     def __init__(self, name):
         self.type = "ROW_DEF"
         self.name = name
@@ -470,10 +476,12 @@ class Row:
         s += " ;"
         return s
 
+
 class Property:
     """
     Represents a PROPERTYDEFINITIONS in the DEF file.
     """
+
     def __init__(self):
         self.type = "PROPERTY_DEF"
         self.texts = []

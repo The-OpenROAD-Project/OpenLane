@@ -22,12 +22,13 @@
 import os
 import sys
 from recommonmark.parser import CommonMarkParser
-sys.path.insert(0, os.path.abspath('docs/_ext'))
+
+sys.path.insert(0, os.path.abspath("docs/_ext"))
 
 # -- Project information -----------------------------------------------------
-project = 'OpenLane'
-copyright = '2020-2021 Efabless Corporation'
-author = 'Efabless Corporation'
+project = "OpenLane"
+copyright = "2020-2021 Efabless Corporation"
+author = "Efabless Corporation"
 
 
 # -- General configuration ---------------------------------------------------
@@ -36,45 +37,39 @@ author = 'Efabless Corporation'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-  'sphinx.ext.todo',
-
-  'markdown_code_links', # CUSTOM
-  'markdown_cross_doc_section_links', # CUSTOM
-
-  'sphinx.ext.autosectionlabel',
-  'sphinx_markdown_tables',
-
-  'image_links', # CUSTOM
-  'toc_from_markdown', # CUSTOM
-
-  'recommonmark',
+    "sphinx.ext.todo",
+    "markdown_code_links",  # CUSTOM
+    "markdown_cross_doc_section_links",  # CUSTOM
+    "sphinx.ext.autosectionlabel",
+    "sphinx_markdown_tables",
+    "image_links",  # CUSTOM
+    "toc_from_markdown",  # CUSTOM
+    "recommonmark",
 ]
 
 # Expand source suffixes
 
 source_parsers = {
-    '.md': CommonMarkParser,
+    ".md": CommonMarkParser,
 }
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.md' : 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 
-
-
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = [
-    '_build',
-    'Thumbs.db',
-    'scripts/tcl_commands/README.md',
-    'scripts/spef_extractor/README.md',
+    "_build",
+    "Thumbs.db",
+    "scripts/tcl_commands/README.md",
+    "scripts/spef_extractor/README.md",
     # Files included in other rst files.
 ]
 
@@ -84,9 +79,9 @@ exclude_patterns = [
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_title = 'OpenLane Documentation'
+html_title = "OpenLane Documentation"
 
-html_theme = 'furo'
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -96,20 +91,29 @@ html_theme_options = {}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['docs/_static']
+html_static_path = ["docs/_static"]
 
 html_sidebars = {}
 
 todo_include_todos = True
 numfig = True
-markdown_code_links_githubrepo   = 'https://github.com/The-OpenROAD-Project/OpenLane'
-markdown_code_links_githubbranch = 'blob/master'
-markdown_code_links_codefileextensions = ['.tcl', '.sh', '.cfg', '.gds', '.sdc', '/', '.json', 'Makefile']
+markdown_code_links_githubrepo = "https://github.com/The-OpenROAD-Project/OpenLane"
+markdown_code_links_githubbranch = "blob/master"
+markdown_code_links_codefileextensions = [
+    ".tcl",
+    ".sh",
+    ".cfg",
+    ".gds",
+    ".sdc",
+    "/",
+    ".json",
+    "Makefile",
+]
 autosectionlabel_prefix_document = True
 
-suppress_warnings = ['misc.highlighting_failure'] # supress json highlight warnings
+suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
+
 
 def setup(app):
-    app.emit('create_index_softlink', 'README.md', True)
-    app.emit('toc_from_markdown', 'README.md', '.autotoc.rst', True)
-
+    app.emit("create_index_softlink", "README.md", True)
+    app.emit("toc_from_markdown", "README.md", ".autotoc.rst", True)

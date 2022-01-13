@@ -18,31 +18,41 @@
 """
 
 import argparse
-import re
 import os
 import odb
 
 parser = argparse.ArgumentParser(
-    description='Places macros in positions and orientations specified by a config file')
+    description="Places macros in positions and orientations specified by a config file"
+)
 
-parser.add_argument('--lef', '-l',
-                    nargs='+',
-                    type=str,
-                    default=None,
-                    required=True,
-                    help='Input LEF file(s)')
+parser.add_argument(
+    "--lef",
+    "-l",
+    nargs="+",
+    type=str,
+    default=None,
+    required=True,
+    help="Input LEF file(s)",
+)
 
-parser.add_argument('--input-def', '-id', required=True,
-                    help='DEF view of the design that needs to have its instances placed')
+parser.add_argument(
+    "--input-def",
+    "-id",
+    required=True,
+    help="DEF view of the design that needs to have its instances placed",
+)
 
-parser.add_argument('--output-def', '-o', required=True,
-                    help='Output placed DEF file')
+parser.add_argument("--output-def", "-o", required=True, help="Output placed DEF file")
 
-parser.add_argument('--config', '-c', required=True,
-                    help='Configuration file')
+parser.add_argument("--config", "-c", required=True, help="Configuration file")
 
-parser.add_argument('--fixed', '-f', action='store_true', default=False,
-                help="a flag to signal whether the placement should be fixed or placed")
+parser.add_argument(
+    "--fixed",
+    "-f",
+    action="store_true",
+    default=False,
+    help="a flag to signal whether the placement should be fixed or placed",
+)
 
 args = parser.parse_args()
 input_lef_file_names = args.lef
@@ -51,14 +61,18 @@ output_def_file_name = args.output_def
 config_file_name = args.config
 fixed_flag = args.fixed
 
-LEF2OA_MAP = {"N": "R0",
-              "S": "R180",
-              "W": "R90",
-              "E": "R270",
-              "FN": "MY",
-              "FS": "MX",
-              "FW": "MXR90",
-              "FE": "MYR90"}
+LEF2OA_MAP = {
+    "N": "R0",
+    "S": "R180",
+    "W": "R90",
+    "E": "R270",
+    "FN": "MY",
+    "FS": "MX",
+    "FW": "MXR90",
+    "FE": "MYR90",
+}
+
+
 def lef_rot_to_oa_rot(rot):
     if rot in LEF2OA_MAP:
         return LEF2OA_MAP[rot]
@@ -66,22 +80,28 @@ def lef_rot_to_oa_rot(rot):
         assert rot in [item[1] for item in LEF2OA_MAP.items()], rot
         return rot
 
+
 def gridify(n, f):
     """
     e.g., (1.1243, 0.005) -> 1.120
     """
     return round(n / f) * f
 
+
 # read config
 macros = {}
-with open(config_file_name, 'r') as config_file:
+with open(config_file_name, "r") as config_file:
     for line in config_file:
         # Discard comments and empty lines
-        line = line.split('#')[0].strip()
+        line = line.split("#")[0].strip()
         if not line:
             continue
         line = line.split()
-        macros[line[0]] = [str(int(float(line[1])*1000)), str(int(float(line[2])*1000)), line[3]]
+        macros[line[0]] = [
+            str(int(float(line[1]) * 1000)),
+            str(int(float(line[2]) * 1000)),
+            line[3],
+        ]
 
 print("Placing the following macros:")
 print(macros)

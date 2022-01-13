@@ -16,39 +16,61 @@ import os
 import yaml
 import click
 
+
 @click.command()
 @click.option(
-    '--benchmark', '-b', 'benchmark_file', required=True,
-    help="The csv file from which to extract the benchmark results"
+    "--benchmark",
+    "-b",
+    "benchmark_file",
+    required=True,
+    help="The csv file from which to extract the benchmark results",
 )
 @click.option(
-    '--design', '-d', required=True,
-    help="The design to compare for between the two scripts. Same as -design in flow.tcl"
+    "--design",
+    "-d",
+    required=True,
+    help="The design to compare for between the two scripts. Same as -design in flow.tcl",
 )
 @click.option(
-    '--run-path', '-p', required=True,
-    help="The run path, will be used to search for any missing files."
+    "--run-path",
+    "-p",
+    required=True,
+    help="The run path, will be used to search for any missing files.",
 )
 @click.option(
-    '--output-report', '-o', 'output_report_file', required=True,
-    help="The file to print the final report in"
+    "--output-report",
+    "-o",
+    "output_report_file",
+    required=True,
+    help="The file to print the final report in",
 )
 @click.argument("regression_results_file")
 def cli(benchmark_file, design, run_path, output_report_file, regression_results_file):
-    tolerance = {'general_tolerance':1, 'tritonRoute_violations':2, 'Magic_violations':10, 'antenna_violations':10, 'lvs_total_errors':0}
+    tolerance = {
+        "general_tolerance": 1,
+        "tritonRoute_violations": 2,
+        "Magic_violations": 10,
+        "antenna_violations": 10,
+        "lvs_total_errors": 0,
+    }
 
-    critical_statistics = ['tritonRoute_violations','Magic_violations', 'antenna_violations','lvs_total_errors']
+    critical_statistics = [
+        "tritonRoute_violations",
+        "Magic_violations",
+        "antenna_violations",
+        "lvs_total_errors",
+    ]
 
-    magic_file_extensions = ['gds','mag','lef','spice']
+    magic_file_extensions = ["gds", "mag", "lef", "spice"]
 
     def compare_vals(benchmark_value, regression_value, param):
         if str(benchmark_value) == "-1":
             return True
         if str(regression_value) == "-1":
             return False
-        tol = 0-tolerance['general_tolerance']
+        tol = 0 - tolerance["general_tolerance"]
         if param in tolerance.keys():
-            tol = 0-tolerance[param]
+            tol = 0 - tolerance[param]
         if float(benchmark_value) - float(regression_value) >= tol:
             return True
         else:
@@ -61,8 +83,9 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
                     return i
             else:
                 return -1
+
         design_out = dict()
-        csv_opener = open(csv_file, 'r')
+        csv_opener = open(csv_file, "r")
         csv_data = csv_opener.read().split("\n")
         header_info = csv_data[0].split(",")
         designPathIdx = get_csv_index(header_info, "design")
@@ -84,13 +107,19 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
         if len(benchmark):
             return False, "The design is not benchmarked"
         for stat in critical_statistics:
-            if compare_vals(benchmark[stat],regression_result[stat],stat):
+            if compare_vals(benchmark[stat], regression_result[stat], stat):
                 continue
             else:
                 if str(regression_result[stat]) == "-1":
-                    return True, "The test didn't pass the stage responsible for "+ stat
+                    return (
+                        True,
+                        "The test didn't pass the stage responsible for " + stat,
+                    )
                 else:
-                    return True, "The results of " +stat+" mismatched with the benchmark"
+                    return (
+                        True,
+                        "The results of " + stat + " mismatched with the benchmark",
+                    )
         return False, "The test passed"
 
     def compare_status(benchmark, regression_result):
@@ -98,18 +127,26 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
             return False, "The design is not benchmarked"
         elif "fail" in str(regression_result["flow_status"]):
             if "fail" in str(benchmark["flow_status"]):
-                return False, "The OpenLane flow failed, but the benchmark never saw it succeed"
+                return (
+                    False,
+                    "The OpenLane flow failed, but the benchmark never saw it succeed",
+                )
             else:
                 return True, "The OpenLane flow failed outright, check the logs"
         else:
             return False, "The test passed"
 
     def missing_resulting_files(design):
-        search_prefix = os.path.join(run_path, "results", "finishing", str(design['design_name']))
+        search_prefix = os.path.join(
+            run_path, "results", "finishing", str(design["design_name"])
+        )
         for ext in magic_file_extensions:
             required_result = f"{search_prefix}.{ext}"
-            if os.path.isfile(required_result) == False:
-                return True, f"File {required_result} is missing from the results directory"
+            if not os.path.isfile(required_result):
+                return (
+                    True,
+                    f"File {required_result} is missing from the results directory",
+                )
         return False, "The test passed"
 
     benchmark = parse_csv(benchmark_file)
@@ -133,10 +170,7 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
         did_pass = False
         notes = notes or reason
 
-    design_report = {
-        "pass": did_pass,
-        "notes": notes
-    }
+    design_report = {"pass": did_pass, "notes": notes}
 
     current_yaml_str = "{}"
     try:
@@ -149,9 +183,11 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
 
     current_yaml_str = yaml.safe_dump(current_yaml, sort_keys=False)
     import sys
+
     print(output_report_file, file=sys.stderr)
-    with open(output_report_file, 'w') as f:
+    with open(output_report_file, "w") as f:
         f.write(current_yaml_str)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

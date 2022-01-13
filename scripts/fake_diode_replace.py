@@ -16,47 +16,51 @@ import re
 import argparse
 
 
-#for i in range(len(sys.argv)):
+# for i in range(len(sys.argv)):
 
 parser = argparse.ArgumentParser(
-    description='Replaces fake diodes with real diodes based on the violating cells/pins')
+    description="Replaces fake diodes with real diodes based on the violating cells/pins"
+)
 
-parser.add_argument('--defFile', '-d',required=True,
-                    help='Input DEF')
+parser.add_argument("--defFile", "-d", required=True, help="Input DEF")
 
-parser.add_argument('--viosFile', '-v', required=True,
-                    help='vios.txt containing white space separated cells that cause antenna violations')
+parser.add_argument(
+    "--viosFile",
+    "-v",
+    required=True,
+    help="vios.txt containing white space separated cells that cause antenna violations",
+)
 
-parser.add_argument('--fakeDiode', '-f', required=True,
-                    help='the name of the fake diode')
-parser.add_argument('--trueDiode', '-t', required=True,
-                    help='the name of the true diode')
+parser.add_argument(
+    "--fakeDiode", "-f", required=True, help="the name of the fake diode"
+)
+parser.add_argument(
+    "--trueDiode", "-t", required=True, help="the name of the true diode"
+)
 
 args = parser.parse_args()
 
-viosFile    =   args.viosFile
-defFile     =   args.defFile
+viosFile = args.viosFile
+defFile = args.defFile
 
-fakeDiode   =   args.fakeDiode
-trueDiode   =   args.trueDiode
-
-
+fakeDiode = args.fakeDiode
+trueDiode = args.trueDiode
 
 
-tmpFile = open(viosFile,"r")
-if tmpFile.mode == 'r':
-    listOfVios =tmpFile.read().split()
+tmpFile = open(viosFile, "r")
+if tmpFile.mode == "r":
+    listOfVios = tmpFile.read().split()
 tmpFile.close()
 
-tmpFile = open(defFile,"r")
-if tmpFile.mode == 'r':
+tmpFile = open(defFile, "r")
+if tmpFile.mode == "r":
     defContent = tmpFile.read().split("\n")
 tmpFile.close()
 
 exitFlag = False
 for i in range(len(defContent)):
     if defContent[i].find("COMPONENTS") != -1:
-        if exitFlag == True:
+        if exitFlag:
             break
         else:
             exitFlag = True
@@ -64,14 +68,11 @@ for i in range(len(defContent)):
 
     antennaPos = defContent[i].find("ANTENNA_")
     if antennaPos != -1:
-        cell = re.findall(r'- ANTENNA_(\S+)_.* '+fakeDiode+'.*', defContent[i])
+        cell = re.findall(r"- ANTENNA_(\S+)_.* " + fakeDiode + ".*", defContent[i])
         if len(cell) >= 1:
             if cell[0] in listOfVios:
                 defContent[i] = defContent[i].replace(fakeDiode, trueDiode)
-                
-tmpFile = open(defFile,"w")
+
+tmpFile = open(defFile, "w")
 tmpFile.write("\n".join(defContent))
 tmpFile.close()
-
-
-

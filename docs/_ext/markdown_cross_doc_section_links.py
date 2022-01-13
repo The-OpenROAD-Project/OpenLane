@@ -18,10 +18,11 @@
 import re
 from util import debug
 
+
 def setup(app):
-    app.connect('source-read', process_markdown_crosslinks)
-    return {'version': '1.0',
-            'parallel_read_safe': True}
+    app.connect("source-read", process_markdown_crosslinks)
+    return {"version": "1.0", "parallel_read_safe": True}
+
 
 def process_markdown_crosslinks(app, docname, source):
     """
@@ -37,16 +38,15 @@ def process_markdown_crosslinks(app, docname, source):
     """
 
     # MD cross-section tag [tag](./dir/file.md#section)
-    linknameexp    = '\[[\/\.\w]*\]'
-    linktargetexp  = '\(\.[\/\.\w]*\.md#\w*\)'
+    linknameexp = r"\[[\/\.\w]*\]"
+    linktargetexp = r"\(\.[\/\.\w]*\.md#\w*\)"
     linkexp = linknameexp + linktargetexp
 
-    for m in reversed(list( re.finditer(linkexp, source[0]) )):
-       link = m.group(0)
-       link = link.replace ('(./','(')   # remove './' if present
-       link = link.replace ('(','(<')    # change parenthesis
-       link = link.replace (')','>)')    # change parenthesis
-       link = link.replace ('.md#',':')  # change section symbol
-       debug(f"[CDL] {docname}: {m.group(0)} to {link}")
-       source[0] = source[0][:m.start()] + link + source[0][m.end():]
-
+    for m in reversed(list(re.finditer(linkexp, source[0]))):
+        link = m.group(0)
+        link = link.replace("(./", "(")  # remove './' if present
+        link = link.replace("(", "(<")  # change parenthesis
+        link = link.replace(")", ">)")  # change parenthesis
+        link = link.replace(".md#", ":")  # change section symbol
+        debug(f"[CDL] {docname}: {m.group(0)} to {link}")
+        source[0] = source[0][: m.start()] + link + source[0][m.end() :]

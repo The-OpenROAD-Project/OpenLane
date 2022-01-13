@@ -1,0 +1,8 @@
+[flake8]
+ignore = E203,E266,E302,E501,W503
+exclude =
+    .git,
+    __pycache__,
+    scripts/klayout,
+    scripts/spef_extractor,
+    docker/tar

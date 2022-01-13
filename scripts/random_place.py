@@ -18,21 +18,27 @@ import random
 import odb
 
 parser = argparse.ArgumentParser(
-    description='Places instances in random locations in layout. Intended for cases,'
-    'where using a placer would be an overkill (very small number of instances < ~40)')
+    description="Places instances in random locations in layout. Intended for cases, where using a placer would be an overkill (very small number of instances < ~40)"
+)
 
-parser.add_argument('--lef', '-l',
-                    nargs='+',
-                    type=str,
-                    default=None,
-                    required=True,
-                    help='Input LEF file(s)')
+parser.add_argument(
+    "--lef",
+    "-l",
+    nargs="+",
+    type=str,
+    default=None,
+    required=True,
+    help="Input LEF file(s)",
+)
 
-parser.add_argument('--input-def', '-id', required=True,
-                    help='DEF view of the design that needs to have its instances placed')
+parser.add_argument(
+    "--input-def",
+    "-id",
+    required=True,
+    help="DEF view of the design that needs to have its instances placed",
+)
 
-parser.add_argument('--output-def', '-o', required=True,
-                    help='Output placed DEF file')
+parser.add_argument("--output-def", "-o", required=True, help="Output placed DEF file")
 
 args = parser.parse_args()
 
@@ -40,11 +46,13 @@ input_lef_file_names = args.lef
 input_def_file_name = args.input_def
 output_def_file_name = args.output_def
 
+
 def gridify(n, f):
     """
     e.g., (1.1243, 0.005) -> 1.120
     """
     return round(n / f) * f
+
 
 db_design = odb.dbDatabase.create()
 
@@ -56,7 +64,7 @@ chip_design = db_design.getChip()
 block_design = chip_design.getBlock()
 top_design_name = block_design.getName()
 core_area = block_design.getCoreArea()
-LLX, LLY =  core_area.ll()
+LLX, LLY = core_area.ll()
 URX, URY = core_area.ur()
 insts = block_design.getInsts()
 
@@ -71,8 +79,8 @@ for inst in insts:
     master = inst.getMaster()
     master_width = master.getWidth()
     master_height = master.getHeight()
-    x = gridify(random.randint(LLX, max(LLX, URX-master_width)), 5)
-    y = gridify(random.randint(LLY, max(LLY, URY-master_height)), 5)
+    x = gridify(random.randint(LLX, max(LLX, URX - master_width)), 5)
+    y = gridify(random.randint(LLY, max(LLY, URY - master_height)), 5)
     inst.setLocation(x, y)
     inst.setPlacementStatus("PLACED")
 

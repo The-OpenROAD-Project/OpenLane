@@ -1,0 +1,20 @@
+name: Lint
+on:
+  # Runs on pushes to all but CID-latest-branches
+  # CID-latest branches automatically create PRs, let's just let the tests run on those
+  push:
+  # Runs on Pull Requests
+  pull_request:
+  # Runs manually
+  workflow_dispatch:
+
+jobs:
+  lint_python:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - uses: wearerequired/lint-action@v1
+        with:
+          black: true
+          flake8: true

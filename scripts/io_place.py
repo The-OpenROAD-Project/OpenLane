@@ -32,24 +32,78 @@ import sys
 import click
 import random
 
+
 @click.command()
 @click.option("-l", "--input-lef", required=True, help="Input merged tlef/lef file.")
-@click.option("-o", "--output-def", default="./output.def", help="Output DEF file with newly placed pins")
+@click.option(
+    "-o",
+    "--output-def",
+    default="./output.def",
+    help="Output DEF file with newly placed pins",
+)
 @click.option("-c", "--config", required=False, help="Optional configuration file.")
-@click.option("-r", "--reverse", default="", type=str, help="Reverse along comma,delimited,cardinals: e.g. N,E")
+@click.option(
+    "-r",
+    "--reverse",
+    default="",
+    type=str,
+    help="Reverse along comma,delimited,cardinals: e.g. N,E",
+)
 @click.option("-L", "--length", default=2, type=float, help="Pin length in microns.")
-@click.option("-V", "--ver-layer", required=True, help="Name of metal layer to place vertical pins on.")
-@click.option("-H", "--hor-layer", required=True, help="Name of metal layer to place horizontal pins on.")
-@click.option("--hor-extension", default=0, type=float, help="Extension for vertical pins in microns.")
-@click.option("--ver-extension", default=0, type=float, help="Extension for horizontal pins in microns.")
-@click.option("--ver-width-mult", default=2, type=float, help="Multiplier for vertical pins.")
-@click.option("--hor-width-mult", default=2, type=float, help="Multiplier for horizontal pins.")
-@click.option("--bus-sort/--no-bus-sort", default=False, help="Misnomer: pins are grouped by index instead of bus, i.e. a[0] goes with b[0] instead of a[1].")
+@click.option(
+    "-V",
+    "--ver-layer",
+    required=True,
+    help="Name of metal layer to place vertical pins on.",
+)
+@click.option(
+    "-H",
+    "--hor-layer",
+    required=True,
+    help="Name of metal layer to place horizontal pins on.",
+)
+@click.option(
+    "--hor-extension",
+    default=0,
+    type=float,
+    help="Extension for vertical pins in microns.",
+)
+@click.option(
+    "--ver-extension",
+    default=0,
+    type=float,
+    help="Extension for horizontal pins in microns.",
+)
+@click.option(
+    "--ver-width-mult", default=2, type=float, help="Multiplier for vertical pins."
+)
+@click.option(
+    "--hor-width-mult", default=2, type=float, help="Multiplier for horizontal pins."
+)
+@click.option(
+    "--bus-sort/--no-bus-sort",
+    default=False,
+    help="Misnomer: pins are grouped by index instead of bus, i.e. a[0] goes with b[0] instead of a[1].",
+)
 @click.argument("input_def")
-def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor_width_mult, length, hor_extension, ver_extension, reverse, bus_sort, input_def):
+def cli(
+    input_lef,
+    output_def,
+    config,
+    ver_layer,
+    hor_layer,
+    ver_width_mult,
+    hor_width_mult,
+    length,
+    hor_extension,
+    ver_extension,
+    reverse,
+    bus_sort,
+    input_def,
+):
     """
     Places the IOs in an input def with an optional config file that supports regexes.
-    
+
     Config format:
     #N|#S|#E|#W
     pin1_regex (low co-ordinates to high co-ordinates; e.g., bottom to top and left to right)
@@ -93,7 +147,7 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
     reverse_arr_raw = reverse.split(",")
     reverse_arr = []
     for element in reverse_arr_raw:
-        if element.strip() != '':
+        if element.strip() != "":
             reverse_arr.append(f"#{element}")
 
     def getGrid(origin, count, step):
@@ -111,7 +165,7 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
         seq = []
         n = len(arr)
         # Bresenham
-        indices = [i*n//m + n//(2*m) for i in range(m)]
+        indices = [i * n // m + n // (2 * m) for i in range(m)]
         for i in indices:
             seq.append(arr[i])
         return seq
@@ -126,18 +180,20 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
             return retval
 
         text = enum[0]
-        text = re.sub("(\[|\]|\.|\$)", "", text)
-        '''
+        text = re.sub(r"(\[|\]|\.|\$)", "", text)
+        """
         alist.sort(key=natural_keys) sorts in human order
         http://nedbatchelder.com/blog/200712/human_sorting.html
         (see toothy's implementation in the comments)
         float regex comes from https://stackoverflow.com/a/12643073/190597
-        '''
-        return [atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text)]
+        """
+        return [
+            atof(c) for c in re.split(r"[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)", text)
+        ]
 
     def bus_keys(enum):
         text = enum[0]
-        m = re.match("^.*\[(\d+)\]$", text)
+        m = re.match(r"^.*\[(\d+)\]$", text)
         if not m:
             return -1
         else:
@@ -148,7 +204,7 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
     pin_placement_cfg = {"#N": [], "#E": [], "#S": [], "#W": []}
     cur_side = None
     if config_file_name is not None and config_file_name != "":
-        with open(config_file_name, 'r') as config_file:
+        with open(config_file_name, "r") as config_file:
             for line in config_file:
                 line = line.split()
                 if len(line) == 0:
@@ -162,10 +218,22 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
 
                 if cur_side is not None and token[0] != "#":
                     pin_placement_cfg[cur_side].append(token)
-                elif token not in ["#N", "#E", "#S", "#W", "#NR", "#ER", "#SR", "#WR", "#BUS_SORT"]:
-                    print("Valid directives are #N, #E, #S, or #W. Append R for reversing the default order.",
+                elif token not in [
+                    "#N",
+                    "#E",
+                    "#S",
+                    "#W",
+                    "#NR",
+                    "#ER",
+                    "#SR",
+                    "#WR",
+                    "#BUS_SORT",
+                ]:
+                    print(
+                        "Valid directives are #N, #E, #S, or #W. Append R for reversing the default order.",
                         "Use #BUS_SORT to group 'bus bits' by index.",
-                        "Please make sure you have set a valid side first before listing pins")
+                        "Please make sure you have set a valid side first before listing pins",
+                    )
                     sys.exit(1)
                 elif token == "#BUS_SORT":
                     bus_sort_flag = True
@@ -214,8 +282,14 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
                 pin_name = bterm.getName()
                 if re.match(regex, pin_name) is not None:
                     if bterm in bterm_regex_map:
-                        print("Error: Multiple regexes matched", pin_name,
-                            ". Those are", bterm_regex_map[bterm], "and", regex)
+                        print(
+                            "Error: Multiple regexes matched",
+                            pin_name,
+                            ". Those are",
+                            bterm_regex_map[bterm],
+                            "and",
+                            regex,
+                        )
                         sys.exit(os.EX_DATAERR)
                     bterm_regex_map[bterm] = regex
                     pin_placement[side].append(bterm)  # to maintain the order
@@ -233,11 +307,14 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
         else:
             sys.exit(1)
 
-
-    assert len(block_top.getBTerms()) == len(pin_placement["#N"] + pin_placement["#E"] + pin_placement["#S"] + pin_placement["#W"])
+    assert len(block_top.getBTerms()) == len(
+        pin_placement["#N"]
+        + pin_placement["#E"]
+        + pin_placement["#S"]
+        + pin_placement["#W"]
+    )
 
     # generate slots
-
 
     DIE_AREA = block_top.getDieArea()
     BLOCK_LL_X = DIE_AREA.xMin()
@@ -246,7 +323,6 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
     BLOCK_UR_Y = DIE_AREA.yMax()
 
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
-
 
     origin, count, step = block_top.findTrackGrid(H_LAYER).getGridPatternY(0)
     h_tracks = getGrid(origin, count, step)
@@ -259,7 +335,6 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
 
     # create the pins
     for side in pin_placement:
-        start = 0
         if side in ["#N", "#S"]:
             slots = equallySpacedSeq(len(pin_placement[side]), v_tracks)
         else:
@@ -283,24 +358,27 @@ def cli(input_lef, output_def, config, ver_layer, hor_layer, ver_width_mult, hor
             pin_bpin.setPlacementStatus("PLACED")
 
             if side in ["#N", "#S"]:
-                rect = odb.Rect(0, 0, V_WIDTH, LENGTH+V_EXTENSION)
+                rect = odb.Rect(0, 0, V_WIDTH, LENGTH + V_EXTENSION)
                 if side == "#N":
-                    y = BLOCK_UR_Y-LENGTH
+                    y = BLOCK_UR_Y - LENGTH
                 else:
-                    y = BLOCK_LL_Y-V_EXTENSION
-                rect.moveTo(slot-V_WIDTH//2, y)
+                    y = BLOCK_LL_Y - V_EXTENSION
+                rect.moveTo(slot - V_WIDTH // 2, y)
                 odb.dbBox_create(pin_bpin, V_LAYER, *rect.ll(), *rect.ur())
             else:
-                rect = odb.Rect(0, 0, LENGTH+H_EXTENSION, H_WIDTH)
+                rect = odb.Rect(0, 0, LENGTH + H_EXTENSION, H_WIDTH)
                 if side == "#E":
-                    x = BLOCK_UR_X-LENGTH
+                    x = BLOCK_UR_X - LENGTH
                 else:
-                    x = BLOCK_LL_X-H_EXTENSION
-                rect.moveTo(x, slot-H_WIDTH//2)
+                    x = BLOCK_LL_X - H_EXTENSION
+                rect.moveTo(x, slot - H_WIDTH // 2)
                 odb.dbBox_create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
 
-    print(f"Writing {output_def_file_name}...",)
+    print(
+        f"Writing {output_def_file_name}...",
+    )
     odb.write_def(block_top, output_def_file_name)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

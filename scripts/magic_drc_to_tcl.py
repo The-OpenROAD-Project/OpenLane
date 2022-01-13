@@ -16,13 +16,12 @@ import argparse
 import os
 
 parser = argparse.ArgumentParser(
-    description='Converts a magic.drc file to a magic readable tcl file.')
+    description="Converts a magic.drc file to a magic readable tcl file."
+)
 
-parser.add_argument('--input_file', '-i', required=True,
-                    help='input magic.drc')
+parser.add_argument("--input_file", "-i", required=True, help="input magic.drc")
 
-parser.add_argument('--output_file', '-o', required=True,
-                    help='output magic.drc.tcl')
+parser.add_argument("--output_file", "-o", required=True, help="output magic.drc.tcl")
 
 args = parser.parse_args()
 input_file = args.input_file
@@ -31,12 +30,12 @@ output_file = args.output_file
 
 printArr = []
 
-splitLine = '----------------------------------------'
+splitLine = "----------------------------------------"
 
 # Converting Magic DRC
 if os.path.exists(input_file):
     drcFileOpener = open(input_file)
-    if drcFileOpener.mode == 'r':
+    if drcFileOpener.mode == "r":
         drcContent = drcFileOpener.read()
     drcFileOpener.close()
 
@@ -46,18 +45,20 @@ if os.path.exists(input_file):
     # Total Count:
     if drcContent is not None:
         drcSections = drcContent.split(splitLine)
-        if (len(drcSections) > 2):
+        if len(drcSections) > 2:
             for i in range(1, len(drcSections) - 1, 2):
                 vio_name = drcSections[i].strip()
                 for vio in drcSections[i + 1].split("\n"):
                     vio = vio.strip()
                     if len(vio):
-                        vio_line="box "+vio+"; feedback add \""+vio_name+"\" medium"
+                        vio_line = (
+                            "box " + vio + '; feedback add "' + vio_name + '" medium'
+                        )
                         printArr.append(vio_line)
 else:
     printArr.append("Source not found.")
 
 # write into file
-outputFileOpener = open(output_file,"w")
+outputFileOpener = open(output_file, "w")
 outputFileOpener.write("\n".join(printArr))
 outputFileOpener.close()

@@ -19,62 +19,62 @@
 import re
 import click
 
+
 @click.command()
 @click.option("-o", "--output", required=True, help="Output HTML file")
 @click.argument("input_file")
 def cli(output, input_file):
-  output_file_handle = open(output, 'w')
-  def write(string):
-      print(string, file=output_file_handle)
+    output_file_handle = open(output, "w")
 
-  file_str = open(input_file).read()
-  file_lines = file_str.split("\n")
+    def write(string):
+        print(string, file=output_file_handle)
 
-  aw = 0.5
-  dw = 0.5
-  ascale = 100
-  minArea = 1000000000
-  minGates = minArea
-  minDelay = minArea
-  bestArea = ""
-  bestDelay = ""
+    file_str = open(input_file).read()
+    file_lines = file_str.split("\n")
 
+    # aw = 0.5
+    # dw = 0.5
+    # ascale = 100
+    minArea = 1000000000
+    minGates = minArea
+    minDelay = minArea
+    bestArea = ""
+    bestDelay = ""
 
-  delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
-  area_rx = re.compile(r"Area\s+\=\s+(\S+)")
-  gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
+    delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
+    area_rx = re.compile(r"Area\s+\=\s+(\S+)")
+    gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
 
-  c = 0
-  for line in file_lines:
-    #print chomp(line)
-    data = line.split()
-    if "none" in line:
-      c += 1
-      sn = f"S{c}"
-      delay_m = delay_rx.search(line)
-      delay = float(delay_m[1])
-      area_m = area_rx.search(line)
-      area = float(area_m[1])
-      gates_m = gates_rx.search(line)
-      gates = float(gates_m[1])
-      #print "_"
-      factor = aw*area/ascale + dw*delay
-      #print "data[6]\tarea\tdelay\n"
-      if area < minArea:
-        minArea = area
-        bestArea = sn
-      
-      if delay < minDelay:
-        minDelay = delay
-        bestDelay = sn
+    c = 0
+    for line in file_lines:
+        # print chomp(line)
+        # data = line.split()
+        if "none" in line:
+            c += 1
+            sn = f"S{c}"
+            delay_m = delay_rx.search(line)
+            delay = float(delay_m[1])
+            area_m = area_rx.search(line)
+            area = float(area_m[1])
+            gates_m = gates_rx.search(line)
+            gates = float(gates_m[1])
+            # factor = aw * area / ascale + dw * delay
+            if area < minArea:
+                minArea = area
+                bestArea = sn
 
-      if gates < minGates:
-        minGates = gates
-        bestGates = sn
+            if delay < minDelay:
+                minDelay = delay
+                bestDelay = sn
 
-  #printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
+            if gates < minGates:
+                minGates = gates
+                bestGates = sn
 
-  write(f"""
+    # printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
+
+    write(
+        f"""
   <html>
 
   <head>
@@ -124,87 +124,94 @@ def cli(output, input_file):
     <th bgcolor='b0c4de'>Delay Ratio</th>
 
   </tr>
-  """)
+  """
+    )
 
+    c = 0
+    for line in file_lines:
+        # print chomp(line)
+        # data = line.split()
+        if "none" in line:
+            c += 1
+            sn = f"S{c}"
+            write("<tr>")
 
-  c = 0
-  for line in file_lines:
-    #print chomp(line)
-    data = line.split()
-    if "none" in line:
-      c += 1
-      sn = f"S{c}"
-      write("<tr>")
+            delay_m = delay_rx.search(line)
+            delay = float(delay_m[1])
+            area_m = area_rx.search(line)
+            area = float(area_m[1])
+            gates_m = gates_rx.search(line)
+            gates = float(gates_m[1])
 
-      delay_m = delay_rx.search(line)
-      delay = float(delay_m[1])
-      area_m = area_rx.search(line)
-      area = float(area_m[1])
-      gates_m = gates_rx.search(line)
-      gates = float(gates_m[1])
+            # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
+            # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
 
-      dfactor = 0.25*area/minArea + 0.75*delay/minDelay
-      afactor = 0.75*area/minArea + 0.25*delay/minDelay
+            dratio = int(delay / minDelay * 1000) / 1000
+            aratio = int(area / minArea * 1000) / 1000
+            gratio = int(gates / minGates * 1000) / 1000
 
-      dratio = int(delay/minDelay*1000)/1000
-      aratio = int(area/minArea*1000)/1000
-      gratio = int(gates/minGates*1000)/1000
+            write(f"<td>{sn}</td>")
 
-      write(f"<td>{sn}</td>")
+            if gratio < 1.0001:
+                write(f"<td bgcolor='#ccff99'>{gates}</td>")
+            else:
+                write(f"<td>{gates}</td>")
 
-      if gratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{gates}</td>")
-      else:
-        write(f"<td>{gates}</td>")
-      
+            if aratio < 1.0001:
+                write(f"<td bgcolor='#ccff99'>{area}</td>")
+            else:
+                write(f"<td>{area}</td>")
 
-      if aratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{area}</td>")
-      else:
-        write(f"<td>{area}</td>")
+            if dratio < 1.0001:
+                write(f"<td bgcolor='#ccff99'>{delay}</td>")
+            else:
+                write(f"<td>{delay}</td>\n")
 
-      if dratio < 1.0001:
-        write(f"<td bgcolor='#ccff99'>{delay}</td>")
-      else:
-        write(f"<td>{delay}</td>\n")
-      
-      if gratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{gratio}</td>")
-      else:
-        write(f"<td>{gratio}</td>")
+            if gratio <= 1.1:
+                write(f"<td bgcolor='#fffacd'>{gratio}</td>")
+            else:
+                write(f"<td>{gratio}</td>")
 
-      if aratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{aratio}</td>")
-      else:
-        write(f"<td>{aratio}</td>")
+            if aratio <= 1.1:
+                write(f"<td bgcolor='#fffacd'>{aratio}</td>")
+            else:
+                write(f"<td>{aratio}</td>")
 
-      if dratio <= 1.1:
-        write(f"<td bgcolor='#fffacd'>{dratio}</td>")
-      else:
-        write(f"<td>{dratio}</td>")
-      #print " + Best Area" if(aratio < 1.0001)
-      #print " + Best Delay" if(dratio < 1.0001)
+            if dratio <= 1.1:
+                write(f"<td bgcolor='#fffacd'>{dratio}</td>")
+            else:
+                write(f"<td>{dratio}</td>")
+            # print " + Best Area" if(aratio < 1.0001)
+            # print " + Best Delay" if(dratio < 1.0001)
 
-      write("</tr>")
+            write("</tr>")
 
-      #if((dratio < 1.15) && (aratio < 1.15)){
-      #  printf (" <== Best Ratio: %.3f - %.3f\n", aratio, dratio)
-      #} else {
-      #  print "\n"
-      #}
-  write("</table>")
+            # if((dratio < 1.15) && (aratio < 1.15)){
+            #  printf (" <== Best Ratio: %.3f - %.3f\n", aratio, dratio)
+            # } else {
+            #  print "\n"
+            # }
+    write("</table>")
 
+    # printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
+    c = 0
+    colors = [
+        "red",
+        "olive",
+        "yellow",
+        "green",
+        "blue",
+        "purple",
+        "grey",
+        "black",
+        "aqua",
+        "fuchsia",
+        "orange",
+        "tan",
+    ]
 
-  #printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
-  c = 0
-  colors = [
-      "red", "olive", "yellow",
-      "green", "blue", "purple",
-      "grey", "black", "aqua",
-      "fuchsia" , "orange", "tan"
-  ]
-
-  write("""
+    write(
+        """
   </div>
     <div style='width:65%''>
       <canvas id='myChart'></canvas>
@@ -221,33 +228,28 @@ def cli(output, input_file):
       data: {
           datasets: [
 
-  """)
+  """
+    )
 
-  for line in file_lines:
-    #print chomp(line)
-    data = line.split()
-    if "none" in line:
-      c = c + 1
+    for line in file_lines:
+        # print chomp(line)
+        # data = line.split()
+        if "none" in line:
+            c = c + 1
 
-      delay_m = delay_rx.search(line)
-      delay = float(delay_m[1])
-      area_m = area_rx.search(line)
-      area = float(area_m[1])
+            delay_m = delay_rx.search(line)
+            delay = float(delay_m[1])
+            area_m = area_rx.search(line)
+            area = float(area_m[1])
 
-      #print "_"
+            # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
+            # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
 
-      dfactor = 0.25*area/minArea + 0.75*delay/minDelay
-      afactor = 0.75*area/minArea + 0.25*delay/minDelay
+            label = f"S{c}"
+            color = colors[c - 1 % len(colors)]
 
-      #printf ("%.0f\t%.0f\t%.0f\t%.3f\t%.3f\t%.3f",data[6],area,delay,data[6]/minGates,area/minArea,delay/minDelay)
-
-      #dratio = delay/minDelay
-      #aratio = area/minArea
-
-      label = f"S{c}"
-      color = colors[c-1 % len(colors)]
-
-      write(f"""{{
+            write(
+                f"""{{
           label: '{label}',
           borderColor: window.chartColors.{color},
           backgroundColor: color(window.chartColors.{color}).alpha(0.2).rgbString(),
@@ -256,9 +258,11 @@ def cli(output, input_file):
               x: {area},
               y: {delay}
           }}]
-      }},""")
+      }},"""
+            )
 
-  write("""
+    write(
+        """
   ]
   },
   options: {
@@ -291,8 +295,10 @@ def cli(output, input_file):
   </body>
 
   </html>
-  """)
-  output_file_handle.close()
+  """
+    )
+    output_file_handle.close()
 
-if __name__ == '__main__':
-  cli()
+
+if __name__ == "__main__":
+    cli()

@@ -20,9 +20,9 @@ import json
 
 github_event_name = os.environ["EVENT_NAME"]
 
-if github_event_name in ['schedule', 'workflow_dispatch']:
+if github_event_name in ["schedule", "workflow_dispatch"]:
     gh.export_env("USE_ETS", "1")
-elif github_event_name == 'pull_request':
+elif github_event_name == "pull_request":
     gh_event_str = open(os.environ["GITHUB_EVENT_PATH"]).read()
     gh_event = json.loads(gh_event_str)
     pr_body = gh_event["pull_request"]["body"]

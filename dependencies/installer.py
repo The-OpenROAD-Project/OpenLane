@@ -28,6 +28,7 @@ from typing import Tuple, Union, List
 openlane_dir = dirname(dirname(abspath(__file__)))
 is_root = os.geteuid() == 0
 
+
 class chdir(object):
     def __init__(self, path):
         self.path = path
@@ -42,6 +43,7 @@ class chdir(object):
         if exc_type is not None:
             raise exc_value
 
+
 def sh(*args: Tuple[str], root: Union[bool, str] = False, **kwargs):
     """
     args: shell arguments to run
@@ -52,16 +54,22 @@ def sh(*args: Tuple[str], root: Union[bool, str] = False, **kwargs):
             it is retried as root.
     """
     args = list(args)
-    if root == True and not is_root:
+    if root and not is_root:
         args = ["sudo"] + args
     try:
-        subprocess.run(args, check=True, stderr=subprocess.PIPE if root == "retry" else None, **kwargs)
+        subprocess.run(
+            args,
+            check=True,
+            stderr=subprocess.PIPE if root == "retry" else None,
+            **kwargs,
+        )
     except subprocess.CalledProcessError as e:
         if root == "retry":
             args = ["sudo"] + args
             subprocess.run(args, check=True, **kwargs)
         else:
             raise e
+
 
 def download(url: str, ext: str) -> str:
     path = f"/tmp/{uuid.uuid4()}.{ext}"
@@ -70,6 +78,7 @@ def download(url: str, ext: str) -> str:
     sh("curl", "-L", url, stdout=target)
     target.close()
     return path
+
 
 # Installer Class
 class Installer(object):
@@ -111,21 +120,29 @@ class Installer(object):
         from dependencies.tool import Tool
         from dependencies.get_tag import NoGitException, get_tag
         from dependencies.env_info import OSInfo
-        
+
         try:
             import venv
         except ImportError:
-            print("Python venv does not appear to be installed, and is required for local installations.", file=sys.stderr)
+            print(
+                "Python venv does not appear to be installed, and is required for local installations.",
+                file=sys.stderr,
+            )
 
         try:
             ol_version = get_tag()
-        except NoGitException as e:
-            print("Installing OpenLane locally requires a Git repository.", file=sys.stderr)
+        except NoGitException:
+            print(
+                "Installing OpenLane locally requires a Git repository.",
+                file=sys.stderr,
+            )
             exit(-1)
 
         tools = Tool.from_metadata_yaml(open("./dependencies/tool_metadata.yml").read())
 
-        print(textwrap.dedent(f"""\
+        print(
+            textwrap.dedent(
+                f"""\
             OpenLane Local Installer ALPHA
 
                 Copyright 2021 Efabless Corporation. Available under the Apache License,
@@ -141,25 +158,34 @@ class Installer(object):
                 This version of OpenLane was tested with this version of OpenRoad:
 
                     {tools["openroad_app"].version_string}
-        """))
+        """
+            )
+        )
 
         install_dir = realpath("./install")
 
         sh("mkdir", "-p", install_dir, root="retry")
 
         home_perms = os.stat(os.getenv("HOME"))
-        sh("chown", "-R", "%i:%i" % (home_perms.st_uid, home_perms.st_gid), install_dir, root="retry")
+        sh(
+            "chown",
+            "-R",
+            "%i:%i" % (home_perms.st_uid, home_perms.st_gid),
+            install_dir,
+            root="retry",
+        )
 
         os_list = ["other", "ubuntu-20.04", "centos-7", "arch", "macos"]
 
         # Try to determine user's OS
-        set_default_os = lambda x: os_list.insert(0, os_list.pop(os_list.index(x)))
+        def set_default_os(x):
+            os_list.insert(0, os_list.pop(os_list.index(x)))
 
         os_info = OSInfo.get()
 
         if os_info.distro == "macOS":
             set_default_os("macos")
-        
+
         if os_info.distro == "centos" and os_info.distro_version == "7":
             set_default_os("centos-7")
 
@@ -168,23 +194,34 @@ class Installer(object):
 
         if os_info.distro in ["manjaro", "arch"]:
             set_default_os("arch")
-        
-        os_pick = self.input_options("OS", "Which UNIX/Unix-like OS are you using?", os_list)
-        
+
+        os_pick = self.input_options(
+            "OS", "Which UNIX/Unix-like OS are you using?", os_list
+        )
+
         gcc_bin = os.getenv("CC") or "gcc"
         gxx_bin = os.getenv("CXX") or "g++"
         try:
-            if not os_pick in ["centos-7", "macos"]: # The reason we ignore centos 7 and macos is that we're going to just use devtoolset-8/brew gcc anyway.
+            if os_pick not in [
+                "centos-7",
+                "macos",
+            ]:  # The reason we ignore centos 7 and macos is that we're going to just use devtoolset-8/brew gcc anyway.
                 all_output = ""
-                try:     
-                    gcc_ver_output = subprocess.run([gcc_bin, "--version"], stdout=subprocess.PIPE)
+                try:
+                    gcc_ver_output = subprocess.run(
+                        [gcc_bin, "--version"], stdout=subprocess.PIPE
+                    )
                     all_output += gcc_ver_output.stdout.decode("utf8")
-                    gx_ver_output = subprocess.run([gxx_bin, "--version"], stdout=subprocess.PIPE)
+                    gx_ver_output = subprocess.run(
+                        [gxx_bin, "--version"], stdout=subprocess.PIPE
+                    )
                     all_output += gx_ver_output.stdout.decode("utf8")
-                except:
+                except Exception:
                     pass
                 if "clang" in all_output:
-                    print(textwrap.dedent(f"""\
+                    print(
+                        textwrap.dedent(
+                            f"""\
                         We've detected that you're using Clang as your default C or C++ compiler.
                         Unfortunately, Clang is not compatible with some of the tools being
                         installed.
@@ -196,32 +233,54 @@ class Installer(object):
                         follows, for example:
 
                             CC=/usr/local/bin/gcc-8 CXX=/usr/local/bin/g++-8 python3 {__file__}
-                    """))
-                    input("Press return if you understand the risk and wish to continue anyways >")
+                    """
+                        )
+                    )
+                    input(
+                        "Press return if you understand the risk and wish to continue anyways >"
+                    )
         except FileNotFoundError as e:
             print(e, "(set as either CC or CXX)")
             exit(os.EX_CONFIG)
 
         install_packages = "no"
         if os_pick != "other":
-            install_packages = self.input_options("INSTALL_PACKAGES", "Do you want to install dependencies using your package manager?", ["no", "yes"])
+            install_packages = self.input_options(
+                "INSTALL_PACKAGES",
+                "Do you want to install dependencies using your package manager?",
+                ["no", "yes"],
+            )
         if install_packages != "no":
+
             def cat_all(dir):
                 result = ""
                 for file in os.listdir(dir):
                     result += open(join(dir, file)).read()
                     result += "\n"
                 return result
+
             if os_pick == "macos":
-                brew_packages = cat_all(join(openlane_dir, 'dependencies', 'macos')).strip().split("\n")
+                brew_packages = (
+                    cat_all(join(openlane_dir, "dependencies", "macos"))
+                    .strip()
+                    .split("\n")
+                )
 
                 sh("brew", "install", *brew_packages)
             if os_pick == "centos-7":
-                yum_packages = cat_all(join(openlane_dir, 'dependencies', 'centos-7')).strip().split("\n") 
+                yum_packages = (
+                    cat_all(join(openlane_dir, "dependencies", "centos-7"))
+                    .strip()
+                    .split("\n")
+                )
 
                 sh("yum", "install", "-y", *yum_packages, root="retry")
             if os_pick == "arch":
-                raw = cat_all(join(openlane_dir, 'dependencies', 'arch')).strip().split("\n")
+                raw = (
+                    cat_all(join(openlane_dir, "dependencies", "arch"))
+                    .strip()
+                    .split("\n")
+                )
 
                 arch_packages = []
                 aur_packages = []
@@ -235,7 +294,14 @@ class Installer(object):
                     else:
                         arch_packages.append(entry)
 
-                sh("pacman", "-S", "--noconfirm", "--needed", *arch_packages, root="retry")
+                sh(
+                    "pacman",
+                    "-S",
+                    "--noconfirm",
+                    "--needed",
+                    *arch_packages,
+                    root="retry",
+                )
 
                 temp_dir = tempfile.gettempdir()
                 oaur_path = os.path.join(temp_dir, "openlane_aur")
@@ -247,7 +313,11 @@ class Installer(object):
                         with chdir("current"):
                             sh("makepkg", "-si", "--noconfirm")
             if os_pick == "ubuntu-20.04":
-                raw = cat_all(join(openlane_dir, 'dependencies', 'ubuntu-20.04')).strip().split("\n")
+                raw = (
+                    cat_all(join(openlane_dir, "dependencies", "ubuntu-20.04"))
+                    .strip()
+                    .split("\n")
+                )
 
                 apt_packages = []
                 apt_debs = []
@@ -255,7 +325,7 @@ class Installer(object):
                 for entry in raw:
                     if entry.strip() == "":
                         continue
-                    
+
                     if entry.startswith("https://"):
                         apt_debs.append(entry)
                     else:
@@ -269,7 +339,7 @@ class Installer(object):
 
         print("To re-run with the same options: ")
         print(f"{' '.join(['%s=%s' % env for env in self.envs])} python3 {__file__}")
-        
+
         run_env = os.environ.copy()
         run_env["PREFIX"] = install_dir
         run_env["PATH"] = f"{install_dir}/bin:{os.getenv('PATH')}"
@@ -280,22 +350,39 @@ class Installer(object):
             run_env["CC"] = "/opt/rh/devtoolset-8/root/usr/bin/gcc"
             run_env["CXX"] = "/opt/rh/devtoolset-8/root/usr/bin/g++"
             run_env["PATH"] = f"/opt/rh/devtoolset-8/root/usr/bin:{os.getenv('PATH')}"
-            run_env["LD_LIBRARY_PATH"] = f"/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:{os.getenv('LD_LIBRARY_PATH')}"
-            run_env["CMAKE_INCLUDE_PATH"] = f"/usr/include/boost169:{os.getenv('CMAKE_INCLUDE_PATH')}"
-            run_env["CMAKE_LIBRARY_PATH"] = f"/lib64/boost169:{os.getenv('CMAKE_LIBRARY_PATH')}"
+            run_env[
+                "LD_LIBRARY_PATH"
+            ] = f"/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:{os.getenv('LD_LIBRARY_PATH')}"
+            run_env[
+                "CMAKE_INCLUDE_PATH"
+            ] = f"/usr/include/boost169:{os.getenv('CMAKE_INCLUDE_PATH')}"
+            run_env[
+                "CMAKE_LIBRARY_PATH"
+            ] = f"/lib64/boost169:{os.getenv('CMAKE_LIBRARY_PATH')}"
         elif os_pick == "macos":
-            def get_prefix(tool):
-                return subprocess.check_output([
-                    "brew", "--prefix", tool
-                ]).decode('utf8').strip()
 
-            klayout_app_path = self.input_default("KLAYOUT_MAC_APP", "Please input the path to klayout.app (0.27.3 or later): ", "/Applications/klayout.app")
+            def get_prefix(tool):
+                return (
+                    subprocess.check_output(["brew", "--prefix", tool])
+                    .decode("utf8")
+                    .strip()
+                )
+
+            klayout_app_path = self.input_default(
+                "KLAYOUT_MAC_APP",
+                "Please input the path to klayout.app (0.27.3 or later): ",
+                "/Applications/klayout.app",
+            )
             klayout_path_element = join(klayout_app_path, "Contents", "MacOS")
 
             run_env["CC"] = f"{get_prefix('gcc')}/bin/gcc-11"
             run_env["CXX"] = f"{get_prefix('gcc')}/bin/g++-11"
-            run_env["PATH"] = f"{get_prefix('swig@3')}/bin:{get_prefix('bison')}/bin:{get_prefix('flex')}/bin:{get_prefix('gnu-which')}/bin:{os.getenv('PATH')}"
-            run_env["MAGIC_CONFIG_OPTS"] = f"--with-tcl={get_prefix('tcl-tk')} --with-tk={get_prefix('tcl-tk')}"
+            run_env[
+                "PATH"
+            ] = f"{get_prefix('swig@3')}/bin:{get_prefix('bison')}/bin:{get_prefix('flex')}/bin:{get_prefix('gnu-which')}/bin:{os.getenv('PATH')}"
+            run_env[
+                "MAGIC_CONFIG_OPTS"
+            ] = f"--with-tcl={get_prefix('tcl-tk')} --with-tk={get_prefix('tcl-tk')}"
             run_env["READLINE_CXXFLAGS"] = f"CXXFLAGS=-L{get_prefix('readline')}/lib"
 
             path_elements.append(f"{klayout_path_element}")
@@ -315,28 +402,35 @@ class Installer(object):
             print("Copying files...")
             for folder in ["bin", "lib", "share", "build", "dependencies"]:
                 sh("mkdir", "-p", folder)
-            
+
             print("Building Python virtual environment...")
             venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
             venv_builder.create("./venv")
-            
-            subprocess.run([
-                "bash", "-c", f"""
+
+            subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    """
                     source ./venv/bin/activate
                     python3 -m pip install --upgrade -r ../dependencies/python/precompile_time.txt
                     python3 -m pip install --upgrade -r ../dependencies/python/compile_time.txt
                     python3 -m pip install --upgrade -r ../dependencies/python/run_time.txt
-                """
-            ])
+                """,
+                ]
+            )
 
             print("Installing dependencies...")
             with chdir("build"):
                 for folder in ["repos", "versions"]:
                     sh("mkdir", "-p", folder)
-                    
+
                 skip_tools = re.compile(os.getenv("SKIP_TOOLS") or "Unmatchable")
                 tool_queue = list(tools.values()).copy()
-                pop = lambda: tool_queue.pop(0) if len(tool_queue) else None
+
+                def pop():
+                    tool_queue.pop(0) if len(tool_queue) else None
+
                 installed = set()
                 tool = pop()
                 while tool is not None:
@@ -355,28 +449,37 @@ class Installer(object):
                     version_path = f"versions/{tool.name}"
                     try:
                         installed_version = open(version_path).read()
-                    except:
+                    except Exception:
                         pass
-                    if installed_version == tool.version_string and os.getenv("FORCE_REINSTALL") != "1":
+                    if (
+                        installed_version == tool.version_string
+                        and os.getenv("FORCE_REINSTALL") != "1"
+                    ):
                         print(f"{tool.version_string} already installed, skipping...")
                     else:
                         print(f"Installing {tool.name}...")
-                        
+
                         with chdir("repos"):
                             if not exists(tool.name):
                                 sh("git", "clone", tool.repo, tool.name)
-                            
+
                             with chdir(tool.name):
                                 sh("git", "fetch")
                                 sh("git", "submodule", "update", "--init")
                                 sh("git", "checkout", tool.commit)
-                                subprocess.run([
-                                    "bash", "-c", f"""\
+                                subprocess.run(
+                                    [
+                                        "bash",
+                                        "-c",
+                                        f"""\
                                         set -e
                                         source {install_dir}/venv/bin/activate
                                         {tool.build_script}
-                                    """
-                                ], env=run_env, check=True)
+                                    """,
+                                    ],
+                                    env=run_env,
+                                    check=True,
+                                )
 
                         with open(version_path, "w") as f:
                             f.write(tool.version_string)
@@ -386,19 +489,26 @@ class Installer(object):
 
             path_elements.reverse()
             with open("env.tcl", "w") as f:
-                f.write(textwrap.dedent(f"""\
+                f.write(
+                    textwrap.dedent(
+                        f"""\
                 set OL_INSTALL_DIR [file dirname [file normalize [info script]]]
 
                 set ::env(OPENLANE_LOCAL_INSTALL) 1
                 set ::env(OL_INSTALL_DIR) "$OL_INSTALL_DIR"
                 set ::env(PATH) "{":".join(path_elements)}:$::env(PATH)"
                 set ::env(VIRTUAL_ENV) "$OL_INSTALL_DIR/venv"
-                """))
+                """
+                    )
+                )
 
             with open("installed_version", "w") as f:
                 f.write(ol_version)
+
         with chdir(install_dir):
             install()
 
         print("Done.")
-        print(f"To invoke Openlane from now on, invoke ./flow.tcl from the OpenLane root without the Makefile.")
+        print(
+            "To invoke Openlane from now on, invoke ./flow.tcl from the OpenLane root without the Makefile."
+        )

@@ -31,6 +31,7 @@ met5 X 1.70 3.40
 met5 Y 1.70 3.40
 """
 
+
 def old_to_new_tracks(old_tracks: str) -> str:
     """
     >>> old_to_new_tracks(EXAMPLE_INPUT)
@@ -54,20 +55,21 @@ def old_to_new_tracks(old_tracks: str) -> str:
 
     return final_str
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-    description='Converts an old tracks.info file to a new .tracks file as dictated by OpenROAD.')
+        description="Converts an old tracks.info file to a new .tracks file as dictated by OpenROAD."
+    )
 
-    parser.add_argument('--input_file', '-i', required=True,
-                        help='input tracks.info')
+    parser.add_argument("--input_file", "-i", required=True, help="input tracks.info")
 
-    parser.add_argument('--output_file', '-o', required=True,
-                        help='output .tracks file')
+    parser.add_argument(
+        "--output_file", "-o", required=True, help="output .tracks file"
+    )
 
     args = parser.parse_args()
-    
 
     tracks_info_str = open(args.input_file).read()
 
-    with open(args.output_file, 'w') as f:
+    with open(args.output_file, "w") as f:
         f.write(old_to_new_tracks(tracks_info_str))

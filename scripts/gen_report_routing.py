@@ -13,9 +13,6 @@
 # limitations under the License.
 
 import argparse
-import os
-import re
-import utils.utils as utils
 from config.config import ConfigHandler
 from report.report_routing import Report
 
