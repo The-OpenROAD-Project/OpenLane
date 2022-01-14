@@ -30,35 +30,37 @@ proc eco_gen_buffer {args} {
         puts "Generating fixes for ECO iteration 1!"
         puts "Parsing STA report: "
         puts [lindex [glob -directory $::env(routing_logs) \
-                           *multi_corner_sta*] end]
+            *multi_corner_sta*] end]
         puts "Input Lef File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                         *_unpadded.lef] end] 
+            *_unpadded.lef] end]
         puts "Input Def File: "
-        puts [lindex [glob -directory $::env(routing_results) \
-                         *.def] end]
+        puts $::env(routing_results)
+        puts [lindex [glob -directory $::env(eco_results)/arcdef \
+            $::env(ECO_ITER)_post-route.def] end]
         # pause;
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+            -s $::env(ECO_SKIP_PIN) \
             -i [lindex [glob -directory $::env(routing_logs) \
             *multi_corner_sta*] end] \
             -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                             *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(routing_results) \
-                             *.def] end] \
+            *_unpadded.lef] end] \
+            -d [lindex [glob -directory $::env(eco_results)/arcdef \
+            $::env(ECO_ITER)_post-route.def] end] \
             -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
     } else {
         puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
         puts "Parsing STA report: "
         puts [lindex [glob -directory $::env(routing_logs) \
-                    *multi_corner_sta*] end]
+            *multi_corner_sta*] end]
         puts "Input Lef File: "
         puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                         *_unpadded.lef] end] 
+            *_unpadded.lef] end]
         puts "Input Def File: "
         puts [lindex [glob -directory $::env(eco_results)/def \
-                         *.def] end]
+            *.def] end]
         # pause;
 
         try_catch $::env(OPENROAD_BIN) \
@@ -66,28 +68,28 @@ proc eco_gen_buffer {args} {
             -i [lindex [glob -directory $::env(routing_logs) \
             *multi_corner_sta*] end] \
             -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-                             *_unpadded.lef] end] \
+            *_unpadded.lef] end] \
             -d [lindex [glob -directory $::env(eco_results)/def \
-                             *.def] end] \
+            *.def] end] \
             -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
     }
 }
 
 proc eco_output_check {args} {
-        puts "Entering eco_output_check subproc!"
+    puts "Entering eco_output_check subproc!"
 
-        eco_gen_buffer
+    eco_gen_buffer
 
-        set lines [eco_read_fix]
-        foreach line $lines {
-            # Use regex to determine if finished here
-            if {[regexp {No violations} $line]} {
-                set ::env(ECO_FINISH) 1;
-            } else {
-                incr ::env(ECO_ITER) 1;
-            }
-            break
+    set lines [eco_read_fix]
+    foreach line $lines {
+        # Use regex to determine if finished here
+        if {[regexp {No violations} $line]} {
+            set ::env(ECO_FINISH) 1;
+        } else {
+            incr ::env(ECO_ITER) 1;
         }
+        break
+    }
 }
 
 proc run_apply_step {args} {
@@ -108,27 +110,27 @@ proc run_apply_step {args} {
     puts $::env(CURRENT_DEF)
 }
 
-proc run_eco {args} {
-    set log          "$::env(eco_logs)"
-    set path         "$::env(eco_results)"
-    set fix_path     "$::env(eco_results)/fix"
-    set def_path     "$::env(eco_results)/def"
-    set net_path     "$::env(eco_results)/net"
-    set spef_path    "$::env(eco_results)/spef"
-    set sdf_path     "$::env(eco_results)/sdf"
-    set arc_def_path "$::env(eco_results)/arcdef"
-    file mkdir $log
-    file mkdir $path
-    file mkdir $fix_path
-    file mkdir $def_path
-    file mkdir $net_path
-    file mkdir $spef_path
-    file mkdir $sdf_path
-    file mkdir $arc_def_path
+proc run_eco_flow {args} {
+    #set log          "$::env(eco_logs)"
+    #set path         "$::env(eco_results)"
+    #set fix_path     "$::env(eco_results)/fix"
+    #set def_path     "$::env(eco_results)/def"
+    #set net_path     "$::env(eco_results)/net"
+    #set spef_path    "$::env(eco_results)/spef"
+    #set sdf_path     "$::env(eco_results)/sdf"
+    #set arc_def_path "$::env(eco_results)/arcdef"
+    #file mkdir $log
+    #file mkdir $path
+    #file mkdir $fix_path
+    #file mkdir $def_path
+    #file mkdir $net_path
+    #file mkdir $spef_path
+    #file mkdir $sdf_path
+    #file mkdir $arc_def_path
 
 
     # Assume script generate fix commands
-    puts "Generating Fix commands (resize/insert)"    
+    puts "Generating Fix commands (resize/insert)"
 
     # Re-organize report/result files here
     exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
@@ -139,7 +141,7 @@ proc run_eco {args} {
         puts "Start ECO loop $::env(ECO_ITER)!"
         # Then run detailed placement again
         # Get the connections then destroy them
-        
+
         # Pause to see puts output
         # pause;
         if {$::env(ECO_ITER) > 10} {
@@ -183,7 +185,7 @@ proc run_eco {args} {
     # end of while
     if { $::env(ECO_ITER) != 0 } {
         set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
-        set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end] 
+        set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end]
         file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
         file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
     }
