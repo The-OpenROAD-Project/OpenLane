@@ -65,6 +65,7 @@ proc eco_gen_buffer {args} {
 
         try_catch $::env(OPENROAD_BIN) \
             -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+            -s $::env(ECO_SKIP_PIN) \
             -i [lindex [glob -directory $::env(routing_logs) \
             *multi_corner_sta*] end] \
             -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
