@@ -488,10 +488,16 @@ proc prep {args} {
     if { ! $skip_basic_prep } {
         prep_lefs
 
-        # trim synthesis library
+        # merge libraries for yosys
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
+        set ::env(LIB_SYNTH_MERGED) $::env(synthesis_tmpfiles)/merged.lib
+        try_catch $::env(SCRIPTS_DIR)/mergeLib.pl \
+            $::env(PDK)_merged \
+            {*}$::env(LIB_SYNTH_COMPLETE) > $::env(LIB_SYNTH_MERGED)
+
+        # trim synthesis library
         set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
-        trim_lib
+        trim_lib -input $::env(LIB_SYNTH_MERGED)
 
         # trim resizer library 
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
