@@ -32,6 +32,8 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
+read_sdc -echo $::env(CURRENT_SDC)
+
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
@@ -77,8 +79,6 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
     if { $::env(GLB_RT_ESTIMATE_PARASITICS) == 1 } {
-        read_sdc -echo $::env(CURRENT_SDC)
-	
         # set rc values
         source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
         set_propagated_clock [all_clocks]
