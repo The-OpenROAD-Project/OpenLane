@@ -437,13 +437,13 @@ proc run_routing {args} {
 
     # if diode insertion does *not* happen as part of global routing, then
     # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(ECO_FINISH) ==1) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(ECO_ENABLE) ==0 | $::env(ECO_FINISH) ==1) } {
         ins_fill_cells
     }
 
     global_routing
 
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) && ($::env(ECO_FINISH) ==1) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) && ($::env(ECO_ENABLE) ==0 | $::env(ECO_FINISH) ==1) } {
         # Doing this here can be problematic and is something that needs to be
         # addressed in FastRoute since fill cells *might* occupy some of the
         # resources that were already used during global routing causing the
