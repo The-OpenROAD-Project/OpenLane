@@ -274,6 +274,7 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, excluded
             ConfigHandler.gen_base_config(design, base_config_path)
 
             number_of_configs = subprocess.check_output([
+                "python3",
                 "./scripts/config/generate_config.py",
                 f"{base_path}/config_{tag}_",
                 base_config_path,
@@ -285,11 +286,7 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, excluded
                 rem_designs[design] = number_of_configs
             for i in range(number_of_configs):
                 config_tag = f"config_{tag}_{i}"
-                config_file = f"{base_path}/{config_tag}".format(
-                    base_path=base_path,
-                    config_tag=config_tag,
-                )
-                q.put((design, config_file, config_tag, design_name))
+                q.put((design, config_tag, config_tag, design_name))
     else:
         for design in designs:
             base_path = utils.get_design_path(design=design)
