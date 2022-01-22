@@ -21,9 +21,11 @@ import argparse
 import subprocess
 
 @click.command()
-@click.option("-t", "--def-template", "templateDEF", required=True, help="Template DEF")
-@click.argument("userDEF")
-def cli(templateDEF, userDEF):
+@click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
+@click.argument("userdef")
+def cli(templatedef, userdef):
+    userDEF = userdef
+    templateDEF = templatedef
     scriptsDir = os.path.dirname(__file__)
 
     def remove_power_pins(DEF):
