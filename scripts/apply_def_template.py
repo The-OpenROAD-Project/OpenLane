@@ -60,6 +60,7 @@ def cli(templatedef, userdef):
         "openroad",
         "-python",
         f"{scriptsDir}/defutil.py",
+        "replace_pins",
         "--output", userDEF,
         "--input-lef", "/dev/null",
         userDEF, templateDEF
