@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# flake8: noqa
 # Copyright 2020 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +15,10 @@
 # limitations under the License.
 
 #
-#--------------------------------------------------------
+# --------------------------------------------------------
 # Padframe Editor and Core Floorplanner
 #
-#--------------------------------------------------------
+# --------------------------------------------------------
 # Written by Tim Edwards
 # efabless, inc.
 # April 24, 2019
@@ -26,7 +27,7 @@
 # Update: May 9, 2019 to add console message window
 # Update: May 10, 2019 to incorporate core floorplanning
 # Update: Jan 31, 2020 to allow batch operation
-#--------------------------------------------------------
+# --------------------------------------------------------
 
 import os
 import re
@@ -44,53 +45,60 @@ import tkinter
 from tkinter import ttk
 
 # User preferences file (if it exists)
-prefsfile = '~/design/.profile/prefs.json'
+prefsfile = "~/design/.profile/prefs.json"
 
-#------------------------------------------------------
+# ------------------------------------------------------
 # Dialog for entering a pad
-#------------------------------------------------------
+# ------------------------------------------------------
+
 
 class ConsoleText(tkinter.Text):
     linelimit = 500
+
     class IORedirector(object):
-        '''A general class for redirecting I/O to this Text widget.'''
-        def __init__(self,text_area):
+        """A general class for redirecting I/O to this Text widget."""
+
+        def __init__(self, text_area):
             self.text_area = text_area
 
     class StdoutRedirector(IORedirector):
-        '''A class for redirecting stdout to this Text widget.'''
-        def write(self,str):
-            self.text_area.write(str,False)
+        """A class for redirecting stdout to this Text widget."""
+
+        def write(self, str):
+            self.text_area.write(str, False)
 
     class StderrRedirector(IORedirector):
-        '''A class for redirecting stderr to this Text widget.'''
-        def write(self,str):
-            self.text_area.write(str,True)
+        """A class for redirecting stderr to this Text widget."""
+
+        def write(self, str):
+            self.text_area.write(str, True)
 
     def __init__(self, master=None, cnf={}, **kw):
-        '''See the __init__ for Tkinter.Text.'''
+        """See the __init__ for Tkinter.Text."""
 
         tkinter.Text.__init__(self, master, cnf, **kw)
 
-        self.tag_configure('stdout',background='white',foreground='black')
-        self.tag_configure('stderr',background='white',foreground='red')
+        self.tag_configure("stdout", background="white", foreground="black")
+        self.tag_configure("stderr", background="white", foreground="red")
         # None of these works!  Cannot change selected text background!
-        self.config(selectbackground='blue', selectforeground='white')
-        self.tag_configure('sel',background='blue',foreground='white')
+        self.config(selectbackground="blue", selectforeground="white")
+        self.tag_configure("sel", background="blue", foreground="white")
 
     def write(self, val, is_stderr=False):
-        lines = int(self.index('end-1c').split('.')[0])
+        lines = int(self.index("end-1c").split(".")[0])
         if lines > self.linelimit:
-            self.delete('1.0', str(lines - self.linelimit) + '.0')
-        self.insert('end',val,'stderr' if is_stderr else 'stdout')
-        self.see('end')
+            self.delete("1.0", str(lines - self.linelimit) + ".0")
+        self.insert("end", val, "stderr" if is_stderr else "stdout")
+        self.see("end")
 
     def limit(self, val):
         self.linelimit = val
 
-class Dialog(tkinter.Toplevel):
 
-    def __init__(self, parent, message = None, title = None, seed = None, border = 'blue', **kwargs):
+class Dialog(tkinter.Toplevel):
+    def __init__(
+        self, parent, message=None, title=None, seed=None, border="blue", **kwargs
+    ):
 
         tkinter.Toplevel.__init__(self, parent)
         self.transient(parent)
@@ -100,13 +108,13 @@ class Dialog(tkinter.Toplevel):
 
         self.configure(background=border, padx=2, pady=2)
         self.obox = ttk.Frame(self)
-        self.obox.pack(side = 'left', fill = 'both', expand = 'true')
+        self.obox.pack(side="left", fill="both", expand="true")
 
         self.parent = parent
         self.result = None
         body = ttk.Frame(self.obox)
         self.initial_focus = self.body(body, message, seed, **kwargs)
-        body.pack(padx = 5, pady = 5)
+        body.pack(padx=5, pady=5)
         self.buttonbox()
         self.grab_set()
 
@@ -114,8 +122,7 @@ class Dialog(tkinter.Toplevel):
             self.initial_focus = self
 
         self.protocol("WM_DELETE_WINDOW", self.cancel)
-        self.geometry("+%d+%d" % (parent.winfo_rootx() + 50,
-                                  parent.winfo_rooty() + 50))
+        self.geometry("+%d+%d" % (parent.winfo_rootx() + 50, parent.winfo_rooty() + 50))
 
         self.initial_focus.focus_set()
         self.wait_window(self)
@@ -133,21 +140,23 @@ class Dialog(tkinter.Toplevel):
 
         box = ttk.Frame(self.obox)
 
-        self.okb = ttk.Button(box, text="OK", width=10, command=self.ok, default='active')
-        self.okb.pack(side='left', padx=5, pady=5)
+        self.okb = ttk.Button(
+            box, text="OK", width=10, command=self.ok, default="active"
+        )
+        self.okb.pack(side="left", padx=5, pady=5)
         w = ttk.Button(box, text="Cancel", width=10, command=self.cancel)
-        w.pack(side='left', padx=5, pady=5)
+        w.pack(side="left", padx=5, pady=5)
 
         self.bind("<Return>", self.ok)
         self.bind("<Escape>", self.cancel)
-        box.pack(fill='x', expand='true')
+        box.pack(fill="x", expand="true")
 
     # Standard button semantics
 
     def ok(self, event=None):
 
         if not self.validate():
-            self.initial_focus.focus_set() # put focus back
+            self.initial_focus.focus_set()  # put focus back
             return
 
         self.withdraw()
@@ -162,54 +171,62 @@ class Dialog(tkinter.Toplevel):
         self.destroy()
 
     def validate(self):
-        return 1 # Override this
+        return 1  # Override this
 
     def apply(self):
-        return None # Override this
+        return None  # Override this
+
 
 class PadNameDialog(Dialog):
     def body(self, master, warning=None, seed=None):
         if warning:
-            ttk.Label(master, text=warning).grid(row = 0, columnspan = 2, sticky = 'wns')
-        ttk.Label(master, text="Enter new group name:").grid(row = 1, column = 0, sticky = 'wns')
+            ttk.Label(master, text=warning).grid(row=0, columnspan=2, sticky="wns")
+        ttk.Label(master, text="Enter new group name:").grid(
+            row=1, column=0, sticky="wns"
+        )
         self.nentry = ttk.Entry(master)
-        self.nentry.grid(row = 1, column = 1, sticky = 'ewns')
+        self.nentry.grid(row=1, column=1, sticky="ewns")
         if seed:
             self.nentry.insert(0, seed)
-        return self.nentry # initial focus
+        return self.nentry  # initial focus
 
     def apply(self):
         return self.nentry.get()
 
-#------------------------------------------------------
+
+# ------------------------------------------------------
 # Dialog for entering core dimensions
-#------------------------------------------------------
+# ------------------------------------------------------
+
 
 class CoreSizeDialog(Dialog):
     def body(self, master, warning="Chip core dimensions", seed=None):
         if warning:
-            ttk.Label(master, text=warning).grid(row = 0, columnspan = 2, sticky = 'wns')
-        ttk.Label(master, text="Enter core width x height (microns):").grid(row = 1, column = 0, sticky = 'wns')
+            ttk.Label(master, text=warning).grid(row=0, columnspan=2, sticky="wns")
+        ttk.Label(master, text="Enter core width x height (microns):").grid(
+            row=1, column=0, sticky="wns"
+        )
         self.nentry = ttk.Entry(master)
-        self.nentry.grid(row = 1, column = 1, sticky = 'ewns')
-
+        self.nentry.grid(row=1, column=1, sticky="ewns")
 
         if seed:
             self.nentry.insert(0, seed)
-        return self.nentry # initial focus
+        return self.nentry  # initial focus
 
     def apply(self):
         return self.nentry.get()
 
-#------------------------------------------------
+
+# ------------------------------------------------
 # SoC Floorplanner and Padframe Generator GUI
-#------------------------------------------------
+# ------------------------------------------------
+
 
 class SoCFloorplanner(ttk.Frame):
     """Open Galaxy Pad Frame Generator."""
 
-    def __init__(self, parent = None, *args, **kwargs):
-        '''See the __init__ for Tkinter.Toplevel.'''
+    def __init__(self, parent=None, *args, **kwargs):
+        """See the __init__ for Tkinter.Toplevel."""
         ttk.Frame.__init__(self, parent, *args[1:], **kwargs)
         self.root = parent
         self.init_data()
@@ -234,10 +251,10 @@ class SoCFloorplanner(ttk.Frame):
         # Read user preferences file, get default font size from it.
         prefspath = os.path.expanduser(prefsfile)
         if os.path.exists(prefspath):
-            with open(prefspath, 'r') as f:
+            with open(prefspath, "r") as f:
                 self.prefs = json.load(f)
-            if 'fontsize' in self.prefs:
-                fontsize = self.prefs['fontsize']
+            if "fontsize" in self.prefs:
+                fontsize = self.prefs["fontsize"]
         else:
             self.prefs = {}
 
@@ -246,60 +263,74 @@ class SoCFloorplanner(ttk.Frame):
         available_themes = s.theme_names()
         s.theme_use(available_themes[0])
 
-        s.configure('normal.TButton', font=('Helvetica', fontsize), border = 3, relief = 'raised')
-        s.configure('title.TLabel', font=('Helvetica', fontsize, 'bold italic'),
-                        foreground = 'brown', anchor = 'center')
-        s.configure('blue.TLabel', font=('Helvetica', fontsize), foreground = 'blue')
-        s.configure('normal.TLabel', font=('Helvetica', fontsize))
-        s.configure('normal.TCheckbutton', font=('Helvetica', fontsize))
-        s.configure('normal.TMenubutton', font=('Helvetica', fontsize))
-        s.configure('normal.TEntry', font=('Helvetica', fontsize), background='white')
-        s.configure('pad.TLabel', font=('Helvetica', fontsize), foreground = 'blue', relief = 'flat')
-        s.configure('select.TLabel', font=('Helvetica', fontsize, 'bold'), foreground = 'white',
-			background = 'blue', relief = 'flat')
- 
+        s.configure(
+            "normal.TButton", font=("Helvetica", fontsize), border=3, relief="raised"
+        )
+        s.configure(
+            "title.TLabel",
+            font=("Helvetica", fontsize, "bold italic"),
+            foreground="brown",
+            anchor="center",
+        )
+        s.configure("blue.TLabel", font=("Helvetica", fontsize), foreground="blue")
+        s.configure("normal.TLabel", font=("Helvetica", fontsize))
+        s.configure("normal.TCheckbutton", font=("Helvetica", fontsize))
+        s.configure("normal.TMenubutton", font=("Helvetica", fontsize))
+        s.configure("normal.TEntry", font=("Helvetica", fontsize), background="white")
+        s.configure(
+            "pad.TLabel", font=("Helvetica", fontsize), foreground="blue", relief="flat"
+        )
+        s.configure(
+            "select.TLabel",
+            font=("Helvetica", fontsize, "bold"),
+            foreground="white",
+            background="blue",
+            relief="flat",
+        )
+
         # parent.withdraw()
-        self.root.title('Padframe Generator and Core Floorplanner')
-        self.root.option_add('*tearOff', 'FALSE')
-        self.pack(side = 'top', fill = 'both', expand = 'true')
+        self.root.title("Padframe Generator and Core Floorplanner")
+        self.root.option_add("*tearOff", "FALSE")
+        self.pack(side="top", fill="both", expand="true")
         self.root.protocol("WM_DELETE_WINDOW", self.on_quit)
 
-        pane = tkinter.PanedWindow(self, orient = 'vertical', sashrelief = 'groove',
-			sashwidth = 6)
-        pane.pack(side = 'top', fill = 'both', expand = 'true')
+        pane = tkinter.PanedWindow(
+            self, orient="vertical", sashrelief="groove", sashwidth=6
+        )
+        pane.pack(side="top", fill="both", expand="true")
 
         self.toppane = ttk.Frame(pane)
         self.botpane = ttk.Frame(pane)
 
-        self.toppane.columnconfigure(0, weight = 1)
-        self.toppane.rowconfigure(0, weight = 1)
-        self.botpane.columnconfigure(0, weight = 1)
-        self.botpane.rowconfigure(0, weight = 1)
+        self.toppane.columnconfigure(0, weight=1)
+        self.toppane.rowconfigure(0, weight=1)
+        self.botpane.columnconfigure(0, weight=1)
+        self.botpane.rowconfigure(0, weight=1)
 
         # Scrolled frame using canvas widget
         self.pframe = tkinter.Frame(self.toppane)
-        self.pframe.grid(row = 0, column = 0, sticky = 'news')
-        self.pframe.rowconfigure(0, weight = 1)
-        self.pframe.columnconfigure(0, weight = 1)
+        self.pframe.grid(row=0, column=0, sticky="news")
+        self.pframe.rowconfigure(0, weight=1)
+        self.pframe.columnconfigure(0, weight=1)
 
         # Add column on the left, listing all groups and the pads they belong to.
         # This starts as just a frame to be filled.  Use a canvas to create a
         # scrolled frame.
 
         # The primary frame holds the canvas
-        self.canvas = tkinter.Canvas(self.pframe, background = "white")
-        self.canvas.grid(row = 0, column = 0, sticky = 'news')
+        self.canvas = tkinter.Canvas(self.pframe, background="white")
+        self.canvas.grid(row=0, column=0, sticky="news")
 
         # Add Y scrollbar to pad list window
-        xscrollbar = ttk.Scrollbar(self.pframe, orient = 'horizontal')
-        xscrollbar.grid(row = 1, column = 0, sticky = 'news')
-        yscrollbar = ttk.Scrollbar(self.pframe, orient = 'vertical')
-        yscrollbar.grid(row = 0, column = 1, sticky = 'news')
+        xscrollbar = ttk.Scrollbar(self.pframe, orient="horizontal")
+        xscrollbar.grid(row=1, column=0, sticky="news")
+        yscrollbar = ttk.Scrollbar(self.pframe, orient="vertical")
+        yscrollbar.grid(row=0, column=1, sticky="news")
 
-        self.canvas.config(xscrollcommand = xscrollbar.set)
-        xscrollbar.config(command = self.canvas.xview)
-        self.canvas.config(yscrollcommand = yscrollbar.set)
-        yscrollbar.config(command = self.canvas.yview)
+        self.canvas.config(xscrollcommand=xscrollbar.set)
+        xscrollbar.config(command=self.canvas.xview)
+        self.canvas.config(yscrollcommand=yscrollbar.set)
+        yscrollbar.config(command=self.canvas.yview)
 
         self.canvas.bind("<Button-4>", self.on_scrollwheel)
         self.canvas.bind("<Button-5>", self.on_scrollwheel)
@@ -309,38 +340,42 @@ class SoCFloorplanner(ttk.Frame):
 
         # Add a text window to capture output.  Redirect print statements to it.
         self.console = ttk.Frame(self.botpane)
-        self.console.grid(column = 0, row = 0, sticky = "news")
-        self.text_box = ConsoleText(self.console, wrap='word', height = 4)
-        self.text_box.pack(side='left', fill='both', expand='true')
+        self.console.grid(column=0, row=0, sticky="news")
+        self.text_box = ConsoleText(self.console, wrap="word", height=4)
+        self.text_box.pack(side="left", fill="both", expand="true")
         console_scrollbar = ttk.Scrollbar(self.console)
-        console_scrollbar.pack(side='right', fill='y')
+        console_scrollbar.pack(side="right", fill="y")
         # Attach console to scrollbar
-        self.text_box.config(yscrollcommand = console_scrollbar.set)
-        console_scrollbar.config(command = self.text_box.yview)
+        self.text_box.config(yscrollcommand=console_scrollbar.set)
+        console_scrollbar.config(command=self.text_box.yview)
 
         # Add the bottom bar with buttons
         self.bbar = ttk.Frame(self.botpane)
-        self.bbar.grid(column = 0, row = 1, sticky = "news")
+        self.bbar.grid(column=0, row=1, sticky="news")
 
-        self.bbar.import_button = ttk.Button(self.bbar, text='Import',
-		command=self.vlogimport, style='normal.TButton')
-        self.bbar.import_button.grid(column=0, row=0, padx = 5)
+        self.bbar.import_button = ttk.Button(
+            self.bbar, text="Import", command=self.vlogimport, style="normal.TButton"
+        )
+        self.bbar.import_button.grid(column=0, row=0, padx=5)
 
-        self.bbar.generate_button = ttk.Button(self.bbar, text='Generate',
-		command=self.generate, style='normal.TButton')
-        self.bbar.generate_button.grid(column=1, row=0, padx = 5)
+        self.bbar.generate_button = ttk.Button(
+            self.bbar, text="Generate", command=self.generate, style="normal.TButton"
+        )
+        self.bbar.generate_button.grid(column=1, row=0, padx=5)
 
-        self.bbar.save_button = ttk.Button(self.bbar, text='Save',
-		command=self.save, style='normal.TButton')
-        self.bbar.save_button.grid(column=2, row=0, padx = 5)
+        self.bbar.save_button = ttk.Button(
+            self.bbar, text="Save", command=self.save, style="normal.TButton"
+        )
+        self.bbar.save_button.grid(column=2, row=0, padx=5)
 
-        self.bbar.cancel_button = ttk.Button(self.bbar, text='Quit',
-		command=self.on_quit, style='normal.TButton')
-        self.bbar.cancel_button.grid(column=3, row=0, padx = 5)
+        self.bbar.cancel_button = ttk.Button(
+            self.bbar, text="Quit", command=self.on_quit, style="normal.TButton"
+        )
+        self.bbar.cancel_button.grid(column=3, row=0, padx=5)
 
         pane.add(self.toppane)
         pane.add(self.botpane)
-        pane.paneconfig(self.toppane, stretch='first')
+        pane.paneconfig(self.toppane, stretch="first")
 
     def init_data(self):
 
@@ -366,11 +401,11 @@ class SoCFloorplanner(ttk.Frame):
         self.ury = 0
 
         self.event_data = {}
-        self.event_data['x0'] = 0
-        self.event_data['y0'] = 0
-        self.event_data['x'] = 0
-        self.event_data['y'] = 0
-        self.event_data['tag'] = None
+        self.event_data["x0"] = 0
+        self.event_data["y0"] = 0
+        self.event_data["x"] = 0
+        self.event_data["y"] = 0
+        self.event_data["tag"] = None
         self.scale = 1.0
         self.margin = 100
         self.pad_rotation = 0
@@ -392,7 +427,7 @@ class SoCFloorplanner(ttk.Frame):
 
     # Local routines for handling printing to the text console
 
-    def print(self, message, file=None, end='\n', flush=True):
+    def print(self, message, file=None, end="\n", flush=True):
         if not file:
             if not self.use_console:
                 file = sys.stdout
@@ -424,14 +459,14 @@ class SoCFloorplanner(ttk.Frame):
     # Set the project name(s).  This is the name of the top-level verilog.
     # The standard protocol is that the project directory contains a file
     # project.json that defines a name 'ip-name' that is the same as the
-    # layout name, the verilog module name, etc.  
+    # layout name, the verilog module name, etc.
 
     def set_project(self):
         # Check pwd
         pwdname = self.projectpath if self.projectpath else os.getcwd()
-        
+
         subdir = os.path.split(pwdname)[1]
-        if subdir == 'mag' or subdir == 'verilog':
+        if subdir == "mag" or subdir == "verilog":
             projectpath = os.path.split(pwdname)[0]
         else:
             projectpath = pwdname
@@ -442,143 +477,145 @@ class SoCFloorplanner(ttk.Frame):
         # Check for project.json
 
         jsonname = None
-        if os.path.isfile(projectpath + '/project.json'):
-            jsonname = projectpath + '/project.json'
-        elif os.path.isfile(projectroot + '/' + projectdirname + '.json'):
-            jsonname = projectroot + '/' + projectdirname + '.json'
-        if os.path.isfile(projectroot + '/project.json'):
+        if os.path.isfile(projectpath + "/project.json"):
+            jsonname = projectpath + "/project.json"
+        elif os.path.isfile(projectroot + "/" + projectdirname + ".json"):
+            jsonname = projectroot + "/" + projectdirname + ".json"
+        if os.path.isfile(projectroot + "/project.json"):
             # Just in case this was started from some other subdirectory
             projectpath = projectroot
-            jsonname = projectroot + '/project.json'
+            jsonname = projectroot + "/project.json"
 
         if jsonname:
-            self.print('Reading project JSON file ' + jsonname)
-            with open(jsonname, 'r') as ifile:
+            self.print("Reading project JSON file " + jsonname)
+            with open(jsonname, "r") as ifile:
                 topdata = json.load(ifile)
-                if 'data-sheet' in topdata:
-                    dsheet = topdata['data-sheet']
-                    if 'ip-name' in dsheet:
-                        self.project = dsheet['ip-name']
+                if "data-sheet" in topdata:
+                    dsheet = topdata["data-sheet"]
+                    if "ip-name" in dsheet:
+                        self.project = dsheet["ip-name"]
                         self.projectpath = projectpath
         else:
-            self.print('No project JSON file; using directory name as the project name.')
+            self.print(
+                "No project JSON file; using directory name as the project name."
+            )
             self.project = os.path.split(projectpath)[1]
             self.projectpath = projectpath
 
-        self.print('Project name is ' + self.project + ' (' + self.projectpath + ')')
+        self.print("Project name is " + self.project + " (" + self.projectpath + ")")
 
     # Functions for drag-and-drop capability
     def add_draggable(self, tag):
-        self.canvas.tag_bind(tag, '<ButtonPress-1>', self.on_button_press)
-        self.canvas.tag_bind(tag, '<ButtonRelease-1>', self.on_button_release)
-        self.canvas.tag_bind(tag, '<B1-Motion>', self.on_button_motion)
-        self.canvas.tag_bind(tag, '<ButtonPress-2>', self.on_button2_press)
-        self.canvas.tag_bind(tag, '<ButtonPress-3>', self.on_button3_press)
+        self.canvas.tag_bind(tag, "<ButtonPress-1>", self.on_button_press)
+        self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.on_button_release)
+        self.canvas.tag_bind(tag, "<B1-Motion>", self.on_button_motion)
+        self.canvas.tag_bind(tag, "<ButtonPress-2>", self.on_button2_press)
+        self.canvas.tag_bind(tag, "<ButtonPress-3>", self.on_button3_press)
 
     def on_button_press(self, event):
-        '''Begining drag of an object'''
+        """Begining drag of an object"""
         # Find the closest item, then record its tag.
         locx = event.x + self.canvas.canvasx(0)
         locy = event.y + self.canvas.canvasy(0)
         item = self.canvas.find_closest(locx, locy)[0]
-        self.event_data['tag'] = self.canvas.gettags(item)[0]
-        self.event_data['x0'] = event.x
-        self.event_data['y0'] = event.y
-        self.event_data['x'] = event.x
-        self.event_data['y'] = event.y
+        self.event_data["tag"] = self.canvas.gettags(item)[0]
+        self.event_data["x0"] = event.x
+        self.event_data["y0"] = event.y
+        self.event_data["x"] = event.x
+        self.event_data["y"] = event.y
 
     def on_button2_press(self, event):
-        '''Flip an object (excluding corners)'''
+        """Flip an object (excluding corners)"""
         locx = event.x + self.canvas.canvasx(0)
         locy = event.y + self.canvas.canvasy(0)
         item = self.canvas.find_closest(locx, locy)[0]
         tag = self.canvas.gettags(item)[0]
 
         try:
-            corecell = next(item for item in self.coregroup if item['name'] == tag)
-        except:
+            corecell = next(item for item in self.coregroup if item["name"] == tag)
+        except Exception:
             try:
-                pad = next(item for item in self.Npads if item['name'] == tag)
-            except:
+                pad = next(item for item in self.Npads if item["name"] == tag)
+            except Exception:
                 pad = None
             if not pad:
                 try:
-                    pad = next(item for item in self.Epads if item['name'] == tag)
-                except:
+                    pad = next(item for item in self.Epads if item["name"] == tag)
+                except Exception:
                     pad = None
             if not pad:
                 try:
-                    pad = next(item for item in self.Spads if item['name'] == tag)
-                except:
+                    pad = next(item for item in self.Spads if item["name"] == tag)
+                except Exception:
                     pad = None
             if not pad:
                 try:
-                    pad = next(item for item in self.Wpads if item['name'] == tag)
-                except:
+                    pad = next(item for item in self.Wpads if item["name"] == tag)
+                except Exception:
                     pad = None
             if not pad:
-                self.print('Error: Object cannot be flipped.')
+                self.print("Error: Object cannot be flipped.")
             else:
                 # Flip the pad (in the only way meaningful for the pad).
-                orient = pad['o']
-                if orient == 'N':
-                    pad['o'] = 'FN'
-                elif orient == 'E':
-                    pad['o'] = 'FW'
-                elif orient == 'S':
-                    pad['o'] = 'FS'
-                elif orient == 'W':
-                    pad['o'] = 'FE'
-                elif orient == 'FN':
-                    pad['o'] = 'N'
-                elif orient == 'FE':
-                    pad['o'] = 'W'
-                elif orient == 'FS':
-                    pad['o'] = 'S'
-                elif orient == 'FW':
-                    pad['o'] = 'E'
+                orient = pad["o"]
+                if orient == "N":
+                    pad["o"] = "FN"
+                elif orient == "E":
+                    pad["o"] = "FW"
+                elif orient == "S":
+                    pad["o"] = "FS"
+                elif orient == "W":
+                    pad["o"] = "FE"
+                elif orient == "FN":
+                    pad["o"] = "N"
+                elif orient == "FE":
+                    pad["o"] = "W"
+                elif orient == "FS":
+                    pad["o"] = "S"
+                elif orient == "FW":
+                    pad["o"] = "E"
         else:
             # Flip the cell.  Use the DEF meaning of flip, which is to
             # add or subtract 'F' from the orientation.
-            orient = corecell['o']
-            if not 'F' in orient:
-                corecell['o'] = 'F' + orient
+            orient = corecell["o"]
+            if not "F" in orient:
+                corecell["o"] = "F" + orient
             else:
-                corecell['o'] = orient[1:]
+                corecell["o"] = orient[1:]
 
         # Redraw
         self.populate(0)
 
     def on_button3_press(self, event):
-        '''Rotate a core object (no pads) '''
+        """Rotate a core object (no pads)"""
         locx = event.x + self.canvas.canvasx(0)
         locy = event.y + self.canvas.canvasy(0)
         item = self.canvas.find_closest(locx, locy)[0]
         tag = self.canvas.gettags(item)[0]
 
         try:
-            corecell = next(item for item in self.coregroup if item['name'] == tag)
-        except:
-            self.print('Error: Object cannot be rotated.')
+            corecell = next(item for item in self.coregroup if item["name"] == tag)
+        except Exception:
+            self.print("Error: Object cannot be rotated.")
         else:
             # Modify its orientation
-            orient = corecell['o']
-            if orient == 'N':
-                corecell['o'] = 'E'
-            elif orient == 'E':
-                corecell['o'] = 'S'
-            elif orient == 'S':
-                corecell['o'] = 'W'
-            elif orient == 'W':
-                corecell['o'] = 'N'
-            elif orient == 'FN':
-                corecell['o'] = 'FW'
-            elif orient == 'FW':
-                corecell['o'] = 'FS'
-            elif orient == 'FS':
-                corecell['o'] = 'FE'
-            elif orient == 'FE':
-                corecell['o'] = 'FN'
+            orient = corecell["o"]
+            if orient == "N":
+                corecell["o"] = "E"
+            elif orient == "E":
+                corecell["o"] = "S"
+            elif orient == "S":
+                corecell["o"] = "W"
+            elif orient == "W":
+                corecell["o"] = "N"
+            elif orient == "FN":
+                corecell["o"] = "FW"
+            elif orient == "FW":
+                corecell["o"] = "FS"
+            elif orient == "FS":
+                corecell["o"] = "FE"
+            elif orient == "FE":
+                corecell["o"] = "FN"
 
             # rewrite the core DEF file
             self.write_core_def()
@@ -587,21 +624,21 @@ class SoCFloorplanner(ttk.Frame):
         self.populate(0)
 
     def on_button_motion(self, event):
-        '''Handle dragging of an object'''
+        """Handle dragging of an object"""
         # compute how much the mouse has moved
-        delta_x = event.x - self.event_data['x']
-        delta_y = event.y - self.event_data['y']
+        delta_x = event.x - self.event_data["x"]
+        delta_y = event.y - self.event_data["y"]
         # move the object the appropriate amount
-        self.canvas.move(self.event_data['tag'], delta_x, delta_y)
+        self.canvas.move(self.event_data["tag"], delta_x, delta_y)
         # record the new position
-        self.event_data['x'] = event.x
-        self.event_data['y'] = event.y
+        self.event_data["x"] = event.x
+        self.event_data["y"] = event.y
 
     def on_button_release(self, event):
-        '''End drag of an object'''
+        """End drag of an object"""
 
         # Find the pad associated with the tag and update its position information
-        tag = self.event_data['tag']
+        tag = self.event_data["tag"]
 
         # Collect pads in clockwise order.  Note that E and S rows are not clockwise
         allpads = []
@@ -615,13 +652,22 @@ class SoCFloorplanner(ttk.Frame):
         allpads.extend(self.NWpad)
 
         # Create a list of row references (also in clockwise order, but no reversing)
-        padrows = [self.Npads, self.NEpad, self.Epads, self.SEpad, self.Spads, self.SWpad, self.Wpads, self.NWpad]
+        padrows = [
+            self.Npads,
+            self.NEpad,
+            self.Epads,
+            self.SEpad,
+            self.Spads,
+            self.SWpad,
+            self.Wpads,
+            self.NWpad,
+        ]
 
         # Record the row or corner where this pad was located before the move
         for row in padrows:
             try:
-                pad = next(item for item in row if item['name'] == tag)
-            except:
+                pad = next(item for item in row if item["name"] == tag)
+            except Exception:
                 pass
             else:
                 padrow = row
@@ -629,35 +675,40 @@ class SoCFloorplanner(ttk.Frame):
 
         # Currently there is no procedure to move a pad out of the corner
         # position;  corners are fixed by definition.
-        if padrow == self.NEpad or padrow == self.SEpad or padrow == self.SWpad or padrow == self.NWpad:
+        if (
+            padrow == self.NEpad
+            or padrow == self.SEpad
+            or padrow == self.SWpad
+            or padrow == self.NWpad
+        ):
             # Easier to run generate() than to put the pad back. . .
             self.generate(0)
             return
 
         # Find the original center point of the pad being moved
 
-        padllx = pad['x']
-        padlly = pad['y']
-        if pad['o'] == 'N' or pad['o'] == 'S':
-            padurx = padllx + pad['width']
-            padury = padlly + pad['height']
+        padllx = pad["x"]
+        padlly = pad["y"]
+        if pad["o"] == "N" or pad["o"] == "S":
+            padurx = padllx + pad["width"]
+            padury = padlly + pad["height"]
         else:
-            padurx = padllx + pad['height']
-            padury = padlly + pad['width']
+            padurx = padllx + pad["height"]
+            padury = padlly + pad["width"]
         padcx = (padllx + padurx) / 2
         padcy = (padlly + padury) / 2
 
         # Add distance from drag information (note that drag position in y
         # is negative relative to the chip dimensions)
-        padcx += (self.event_data['x'] - self.event_data['x0']) / self.scale
-        padcy -= (self.event_data['y'] - self.event_data['y0']) / self.scale
+        padcx += (self.event_data["x"] - self.event_data["x0"]) / self.scale
+        padcy -= (self.event_data["y"] - self.event_data["y0"]) / self.scale
 
         # reset the drag information
-        self.event_data['tag'] = None
-        self.event_data['x'] = 0
-        self.event_data['y'] = 0
-        self.event_data['x0'] = 0
-        self.event_data['y0'] = 0
+        self.event_data["tag"] = None
+        self.event_data["x"] = 0
+        self.event_data["y"] = 0
+        self.event_data["x0"] = 0
+        self.event_data["y0"] = 0
 
         # Find the distance from the pad to all other pads, and get the two
         # closest entries.
@@ -667,19 +718,19 @@ class SoCFloorplanner(ttk.Frame):
         dist1 = wwidth
         pad0 = None
         pad1 = None
-          
+
         for npad in allpads:
             if npad == pad:
                 continue
 
-            npadllx = npad['x']
-            npadlly = npad['y']
-            if npad['o'] == 'N' or npad['o'] == 'S':
-                npadurx = npadllx + npad['width']
-                npadury = npadlly + npad['height']
+            npadllx = npad["x"]
+            npadlly = npad["y"]
+            if npad["o"] == "N" or npad["o"] == "S":
+                npadurx = npadllx + npad["width"]
+                npadury = npadlly + npad["height"]
             else:
-                npadurx = npadllx + npad['height']
-                npadury = npadlly + npad['width']
+                npadurx = npadllx + npad["height"]
+                npadury = npadlly + npad["width"]
             npadcx = (npadllx + npadurx) / 2
             npadcy = (npadlly + npadury) / 2
 
@@ -704,8 +755,8 @@ class SoCFloorplanner(ttk.Frame):
         # Record the row or corner where these pads are
         for row in padrows:
             try:
-                testpad = next(item for item in row if item['name'] == pad0['name'])
-            except:
+                testpad = next(item for item in row if item["name"] == pad0["name"])
+            except Exception:
                 pass
             else:
                 padrow0 = row
@@ -713,8 +764,8 @@ class SoCFloorplanner(ttk.Frame):
 
         for row in padrows:
             try:
-                testpad = next(item for item in row if item['name'] == pad1['name'])
-            except:
+                testpad = next(item for item in row if item["name"] == pad1["name"])
+            except Exception:
                 pass
             else:
                 padrow1 = row
@@ -766,18 +817,18 @@ class SoCFloorplanner(ttk.Frame):
 
     def on_scrollwheel(self, event):
         if event.num == 4:
-            zoomval = 1.1;
+            zoomval = 1.1
         elif event.num == 5:
-            zoomval = 0.9;
+            zoomval = 0.9
         else:
-            zoomval = 1.0;
+            zoomval = 1.0
 
         self.scale *= zoomval
-        self.canvas.scale('all', -15 * zoomval, -15 * zoomval, zoomval, zoomval)
-        self.event_data['x'] *= zoomval
-        self.event_data['y'] *= zoomval
-        self.event_data['x0'] *= zoomval
-        self.event_data['y0'] *= zoomval
+        self.canvas.scale("all", -15 * zoomval, -15 * zoomval, zoomval, zoomval)
+        self.event_data["x"] *= zoomval
+        self.event_data["y"] *= zoomval
+        self.event_data["x0"] *= zoomval
+        self.event_data["y0"] *= zoomval
         self.frame_configure(event)
 
     # Callback functions similar to the pad event callbacks above, but for
@@ -786,44 +837,44 @@ class SoCFloorplanner(ttk.Frame):
     # unless their position forces the padframe to expand
 
     def add_core_draggable(self, tag):
-        self.canvas.tag_bind(tag, '<ButtonPress-1>', self.on_button_press)
-        self.canvas.tag_bind(tag, '<ButtonRelease-1>', self.core_on_button_release)
-        self.canvas.tag_bind(tag, '<B1-Motion>', self.on_button_motion)
-        self.canvas.tag_bind(tag, '<ButtonPress-2>', self.on_button2_press)
-        self.canvas.tag_bind(tag, '<ButtonPress-3>', self.on_button3_press)
+        self.canvas.tag_bind(tag, "<ButtonPress-1>", self.on_button_press)
+        self.canvas.tag_bind(tag, "<ButtonRelease-1>", self.core_on_button_release)
+        self.canvas.tag_bind(tag, "<B1-Motion>", self.on_button_motion)
+        self.canvas.tag_bind(tag, "<ButtonPress-2>", self.on_button2_press)
+        self.canvas.tag_bind(tag, "<ButtonPress-3>", self.on_button3_press)
 
     def core_on_button_release(self, event):
-        '''End drag of a core cell'''
+        """End drag of a core cell"""
 
         # Find the pad associated with the tag and update its position information
-        tag = self.event_data['tag']
+        tag = self.event_data["tag"]
 
         try:
-            corecell = next(item for item in self.coregroup if item['name'] == tag)
-        except:
-            self.print('Error: cell ' + item['name'] + ' is not in coregroup!')
-        else:  
+            corecell = next(item for item in self.coregroup if item["name"] == tag)
+        except Exception:
+            self.print("Error: cell " + item["name"] + " is not in coregroup!")
+        else:
             # Modify its position values
-            corex = corecell['x']
-            corey = corecell['y']
+            corex = corecell["x"]
+            corey = corecell["y"]
 
             # Add distance from drag information (note that drag position in y
             # is negative relative to the chip dimensions)
-            deltax = (self.event_data['x'] - self.event_data['x0']) / self.scale
-            deltay = (self.event_data['y'] - self.event_data['y0']) / self.scale
+            deltax = (self.event_data["x"] - self.event_data["x0"]) / self.scale
+            deltay = (self.event_data["y"] - self.event_data["y0"]) / self.scale
 
-            corecell['x'] = corex + deltax
-            corecell['y'] = corey - deltay
+            corecell["x"] = corex + deltax
+            corecell["y"] = corey - deltay
 
             # rewrite the core DEF file
             self.write_core_def()
 
         # reset the drag information
-        self.event_data['tag'] = None
-        self.event_data['x'] = 0
-        self.event_data['y'] = 0
-        self.event_data['x0'] = 0
-        self.event_data['y0'] = 0
+        self.event_data["tag"] = None
+        self.event_data["x"] = 0
+        self.event_data["y"] = 0
+        self.event_data["x0"] = 0
+        self.event_data["y0"] = 0
 
     # Critically needed or else frame does not resize to scrollbars!
     def grid_configure(self, padx, pady):
@@ -831,8 +882,8 @@ class SoCFloorplanner(ttk.Frame):
 
     # Redraw the chip frame view in response to changes in the pad list
     def redraw_frame(self):
-        self.canvas.coords('boundary', self.llx, self.urx, self.lly, self.ury)
-   
+        self.canvas.coords("boundary", self.llx, self.urx, self.lly, self.ury)
+
     # Update the canvas scrollregion to incorporate all the interior windows
     def frame_configure(self, event):
         if self.do_gui == False:
@@ -841,10 +892,10 @@ class SoCFloorplanner(ttk.Frame):
         bbox = self.canvas.bbox("all")
         try:
             newbbox = (-15, -15, bbox[2] + 15, bbox[3] + 15)
-        except:
+        except Exception:
             pass
         else:
-            self.canvas.configure(scrollregion = newbbox)
+            self.canvas.configure(scrollregion=newbbox)
 
     # Fill the GUI entries with resident data
     def populate(self, level):
@@ -852,180 +903,218 @@ class SoCFloorplanner(ttk.Frame):
             return
 
         if level > 1:
-            self.print('Recursion error:  Returning now.')
+            self.print("Recursion error:  Returning now.")
             return
 
-        self.print('Populating floorplan view.')
+        self.print("Populating floorplan view.")
 
         # Remove all entries from the canvas
-        self.canvas.delete('all')
+        self.canvas.delete("all")
 
-        allpads = self.Npads + self.NEpad + self.Epads + self.SEpad + self.Spads + self.SWpad + self.Wpads + self.NWpad
+        allpads = (
+            self.Npads
+            + self.NEpad
+            + self.Epads
+            + self.SEpad
+            + self.Spads
+            + self.SWpad
+            + self.Wpads
+            + self.NWpad
+        )
 
         notfoundlist = []
 
         for pad in allpads:
-            if 'x' not in pad:
-                self.print('Error:  Pad ' + pad['name'] + ' has no placement information.')
+            if "x" not in pad:
+                self.print(
+                    "Error:  Pad " + pad["name"] + " has no placement information."
+                )
                 continue
-            llx = int(pad['x'])
-            lly = int(pad['y'])
-            pado = pad['o']
+            llx = int(pad["x"])
+            lly = int(pad["y"])
+            pado = pad["o"]
             try:
-                padcell = next(item for item in self.celldefs if item['name'] == pad['cell'])
-            except:
+                padcell = next(
+                    item for item in self.celldefs if item["name"] == pad["cell"]
+                )
+            except Exception:
                 # This should not happen (failsafe)
-                if pad['cell'] not in notfoundlist:
-                    self.print('Warning:  there is no cell named ' + pad['cell'] + ' in the libraries.')
-                notfoundlist.append(pad['cell'])
+                if pad["cell"] not in notfoundlist:
+                    self.print(
+                        "Warning:  there is no cell named "
+                        + pad["cell"]
+                        + " in the libraries."
+                    )
+                notfoundlist.append(pad["cell"])
                 continue
-            padw = padcell['width']
-            padh = padcell['height']
-            if 'N' in pado or 'S' in pado:
+            padw = padcell["width"]
+            padh = padcell["height"]
+            if "N" in pado or "S" in pado:
                 urx = int(llx + padw)
                 ury = int(lly + padh)
             else:
                 urx = int(llx + padh)
                 ury = int(lly + padw)
-            
-            pad['llx'] = llx
-            pad['lly'] = lly
-            pad['urx'] = urx
-            pad['ury'] = ury
+
+            pad["llx"] = llx
+            pad["lly"] = lly
+            pad["urx"] = urx
+            pad["ury"] = ury
 
         # Note that the DEF coordinate system is reversed in Y from the canvas. . .
 
         height = self.ury - self.lly
         for pad in allpads:
 
-            llx = pad['llx']
-            lly = height - pad['lly']
-            urx = pad['urx']
-            ury = height - pad['ury']
+            llx = pad["llx"]
+            lly = height - pad["lly"]
+            urx = pad["urx"]
+            ury = height - pad["ury"]
 
-            tag_id = pad['name']
-            if 'subclass' in pad:
-                if pad['subclass'] == 'POWER':
-                    pad_color = 'orange2'
-                elif pad['subclass'] == 'INOUT':
-                    pad_color = 'yellow'
-                elif pad['subclass'] == 'OUTPUT':
-                    pad_color = 'powder blue'
-                elif pad['subclass'] == 'INPUT':
-                    pad_color = 'goldenrod1'
-                elif pad['subclass'] == 'SPACER':
-                    pad_color = 'green yellow'
-                elif pad['class'] == 'ENDCAP':
-                    pad_color = 'green yellow'
-                elif pad['subclass'] == '' or pad['class'] == ';':
-                    pad_color = 'khaki1'
+            tag_id = pad["name"]
+            if "subclass" in pad:
+                if pad["subclass"] == "POWER":
+                    pad_color = "orange2"
+                elif pad["subclass"] == "INOUT":
+                    pad_color = "yellow"
+                elif pad["subclass"] == "OUTPUT":
+                    pad_color = "powder blue"
+                elif pad["subclass"] == "INPUT":
+                    pad_color = "goldenrod1"
+                elif pad["subclass"] == "SPACER":
+                    pad_color = "green yellow"
+                elif pad["class"] == "ENDCAP":
+                    pad_color = "green yellow"
+                elif pad["subclass"] == "" or pad["class"] == ";":
+                    pad_color = "khaki1"
                 else:
-                    self.print('Unhandled pad class ' + pad['class'])
-                    pad_color = 'gray'
+                    self.print("Unhandled pad class " + pad["class"])
+                    pad_color = "gray"
             else:
-                 pad_color = 'gray'
+                pad_color = "gray"
 
             sllx = self.scale * llx
             slly = self.scale * lly
             surx = self.scale * urx
             sury = self.scale * ury
 
-            self.canvas.create_rectangle((sllx, slly), (surx, sury), fill=pad_color, tags=[tag_id])
+            self.canvas.create_rectangle(
+                (sllx, slly), (surx, sury), fill=pad_color, tags=[tag_id]
+            )
             cx = (sllx + surx) / 2
             cy = (slly + sury) / 2
 
-            s = 10 if pad['width'] >= 10 else pad['width']
-            if pad['height'] < s:
-                s = pad['height']
+            s = 10 if pad["width"] >= 10 else pad["width"]
+            if pad["height"] < s:
+                s = pad["height"]
 
             # Create an indicator line at the bottom left corner of the cell
-            if pad['o'] == 'N':
+            if pad["o"] == "N":
                 allx = sllx
                 ally = slly - s
                 aurx = sllx + s
                 aury = slly
-            elif pad['o'] == 'E':
+            elif pad["o"] == "E":
                 allx = sllx
                 ally = sury + s
                 aurx = sllx + s
                 aury = sury
-            elif pad['o'] == 'S':
+            elif pad["o"] == "S":
                 allx = surx
                 ally = sury + s
                 aurx = surx - s
                 aury = sury
-            elif pad['o'] == 'W':
+            elif pad["o"] == "W":
                 allx = surx
                 ally = slly - s
                 aurx = surx - s
                 aury = slly
-            elif pad['o'] == 'FN':
+            elif pad["o"] == "FN":
                 allx = surx
                 ally = slly - s
                 aurx = surx - s
                 aury = slly
-            elif pad['o'] == 'FE':
+            elif pad["o"] == "FE":
                 allx = surx
                 ally = sury + s
                 aurx = surx - s
                 aury = sury
-            elif pad['o'] == 'FS':
+            elif pad["o"] == "FS":
                 allx = sllx
                 ally = sury + s
                 aurx = sllx + s
                 aury = sury
-            elif pad['o'] == 'FW':
+            elif pad["o"] == "FW":
                 allx = sllx
                 ally = slly - s
                 aurx = sllx + s
                 aury = slly
             self.canvas.create_line((allx, ally), (aurx, aury), tags=[tag_id])
- 
+
             # Rotate text on top and bottom rows if the tkinter version allows it.
             if tkinter.TclVersion >= 8.6:
-                if pad['o'] == 'N' or pad['o'] == 'S':
+                if pad["o"] == "N" or pad["o"] == "S":
                     angle = 90
                 else:
                     angle = 0
-                self.canvas.create_text((cx, cy), text=pad['name'], angle=angle, tags=[tag_id])
+                self.canvas.create_text(
+                    (cx, cy), text=pad["name"], angle=angle, tags=[tag_id]
+                )
             else:
-                self.canvas.create_text((cx, cy), text=pad['name'], tags=[tag_id])
+                self.canvas.create_text((cx, cy), text=pad["name"], tags=[tag_id])
 
             # Make the pad draggable
             self.add_draggable(tag_id)
 
         # Now add the core cells
         for cell in self.coregroup:
-            if 'x' not in cell:
-                self.print('Error:  Core cell ' + cell['name'] + ' has no placement information.')
+            if "x" not in cell:
+                self.print(
+                    "Error:  Core cell "
+                    + cell["name"]
+                    + " has no placement information."
+                )
                 continue
             # else:
             #     self.print('Diagnostic:  Creating object for core cell ' + cell['name'])
-            llx = int(cell['x'])
-            lly = int(cell['y'])
-            cello = cell['o']
+            llx = int(cell["x"])
+            lly = int(cell["y"])
+            cello = cell["o"]
             try:
-                corecell = next(item for item in self.coredefs if item['name'] == cell['cell'])
-            except:
+                corecell = next(
+                    item for item in self.coredefs if item["name"] == cell["cell"]
+                )
+            except Exception:
                 # This should not happen (failsafe)
-                if cell['cell'] not in notfoundlist:
-                    self.print('Warning:  there is no cell named ' + cell['cell'] + ' in the libraries.')
-                notfoundlist.append(cell['cell'])
+                if cell["cell"] not in notfoundlist:
+                    self.print(
+                        "Warning:  there is no cell named "
+                        + cell["cell"]
+                        + " in the libraries."
+                    )
+                notfoundlist.append(cell["cell"])
                 continue
-            cellw = corecell['width']
-            cellh = corecell['height']
-            if 'N' in cello or 'S' in cello:
+            cellw = corecell["width"]
+            cellh = corecell["height"]
+            if "N" in cello or "S" in cello:
                 urx = int(llx + cellw)
                 ury = int(lly + cellh)
             else:
                 urx = int(llx + cellh)
                 ury = int(lly + cellw)
-                print('NOTE: cell ' + corecell['name'] + ' is rotated, w = ' + str(urx - llx) + '; h = ' + str(ury - lly))
+                print(
+                    "NOTE: cell "
+                    + corecell["name"]
+                    + " is rotated, w = "
+                    + str(urx - llx)
+                    + "; h = "
+                    + str(ury - lly)
+                )
 
-            cell['llx'] = llx
-            cell['lly'] = lly
-            cell['urx'] = urx
-            cell['ury'] = ury
+            cell["llx"] = llx
+            cell["lly"] = lly
+            cell["urx"] = urx
+            cell["ury"] = ury
 
         # Watch for out-of-window position in core cells.
         corellx = self.llx
@@ -1035,14 +1124,14 @@ class SoCFloorplanner(ttk.Frame):
 
         for cell in self.coregroup:
 
-            if 'llx' not in cell:
+            if "llx" not in cell:
                 # Error message for this was handled above
                 continue
 
-            llx = cell['llx']
-            lly = height - cell['lly']
-            urx = cell['urx']
-            ury = height - cell['ury']
+            llx = cell["llx"]
+            lly = height - cell["lly"]
+            urx = cell["urx"]
+            ury = height - cell["ury"]
 
             # Check for out-of-window cell
             if llx < corellx:
@@ -1054,76 +1143,80 @@ class SoCFloorplanner(ttk.Frame):
             if ury > coreury:
                 coreury = ury
 
-            tag_id = cell['name']
-            cell_color = 'gray40'
+            tag_id = cell["name"]
+            cell_color = "gray40"
 
             sllx = self.scale * llx
             slly = self.scale * lly
             surx = self.scale * urx
             sury = self.scale * ury
 
-            self.canvas.create_rectangle((sllx, slly), (surx, sury), fill=cell_color, tags=[tag_id])
+            self.canvas.create_rectangle(
+                (sllx, slly), (surx, sury), fill=cell_color, tags=[tag_id]
+            )
             cx = (sllx + surx) / 2
             cy = (slly + sury) / 2
 
-            s = 10 if cell['width'] >= 10 else cell['width']
-            if cell['height'] < s:
-                s = cell['height']
+            s = 10 if cell["width"] >= 10 else cell["width"]
+            if cell["height"] < s:
+                s = cell["height"]
 
             # Create an indicator line at the bottom left corner of the cell
-            if cell['o'] == 'N':
+            if cell["o"] == "N":
                 allx = sllx
                 ally = slly - s
                 aurx = sllx + s
                 aury = slly
-            elif cell['o'] == 'E':
+            elif cell["o"] == "E":
                 allx = sllx
                 ally = sury + s
                 aurx = sllx + s
                 aury = sury
-            elif cell['o'] == 'S':
+            elif cell["o"] == "S":
                 allx = surx
                 ally = sury + s
                 aurx = surx - s
                 aury = sury
-            elif cell['o'] == 'W':
+            elif cell["o"] == "W":
                 allx = surx
                 ally = slly - s
                 aurx = surx - s
                 aury = slly
-            elif cell['o'] == 'FN':
+            elif cell["o"] == "FN":
                 allx = surx
                 ally = slly - s
                 aurx = surx - s
                 aury = slly
-            elif cell['o'] == 'FE':
+            elif cell["o"] == "FE":
                 allx = surx
                 ally = sury + s
                 aurx = surx - s
                 aury = sury
-            elif cell['o'] == 'FS':
+            elif cell["o"] == "FS":
                 allx = sllx
                 ally = sury + s
                 aurx = sllx + s
                 aury = sury
-            elif cell['o'] == 'FW':
+            elif cell["o"] == "FW":
                 allx = sllx
                 ally = slly - s
                 aurx = sllx + s
                 aury = slly
             self.canvas.create_line((allx, ally), (aurx, aury), tags=[tag_id])
- 
+
             # self.print('Created entry for cell ' + cell['name'] + ' at {0:g}, {1:g}'.format(cx, cy))
- 
+
             # Rotate text on top and bottom rows if the tkinter version allows it.
             if tkinter.TclVersion >= 8.6:
-                if 'N' in cell['o'] or 'S' in cell['o']:
+                if "N" in cell["o"] or "S" in cell["o"]:
                     angle = 90
                 else:
                     angle = 0
-                self.canvas.create_text((cx, cy), text=cell['name'], angle=angle, tags=[tag_id])
+                self.canvas.create_text(
+                    (cx, cy), text=cell["name"], angle=angle, tags=[tag_id]
+                )
             else:
-                self.canvas.create_text((cx, cy), text=cell['name'], tags=[tag_id])
+                self.canvas.create_text((cx, cy), text=cell["name"], tags=[tag_id])
 
             # Make the core cell draggable
             self.add_core_draggable(tag_id)
@@ -1143,7 +1236,7 @@ class SoCFloorplanner(ttk.Frame):
         # dimension of the pad ring, not the outer (to check and to do).
 
         if corellx < self.llx:
-            offsetx = self.llx - corellx 
+            offsetx = self.llx - corellx
         if corelly < self.lly:
             offsety = self.lly - corelly
         if offsetx > 0 or offsety > 0:
@@ -1159,7 +1252,7 @@ class SoCFloorplanner(ttk.Frame):
     def write_core_def(self):
         self.print('Writing core placementment information in DEF file "core.def".')
 
-        mag_path = self.projectpath + '/mag'
+        mag_path = self.projectpath + "/mag"
 
         # The core cells must always clear the I/O pads on the left and
         # bottom (with the ad-hoc margin of self.margin).  If core cells have
@@ -1171,37 +1264,48 @@ class SoCFloorplanner(ttk.Frame):
         # and the core area define the margin.
 
         if self.SWpad != []:
-            corellx = self.SWpad[0]['x'] + self.SWpad[0]['width'] + self.margin
-            corelly = self.SWpad[0]['y'] + self.SWpad[0]['height'] + self.margin
+            corellx = self.SWpad[0]["x"] + self.SWpad[0]["width"] + self.margin
+            corelly = self.SWpad[0]["y"] + self.SWpad[0]["height"] + self.margin
         else:
-            corellx = self.Wpads[0]['x'] + self.Wpads[0]['height'] + self.margin
-            corelly = self.Spads[0]['x'] + self.Spads[0]['height'] + self.margin
+            corellx = self.Wpads[0]["x"] + self.Wpads[0]["height"] + self.margin
+            corelly = self.Spads[0]["x"] + self.Spads[0]["height"] + self.margin
 
         offsetx = 0
         offsety = 0
         for corecell in self.coregroup:
-            if corecell['x'] < corellx:
-                if corellx - corecell['x'] > offsetx:
-                    offsetx = corellx - corecell['x']
-            if corecell['y'] < corelly:
-                if corelly - corecell['y'] > offsety:
-                    offsety = corelly - corecell['y']
+            if corecell["x"] < corellx:
+                if corellx - corecell["x"] > offsetx:
+                    offsetx = corellx - corecell["x"]
+            if corecell["y"] < corelly:
+                if corelly - corecell["y"] > offsety:
+                    offsety = corelly - corecell["y"]
         if offsetx > 0 or offsety > 0:
             for corecell in self.coregroup:
-                corecell['x'] += offsetx
-                corecell['y'] += offsety
+                corecell["x"] += offsetx
+                corecell["y"] += offsety
 
         # Now write the core DEF file
 
-        with open(mag_path + '/core.def', 'w') as ofile:
-            print('DESIGN CORE ;', file=ofile)
-            print('UNITS DISTANCE MICRONS 1000 ;', file=ofile)
-            print('COMPONENTS {0:d} ;'.format(len(self.coregroup)), file=ofile)
+        with open(mag_path + "/core.def", "w") as ofile:
+            print("DESIGN CORE ;", file=ofile)
+            print("UNITS DISTANCE MICRONS 1000 ;", file=ofile)
+            print("COMPONENTS {0:d} ;".format(len(self.coregroup)), file=ofile)
             for corecell in self.coregroup:
-                print('  - ' + corecell['name'] + ' ' + corecell['cell'], file=ofile, end='')
-                print(' + PLACED ( {0:d} {1:d} ) {2:s} ;'.format(int(corecell['x'] * 1000), int(corecell['y'] * 1000), corecell['o']), file=ofile)
-            print ('END COMPONENTS', file=ofile)
-            print ('END DESIGN', file=ofile)
+                print(
+                    "  - " + corecell["name"] + " " + corecell["cell"],
+                    file=ofile,
+                    end="",
+                )
+                print(
+                    " + PLACED ( {0:d} {1:d} ) {2:s} ;".format(
+                        int(corecell["x"] * 1000),
+                        int(corecell["y"] * 1000),
+                        corecell["o"],
+                    ),
+                    file=ofile,
+                )
+            print("END COMPONENTS", file=ofile)
+            print("END DESIGN", file=ofile)
 
     # Create the chip boundary area
 
@@ -1212,97 +1316,99 @@ class SoCFloorplanner(ttk.Frame):
         urx = (self.urx + 10) * scale
         ury = (self.ury + 10) * scale
 
-        pad_color = 'plum1'
-        tag_id = 'boundary'
-        self.canvas.create_rectangle((llx, lly), (urx, ury), outline=pad_color, width=2, tags=[tag_id])
+        pad_color = "plum1"
+        tag_id = "boundary"
+        self.canvas.create_rectangle(
+            (llx, lly), (urx, ury), outline=pad_color, width=2, tags=[tag_id]
+        )
         # Add text to the middle representing the chip and core areas
         cx = ((self.llx + self.urx) / 2) * scale
         cy = ((self.lly + self.ury) / 2) * scale
         width = self.urx - self.llx
         height = self.ury - self.lly
-        areatext = 'Chip dimensions (um): {0:g} x {1:g}'.format(width, height)
-        tag_id = 'chiparea' 
+        areatext = "Chip dimensions (um): {0:g} x {1:g}".format(width, height)
+        tag_id = "chiparea"
         self.canvas.create_text((cx, cy), text=areatext, tags=[tag_id])
 
-    # Rotate orientation according to self.pad_rotation. 
+    # Rotate orientation according to self.pad_rotation.
 
     def rotate_orientation(self, orient_in):
-        orient_v = ['N', 'E', 'S', 'W', 'N', 'E', 'S', 'W']
+        orient_v = ["N", "E", "S", "W", "N", "E", "S", "W"]
         idxadd = int(self.pad_rotation / 90)
         idx = orient_v.index(orient_in)
         return orient_v[idx + idxadd]
 
     # Read a list of cell macros (name, size, class) from a LEF library
 
-    def read_lef_macros(self, libpath, libname = None, libtype = 'iolib'):
-        if libtype == 'iolib':
-            libtext = 'I/O '
-        elif libtype == 'celllib':
-            libtext = 'core '
+    def read_lef_macros(self, libpath, libname=None, libtype="iolib"):
+        if libtype == "iolib":
+            libtext = "I/O "
+        elif libtype == "celllib":
+            libtext = "core "
         else:
-            libtext = ''
+            libtext = ""
 
         macros = []
 
         if libname:
-            if os.path.splitext(libname)[1] == '':
-                libname += '.lef'
-            leffiles = glob.glob(libpath + '/' + libname)
+            if os.path.splitext(libname)[1] == "":
+                libname += ".lef"
+            leffiles = glob.glob(libpath + "/" + libname)
         else:
-            leffiles = glob.glob(libpath + '/*.lef')
+            leffiles = glob.glob(libpath + "/*.lef")
         if leffiles == []:
             if libname:
-                self.print('WARNING:  No file ' + libpath + '/' + libname + '.lef')
+                self.print("WARNING:  No file " + libpath + "/" + libname + ".lef")
             else:
-                self.print('WARNING:  No files ' + libpath + '/*.lef')
+                self.print("WARNING:  No files " + libpath + "/*.lef")
         for leffile in leffiles:
             libpath = os.path.split(leffile)[0]
             libname = os.path.split(libpath)[1]
-            self.print('Reading LEF ' + libtext + 'library ' + leffile)
-            with open(leffile, 'r') as ifile:
+            self.print("Reading LEF " + libtext + "library " + leffile)
+            with open(leffile, "r") as ifile:
                 ilines = ifile.read().splitlines()
                 in_macro = False
                 for iline in ilines:
                     iparse = iline.split()
                     if iparse == []:
                         continue
-                    elif iparse[0] == 'MACRO':
+                    elif iparse[0] == "MACRO":
                         in_macro = True
                         newmacro = {}
-                        newmacro['name'] = iparse[1]
+                        newmacro["name"] = iparse[1]
                         newmacro[libtype] = leffile
                         macros.append(newmacro)
                     elif in_macro:
-                        if iparse[0] == 'END':
-                            if len(iparse) > 1 and iparse[1] == newmacro['name']:
+                        if iparse[0] == "END":
+                            if len(iparse) > 1 and iparse[1] == newmacro["name"]:
                                 in_macro = False
-                        elif iparse[0] == 'CLASS':
-                            newmacro['class'] = iparse[1]
+                        elif iparse[0] == "CLASS":
+                            newmacro["class"] = iparse[1]
                             if len(iparse) > 2:
-                                newmacro['subclass'] = iparse[2]
+                                newmacro["subclass"] = iparse[2]
 
                                 # Use the 'ENDCAP' class to identify pad rotations
                                 # other than BOTTOMLEFT.  This is somewhat ad-hoc
                                 # depending on the foundry;  may not be generally
                                 # applicable.
 
-                                if newmacro['class'] == 'ENDCAP':
-                                    if newmacro['subclass'] == 'TOPLEFT':
+                                if newmacro["class"] == "ENDCAP":
+                                    if newmacro["subclass"] == "TOPLEFT":
                                         self.pad_rotation = 90
-                                    elif newmacro['subclass'] == 'TOPRIGHT':
+                                    elif newmacro["subclass"] == "TOPRIGHT":
                                         self.pad_rotation = 180
-                                    elif newmacro['subclass'] == 'BOTTOMRIGHT':
+                                    elif newmacro["subclass"] == "BOTTOMRIGHT":
                                         self.pad_rotation = 270
                             else:
-                                newmacro['subclass'] = None
-                        elif iparse[0] == 'SIZE':
-                            newmacro['width'] = float(iparse[1])
-                            newmacro['height'] = float(iparse[3])
-                        elif iparse[0] == 'ORIGIN':
-                            newmacro['x'] = float(iparse[1])
-                            newmacro['y'] = float(iparse[2])
+                                newmacro["subclass"] = None
+                        elif iparse[0] == "SIZE":
+                            newmacro["width"] = float(iparse[1])
+                            newmacro["height"] = float(iparse[3])
+                        elif iparse[0] == "ORIGIN":
+                            newmacro["x"] = float(iparse[1])
+                            newmacro["y"] = float(iparse[2])
         return macros
-          
+
     # Read a list of cell names from a verilog file
     # If filename is relative, then check in the same directory as the verilog
     # top-level netlist (vlogpath) and in the subdirectory 'source/' of the top-
@@ -1311,30 +1417,30 @@ class SoCFloorplanner(ttk.Frame):
 
     def read_verilog_lib(self, incpath, vlogpath):
         iocells = []
-        if not os.path.isfile(incpath) and incpath[0] != '/':
-            locincpath = vlogpath + '/' + incpath
+        if not os.path.isfile(incpath) and incpath[0] != "/":
+            locincpath = vlogpath + "/" + incpath
             if not os.path.isfile(locincpath):
-                locincpath = vlogpath + '/source/' + incpath
+                locincpath = vlogpath + "/source/" + incpath
             if not os.path.isfile(locincpath):
                 projectpath = os.path.split(vlogpath)[0]
                 designpath = os.path.split(projectpath)[0]
-                locincpath = designpath + '/ip/' + incpath
+                locincpath = designpath + "/ip/" + incpath
         else:
             locincpath = incpath
 
         if not os.path.isfile(locincpath):
-            self.print('File ' + incpath + ' not found (at ' + locincpath + ')!')
+            self.print("File " + incpath + " not found (at " + locincpath + ")!")
         else:
-            self.print('Reading verilog library ' + locincpath)
-            with open(locincpath, 'r') as ifile:
+            self.print("Reading verilog library " + locincpath)
+            with open(locincpath, "r") as ifile:
                 ilines = ifile.read().splitlines()
                 for iline in ilines:
-                    iparse = re.split('[\t ()]', iline)
-                    while '' in iparse:
-                        iparse.remove('')
+                    iparse = re.split("[\t ()]", iline)
+                    while "" in iparse:
+                        iparse.remove("")
                     if iparse == []:
                         continue
-                    elif iparse[0] == 'module':
+                    elif iparse[0] == "module":
                         iocells.append(iparse[1])
         return iocells
 
@@ -1352,29 +1458,33 @@ class SoCFloorplanner(ttk.Frame):
         else:
             write_path = mag_path
 
-        self.print('Generating LEF view from layout for module ' + module)
+        self.print("Generating LEF view from layout for module " + module)
 
-        with open(write_path + '/pfg_write_lef.tcl', 'w') as ofile:
-            print('drc off', file=ofile)
-            print('box 0 0 0 0', file=ofile)
+        with open(write_path + "/pfg_write_lef.tcl", "w") as ofile:
+            print("drc off", file=ofile)
+            print("box 0 0 0 0", file=ofile)
             # NOTE:  Using "-force" option in case an IP with a different but
             # compatible tech is used (e.g., EFHX035A IP inside EFXH035C).  This
             # is not checked for legality!
             if outpath:
-                print('load ' + magfile + ' -force', file=ofile)
+                print("load " + magfile + " -force", file=ofile)
             else:
-                print('load ' + module + ' -force', file=ofile)
-            print('lef write', file=ofile)
-            print('quit', file=ofile)
+                print("load " + module + " -force", file=ofile)
+            print("lef write", file=ofile)
+            print("quit", file=ofile)
 
-        magicexec = self.magic_path if self.magic_path else 'magic'
-        mproc = subprocess.Popen([magicexec, '-dnull', '-noconsole',
-			'pfg_write_lef.tcl'],
-			stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE, cwd = write_path, universal_newlines = True)
+        magicexec = self.magic_path if self.magic_path else "magic"
+        mproc = subprocess.Popen(
+            [magicexec, "-dnull", "-noconsole", "pfg_write_lef.tcl"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=write_path,
+            universal_newlines=True,
+        )
 
         self.watch(mproc)
-        os.remove(write_path + '/pfg_write_lef.tcl')
+        os.remove(write_path + "/pfg_write_lef.tcl")
 
     # Watch a running process, polling for output and updating the GUI message
     # window as output arrives.  Return only when the process has exited.
@@ -1418,58 +1528,66 @@ class SoCFloorplanner(ttk.Frame):
     # projects having a top-level schematic instead of a verilog netlist.
 
     def vlogimport(self):
-        self.print('Importing verilog sources.')
+        self.print("Importing verilog sources.")
 
         # First find the process PDK name for this project.  Read the nodeinfo.json
         # file and find the list of I/O cell libraries.
 
         techpath = self.techpath if self.techpath else self.projectpath
-        if os.path.exists(techpath + '/.config'): 
-            config_dir = '/.config'
+        if os.path.exists(techpath + "/.config"):
+            config_dir = "/.config"
         else:
-            config_dir = '/.ef-config'
+            config_dir = "/.ef-config"
             if os.path.exists(techpath + config_dir):
                 self.ef_format = True
 
-        pdkpath = self.techpath if self.techpath else os.path.realpath(self.projectpath + config_dir + '/techdir')
-        nodeinfopath = pdkpath + config_dir + '/nodeinfo.json'
+        pdkpath = (
+            self.techpath
+            if self.techpath
+            else os.path.realpath(self.projectpath + config_dir + "/techdir")
+        )
+        nodeinfopath = pdkpath + config_dir + "/nodeinfo.json"
         ioleflist = []
         if os.path.exists(nodeinfopath):
-            self.print('Reading known I/O cell libraries from ' + nodeinfopath)
-            with open(nodeinfopath, 'r') as ifile:
+            self.print("Reading known I/O cell libraries from " + nodeinfopath)
+            with open(nodeinfopath, "r") as ifile:
                 itop = json.load(ifile)
-                if 'iocells' in itop:
+                if "iocells" in itop:
                     ioleflist = []
-                    for iolib in itop['iocells']:
-                        if '/' in iolib:
+                    for iolib in itop["iocells"]:
+                        if "/" in iolib:
                             # Entries <lib>/<cell> refer to specific files
-                            libcell = iolib.split('/')
+                            libcell = iolib.split("/")
                             if self.ef_format:
-                                iolibpath = pdkpath + '/libs.ref/lef/' + libcell[0]
+                                iolibpath = pdkpath + "/libs.ref/lef/" + libcell[0]
                             else:
-                                iolibpath = pdkpath + '/libs.ref/' + libcell[0] + '/lef/'
-                            ioleflist.extend(glob.glob(iolibpath + '/' + libcell[1] + '.lef'))
+                                iolibpath = (
+                                    pdkpath + "/libs.ref/" + libcell[0] + "/lef/"
+                                )
+                            ioleflist.extend(
+                                glob.glob(iolibpath + "/" + libcell[1] + ".lef")
+                            )
                         else:
                             # All other entries refer to everything in the directory.
                             if self.ef_format:
-                                iolibpath = pdkpath + '/libs.ref/lef/' + iolib
+                                iolibpath = pdkpath + "/libs.ref/lef/" + iolib
                             else:
-                                iolibpath = pdkpath + '/libs.ref/' + iolib + '/lef/'
+                                iolibpath = pdkpath + "/libs.ref/" + iolib + "/lef/"
                             print(iolibpath)
-                            ioleflist.extend(glob.glob(iolibpath + '/*.lef'))
+                            ioleflist.extend(glob.glob(iolibpath + "/*.lef"))
         else:
             # Diagnostic
-            print('Cannot read PDK information file ' + nodeinfopath)
+            print("Cannot read PDK information file " + nodeinfopath)
 
         # Fallback behavior:  List everything in libs.ref/lef/ beginning with "IO"
         if len(ioleflist) == 0:
             if self.ef_format:
-                ioleflist = glob.glob(pdkpath + '/libs.ref/lef/IO*/*.lef')
+                ioleflist = glob.glob(pdkpath + "/libs.ref/lef/IO*/*.lef")
             else:
-                ioleflist = glob.glob(pdkpath + '/libs.ref/IO*/lef/*.lef')
+                ioleflist = glob.glob(pdkpath + "/libs.ref/IO*/lef/*.lef")
 
         if len(ioleflist) == 0:
-            self.print('Cannot find any I/O cell libraries for this technology')
+            self.print("Cannot find any I/O cell libraries for this technology")
             return
 
         # Read the LEF libraries to get a list of all available cells.  Keep
@@ -1482,7 +1600,7 @@ class SoCFloorplanner(ttk.Frame):
             iolibpath = os.path.split(iolib)[0]
             iolibfile = os.path.split(iolib)[1]
             ioliblist.append(os.path.split(iolibpath)[1])
-            celldefs.extend(self.read_lef_macros(iolibpath, iolibfile, 'iolib'))
+            celldefs.extend(self.read_lef_macros(iolibpath, iolibfile, "iolib"))
 
         verilogcells = []
         newpadlist = []
@@ -1491,22 +1609,22 @@ class SoCFloorplanner(ttk.Frame):
         corecelllist = []
         lefprocessed = []
 
-        busrex = re.compile('.*\[[ \t]*([0-9]+)[ \t]*:[ \t]*([0-9]+)[ \t]*\]')
+        busrex = re.compile(".*\[[ \t]*([0-9]+)[ \t]*:[ \t]*([0-9]+)[ \t]*\]")
 
-        vlogpath = self.projectpath + '/verilog'
-        vlogfile = vlogpath + '/' + self.project + '.v'
+        vlogpath = self.projectpath + "/verilog"
+        vlogfile = vlogpath + "/" + self.project + ".v"
         if os.path.isfile(vlogfile):
-            with open(vlogfile, 'r') as ifile:
+            with open(vlogfile, "r") as ifile:
                 vloglines = ifile.read().splitlines()
                 for vlogline in vloglines:
-                    vlogparse = re.split('[\t ()]', vlogline)
-                    while '' in vlogparse:
-                        vlogparse.remove('')
+                    vlogparse = re.split("[\t ()]", vlogline)
+                    while "" in vlogparse:
+                        vlogparse.remove("")
                     if vlogparse == []:
                         continue
-                    elif vlogparse[0] == '//':
+                    elif vlogparse[0] == "//":
                         continue
-                    elif vlogparse[0] == '`include':
+                    elif vlogparse[0] == "`include":
                         incpath = vlogparse[1].strip('"')
                         libpath = os.path.split(incpath)[0]
                         libname = os.path.split(libpath)[1]
@@ -1515,24 +1633,26 @@ class SoCFloorplanner(ttk.Frame):
                         # Read the verilog library for module names to match
                         # against macro names in celldefs.
                         modulelist = self.read_verilog_lib(incpath, vlogpath)
-                        matching = list(item for item in celldefs if item['name'] in modulelist)
+                        matching = list(
+                            item for item in celldefs if item["name"] in modulelist
+                        )
                         for imatch in matching:
-                            verilogcells.append(imatch['name'])
-                            leffile = imatch['iolib']
+                            verilogcells.append(imatch["name"])
+                            leffile = imatch["iolib"]
                             if leffile not in ioleflibs:
                                 ioleflibs.append(leffile)
 
                         # Read a corresponding LEF file entry for non-I/O macros, if one
                         # can be found (this handles files in the PDK).
                         if len(matching) == 0:
-                            if libname != '':
+                            if libname != "":
                                 # (NOTE:  Assumes full path starting with '/')
-                                lefpath = libpath.replace('verilog', 'lef')
-                                lefname = libfile.replace('.v', '.lef')
-                                if not os.path.exists(lefpath + '/' + lefname):
-                                    leffiles = glob.glob(lefpath + '/*.lef')
+                                lefpath = libpath.replace("verilog", "lef")
+                                lefname = libfile.replace(".v", ".lef")
+                                if not os.path.exists(lefpath + "/" + lefname):
+                                    leffiles = glob.glob(lefpath + "/*.lef")
                                 else:
-                                    leffiles = [lefpath + '/' + lefname]
+                                    leffiles = [lefpath + "/" + lefname]
 
                                 for leffile in leffiles:
                                     if leffile in ioleflibs:
@@ -1544,40 +1664,54 @@ class SoCFloorplanner(ttk.Frame):
 
                                     lefname = os.path.split(leffile)[1]
 
-                                    newcoredefs = self.read_lef_macros(lefpath, lefname, 'celllib')
+                                    newcoredefs = self.read_lef_macros(
+                                        lefpath, lefname, "celllib"
+                                    )
                                     coredefs.extend(newcoredefs)
-                                    corecells.extend(list(item['name'] for item in newcoredefs))
+                                    corecells.extend(
+                                        list(item["name"] for item in newcoredefs)
+                                    )
 
                                 if leffiles == []:
-                                    maglefname = libfile.replace('.v', '.mag')
+                                    maglefname = libfile.replace(".v", ".mag")
 
                                     # Handle PDK files with a maglef/ view but no LEF file.
-                                    maglefpath = libpath.replace('verilog', 'maglef')
-                                    if not os.path.exists(maglefpath + '/' + maglefname):
-                                        magleffiles = glob.glob(maglefpath + '/*.mag')
+                                    maglefpath = libpath.replace("verilog", "maglef")
+                                    if not os.path.exists(
+                                        maglefpath + "/" + maglefname
+                                    ):
+                                        magleffiles = glob.glob(maglefpath + "/*.mag")
                                     else:
-                                        magleffiles = [maglefpath + '/' + maglefname]
+                                        magleffiles = [maglefpath + "/" + maglefname]
 
                                     if magleffiles == []:
                                         # Handle user ip/ files with a maglef/ view but
                                         # no LEF file.
-                                        maglefpath = libpath.replace('verilog', 'maglef')
+                                        maglefpath = libpath.replace(
+                                            "verilog", "maglef"
+                                        )
                                         designpath = os.path.split(self.projectpath)[0]
-                                        maglefpath = designpath + '/ip/' + maglefpath
+                                        maglefpath = designpath + "/ip/" + maglefpath
 
-                                        if not os.path.exists(maglefpath + '/' + maglefname):
-                                            magleffiles = glob.glob(maglefpath + '/*.mag')
+                                        if not os.path.exists(
+                                            maglefpath + "/" + maglefname
+                                        ):
+                                            magleffiles = glob.glob(
+                                                maglefpath + "/*.mag"
+                                            )
                                         else:
-                                            magleffiles = [maglefpath + '/' + maglefname]
+                                            magleffiles = [
+                                                maglefpath + "/" + maglefname
+                                            ]
 
                                     for magleffile in magleffiles:
                                         # Generate LEF file.  Since PDK and ip/ entries
                                         # are not writeable, write into the project mag/
                                         # directory.
-                                        magpath = self.projectpath + '/mag'
+                                        magpath = self.projectpath + "/mag"
                                         magname = os.path.split(magleffile)[1]
                                         magroot = os.path.splitext(magname)[0]
-                                        leffile = magpath + '/' + magroot + '.lef'
+                                        leffile = magpath + "/" + magroot + ".lef"
                                         if not os.path.isfile(leffile):
                                             self.write_lef_file(magleffile, magpath)
 
@@ -1590,9 +1724,13 @@ class SoCFloorplanner(ttk.Frame):
 
                                         lefname = os.path.split(leffile)[1]
 
-                                        newcoredefs = self.read_lef_macros(magpath, lefname, 'celllib')
+                                        newcoredefs = self.read_lef_macros(
+                                            magpath, lefname, "celllib"
+                                        )
                                         coredefs.extend(newcoredefs)
-                                        corecells.extend(list(item['name'] for item in newcoredefs))
+                                        corecells.extend(
+                                            list(item["name"] for item in newcoredefs)
+                                        )
                                         # LEF files generated on-the-fly are not needed
                                         # after they have been parsed.
                                         # os.remove(leffile)
@@ -1603,13 +1741,17 @@ class SoCFloorplanner(ttk.Frame):
                             # a .mag file in the mag/ or maglef/ directory, and build a
                             # LEF macro from it.
 
-                            matching = list(item['name'] for item in coredefs if item['name'] in modulelist)
+                            matching = list(
+                                item["name"]
+                                for item in coredefs
+                                if item["name"] in modulelist
+                            )
                             for module in modulelist:
                                 if module not in matching:
-                                    lefpath = self.projectpath + '/lef'
-                                    magpath = self.projectpath + '/mag'
-                                    maglefpath = self.projectpath + '/mag'
-                                    lefname = libfile.replace('.v', '.lef')
+                                    lefpath = self.projectpath + "/lef"
+                                    magpath = self.projectpath + "/mag"
+                                    maglefpath = self.projectpath + "/mag"
+                                    lefname = libfile.replace(".v", ".lef")
 
                                     # If the verilog file root name is not the same as
                                     # the module name, then make a quick check for a
@@ -1618,42 +1760,79 @@ class SoCFloorplanner(ttk.Frame):
                                     # the LEF file, probably because it is a primary
                                     # module that does not correspond to any layout.
 
-                                    leffile = lefpath + '/' + lefname
+                                    leffile = lefpath + "/" + lefname
                                     if os.path.exists(leffile):
-                                        self.print('Diagnostic: module ' + module + ' is not in ' + leffile + ' (probably a primary module)')
+                                        self.print(
+                                            "Diagnostic: module "
+                                            + module
+                                            + " is not in "
+                                            + leffile
+                                            + " (probably a primary module)"
+                                        )
                                         continue
 
-                                    leffile = magpath + '/' + lefname
+                                    leffile = magpath + "/" + lefname
                                     istemp = False
                                     if not os.path.exists(leffile):
-                                        magname = libfile.replace('.v', '.mag')
-                                        magfile = magpath + '/' + magname
+                                        magname = libfile.replace(".v", ".mag")
+                                        magfile = magpath + "/" + magname
                                         if os.path.exists(magfile):
-                                            self.print('Diagnostic: Found a .mag file for ' + module + ' in ' + magfile)
+                                            self.print(
+                                                "Diagnostic: Found a .mag file for "
+                                                + module
+                                                + " in "
+                                                + magfile
+                                            )
                                             self.write_lef_file(magfile)
                                             istemp = True
                                         else:
-                                            magleffile = maglefpath + '/' + lefname
+                                            magleffile = maglefpath + "/" + lefname
                                             if not os.path.exists(magleffile):
-                                                self.print('Diagnostic: (module ' + module + ') has no LEF file ' + leffile + ' or ' + magleffile)
-                                                magleffile = maglefpath + '/' + magname
+                                                self.print(
+                                                    "Diagnostic: (module "
+                                                    + module
+                                                    + ") has no LEF file "
+                                                    + leffile
+                                                    + " or "
+                                                    + magleffile
+                                                )
+                                                magleffile = maglefpath + "/" + magname
                                                 if os.path.exists(magleffile):
-                                                    self.print('Diagnostic: Found a .mag file for ' + module + ' in ' + magleffile)
+                                                    self.print(
+                                                        "Diagnostic: Found a .mag file for "
+                                                        + module
+                                                        + " in "
+                                                        + magleffile
+                                                    )
                                                     if os.access(maglefpath, os.W_OK):
                                                         self.write_lef_file(magleffile)
                                                         leffile = magleffile
                                                         istemp = True
                                                     else:
-                                                        self.write_lef_file(magleffile, magpath)
+                                                        self.write_lef_file(
+                                                            magleffile, magpath
+                                                        )
                                                 else:
-                                                    self.print('Did not find a file ' + magfile)
+                                                    self.print(
+                                                        "Did not find a file " + magfile
+                                                    )
                                                     # self.print('Warning: module ' + module + ' has no LEF or .mag views')
                                                     pass
                                             else:
-                                                self.print('Diagnostic: Found a LEF file for ' + module + ' in ' + magleffile)
+                                                self.print(
+                                                    "Diagnostic: Found a LEF file for "
+                                                    + module
+                                                    + " in "
+                                                    + magleffile
+                                                )
                                                 leffile = magleffile
                                     else:
-                                        self.print('Diagnostic: Found a LEF file for ' + module + ' in ' + leffile)
+                                        self.print(
+                                            "Diagnostic: Found a LEF file for "
+                                            + module
+                                            + " in "
+                                            + leffile
+                                        )
 
                                     if os.path.exists(leffile):
                                         if leffile in lefprocessed:
@@ -1661,13 +1840,17 @@ class SoCFloorplanner(ttk.Frame):
                                         else:
                                             lefprocessed.append(leffile)
 
-                                        newcoredefs = self.read_lef_macros(magpath, lefname, 'celllib')
+                                        newcoredefs = self.read_lef_macros(
+                                            magpath, lefname, "celllib"
+                                        )
                                         # The LEF file generated on-the-fly is not needed
                                         # any more after parsing the macro(s).
                                         # if istemp:
                                         #     os.remove(leffile)
                                         coredefs.extend(newcoredefs)
-                                        corecells.extend(list(item['name'] for item in newcoredefs))
+                                        corecells.extend(
+                                            list(item["name"] for item in newcoredefs)
+                                        )
                                     else:
                                         # self.print('Failed to find a LEF view for module ' + module)
                                         pass
@@ -1680,22 +1863,26 @@ class SoCFloorplanner(ttk.Frame):
                             if bmatch:
                                 bushigh = int(bmatch.group(1))
                                 buslow = int(bmatch.group(2))
-                                
+
                         for i in range(buslow, bushigh + 1):
                             newpad = {}
                             if i >= 0:
-                                newpad['name'] = vlogparse[1] + '[' + str(i) + ']'
+                                newpad["name"] = vlogparse[1] + "[" + str(i) + "]"
                             else:
-                                newpad['name'] = vlogparse[1]
-                            # hack 
-                            newpad['name'] = newpad['name'].replace("\\", "")
-                            newpad['cell'] = vlogparse[0]
-                            padcell = next(item for item in celldefs if item['name'] == vlogparse[0])
-                            newpad['iolib'] = padcell['iolib']
-                            newpad['class'] = padcell['class']
-                            newpad['subclass'] = padcell['subclass']
-                            newpad['width'] = padcell['width']
-                            newpad['height'] = padcell['height']
+                                newpad["name"] = vlogparse[1]
+                            # hack
+                            newpad["name"] = newpad["name"].replace("\\", "")
+                            newpad["cell"] = vlogparse[0]
+                            padcell = next(
+                                item
+                                for item in celldefs
+                                if item["name"] == vlogparse[0]
+                            )
+                            newpad["iolib"] = padcell["iolib"]
+                            newpad["class"] = padcell["class"]
+                            newpad["subclass"] = padcell["subclass"]
+                            newpad["width"] = padcell["width"]
+                            newpad["height"] = padcell["height"]
                             newpadlist.append(newpad)
 
                     elif vlogparse[0] in corecells:
@@ -1706,32 +1893,38 @@ class SoCFloorplanner(ttk.Frame):
                             if bmatch:
                                 bushigh = int(bmatch.group(1))
                                 buslow = int(bmatch.group(2))
-                                
+
                         for i in range(buslow, bushigh + 1):
                             newcorecell = {}
                             if i >= 0:
-                                newcorecell['name'] = vlogparse[1] + '[' + str(i) + ']'
+                                newcorecell["name"] = vlogparse[1] + "[" + str(i) + "]"
                             else:
-                                newcorecell['name'] = vlogparse[1]
-                            newcorecell['cell'] = vlogparse[0]
-                            corecell = next(item for item in coredefs if item['name'] == vlogparse[0])
-                            newcorecell['celllib'] = corecell['celllib']
-                            newcorecell['class'] = corecell['class']
-                            newcorecell['subclass'] = corecell['subclass']
-                            newcorecell['width'] = corecell['width']
-                            newcorecell['height'] = corecell['height']
+                                newcorecell["name"] = vlogparse[1]
+                            newcorecell["cell"] = vlogparse[0]
+                            corecell = next(
+                                item
+                                for item in coredefs
+                                if item["name"] == vlogparse[0]
+                            )
+                            newcorecell["celllib"] = corecell["celllib"]
+                            newcorecell["class"] = corecell["class"]
+                            newcorecell["subclass"] = corecell["subclass"]
+                            newcorecell["width"] = corecell["width"]
+                            newcorecell["height"] = corecell["height"]
                             corecelllist.append(newcorecell)
 
-        self.print('')
-        self.print('Source file information:')
-        self.print('Source filename: ' + vlogfile)
-        self.print('Number of I/O libraries is ' + str(len(ioleflibs)))
-        self.print('Number of library cells in I/O libraries used: ' + str(len(verilogcells)))
-        self.print('Number of core celldefs is ' + str(len(coredefs)))
-        self.print('')
-        self.print('Number of I/O cells in design: ' + str(len(newpadlist)))
-        self.print('Number of core cells in design: ' + str(len(corecelllist)))
-        self.print('')
+        self.print("")
+        self.print("Source file information:")
+        self.print("Source filename: " + vlogfile)
+        self.print("Number of I/O libraries is " + str(len(ioleflibs)))
+        self.print(
+            "Number of library cells in I/O libraries used: " + str(len(verilogcells))
+        )
+        self.print("Number of core celldefs is " + str(len(coredefs)))
+        self.print("")
+        self.print("Number of I/O cells in design: " + str(len(newpadlist)))
+        self.print("Number of core cells in design: " + str(len(corecelllist)))
+        self.print("")
 
         # Save the results
         self.celldefs = celldefs
@@ -1746,7 +1939,7 @@ class SoCFloorplanner(ttk.Frame):
     # self.coregroup, which was read from the DEF file.
 
     def resolve(self):
-        self.print('Resolve differences in verilog and LEF views.')
+        self.print("Resolve differences in verilog and LEF views.")
 
         samepads = []
         addedpads = []
@@ -1755,61 +1948,81 @@ class SoCFloorplanner(ttk.Frame):
         # (1) Create list of entries that are in both self.vlogpads and self.()pads
         # (2) Create list of entries that are in self.vlogpads but not in self.()pads
 
-        allpads = self.Npads + self.NEpad + self.Epads + self.SEpad + self.Spads + self.SWpad + self.Wpads + self.NWpad
+        allpads = (
+            self.Npads
+            + self.NEpad
+            + self.Epads
+            + self.SEpad
+            + self.Spads
+            + self.SWpad
+            + self.Wpads
+            + self.NWpad
+        )
 
         for pad in self.vlogpads:
-            newpadname = pad['name']
+            newpadname = pad["name"]
             try:
-                lpad = next(item for item in allpads if item['name'] == newpadname) 
-            except:
+                lpad = next(item for item in allpads if item["name"] == newpadname)
+            except Exception:
                 addedpads.append(pad)
             else:
                 samepads.append(lpad)
 
         # (3) Create list of entries that are in allpads but not in self.vlogpads
         for pad in allpads:
-            newpadname = pad['name']
+            newpadname = pad["name"]
             try:
-                lpad = next(item for item in self.vlogpads if item['name'] == newpadname) 
-            except:
+                lpad = next(
+                    item for item in self.vlogpads if item["name"] == newpadname
+                )
+            except Exception:
                 removedpads.append(pad)
 
         # Print results
         if len(addedpads) > 0:
-            self.print('Added pads:')
+            self.print("Added pads:")
             for pad in addedpads:
-                self.print(pad['name'] + ' (' + pad['cell'] + ')')
+                self.print(pad["name"] + " (" + pad["cell"] + ")")
 
         if len(removedpads) > 0:
             plist = []
             nspacers = 0
             for pad in removedpads:
-                if 'subclass' in pad:
-                    if pad['subclass'] != 'SPACER':
+                if "subclass" in pad:
+                    if pad["subclass"] != "SPACER":
                         plist.append(pad)
                     else:
                         nspacers += 1
 
             if nspacers > 0:
-                self.print(str(nspacers) + ' spacer cells ignored.')
+                self.print(str(nspacers) + " spacer cells ignored.")
             if len(plist) > 0:
-                self.print('Removed pads:')
+                self.print("Removed pads:")
                 for pad in removedpads:
-                    self.print(pad['name'] + ' (' + pad['cell'] + ')')
+                    self.print(pad["name"] + " (" + pad["cell"] + ")")
 
         if len(addedpads) + len(removedpads) == 0:
-            self.print('Pad list has not changed.')
+            self.print("Pad list has not changed.")
 
         # Remove all cells from the "removed" list, with comment
 
-        allpads = [self.Npads, self.NEpad, self.Epads, self.SEpad, self.Spads, self.SWpad, self.Wpads, self.NWpad]
+        allpads = [
+            self.Npads,
+            self.NEpad,
+            self.Epads,
+            self.SEpad,
+            self.Spads,
+            self.SWpad,
+            self.Wpads,
+            self.NWpad,
+        ]
 
         for pad in removedpads:
-            rname = pad['name']
+            rname = pad["name"]
             for row in allpads:
                 try:
-                    rpad = next(item for item in row if item['name'] == rname)
-                except:
+                    rpad = next(item for item in row if item["name"] == rname)
+                except Exception:
                     rpad = None
                 else:
                     row.remove(rpad)
@@ -1831,27 +2044,27 @@ class SoCFloorplanner(ttk.Frame):
 
         for pad in addedpads[:]:
             iscorner = False
-            if 'class' in pad and pad['class'] == 'ENDCAP':
+            if "class" in pad and pad["class"] == "ENDCAP":
                 iscorner = True
-            elif 'CORNER' in pad['cell'].upper():
+            elif "CORNER" in pad["cell"].upper():
                 iscorner = True
-           
+
             if iscorner:
                 if self.NWpad == []:
                     self.NWpad.append(pad)
-                    pad['o'] = 'E'
+                    pad["o"] = "E"
                     addedpads.remove(pad)
                 elif self.NEpad == []:
                     self.NEpad.append(pad)
-                    pad['o'] = 'S'
+                    pad["o"] = "S"
                     addedpads.remove(pad)
                 elif self.SEpad == []:
                     self.SEpad.append(pad)
-                    pad['o'] = 'W'
+                    pad["o"] = "W"
                     addedpads.remove(pad)
                 elif self.SWpad == []:
                     self.SWpad.append(pad)
-                    pad['o'] = 'N'
+                    pad["o"] = "N"
                     addedpads.remove(pad)
 
         numN = len(self.Npads)
@@ -1867,46 +2080,57 @@ class SoCFloorplanner(ttk.Frame):
             if numN < minnum:
                 self.Npads.append(pad)
                 numN += 1
-                pad['o'] = 'S'
-                self.print("Adding pad " + pad['name'] + " to Npads")
+                pad["o"] = "S"
+                self.print("Adding pad " + pad["name"] + " to Npads")
             elif numE < minnum:
                 self.Epads.insert(0, pad)
                 numE += 1
-                pad['o'] = 'W'
-                self.print("Adding pad " + pad['name'] + " to Epads")
+                pad["o"] = "W"
+                self.print("Adding pad " + pad["name"] + " to Epads")
             elif numS < minnum:
                 self.Spads.insert(0, pad)
                 numS += 1
-                pad['o'] = 'N'
-                self.print("Adding pad " + pad['name'] + " to Spads")
+                pad["o"] = "N"
+                self.print("Adding pad " + pad["name"] + " to Spads")
             # elif numW < minnum:
             else:
                 self.Wpads.append(pad)
                 numW += 1
-                pad['o'] = 'E'
-                self.print("Adding pad " + pad['name'] + " to Wpads")
+                pad["o"] = "E"
+                self.print("Adding pad " + pad["name"] + " to Wpads")
 
             minnum = min(numN, numS, numE, numW)
             minnum = max(minnum, int(len(addedpads) / 4))
 
         # Make sure all pads have included information from the cell definition
 
-        allpads = self.Npads + self.NEpad + self.Epads + self.SEpad + self.Spads + self.SWpad + self.Wpads + self.NWpad
+        allpads = (
+            self.Npads
+            + self.NEpad
+            + self.Epads
+            + self.SEpad
+            + self.Spads
+            + self.SWpad
+            + self.Wpads
+            + self.NWpad
+        )
 
         for pad in allpads:
-            if 'width' not in pad:
+            if "width" not in pad:
                 try:
-                    celldef = next(item for item in celldefs if item['name'] == pad['cell'])
-                except:
-                    self.print('Cell ' + pad['cell'] + ' not found!')
+                    celldef = next(
+                        item for item in celldefs if item["name"] == pad["cell"]
+                    )
+                except Exception:
+                    self.print("Cell " + pad["cell"] + " not found!")
                 else:
-                    pad['width'] = celldef['width']
-                    pad['height'] = celldef['height']
-                    pad['class'] = celldef['class']
-                    pad['subclass'] = celldef['subclass']
+                    pad["width"] = celldef["width"]
+                    pad["height"] = celldef["height"]
+                    pad["class"] = celldef["class"]
+                    pad["subclass"] = celldef["subclass"]
 
         # Now treat the core cells in the same way (resolve list parsed from verilog
-        # against the list parsed from DEF)	
+        # against the list parsed from DEF)
 
         # self.print('Diagnostic: ')
         # self.print('self.corecells = ' + str(self.corecells))
@@ -1920,27 +2144,31 @@ class SoCFloorplanner(ttk.Frame):
         # (2) Create list of entries that are in self.corecells but not in self.coregroup
 
         for cell in self.corecells:
-            newcellname = cell['name']
+            newcellname = cell["name"]
             try:
-                lcore = next(item for item in self.coregroup if item['name'] == newcellname) 
-            except:
+                lcore = next(
+                    item for item in self.coregroup if item["name"] == newcellname
+                )
+            except Exception:
                 addedcore.append(cell)
             else:
                 samecore.append(lcore)
 
         # (3) Create list of entries that are in self.coregroup but not in self.corecells
         for cell in self.coregroup:
-            newcellname = cell['name']
+            newcellname = cell["name"]
             try:
-                lcore = next(item for item in self.corecells if item['name'] == newcellname) 
-            except:
+                lcore = next(
+                    item for item in self.corecells if item["name"] == newcellname
+                )
+            except Exception:
                 removedcore.append(cell)
 
         # Print results
         if len(addedcore) > 0:
-            self.print('Added core cells:')
+            self.print("Added core cells:")
             for cell in addedcore:
-                self.print(cell['name'] + ' (' + cell['cell'] + ')')
+                self.print(cell["name"] + " (" + cell["cell"] + ")")
 
         if len(removedcore) > 0:
             clist = []
@@ -1948,21 +2176,21 @@ class SoCFloorplanner(ttk.Frame):
                 clist.append(cell)
 
             if len(clist) > 0:
-                self.print('Removed core cells:')
+                self.print("Removed core cells:")
                 for cell in removedcore:
-                    self.print(cell['name'] + ' (' + cell['cell'] + ')')
+                    self.print(cell["name"] + " (" + cell["cell"] + ")")
 
         if len(addedcore) + len(removedcore) == 0:
-            self.print('Core cell list has not changed.')
+            self.print("Core cell list has not changed.")
 
         # Remove all cells from the "removed" list
 
         coregroup = self.coregroup
         for cell in removedcore:
-            rname = cell['name']
+            rname = cell["name"]
             try:
-                rcell = next(item for item in coregroup if item['name'] == rname)
-            except:
+                rcell = next(item for item in coregroup if item["name"] == rname)
+            except Exception:
                 rcell = None
             else:
                 coregroup.remove(rcell)
@@ -1970,49 +2198,51 @@ class SoCFloorplanner(ttk.Frame):
         # Add all cells from the "added" list to coregroup
 
         for cell in addedcore:
-            rname = cell['name']
+            rname = cell["name"]
             try:
-                rcell = next(item for item in coregroup if item['name'] == rname)
-            except:
+                rcell = next(item for item in coregroup if item["name"] == rname)
+            except Exception:
                 coregroup.append(cell)
-                if not 'o' in cell:
-                    cell['o'] = 'N'
-                if not 'x' in cell:
+                if not "o" in cell:
+                    cell["o"] = "N"
+                if not "x" in cell:
                     if len(self.Wpads) > 0:
                         pad = self.Wpads[0]
-                        padx = pad['x'] if 'x' in pad else 0
-                        cell['x'] = padx + pad['height'] + self.margin
+                        padx = pad["x"] if "x" in pad else 0
+                        cell["x"] = padx + pad["height"] + self.margin
                     else:
-                        cell['x'] = self.margin
-                if not 'y' in cell:
+                        cell["x"] = self.margin
+                if not "y" in cell:
                     if len(self.Spads) > 0:
                         pad = self.Spads[0]
-                        pady = pad['y'] if 'y' in pad else 0
-                        cell['y'] = pady + pad['height'] + self.margin
+                        pady = pad["y"] if "y" in pad else 0
+                        cell["y"] = pady + pad["height"] + self.margin
                     else:
-                        cell['y'] = self.margin
+                        cell["y"] = self.margin
             else:
                 rcell = None
 
         # Make sure all core cells have included information from the cell definition
 
         for cell in coregroup:
-            if 'width' not in cell:
+            if "width" not in cell:
                 try:
-                    coredef = next(item for item in coredefs if item['name'] == cell['cell'])
-                except:
-                    self.print('Cell ' + cell['cell'] + ' not found!')
+                    coredef = next(
+                        item for item in coredefs if item["name"] == cell["cell"]
+                    )
+                except Exception:
+                    self.print("Cell " + cell["cell"] + " not found!")
                 else:
-                    cell['width'] = coredef['width']
-                    cell['height'] = coredef['height']
-                    cell['class'] = coredef['class']
-                    cell['subclass'] = coredef['subclass']
+                    cell["width"] = coredef["width"]
+                    cell["height"] = coredef["height"]
+                    cell["class"] = coredef["class"]
+                    cell["subclass"] = coredef["subclass"]
 
     # Generate a new padframe by writing the configuration file, running
     # padring, reading back the DEF file, and (re)poplulating the workspace
 
     def generate(self, level):
-        self.print('Generate legal padframe using padring')
+        self.print("Generate legal padframe using padring")
 
         # Write out the configuration file
         self.writeconfig()
@@ -2032,36 +2262,36 @@ class SoCFloorplanner(ttk.Frame):
     # Write a new configuration file
 
     def writeconfig(self):
-        mag_path = self.projectpath + '/mag'
+        mag_path = self.projectpath + "/mag"
 
-        self.print('Writing padring configuration file.')
+        self.print("Writing padring configuration file.")
 
         # Determine cell width and height from pad sizes.
         # NOTE:  This compresses the chip to the minimum dimensions
         # allowed by the arrangement of pads.  Use a "core" block to
         # force the area larger than minimum (not yet implemented)
-        
+
         topwidth = 0
         for pad in self.Npads:
-            if 'width' not in pad:
-                self.print('No width: pad = ' + str(pad))
-            topwidth += pad['width']
+            if "width" not in pad:
+                self.print("No width: pad = " + str(pad))
+            topwidth += pad["width"]
 
         # Add in the corner cells
         if self.NWpad != []:
-            topwidth += self.NWpad[0]['height']
+            topwidth += self.NWpad[0]["height"]
         if self.NEpad != []:
-            topwidth += self.NEpad[0]['width']
+            topwidth += self.NEpad[0]["width"]
 
         botwidth = 0
         for pad in self.Spads:
-            botwidth += pad['width']
+            botwidth += pad["width"]
 
         # Add in the corner cells
         if self.SWpad != []:
-            botwidth += self.SWpad[0]['width']
+            botwidth += self.SWpad[0]["width"]
         if self.SEpad != []:
-            botwidth += self.SEpad[0]['height']
+            botwidth += self.SEpad[0]["height"]
 
         width = max(botwidth, topwidth)
 
@@ -2070,23 +2300,23 @@ class SoCFloorplanner(ttk.Frame):
 
         leftheight = 0
         for pad in self.Wpads:
-            leftheight += pad['width']
+            leftheight += pad["width"]
 
         # Add in the corner cells
         if self.NWpad != []:
-            leftheight += self.NWpad[0]['height']
+            leftheight += self.NWpad[0]["height"]
         if self.SWpad != []:
-            leftheight += self.SWpad[0]['width']
+            leftheight += self.SWpad[0]["width"]
 
         rightheight = 0
         for pad in self.Epads:
-            rightheight += pad['width']
+            rightheight += pad["width"]
 
         # Add in the corner cells
         if self.NEpad != []:
-            rightheight += self.NEpad[0]['width']
+            rightheight += self.NEpad[0]["width"]
         if self.SEpad != []:
-            rightheight += self.SEpad[0]['height']
+            rightheight += self.SEpad[0]["height"]
 
         height = max(leftheight, rightheight)
 
@@ -2097,22 +2327,22 @@ class SoCFloorplanner(ttk.Frame):
         corelly = coreury = (self.lly + self.ury) / 2
 
         for corecell in self.coregroup:
-            corient = corecell['o']
-            if 'S' in corient or 'N' in corient:
-                cwidth = corecell['width']
-                cheight = corecell['height']
+            corient = corecell["o"]
+            if "S" in corient or "N" in corient:
+                cwidth = corecell["width"]
+                cheight = corecell["height"]
             else:
-                cwidth = corecell['height']
-                cheight = corecell['width']
+                cwidth = corecell["height"]
+                cheight = corecell["width"]
 
-            if corecell['x'] < corellx:
-                corellx = corecell['x']
-            if corecell['x'] + cwidth > coreurx:
-                coreurx = corecell['x'] + cwidth
-            if corecell['y'] < corelly:
-                corelly = corecell['y']
-            if corecell['y'] + cheight > coreury:
-                coreury = corecell['y'] + cheight
+            if corecell["x"] < corellx:
+                corellx = corecell["x"]
+            if corecell["x"] + cwidth > coreurx:
+                coreurx = corecell["x"] + cwidth
+            if corecell["y"] < corelly:
+                corelly = corecell["y"]
+            if corecell["y"] + cheight > coreury:
+                coreury = corecell["y"] + cheight
 
         coreheight = coreury - corelly
         corewidth = coreurx - corellx
@@ -2122,11 +2352,11 @@ class SoCFloorplanner(ttk.Frame):
         # the core bounds against the standard padframe inside edge.
 
         if self.SWpad != [] and self.SEpad != []:
-            if corewidth > width - self.SWpad[0]['width'] - self.SEpad[0]['width']:
-                width = corewidth + self.SWpad[0]['width'] + self.SEpad[0]['width']
+            if corewidth > width - self.SWpad[0]["width"] - self.SEpad[0]["width"]:
+                width = corewidth + self.SWpad[0]["width"] + self.SEpad[0]["width"]
         if self.NWpad != [] and self.SWpad != []:
-            if coreheight > height - self.NWpad[0]['height'] - self.SWpad[0]['height']:
-                height = coreheight + self.NWpad[0]['height'] + self.SWpad[0]['height']
+            if coreheight > height - self.NWpad[0]["height"] - self.SWpad[0]["height"]:
+                height = coreheight + self.NWpad[0]["height"] + self.SWpad[0]["height"]
 
         # Core cells are given a margin of self.margin from the pad inside edge, so the
         # core area passed to the padring app is 2 * self.margin larger than the
@@ -2134,88 +2364,107 @@ class SoCFloorplanner(ttk.Frame):
         width += 2 * self.margin
         height += 2 * self.margin
 
-	# SCALE UP
+        # SCALE UP
         # width *= 1.4
         # height *= 1.4
 
-        if self.keep_cfg == False or not os.path.exists(mag_path + '/padframe.cfg'):
+        if self.keep_cfg == False or not os.path.exists(mag_path + "/padframe.cfg"):
 
-            if os.path.exists(mag_path + '/padframe.cfg'):
+            if os.path.exists(mag_path + "/padframe.cfg"):
                 # Copy the previous padframe.cfg file to a backup.  In case something
                 # goes badly wrong, this should be the only file overwritten, and can
                 # be recovered from the backup.
-                shutil.copy(mag_path + '/padframe.cfg', mag_path + '/padframe.cfg.bak')
+                shutil.copy(mag_path + "/padframe.cfg", mag_path + "/padframe.cfg.bak")
 
-            with open(mag_path + '/padframe.cfg', 'w') as ofile:
-                print('AREA ' + str(int(width)) + ' ' + str(int(height)) + ' ;',
-			file=ofile)
-                print('', file=ofile)
+            with open(mag_path + "/padframe.cfg", "w") as ofile:
+                print(
+                    "AREA " + str(int(width)) + " " + str(int(height)) + " ;",
+                    file=ofile,
+                )
+                print("", file=ofile)
                 for pad in self.NEpad:
-                    print('CORNER ' + pad['name'] + ' SW ' + pad['cell'] + ' ;',
-			    file=ofile)
+                    print(
+                        "CORNER " + pad["name"] + " SW " + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.SEpad:
-                    print('CORNER ' + pad['name'] + ' NW ' + pad['cell'] + ' ;',
-			    file=ofile)
+                    print(
+                        "CORNER " + pad["name"] + " NW " + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.SWpad:
-                    print('CORNER ' + pad['name'] + ' NE ' + pad['cell'] + ' ;',
-			    file=ofile)
+                    print(
+                        "CORNER " + pad["name"] + " NE " + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.NWpad:
-                    print('CORNER ' + pad['name'] + ' SE ' + pad['cell'] + ' ;',
-			    file=ofile)
+                    print(
+                        "CORNER " + pad["name"] + " SE " + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.Npads:
-                    flip = 'F ' if 'F' in pad['o'] else ''
-                    print('PAD ' + pad['name'] + ' N ' + flip + pad['cell'] + ' ;',
-			    file=ofile)
+                    flip = "F " if "F" in pad["o"] else ""
+                    print(
+                        "PAD " + pad["name"] + " N " + flip + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.Epads:
-                    flip = 'F ' if 'F' in pad['o'] else ''
-                    print('PAD ' + pad['name'] + ' E ' + flip + pad['cell'] + ' ;',
-			    file=ofile)
+                    flip = "F " if "F" in pad["o"] else ""
+                    print(
+                        "PAD " + pad["name"] + " E " + flip + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.Spads:
-                    flip = 'F ' if 'F' in pad['o'] else ''
-                    print('PAD ' + pad['name'] + ' S ' + flip + pad['cell'] + ' ;',
-			    file=ofile)
+                    flip = "F " if "F" in pad["o"] else ""
+                    print(
+                        "PAD " + pad["name"] + " S " + flip + pad["cell"] + " ;",
+                        file=ofile,
+                    )
                 for pad in self.Wpads:
-                    flip = 'F ' if 'F' in pad['o'] else ''
-                    print('PAD ' + pad['name'] + ' W ' + flip + pad['cell'] + ' ;',
-			    file=ofile)
+                    flip = "F " if "F" in pad["o"] else ""
+                    print(
+                        "PAD " + pad["name"] + " W " + flip + pad["cell"] + " ;",
+                        file=ofile,
+                    )
 
     # Run the padring app.
 
     def runpadring(self):
-        self.print('Running padring')
+        self.print("Running padring")
 
-        mag_path = self.projectpath + '/mag'
+        mag_path = self.projectpath + "/mag"
         if self.padring_path:
             padringopts = [self.padring_path]
         else:
-            padringopts = ['padring']
+            padringopts = ["padring"]
 
         # Diagnostic
         # self.print('Used libraries (self.ioleflibs) = ' + str(self.ioleflibs))
 
         for iolib in self.ioleflibs:
-            padringopts.append('-L')
+            padringopts.append("-L")
             padringopts.append(iolib)
-        padringopts.append('--def')
-        padringopts.append('padframe.def')
-        padringopts.append('padframe.cfg')
+        padringopts.append("--def")
+        padringopts.append("padframe.def")
+        padringopts.append("padframe.cfg")
 
-        self.print('Running ' + str(padringopts))
-   
-        p = subprocess.Popen(padringopts, stdout = subprocess.PIPE,
-		    stderr = subprocess.PIPE, cwd = mag_path)
+        self.print("Running " + str(padringopts))
+
+        p = subprocess.Popen(
+            padringopts, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=mag_path
+        )
         self.watch(p)
 
     # Read placement information from the DEF file generated by padring.
 
     def readplacement(self, precheck=False):
-        self.print('Reading placement information from DEF file')
+        self.print("Reading placement information from DEF file")
 
-        mag_path = self.projectpath + '/mag'
-        if not os.path.isfile(mag_path + '/padframe.def'):
+        mag_path = self.projectpath + "/mag"
+        if not os.path.isfile(mag_path + "/padframe.def"):
             if not precheck:
-                self.print('No file padframe.def:  pad frame was not generated.')
-            return False 
+                self.print("No file padframe.def:  pad frame was not generated.")
+            return False
 
         # Very simple DEF file parsing.  The placement DEF only contains a
         # COMPONENTS section.  Certain assumptions are made about the syntax
@@ -2238,55 +2487,59 @@ class SoCFloorplanner(ttk.Frame):
         self.llx = self.lly = self.urx = self.ury = 0
         corners = 0
 
-        with open(mag_path + '/padframe.def', 'r') as ifile:
+        with open(mag_path + "/padframe.def", "r") as ifile:
             deflines = ifile.read().splitlines()
             for line in deflines:
-                if 'UNITS DISTANCE MICRONS' in line:
+                if "UNITS DISTANCE MICRONS" in line:
                     units = line.split()[3]
                 elif in_components:
                     lparse = line.split()
-                    if lparse[0] == '-':
+                    if lparse[0] == "-":
                         instname = lparse[1]
                         cellname = lparse[2]
-                        
-                    elif lparse[0] == '+':
-                        if lparse[1] == 'FIXED':
+
+                    elif lparse[0] == "+":
+                        if lparse[1] == "FIXED":
                             placex = lparse[3]
                             placey = lparse[4]
                             placeo = lparse[6]
 
                             newpad = {}
-                            newpad['name'] = instname
-                            newpad['cell'] = cellname
+                            newpad["name"] = instname
+                            newpad["cell"] = cellname
 
                             try:
-                                celldef = next(item for item in self.celldefs if item['name'] == cellname)
-                            except:
+                                celldef = next(
+                                    item
+                                    for item in self.celldefs
+                                    if item["name"] == cellname
+                                )
+                            except Exception:
                                 celldef = None
                             else:
-                                newpad['iolib'] = celldef['iolib']
-                                newpad['width'] = celldef['width']
-                                newpad['height'] = celldef['height']
-                                newpad['class'] = celldef['class']
-                                newpad['subclass'] = celldef['subclass']
- 
-                            newpad['x'] = float(placex) / float(units)
-                            newpad['y'] = float(placey) / float(units)
-                            newpad['o'] = placeo
+                                newpad["iolib"] = celldef["iolib"]
+                                newpad["width"] = celldef["width"]
+                                newpad["height"] = celldef["height"]
+                                newpad["class"] = celldef["class"]
+                                newpad["subclass"] = celldef["subclass"]
+
+                            newpad["x"] = float(placex) / float(units)
+                            newpad["y"] = float(placey) / float(units)
+                            newpad["o"] = placeo
 
                             # Adjust bounds
                             if celldef:
-                                if newpad['x'] < self.llx:
-                                    self.llx = newpad['x']
-                                if newpad['y'] < self.lly:
-                                    self.lly = newpad['y']
+                                if newpad["x"] < self.llx:
+                                    self.llx = newpad["x"]
+                                if newpad["y"] < self.lly:
+                                    self.lly = newpad["y"]
 
-                                if newpad['o'] == 'N' or newpad['o'] == 'S':
-                                    padurx = newpad['x'] + celldef['width']
-                                    padury = newpad['y'] + celldef['height']
+                                if newpad["o"] == "N" or newpad["o"] == "S":
+                                    padurx = newpad["x"] + celldef["width"]
+                                    padury = newpad["y"] + celldef["height"]
                                 else:
-                                    padurx = newpad['x'] + celldef['height']
-                                    padury = newpad['y'] + celldef['width']
+                                    padurx = newpad["x"] + celldef["height"]
+                                    padury = newpad["y"] + celldef["width"]
 
                                 if padurx > self.urx:
                                     self.urx = padurx
@@ -2300,31 +2553,31 @@ class SoCFloorplanner(ttk.Frame):
                             # pad is drawn in the SW corner position!
 
                             if corners < 4:
-                                if newpad['x'] == 0 and newpad['y'] == 0:
+                                if newpad["x"] == 0 and newpad["y"] == 0:
                                     SWpad.append(newpad)
-                                elif newpad['x'] == 0:
+                                elif newpad["x"] == 0:
                                     NWpad.append(newpad)
-                                elif newpad['y'] == 0:
+                                elif newpad["y"] == 0:
                                     SEpad.append(newpad)
                                 else:
                                     NEpad.append(newpad)
-                                corners += 1       
+                                corners += 1
                             else:
                                 # Place according to orientation.  If orientation
                                 # is not standard, be sure to make it standard!
                                 placeo = self.rotate_orientation(placeo)
-                                if placeo == 'N':
+                                if placeo == "N":
                                     Spadlist.append(newpad)
-                                elif placeo == 'E':
+                                elif placeo == "E":
                                     Wpadlist.append(newpad)
-                                elif placeo == 'S':
+                                elif placeo == "S":
                                     Npadlist.append(newpad)
                                 else:
                                     Epadlist.append(newpad)
 
-                    elif 'END COMPONENTS' in line:
+                    elif "END COMPONENTS" in line:
                         in_components = False
-                elif 'COMPONENTS' in line:
+                elif "COMPONENTS" in line:
                     in_components = True
 
             self.Npads = Npadlist
@@ -2344,28 +2597,32 @@ class SoCFloorplanner(ttk.Frame):
         # If the top-level layout does not exist, then all core cells are placed
         # at the origin, and the origin placed at the padframe inside corner.
 
-        mag_path = self.projectpath + '/mag'
-        if not os.path.isfile(mag_path + '/' + self.project + '.def'):
-            if os.path.isfile(mag_path + '/' + self.project + '.mag'):
+        mag_path = self.projectpath + "/mag"
+        if not os.path.isfile(mag_path + "/" + self.project + ".def"):
+            if os.path.isfile(mag_path + "/" + self.project + ".mag"):
 
                 # Create a DEF file from the layout
-                with open(mag_path + '/pfg_write_def.tcl', 'w') as ofile:
-                    print('drc off', file=ofile)
-                    print('box 0 0 0 0', file=ofile)
-                    print('load ' + self.project, file=ofile)
-                    print('def write', file=ofile)
-                    print('quit', file=ofile)
+                with open(mag_path + "/pfg_write_def.tcl", "w") as ofile:
+                    print("drc off", file=ofile)
+                    print("box 0 0 0 0", file=ofile)
+                    print("load " + self.project, file=ofile)
+                    print("def write", file=ofile)
+                    print("quit", file=ofile)
 
-                magicexec = self.magic_path if self.magic_path else 'magic'
-                mproc = subprocess.Popen([magicexec, '-dnull', '-noconsole',
-			'pfg_write_def.tcl'],
-			stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE, cwd = mag_path, universal_newlines = True)
+                magicexec = self.magic_path if self.magic_path else "magic"
+                mproc = subprocess.Popen(
+                    [magicexec, "-dnull", "-noconsole", "pfg_write_def.tcl"],
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    cwd=mag_path,
+                    universal_newlines=True,
+                )
 
                 self.watch(mproc)
-                os.remove(mag_path + '/pfg_write_def.tcl')
+                os.remove(mag_path + "/pfg_write_def.tcl")
 
-            elif not os.path.isfile(mag_path + '/core.def'):
+            elif not os.path.isfile(mag_path + "/core.def"):
 
                 # With no other information available, copy the corecells
                 # (from the verilog file) into the coregroup list.
@@ -2376,39 +2633,39 @@ class SoCFloorplanner(ttk.Frame):
                 # than the current padframe overruns to the right or bottom.
 
                 if self.SWpad != []:
-                    corellx = SWpad[0]['x'] + SWpad[0]['width'] + self.margin
-                    corelly = SWpad[0]['y'] + SWpad[0]['height'] + self.margin
+                    corellx = SWpad[0]["x"] + SWpad[0]["width"] + self.margin
+                    corelly = SWpad[0]["y"] + SWpad[0]["height"] + self.margin
                 else:
-                    corellx = Wpadlist[0]['x'] + Wpadlist[0]['height'] + self.margin
-                    corelly = Spadlist[0]['x'] + Spadlist[0]['height'] + self.margin
+                    corellx = Wpadlist[0]["x"] + Wpadlist[0]["height"] + self.margin
+                    corelly = Spadlist[0]["x"] + Spadlist[0]["height"] + self.margin
                 if self.NEpad != []:
-                    coreurx = NEpad[0]['x'] - self.margin
-                    coreury = NEpad[0]['y'] - self.margin
+                    coreurx = NEpad[0]["x"] - self.margin
+                    coreury = NEpad[0]["y"] - self.margin
                 else:
-                    coreurx = Epadlist[0]['x'] - self.margin
-                    coreury = Npadlist[0]['x'] - self.margin
+                    coreurx = Epadlist[0]["x"] - self.margin
+                    coreury = Npadlist[0]["x"] - self.margin
                 locllx = corellx
                 testllx = corellx
                 loclly = corelly
                 testlly = corelly
                 nextlly = corelly
-              
+
                 for cell in self.corecells:
 
-                    testllx = locllx + cell['width']
+                    testllx = locllx + cell["width"]
                     if testllx > coreurx:
                         locllx = corellx
                         corelly = nextlly
                         loclly = nextlly
 
                     newcore = cell
-                    newcore['x'] = locllx
-                    newcore['y'] = loclly
-                    newcore['o'] = 'N'
+                    newcore["x"] = locllx
+                    newcore["y"] = loclly
+                    newcore["o"] = "N"
 
-                    locllx += cell['width'] + self.margin
+                    locllx += cell["width"] + self.margin
 
-                    testlly = corelly + cell['height'] + self.margin
+                    testlly = corelly + cell["height"] + self.margin
                     if testlly > nextlly:
                         nextlly = testlly
 
@@ -2416,61 +2673,65 @@ class SoCFloorplanner(ttk.Frame):
 
                 self.coregroup = coregroup
 
-        if os.path.isfile(mag_path + '/' + self.project + '.def'):
+        if os.path.isfile(mag_path + "/" + self.project + ".def"):
             # Read the top-level DEF, and use it to position the core cells.
-            self.print('Reading the top-level cell DEF for core cell placement.')
+            self.print("Reading the top-level cell DEF for core cell placement.")
 
             units = 1000
             in_components = False
-            with open(mag_path + '/' + self.project + '.def', 'r') as ifile:
+            with open(mag_path + "/" + self.project + ".def", "r") as ifile:
                 deflines = ifile.read().splitlines()
                 for line in deflines:
-                    if 'UNITS DISTANCE MICRONS' in line:
+                    if "UNITS DISTANCE MICRONS" in line:
                         units = line.split()[3]
                     elif in_components:
                         lparse = line.split()
-                        if lparse[0] == '-':
+                        if lparse[0] == "-":
                             instname = lparse[1]
                             # NOTE: Magic should not drop the entire path to the
                             # cell for the cellname;  this needs to be fixed!  To
                             # work around it, remove any path components.
                             cellpath = lparse[2]
                             cellname = os.path.split(cellpath)[1]
-                        
-                        elif lparse[0] == '+':
-                            if lparse[1] == 'PLACED':
+
+                        elif lparse[0] == "+":
+                            if lparse[1] == "PLACED":
                                 placex = lparse[3]
                                 placey = lparse[4]
                                 placeo = lparse[6]
 
                                 newcore = {}
-                                newcore['name'] = instname
-                                newcore['cell'] = cellname
+                                newcore["name"] = instname
+                                newcore["cell"] = cellname
 
                                 try:
-                                    celldef = next(item for item in self.coredefs if item['name'] == cellname)
-                                except:
+                                    celldef = next(
+                                        item
+                                        for item in self.coredefs
+                                        if item["name"] == cellname
+                                    )
+                                except Exception:
                                     celldef = None
                                 else:
-                                    newcore['celllib'] = celldef['celllib']
-                                    newcore['width'] = celldef['width']
-                                    newcore['height'] = celldef['height']
-                                    newcore['class'] = celldef['class']
-                                    newcore['subclass'] = celldef['subclass']
- 
-                                newcore['x'] = float(placex) / float(units)
-                                newcore['y'] = float(placey) / float(units)
-                                newcore['o'] = placeo
+                                    newcore["celllib"] = celldef["celllib"]
+                                    newcore["width"] = celldef["width"]
+                                    newcore["height"] = celldef["height"]
+                                    newcore["class"] = celldef["class"]
+                                    newcore["subclass"] = celldef["subclass"]
+
+                                newcore["x"] = float(placex) / float(units)
+                                newcore["y"] = float(placey) / float(units)
+                                newcore["o"] = placeo
                                 coregroup.append(newcore)
 
-                        elif 'END COMPONENTS' in line:
+                        elif "END COMPONENTS" in line:
                             in_components = False
-                    elif 'COMPONENTS' in line:
+                    elif "COMPONENTS" in line:
                         in_components = True
 
             self.coregroup = coregroup
 
-        elif os.path.isfile(mag_path + '/core.def'):
+        elif os.path.isfile(mag_path + "/core.def"):
             # No DEF or .mag file, so fallback position is the last core.def
             # file generated by this script.
             self.read_core_def(precheck=precheck)
@@ -2488,15 +2749,15 @@ class SoCFloorplanner(ttk.Frame):
         if self.pad_rotation == 0:
             return
 
-        self.print('Rotating pads in padframe DEF file.')
-        mag_path = self.projectpath + '/mag'
+        self.print("Rotating pads in padframe DEF file.")
+        mag_path = self.projectpath + "/mag"
 
-        if not os.path.isfile(mag_path + '/padframe.def'):
-            self.print('No file padframe.def:  Cannot modify pad rotations.')
+        if not os.path.isfile(mag_path + "/padframe.def"):
+            self.print("No file padframe.def:  Cannot modify pad rotations.")
             return
 
         deflines = []
-        with open(mag_path + '/padframe.def', 'r') as ifile:
+        with open(mag_path + "/padframe.def", "r") as ifile:
             deflines = ifile.read().splitlines()
 
         outlines = []
@@ -2504,20 +2765,20 @@ class SoCFloorplanner(ttk.Frame):
         for line in deflines:
             if in_components:
                 lparse = line.split()
-                if lparse[0] == '+':
-                    if lparse[1] == 'PLACED':
-                        lparse[1] = 'FIXED'
+                if lparse[0] == "+":
+                    if lparse[1] == "PLACED":
+                        lparse[1] = "FIXED"
                         neworient = lparse[6]
                         lparse[6] = neworient
-                        line = ' '.join(lparse)
+                        line = " ".join(lparse)
 
-                elif 'END COMPONENTS' in line:
+                elif "END COMPONENTS" in line:
                     in_components = False
-            elif 'COMPONENTS' in line:
+            elif "COMPONENTS" in line:
                 in_components = True
             outlines.append(line)
 
-        with open(mag_path + '/padframe.def', 'w') as ofile:
+        with open(mag_path + "/padframe.def", "w") as ofile:
             for line in outlines:
                 print(line, file=ofile)
 
@@ -2525,14 +2786,14 @@ class SoCFloorplanner(ttk.Frame):
     # a previous run of this script)
 
     def read_core_def(self, precheck=False):
-        self.print('Reading placement information from core DEF file.')
+        self.print("Reading placement information from core DEF file.")
 
-        mag_path = self.projectpath + '/mag'
+        mag_path = self.projectpath + "/mag"
 
-        if not os.path.isfile(mag_path + '/core.def'):
+        if not os.path.isfile(mag_path + "/core.def"):
             if not precheck:
-                self.print('No file core.def:  core placement was not generated.')
-            return False 
+                self.print("No file core.def:  core placement was not generated.")
+            return False
 
         # Very simple DEF file parsing, similar to the padframe.def reading
         # routine above.
@@ -2542,46 +2803,50 @@ class SoCFloorplanner(ttk.Frame):
 
         coregroup = []
 
-        with open(mag_path + '/core.def', 'r') as ifile:
+        with open(mag_path + "/core.def", "r") as ifile:
             deflines = ifile.read().splitlines()
             for line in deflines:
-                if 'UNITS DISTANCE MICRONS' in line:
+                if "UNITS DISTANCE MICRONS" in line:
                     units = line.split()[3]
                 elif in_components:
                     lparse = line.split()
-                    if lparse[0] == '-':
+                    if lparse[0] == "-":
                         instname = lparse[1]
                         cellname = lparse[2]
-                        
-                    elif lparse[0] == '+':
-                        if lparse[1] == 'PLACED':
+
+                    elif lparse[0] == "+":
+                        if lparse[1] == "PLACED":
                             placex = lparse[3]
                             placey = lparse[4]
                             placeo = lparse[6]
 
                             newcore = {}
-                            newcore['name'] = instname
-                            newcore['cell'] = cellname
+                            newcore["name"] = instname
+                            newcore["cell"] = cellname
 
                             try:
-                                celldef = next(item for item in self.coredefs if item['name'] == cellname)
-                            except:
+                                celldef = next(
+                                    item
+                                    for item in self.coredefs
+                                    if item["name"] == cellname
+                                )
+                            except Exception:
                                 celldef = None
                             else:
-                                newcore['celllib'] = celldef['celllib']
-                                newcore['width'] = celldef['width']
-                                newcore['height'] = celldef['height']
-                                newcore['class'] = celldef['class']
-                                newcore['subclass'] = celldef['subclass']
- 
-                            newcore['x'] = float(placex) / float(units)
-                            newcore['y'] = float(placey) / float(units)
-                            newcore['o'] = placeo
+                                newcore["celllib"] = celldef["celllib"]
+                                newcore["width"] = celldef["width"]
+                                newcore["height"] = celldef["height"]
+                                newcore["class"] = celldef["class"]
+                                newcore["subclass"] = celldef["subclass"]
+
+                            newcore["x"] = float(placex) / float(units)
+                            newcore["y"] = float(placey) / float(units)
+                            newcore["o"] = placeo
                             coregroup.append(newcore)
 
-                    elif 'END COMPONENTS' in line:
+                    elif "END COMPONENTS" in line:
                         in_components = False
-                elif 'COMPONENTS' in line:
+                elif "COMPONENTS" in line:
                     in_components = True
 
             self.coregroup = coregroup
@@ -2591,83 +2856,88 @@ class SoCFloorplanner(ttk.Frame):
     # Save the layout to a Magic database file (to be completed)
 
     def save(self):
-        self.print('Saving results in a magic layout database.')
+        self.print("Saving results in a magic layout database.")
 
         # Generate a list of (unique) LEF libraries for all padframe and core cells
         leflist = []
         for pad in self.celldefs:
-            if pad['iolib'] not in leflist:
-                leflist.append(pad['iolib'])
+            if pad["iolib"] not in leflist:
+                leflist.append(pad["iolib"])
 
         for core in self.coredefs:
-            if core['celllib'] not in leflist:
-                leflist.append(core['celllib'])
+            if core["celllib"] not in leflist:
+                leflist.append(core["celllib"])
 
         # Run magic, and generate the padframe with a series of commands
-        mag_path = self.projectpath + '/mag'
+        mag_path = self.projectpath + "/mag"
 
-        with open(mag_path + '/pfg_write_mag.tcl', 'w') as ofile:
-            print('drc off', file=ofile)
-            print('box 0 0 0 0', file=ofile)
+        with open(mag_path + "/pfg_write_mag.tcl", "w") as ofile:
+            print("drc off", file=ofile)
+            print("box 0 0 0 0", file=ofile)
             for leffile in leflist:
-                print('lef read ' + leffile, file=ofile)
-            print('def read padframe', file=ofile)
-            print('select top cell', file=ofile)
-            print('select area', file=ofile)
-            print('select save padframe', file=ofile)
-            print('delete', file=ofile)
-            print('def read core', file=ofile)
-            print('getcell padframe', file=ofile)
-            print('save ' + self.project, file=ofile)
-            print('writeall force ' + self.project, file=ofile)
-            print('quit', file=ofile)
+                print("lef read " + leffile, file=ofile)
+            print("def read padframe", file=ofile)
+            print("select top cell", file=ofile)
+            print("select area", file=ofile)
+            print("select save padframe", file=ofile)
+            print("delete", file=ofile)
+            print("def read core", file=ofile)
+            print("getcell padframe", file=ofile)
+            print("save " + self.project, file=ofile)
+            print("writeall force " + self.project, file=ofile)
+            print("quit", file=ofile)
 
-        magicexec = self.magic_path if self.magic_path else 'magic'
-        mproc = subprocess.Popen([magicexec, '-dnull', '-noconsole',
-			'pfg_write_mag.tcl'],
-			stdin = subprocess.PIPE, stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE, cwd = mag_path, universal_newlines = True)
+        magicexec = self.magic_path if self.magic_path else "magic"
+        mproc = subprocess.Popen(
+            [magicexec, "-dnull", "-noconsole", "pfg_write_mag.tcl"],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=mag_path,
+            universal_newlines=True,
+        )
         self.watch(mproc)
-        os.remove(mag_path + '/pfg_write_mag.tcl')
-        self.print('Done writing layout ' + self.project + '.mag')
+        os.remove(mag_path + "/pfg_write_mag.tcl")
+        self.print("Done writing layout " + self.project + ".mag")
 
         # Write the core DEF file if it does not exist yet.
-        if not os.path.isfile(mag_path + '/core.def'):
+        if not os.path.isfile(mag_path + "/core.def"):
             self.write_core_def()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     faulthandler.register(signal.SIGUSR2)
     options = []
     arguments = []
     for item in sys.argv[1:]:
-        if item.find('-', 0) == 0:
+        if item.find("-", 0) == 0:
             options.append(item)
         else:
             arguments.append(item)
 
-    if '-help' in options:
-        print(sys.argv[0] + ' [options]')
-        print('')
-        print('options:')
-        print('   -noc    Print output to terminal, not the gui window')
-        print('   -nog    No graphics, run in batch mode')
-        print('   -cfg    Use existing padframe.cfg, do not regenerate')
-        print('   -padring-path=<path>	path to padring executable')
-        print('   -magic-path=<path>	path to magic executable')
-        print('   -tech-path=<path>	path to tech root folder')
-        print('   -project-path=<path>	path to project root folder')
-        print('   -help   Print this usage information')
-        print('')
+    if "-help" in options:
+        print(sys.argv[0] + " [options]")
+        print("")
+        print("options:")
+        print("   -noc    Print output to terminal, not the gui window")
+        print("   -nog    No graphics, run in batch mode")
+        print("   -cfg    Use existing padframe.cfg, do not regenerate")
+        print("   -padring-path=<path>	path to padring executable")
+        print("   -magic-path=<path>	path to magic executable")
+        print("   -tech-path=<path>	path to tech root folder")
+        print("   -project-path=<path>	path to project root folder")
+        print("   -help   Print this usage information")
+        print("")
         sys.exit(0)
 
     root = tkinter.Tk()
-    do_gui = False if ('-nog' in options or '-nogui' in options) else True
+    do_gui = False if ("-nog" in options or "-nogui" in options) else True
     app = SoCFloorplanner(root, do_gui)
 
     # Allow option -noc to bypass the text-to-console redirection, so crash
     # information doesn't disappear with the app.
 
-    app.use_console = False if ('-noc' in options or '-noconsole' in options) else True
+    app.use_console = False if ("-noc" in options or "-noconsole" in options) else True
     if do_gui == False:
         app.use_console = False
 
@@ -2675,8 +2945,8 @@ if __name__ == '__main__':
     # is otherwise auto-detected by checking for .config vs. .ef-config in
     # the project space.
 
-    app.ef_format = True if '-ef_format' in options else False
-    app.keep_cfg = True if '-cfg' in options else False
+    app.ef_format = True if "-ef_format" in options else False
+    app.keep_cfg = True if "-cfg" in options else False
 
     app.padring_path = None
     app.magic_path = None
@@ -2684,15 +2954,17 @@ if __name__ == '__main__':
     app.projectpath = None
 
     for option in options:
-        if option.split('=')[0] == '-padring-path':
-            app.padring_path = option.split('=')[1]
-        elif option.split('=')[0] == '-magic-path':
-            app.magic_path = option.split('=')[1]
-        elif option.split('=')[0] == '-tech-path':
-            app.techpath = option.split('=')[1]
-        elif option.split('=')[0] == '-project-path':
-            app.projectpath = option.split('=')[1]
-            app.projectpath = app.projectpath[:-1] if app.projectpath[-1] == '/' else app.projectpath
+        if option.split("=")[0] == "-padring-path":
+            app.padring_path = option.split("=")[1]
+        elif option.split("=")[0] == "-magic-path":
+            app.magic_path = option.split("=")[1]
+        elif option.split("=")[0] == "-tech-path":
+            app.techpath = option.split("=")[1]
+        elif option.split("=")[0] == "-project-path":
+            app.projectpath = option.split("=")[1]
+            app.projectpath = (
+                app.projectpath[:-1] if app.projectpath[-1] == "/" else app.projectpath
+            )
 
     app.text_to_console()
     app.init_padframe()
@@ -2702,4 +2974,3 @@ if __name__ == '__main__':
         # Run 'save' in non-GUI mode
         app.save()
         sys.exit(0)
-

@@ -19,23 +19,44 @@ from os import path
 import utils.utils as utils
 
 parser = argparse.ArgumentParser(
-        description="replicate configurations of design(s) from a given (PDK, STD_CELL_LIB) to another, or generates an empty config file for a given (PDK, STD_CELL_LIB)")
+    description="replicate configurations of design(s) from a given (PDK, STD_CELL_LIB) to another, or generates an empty config file for a given (PDK, STD_CELL_LIB)"
+)
 
 
-parser.add_argument('--from-pdk', '-fp', action='store',
-                help="The name of the PDK to copy from")
+parser.add_argument(
+    "--from-pdk", "-fp", action="store", help="The name of the PDK to copy from"
+)
 
-parser.add_argument('--from-std-cell-library', '-fscl', action='store',
-                help="The name of the STD_CELL_LIBRARY to copy from")
+parser.add_argument(
+    "--from-std-cell-library",
+    "-fscl",
+    action="store",
+    help="The name of the STD_CELL_LIBRARY to copy from",
+)
 
-parser.add_argument('--to-pdk', '-tp', action='store', required=True,
-                help="The name of the PDK to copy to")
+parser.add_argument(
+    "--to-pdk",
+    "-tp",
+    action="store",
+    required=True,
+    help="The name of the PDK to copy to",
+)
 
-parser.add_argument('--to-std-cell-library', '-tscl', action='store', required=True,
-                help="The name of the STD_CELL_LIBRARY to copy to")
+parser.add_argument(
+    "--to-std-cell-library",
+    "-tscl",
+    action="store",
+    required=True,
+    help="The name of the STD_CELL_LIBRARY to copy to",
+)
 
-parser.add_argument('--designs', '-d', nargs='+', default=[],
-                help="designs to update. Same as -d in run desings. If none provided, then all designs under ./designs will be replicated")
+parser.add_argument(
+    "--designs",
+    "-d",
+    nargs="+",
+    default=[],
+    help="designs to update. Same as -d in run desings. If none provided, then all designs under ./designs will be replicated",
+)
 
 
 args = parser.parse_args()
@@ -54,25 +75,39 @@ if from_std_cell_library is None:
 
 
 if len(designs) == 0:
-    designs= [x  for x in os.listdir('./designs/')]
+    designs = [x for x in os.listdir("./designs/")]
     for i in designs:
-        if os.path.isdir('./designs/'+i) == False:
+        if not os.path.isdir("./designs/" + i):
             designs.remove(i)
 
 for design in designs:
-    print("Replicating "+ design + " config...")
+    print("Replicating " + design + " config...")
     base_path = utils.get_design_path(design=design)
-    configFileTo = str(base_path)+"/"+str(pdkTo)+"_"+str(to_std_cell_library)+"_config.tcl"
-    configFileFrom = str(base_path)+"/"+str(pdkFrom)+"_"+str(from_std_cell_library)+"_config.tcl"
-    if(path.exists(configFileFrom)):
-        configFileFromOpener = open(configFileFrom, 'r')
+    configFileTo = (
+        str(base_path)
+        + "/"
+        + str(pdkTo)
+        + "_"
+        + str(to_std_cell_library)
+        + "_config.tcl"
+    )
+    configFileFrom = (
+        str(base_path)
+        + "/"
+        + str(pdkFrom)
+        + "_"
+        + str(from_std_cell_library)
+        + "_config.tcl"
+    )
+    if path.exists(configFileFrom):
+        configFileFromOpener = open(configFileFrom, "r")
         configFileFromData = configFileFromOpener.read()
         configFileFromOpener.close()
 
-        configFileToOpener = open(configFileTo, 'w+')
+        configFileToOpener = open(configFileTo, "w+")
         configFileToOpener.write(configFileFromData)
         configFileToOpener.close()
     else:
-        configFileToOpener = open(configFileTo, 'w+')
+        configFileToOpener = open(configFileTo, "w+")
         configFileToOpener.write("#init Configs")
         configFileToOpener.close()

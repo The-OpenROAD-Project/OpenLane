@@ -15,16 +15,21 @@
 import os
 import sys
 from typing import Iterable, Optional
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
-from utils.utils import *
-from .get_file_name import get_name
+from utils.utils import get_run_path  # noqa E402
+from .get_file_name import get_name  # noqa E402
+
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
         print(*args, **kwargs)
 
-def parse_to_report(input_log: str, output_report: str, start: str, end: Optional[str] = None):
+
+def parse_to_report(
+    input_log: str, output_report: str, start: str, end: Optional[str] = None
+):
     """
     Parses a log in the format
     START_MARKER
@@ -52,7 +57,14 @@ def parse_to_report(input_log: str, output_report: str, start: str, end: Optiona
 
 
 class Artifact(object):
-    def __init__(self, run_path: str, kind: str, step: str, filename: str, find_by_partial_match: bool = False):
+    def __init__(
+        self,
+        run_path: str,
+        kind: str,
+        step: str,
+        filename: str,
+        find_by_partial_match: bool = False,
+    ):
         self.run_path = run_path
         self.kind = kind
         self.step = step
@@ -60,7 +72,9 @@ class Artifact(object):
         self.pathname = os.path.join(self.run_path, self.kind, self.step)
         self.filename = filename
 
-        self.index, self.path = get_name(self.pathname, self.filename, find_by_partial_match)
+        self.index, self.path = get_name(
+            self.pathname, self.filename, find_by_partial_match
+        )
 
         if self.is_valid():
             debug(f"Resolved {kind}, {step}, {filename} to {self.path}")
@@ -77,7 +91,7 @@ class Artifact(object):
         return open(self.path).read()
 
     def is_logtoreport_valid(self) -> bool:
-        return self.is_valid() and os.path.getsize(self.path) > 10 
+        return self.is_valid() and os.path.getsize(self.path) > 10
 
     def log_to_report(self, report_name: str, start: str, end: Optional[str] = None):
         report_path = os.path.join(self.run_path, "reports", self.step, report_name)
@@ -94,9 +108,10 @@ class Artifact(object):
             end = None
             try:
                 end = report[2]
-            except:
+            except Exception:
                 pass
             self.log_to_report(filename, start, end)
+
 
 class Report(object):
     def __init__(self, design_path, tag, design_name, params, run_path=None):
@@ -105,82 +120,82 @@ class Report(object):
         self.tag = tag
         self.current_directory = os.path.dirname(__file__)
         if run_path is None:
-            run_path=get_run_path(design=design_path, tag=tag)
+            run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params
         self.raw_report = None
         self.formatted_report = None
 
     values = [
-        'design',
-        'design_name',
-        'config',
-        'flow_status',
-        'total_runtime',
-        'routed_runtime',
-        'DIEAREA_mm^2',
-        'CellPer_mm^2' ,
-        'OpenDP_Util',
-        'Peak_Memory_Usage_MB',
-        'cell_count',
-        'tritonRoute_violations',
-        'Short_violations',
-        'MetSpc_violations',
-        'OffGrid_violations',
-        'MinHole_violations',
-        'Other_violations',
-        'Magic_violations',
-        'antenna_violations',
-        'lvs_total_errors',
-        'cvc_total_errors',
-        'klayout_violations',
-        'wire_length',
-        'vias',
-        'wns',
-        'pl_wns',
-        'optimized_wns',
-        'fastroute_wns',
-        'spef_wns',
-        'tns',
-        'pl_tns',
-        'optimized_tns',
-        'fastroute_tns' ,
-        'spef_tns',
-        'HPWL',
-        'routing_layer1_pct',
-        'routing_layer2_pct',
-        'routing_layer3_pct',
-        'routing_layer4_pct',
-        'routing_layer5_pct',
-        'routing_layer6_pct',
-        'wires_count',
-        'wire_bits',
-        'public_wires_count',
-        'public_wire_bits',
-        'memories_count',
-        'memory_bits',
-        'processes_count',
-        'cells_pre_abc',
-        'AND',
-        'DFF',
-        'NAND',
-        'NOR',
-        'OR',
-        'XOR',
-        'XNOR',
-        'MUX',
-        'inputs',
-        'outputs',
-        'level',
-        'EndCaps',
-        'TapCells',
-        'Diodes',
-        'Total_Physical_Cells'
+        "design",
+        "design_name",
+        "config",
+        "flow_status",
+        "total_runtime",
+        "routed_runtime",
+        "DIEAREA_mm^2",
+        "CellPer_mm^2",
+        "OpenDP_Util",
+        "Peak_Memory_Usage_MB",
+        "cell_count",
+        "tritonRoute_violations",
+        "Short_violations",
+        "MetSpc_violations",
+        "OffGrid_violations",
+        "MinHole_violations",
+        "Other_violations",
+        "Magic_violations",
+        "antenna_violations",
+        "lvs_total_errors",
+        "cvc_total_errors",
+        "klayout_violations",
+        "wire_length",
+        "vias",
+        "wns",
+        "pl_wns",
+        "optimized_wns",
+        "fastroute_wns",
+        "spef_wns",
+        "tns",
+        "pl_tns",
+        "optimized_tns",
+        "fastroute_tns",
+        "spef_tns",
+        "HPWL",
+        "routing_layer1_pct",
+        "routing_layer2_pct",
+        "routing_layer3_pct",
+        "routing_layer4_pct",
+        "routing_layer5_pct",
+        "routing_layer6_pct",
+        "wires_count",
+        "wire_bits",
+        "public_wires_count",
+        "public_wire_bits",
+        "memories_count",
+        "memory_bits",
+        "processes_count",
+        "cells_pre_abc",
+        "AND",
+        "DFF",
+        "NAND",
+        "NOR",
+        "OR",
+        "XOR",
+        "XNOR",
+        "MUX",
+        "inputs",
+        "outputs",
+        "level",
+        "EndCaps",
+        "TapCells",
+        "Diodes",
+        "Total_Physical_Cells",
     ]
 
     @classmethod
     def get_header(Self):
-        header = ','.join(Self.values)
+        header = ",".join(Self.values)
         return header
 
     def reports_from_logs(self):
@@ -193,7 +208,7 @@ class Report(object):
             ("fastroute_sta.min.rpt", "min_report"),
             ("fastroute_sta.max.rpt", "max_report"),
             ("fastroute_sta.wns.rpt", "wns_report"),
-            ("fastroute_sta.tns.rpt", "tns_report")
+            ("fastroute_sta.tns.rpt", "tns_report"),
         )
 
         sta_spef_log = Artifact(rp, "logs", "routing", "spef_extraction_sta")
@@ -207,10 +222,12 @@ class Report(object):
             ("spef_extraction_sta.worst_slack.rpt", "worst_slack"),
             ("spef_extraction_sta.clock_skew.rpt", "clock_skew"),
             ("spef_extraction_sta.power.rpt", "power_report"),
-            ("spef_extraction_sta.area.rpt", "area_report")
+            ("spef_extraction_sta.area.rpt", "area_report"),
         )
 
-        sta_spef_multi_corner_log = Artifact(rp, "logs", "routing", "spef_extraction_multi_corner_sta")
+        sta_spef_multi_corner_log = Artifact(
+            rp, "logs", "routing", "spef_extraction_multi_corner_sta"
+        )
         sta_spef_multi_corner_log.generate_reports(
             ("spef_extraction_multi_corner_sta.rpt", "check_report"),
             ("spef_extraction_multi_corner_sta.min.rpt", "min_report"),
@@ -221,6 +238,5 @@ class Report(object):
             ("spef_extraction_multi_corner_sta.worst_slack.rpt", "worst_slack"),
             ("spef_extraction_multi_corner_sta.clock_skew.rpt", "clock_skew"),
             ("spef_extraction_multi_corner_sta.power.rpt", "power_report"),
-            ("spef_extraction_multi_corner_sta.area.rpt", "area_report")
+            ("spef_extraction_multi_corner_sta.area.rpt", "area_report"),
         )
-

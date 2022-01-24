@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import re
-import sys
 import os
 import argparse  # argument parsing
 
@@ -23,13 +22,11 @@ import argparse  # argument parsing
 
 # Parse and validate arguments
 # ==============================================================================
-parser = argparse.ArgumentParser(
-    description='Merges lefs together')
-parser.add_argument('--inputLef', '-i', required=True,
-                    help='Input Lef', nargs='+')
-parser.add_argument('--outputLef', '-o', required=True,
-                    help='Output Lef')
+parser = argparse.ArgumentParser(description="Merges lefs together")
+parser.add_argument("--inputLef", "-i", required=True, help="Input Lef", nargs="+")
+parser.add_argument("--outputLef", "-o", required=True, help="Output Lef")
 args = parser.parse_args()
+
 
 def get_delimited_blocks(data):
     # MACRO and SITE blocks
@@ -62,14 +59,14 @@ def get_delimited_blocks(data):
     return blocks
 
 
-print(os.path.basename(__file__),": Merging LEFs")
+print(os.path.basename(__file__), ": Merging LEFs")
 
 f = open(args.inputLef[0])
 content = f.read()
 f.close()
 
 # Remove Last line ending the library
-content = re.sub("END LIBRARY","",content)
+content = re.sub("END LIBRARY", "", content)
 
 content = content.splitlines()
 
@@ -106,4 +103,4 @@ f = open(args.outputLef, "w")
 f.write("\n".join(content))
 f.close()
 
-print(os.path.basename(__file__),": Merging LEFs complete")
+print(os.path.basename(__file__), ": Merging LEFs complete")

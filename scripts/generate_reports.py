@@ -24,13 +24,21 @@ from report.get_file_name import get_name
 
 from config.config import ConfigHandler
 
+
 @click.command()
 @click.option("--design", "-d", required=True, help="Design Path")
 @click.option("--design_name", "-n", required=True, help="Design Name")
 @click.option("--tag", "-t", required=True, help="Run Tag")
-@click.option("--run_path", "-r", default=None, help="Run Path [Optional, otherwise derived from tag]")
+@click.option(
+    "--run_path",
+    "-r",
+    default=None,
+    help="Run Path [Optional, otherwise derived from tag]",
+)
 @click.option("--output_file", "-o", required=True, help="Output Final Summary Report")
-@click.option("--man_report", "-m", default="/dev/null", help="Output Manufacturability Reports")
+@click.option(
+    "--man_report", "-m", default="/dev/null", help="Output Manufacturability Reports"
+)
 def cli(design, design_name, tag, run_path, output_file, man_report):
     """
     Creates manufacturability and metric summary reports for a given design and OpenLane run.
@@ -156,10 +164,10 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     else:
         printArr.append("No antenna report found.")
 
-
     # write into file
     with open(man_report, "w") as f:
         f.write("\n".join(printArr))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

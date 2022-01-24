@@ -17,29 +17,55 @@ import subprocess
 import utils.utils as utils
 
 parser = argparse.ArgumentParser(
-        description="update configuration of design(s) per given PDK")
+    description="update configuration of design(s) per given PDK"
+)
 
-parser.add_argument('--root', '-r', action='store', default='./',
-                help="The root directory. assuming root/designs, root/scripts root/logs")
+parser.add_argument(
+    "--root",
+    "-r",
+    action="store",
+    default="./",
+    help="The root directory. assuming root/designs, root/scripts root/logs",
+)
 
-parser.add_argument('--pdk', '-p', action='store', required=True,
-                help="The name of the PDK")
+parser.add_argument(
+    "--pdk", "-p", action="store", required=True, help="The name of the PDK"
+)
 
-parser.add_argument('--std-cell-library', '-scl', action='store', required=True,
-                help="The name of the standard cell library")
+parser.add_argument(
+    "--std-cell-library",
+    "-scl",
+    action="store",
+    required=True,
+    help="The name of the standard cell library",
+)
 
 
-parser.add_argument('--designs', '-d', nargs='+', default=[],
-                help="designs to update ")
+parser.add_argument("--designs", "-d", nargs="+", default=[], help="designs to update ")
 
-parser.add_argument('--best_results', '-b', action='store', required=True,
-                help="name of the log file from which to extract the name of the best configs")
+parser.add_argument(
+    "--best_results",
+    "-b",
+    action="store",
+    required=True,
+    help="name of the log file from which to extract the name of the best configs",
+)
 
-parser.add_argument('--clean', '-cl', action='store_true', default=False,
-                help="deletes the config file that the data was extracted from")
+parser.add_argument(
+    "--clean",
+    "-cl",
+    action="store_true",
+    default=False,
+    help="deletes the config file that the data was extracted from",
+)
 
-parser.add_argument('--update_clock_period', '-ucp', action='store_true', default=False,
-                help="Updates the CLOCK_PERIOD of the design based on the suggested_clock_period parameter")
+parser.add_argument(
+    "--update_clock_period",
+    "-ucp",
+    action="store_true",
+    default=False,
+    help="Updates the CLOCK_PERIOD of the design based on the suggested_clock_period parameter",
+)
 
 args = parser.parse_args()
 root = args.root
@@ -50,7 +76,7 @@ best_results = args.best_results
 clean = args.clean
 update_clock_period = args.update_clock_period
 
-logFileOpener = open(root+'/regression_results/'+best_results, 'r')
+logFileOpener = open(root + "/regression_results/" + best_results, "r")
 logFileData = logFileOpener.read().split("\n")
 logFileOpener.close()
 
@@ -83,7 +109,9 @@ for line in logFileData:
     if line != "":
         splitLine = line.split(",")
         designConfigDict[str(splitLine[designIdx])] = str(splitLine[configIdx])
-        designFailDict[str(splitLine[designIdx])] = str(splitLine[flow_statusIdx]) == "flow_completed"
+        designFailDict[str(splitLine[designIdx])] = (
+            str(splitLine[flow_statusIdx]) == "flow_completed"
+        )
         if clkPeriodIdx != -1:
             designClockDict[str(splitLine[designIdx])] = str(splitLine[clkPeriodIdx])
 
@@ -92,18 +120,20 @@ if len(designs) == 0:
 
 for design in designs:
     if design not in designConfigDict.keys():
-        print(design + " Not Found in Sheet. Skipping...")
+        print(f"{design} not found in sheet. Skipping...")
 
-    if designFailDict[design] == False:
-        print("Skipping " + design + " ...")
+    if not designFailDict[design]:
+        print(f"Skipping {design} ...")
         continue
 
-    print("Updating "+ design + " config...")
+    print(f"Updating {design} config...")
     base_path = utils.get_design_path(design=design)
-    configFileToUpdate = str(base_path)+"/"+str(pdk)+"_"+str(std_cell_library)+"_config.tcl"
-    configFileBest = str(base_path)+"/"+str(designConfigDict[design])+".tcl"
+    configFileToUpdate = (
+        str(base_path) + "/" + str(pdk) + "_" + str(std_cell_library) + "_config.tcl"
+    )
+    configFileBest = str(base_path) + "/" + str(designConfigDict[design]) + ".tcl"
 
-    configFileBestOpener = open(configFileBest, 'r')
+    configFileBestOpener = open(configFileBest, "r")
     configFileBestData = configFileBestOpener.read().split("\n")
     configFileBestOpener.close()
 
@@ -113,20 +143,22 @@ for design in designs:
         if line == "# Regression":
             copyFrom = True
 
-        if copyFrom == True:
-            newData+=line+"\n"
+        if copyFrom:
+            newData += line + "\n"
 
-    configFileToUpdateOpener = open(configFileToUpdate, 'a+')
+    configFileToUpdateOpener = open(configFileToUpdate, "a+")
     configFileToUpdateOpener.write(newData)
     if update_clock_period:
         if design in designClockDict and float(designClockDict[design]) > 0:
-            clockLine = "\n# Suggested Clock Period:\nset ::env(CLOCK_PERIOD) \"" + str(round(float(designClockDict[design]),2)) + "\"\n"
+            clockLine = (
+                '\n# Suggested Clock Period:\nset ::env(CLOCK_PERIOD) "'
+                + str(round(float(designClockDict[design]), 2))
+                + '"\n'
+            )
             configFileToUpdateOpener.write(clockLine)
     configFileToUpdateOpener.close()
 
-    if clean == True:
-        clean_cmd = "rm -f {configFileBest}".format(
-                    configFileBest=configFileBest,
-        )
+    if clean:
+        clean_cmd = f"rm -f {configFileBest}"
         subprocess.check_output(clean_cmd.split())
-        #clean config file
+        # clean config file

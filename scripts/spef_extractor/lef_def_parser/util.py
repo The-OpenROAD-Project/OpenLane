@@ -1,17 +1,17 @@
 # MIT License
-# 
+#
 # Copyright (c) 2020 Tri Minh Cao
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,9 +31,9 @@ SCALE = 2000
 import math
 
 
-def nCr(n,r):
+def nCr(n, r):
     f = math.factorial
-    return f(n) / f(r) / f(n-r)
+    return f(n) / f(r) / f(n - r)
 
 
 def str_to_list(s):
@@ -44,10 +44,11 @@ def str_to_list(s):
     """
     result = s.split()
     # check if the last word is ';' and remove it
-    #if len(result) >= 1:
+    # if len(result) >= 1:
     #    if result[len(result) - 1] == ";":
     #        result.pop()
     return result
+
 
 def scalePts(pts, alpha):
     """
@@ -56,9 +57,10 @@ def scalePts(pts, alpha):
     """
     scaled = []
     for pt in pts:
-        scaled_pt = [alpha*pt[0], alpha*pt[1]]
+        scaled_pt = [alpha * pt[0], alpha * pt[1]]
         scaled.append(scaled_pt)
     return scaled
+
 
 def rect_to_polygon(rect_pts):
     """
@@ -114,6 +116,7 @@ def split_plus(line):
     new_line = line.split("+")
     return new_line
 
+
 def split_space(line):
     """
     Split a line according to space.
@@ -122,6 +125,7 @@ def split_space(line):
     """
     new_line = line.split()
     return new_line
+
 
 def compare_metal(metal_a, metal_b):
     """
@@ -141,7 +145,7 @@ def compare_metal(metal_a, metal_b):
         else:
             metal_a_num = get_metal_num(metal_a)
             metal_b_num = get_metal_num(metal_b)
-            return (metal_a_num - metal_b_num)
+            return metal_a_num - metal_b_num
 
 
 def get_metal_num(metal):
@@ -168,8 +172,9 @@ def inside_area(location, corners):
     x2 = corners[1][0]
     y1 = corners[0][1]
     y2 = corners[1][1]
-    return (location[0] > x1 and location[0] < x2
-            and location[1] > y1 and location[1] < y2)
+    return (
+        location[0] > x1 and location[0] < x2 and location[1] > y1 and location[1] < y2
+    )
 
 
 def relocate_area(left_pt, corners):
@@ -205,7 +210,7 @@ def macro_and_via1(def_info, via_type):
         for route in net.routed:
             if route.end_via != None:
                 # check for the via type of the end_via
-                if route.end_via[:len(via_type)] == via_type:
+                if route.end_via[: len(via_type)] == via_type:
                     via_loc = route.end_via_loc
                     via_name = route.end_via
                     via_info = (via_loc, via_name)
@@ -218,7 +223,7 @@ def macro_and_via1(def_info, via_type):
                                 result_dict[comp_name][pin_name].append(via_info)
                             else:
                                 result_dict[comp_name][pin_name] = [via_info]
-    #print (result_dict)
+    # print (result_dict)
     return result_dict
 
 
@@ -266,15 +271,16 @@ def get_all_vias(def_info, via_type):
         for route in net.routed:
             if route.end_via != None:
                 # check for the via type of the end_via
-                if route.end_via[:len(via_type)] == via_type:
+                if route.end_via[: len(via_type)] == via_type:
                     via_loc = route.end_via_loc
                     via_name = route.end_via
-                    default_via_type = -1 # 0 = input, 1 = output
+                    default_via_type = -1  # 0 = input, 1 = output
                     via_info = [via_loc, via_name, net.name, default_via_type]
                     # add a via to the vias list
                     vias.append(via_info)
-    #print (result_dict)
+    # print (result_dict)
     return vias
+
 
 def sort_vias_by_row(layout_area, row_height, vias):
     """
@@ -293,7 +299,7 @@ def sort_vias_by_row(layout_area, row_height, vias):
         rows[row_dest].append(via)
     # sort vias in each row based on x-coordinate
     for each_row in rows:
-        each_row.sort(key = lambda x: x[0][0])
+        each_row.sort(key=lambda x: x[0][0])
     return rows
 
 
@@ -314,7 +320,7 @@ def group_via(via_list, max_number, max_distance):
                 right_via = via_list[i + j - 1]
                 dist = right_via[0][0] - curr_via[0][0]
                 if dist < max_distance:
-                    curr_list.append(via_list[i:i+j])
+                    curr_list.append(via_list[i : i + j])
         # only add via group list that is not empty
         if len(curr_list) > 0:
             groups.append(curr_list)
@@ -338,5 +344,5 @@ def sorted_components(layout_area, row_height, comps):
         rows[row_dest].append(comp)
     # sort vias in each row based on x-coordinate
     for each_row in rows:
-        each_row.sort(key = lambda x: x.placed[0])
+        each_row.sort(key=lambda x: x.placed[0])
     return rows

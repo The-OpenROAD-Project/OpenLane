@@ -20,25 +20,35 @@ import odb
 
 def remove_buffers(block_design, dont_buffer):
     design_nets = block_design.getNets()
-    dont_buffer_nets = [ net for net in design_nets if net.getConstName() in dont_buffer]
+    dont_buffer_nets = [net for net in design_nets if net.getConstName() in dont_buffer]
 
-    for net in dont_buffer_nets: 
+    for net in dont_buffer_nets:
         # get the cells driving the dont buffer net
         master_cells = get_master_cells(net)
 
-        assert len(master_cells) == 1, f"Net {net.getConstName()} is driven by multiple cells."
+        assert (
+            len(master_cells) == 1
+        ), f"Net {net.getConstName()} is driven by multiple cells."
 
         cell_name = master_cells[0].getMaster().getConstName()
-        assert "buf" in cell_name, f"{net.getConstName()} isn't driven by a buffer cell. It is driven by {cell_name}. "
-       
-        # get the net connected to the input pin of this buffer 
+        assert (
+            "buf" in cell_name
+        ), f"{net.getConstName()} isn't driven by a buffer cell. It is driven by {cell_name}. "
+
+        # get the net connected to the input pin of this buffer
         input_nets, output_nets = get_nets(master_cells[0])
 
-        assert len(output_nets) == 1, f"{cell_name} has more than one output port. Please make sure that {cell_name} is a buffer cell."
-        assert len(input_nets) == 1, f"{cell_name} has more than one input port. Please make sure that {cell_name} is a buffer cell."
-        assert output_nets[0].getConstName() in dont_buffer, f"{cell_name} isn't driving any of the dont buffer nets."
-        
-        # remove the buffer cell instance 
+        assert (
+            len(output_nets) == 1
+        ), f"{cell_name} has more than one output port. Please make sure that {cell_name} is a buffer cell."
+        assert (
+            len(input_nets) == 1
+        ), f"{cell_name} has more than one input port. Please make sure that {cell_name} is a buffer cell."
+        assert (
+            output_nets[0].getConstName() in dont_buffer
+        ), f"{cell_name} isn't driving any of the dont buffer nets."
+
+        # remove the buffer cell instance
         master_cells[0].destroy(master_cells[0])
 
         # connect buffer cell input net to the dont buffer port
@@ -55,7 +65,7 @@ def get_master_cells(net):
         master_instance = it.getInst().getMaster()
         master_cells.append(it.getInst())
         cell_type = master_instance.getConstName()
-        cell_pin  = it.getMTerm().getConstName()
+        cell_pin = it.getMTerm().getConstName()
         print(f"Net {net.getConstName()} is connected to {cell_type}, pin {cell_pin}")
 
     return master_cells
@@ -65,27 +75,39 @@ def get_nets(master_instance):
     input_nets = []
     output_nets = []
     for iterm in master_instance.getITerms():
-        if iterm.isSpecial(): # Skip special nets
-            continue 
-        
+        if iterm.isSpecial():  # Skip special nets
+            continue
+
         if iterm.isInputSignal():
             input_pin_net = iterm.getNet()
             input_nets.append(input_pin_net)
-        
+
         if iterm.isOutputSignal():
             output_pin_net = iterm.getNet()
             output_nets.append(output_pin_net)
 
-    return input_nets, output_nets 
+    return input_nets, output_nets
 
 
 def main():
-    parser = argparse.ArgumentParser(description='DEF to Liberty.')
+    parser = argparse.ArgumentParser(description="DEF to Liberty.")
 
-    parser.add_argument('--input_lef', '-l', nargs='+', type=str, default=None, required=True, help='Input LEF file(s)')
-    parser.add_argument('--input_def', '-i', required=True, help='DEF view of the design.')
-    parser.add_argument('--output_def', '-o', required=True, help='Output DEF file')
-    parser.add_argument('--dont_buffer', '-d', required=True, help='Dont Buffer list of output ports.')
+    parser.add_argument(
+        "--input_lef",
+        "-l",
+        nargs="+",
+        type=str,
+        default=None,
+        required=True,
+        help="Input LEF file(s)",
+    )
+    parser.add_argument(
+        "--input_def", "-i", required=True, help="DEF view of the design."
+    )
+    parser.add_argument("--output_def", "-o", required=True, help="Output DEF file")
+    parser.add_argument(
+        "--dont_buffer", "-d", required=True, help="Dont Buffer list of output ports."
+    )
 
     args = parser.parse_args()
     input_lef_files = args.input_lef

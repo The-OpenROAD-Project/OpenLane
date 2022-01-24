@@ -18,14 +18,18 @@
 import re
 import click
 
+
 @click.command()
 @click.option("-c", "--cell-file", required=True, help="Cell file")
 @click.option("-o", "--output", required=True, help="Output liberty file")
 @click.argument("input_lib_files", nargs=-1)
 def cli(cell_file, output, input_lib_files):
-    excluded_cells = list(map(lambda x: x.strip(), open(cell_file).read().strip().split("\n")))
+    excluded_cells = list(
+        map(lambda x: x.strip(), open(cell_file).read().strip().split("\n"))
+    )
 
-    output_file_handle = open(output, 'w')
+    output_file_handle = open(output, "w")
+
     def write(string):
         print(string, file=output_file_handle)
 
@@ -63,5 +67,6 @@ def cli(cell_file, output, input_lib_files):
 
     output_file_handle.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

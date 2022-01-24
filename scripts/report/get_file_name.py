@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import os
-import sys
 import argparse
+
 
 def get_name(pathname, output_file, partial_match=False):
     pathname = str(pathname)
@@ -24,7 +24,7 @@ def get_name(pathname, output_file, partial_match=False):
         candidates = []
         for file in os.listdir(pathname):
             if not os.path.isfile(os.path.join(pathname, file)):
-                continue # Directory
+                continue  # Directory
 
             file_components = file.split("-", 1)
 
@@ -42,31 +42,41 @@ def get_name(pathname, output_file, partial_match=False):
                     continue
 
             candidates.append((step_index, name))
-        
-        candidates.sort(key= lambda x: x[0], reverse=True)
+
+        candidates.sort(key=lambda x: x[0], reverse=True)
 
         file = f"{candidates[0][0]}-{candidates[0][1]}"
 
         return candidates[0][0], os.path.join(pathname, file)
-    except Exception as e:
+    except Exception:
         return "", os.path.join(pathname, output_file)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Returns the output_file name with the highest index.')
+        description="Returns the output_file name with the highest index."
+    )
 
-    parser.add_argument('--path', '-p', required=True,
-                        help='Path')
+    parser.add_argument("--path", "-p", required=True, help="Path")
 
-    parser.add_argument('--output_file', '-o', required=True,
-                        help='File name to search for, i.e. 1.X 2.X 3.X, then the script will return <path>/3.X')
+    parser.add_argument(
+        "--output_file",
+        "-o",
+        required=True,
+        help="File name to search for, i.e. 1.X 2.X 3.X, then the script will return <path>/3.X",
+    )
 
     # This whole thing is a contrived way to say "partial match"
-    parser.add_argument('--include_only', '-I',action='store_true', default=False,
-                       help="If enabled the matching is done for inclusion, i.e. the passed output_file is a string that is included in the file name to be matched. -o exam will return matches like: exam.txt and example.txl.")
+    parser.add_argument(
+        "--include_only",
+        "-I",
+        action="store_true",
+        default=False,
+        help="If enabled the matching is done for inclusion, i.e. the passed output_file is a string that is included in the file name to be matched. -o exam will return matches like: exam.txt and example.txl.",
+    )
 
     args = parser.parse_args()
-    path=args.path
+    path = args.path
     output_file = args.output_file
-    include_only= args.include_only
-    print(get_name(path,output_file,include_only))
+    include_only = args.include_only
+    print(get_name(path, output_file, include_only))

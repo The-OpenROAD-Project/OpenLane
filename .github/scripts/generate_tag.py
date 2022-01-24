@@ -13,8 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import re
-import os
 import datetime
 import subprocess
 from gh import gh
@@ -25,14 +23,18 @@ print("Getting latest release index…")
 
 print("Getting the latest tag…")
 
-latest_tag = None 
+latest_tag = None
 latest_tag_commit = None
 for tag in gh.openlane.tags:
     commit, name = tag
     latest_tag = name
     latest_tag_commit = commit
 
-commit_count = int(subprocess.check_output(["git", "rev-list", "--count", "%s..%s" % (latest_tag_commit, "HEAD")]))
+commit_count = int(
+    subprocess.check_output(
+        ["git", "rev-list", "--count", "%s..%s" % (latest_tag_commit, "HEAD")]
+    )
+)
 
 if commit_count == 0:
     print("No new commits. A tag will not be created.")
@@ -42,5 +44,5 @@ else:
     new_tag = now.strftime("%Y.%m.%d_%H.%M.%S")
 
     print("Naming new tag %s." % new_tag)
-    
+
 gh.export_env("NEW_TAG", new_tag)

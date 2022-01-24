@@ -23,46 +23,80 @@ import argparse
 import odb
 
 parser = argparse.ArgumentParser(
-    description='Labels pins of macros according to netlist')
+    description="Labels pins of macros according to netlist"
+)
 
-parser.add_argument('--netlist-def', '-nd', required=True,
-                    help='DEF view of the design that has the connectivity information')
+parser.add_argument(
+    "--netlist-def",
+    "-nd",
+    required=True,
+    help="DEF view of the design that has the connectivity information",
+)
 
 
-parser.add_argument('--lef', '-l',
-                    nargs='+',
-                    type=str,
-                    default=None,
-                    required=True,
-                    help='LEF file needed to have a proper view of the netlist AND the input DEF')
+parser.add_argument(
+    "--lef",
+    "-l",
+    nargs="+",
+    type=str,
+    default=None,
+    required=True,
+    help="LEF file needed to have a proper view of the netlist AND the input DEF",
+)
 
-parser.add_argument('--input-def', '-id', required=True,
-                    help='DEF view of the design that needs to be labeled')
+parser.add_argument(
+    "--input-def",
+    "-id",
+    required=True,
+    help="DEF view of the design that needs to be labeled",
+)
 
-parser.add_argument('--output', '-o', required=False,
-                    help='Output labeled def file. Defaults to the input def')
+parser.add_argument(
+    "--output",
+    "-o",
+    required=False,
+    help="Output labeled def file. Defaults to the input def",
+)
 
-parser.add_argument('--verbose', '-v', action='store_true', required=False)
+parser.add_argument("--verbose", "-v", action="store_true", required=False)
 
-parser.add_argument('--all-shapes-flag', '-all', action='store_true', required=False)
+parser.add_argument("--all-shapes-flag", "-all", action="store_true", required=False)
 
-parser.add_argument('--pad-pin-name', '-ppn', required=False,
-                    default='PAD',
-                    help='Name of the pin of the pad as it appears in the netlist def')
+parser.add_argument(
+    "--pad-pin-name",
+    "-ppn",
+    required=False,
+    default="PAD",
+    help="Name of the pin of the pad as it appears in the netlist def",
+)
 
-parser.add_argument('--pin-size', '-ps', required=False, type=int,
-                    default=1,
-                    help='Size of the block pin created in um')
+parser.add_argument(
+    "--pin-size",
+    "-ps",
+    required=False,
+    type=int,
+    default=1,
+    help="Size of the block pin created in um",
+)
 
-parser.add_argument('--db-microns', '-dbum', required=False, type=int,
-                    default=1000,
-                    help='DEF units per micron')
+parser.add_argument(
+    "--db-microns",
+    "-dbum",
+    required=False,
+    type=int,
+    default=1000,
+    help="DEF units per micron",
+)
 
-parser.add_argument('--map', '-m', action='append',
-                    nargs=4,
-                    required=False,
-                    default=[],
-                    help='Extra mappings that are hard to infer from the netlist def. Format: -extra pad_instance_name pad_pin block_pin (INPUT|OUTPUT|INOUT)')
+parser.add_argument(
+    "--map",
+    "-m",
+    action="append",
+    nargs=4,
+    required=False,
+    default=[],
+    help="Extra mappings that are hard to infer from the netlist def. Format: -extra pad_instance_name pad_pin block_pin (INPUT|OUTPUT|INOUT)",
+)
 
 args = parser.parse_args()
 
@@ -86,6 +120,7 @@ else:
     print("Warning: The input DEF file will be overwritten")
     output_def_file_name = input_def_file_name
 
+
 def getBiggestBox(iterm):
     inst = iterm.getInst()
     px, py = inst.getOrigin()
@@ -100,11 +135,13 @@ def getBiggestBox(iterm):
     biggest_size = -1
     for i in range(len(mpins)):
         mpin = mpins[i]
-        box = mpin.getGeometry()[0] #assumes there's only one; to extend and get biggest
+        box = mpin.getGeometry()[
+            0
+        ]  # assumes there's only one; to extend and get biggest
 
         llx, lly = box.xMin(), box.yMin()
         urx, ury = box.xMax(), box.yMax()
-        area = (urx-llx)*(ury-lly)
+        area = (urx - llx) * (ury - lly)
         if area > biggest_size:
             biggest_size = area
             biggest_mpin = mpin
@@ -123,6 +160,7 @@ def getBiggestBox(iterm):
 
     return [(layer, ll, ur)]
 
+
 def getAllBoxes(iterm):
     inst = iterm.getInst()
     px, py = inst.getOrigin()
@@ -138,8 +176,8 @@ def getAllBoxes(iterm):
         mpin = mpins[i]
         geometries = mpin.getGeometry()
         for box in geometries:
-            llx, lly = box.xMin(), box.yMin()
-            urx, ury = box.xMax(), box.yMax()
+            # llx, lly = box.xMin(), box.yMin()
+            # urx, ury = box.xMax(), box.yMax()
             ll = odb.Point(box.xMin(), box.yMin())
             ur = odb.Point(box.xMax(), box.yMax())
             transform.apply(ll)
@@ -174,13 +212,7 @@ def labelITerm(iterm, pin_name, iotype, all_shapes_flag=False):
 
     for box in boxes:
         layer, ll, ur = box
-        odb.dbBox_create(pin_bpin,
-                         layer,
-                         ll.getX(),
-                         ll.getY(),
-                         ur.getX(),
-                         ur.getY())
-
+        odb.dbBox_create(pin_bpin, layer, ll.getX(), ll.getY(), ur.getX(), ur.getY())
 
     pad_iterm.connect(net)
     pin_bterm.connect(net)
@@ -209,7 +241,8 @@ for net in mapping_nets:
     if len(iterms) >= 1 and len(bterms) == 1:
         pin_name = bterms[0].getName()
         if pin_name in extra_mappings_pin_names:
-            if VERBOSE: print(pin_name, "handled by an external mapping; skipping...")
+            if VERBOSE:
+                print(pin_name, "handled by an external mapping; skipping...")
             continue
 
         pad_name = None
@@ -224,15 +257,29 @@ for net in mapping_nets:
         # '\[' and '\]' are common DEF names
 
         if pad_name is None:
-            print ("Warning: net", net.getName(), "has a BTerm but no ITerms that match PAD_PIN_NAME")
+            print(
+                "Warning: net",
+                net.getName(),
+                "has a BTerm but no ITerms that match PAD_PIN_NAME",
+            )
 
-            print ("Warning: will label the first ITerm on the net!!!!!!!")
+            print("Warning: will label the first ITerm on the net!!!!!!!")
 
             pad_name = iterms[0].getInst().getName()
             pad_pin_name = iterms[0].getMTerm().getName()
 
         if VERBOSE:
-            print("Labeling ", net.getName(), "(", pin_name,"-", pad_name, "/", pad_pin_name, ")")
+            print(
+                "Labeling ",
+                net.getName(),
+                "(",
+                pin_name,
+                "-",
+                pad_name,
+                "/",
+                pad_pin_name,
+                ")",
+            )
 
         pad_pin_map.setdefault(pad_name, [])
         pad_pin_map[pad_name].append((pad_pin_name, pin_name, bterms[0].getIoType()))
@@ -241,13 +288,34 @@ for mapping in extra_mappings:
     pad_pin_map.setdefault(mapping[0], [])
     pad_pin_map[mapping[0]].append((mapping[1], mapping[2], mapping[3]))
 
-pad_pins_to_label_count = len([mapping for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist])
+pad_pins_to_label_count = len(
+    [
+        mapping
+        for sublist in [pair[1] for pair in pad_pin_map.items()]
+        for mapping in sublist
+    ]
+)
 bterms = mapping_block.getBTerms()
-print(set([bterm.getName() for bterm in bterms]) - set([mapping[1] for sublist in [pair[1] for pair in pad_pin_map.items()] for mapping in sublist]))
-assert pad_pins_to_label_count == len(bterms), "Some pins were not going to be labeled %d/%d" % (pad_pins_to_label_count, len(bterms))
+print(
+    set([bterm.getName() for bterm in bterms])
+    - set(
+        [
+            mapping[1]
+            for sublist in [pair[1] for pair in pad_pin_map.items()]
+            for mapping in sublist
+        ]
+    )
+)
+assert pad_pins_to_label_count == len(
+    bterms
+), "Some pins were not going to be labeled %d/%d" % (
+    pad_pins_to_label_count,
+    len(bterms),
+)
 print("Labeling", len(pad_pin_map), "pads")
 print("Labeling", pad_pins_to_label_count, "pad pins")
-if VERBOSE: print(pad_pin_map)
+if VERBOSE:
+    print(pad_pin_map)
 
 ##############
 
@@ -266,7 +334,8 @@ for inst in chip_insts:
             pad_pin_name = mapping[0]
             pin_name = mapping[1]
             iotype = mapping[2]
-            if VERBOSE: print("Found: ", inst_name, pad_pin_name, pin_name)
+            if VERBOSE:
+                print("Found: ", inst_name, pad_pin_name, pin_name)
 
             pad_iterm = inst.findITerm(pad_pin_name)
 
@@ -274,8 +343,11 @@ for inst in chip_insts:
 
             labeled.append(inst_name)
 
-assert labeled_count == pad_pins_to_label_count, ("Didn't label what I set out to label %d/%d" % (labeled_count, pad_pins_to_label_count),
-                                                  set(pad_pin_map.keys())-set(labeled))
+assert labeled_count == pad_pins_to_label_count, (
+    "Didn't label what I set out to label %d/%d"
+    % (labeled_count, pad_pins_to_label_count),
+    set(pad_pin_map.keys()) - set(labeled),
+)
 
 print("Writing", output_def_file_name)
 odb.write_def(chip_block, output_def_file_name)

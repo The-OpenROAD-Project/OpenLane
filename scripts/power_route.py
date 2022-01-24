@@ -20,39 +20,65 @@ from the power/ground pads to the *core ring*
 import sys
 import argparse
 import odb
-from pprint import pprint
 
 parser = argparse.ArgumentParser(
-    description='Produces a DEF file with VDD and GND special nets\
-    where the power pads are connected to the core ring')
+    description="Produces a DEF file with VDD and GND special nets\
+    where the power pads are connected to the core ring"
+)
 
-parser.add_argument('--input-def', '-d', required=True,
-                    help='DEF view of the design pre-routing')
+parser.add_argument(
+    "--input-def", "-d", required=True, help="DEF view of the design pre-routing"
+)
 
-parser.add_argument('--input-lef', '-l', required=True,
-                    help='LEF file needed to have a proper view of the DEF')
+parser.add_argument(
+    "--input-lef",
+    "-l",
+    required=True,
+    help="LEF file needed to have a proper view of the DEF",
+)
 
-parser.add_argument('--core-vdd-pin', '-cvdd', required=True,
-                    help='Name of the power pin of core macro (exposed as its core ring)')
+parser.add_argument(
+    "--core-vdd-pin",
+    "-cvdd",
+    required=True,
+    help="Name of the power pin of core macro (exposed as its core ring)",
+)
 
-parser.add_argument('--core-gnd-pin', '-cgnd', required=True,
-                    help='Name of the ground pin of core macro (exposed as its core ring)')
+parser.add_argument(
+    "--core-gnd-pin",
+    "-cgnd",
+    required=True,
+    help="Name of the ground pin of core macro (exposed as its core ring)",
+)
 
 
-parser.add_argument('--output-def', '-o', required=True,
-                    default='output.def', help='Output power-routed DEF')
+parser.add_argument(
+    "--output-def",
+    "-o",
+    required=True,
+    default="output.def",
+    help="Output power-routed DEF",
+)
 
-parser.add_argument('--vdd-pad-pin-map', '-vmap', action='append',
-                    nargs=2,
-                    required=False,
-                    default=None,
-                    help='Mappings to mark PAD-pin pairs as part of the VDD net. Defaults to sky130 settings.')
+parser.add_argument(
+    "--vdd-pad-pin-map",
+    "-vmap",
+    action="append",
+    nargs=2,
+    required=False,
+    default=None,
+    help="Mappings to mark PAD-pin pairs as part of the VDD net. Defaults to sky130 settings.",
+)
 
-parser.add_argument('--gnd-pad-pin-map', '-gmap', action='append',
-                    nargs=2,
-                    required=False,
-                    default=None,
-                    help='Mappings to mark PAD-pin pairs as part of the GND net. Defaults to sky130 settings.')
+parser.add_argument(
+    "--gnd-pad-pin-map",
+    "-gmap",
+    action="append",
+    nargs=2,
+    required=False,
+    default=None,
+    help="Mappings to mark PAD-pin pairs as part of the GND net. Defaults to sky130 settings.",
+)
 
 
 args = parser.parse_args()
@@ -67,49 +93,37 @@ gnd_pad_pin_map = args.gnd_pad_pin_map
 
 
 # TODO: expose through arguments
-ORIENT_LOC_MAP = {"R0":   "N",
-                  "R90":  "W",
-                  "R180": "S",
-                  "R270": "E"}
+ORIENT_LOC_MAP = {"R0": "N", "R90": "W", "R180": "S", "R270": "E"}
 
 # TODO: allow control
 VDD_NET_NAME = "VDD"
 GND_NET_NAME = "GND"
 
 # SKY130 DEFAULT
-SPECIAL_NETS = {VDD_NET_NAME:
-                {"core_pin": core_vdd_pin,
-                 "covered": False,
-                 "map": []
-                 },
-                GND_NET_NAME:
-                {"core_pin": core_gnd_pin,
-                 "covered": False,
-                 "map": []
-                 }
-                }
+SPECIAL_NETS = {
+    VDD_NET_NAME: {"core_pin": core_vdd_pin, "covered": False, "map": []},
+    GND_NET_NAME: {"core_pin": core_gnd_pin, "covered": False, "map": []},
+}
 
 if vdd_pad_pin_map is None:
-    vdd_pad_pin_map = [
-        {"pad_pin": "vccd",
-         "pad_name_substr": "vccd"}
-    ]
+    vdd_pad_pin_map = [{"pad_pin": "vccd", "pad_name_substr": "vccd"}]
 else:
-    vdd_pad_pin_map = [{"pad_pin": mapping[0], "pad_name_substr": mapping[1]}
-                       for mapping in vdd_pad_pin_map]
+    vdd_pad_pin_map = [
+        {"pad_pin": mapping[0], "pad_name_substr": mapping[1]}
+        for mapping in vdd_pad_pin_map
+    ]
 
 if gnd_pad_pin_map is None:
     gnd_pad_pin_map = [
-        {"pad_pin": "vssd",
-         "pad_name_substr": "vssd"},
-        {"pad_pin": "vssa",
-         "pad_name_substr": "vssa"},
-        {"pad_pin": "vssio",
-         "pad_name_substr": "vssio"},
+        {"pad_pin": "vssd", "pad_name_substr": "vssd"},
+        {"pad_pin": "vssa", "pad_name_substr": "vssa"},
+        {"pad_pin": "vssio", "pad_name_substr": "vssio"},
     ]
 else:
-    gnd_pad_pin_map = [{"pad_pin": mapping[0], "pad_name_substr": mapping[1]}
-                       for mapping in gnd_pad_pin_map]
+    gnd_pad_pin_map = [
+        {"pad_pin": mapping[0], "pad_name_substr": mapping[1]}
+        for mapping in gnd_pad_pin_map
+    ]
 
 SPECIAL_NETS[VDD_NET_NAME]["map"] = vdd_pad_pin_map
 SPECIAL_NETS[GND_NET_NAME]["map"] = gnd_pad_pin_map
@@ -155,8 +169,8 @@ for rule in via_rules:
     via_params.setYCutSize(cut_rect.dy())
 
     cut_spacing = cut_rules.getSpacing()
-    via_params.setXCutSpacing(cut_spacing[0]-cut_rect.dx())
-    via_params.setYCutSpacing(cut_spacing[1]-cut_rect.dy())
+    via_params.setXCutSpacing(cut_spacing[0] - cut_rect.dx())
+    via_params.setYCutSpacing(cut_spacing[1] - cut_rect.dy())
 
     lower_enclosure = lower_rules.getEnclosure()
     upper_enclosure = upper_rules.getEnclosure()
@@ -168,9 +182,12 @@ for rule in via_rules:
     via_params.setYTopEnclosure(upper_enclosure[1])
 
     custom_vias[lower_layer.getName()] = {}
-    custom_vias[lower_layer.getName()][upper_layer.getName()] = {"rule": rule,
-                                             "params": via_params}
+    custom_vias[lower_layer.getName()][upper_layer.getName()] = {
+        "rule": rule,
+        "params": via_params,
+    }
     print("Added", rule.getName())
+
 
 def create_custom_via(layer1, layer2, width, height, reorient="R0"):
     assert width > 0 and height > 0
@@ -187,9 +204,7 @@ def create_custom_via(layer1, layer2, width, height, reorient="R0"):
     if reorient in ["R90", "R270"]:
         width, height = height, width
 
-
-    via_name = "via_%s_%s_%dx%d" % (lower_layer_name, upper_layer_name,
-                                width, height)
+    via_name = "via_%s_%s_%dx%d" % (lower_layer_name, upper_layer_name, width, height)
 
     custom_via = block_top.findVia(via_name)
     if not custom_via:
@@ -210,24 +225,19 @@ def create_custom_via(layer1, layer2, width, height, reorient="R0"):
         custom_via = odb.dbVia_create(block_top, via_name)
         custom_via.setViaGenerateRule(via_rule)
 
-        array_width = width-2*max(
-            lower_enclosure_x,
-            upper_enclosure_x
-        )
-        array_height = height-2*max(
-            lower_enclosure_y,
-            upper_enclosure_y
-        )
+        array_width = width - 2 * max(lower_enclosure_x, upper_enclosure_x)
+        array_height = height - 2 * max(lower_enclosure_y, upper_enclosure_y)
 
         # set ROWCOL
-        rows = 1 + (array_height-cut_height)//(cut_spacing_y+cut_height)
-        cols = 1 + (array_width-cut_width)//(cut_spacing_x+cut_width)
+        rows = 1 + (array_height - cut_height) // (cut_spacing_y + cut_height)
+        cols = 1 + (array_width - cut_width) // (cut_spacing_x + cut_width)
         via_params.setNumCutRows(rows)
         via_params.setNumCutCols(cols)
 
         custom_via.setViaParams(via_params)
 
     return custom_via
+
 
 def boxes2Rects(boxes, transform):
     rects = []
@@ -238,11 +248,9 @@ def boxes2Rects(boxes, transform):
         transform.apply(ur)
         pin_layer = box.getTechLayer()
 
-        rects.append({"layer":
-                      pin_layer,
-                      "rect": odb.Rect(ll, ur)
-                      })
+        rects.append({"layer": pin_layer, "rect": odb.Rect(ll, ur)})
     return rects
+
 
 def getInstObs(inst):
     master = inst.getMaster()
@@ -258,6 +266,7 @@ def getInstObs(inst):
         rect["type"] = "obstruction"
     return rects
 
+
 def getITermBoxes(iterm):
     iterm_boxes = []
     inst = iterm.getInst()
@@ -269,8 +278,9 @@ def getITermBoxes(iterm):
     transform = odb.dbTransform(orient, odb.Point(px, py))
     mpins = mterm.getMPins()
     if len(mpins) > 1:
-        print("Warning:", len(mpins), "mpins for iterm", inst.getName(),
-              mterm.getName())
+        print(
+            "Warning:", len(mpins), "mpins for iterm", inst.getName(), mterm.getName()
+        )
     for i in range(len(mpins)):
         mpin = mpins[i]
         boxes = mpin.getGeometry()
@@ -281,15 +291,16 @@ def getITermBoxes(iterm):
     iterm_boxes_set = set()
     iterm_boxes_uniq = []
     for box in iterm_boxes:
-        rect = box['rect']
+        rect = box["rect"]
         llx, lly = rect.ll()
         urx, ury = rect.ur()
-        set_item = (box['layer'].getName(), llx, lly, urx, ury)
-        if not set_item in iterm_boxes_set:
+        set_item = (box["layer"].getName(), llx, lly, urx, ury)
+        if set_item not in iterm_boxes_set:
             iterm_boxes_set.add(set_item)
             iterm_boxes_uniq.append(box)
 
     return iterm_boxes_uniq
+
 
 def getBiggestBoxAndIndex(boxes):
     biggest_area = -1
@@ -308,10 +319,12 @@ def getBiggestBoxAndIndex(boxes):
 
 
 def rectOverlaps(rect1, rect2):
-    return not (rect1.xMax() <= rect2.xMin()
-                or rect1.xMin() >= rect2.xMax()
-                or rect1.yMax() <= rect2.yMin()
-                or rect1.yMin() >= rect2.yMax())
+    return not (
+        rect1.xMax() <= rect2.xMin()
+        or rect1.xMin() >= rect2.xMax()
+        or rect1.yMax() <= rect2.yMin()
+        or rect1.yMin() >= rect2.yMax()
+    )
 
 
 def rectMerge(rect1, rect2):
@@ -319,7 +332,7 @@ def rectMerge(rect1, rect2):
         min(rect1.xMin(), rect2.xMin()),
         min(rect1.yMin(), rect2.yMin()),
         max(rect1.xMax(), rect2.xMax()),
-        max(rect1.yMax(), rect2.yMax())
+        max(rect1.yMax(), rect2.yMax()),
     )
 
     return rect
@@ -331,7 +344,7 @@ def getShapesOverlappingBBox(llx, lly, urx, ury, layers=[], ext_orient="R0"):
 
     for box in ALL_BOXES:
         box_layer = box["layer"]
-        ignore_box = (len(layers) != 0)
+        ignore_box = len(layers) != 0
         for layer in layers:
             if equalLayers(layer, box_layer):
                 ignore_box = False
@@ -342,6 +355,7 @@ def getShapesOverlappingBBox(llx, lly, urx, ury, layers=[], ext_orient="R0"):
                 shapes_overlapping.append(box)
 
     return shapes_overlapping
+
 
 def rectIntersection(rect1, rect2):
     rect = odb.Rect()
@@ -355,17 +369,17 @@ def rectIntersection(rect1, rect2):
 
 
 def manhattanDistance(x1, y1, x2, y2):
-    return odb.Point.manhattanDistance(odb.Point(x1, y1),
-                                       odb.Point(x2, y2))
+    return odb.Point.manhattanDistance(odb.Point(x1, y1), odb.Point(x2, y2))
+
 
 def center(x1, y1, x2, y2):
-    return (x1+x2)//2, (y1+y2)//2
+    return (x1 + x2) // 2, (y1 + y2) // 2
 
 
 def gridify(rect):
     x1, y1 = rect.ll()
     x2, y2 = rect.ur()
-    if (x2-x1) % 2 != 0:
+    if (x2 - x1) % 2 != 0:
         x1 += 5  # 0.005 microns !
     return odb.Rect(x1, y1, x2, y2)
 
@@ -373,17 +387,18 @@ def gridify(rect):
 def forward(point, orient, distance):
     x, y = point.x(), point.y()
     if orient == "R0":
-        point_forward = odb.Point(x, y-distance)
+        point_forward = odb.Point(x, y - distance)
     elif orient == "R90":
-        point_forward = odb.Point(x+distance, y)
+        point_forward = odb.Point(x + distance, y)
     elif orient == "R180":
-        point_forward = odb.Point(x, y+distance)
+        point_forward = odb.Point(x, y + distance)
     elif orient == "R270":
-        point_forward = odb.Point(x-distance, y)
+        point_forward = odb.Point(x - distance, y)
     else:
         print("Unknown orientation")
         sys.exit(1)
     return point_forward
+
 
 def transformRect(rect, orient):
     transform = odb.dbTransform(orient)
@@ -414,6 +429,7 @@ def isPadPin(box):
 def isHighestRoutingLayer(layer):
     return layer.getRoutingLevel() == tech.getRoutingLayerCount()
 
+
 def isLowestRoutingLayer(layer):
     return layer.getRoutingLevel() == 1
 
@@ -427,7 +443,9 @@ def getUpperRoutingLayer(layer):
         raise Exception("Attempting to get upper routing layer of a non-routing layer")
 
     if isHighestRoutingLayer(layer):
-        raise Exception("Attempting to get upper routing layer of the highest routing layer")
+        raise Exception(
+            "Attempting to get upper routing layer of the highest routing layer"
+        )
 
     return layer.getUpperLayer().getUpperLayer()
 
@@ -437,7 +455,9 @@ def getLowerRoutingLayer(layer):
         raise Exception("Attempting to get lower routing layer of a non-routing layer")
 
     if isLowestRoutingLayer(layer):
-        raise Exception("Attempting to get lower routing layer of the lowest routing layer")
+        raise Exception(
+            "Attempting to get lower routing layer of the lowest routing layer"
+        )
 
     return layer.getLowerLayer().getLowerLayer()
 
@@ -471,11 +491,10 @@ def createWireBox(rect_width, rect_height, rect_x, rect_y, layer, net, reorient=
     rect.moveTo(rect_x, rect_y)
     rect = transformRect(rect, reorient)
 
-    box = {"rect": rect,
-           "layer": layer,
-           "net": net}
+    box = {"rect": rect, "layer": layer, "net": net}
 
     return box
+
 
 def getTechMaxSpacing(layers=tech.getLayers()):
     max_spacing = -1
@@ -483,6 +502,7 @@ def getTechMaxSpacing(layers=tech.getLayers()):
         max_spacing = max(max_spacing, layer.getSpacing())
     # print("Max spacing for", layers, "is", max_spacing)
     return max_spacing
+
 
 print("Top-level design name:", top_design_name)
 
@@ -515,8 +535,7 @@ for inst in block_top.getInsts():
                 pad_pin = mapping["pad_pin"]
                 pad_name_substr = mapping["pad_name_substr"]
 
-                if pin_name == pad_pin\
-                        and pad_name_substr in master_name:  # pad pin
+                if pin_name == pad_pin and pad_name_substr in master_name:  # pad pin
                     matched_special_net_name = special_net_name
                     print(inst.getName(), "connected to", net.getName())
                     # iterm.connect(net)
@@ -530,9 +549,15 @@ for inst in block_top.getInsts():
                         box["type"] = "pad_pin"
                         box["orient"] = pad_orient
                     ALL_BOXES += iterm_boxes
-                elif pin_name == core_pin:               # macro ring
+                elif pin_name == core_pin:  # macro ring
                     matched_special_net_name = special_net_name
-                    print(inst.getName(), "will be connected to", master_name, "/", pin_name)
+                    print(
+                        inst.getName(),
+                        "will be connected to",
+                        master_name,
+                        "/",
+                        pin_name,
+                    )
                     # iterm.connect(net)
                     # iterm.setSpecial()
 
@@ -545,7 +570,9 @@ for inst in block_top.getInsts():
                     h_stripes = []
                     v_stripes = []
                     for i in range(4):  # ASSUMPTION: 4 CORE RING-STRIPES
-                        biggest_pin_box, biggest_pin_box_i = getBiggestBoxAndIndex(iterm_boxes)
+                        biggest_pin_box, biggest_pin_box_i = getBiggestBoxAndIndex(
+                            iterm_boxes
+                        )
                         if biggest_pin_box is None:
                             continue
 
@@ -570,8 +597,10 @@ for inst in block_top.getInsts():
                             h_stripes[1]["side"] = "S"
                     elif len(h_stripes) == 1:
                         print("Warning: only one horizontal stripe found for", core_pin)
-                        if  block_top.getBBox().yMax() - h_stripes[0]["rect"].yMin()\
-                                > block_top.getBBox().yMin() - h_stripes[0]["rect"].yMin():
+                        if (
+                            block_top.getBBox().yMax() - h_stripes[0]["rect"].yMin()
+                            > block_top.getBBox().yMin() - h_stripes[0]["rect"].yMin()
+                        ):
                             h_stripes[0]["side"] = "S"
                         else:
                             h_stripes[0]["side"] = "N"
@@ -587,8 +616,10 @@ for inst in block_top.getInsts():
                             v_stripes[1]["side"] = "W"
                     elif len(v_stripes) == 1:
                         print("Warning: only one vertical stripe found for", core_pin)
-                        if  block_top.getBBox().xMax() - v_stripes[0]["rect"].xMin()\
-                                > block_top.getBBox().xMin() - v_stripes[0]["rect"].xMin():
+                        if (
+                            block_top.getBBox().xMax() - v_stripes[0]["rect"].xMin()
+                            > block_top.getBBox().xMin() - v_stripes[0]["rect"].xMin()
+                        ):
                             v_stripes[0]["side"] = "W"
                         else:
                             v_stripes[0]["side"] = "E"
@@ -596,7 +627,9 @@ for inst in block_top.getInsts():
                         print("Warning: No vertical stripes in the design!")
 
                     ALL_BOXES += iterm_boxes + v_stripes + h_stripes
-        if matched_special_net_name is None:  # other pins are obstructions for our purposes
+        if (
+            matched_special_net_name is None
+        ):  # other pins are obstructions for our purposes
             new_obstructions = getITermBoxes(iterm)
             for obs in new_obstructions:
                 obs["type"] = "obstruction"
@@ -626,18 +659,25 @@ for box in PAD_PINS:
 
     nearest_stripe_box = None
     for stripe in CORE_STRIPES:
-        if box["net"] == stripe["net"] and \
-                stripe["side"] == ORIENT_LOC_MAP[pad_pin_orient]:
+        if (
+            box["net"] == stripe["net"]
+            and stripe["side"] == ORIENT_LOC_MAP[pad_pin_orient]
+        ):
             nearest_stripe_box = stripe
 
     if nearest_stripe_box is None:
-        print("Pad pin at", box["rect"].ll(), box["rect"].ur(), "doesn't have a facing stripe. Skipping.")
+        print(
+            "Pad pin at",
+            box["rect"].ll(),
+            box["rect"].ur(),
+            "doesn't have a facing stripe. Skipping.",
+        )
         continue
 
     stripe_rect = nearest_stripe_box["rect"]
 
     # TRANSFORM TO R0 ORIENTATION
-    pad_pin_orient_inv = "R" + str((360-int(pad_pin_orient[1:])) % 360)
+    pad_pin_orient_inv = "R" + str((360 - int(pad_pin_orient[1:])) % 360)
     assert pad_pin_orient_inv in ORIENT_LOC_MAP
 
     pad_pin_rect = transformRect(pad_pin_rect, pad_pin_orient_inv)
@@ -645,9 +685,9 @@ for box in PAD_PINS:
 
     pad_pin_width = pad_pin_rect.dx()
 
-    projection_x_min, projection_x_max = \
-        max(pad_pin_rect.xMin(), stripe_rect.xMin()), \
-        min(stripe_rect.xMax(), pad_pin_rect.xMax())
+    projection_x_min, projection_x_max = max(
+        pad_pin_rect.xMin(), stripe_rect.xMin()
+    ), min(stripe_rect.xMax(), pad_pin_rect.xMax())
 
     MIN_WIDTH = 5000
     if projection_x_max - projection_x_min < MIN_WIDTH:
@@ -668,21 +708,27 @@ for box in PAD_PINS:
     print("Connecting with", connecting_layer.getName(), "to", to_layer.getName())
 
     wire_rect = odb.Rect(
-        projection_x_min, pad_pin_rect.yMin(),
-        projection_x_max, stripe_rect.yMin())
+        projection_x_min, pad_pin_rect.yMin(), projection_x_max, stripe_rect.yMin()
+    )
 
     # adjust width
-    MAX_SPACING = getTechMaxSpacing((set(layersBetween(from_layer, connecting_layer)).union(
-        layersBetween(connecting_layer, to_layer)
-    )))
-    # note that the box is move away from the pad to evade interactions with 
+    MAX_SPACING = getTechMaxSpacing(
+        (
+            set(layersBetween(from_layer, connecting_layer)).union(
+                layersBetween(connecting_layer, to_layer)
+            )
+        )
+    )
+    # note that the box is move away from the pad to evade interactions with
     # nearby pads
-    overlapping_boxes = getShapesOverlappingBBox(wire_rect.xMin()-MAX_SPACING,
-                                                 wire_rect.yMin(),
-                                                 wire_rect.xMax()+MAX_SPACING,
-                                                 wire_rect.yMax()-MAX_SPACING,
-                                                 ext_orient=pad_pin_orient_inv,
-                                                 layers=list(set(layersBetween(connecting_layer, to_layer)) - set([to_layer])))
+    overlapping_boxes = getShapesOverlappingBBox(
+        wire_rect.xMin() - MAX_SPACING,
+        wire_rect.yMin(),
+        wire_rect.xMax() + MAX_SPACING,
+        wire_rect.yMax() - MAX_SPACING,
+        ext_orient=pad_pin_orient_inv,
+        layers=list(set(layersBetween(connecting_layer, to_layer)) - set([to_layer])),
+    )
 
     # find the new possible wire_rect width after subtracting the obstructions
     skip = False
@@ -692,14 +738,21 @@ for box in PAD_PINS:
         # if it is completely contained in an obstruction
 
         if obs_rect.xMin() <= wire_rect.xMin() < wire_rect.xMax() <= obs_rect.xMax():
-            skip=True
+            skip = True
             break
 
-
-        if wire_rect.xMin()-MAX_SPACING <= obs_rect.xMin() <= wire_rect.xMax()+MAX_SPACING:
+        if (
+            wire_rect.xMin() - MAX_SPACING
+            <= obs_rect.xMin()
+            <= wire_rect.xMax() + MAX_SPACING
+        ):
             obs_boundaries.append(obs_rect.xMin())
 
-        if wire_rect.xMin()-MAX_SPACING <= obs_rect.xMax() <= wire_rect.xMax()+MAX_SPACING:
+        if (
+            wire_rect.xMin() - MAX_SPACING
+            <= obs_rect.xMax()
+            <= wire_rect.xMax() + MAX_SPACING
+        ):
             obs_boundaries.append(obs_rect.xMax())
 
     obs_boundaries.sort()
@@ -709,16 +762,19 @@ for box in PAD_PINS:
         obs_max_x = obs_boundaries[-1]
 
         print("Adjusting", wire_rect.ll(), wire_rect.ur())
-        print(obs_max_x-obs_min_x)
+        print(obs_max_x - obs_min_x)
         print(obs_min_x, obs_max_x)
-        if obs_min_x - (wire_rect.xMin()-MAX_SPACING) > (wire_rect.xMax()+MAX_SPACING) - obs_max_x:
-            wire_rect.set_xhi(obs_min_x-MAX_SPACING)
+        if (
+            obs_min_x - (wire_rect.xMin() - MAX_SPACING)
+            > (wire_rect.xMax() + MAX_SPACING) - obs_max_x
+        ):
+            wire_rect.set_xhi(obs_min_x - MAX_SPACING)
         else:
-            wire_rect.set_xlo(obs_max_x+MAX_SPACING)
+            wire_rect.set_xlo(obs_max_x + MAX_SPACING)
         print("To", wire_rect.ll(), wire_rect.ur())
 
     # leave some space for routing
-    from_layer_space = 2*from_layer.getSpacing() + from_layer.getWidth()
+    from_layer_space = 2 * from_layer.getSpacing() + from_layer.getWidth()
     wire_width = wire_rect.dx() - from_layer_space
     wire_x = wire_rect.xMin() + from_layer_space
     wire_y = wire_rect.yMax()
@@ -729,66 +785,101 @@ for box in PAD_PINS:
     if skip:
         continue
 
-
     basic_rect = rectIntersection(wire_rect, stripe_rect)
 
     # 1. extend outside by half of the size of the "basic rectangle"
-    wire_y -= basic_rect.dy()//2
-    wire_boxes.append(createWireBox(wire_width, basic_rect.dy()//2,
-                                    wire_x, wire_y,
-                                    from_layer, box["net"],
-                                    reorient=pad_pin_orient)
-                      )
+    wire_y -= basic_rect.dy() // 2
+    wire_boxes.append(
+        createWireBox(
+            wire_width,
+            basic_rect.dy() // 2,
+            wire_x,
+            wire_y,
+            from_layer,
+            box["net"],
+            reorient=pad_pin_orient,
+        )
+    )
 
     # 2. vias up till the connecting_layer on the next basic rect
     wire_y -= basic_rect.dy()
     prev_layer = None
     for layer in layersBetween(from_layer, connecting_layer):
         if prev_layer is not None:
-            via = create_custom_via(prev_layer, layer,
-                                    wire_width, basic_rect.dy(),
-                                    reorient=pad_pin_orient)
+            via = create_custom_via(
+                prev_layer, layer, wire_width, basic_rect.dy(), reorient=pad_pin_orient
+            )
 
-            wire_boxes.append(createWireBox(wire_width, basic_rect.dy(),
-                                            wire_x, wire_y,
-                                            via, box["net"],
-                                            reorient=pad_pin_orient)
-                              )
+            wire_boxes.append(
+                createWireBox(
+                    wire_width,
+                    basic_rect.dy(),
+                    wire_x,
+                    wire_y,
+                    via,
+                    box["net"],
+                    reorient=pad_pin_orient,
+                )
+            )
 
-        wire_boxes.append(createWireBox(wire_width, basic_rect.dy(),
-                                        wire_x, wire_y,
-                                        layer, box["net"],
-                                        reorient=pad_pin_orient)
-                          )
+        wire_boxes.append(
+            createWireBox(
+                wire_width,
+                basic_rect.dy(),
+                wire_x,
+                wire_y,
+                layer,
+                box["net"],
+                reorient=pad_pin_orient,
+            )
+        )
         prev_layer = layer
 
     # 3. use the connecting layer to connect to the stripe
     wire_height = wire_y - wire_rect.yMin()
     wire_y = wire_rect.yMin()
-    wire_boxes.append(createWireBox(wire_width, wire_height,
-                                    wire_x, wire_y,
-                                    connecting_layer, box["net"],
-                                    reorient=pad_pin_orient)
-                      )
+    wire_boxes.append(
+        createWireBox(
+            wire_width,
+            wire_height,
+            wire_x,
+            wire_y,
+            connecting_layer,
+            box["net"],
+            reorient=pad_pin_orient,
+        )
+    )
 
     # 4. vias down from the connecting_layer to the to_layer (stripe layer)
     prev_layer = None
     for layer in layersBetween(connecting_layer, to_layer):
         if prev_layer is not None:
-            via = create_custom_via(prev_layer, layer,
-                                    wire_width, basic_rect.dy(),
-                                    reorient=pad_pin_orient)
+            via = create_custom_via(
+                prev_layer, layer, wire_width, basic_rect.dy(), reorient=pad_pin_orient
+            )
 
-            wire_boxes.append(createWireBox(wire_width, basic_rect.dy(),
-                                            wire_x, wire_y,
-                                            via, box["net"],
-                                            reorient=pad_pin_orient)
-                              )
-        wire_boxes.append(createWireBox(wire_width, basic_rect.dy(),
-                                        wire_x, wire_y,
-                                        layer, box["net"],
-                                        reorient=pad_pin_orient)
-                          )
+            wire_boxes.append(
+                createWireBox(
+                    wire_width,
+                    basic_rect.dy(),
+                    wire_x,
+                    wire_y,
+                    via,
+                    box["net"],
+                    reorient=pad_pin_orient,
+                )
+            )
+        wire_boxes.append(
+            createWireBox(
+                wire_width,
+                basic_rect.dy(),
+                wire_x,
+                wire_y,
+                layer,
+                box["net"],
+                reorient=pad_pin_orient,
+            )
+        )
         prev_layer = layer
     connections_count += 1
 
@@ -799,19 +890,28 @@ for box in wire_boxes:
     print(net_name, ": drawing a special wire on layer", box["layer"].getName())
     rect = gridify(box["rect"])
     if isRoutingLayer(box["layer"]):
-        odb.dbSBox_create(SPECIAL_NETS[net_name]["wire"],
-                          box["layer"],
-                          *rect.ll(), *rect.ur(),
-                          "COREWIRE", odb.dbSBox.UNDEFINED)
+        odb.dbSBox_create(
+            SPECIAL_NETS[net_name]["wire"],
+            box["layer"],
+            *rect.ll(),
+            *rect.ur(),
+            "COREWIRE",
+            odb.dbSBox.UNDEFINED
+        )
     else:
-        odb.dbSBox_create(SPECIAL_NETS[net_name]["wire"],
-                          box["layer"],
-                          (rect.xMin()+rect.xMax())//2, (rect.yMin()+rect.yMax())//2,
-                          "COREWIRE")
+        odb.dbSBox_create(
+            SPECIAL_NETS[net_name]["wire"],
+            box["layer"],
+            (rect.xMin() + rect.xMax()) // 2,
+            (rect.yMin() + rect.yMax()) // 2,
+            "COREWIRE",
+        )
 
     SPECIAL_NETS[net_name]["covered"] = True
 
-uncovered_nets = [net_name for net_name in SPECIAL_NETS if not SPECIAL_NETS[net_name]["covered"]]
+uncovered_nets = [
+    net_name for net_name in SPECIAL_NETS if not SPECIAL_NETS[net_name]["covered"]
+]
 if len(uncovered_nets) > 0:
     print("No routes created on the following nets:")
     print(uncovered_nets)
@@ -819,12 +919,9 @@ if len(uncovered_nets) > 0:
     sys.exit(1)
 
 
-
-
-
 # OUTPUT
 odb.write_def(block_top, output_def_file_name)
 
-odb.write_lef(odb.dbLib_getLib(db_top, 1), output_def_file_name+".lef")
+odb.write_lef(odb.dbLib_getLib(db_top, 1), output_def_file_name + ".lef")
 
 print("Done")

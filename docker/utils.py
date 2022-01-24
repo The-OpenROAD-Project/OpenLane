@@ -22,55 +22,63 @@ import tempfile
 import subprocess
 import urllib.parse
 
+
 @click.group()
 def cli():
     pass
 
-@click.command("pull-if-doesnt-exist")
+
+@click.command()
 @click.option("-r", "--repository", required=True)
-@click.option("-o", "--os", "operating_system", required=True, type=click.Choice(['centos-7']))
+@click.option(
+    "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
+)
 @click.argument("tool")
 def pull_if_doesnt_exist(repository, operating_system, tool):
-    image_tag = subprocess.check_output([
-        "python3",
-        "../dependencies/tool.py",
-        f"--docker-tag-for-os={operating_system}",
-        tool
-    ]).decode("utf8").rstrip()
+    image_tag = (
+        subprocess.check_output(
+            [
+                "python3",
+                "../dependencies/tool.py",
+                f"--docker-tag-for-os={operating_system}",
+                tool,
+            ]
+        )
+        .decode("utf8")
+        .rstrip()
+    )
     image = f"{repository}:{image_tag}"
-    images = subprocess.check_output([
-        "docker",
-        "images",
-        image
-    ]).decode("utf8").rstrip().split("\n")[1:]
+    images = (
+        subprocess.check_output(["docker", "images", image])
+        .decode("utf8")
+        .rstrip()
+        .split("\n")[1:]
+    )
     if len(images) < 1:
         print(f"{image} not found, pulling...")
         try:
-            subprocess.check_call([
-                "docker",
-                "pull",
-                image
-            ])
+            subprocess.check_call(["docker", "pull", image])
             print(f"Pulled {image}.")
         except Exception as e:
             if os.getenv("BUILD_IF_CANT_PULL") == "1":
                 print(f"{image} not found in the repository, building...")
-                subprocess.check_call([
-                    "make", f"build-{tool}"
-                ])
+                subprocess.check_call(["make", f"build-{tool}"])
                 print(f"Built {image}.")
                 if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
                     print(f"Pushing {image} to the container repository...")
-                    subprocess.check_call([
-                        "docker", "push", image
-                    ])
+                    subprocess.check_call(["docker", "push", image])
                     print(f"Pushed {image}.")
             else:
                 raise e
+
+
 cli.add_command(pull_if_doesnt_exist)
 
-@click.command("fetch-submodules-from-tarballs")
-@click.option("--filter", default=".", help="regular expression to match submodule paths")
+
+@click.command()
+@click.option(
+    "--filter", default=".", help="regular expression to match submodule paths"
+)
 @click.argument("repository")
 @click.argument("commit")
 def fetch_submodules_from_tarballs(filter, repository, commit):
@@ -92,34 +100,39 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
     api_result = None
 
     try:
-        api_result = subprocess.check_output([
-            "curl",
-            "--fail",
-            "-s",
-            "-L",
-            "-H", "Accept: application/vnd.github.v3+json",
-            f"https://api.github.com/repos{repository_path_info.path}/git/trees/{commit}?recursive=True"
-        ])
+        api_result = subprocess.check_output(
+            [
+                "curl",
+                "--fail",
+                "-s",
+                "-L",
+                "-H",
+                "Accept: application/vnd.github.v3+json",
+                f"https://api.github.com/repos{repository_path_info.path}/git/trees/{commit}?recursive=True",
+            ]
+        )
     except Exception as e:
         print(e, file=sys.stderr)
         sys.exit(os.EX_DATAERR)
 
     api_result_parsed = json.loads(api_result)
     api_result_tree = api_result_parsed["tree"]
-    submodules = [element for element in api_result_tree if element['type'] == 'commit']
-    shas_by_path = { submodule['path']: submodule['sha'] for submodule in submodules }
+    submodules = [element for element in api_result_tree if element["type"] == "commit"]
+    shas_by_path = {submodule["path"]: submodule["sha"] for submodule in submodules}
 
     # 2. Get Submodule Manifest
     api_result = None
 
     try:
-        api_result = subprocess.check_output([
-            "curl",
-            "--fail",
-            "-s",
-            "-L",
-            f"https://raw.githubusercontent.com/{repository_path_info.path}/{commit}/.gitmodules"
-        ])
+        api_result = subprocess.check_output(
+            [
+                "curl",
+                "--fail",
+                "-s",
+                "-L",
+                f"https://raw.githubusercontent.com/{repository_path_info.path}/{commit}/.gitmodules",
+            ]
+        )
     except Exception as e:
         print(e, file=sys.stderr)
         sys.exit(os.EX_DATAERR)
@@ -130,14 +143,14 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
     key_value_line_rx = re.compile(r"(\w+)\s*=\s*(.+)")
 
     submodules_by_name = {}
-    current = {} # First one is discarded
+    current = {}  # First one is discarded
     for line in gitmodules.split("\n"):
         section_match = section_line_rx.search(line)
         if section_match is not None:
             name = section_match[1]
             submodules_by_name[name] = {}
             current = submodules_by_name[name]
-        
+
         kvl_match = key_value_line_rx.search(line)
         if kvl_match is not None:
             key, value = kvl_match[1], kvl_match[2]
@@ -169,19 +182,19 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
         url = os.path.join(url, "tarball", commit)
 
         print(f"Downloading {url} to {path}...", file=sys.stderr)
-        subprocess.check_call([
-            "curl", "-sL", "-o", tarball, url        
-        ])
+        subprocess.check_call(["curl", "-sL", "-o", tarball, url])
 
         shutil.rmtree(path, ignore_errors=True)
-        
+
         pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-        
-        subprocess.check_call([
-            "tar", "-xzf", tarball, "--strip-components=1", "-C", path
-        ])
+
+        subprocess.check_call(
+            ["tar", "-xzf", tarball, "--strip-components=1", "-C", path]
+        )
+
+
 cli.add_command(fetch_submodules_from_tarballs)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

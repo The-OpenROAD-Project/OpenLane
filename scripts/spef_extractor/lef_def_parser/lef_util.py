@@ -1,17 +1,17 @@
 # MIT License
-# 
+#
 # Copyright (c) 2020 Tri Minh Cao
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -27,6 +27,7 @@ Email: tricao@utdallas.edu
 Date: August 2016
 """
 from .util import *
+
 
 class Statement:
     """
@@ -49,7 +50,7 @@ class Statement:
             name = data[1]
             new_state = Macro(name)
             return new_state
-        elif data[0] == "LAYER" and len(data) == 2: # does not have ;
+        elif data[0] == "LAYER" and len(data) == 2:  # does not have ;
             name = data[1]
             new_state = Layer(name)
             return new_state
@@ -82,7 +83,7 @@ class Macro(Statement):
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
-        self.type = 'MACRO'
+        self.type = "MACRO"
         self.name = name
         # other info is stored in this dictionary
         self.info = {}
@@ -240,8 +241,6 @@ class Port(Statement):
         return highest
 
 
-
-
 class Obs(Statement):
     """
     Class Obs represents an OBS statement in the LEF file.
@@ -272,7 +271,7 @@ class Obs(Statement):
                 self.info["LAYER"] = [new_layerdef]
         elif data[0] == "RECT":
             # error if the self.info["LAYER"] does not exist
-            self.info["LAYER"][-1].add_rect(data) # [-1] means the latest layer
+            self.info["LAYER"][-1].add_rect(data)  # [-1] means the latest layer
         elif data[0] == "POLYGON":
             self.info["LAYER"][-1].add_polygon(data)
         return 0
@@ -306,7 +305,7 @@ class LayerDef:
         # add each pair of (x, y) points to a list
         for idx in range(1, len(data) - 2, 2):
             x_cor = float(data[idx])
-            y_cor = float(data[idx+1])
+            y_cor = float(data[idx + 1])
             points.append([x_cor, y_cor])
         polygon = Polygon(points)
         self.shapes.append(polygon)
@@ -327,6 +326,7 @@ class Polygon:
     """
     Class Polygon represents a Polygon definition in a LayerDef
     """
+
     def __init__(self, points):
         self.type = "POLYGON"
         self.points = points
@@ -336,6 +336,7 @@ class Layer(Statement):
     """
     Layer class represents a LAYER section in LEF file.
     """
+
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
@@ -356,7 +357,7 @@ class Layer(Statement):
         self.property = None
         # I added this spacingTable = 0 to indicate that the spacingTable
         # has not started yet.
-        self.spacingTable = 0;
+        self.spacingTable = 0
 
     def parse_next(self, data):
         """
@@ -367,7 +368,7 @@ class Layer(Statement):
         otherwise, return the object that will be parsed next.
         """
         if data[0] == "TYPE":
-            
+
             self.layer_type = data[1]
         elif data[0] == "SPACINGTABLE":
             self.spacingTable = 1
@@ -375,19 +376,19 @@ class Layer(Statement):
         elif data[0] == "SPACING":
             self.spacing = float(data[1])
         elif data[0] == "WIDTH":
-            
+
             # I manually added this spacingTable variable to ignore the width if it comes after SPACINGTABLE section
             # this is done because earlier, it used overwrite the old resistence
-            if(self.spacingTable == 0):
+            if self.spacingTable == 0:
                 self.width = float(data[1])
         elif data[0] == "PITCH":
             self.pitch = float(data[1])
         elif data[0] == "DIRECTION":
-            
+
             self.direction = data[1]
         elif data[0] == "OFFSET":
-            self.offset = (float(data[1]))
-            #self.offset = (float(data[1]), float(data[2]))
+            self.offset = float(data[1])
+            # self.offset = (float(data[1]), float(data[2]))
         elif data[0] == "RESISTANCE":
             if self.layer_type == "ROUTING":
                 self.resistance = (data[1], float(data[2]))
@@ -405,17 +406,19 @@ class Layer(Statement):
             if data[1] != "LEF58_TYPE":
                 self.property = (data[1], float(data[2]))
         elif data[0] == "END":
-            
+
             if data[1] == self.name:
                 return 1
             else:
                 return -1
         return 0
 
+
 class Via(Statement):
     """
     Via class represents a VIA section in LEF file.
     """
+
     def __init__(self, name):
         # initiate the Statement superclass
         Statement.__init__(self)
@@ -431,7 +434,7 @@ class Via(Statement):
             new_layerdef = LayerDef(data[1])
             self.layers.append(new_layerdef)
         elif data[0] == "RECT":
-            self.layers[-1].add_rect(data) # [-1] means the latest layer
+            self.layers[-1].add_rect(data)  # [-1] means the latest layer
         elif data[0] == "POLYGON":
             self.layers.add_polygon(data)
         return 0

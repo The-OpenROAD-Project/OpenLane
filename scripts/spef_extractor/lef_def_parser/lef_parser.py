@@ -1,17 +1,17 @@
 # MIT License
-# 
+#
 # Copyright (c) 2020 Tri Minh Cao
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,11 +31,13 @@ from .util import *
 
 SCALE = 2000
 
+
 class LefParser:
     """
     LefParser object will parse the LEF file and store information about the
     cell library.
     """
+
     def __init__(self, lef_file):
         self.lef_path = lef_file
         # dictionaries to map the definitions
@@ -61,7 +63,7 @@ class LefParser:
     def parse(self):
         # Now try using my data structure to parse
         # open the file and start reading
-        print ("Start parsing LEF file...")
+        print("Start parsing LEF file...")
         f = open(self.lef_path, "r")
         # the program will run until the end of file f
         for line in f:
@@ -69,7 +71,7 @@ class LefParser:
             if len(info) != 0:
                 # if info is a blank line, then move to next line
                 # check if the program is processing a statement
-                #print (info)
+                # print (info)
                 if len(self.stack) != 0:
                     curState = self.stack[len(self.stack) - 1]
                     nextState = curState.parse_next(info)
@@ -103,7 +105,7 @@ class LefParser:
         f.close()
         # get the cell height of the library
         self.get_cell_height()
-        print ("Parsing LEF file done.")
+        print("Parsing LEF file done.")
 
 
 """

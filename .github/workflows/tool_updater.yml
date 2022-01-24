@@ -2,11 +2,11 @@ name: Tool Updater
 
 # To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
-    # Runs every day at midnight UTC
-    schedule:
-      - cron:  '0 0 * * *'
-    # Manual Dispatch
-    workflow_dispatch:
+  # Runs every day at midnight UTC
+  schedule:
+    - cron: "0 0 * * *"
+  # Manual Dispatch
+  workflow_dispatch:
 
 jobs:
   create-cid-tools-branches:
@@ -45,7 +45,7 @@ jobs:
           body: |
             This is an automated PR.
 
-            See the individual commits for details.   
+            See the individual commits for details.
           commit-message: |
             [BOT] Update ${{ env.TOOL }}
 
@@ -83,7 +83,7 @@ jobs:
           body: |
             This is an automated PR.
 
-            See the individual commits for details.      
+            See the individual commits for details.
           commit-message: |
             [BOT] Update PDK
 

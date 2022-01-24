@@ -1,17 +1,17 @@
 # MIT License
-# 
+#
 # Copyright (c) 2020 Tri Minh Cao
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -58,13 +58,13 @@ class DefParser:
         self.scale = None
         # add support for custom VIAS
         self.vias = []
-        
+
     def parse(self):
         """
         Main method to parse the DEF file
         :return: void
         """
-        print ("Start parsing DEF file...")
+        print("Start parsing DEF file...")
         # open the file and start reading
         f = open(self.file_path, "r+")
         # the program will run until the end of file f
@@ -75,10 +75,10 @@ class DefParser:
                 # split each sub-string by space
                 info = split_space(each_part)
                 if len(info) > 0:
-                    #print info
-                    if(info[0] == "VIAS"):
+                    # print info
+                    if info[0] == "VIAS":
                         handleVias(self.vias, f)
-                    
+
                     if info[0] == "PINS":
                         new_pins = Pins(int(info[1]))
                         self.stack.append(new_pins)
@@ -151,7 +151,7 @@ class DefParser:
                 self.pins = sec
             elif sec.type == "NETS_DEF":
                 self.nets = sec
-        print ("Parsing DEF file done.\n")
+        print("Parsing DEF file done.\n")
 
     def to_def_format(self):
         s = ""
@@ -166,10 +166,15 @@ class DefParser:
         s += props.to_def_format()
         s += "\n"
         s += "DIEAREA"
-        s += (" ( " + str(self.diearea[0][0]) + " " + str(self.diearea[0][1]) +
-             " )")
-        s += (" ( " + str(self.diearea[1][0]) + " " + str(self.diearea[1][1]) +
-             " )" + " ;")
+        s += " ( " + str(self.diearea[0][0]) + " " + str(self.diearea[0][1]) + " )"
+        s += (
+            " ( "
+            + str(self.diearea[1][0])
+            + " "
+            + str(self.diearea[1][1])
+            + " )"
+            + " ;"
+        )
         s += "\n\n"
         for each_row in self.rows:
             s += each_row.to_def_format()
@@ -209,18 +214,17 @@ class DefParser:
         f.close()
 
 
-
 def handleVias(vias, f):
-    
+
     viasData = []
     line = next(f)
-    
-    while(line.strip().lower() != 'end vias'):
+
+    while line.strip().lower() != "end vias":
         vias.append(line)
         line = next(f)
 
-# Main Class
-#if __name__ == '__main__':
+    # Main Class
+    # if __name__ == '__main__':
     # read_path = "./libraries/DEF/c880_tri.def"
     """read_path = "./libraries/DEF/c1908.def"
     def_parser = DefParser(read_path)
@@ -232,7 +236,7 @@ def handleVias(vias, f):
     for net in def_parser.nets:
          print (net)
 """
-    #print (def_parser.to_def_format())
+    # print (def_parser.to_def_format())
 
     # test macro and via (note: only via1)
     # macro_dict = macro_and_via1(def_parser)
@@ -241,7 +245,3 @@ def handleVias(vias, f):
     #     for pin in macro_dict[comp]:
     #         print ("    " + pin + ": " + str(macro_dict[comp][pin]))
     #     print ()
-
-
-
-
