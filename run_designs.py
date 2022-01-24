@@ -194,7 +194,8 @@ def cli(config_tag, regression, tag, threads, configuration_parameters, excluded
                 "-tag", tag,
                 "-config_tag", config,
                 "-overwrite",
-                "-no_save"
+                "-no_save",
+                "-run_hooks"
             ] + ([] if show_log_output else ["-disable_output"])
             skip_rm_from_rems = False
             try:
