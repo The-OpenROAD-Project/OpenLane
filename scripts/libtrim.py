@@ -22,8 +22,8 @@ import click
 @click.command()
 @click.option("-c", "--cell-file", required=True, help="Cell file")
 @click.option("-o", "--output", required=True, help="Output liberty file")
-@click.argument("input_lib_files", nargs=-1)
-def cli(cell_file, output, input_lib_files):
+@click.argument("input_lib")
+def cli(cell_file, output, input_lib):
     excluded_cells = list(
         map(lambda x: x.strip(), open(cell_file).read().strip().split("\n"))
     )
@@ -37,33 +37,32 @@ def cli(cell_file, output, input_lib_files):
 
     state = 0
     brace_count = 0
-    for file in input_lib_files:
-        input_lib_str = open(file).read()
-        input_lib_lines = input_lib_str.split("\n")
-        for line in input_lib_lines:
-            if state == 0:
-                cell_m = cell_start_rx.search(line)
-                if cell_m is not None:
-                    whitespace = cell_m[1]
-                    cell_name = cell_m[2]
-                    if cell_name in excluded_cells:
-                        state = 2
-                        write(f"{whitespace}/* removed {cell_name} */")
-                    else:
-                        state = 1
-                        write(line)
-                    brace_count = 1
+    input_lib_str = open(input_lib).read()
+    input_lib_lines = input_lib_str.split("\n")
+    for line in input_lib_lines:
+        if state == 0:
+            cell_m = cell_start_rx.search(line)
+            if cell_m is not None:
+                whitespace = cell_m[1]
+                cell_name = cell_m[2]
+                if cell_name in excluded_cells:
+                    state = 2
+                    write(f"{whitespace}/* removed {cell_name} */")
                 else:
+                    state = 1
                     write(line)
-            elif state in [1, 2]:
-                if "{" in line:
-                    brace_count += 1
-                if "}" in line:
-                    brace_count -= 1
-                if state == 1:
-                    write(line)
-                if brace_count == 0:
-                    state = 0
+                brace_count = 1
+            else:
+                write(line)
+        elif state in [1, 2]:
+            if "{" in line:
+                brace_count += 1
+            if "}" in line:
+                brace_count -= 1
+            if state == 1:
+                write(line)
+            if brace_count == 0:
+                state = 0
 
     output_file_handle.close()
 
