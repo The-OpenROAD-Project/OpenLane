@@ -21,9 +21,11 @@ import subprocess
 
 
 @click.command()
-@click.option("-t", "--def-template", "templateDEF", required=True, help="Template DEF")
-@click.argument("userDEF")
-def cli(templateDEF, userDEF):
+@click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
+@click.argument("userdef")
+def cli(templatedef, userdef):
+    userDEF = userdef
+    templateDEF = templatedef
     scriptsDir = os.path.dirname(__file__)
 
     def remove_power_pins(DEF):
@@ -53,25 +55,21 @@ def cli(templateDEF, userDEF):
     templateDEF = f"{userDEF}.template.tmp"
     remove_power_pins(templateDEF)
 
-    subprocess.check_output(
-        [
-            "openroad",
-            "-python",
-            f"{scriptsDir}/defutil.py",
-            "--output",
-            userDEF,
-            "--input-lef",
-            "/dev/null",
-            userDEF,
-            templateDEF,
-        ],
-        stderr=subprocess.PIPE,
-    )
 
-    # read template Def
-    templateDEFOpener = open(templateDEF, "r")
-    if templateDEFOpener.mode == "r":
-        templateDEFContent = templateDEFOpener.read()
+    subprocess.check_output([
+        "openroad",
+        "-python",
+        f"{scriptsDir}/defutil.py",
+        "replace_pins",
+        "--output", userDEF,
+        "--input-lef", "/dev/null",
+        userDEF, templateDEF
+    ], stderr=subprocess.PIPE)   
+
+    #read template Def
+    templateDEFOpener = open(templateDEF,"r")
+    if templateDEFOpener.mode == 'r':
+        templateDEFContent =templateDEFOpener.read()
     templateDEFOpener.close()
 
     # read user Def
@@ -100,6 +98,5 @@ def cli(templateDEF, userDEF):
     else:
         raise Exception("DIEAREA not found in DEF")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()

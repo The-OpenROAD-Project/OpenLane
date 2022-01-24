@@ -246,6 +246,7 @@ def cli(
                 config,
                 "-overwrite",
                 "-no_save",
+                "-run_hooks"
             ] + ([] if show_log_output else ["-disable_output"])
             skip_rm_from_rems = False
             try:
@@ -425,6 +426,5 @@ def cli(
     if flow_failure_flag:
         exit(1)
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     cli()

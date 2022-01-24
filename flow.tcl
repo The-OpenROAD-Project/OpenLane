@@ -150,17 +150,29 @@ proc save_final_views {args} {
 
 }
 
+proc run_post_run_hooks {} {
+	if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
+		puts_info "Running post run hook"
+		set result [exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py]
+		puts_info "$result"
+	} else {
+		puts_info "hooks/post_run.py not found, skipping"
+	}
+}
+
 proc run_non_interactive_mode {args} {
 	set options {
 		{-design required}
 		{-from optional}
 		{-to optional}
 		{-save_path optional}
+		{-no_lvs optional}
+		{-no_drc optional}
+		{-no_antennacheck optional}
 		{-override_env optional}
 	}
-	set flags {-save -no_lvs -no_drc -no_antennacheck}
+	set flags {-save -run_hooks}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
-
 	prep {*}$args
     # signal trap SIGINT save_state;
 
@@ -248,7 +260,18 @@ proc run_non_interactive_mode {args} {
 	generate_final_summary_report
 	
 	check_timing_violations
-
+	
+	if { [info exists arg_values(-save_path)]\
+	    && $arg_values(-save_path) != "" } {
+	    set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
+	} else {
+	    set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
+	}
+	
+	if {[info exists flags_map(-run_hooks)]} {
+		run_post_run_hooks
+	}
+	
 	puts_success "Flow complete."
 
 	show_warnings "Note that the following warnings have been generated:"
@@ -356,7 +379,7 @@ set options {
 	{-file optional}
 }
 
-set flags {-interactive -it -drc -lvs -synth_explore}
+set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
@@ -383,6 +406,7 @@ puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"
+	puts_info "Note, that post_run_hooks.tcl will not be sourced automatically"
 	if { [info exists arg_values(-file)] } {
 		run_file [file normalize $arg_values(-file)] {*}$argv
 	} else {
@@ -397,5 +421,6 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	run_synth_exploration
 } else {
 	puts_info "Running non-interactively"
+
 	run_non_interactive_mode {*}$argv
 }
