@@ -72,10 +72,10 @@ proc set_guide {guide} {
 proc prep_lefs {args} {
     puts_info "Preparing LEF Files"
     puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
-    
+
     set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $::env(TECH_LEF)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
-    
+
     puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
     puts_info "Merging LEF Files..."
 
@@ -89,10 +89,10 @@ proc prep_lefs {args} {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
         puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
-    
+
     # merge optimization library lef if it is different from the STD_CELL_LIBRARY
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT) 
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
         puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
     }
 
@@ -135,8 +135,8 @@ proc gen_exclude_list {args} {
     parse_key_args "gen_exclude_list" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-drc_exclude_list) $::env(DRC_EXCLUDE_CELL_LIST)
-    set_if_unset arg_values(-synth_exclude_list) $::env(NO_SYNTH_CELL_LIST) 
-    set_if_unset arg_values(-output) $arg_values(-lib).exclude.list 
+    set_if_unset arg_values(-synth_exclude_list) $::env(NO_SYNTH_CELL_LIST)
+    set_if_unset arg_values(-output) $arg_values(-lib).exclude.list
 
     # Copy the drc exclude list into the run directory, if it exists.
     foreach list_file $arg_values(-drc_exclude_list) {
@@ -144,11 +144,11 @@ proc gen_exclude_list {args} {
         if { [file exists $list_file] } {
             set in [open $list_file]
             fcopy $in $out
-            close $in 
+            close $in
         }
-        close $out 
+        close $out
     }
-   
+
     # If you're not told to only use the drc exclude list, and if the no_synth.cells exists, merge the two lists
     if { (![info exists flags_map(-drc_exclude_only)]) && [file exists $arg_values(-synth_exclude_list)] } {
         set out [open $arg_values(-output) a]
@@ -191,8 +191,8 @@ proc trim_lib {args} {
 
     # Trim the liberty with the generated list, if it exists.
     if { ! [file exists $arg_values(-output).exclude.list] } {
-	set fid [open $arg_values(-output).exclude.list w]
-	close $fid
+        set fid [open $arg_values(-output).exclude.list w]
+        close $fid
     }
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
@@ -243,6 +243,7 @@ proc prep {args} {
         {-config_file optional}
         {-run_path optional}
         {-src optional}
+        {-override_env optional}
     }
 
     set flags {
@@ -326,6 +327,16 @@ proc prep {args} {
 
     # needs to be sourced first since it can choose to determine the PDK and SCL
     source_config $::env(DESIGN_CONFIG)
+
+    if { [info exists arg_values(-override_env)] } {
+        set env_overrides [split $arg_values(-override_env) ',']
+        foreach override $env_overrides {
+            set kva [split $override '=']
+            set key [lindex $kva 0]
+            set value [lindex $kva 1]
+            set ::env(${key}) $value
+        }
+    }
 
 
     # DEPRECATED PDK_VARIANT
@@ -458,10 +469,10 @@ proc prep {args} {
 
         set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_reports)
-        
+
         set ::env(${subfolder}_logs) $::env(LOGS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_logs)
-        
+
         set ::env(${subfolder}_tmpfiles) $::env(TMP_DIR)/$subfolder
         file mkdir $::env(${subfolder}_tmpfiles)
 
@@ -488,18 +499,25 @@ proc prep {args} {
     if { ! $skip_basic_prep } {
         prep_lefs
 
-        # trim synthesis library
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
-        set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
-        trim_lib
+        # merge synthesis libraries
+        set ::env(LIB_SYNTH_MERGED) $::env(synthesis_tmpfiles)/merged.lib
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/mergeLib.py\
+            --output $::env(LIB_SYNTH_MERGED)\
+            --name $::env(PDK)_merged\
+            {*}$::env(LIB_SYNTH_COMPLETE)
 
-        # trim resizer library 
+        # trim synthesis library
+        set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
+        trim_lib -input $::env(LIB_SYNTH_MERGED)
+
+        # trim resizer library
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
             set ::env(LIB_RESIZER_OPT) [list]
             foreach lib $::env(LIB_SYNTH_COMPLETE) {
-            	set fbasename [file rootname [file tail $lib]]
+                set fbasename [file rootname [file tail $lib]]
                 set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
-                file copy -force $lib $lib_resizer 
+                file copy -force $lib $lib_resizer
                 lappend ::env(LIB_RESIZER_OPT) $lib_resizer
             }
 
@@ -507,12 +525,12 @@ proc prep {args} {
                 foreach lib $::env(LIB_SYNTH_OPT) {
                     set fbasename [file rootname [file tail $lib]]
                     set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
-                    file copy -force $lib $lib_resizer 
+                    file copy -force $lib $lib_resizer
                     lappend ::env(LIB_RESIZER_OPT) $lib_resizer
                 }
             }
-        } 
-        
+        }
+
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
                 set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
@@ -580,8 +598,8 @@ proc prep {args} {
     }
 
     if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
-		file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
-	}
+        file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
+    }
     if { [info exists ::env(OPENLANE_VERSION) ] } {
         try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
     }
@@ -757,33 +775,33 @@ proc save_views {args} {
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
     # requires a pre-existing report containing a list of cells (-pins?)
-	# that need the real diode in place of the fake diode:
-	# => fixes the routed def
-	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+    # that need the real diode in place of the fake diode:
+    # => fixes the routed def
+    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
-		if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-			#ARC specific
+        if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
+            #ARC specific
             if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
-			    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o [index_file $::env(routing_reports)/violators.txt]
+                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o [index_file $::env(routing_reports)/violators.txt]
             } else {
                 puts_err "Ran heal_antenna_violators without running the antenna check first."
                 flow_fail
             }
-		} else {
+        } else {
             #Magic Specific
-			set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
-			set violators [split [string trim [read $report_file]]]
-			close $report_file
-			# may need to speed this up for extremely huge files using hash tables
-			exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
-		}
-		#replace violating cells with real diodes
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fake_diode_replace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+            set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
+            set violators [split [string trim [read $report_file]]]
+            close $report_file
+            # may need to speed this up for extremely huge files using hash tables
+            exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
+        }
+        #replace violating cells with real diodes
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fake_diode_replace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
-	}
+    }
 }
 
 proc widen_site_width {args} {
@@ -909,7 +927,7 @@ proc run_or_antenna_check {args} {
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
     set antenna_log [index_file $::env(finishing_logs)/antenna.log]
-	run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
     set ::env(ANTENNA_CHECKER_LOG) $antenna_log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
@@ -917,11 +935,11 @@ proc run_or_antenna_check {args} {
 
 proc run_antenna_check {args} {
     puts_info "Running Antenna Checks..."
-	if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-		run_or_antenna_check
-	} else {
-		run_magic_antenna_check
-	}
+    if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
+        run_or_antenna_check
+    } else {
+        run_magic_antenna_check
+    }
 }
 
 package provide openlane 0.9

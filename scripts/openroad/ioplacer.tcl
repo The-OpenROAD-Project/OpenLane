@@ -17,14 +17,13 @@ if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
 	#ppl::set_num_slots 2
 }
 
-
 if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
+	puts stderr $errmsg
+	exit 1
 }
 
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
+	puts stderr $errmsg
 	exit 1
 }
 
@@ -35,16 +34,19 @@ ppl::set_ver_length_extend $::env(FP_IO_HEXTEND)
 ppl::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
 ppl::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
 
-set opts ""
+set arg_list [list]
 if { $::env(FP_IO_MODE) == 1 } {
-    set opts "-random"
+	lappend arg_list -random
+}
+
+if { $::env(FP_IO_MIN_DISTANCE) != "" } {
+	lappend arg_list -min_distance $::env(FP_IO_MIN_DISTANCE)
 }
 
 set HMETAL $::env(FP_IO_HLAYER)
 set VMETAL $::env(FP_IO_VLAYER)
 
-place_pins {*}$opts \
-	-min_distance $::env(FP_IO_MIN_DISTANCE) \
+place_pins {*}$arg_list \
 	-random_seed 42 \
 	-hor_layers $HMETAL \
 	-ver_layers $VMETAL
