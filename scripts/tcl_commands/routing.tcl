@@ -103,7 +103,7 @@ proc global_routing_fastroute {args} {
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
-            set currAntennaVal [groute_antenna_extract -from_log [index_file $::env(routing_logs)/global.log]]
+            set currAntennaVal [groute_antenna_extract -from_log $saveLOG]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
                 set iter [expr $iter - 1]
