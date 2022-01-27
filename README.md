@@ -66,7 +66,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
         - sky130_fd_sc_ms
         - sky130_fd_sc_ls
         - sky130_fd_sc_hdll
-    * You can install all Sky130 SCLs by invoking `make full-pdk` instead of `make pdk`.
+    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make pdk`.
     * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
     * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
     
