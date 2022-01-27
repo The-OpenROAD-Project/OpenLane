@@ -55,21 +55,26 @@ def cli(templatedef, userdef):
     templateDEF = f"{userDEF}.template.tmp"
     remove_power_pins(templateDEF)
 
+    subprocess.check_output(
+        [
+            "openroad",
+            "-python",
+            f"{scriptsDir}/defutil.py",
+            "replace_pins",
+            "--output",
+            userDEF,
+            "--input-lef",
+            "/dev/null",
+            userDEF,
+            templateDEF,
+        ],
+        stderr=subprocess.PIPE,
+    )
 
-    subprocess.check_output([
-        "openroad",
-        "-python",
-        f"{scriptsDir}/defutil.py",
-        "replace_pins",
-        "--output", userDEF,
-        "--input-lef", "/dev/null",
-        userDEF, templateDEF
-    ], stderr=subprocess.PIPE)   
-
-    #read template Def
-    templateDEFOpener = open(templateDEF,"r")
-    if templateDEFOpener.mode == 'r':
-        templateDEFContent =templateDEFOpener.read()
+    # read template Def
+    templateDEFOpener = open(templateDEF, "r")
+    if templateDEFOpener.mode == "r":
+        templateDEFContent = templateDEFOpener.read()
     templateDEFOpener.close()
 
     # read user Def
@@ -98,5 +103,6 @@ def cli(templatedef, userdef):
     else:
         raise Exception("DIEAREA not found in DEF")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()
