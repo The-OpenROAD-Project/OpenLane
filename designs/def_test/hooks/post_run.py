@@ -20,7 +20,7 @@ def extract_pins(db, def_file):
     chip = db.getChip()
     block = chip.getBlock()
     nets = block.getNets()
-    tech = db.getTech()
+    # tech = db.getTech() # Not needed
 
     result_data = {}
     for net in nets:
