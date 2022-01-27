@@ -59,6 +59,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 * The default pdk installation directory is $PWD/pdks. If you want to install the PDK at a different location, you'll need add this configuration variable:
     * `export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>`
         * Be sure to add this to your shell's profile for future use.
+* If you want to include the precompiled OpenRAM SRAM modules, try `make pdk-with-sram`.
 * The default SCL to be installed is `sky130_fd_sc_hd`.
     * To change that, you can add this configuration variable: `export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls>`, where the library name is one of:
         - sky130_fd_sc_hd
@@ -66,7 +67,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
         - sky130_fd_sc_ms
         - sky130_fd_sc_ls
         - sky130_fd_sc_hdll
-    * You can install all Sky130 SCLs by invoking `make full-pdk` instead of `make pdk`.
+    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make pdk`.
     * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
     * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
     
