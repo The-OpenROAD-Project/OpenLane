@@ -1,7 +1,7 @@
 # export TECH_LEF=/home/armleo/Desktop/OpenLane/pdks/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd.tlef
 # export MERGED_LEF=/openlane/designs/def_test/runs/RUN_2022.01.23_17.23.46/tmp/merged.lef
 # export HOOK_OUTPUT_PATH=/openlane/designs/def_test/runs/RUN_2022.01.23_17.23.46/results/final
-# export DESIGN_PATH=/openlane/designs/def_test
+# export DESIGN_DIR=/openlane/designs/def_test
 # openroad -python designs/def_test/hooks/post_run.py
 
 import odb
@@ -40,22 +40,21 @@ def extract_pins(db, def_file):
     return result_data
 
 
-
 result_db = odb.dbDatabase.create()
 ref_db = odb.dbDatabase.create()
 
 print("TECH_LEF ", os.environ["TECH_LEF"])
 print("MERGED_LEF ", os.environ["MERGED_LEF"])
 print("HOOK_OUTPUT_PATH ", os.environ["HOOK_OUTPUT_PATH"])
-print("DESIGN_PATH ", os.environ["DESIGN_PATH"])
+print("DESIGN_DIR ", os.environ["DESIGN_DIR"])
 
 
 result_data = extract_pins(
     result_db, os.environ["HOOK_OUTPUT_PATH"] + "/def/def_test.def"
 )
 
-# result_data = extract_pins(result_db, os.environ["DESIGN_PATH"] + "/def_test.def")
-ref_data = extract_pins(ref_db, os.environ["DESIGN_PATH"] + "/def_test.def")
+# result_data = extract_pins(result_db, os.environ["DESIGN_DIR"] + "/def_test.def")
+ref_data = extract_pins(ref_db, os.environ["DESIGN_DIR"] + "/def_test.def")
 
 # print(result_data)
 # print(ref_data)
@@ -69,4 +68,3 @@ for k, v in ref_data.items():
     ), f"For pin {k} upper right rectangle point {result_data[k].ur()} does not match {v.ur()}"
 
 sys.exit(0)
-
