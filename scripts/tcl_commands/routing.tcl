@@ -382,12 +382,12 @@ proc run_spef_extraction {args} {
         set log [index_file $arg_values(-log)]
         puts_info "Running SPEF Extraction..."
         if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
-            set tool "def2spef"
-            set ::env(MPLCONFIGDIR) /tmp
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/spef_extractor/main.py -l $::env(MERGED_LEF_UNPADDED) -d $::env(CURRENT_DEF) -mw $::env(SPEF_WIRE_MODEL) -ec $::env(SPEF_EDGE_CAP_FACTOR) |& tee $::env(TERMINAL_OUTPUT) $log
-        } else {
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
+            puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
+            set ::env(SPEF_EXTRACTOR) "openrcx"
         }
+
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
+
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
     }

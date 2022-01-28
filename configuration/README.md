@@ -224,7 +224,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or `def2spef`. <br> (Default: `openrcx`) |
+| `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (removed: `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_CORNER_COUNT` | Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
 | `RCX_MAX_RESISTANCE` | Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
 | `RCX_COUPLING_THRESHOLD` | Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|

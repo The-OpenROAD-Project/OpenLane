@@ -231,7 +231,7 @@ OpenLane integrated several key open source tools over the execution stages:
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] or [CU-GR][36] (Global) and [TritonRoute][13] (Detailed)
-- SPEF Extraction: [SPEF-Extractor][27]
+- SPEF Extraction: [SPEF-Extractor][27] (formerly), [OpenRCX][37]
 - GDSII Streaming out: [Magic][14] and [Klayout][35]
 - DRC Checks: [Magic][14] and [Klayout][35]
 - LVS check: [Netgen][22]
@@ -402,3 +402,4 @@ To check the original author list of OpenLane, check [this][33].
 [34]: ./docs/source/openlane_commands.md
 [35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr
+[37]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rcx
