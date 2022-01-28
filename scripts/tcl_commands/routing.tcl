@@ -19,33 +19,32 @@ proc global_routing_or {args} {
 
 proc translate_min_max_layer_variables {args} {
     if { [info exists ::env(GLB_RT_MINLAYER) ] } {
-		set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
-		puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-		puts_warn "We recommend you update your configuration as follows:"
-		puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
+        set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
+        puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+        puts_warn "We recommend you update your configuration as follows:"
+        puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
     }
 
     if { [info exists ::env(GLB_RT_MAXLAYER) ] } {
-		set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
-		puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-		puts_warn "We recommend you update your configuration as follows:"
-		puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
+        set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
+        puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+        puts_warn "We recommend you update your configuration as follows:"
+        puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
     }
 
     if { [info exists ::env(GLB_RT_CLOCK_MINLAYER) ] } {
-		set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
-		puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-		puts_warn "We recommend you update your configuration as follows:"
-		puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
+        set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
+        puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+        puts_warn "We recommend you update your configuration as follows:"
+        puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
     }
 
     if { [info exists ::env(GLB_RT_CLOCK_MAXLAYER) ] } {
-		set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
-		puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-		puts_warn "We recommend you update your configuration as follows:"
-		puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
+        set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
+        puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
+        puts_warn "We recommend you update your configuration as follows:"
+        puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
     }
-        
 }
 
 proc global_routing_cugr {args} {
@@ -63,22 +62,38 @@ proc global_routing_cugr {args} {
     file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
 }
 
+proc groute_antenna_extract {args} {
+    set options {
+        {-from_log required}
+    }
+    set flags {}
+    parse_key_args "groute_antenna_extract" args arg_values $options flags_map $flags
+
+    set value [exec python3 $::env(SCRIPTS_DIR)/extract_antenna_count.py < $arg_values(-from_log)]
+
+    return value
+}
+
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
 
     translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+        puts_info "Starting FastRoute Antenna Repair Iterations..."
         set_def $::env(SAVE_DEF)
         set_guide $::env(SAVE_GUIDE)
         set iter 2
+
         set prevDEF1 $::env(SAVE_DEF)
         set prevDEF2 $::env(SAVE_DEF)
         set prevGUIDE1 $::env(SAVE_GUIDE)
         set prevGUIDE2 $::env(SAVE_GUIDE)
         set prevLOG1 $saveLOG
         set prevLOG2 $saveLOG
-        set prevAntennaVal [exec grep "INFO GRT-0012\] Antenna violations:" [index_file $::env(routing_logs)/global.log] -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+
+        set prevAntennaVal [groute_antenna_extract -from_log [index_file $::env(routing_logs)/global.log]]
+
         while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/global_$iter.def]
             set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global_$iter.guide]
@@ -88,7 +103,7 @@ proc global_routing_fastroute {args} {
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
-            set currAntennaVal [exec grep "#Antenna violations:"  $saveLOG -s | tail -1 | sed -r "s/.*\[^0-9\]//"]
+            set currAntennaVal [groute_antenna_extract -from_log $saveLOG]
             puts_info "Antenna Violations Current: $currAntennaVal"
             if { $currAntennaVal >= $prevAntennaVal } {
                 set iter [expr $iter - 1]
@@ -167,7 +182,7 @@ proc detailed_routing {args} {
     increment_index
     TIMER::timer_start
     puts_info "Running Detailed Routing..."
-    
+
     set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
         set ::env(SAVE_DEF) $::env(eco_results)/arcdef/$::env(ECO_ITER)_post-route.def
@@ -386,7 +401,7 @@ proc run_routing {args} {
         set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
     }
     set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
-    
+
     puts "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
     puts "Current DEF: $::env(CURRENT_DEF)"
     puts "Routing Current DEF: $::env(ROUTING_CURRENT_DEF)"
@@ -447,16 +462,16 @@ proc run_routing {args} {
     detailed_routing
 
     set detailed_routed_netlist [index_file $::env(routing_tmpfiles)/detailed.v]
-    
+
     write_verilog $detailed_routed_netlist -log $::env(routing_logs)/write_verilog_detailed.log
-    
+
     # for lvs
     set_netlist $detailed_routed_netlist
 
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-		set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+        set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
     }
-    
+
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -467,7 +482,7 @@ proc run_routing {args} {
     set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
     set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
     set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
-    
+
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
         set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ff.spef;
         set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).tt.spef;
@@ -479,7 +494,7 @@ proc run_routing {args} {
     run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
 
     set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-    
+
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
         set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
     }
