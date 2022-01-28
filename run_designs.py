@@ -103,7 +103,7 @@ def cli(
 
     show_log_output = show_output and (len(designs) == 1) and (regression is None)
 
-    if print_rem is not None and show_log_output == False:
+    if print_rem is not None and not show_log_output:
         if float(print_rem) > 0:
             mutex = threading.Lock()
             print_rem_time = float(print_rem)
@@ -318,7 +318,7 @@ def cli(
                     update("DONE", design, "Deleted run directory.")
                 except FileNotFoundError:
                     pass
-                except Exception as e:
+                except Exception:
                     update(
                         "ERROR", design, "Failed to delete run directory.", error=True
                     )
@@ -354,6 +354,7 @@ def cli(
                     regression_file,
                 ]
             )
+
             number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
             total_runs = total_runs + number_of_configs
             if print_rem_time is not None:
