@@ -60,7 +60,7 @@ set macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
     power_pins $::env(VDD_NET)
     ground_pins $::env(GND_NET)
-    blockages $::env(MACRO_BLOCKAGES_LAYER)
+    blockages {$::env(MACRO_BLOCKAGES_LAYER)}
     straps {
     }
     connect {{$::env(FP_PDN_LOWER_LAYER)_PIN_ver $::env(FP_PDN_UPPER_LAYER)}}
