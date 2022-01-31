@@ -397,6 +397,8 @@ proc prep {args} {
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
     handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
     handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
+    handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
+    handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
     if { [info exists arg_values(-run_path)] } {
         set run_path "[file normalize $arg_values(-run_path)]/$tag"

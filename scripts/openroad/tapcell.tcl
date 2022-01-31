@@ -27,7 +27,7 @@ tapcell\
     -distance $::env(FP_TAPCELL_DIST)\
     -tapcell_master "$::env(FP_WELLTAP_CELL)"\
     -endcap_master "$::env(FP_ENDCAP_CELL)"\
-    -halo_width_x $::env(FP_HORIZONTAL_HALO)\
-    -halo_width_y $::env(FP_VERTICAL_HALO)
+    -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\
+    -halo_width_y $::env(FP_TAP_HORIZONTAL_HALO)
 
 write_def $::env(SAVE_DEF)
