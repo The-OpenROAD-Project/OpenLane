@@ -27,12 +27,20 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-ppl::set_hor_length $::env(FP_IO_HLENGTH)
-ppl::set_ver_length $::env(FP_IO_VLENGTH)
-ppl::set_hor_length_extend $::env(FP_IO_VEXTEND)
-ppl::set_ver_length_extend $::env(FP_IO_HEXTEND)
-ppl::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
-ppl::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
+                   -ver_length $::env(FP_IO_VLENGTH)
+}
+
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length_extension -hor_extension $::env(FP_IO_HEXTEND) \
+                             -ver_extension $::env(FP_IO_VEXTEND)
+}
+
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HTHICKNESS_MULT) \
+                             -ver_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+}
 
 set arg_list [list]
 if { $::env(FP_IO_MODE) == 1 } {
