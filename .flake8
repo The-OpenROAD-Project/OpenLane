@@ -4,5 +4,4 @@ exclude =
     .git,
     __pycache__,
     scripts/klayout,
-    scripts/spef_extractor,
     docker/tar

@@ -25,7 +25,7 @@ if github_event_name in ["schedule", "workflow_dispatch"]:
 elif github_event_name == "pull_request":
     gh_event_str = open(os.environ["GITHUB_EVENT_PATH"]).read()
     gh_event = json.loads(gh_event_str)
-    pr_body = gh_event["pull_request"]["body"]
+    pr_body = gh_event["pull_request"]["body"] or ""
 
     if "[ci ets]" in pr_body:
         gh.export_env("USE_ETS", "1")

@@ -397,6 +397,8 @@ proc prep {args} {
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
     handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
     handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
+    handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
+    handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
     if { [info exists arg_values(-run_path)] } {
         set run_path "[file normalize $arg_values(-run_path)]/$tag"
@@ -605,9 +607,11 @@ proc prep {args} {
     }
 
     # Convert Tracks
-    set tracks_processed $::env(routing_tmpfiles)/config.tracks
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-    set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
+    if { $::env(TRACKS_INFO_FILE) != "" } {
+        set tracks_processed $::env(routing_tmpfiles)/config.tracks
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+        set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
+    }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
         puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
