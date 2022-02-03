@@ -246,6 +246,7 @@ def cli(
                 config,
                 "-overwrite",
                 "-no_save",
+                "-run_hooks",
             ] + ([] if show_log_output else ["-disable_output"])
             skip_rm_from_rems = False
             try:

@@ -27,11 +27,8 @@ RUN yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_preco
 
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
-## Update and Configure Git
-RUN yum install -y https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.7-1.x86_64.rpm && \
-	yum install -y git
-
-RUN git config --global user.name "OpenLane User" 
+# Configure Git
+RUN git config --global user.name "OpenLane User"
 RUN git config --global user.email "openlane.user@localhost"
 
 # Install Python Dependencies

@@ -49,7 +49,9 @@ if { ! $free_insts_flag } {
 	exit 0
 }
 
-read_lib $::env(LIB_SYNTH)
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+    read_liberty $lib
+}
 
 set arg_list [list]
 
@@ -81,7 +83,9 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 
 set_placement_padding -global -right $::env(CELL_PAD)
 
-set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+if { $::env(CELL_PAD_EXCLUDE) != "" } {
+    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+}
 
 global_placement {*}$arg_list
 
@@ -89,7 +93,9 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
-		read_liberty $::env(LIB_SYNTH_COMPLETE)
+		foreach lib $::env(LIB_SYNTH_COMPLETE) {
+			read_liberty $lib
+		}
 		read_sdc -echo $::env(CURRENT_SDC)
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
