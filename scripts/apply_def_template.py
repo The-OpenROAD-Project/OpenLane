@@ -22,8 +22,9 @@ import subprocess
 
 @click.command()
 @click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
+@click.option("-l", "--lef", "lef", required=True, help="LEF file")
 @click.argument("userdef")
-def cli(templatedef, userdef):
+def cli(templatedef, userdef, lef):
     userDEF = userdef
     templateDEF = templatedef
     scriptsDir = os.path.dirname(__file__)
@@ -54,22 +55,28 @@ def cli(templatedef, userdef):
 
     templateDEF = f"{userDEF}.template.tmp"
     remove_power_pins(templateDEF)
-
-    subprocess.check_output(
-        [
-            "openroad",
-            "-python",
-            f"{scriptsDir}/defutil.py",
-            "replace_pins",
-            "--output",
-            userDEF,
-            "--input-lef",
-            "/dev/null",
-            userDEF,
-            templateDEF,
-        ],
-        stderr=subprocess.PIPE,
-    )
+    
+    shutil.copy(userDEF, f"{userDEF}.user.template.tmp")
+    
+    try:
+        print(subprocess.check_output(
+            [
+                "openroad",
+                "-python",
+                f"{scriptsDir}/defutil.py",
+                "replace_pins",
+                "--output",
+                userDEF,
+                "--input-lef",
+                lef,
+                f"{userDEF}.user.template.tmp",
+                templateDEF,
+            ],
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        ))
+    except subprocess.CalledProcessError as err:
+        print(err.output, err.stderr)
 
     # read template Def
     templateDEFOpener = open(templateDEF, "r")

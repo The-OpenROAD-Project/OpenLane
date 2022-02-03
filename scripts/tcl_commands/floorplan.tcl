@@ -254,6 +254,7 @@ proc apply_def_template {args} {
 	if { [info exists ::env(FP_DEF_TEMPLATE)] } {
 		puts_info "Applying DEF template..."
 		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/apply_def_template.py\
+			-l $::env(MERGED_LEF) \
 			--def-template $::env(FP_DEF_TEMPLATE)\
 			$::env(CURRENT_DEF)
 	}
