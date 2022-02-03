@@ -79,6 +79,7 @@ def cli(templatedef, userdef, lef):
         )
     except subprocess.CalledProcessError as err:
         print(err.output, err.stderr)
+        raise err
 
     # read template Def
     templateDEFOpener = open(templateDEF, "r")
