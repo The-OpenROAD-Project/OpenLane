@@ -32,7 +32,7 @@ import scripts.utils.utils as utils
 @click.option("-c", "--config_tag", default="config", help="Configuration file")
 @click.option("-r", "--regression", default=None, help="Regression file")
 @click.option("-t", "--tag", default="regression", help="Tag for the log file")
-@click.option("-j", "--threads", help="Number of designs in parallel")
+@click.option("-j", "--threads", default=4, help="Number of designs in parallel")
 @click.option(
     "-p",
     "--configuration_parameters",
