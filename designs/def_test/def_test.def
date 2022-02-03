@@ -4,7 +4,7 @@ BUSBITCHARS "[]" ;
 DESIGN def_test ;
 UNITS DISTANCE MICRONS 1000 ;
 DIEAREA ( 0 0 ) ( 400000 400000 ) ;
-PINS 3 ;
+PINS 2 ;
     - in + NET in + DIRECTION INPUT + USE SIGNAL
       + PORT
         + LAYER met2 ( -140 -2000 ) ( 140 2000 )
