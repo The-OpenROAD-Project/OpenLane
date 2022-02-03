@@ -21,9 +21,6 @@ import odb
 import os
 import shutil
 
-# For sys.exit
-import sys
-
 
 @click.group()
 def cli():
@@ -311,7 +308,6 @@ def replace_pins(output, input_lef, first_def, reference_def):
 
             for ref_bterm_location_tuple in ref_bterm_locations[name]:
                 layer = output_tech.findLayer(ref_bterm_location_tuple[0])
-                shape = ref_bterm_location_tuple[1]
 
                 # --------------------------------
                 # 6.2 Create new pin
