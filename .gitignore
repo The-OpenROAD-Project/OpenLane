@@ -3,7 +3,10 @@
 tags
 .vim
 
-# Flow Artefacts
+# emacs backup files
+*~
+
+# Flow Artifacts
 dummy.guide
 lefRWarning.log
 run.param

@@ -27,14 +27,20 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 	exit 1
 }
 
-set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
-               -ver_length $::env(FP_IO_VLENGTH)
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
+                   -ver_length $::env(FP_IO_VLENGTH)
+}
 
-set_pin_length_extension -hor_extension $::env(FP_IO_HEXTEND) \
-                         -ver_extension $::env(FP_IO_VEXTEND)
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length_extension -hor_extension $::env(FP_IO_HEXTEND) \
+                             -ver_extension $::env(FP_IO_VEXTEND)
+}
 
-set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HTHICKNESS_MULT) \
-                         -ver_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HTHICKNESS_MULT) \
+                             -ver_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+}
 
 set arg_list [list]
 if { $::env(FP_IO_MODE) == 1 } {
