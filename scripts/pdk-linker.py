@@ -50,40 +50,27 @@ import os
 parser = argparse.ArgumentParser(
     description="""Builds a link farm from <source> in <dest> according to <mappings>"""
 )
-parser.add_argument(
-    "-s",
-    "--source",
-    required=True
-)
-parser.add_argument(
-    "-d",
-    "--destination",
-    required=True
-)
-parser.add_argument(
-    "-m",
-    "--mappings",
-    required=True
-)
-parser.add_argument(
-    "-v",
-    "--verbose",
-    action="store_true"
-)
+parser.add_argument("-s", "--source", required=True)
+parser.add_argument("-d", "--destination", required=True)
+parser.add_argument("-m", "--mappings", required=True)
+parser.add_argument("-v", "--verbose", action="store_true")
 
 args = parser.parse_args()
 
+
 def link_files(source_path, destination_path):
-    '''Create a link from source_path to destination path unless
+    """Create a link from source_path to destination path unless
     one already exists.  If it exists but is different then the
-    arguments imply an exception is raised.'''
+    arguments imply an exception is raised."""
 
     destination_dir = os.path.dirname(destination_path)
     if not os.path.isdir(destination_dir):
         os.makedirs(destination_dir)
     if os.path.exists(destination_path):
-        if os.path.islink(destination_path) and \
-           os.path.realpath(destination_path) == source_path:
+        if (
+            os.path.islink(destination_path)
+            and os.path.realpath(destination_path) == source_path
+        ):
             if args.verbose:
                 print(f"  Skip {source_path} -> {destination_path}")
             return
@@ -103,11 +90,11 @@ if not os.path.isdir(args.source):
 source = os.path.abspath(f"{args.source}")
 destination = os.path.abspath(f"{args.destination}")
 
-for category,mapping in mappings.items():
+for category, mapping in mappings.items():
     print(f"Linking {category}")
-    pdk = mapping['pdk']
-    openlane = mapping['openlane']
-    for pattern in mapping['files']:
+    pdk = mapping["pdk"]
+    openlane = mapping["openlane"]
+    for pattern in mapping["files"]:
         pattern = f"{source}/{pdk}/{pattern}"
         paths = glob.glob(pattern)
         if len(paths) == 0:
