@@ -55,26 +55,28 @@ def cli(templatedef, userdef, lef):
 
     templateDEF = f"{userDEF}.template.tmp"
     remove_power_pins(templateDEF)
-    
+
     shutil.copy(userDEF, f"{userDEF}.user.template.tmp")
-    
+
     try:
-        print(subprocess.check_output(
-            [
-                "openroad",
-                "-python",
-                f"{scriptsDir}/defutil.py",
-                "replace_pins",
-                "--output",
-                userDEF,
-                "--input-lef",
-                lef,
-                f"{userDEF}.user.template.tmp",
-                templateDEF,
-            ],
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        ))
+        print(
+            subprocess.check_output(
+                [
+                    "openroad",
+                    "-python",
+                    f"{scriptsDir}/defutil.py",
+                    "replace_pins",
+                    "--output",
+                    userDEF,
+                    "--input-lef",
+                    lef,
+                    f"{userDEF}.user.template.tmp",
+                    templateDEF,
+                ],
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+            )
+        )
     except subprocess.CalledProcessError as err:
         print(err.output, err.stderr)
 
