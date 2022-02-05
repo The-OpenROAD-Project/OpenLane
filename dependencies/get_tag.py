@@ -25,6 +25,9 @@ class NoGitException(Exception):
 
 def get_tag() -> str:
     try:
+        if os.path.exists("/git_version"):
+            return open("/git_version").read().strip()
+
         try:
             subprocess.run(
                 ["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE

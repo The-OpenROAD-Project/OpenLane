@@ -136,7 +136,7 @@ def issue_survey():
             )  # Check if running inside container
             if not os.path.exists("/openlane"):
                 raise Exception()
-            alert = "Alert: You appear to be running this script inside the OpenLane container. This is not the intended usecase for this file."
+            alert = "Alert: Running in container."
             final_report += "%s\n" % alert
             print(alert, file=alerts)
         except Exception:
@@ -144,22 +144,15 @@ def issue_survey():
             final_report += "%s\n" % alert
             print(alert, file=alerts)
 
-    git_ok = True
-    try:
-        if python_ok:
-            from dependencies.get_tag import get_tag
+    if python_ok:
+        from dependencies.get_tag import get_tag
 
-            final_report += textwrap.dedent(
-                """\
-                OpenLane Git Version: %s
-            """
-                % get_tag()
-            )
-    except Exception:
-        git_ok = False
-        alert = "Critical Alert: OpenLane does not appear to be using a Git repository. This will impair considerable functionality."
-        final_report += "%s\n" % alert
-        print(alert, file=alerts)
+        final_report += textwrap.dedent(
+            """\
+            OpenLane Git Version: %s
+        """
+            % get_tag()
+        )
 
     click_ok = True
     try:
@@ -222,22 +215,19 @@ def issue_survey():
             )
 
         try:
-            if git_ok:
-                git_log = subprocess.check_output(
-                    [
-                        "git",
-                        "log",
-                        r"--format=%h %cI %s - %an - %gs (%D)",
-                        "-n",
-                        "3",
-                    ]
-                ).decode("utf8")
+            git_log = subprocess.check_output(
+                [
+                    "git",
+                    "log",
+                    r"--format=%h %cI %s - %an - %gs (%D)",
+                    "-n",
+                    "3",
+                ]
+            ).decode("utf8")
 
-                final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
-        except Exception:
-            alert = "Critical Alert: Could not launch git: Are you sure git is installed properly?"
-            final_report += "%s\n" % alert
-            print(alert, file=alerts)
+            final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
+        except subprocess.CalledProcessError:
+            pass
 
     print(final_report, end="")
 

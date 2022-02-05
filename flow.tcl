@@ -25,41 +25,41 @@ lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
-    if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
-        set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(PLACEMENT_CURRENT_DEF)
-    }
+	if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
+		set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(PLACEMENT_CURRENT_DEF)
+	}
 
-    run_placement
+	run_placement
 }
 
 proc run_cts_step {args} {
-    if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
-        set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
-    }
+	if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
+		set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(CTS_CURRENT_DEF)
+	}
 
-    run_cts
-    run_resizer_timing
+	run_cts
+	run_resizer_timing
 }
 
 proc run_routing_step {args} {
-    if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
-        set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
-    }
-    run_routing
+	if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
+		set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
+	}
+	run_routing
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
-        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
-    }
+	if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
+		set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
+	}
 	if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
 		run_antenna_check
 		heal_antenna_violators; # modifies the routed DEF
@@ -68,24 +68,24 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
-        set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
-    }
-	if { $lvs_enabled } {
-		run_magic_spice_export
+	if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
+		set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
+	}
+	if { $lvs_enabled && $::env(RUN_LVS) } {
+		run_magic_spice_export;
 		run_lvs; # requires run_magic_spice_export
 	}
 
 }
 
 proc run_drc_step {{ drc_enabled 1 }} {
-    if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
-        set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
-    }
+	if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
+		set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
+	}
 	if { $drc_enabled } {
 		run_magic_drc
 		run_klayout_drc
@@ -93,11 +93,11 @@ proc run_drc_step {{ drc_enabled 1 }} {
 }
 
 proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
-    if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
-        set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(ANTENNA_CHECK_CURRENT_DEF)
-    }
+	if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
+		set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(ANTENNA_CHECK_CURRENT_DEF)
+	}
 	if { $antenna_check_enabled } {
 		run_antenna_check
 	}
@@ -105,8 +105,8 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
-        run_eco
-    }
+		run_eco
+	}
 }
 
 proc save_final_views {args} {
@@ -124,7 +124,7 @@ proc save_final_views {args} {
 	lappend arg_list -mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag
 	lappend arg_list -maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag
 	lappend arg_list -spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice
-	
+
 	# Guaranteed to have default values
 	lappend arg_list -def_path $::env(CURRENT_DEF)
 	lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
@@ -171,10 +171,10 @@ proc run_non_interactive_mode {args} {
 	set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck }
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 	prep {*}$args
-    # signal trap SIGINT save_state;
+	# signal trap SIGINT save_state;
 
 	if { [info exists arg_values(-override_env)] } {
-		set env_overrides [split $arg_values(-override_env) ','] 
+		set env_overrides [split $arg_values(-override_env) ',']
 		foreach override $env_overrides {
 			set kva [split $override '=']
 			set key [lindex $kva 0]
@@ -183,17 +183,18 @@ proc run_non_interactive_mode {args} {
 		}
 	}
 
-    set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
-    set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
-    set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
+	set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
+	set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
 
-    set steps [dict create \
+	set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
+
+	set steps [dict create \
 		"synthesis" {run_synthesis "" } \
 		"floorplan" {run_floorplan ""} \
 		"placement" {run_placement_step ""} \
 		"cts" {run_cts_step ""} \
 		"routing" {run_routing_step ""}\
-        "eco" {run_eco_step ""} \
+		"eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
 		"gds_drc_klayout" {run_klayout ""} \
@@ -202,41 +203,41 @@ proc run_non_interactive_mode {args} {
 		"drc" "run_drc_step $DRC_ENABLED" \
 		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
 		"cvc" {run_lef_cvc}
-    ]
+	]
 
-    set_if_unset arg_values(-to) "cvc";
+	set_if_unset arg_values(-to) "cvc";
 
 	if {  [info exists ::env(CURRENT_STEP) ] } {
-        puts "\[INFO\]:Picking up where last execution left off"
-        puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
-    } else {
-        set ::env(CURRENT_STEP) "synthesis";
-    }
+		puts "\[INFO\]:Picking up where last execution left off"
+		puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
+	} else {
+		set ::env(CURRENT_STEP) "synthesis";
+	}
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
-    set exe 0;
-    dict for {step_name step_exe} $steps {
-        if { [ string equal $arg_values(-from) $step_name ] } {
-            set exe 1;
-        }
+	set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+	set exe 0;
+	dict for {step_name step_exe} $steps {
+		if { [ string equal $arg_values(-from) $step_name ] } {
+			set exe 1;
+		}
 
-        if { $exe } {
-            # For when it fails
-            set ::env(CURRENT_STEP) $step_name
-            [lindex $step_exe 0] [lindex $step_exe 1] ;
-        }
+		if { $exe } {
+			# For when it fails
+			set ::env(CURRENT_STEP) $step_name
+			[lindex $step_exe 0] [lindex $step_exe 1] ;
+		}
 
-        if { [ string equal $arg_values(-to) $step_name ] } {
-            set exe 0:
-            break;
-        }
+		if { [ string equal $arg_values(-to) $step_name ] } {
+			set exe 0:
+			break;
+		}
 
-    }
+	}
 
-    # for when it resumes
-    set steps_as_list [dict keys $steps]
-    set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
-    set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
+	# for when it resumes
+	set steps_as_list [dict keys $steps]
+	set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
+	set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
 	# Saves to <RUN_DIR>/results/final
 	if { $::env(SAVE_FINAL_VIEWS) == "1" } {
@@ -255,20 +256,20 @@ proc run_non_interactive_mode {args} {
 	calc_total_runtime
 	save_state
 	generate_final_summary_report
-	
+
 	check_timing_violations
-	
+
 	if { [info exists arg_values(-save_path)]\
-	    && $arg_values(-save_path) != "" } {
-	    set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
+		&& $arg_values(-save_path) != "" } {
+		set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
 	} else {
-	    set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
+		set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
 	}
-	
+
 	if {[info exists flags_map(-run_hooks)]} {
 		run_post_run_hooks
 	}
-	
+
 	puts_success "Flow complete."
 
 	show_warnings "Note that the following warnings have been generated:"
@@ -381,7 +382,7 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 puts_info {
-	 ___   ____   ___  ____   _       ____  ____     ___
+	___   ____   ___  ____   _       ____  ____     ___
 	/   \ |    \ /  _]|    \ | |     /    ||    \   /  _]
 	|   | |  o  )  [_ |  _  || |    |  o  ||  _  | /  [_
 	| O | |   _/    _]|  |  || |___ |     ||  |  ||    _]
