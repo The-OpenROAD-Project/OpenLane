@@ -3,7 +3,6 @@ set ::env(DESIGN_NAME) "gcd"
 
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/*.v]
 
-set ::env(CLOCK_PERIOD) "340"
 set ::env(CLOCK_PORT) "clk"
 
 # Use OR defaults
