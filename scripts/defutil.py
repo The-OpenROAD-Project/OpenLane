@@ -246,8 +246,13 @@ def check_pin_grid(
 # openroad -python scripts/defutil.py replace_pins -o output.def -l designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
 
 
-# Note: If you decide to change any parameters, also change replace_pins_command's
-def replace_pins(output_def, input_lef, logpath, source_def, template_def):
+@click.command("replace_pins")
+@click.option("-o", "--output-def", default="./out.def", help="Destination DEF path")
+@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
+@click.option("-lg", "--log", "logpath", help="Log output file")
+@click.argument("source_def")
+@click.argument("template_def")
+def replace_pins_command(output_def, input_lef, logpath, source_def, template_def):
     """
         Copies source_def to output, then if same pin exists in template def and first def then, it's written to output def
 
@@ -260,7 +265,13 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
     Note: It assumes only one port with the same name exist.
     Note: It assumes that pin names matches the net names in template DEF.
     """
+    replace_pins(output_def, input_lef, logpath, source_def, template_def)
 
+
+cli.add_command(replace_pins_command)
+
+# Note: If you decide to change any parameters, also change replace_pins_command's
+def replace_pins(output_def, input_lef, logpath, source_def, template_def):
     # --------------------------------
     # 0. Sanity check: Check for all defs and lefs to exist
     # I removed the output def to NOT exist check, as it was making testing harder
@@ -498,25 +509,6 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
     # --------------------------------
     print("[defutil.py:replace_pins] Writing output def to: ", output_def, file=logfile)
     assert odb.write_def(output_block, output_def) == 1
-
-    # Steps:
-    # Fetch the BTerms and then BPins of the second
-    #
-    # with open(output, "w") as f:
-    #    f.write(merge_item_section("PINS", def_one_str, def_two_str, replace_two=True))
-
-
-@click.command("replace_pins")
-@click.option("-o", "--output-def", default="./out.def", help="Destination DEF path")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.option("-lg", "--log", "logpath", help="Log output file")
-@click.argument("source_def")
-@click.argument("template_def")
-def replace_pins_command(output_def, input_lef, logpath, source_def, template_def):
-    replace_pins(output_def, input_lef, logpath, source_def, template_def)
-
-
-cli.add_command(replace_pins_command)
 
 
 @click.command("remove_components")
