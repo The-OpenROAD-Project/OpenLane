@@ -59,7 +59,7 @@ def cli(templatedef, userdef, lef, logfile):
 
     shutil.copy(userDEF, f"{userDEF}.user.template.tmp")
     print(
-        subprocess.check_call(
+        subprocess.check_output(
             [
                 "openroad",
                 "-python",
@@ -74,10 +74,10 @@ def cli(templatedef, userdef, lef, logfile):
                 f"{userDEF}.user.template.tmp",
                 templateDEF,
             ],
-            stderr=subprocess.PIPE,
             universal_newlines=True,
+            stderr=subprocess.STDOUT
         )
-    )
+    ) # We print it, dont use check_call
     
     # read template Def
     templateDEFOpener = open(templateDEF, "r")

@@ -28,10 +28,9 @@ def cli():
 
 
 def check_pin_grid(manufacturing_grid, dbu_per_microns, pin_name, pin_coordinate, logfile):
-    if (pin_coordinate % (dbu_per_microns * manufacturing_grid)) != 0:
-        print("WARNING: Pin coordinate", pin_coordinate, " for pin", name, "does not match the manufacturing grid")
-        print("WARNING: Pin coordinate", pin_coordinate, " for pin", name, "does not match the manufacturing grid", file=logfile) # IDK how to do this
-        # raise ValueError
+    if (pin_coordinate % manufacturing_grid) != 0:
+        print("WARNING: Pin coordinate", pin_coordinate, " for pin", pin_name, "does not match the manufacturing grid")
+        print("WARNING: Pin coordinate", pin_coordinate, " for pin", pin_name, "does not match the manufacturing grid", file=logfile) # IDK how to do this
 
 class OdbReader(object):
     def __init__(self, lef_in, def_in):
@@ -334,7 +333,7 @@ def replace_pins(output, input_lef, logpath, first_def, reference_def):
 
                 output_new_bpin = odb.dbBPin.create(output_bterm)
 
-                # print("For:", name,"Wrote on layer:", layer.getName(), "coordinates: ", ref_bterm_location_tuple[1], ref_bterm_location_tuple[2], ref_bterm_location_tuple[3], ref_bterm_location_tuple[4])
+                print("For:", name,"Wrote on layer:", layer.getName(), "coordinates: ", ref_bterm_location_tuple[1], ref_bterm_location_tuple[2], ref_bterm_location_tuple[3], ref_bterm_location_tuple[4], file=logfile)
                 check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[1], logfile)
                 check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[2], logfile)
                 check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[3], logfile)
