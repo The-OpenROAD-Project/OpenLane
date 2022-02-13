@@ -22,20 +22,17 @@ ARG KLAYOUT_COMMIT
 
 RUN mkdir -p /build
 
-RUN yum install -y ruby-devel\
-	qt5-qtmultimedia-devel\
-	qt5-qtxmlpatterns-devel\
-	qt5-qtsvg-devel\
-	qt5-qttools-devel
-
 WORKDIR /klayout
-RUN curl -L ${KLAYOUT_REPO}/tarball/${KLAYOUT_COMMIT} | tar -xzC . --strip-components=1 && \
-    ./build.sh -prefix /build -j$(nproc)
+RUN curl -L ${KLAYOUT_REPO}/tarball/${KLAYOUT_COMMIT} | tar -xzC . --strip-components=1
+
+COPY ./build_klayout.sh ./build_klayout.sh
+
+RUN bash ./build_klayout.sh
 
 RUN mkdir -p /build/version/
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/klayout.version
-RUN echo "klayout-${KLAYOUT_VERSION}.x86_64" >> /build/version/klayout.version
+RUN echo ${KLAYOUT_COMMIT} >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 
 # ---

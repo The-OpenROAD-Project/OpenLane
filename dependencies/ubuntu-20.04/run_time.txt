@@ -1,5 +1,3 @@
-https://www.klayout.org/downloads/Ubuntu-20/klayout_0.27.3-1_amd64.deb
-
 xvfb
 autoconf
 autopoint
