@@ -26,19 +26,23 @@ def extract_pins(db, def_file):
         bterms = net.getBTerms()
         if len(bterms) > 0:
             for port in bterms:
-                if (port.getSigType() == "POWER") or (
-                    port.getSigType() == "GROUND"):
-                     # Ignore power pins
-                     continue
+                if (port.getSigType() == "POWER") or (port.getSigType() == "GROUND"):
+                    # Ignore power pins
+                    continue
                 name = port.getName()
-                
+
                 bbox = port.getBBox()
                 result_data[name] = bbox
-                print("Net:", net_name,
-                    "Port:", name,
-                    "ll: ", " ".join(str(e) for e in bbox.ll()),
-                    "ur: ", " ".join(str(e) for e in bbox.ur())
-                    )
+                print(
+                    "Net:",
+                    net_name,
+                    "Port:",
+                    name,
+                    "ll: ",
+                    " ".join(str(e) for e in bbox.ll()),
+                    "ur: ",
+                    " ".join(str(e) for e in bbox.ur()),
+                )
     return result_data
 
 
@@ -69,9 +73,20 @@ for k, v in ref_data.items():
         v.ur() == result_data[k].ur()
     ), f"For pin {k} upper right rectangle point {result_data[k].ur()} does not match {v.ur()}"
 
-assert (result_db.getTech().getManufacturingGrid() == ref_db.getTech().getManufacturingGrid())
-assert (result_db.getTech().getDbUnitsPerMicron() == ref_db.getTech().getDbUnitsPerMicron())
-assert (result_db.getChip().getBlock().getDieArea().ur() == ref_db.getChip().getBlock().getDieArea().ur())
-assert (result_db.getChip().getBlock().getDieArea().ll() == ref_db.getChip().getBlock().getDieArea().ll())
+assert (
+    result_db.getTech().getManufacturingGrid()
+    == ref_db.getTech().getManufacturingGrid()
+)
+assert (
+    result_db.getTech().getDbUnitsPerMicron() == ref_db.getTech().getDbUnitsPerMicron()
+)
+assert (
+    result_db.getChip().getBlock().getDieArea().ur()
+    == ref_db.getChip().getBlock().getDieArea().ur()
+)
+assert (
+    result_db.getChip().getBlock().getDieArea().ll()
+    == ref_db.getChip().getBlock().getDieArea().ll()
+)
 
 sys.exit(0)
