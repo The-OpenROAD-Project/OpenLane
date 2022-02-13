@@ -4,7 +4,7 @@ BUSBITCHARS "[]" ;
 DESIGN def_test ;
 UNITS DISTANCE MICRONS 1000 ;
 DIEAREA ( 0 0 ) ( 400000 400000 ) ;
-PINS 2 ;
+PINS 3 ;
     - in + NET in + DIRECTION INPUT + USE SIGNAL
       + PORT
         + LAYER met2 ( -140 -2000 ) ( 140 2000 )
@@ -13,5 +13,13 @@ PINS 2 ;
       + PORT
         + LAYER met2 ( -140 -2000 ) ( 140 2000 )
         + PLACED ( 400 2000 ) N ;
+    - tied_to_zero + NET zero_ + DIRECTION OUTPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 400 6000 ) N ;
+    - manufacturing_grid_missaligned_pin + NET manufacturing_grid_missaligned_pin + DIRECTION OUTPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 400 6001 ) N ;
 END PINS
 END DESIGN

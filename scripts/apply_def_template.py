@@ -23,8 +23,9 @@ import subprocess
 @click.command()
 @click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
 @click.option("-l", "--lef", "lef", required=True, help="LEF file")
+@click.option("-lg", "--log", "logfile", required=True, help="Log output file")
 @click.argument("userdef")
-def cli(templatedef, userdef, lef):
+def cli(templatedef, userdef, lef, logfile):
     userDEF = userdef
     templateDEF = templatedef
     scriptsDir = os.path.dirname(__file__)
@@ -57,30 +58,27 @@ def cli(templatedef, userdef, lef):
     remove_power_pins(templateDEF)
 
     shutil.copy(userDEF, f"{userDEF}.user.template.tmp")
-
-    try:
-        print(
-            subprocess.check_output(
-                [
-                    "openroad",
-                    "-python",
-                    f"{scriptsDir}/defutil.py",
-                    "replace_pins",
-                    "--output",
-                    userDEF,
-                    "--input-lef",
-                    lef,
-                    f"{userDEF}.user.template.tmp",
-                    templateDEF,
-                ],
-                stderr=subprocess.PIPE,
-                universal_newlines=True,
-            )
+    print(
+        subprocess.check_call(
+            [
+                "openroad",
+                "-python",
+                f"{scriptsDir}/defutil.py",
+                "replace_pins",
+                "--output",
+                userDEF,
+                "--input-lef",
+                lef,
+                "--log",
+                logfile,
+                f"{userDEF}.user.template.tmp",
+                templateDEF,
+            ],
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
         )
-    except subprocess.CalledProcessError as err:
-        print(err.output, err.stderr)
-        raise err
-
+    )
+    
     # read template Def
     templateDEFOpener = open(templateDEF, "r")
     if templateDEFOpener.mode == "r":

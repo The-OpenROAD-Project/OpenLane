@@ -27,6 +27,12 @@ def cli():
     pass
 
 
+def check_pin_grid(manufacturing_grid, dbu_per_microns, pin_name, pin_coordinate, logfile):
+    if (pin_coordinate % (dbu_per_microns * manufacturing_grid)) != 0:
+        print("WARNING: Pin coordinate", pin_coordinate, " for pin", name, "does not match the manufacturing grid")
+        print("WARNING: Pin coordinate", pin_coordinate, " for pin", name, "does not match the manufacturing grid", file=logfile) # IDK how to do this
+        # raise ValueError
+
 class OdbReader(object):
     def __init__(self, lef_in, def_in):
         self.db = odb.dbDatabase.create()
@@ -171,28 +177,30 @@ def merge_pins(output, input_lef, def_one, def_two):
 # openroad -python scripts/defutil.py replace_pins -o output.def -l designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
 
 
-@click.command(
-    "replace_pins",
-    help="""
-Copies first_def to output, then if same pin exists in reference def and first def then, it's written to output def
-
-Note: assumes that all pins are on metal layers and via pins dont exist
-Note: It assumes that all pins are rectangles, not polygons
-Note: This tool assumes no power pins exist in reference def
-Note: it should leave pins in first_def as-is if no pin in reference def is found
-Note: It assumes only one port with the same name exist
-""",
-)
+@click.command("replace_pins")
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
+@click.option("-lg", "--log", "logpath", required=True, help="Log output file")
 @click.argument("first_def")
 @click.argument("reference_def")
-def replace_pins(output, input_lef, first_def, reference_def):
+def replace_pins(output, input_lef, logpath, first_def, reference_def):
+    """
+	Copies first_def to output, then if same pin exists in reference def and first def then, it's written to output def
+
+    Example to run:
+    openroad -python scripts/defutil.py replace_pins -o output.def -l designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def --log defutil.log
+    Note: Assumes that all pins are on metal layers and via pins dont exist.
+    Note: It assumes that all pins are rectangles, not polygons.
+    Note: This tool assumes no power pins exist in reference def.
+    Note: It should leave pins in first_def as-is if no pin in reference def is found.
+    Note: It assumes only one port with the same name exist.
+    Note: It assumes that pin names matches the net names in template DEF.
+    """
     # --------------------------------
     # 0. Sanity check: Check for all defs and lefs to exist
     # I removed the output def to NOT exist check, as it was making testing harder
     # --------------------------------
-
+    
     if not os.path.isfile(input_lef):
         print("LEF file ", input_lef, " not found")
         raise FileNotFoundError
@@ -202,6 +210,8 @@ def replace_pins(output, input_lef, first_def, reference_def):
     if not os.path.isfile(reference_def):
         print("Reference DEF file ", reference_def, " not found")
         raise FileNotFoundError
+    
+    logfile = open(logpath, "w+")
     # if os.path.isfile(output):
     #    print("Not overwriting output DEF file ", reference_def)
     #    raise FileNotFoundError
@@ -209,9 +219,9 @@ def replace_pins(output, input_lef, first_def, reference_def):
     # --------------------------------
     # 1. Copy the one def to second
     # --------------------------------
-    print("[defutil.py:replace_pins] Creating output DEF based on first DEF")
+    print("[defutil.py:replace_pins] Creating output DEF based on first DEF", file=logfile)
     shutil.copy(first_def, output)
-
+    
     # --------------------------------
     # 2. Find list of all bterms in first def
     # --------------------------------
@@ -219,11 +229,18 @@ def replace_pins(output, input_lef, first_def, reference_def):
     odb.read_lef(first_db, input_lef)
     odb.read_def(first_db, first_def)
     first_bterms = first_db.getChip().getBlock().getBTerms()
-
+    
+    manufacturing_grid = first_db.getTech().getManufacturingGrid()
+    dbu_per_microns = first_db.getTech().getDbUnitsPerMicron()
+    print("Using manufacturing grid:", manufacturing_grid,
+        "Using dbu per mircons: ", dbu_per_microns,
+        file=logfile)
+    
     all_bterm_names = set()
 
     for first_bterm in first_bterms:
         first_name = first_bterm.getName()
+        # TODO: Check for pin name matches net name
         # print("Bterm", first_name, "is declared as", first_bterm.getSigType())
 
         # --------------------------------
@@ -238,6 +255,7 @@ def replace_pins(output, input_lef, first_def, reference_def):
                 "is declared as",
                 first_bterm.getSigType(),
                 "ignoring it",
+                file=logfile
             )
             continue
         all_bterm_names.add(first_name)
@@ -246,6 +264,7 @@ def replace_pins(output, input_lef, first_def, reference_def):
         "[defutil.py:replace_pins] Found",
         len(all_bterm_names),
         "block terminals in first def",
+        file=logfile
     )
 
     # --------------------------------
@@ -264,8 +283,8 @@ def replace_pins(output, input_lef, first_def, reference_def):
     for ref_bterm in ref_bterms:
         ref_name = ref_bterm.getName()
         ref_pins = ref_bterm.getBPins()
-
-        # TODO: Move layers too
+        
+        # TODO: Check for pin name matches net name
         for ref_pin in ref_pins:
             boxes = ref_pin.getBoxes()
 
@@ -283,10 +302,10 @@ def replace_pins(output, input_lef, first_def, reference_def):
                     )
                 )
 
-    print("[defutil.py:replace_pins] Found ref_bterms: ", len(ref_bterm_locations))
+    print("[defutil.py:replace_pins] Found ref_bterms: ", len(ref_bterm_locations), file=logfile)
 
-    # for ref_bterm_name in ref_bterm_locations:
-    #    print(ref_bterm_name, ": ", ref_bterm_locations[ref_bterm_name])
+    for ref_bterm_name in ref_bterm_locations:
+       print(ref_bterm_name, ": ", ref_bterm_locations[ref_bterm_name], file=logfile)
 
     # --------------------------------
     # 6. Modify the pins in out def, according to dict
@@ -316,6 +335,10 @@ def replace_pins(output, input_lef, first_def, reference_def):
                 output_new_bpin = odb.dbBPin.create(output_bterm)
 
                 # print("For:", name,"Wrote on layer:", layer.getName(), "coordinates: ", ref_bterm_location_tuple[1], ref_bterm_location_tuple[2], ref_bterm_location_tuple[3], ref_bterm_location_tuple[4])
+                check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[1], logfile)
+                check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[2], logfile)
+                check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[3], logfile)
+                check_pin_grid(manufacturing_grid, dbu_per_microns, name, ref_bterm_location_tuple[4], logfile)
                 odb.dbBox.create(
                     output_new_bpin,
                     layer,
@@ -330,12 +353,15 @@ def replace_pins(output, input_lef, first_def, reference_def):
                 "[defutil.py:replace_pins] Not found",
                 name,
                 "in reference def, but found in output def. Leaving as-is",
+                file=logfile
             )
 
     # --------------------------------
     # 7. Write back the output def
     # --------------------------------
-    print("[defutil.py:replace_pins] Writing output def to: ", output)
+    print("[defutil.py:replace_pins] Writing output def to: ",
+            output,
+            file=logfile)
     odb.write_def(output_block, output)
 
     # Steps:
