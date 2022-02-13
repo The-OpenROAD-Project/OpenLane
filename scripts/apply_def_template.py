@@ -13,12 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import re
 import click
 import shutil
-import subprocess
-import sys
 import defutil
 
 
