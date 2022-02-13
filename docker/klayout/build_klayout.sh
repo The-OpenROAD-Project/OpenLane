@@ -15,13 +15,18 @@ pylibdir="$distpackdir/klayout"
 # clean bin directory
 rm -rf $bininstdir
 
-# do the actual build
-./build.sh -j$(nproc) \
-           -bin $bininstdir \
-           -build $builddir \
-           -rpath $libdir 
+sed -i 's/-O2 -g/-O2/' /usr/lib64/qt5/mkspecs/linux-g++/qmake.conf
 
-echo "Copying files .."
+# do the actual build
+./build.sh\
+    -qt5 \
+    -j$(nproc) \
+    -without-qtbinding \
+    -bin $bininstdir \
+    -build $builddir \
+    -rpath $libdir
+
+echo "Copying files..."
 
 mkdir -p ${libdir}/db_plugins
 mkdir -p ${libdir}/lay_plugins
@@ -36,8 +41,8 @@ cp -pd $bininstdir/lay_plugins/lib*so* ${libdir}/lay_plugins
 cp -pd $bininstdir/pymod/klayout/*so ${pylibdir}
 cp -pd $bininstdir/pymod/klayout/*py ${pylibdir}
 for d in db tl rdb lib; do
-  mkdir -p ${pylibdir}/$d
-  cp -pd $bininstdir/pymod/klayout/$d/*py ${pylibdir}/$d
+    mkdir -p ${pylibdir}/$d
+    cp -pd $bininstdir/pymod/klayout/$d/*py ${pylibdir}/$d
 done
 
 echo "Stripping..."
