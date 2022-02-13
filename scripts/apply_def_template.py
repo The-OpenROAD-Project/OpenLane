@@ -18,6 +18,8 @@ import re
 import click
 import shutil
 import subprocess
+import sys
+import defutil
 
 
 @click.command()
@@ -28,88 +30,24 @@ import subprocess
 def cli(templatedef, userdef, lef, logfile):
     userDEF = userdef
     templateDEF = templatedef
-    scriptsDir = os.path.dirname(__file__)
 
-    def remove_power_pins(DEF):
-        templateDEFOpener = open(DEF, "r")
-        if templateDEFOpener.mode == "r":
-            templateDEFSections = templateDEFOpener.read().split("PINS")
-        templateDEFOpener.close()
-        PINS = templateDEFSections[1].split("- ")
-        OUT_PINS = [" ;"]
-        cnt = 0
-        for pin in PINS[1:]:
-            if pin.find("USE GROUND") + pin.find("USE POWER") == -2:
-                cnt += 1
-                OUT_PINS.append(pin)
-        OUT_PINS[0] = " " + str(cnt) + OUT_PINS[0] + PINS[0].split(";")[1]
-        OUT_PINS[-1] = OUT_PINS[-1].replace("END ", "")
-        OUT_PINS[-1] = OUT_PINS[-1] + "END "
-        templateDEFSections[1] = "- ".join(OUT_PINS)
-        templateDEFOpener = open(DEF, "w")
-        templateDEFOpener.write("PINS".join(templateDEFSections))
-        templateDEFOpener.close()
+    # Removed section to remove the power/ground pins as defutil:replace_pins implements this
 
-    newTemplateDEF = f"{userDEF}.template.tmp"
-    shutil.copy(templateDEF, newTemplateDEF)
-    templateDEF = newTemplateDEF
+    defutil.replace_pins(
+        input_lef=lef,
+        logpath=logfile,
+        template_def=templateDEF,
+        source_def=userDEF,
+        output_def=f"{userDEF}.replace_pins.tmp",
+    )
 
-    templateDEF = f"{userDEF}.template.tmp"
-    remove_power_pins(templateDEF)
-
-    shutil.copy(userDEF, f"{userDEF}.user.template.tmp")
-    print(
-        subprocess.check_output(
-            [
-                "openroad",
-                "-python",
-                f"{scriptsDir}/defutil.py",
-                "replace_pins",
-                "--output",
-                userDEF,
-                "--input-lef",
-                lef,
-                "--log",
-                logfile,
-                f"{userDEF}.user.template.tmp",
-                templateDEF,
-            ],
-            universal_newlines=True,
-            stderr=subprocess.STDOUT
-        )
-    ) # We print it, dont use check_call
-    
-    # read template Def
-    templateDEFOpener = open(templateDEF, "r")
-    if templateDEFOpener.mode == "r":
-        templateDEFContent = templateDEFOpener.read()
-    templateDEFOpener.close()
-
-    # read user Def
-    userDEFOpener = open(userDEF, "r")
-    if userDEFOpener.mode == "r":
-        userDEFContent = userDEFOpener.read()
-    userDEFOpener.close()
-
-    def copyStringWithWord(word, f_rom, t_o):
-        pattern = re.compile(r"\b%s\b\s*\([^)]*\)\s*\([^)]*\)" % word)
-        instances = re.findall(pattern, f_rom)
-        if len(instances) == 1:
-            str_from = instances[0]
-            tmp = re.sub(pattern, str_from, t_o)
-            return tmp
-        return None
-
-    # Copy DIEAREA
-    word = "DIEAREA"
-    userDEFContent = copyStringWithWord(word, templateDEFContent, userDEFContent)
-
-    if userDEFContent is not None:
-        userDEFOpener = open(userDEF, "w")
-        userDEFOpener.write(userDEFContent)
-        userDEFOpener.close()
-    else:
-        raise Exception("DIEAREA not found in DEF")
+    # Call defutil to move die area
+    defutil.move_diearea(
+        template_def=templateDEF,
+        output_def=f"{userDEF}.replace_pins.tmp",
+        input_lef=lef,
+    )
+    shutil.copy(f"{userDEF}.replace_pins.tmp", userDEF)
 
 
 if __name__ == "__main__":

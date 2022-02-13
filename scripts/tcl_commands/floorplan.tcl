@@ -252,15 +252,15 @@ proc chip_floorplan {args} {
 
 proc apply_def_template {args} {
 	if { [info exists ::env(FP_DEF_TEMPLATE)] } {
-		puts_info "Applying DEF template..."
+		set log [index_file $::env(floorplan_logs)/apply_def_template.log]
+		set def [index_file $::env(floorplan_tmpfiles)/apply_def_template.def]
+		puts_info "Applying DEF template. See log: $log"
 		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/apply_def_template.py\
 			--lef $::env(MERGED_LEF) \
 			--def-template $::env(FP_DEF_TEMPLATE)\
-			--log [index_file $::env(floorplan_logs)/apply_def_template.log] \
+			--log $log \
 			$::env(CURRENT_DEF)
-			
 	}
-
 
 }
 

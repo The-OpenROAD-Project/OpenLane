@@ -16,10 +16,18 @@ PINS 4 ;
     - tied_to_zero + NET zero_ + DIRECTION OUTPUT + USE SIGNAL
       + PORT
         + LAYER met2 ( -140 -2000 ) ( 140 2000 )
-        + PLACED ( 400 6000 ) N ;
+        + PLACED ( 4000 2000 ) N ;
     - manufacturing_grid_missaligned_pin + NET manufacturing_grid_missaligned_pin + DIRECTION OUTPUT + USE SIGNAL
       + PORT
         + LAYER met2 ( -140 -2000 ) ( 140 2000 )
-        + PLACED ( 400 6001 ) N ;
+        + PLACED ( 10001 2000 ) N ;
+    - VPWR + NET VPWR + DIRECTION INOUT + USE POWER
+        + PORT
+            + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+            + PLACED ( 20000 2000 ) N ;
+    - VGND + NET VGND + DIRECTION INOUT + USE GROUND
+        + PORT
+            + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+            + PLACED ( 25000 2000 ) N ;
 END PINS
 END DESIGN
