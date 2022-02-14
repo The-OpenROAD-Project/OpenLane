@@ -318,6 +318,8 @@ python3 run_designs.py --tag test --threads 3 spm xtea md5 aes256
 
 For more information on how to run this script, refer to this [file][21]
 
+OpenLane also has flow for issue regression testing. Refer to this [document][38].
+
 For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
 
 # Hardening Macros
@@ -403,3 +405,4 @@ To check the original author list of OpenLane, check [this][33].
 [35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr
 [37]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rcx
+[38]: ./docs/source/issue_regression_tests.md

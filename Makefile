@@ -117,6 +117,11 @@ test_design_list:
 			$(DESIGN_LIST)\
 		"
 
+issue_regression:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "\
+			python3 run_issue_regressions.py"
+
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \

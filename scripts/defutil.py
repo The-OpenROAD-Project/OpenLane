@@ -1,4 +1,5 @@
 # Copyright 2021 Efabless Corporation
+# Copyright 2022 Arman Avetisyan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,15 +40,6 @@ class OdbReader(object):
         self.rows = self.block.getRows()
         self.dbunits = self.block.getDefUnits()
         self.nets = self.block.getNets()
-
-
-# OdbReader("designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef", "designs/def_test/runs/RUN_2022.01.30_12.32.26/results/final/def/def_test.def")
-
-# if isinstance(lef_in, collections.Sequence):
-#            self.lef = []
-#            for lef_inst in lef_in:
-#                self.lef.append(odb.read_lef(self.db, lef_inst))
-#        else:
 
 
 @click.command("extract_core_dims")
@@ -227,7 +219,7 @@ def check_pin_grid(
         print(
             "[ERROR]: Pin coordinate",
             pin_coordinate,
-            " for pin",
+            "for pin",
             pin_name,
             "does not match the manufacturing grid",
             file=sys.stderr,
@@ -235,7 +227,7 @@ def check_pin_grid(
         print(
             "[ERROR]: Pin coordinate",
             pin_coordinate,
-            " for pin",
+            "for pin",
             pin_name,
             "does not match the manufacturing grid",
             file=logfile,
