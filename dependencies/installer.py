@@ -420,7 +420,7 @@ class Installer(object):
 
                 skip_tools = re.compile(os.getenv("SKIP_TOOLS") or "Unmatchable")
                 tool_queue = list(tools.values()).copy()
-                
+
                 print(tool_queue)
 
                 def pop():
