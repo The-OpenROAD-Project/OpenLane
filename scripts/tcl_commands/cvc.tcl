@@ -69,7 +69,7 @@ proc run_lef_cvc {args} {
         > $::env(finishing_tmpfiles)/$::env(DESIGN_NAME).cdl
 
     # The main event
-    try_catch cvc $::env(SCRIPTS_DIR)/cvc/$::env(PDK)/cvcrc.$::env(PDK) \
+    try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc.$::env(PDK) \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/erc_screen.log]
 
     TIMER::timer_stop
