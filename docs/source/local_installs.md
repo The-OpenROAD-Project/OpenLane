@@ -14,7 +14,10 @@ You can invoke `python3 ./env.py local-install`. This tool copies the skeleton a
 
 The tools will all be installed with `./install` as a prefix. You'll find all the repos in `./install/build/repos` and a list of versions in `./install/build/versions`.
 
-**DO NOTE:** We expect you to bring your own OpenROAD. This installer will make no attempt to install OpenROAD. It's too complex to build in an automated fashion.
+**DO NOTE:** We expect you to get some tools on your own, because said tools are too complex to build in an automated fashion. Namely:
+* OpenROAD
+* Klayout
+* Git 2.34+
 
 After the installer is done, you can simply invoke `./flow.tcl` outside of Docker and it should work okay.
 

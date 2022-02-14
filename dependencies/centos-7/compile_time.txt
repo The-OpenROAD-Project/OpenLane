@@ -1,5 +1,3 @@
-https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
-
 devtoolset-8
 devtoolset-8-libatomic-devel
 
@@ -49,7 +47,12 @@ pcre-devel
 python36-devel
 python36-libs
 qt5-qtbase-devel
+qt5-qtmultimedia-devel
+qt5-qtxmlpatterns-devel
+qt5-qtsvg-devel
+qt5-qttools-devel
 readline-devel
+ruby-devel
 strace
 spdlog-devel
 swig3

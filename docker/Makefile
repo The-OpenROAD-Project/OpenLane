@@ -96,11 +96,15 @@ merge: run_base_image ./tar/build ./tar/openlane ../dependencies/tool_metadata.y
 		-f $(DOCKERFILE_PATH) ./tar\
 		| tee logs/$<.build.txt
 
+.PHONY: clean
+clean: clean_export clean_merge
+
 .PHONY: clean_merge
 clean_merge:
 	rm -rf ./tar/openlane
 	rm -rf ./tar/build
 
+.PHONY: clean_export
 clean_export: 
 	rm -rf export/*.tar.gz
 
