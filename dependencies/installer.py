@@ -143,21 +143,14 @@ class Installer(object):
         print(
             textwrap.dedent(
                 f"""\
-            OpenLane Local Installer ALPHA
+            OpenLane Local Installer
 
-                Copyright 2021 Efabless Corporation. Available under the Apache License,
+                Copyright 2021-2022 Efabless Corporation. Available under the Apache License,
                 Version 2.0.
 
                 Ctrl+C at any time to quit.
 
-                Note that this installer does *not* handle:
-                - Installing OpenROAD to PATH
-
-                You'll have to do these on your own. We hope that you understand the implications of this.
-
-                This version of OpenLane was tested with this version of OpenRoad:
-
-                    {tools["openroad_app"].version_string}
+                Make sure you read the documentation in ./docs/source/local_installs.md.
         """
             )
         )
@@ -427,9 +420,11 @@ class Installer(object):
 
                 skip_tools = re.compile(os.getenv("SKIP_TOOLS") or "Unmatchable")
                 tool_queue = list(tools.values()).copy()
+                
+                print(tool_queue)
 
                 def pop():
-                    tool_queue.pop(0) if len(tool_queue) else None
+                    return tool_queue.pop(0) if len(tool_queue) else None
 
                 installed = set()
                 tool = pop()
