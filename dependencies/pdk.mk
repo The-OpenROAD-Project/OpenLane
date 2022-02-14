@@ -36,7 +36,7 @@ pdk: skywater-pdk skywater-library open_pdks build-pdk gen-sources
 $(PDK_ROOT):
 	mkdir -p $(PDK_ROOT)
 
-$(PDK_ROOT)/skywater-pdk/LICENSE: $(PDK_ROOT)
+$(PDK_ROOT)/skywater-pdk/LICENSE: | $(PDK_ROOT)
 	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
