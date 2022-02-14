@@ -142,16 +142,16 @@ class Installer(object):
 
         print(
             textwrap.dedent(
-                f"""\
-            OpenLane Local Installer
+                """\
+                OpenLane Local Installer
 
-                Copyright 2021-2022 Efabless Corporation. Available under the Apache License,
-                Version 2.0.
+                    Copyright 2021-2022 Efabless Corporation. Available under the Apache License,
+                    Version 2.0.
 
-                Ctrl+C at any time to quit.
+                    Ctrl+C at any time to quit.
 
-                Make sure you read the documentation in ./docs/source/local_installs.md.
-        """
+                    Make sure you read the documentation in ./docs/source/local_installs.md.
+                """
             )
         )
 
