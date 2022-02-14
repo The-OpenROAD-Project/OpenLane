@@ -1,5 +1,3 @@
-https://www.klayout.org/downloads/CentOS_7/klayout-0.27.3-0.x86_64.rpm
-
 alsa-lib
 cairo
 gdb
@@ -29,6 +27,13 @@ python36-tkinter
 qt
 qt5-qtbase
 qt5-qtimageformats
+qt5-qtmultimedia
+qt5-qtxmlpatterns
+qt5-qtsvg
+qt5-qttools
+qt5-qttools-libs-designer
+qt5-qttools-libs-designercomponents
+qt5-qttools-libs-help
 qt-settings
 qt-x11
 ruby
