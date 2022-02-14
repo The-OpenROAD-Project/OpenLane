@@ -16,7 +16,11 @@ import sys
 
 with open(sys.argv[1] + "/openlane.log") as f:
     content = f.read()
-    if content.find("Pin coordinate 9861 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid") and content.find("Pin coordinate 10141 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid"):
+    if content.find(
+        "Pin coordinate 9861 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid"
+    ) and content.find(
+        "Pin coordinate 10141 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid"
+    ):
         sys.exit(0)
     else:
-        sys.exit("Didn't match the log") 
+        sys.exit("Didn't match the log")
