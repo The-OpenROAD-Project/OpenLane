@@ -18,6 +18,11 @@ set buffering $::env(SYNTH_BUFFERING)
 set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
+if {[info exists ::env(DFF_LIB_SYNTH)]} {
+    set dfflib $::env(DFF_LIB_SYNTH)
+} else {
+    set dfflib $sclib
+}
 #set opt $::env(SYNTH_OPT)
 #set sdc_file $::env(SDC_FILE)
 
@@ -139,21 +144,21 @@ if {$buffering==1} {
 
 
 set delay_scripts [list \
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	\
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_choice2};${abc_map_old_dly};${abc_area_recovery_2}; retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_choice2};${abc_map_old_dly};${abc_area_recovery_2}; retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	\
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_choice};${abc_map_old_dly};${abc_area_recovery_1}; retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_dly}; scleanup;${abc_choice};${abc_map_old_dly};${abc_area_recovery_1}; retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	\
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_old_dly};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_old_dly};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	]
 
 set area_scripts [list \
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	\
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_new_area};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_resyn2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_new_area};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	\
-	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_choice2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_new_area};retime,-D,{D};${abc_fine_tune};stime,-p;print_stats -m" \
+	"+read_constr,${sdc_file};fx;mfs;strash;refactor;${abc_choice2};${abc_retime_area};scleanup;${abc_choice2};${abc_map_new_area};${abc_choice2};${abc_map_new_area};retime,-D,{D};&get,-n;&st;&dch;&nf;&put;${abc_fine_tune};stime,-p;print_stats -m" \
 	]
 
 set all_scripts [list {*}$delay_scripts {*}$area_scripts]
@@ -274,26 +279,13 @@ if { $fa_map } {
 	techmap -map $::env(FULL_ADDER_MAP)
 }
 
-# handle technology mapping of 4-MUX, and tell Yosys to infer 4-muxes
-if { [info exists ::env(SYNTH_MUX4_MAP)] && [file exists $::env(SYNTH_MUX4_MAP)] } {
-  muxcover -mux4 
-  techmap -map $::env(SYNTH_MUX4_MAP)
-  simplemap
-}
-
-# handle technology mapping of 2-MUX
-if { [info exists ::env(SYNTH_MUX_MAP)] && [file exists $::env(SYNTH_MUX_MAP)] } {
-  techmap -map $::env(SYNTH_MUX_MAP)
-  simplemap
-}
-
 # handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
 	techmap -map $::env(SYNTH_LATCH_MAP)
 	simplemap
 }
 
-dfflibmap -liberty $sclib
+dfflibmap -liberty $dfflib
 tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
 if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {

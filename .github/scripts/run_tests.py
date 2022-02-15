@@ -13,7 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import re
 import os
 import sys
 import yaml
@@ -33,24 +32,36 @@ user = subprocess.check_output(["id", "-u", username]).decode("utf8")[:-1]
 group = subprocess.check_output(["id", "-g", username]).decode("utf8")[:-1]
 
 docker_command = [
-    "docker", "run",
-    "-v", f"{os.path.realpath(gh.root)}:/openlane",
-    "-v", f"{os.path.realpath(gh.root)}/designs:/openlane/install",
-    "-v", f"{gh.pdk}:{gh.pdk}",
-    "-u", f"{user}:{group}",
-    "-e", f"PDK_ROOT={gh.pdk}",
+    "docker",
+    "run",
+    "-v",
+    f"{os.path.realpath(gh.root)}:/openlane",
+    "-v",
+    f"{os.path.realpath(gh.root)}/designs:/openlane/install",
+    "-v",
+    f"{gh.pdk}:{gh.pdk}",
+    "-u",
+    f"{user}:{group}",
+    "-e",
+    f"PDK_ROOT={gh.pdk}",
     gh.image,
-    "bash", "-c",
-    shlex.join([
-        "python3",
-        "run_designs.py",
-        "--disable_timestamp",
-        "--tag", test_name,
-        "--threads", str(threads_used),
-        "--benchmark", os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
-        "--show_output",
-        design,
-    ])
+    "bash",
+    "-c",
+    shlex.join(
+        [
+            "python3",
+            "run_designs.py",
+            "--disable_timestamp",
+            "--tag",
+            test_name,
+            "--threads",
+            str(threads_used),
+            "--benchmark",
+            os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
+            "--show_output",
+            design,
+        ]
+    ),
 ]
 
 print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
@@ -61,7 +72,10 @@ except subprocess.CalledProcessError as e:
     if e.returncode != 2:
         raise e
 
-cat = lambda x: print(open(x).read())
+
+def cat(x):
+    print(open(x).read())
+
 
 results_folder = os.path.join(gh.root, "regression_results", test_name)
 
@@ -80,10 +94,9 @@ dtr_str = open(design_test_report).read()
 dtr = yaml.safe_load(dtr_str)
 
 print("Tarballing run...")
-subprocess.check_call([
-    "tar", "-czf", "./reproducible.tar.gz",
-    os.path.join("designs", design, "runs")
-])
+subprocess.check_call(
+    ["tar", "-czf", "./reproducible.tar.gz", os.path.join("designs", design, "runs")]
+)
 print("Created ./reproducible.tar.gz.")
 
 if not dtr[design]["pass"]:

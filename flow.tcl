@@ -73,8 +73,10 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 	} else {
 		set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
 	}
-	if { $lvs_enabled } {
-		run_magic_spice_export
+
+	if { $lvs_enabled && $::env(RUN_LVS) } {
+		run_magic_spice_export;
+
 		run_lvs; # requires run_magic_spice_export
 	}
 
@@ -105,6 +107,7 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
+
 		run_eco_flow
 	}
 }
@@ -150,20 +153,26 @@ proc save_final_views {args} {
 
 }
 
+proc run_post_run_hooks {} {
+	if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
+		puts_info "Running post run hook"
+		set result [exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py]
+		puts_info "$result"
+	} else {
+		puts_info "hooks/post_run.py not found, skipping"
+	}
+}
+
 proc run_non_interactive_mode {args} {
 	set options {
 		{-design required}
 		{-from optional}
 		{-to optional}
 		{-save_path optional}
-		{-no_lvs optional}
-		{-no_drc optional}
-		{-no_antennacheck optional}
 		{-override_env optional}
 	}
-	set flags {-save}
+	set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck }
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
-
 	prep {*}$args
 	# signal trap SIGINT save_state;
 
@@ -179,6 +188,7 @@ proc run_non_interactive_mode {args} {
 
 	set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
 	set DRC_ENABLED [expr ![info exists flags_map(-no_drc)] ]
+
 	set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
 	set steps [dict create \
@@ -251,6 +261,17 @@ proc run_non_interactive_mode {args} {
 	generate_final_summary_report
 
 	check_timing_violations
+
+	if { [info exists arg_values(-save_path)]\
+		&& $arg_values(-save_path) != "" } {
+		set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
+	} else {
+		set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
+	}
+
+	if {[info exists flags_map(-run_hooks)]} {
+		run_post_run_hooks
+	}
 
 	puts_success "Flow complete."
 
@@ -359,7 +380,7 @@ set options {
 	{-file optional}
 }
 
-set flags {-interactive -it -drc -lvs -synth_explore}
+set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
@@ -386,6 +407,7 @@ puts_info "Version: $::env(OPENLANE_VERSION)"
 
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	puts_info "Running interactively"
+	puts_info "Note, that post_run_hooks.tcl will not be sourced automatically"
 	if { [info exists arg_values(-file)] } {
 		run_file [file normalize $arg_values(-file)] {*}$argv
 	} else {
@@ -400,5 +422,6 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	run_synth_exploration
 } else {
 	puts_info "Running non-interactively"
+
 	run_non_interactive_mode {*}$argv
 }

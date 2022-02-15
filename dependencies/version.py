@@ -44,6 +44,7 @@ import itertools
 import re
 import warnings
 
+
 class InfinityType(object):
     def __repr__(self):
         # type: () -> str
@@ -151,7 +152,7 @@ try:
         [Union[CmpKey, LegacyCmpKey], Union[CmpKey, LegacyCmpKey]], bool
     ]
 except ImportError:
-  pass
+    pass
 
 __all__ = ["parse", "Version", "LegacyVersion", "InvalidVersion", "VERSION_PATTERN"]
 
@@ -240,8 +241,7 @@ class LegacyVersion(_BaseVersion):
         self._key = _legacy_cmpkey(self._version)
 
         warnings.warn(
-            "Creating a LegacyVersion has been deprecated and will be "
-            "removed in the next major release",
+            "Creating a LegacyVersion has been deprecated and will be removed in the next major release",
             DeprecationWarning,
         )
 

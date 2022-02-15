@@ -2,18 +2,16 @@ name: CI
 
 # To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
-    # Runs on pushes to all but CID-latest-branches
-    # CID-latest branches automatically create PRs, let's just let the tests run on those
-    push:
-      branches-ignore:
-      - CID-latest-*
-    # Runs on Pull Requests
-    pull_request:
-    # Runs every day at midnight UTC
-    schedule:
-      - cron:  '0 0 * * *'
-    # Manual Dispatch
-    workflow_dispatch:
+  # Runs on pushes to all but CID-latest-branches
+  # CID-latest branches automatically create PRs, let's just let the tests run on those
+  push:
+  # Runs on Pull Requests
+  pull_request:
+  # Runs every day at midnight UTC
+  schedule:
+    - cron: "0 0 * * *"
+  # Manual Dispatch
+  workflow_dispatch:
 
 jobs:
   docker_build:
@@ -133,7 +131,7 @@ jobs:
 
       - name: Import Docker Image
         run: docker load --input /tmp/image.tar
-      
+
       - name: Download PDK Tarball
         uses: actions/download-artifact@v2
         with:
@@ -158,13 +156,13 @@ jobs:
         with:
           name: ${{ matrix.design }}
           path: ./reproducible.tar.gz
-        
+
   cleanup_and_deploy:
-      name: Cleanup (and Possibly Deployment)
-      needs: test
-      if: always()
-      runs-on: ubuntu-20.04
-      steps:
+    name: Cleanup (and Possibly Deployment)
+    needs: test
+    if: always()
+    runs-on: ubuntu-20.04
+    steps:
       - name: Check If Going To Push An Image To Docker
         # # Uncomment the next line if you want to only build & push a container if entire test set succeeds
         # if: needs.test.result == 'success'
@@ -198,7 +196,7 @@ jobs:
         with:
           name: docker-image
           path: /tmp
-      
+
       - name: Delete Docker Image
         uses: geekyeggo/delete-artifact@v1
         with:
@@ -228,7 +226,7 @@ jobs:
         with:
           tag: "${{ env.NEW_TAG }}"
           repo-token: "${{ secrets.MY_TOKEN }}"
-      
+
       - name: Login to DockerHub
         if: ${{ env.PUSHING == '1' }}
         uses: docker/login-action@v1

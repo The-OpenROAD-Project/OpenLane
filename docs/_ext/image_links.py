@@ -18,10 +18,11 @@
 import re
 from util import debug
 
+
 def setup(app):
-    app.connect('source-read', process_image_links)
-    return {'version': '1.0',
-            'parallel_read_safe': True}
+    app.connect("source-read", process_image_links)
+    return {"version": "1.0", "parallel_read_safe": True}
+
 
 def process_image_links(app, docname, source):
     """
@@ -31,13 +32,13 @@ def process_image_links(app, docname, source):
     `source` is a 1-item list.
     """
 
-    linkexp = '<img src=\".*\"\s*>'
+    linkexp = r'<img src=".*"\s*>'
 
-    for m in re.finditer(linkexp,source[0]):
-            link = m.group(0).split('"')
-            if len(link)==3 and link[1].startswith('.'):
-                link[1] = '_static/' + link[1].rpartition('/')[2]
-                link    = '"'.join(link)
-                debug(f"[IMG] {docname}: {link}")
+    for m in re.finditer(linkexp, source[0]):
+        link = m.group(0).split('"')
+        if len(link) == 3 and link[1].startswith("."):
+            link[1] = "_static/" + link[1].rpartition("/")[2]
+            link = '"'.join(link)
+            debug(f"[IMG] {docname}: {link}")
 
-                source[0] = source[0][:m.start()] + link + source[0][m.end():]
+            source[0] = source[0][: m.start()] + link + source[0][m.end() :]

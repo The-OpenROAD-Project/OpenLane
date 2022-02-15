@@ -24,7 +24,9 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 
 set_placement_padding -global -right $::env(CELL_PAD)
 
-set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+if { $::env(CELL_PAD_EXCLUDE) != "" } {
+    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+}
 
 detailed_placement\
     -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]

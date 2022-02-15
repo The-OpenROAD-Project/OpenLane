@@ -18,6 +18,7 @@ import yaml
 import click
 from typing import List, Optional
 
+
 def timestamp_to_seconds(runtime: str) -> Optional[float]:
     pattern = re.compile(r"\s*([\d+]+)h([\d+]+)m([\d+]+)s(?:([\d+]+)+ms)?")
     m = pattern.match(runtime)
@@ -31,6 +32,7 @@ def timestamp_to_seconds(runtime: str) -> Optional[float]:
     )
     return time
 
+
 def seconds_to_timestamp(runtime: float) -> str:
     hours = int(runtime // 3600)
     minutes_and_seconds_and_milliseconds = runtime % 3600
@@ -40,7 +42,9 @@ def seconds_to_timestamp(runtime: float) -> str:
     milliseconds = int((seconds_and_milliseconds % 1) * 1000)
     return f"{hours}h{minutes}m{seconds}s{milliseconds}ms"
 
+
 runtime_file_path: str = os.path.join(os.environ["RUN_DIR"], "runtime.yaml")
+
 
 def read_runtime_yaml():
     runtime_data_str: str = "[]"
@@ -52,6 +56,7 @@ def read_runtime_yaml():
     yaml_docs: List[List] = list(yaml.safe_load_all(runtime_data_str))
 
     return yaml_docs[0]
+
 
 def write_runtime(status: str, time_in: float):
     runtime_data = read_runtime_yaml()
@@ -66,6 +71,7 @@ def write_runtime(status: str, time_in: float):
     with open(runtime_file_path, "w") as f:
         f.write(yaml.safe_dump(runtime_data, sort_keys=False))
 
+
 def conclude_run(status: str, time_in: float):
     runtime_data = read_runtime_yaml()
 
@@ -73,9 +79,11 @@ def conclude_run(status: str, time_in: float):
 
     timer_start = os.getenv("timer_start")
     if timer_start is None:
-        raise Exception("Attempted to conclude a run without timer_start environment variable set")
+        raise Exception(
+            "Attempted to conclude a run without timer_start environment variable set"
+        )
     timer_start = float(timer_start)
-    
+
     timer_routed = os.getenv("timer_routed")
     routed_s = -1
     routed_ts = "-1"
@@ -85,7 +93,7 @@ def conclude_run(status: str, time_in: float):
         routed_ts = seconds_to_timestamp(routed_s)
 
     obj = {}
-    obj["status"] = f"routed"
+    obj["status"] = "routed"
     obj["runtime_s"] = routed_s
     obj["runtime_ts"] = routed_ts
     final_runtime_data.append(obj)
@@ -105,8 +113,17 @@ def conclude_run(status: str, time_in: float):
 
 @click.command("write_runtime")
 @click.option("--conclude/--no-conclude", default=False)
-@click.option("--seconds/--timestamp", "seconds", default=False, help="Process the input string either as a timestamp or a floating point second value")
-@click.option("--time-in", default=None, help="If this argument is not specified, time is read from stdin.")
+@click.option(
+    "--seconds/--timestamp",
+    "seconds",
+    default=False,
+    help="Process the input string either as a timestamp or a floating point second value",
+)
+@click.option(
+    "--time-in",
+    default=None,
+    help="If this argument is not specified, time is read from stdin.",
+)
 @click.argument("status")
 def cli(seconds, conclude, time_in, status):
     if time_in is None:
@@ -125,5 +142,6 @@ def cli(seconds, conclude, time_in, status):
     else:
         write_runtime(status, time_in)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     cli()

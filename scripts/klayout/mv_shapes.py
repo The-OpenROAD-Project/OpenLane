@@ -22,7 +22,9 @@ try:
     _output_layout = output_layout
 except NameError:
     _output_layout = input_layout
-    print("Warning: output_layout was not provided; will do the modifications in place!")
+    print(
+        "Warning: output_layout was not provided; will do the modifications in place!"
+    )
     print("Hit CTRL-C to cancel...")
     sleep(3)
 
@@ -38,7 +40,7 @@ layoutOptions = tech.load_layout_options
 # Load def/gds file in the main window
 cell_view = win.load_layout(input_layout, layoutOptions, 0)
 layout_view = cell_view.view()
-layout_view.load_layer_props(os.path.splitext(tech_file)[0]+'.lyp')
+layout_view.load_layer_props(os.path.splitext(tech_file)[0] + ".lyp")
 layout_view.max_hier()
 
 # gets the corresponding layout object
@@ -49,12 +51,12 @@ layout = cell_view.layout()
 cell = cell_view.cell
 
 # finds source layer
-layer, purpose = source_layer.split('/')
+layer, purpose = source_layer.split("/")
 assert layer and purpose
 _source_layer = layout.layer(int(layer), int(purpose))
 
 # finds (or creates) target layer
-layer, purpose = target_layer.split('/')
+layer, purpose = target_layer.split("/")
 assert layer and purpose
 _target_layer = layout.layer(int(layer), int(purpose))
 

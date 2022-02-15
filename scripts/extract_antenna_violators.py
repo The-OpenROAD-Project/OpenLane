@@ -16,22 +16,23 @@ import argparse
 import re
 
 parser = argparse.ArgumentParser(
-    description='extracts the list of violating nets from an ARC report file')
+    description="extracts the list of violating nets from an ARC report file"
+)
 
-parser.add_argument('--report', '-i',required=True,
-                    help='report file')
+parser.add_argument("--report", "-i", required=True, help="report file")
 
-parser.add_argument('--output', '-o', required=True,
-                    help='output file to store results')
+parser.add_argument(
+    "--output", "-o", required=True, help="output file to store results"
+)
 
 args = parser.parse_args()
 report_file_name = args.report
 out_file_name = args.output
 
-pattern = re.compile(r'\s*([\S+]+)\s*\([\S+]+\)\s*[\S+]+')
+pattern = re.compile(r"\s*([\S+]+)\s*\([\S+]+\)\s*[\S+]+")
 
-vios_list=[]
-current_net = ''
+vios_list = []
+current_net = ""
 printed = False
 
 with open(report_file_name, "r") as f:
@@ -41,9 +42,9 @@ with open(report_file_name, "r") as f:
             current_net = m.group(1)
             printed = False
 
-        if '*' in line and not printed:
+        if "*" in line and not printed:
             print(current_net)
-            vios_list.append(current_net + ' ')
+            vios_list.append(current_net + " ")
             printed = True
 
 

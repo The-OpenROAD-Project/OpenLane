@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# default pdk
-set ::env(PDK) "sky130A"
-if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
-    set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
-} else {
-    puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+# default pdk/scl
+if { ![info exists ::env(PDK)] } {
+    set ::env(PDK) "sky130A"
 }
+if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+    set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+}
+
 set ::env(USE_GPIO_PADS) 0
 
 # Flow control defaults
@@ -74,14 +75,7 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 # 5: Same as 2 but behaves like 4.
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
-set ::env(STA_REPORT_POWER) 1
-# psn
-if { [file exists /build/transforms/] } {
-	set ::env(PSN_TRANSFORM_PATH) /build/transforms
-} else {
-	set ::env(PSN_TRANSFORM_PATH) $::env(HOME)/.local/transforms
-}
-
+set ::env(STA_REPORT_POWER) {1}
 set ::env(SAVE_FINAL_VIEWS) {1}
 
 set ::env(ECO_ENABLE) {0}

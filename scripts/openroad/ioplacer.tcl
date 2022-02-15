@@ -17,34 +17,44 @@ if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
 	#ppl::set_num_slots 2
 }
 
-
 if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
+	puts stderr $errmsg
 	exit 1
 }
 
-ppl::set_hor_length $::env(FP_IO_HLENGTH)
-ppl::set_ver_length $::env(FP_IO_VLENGTH)
-ppl::set_hor_length_extend $::env(FP_IO_VEXTEND)
-ppl::set_ver_length_extend $::env(FP_IO_HEXTEND)
-ppl::set_ver_thick_multiplier $::env(FP_IO_VTHICKNESS_MULT)
-ppl::set_hor_thick_multiplier $::env(FP_IO_HTHICKNESS_MULT)
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+	puts stderr $errmsg
+	exit 1
+}
 
-set opts ""
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
+                   -ver_length $::env(FP_IO_VLENGTH)
+}
+
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_length_extension -hor_extension $::env(FP_IO_HEXTEND) \
+                             -ver_extension $::env(FP_IO_VEXTEND)
+}
+
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+    set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HTHICKNESS_MULT) \
+                             -ver_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+}
+
+set arg_list [list]
 if { $::env(FP_IO_MODE) == 1 } {
-    set opts "-random"
+	lappend arg_list -random
+}
+
+if { $::env(FP_IO_MIN_DISTANCE) != "" } {
+	lappend arg_list -min_distance $::env(FP_IO_MIN_DISTANCE)
 }
 
 set HMETAL $::env(FP_IO_HLAYER)
 set VMETAL $::env(FP_IO_VLAYER)
 
-place_pins {*}$opts \
-	-min_distance $::env(FP_IO_MIN_DISTANCE) \
+place_pins {*}$arg_list \
 	-random_seed 42 \
 	-hor_layers $HMETAL \
 	-ver_layers $VMETAL

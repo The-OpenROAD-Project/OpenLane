@@ -11,64 +11,47 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 # This file is intended to be included by the top-level Makefile. Please don't use it directly. :)
 
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
 IO_LIBRARY ?= sky130_fd_io
-INSTALL_SRAM ?= disabled
+
+LIBRARY_LIST ?= $(STD_CELL_LIBRARY) $(IO_LIBRARY) $(SPECIAL_VOLTAGE_LIBRARY) sky130_fd_pr
+ifeq ($(FULL_PDK),1)
+LIBRARY_LIST = sky130_fd_sc_hd sky130_fd_sc_hs sky130_fd_sc_hdll sky130_fd_sc_ms sky130_fd_sc_ls sky130_fd_sc_hvl sky130_fd_io sky130_fd_pr
+endif
+ifeq ($(NATIVE_PDK),1)
+ENV_COMMAND = env
+endif
 
 OPEN_PDK_ARGS ?= ""
-ifeq ($(INSTALL_SRAM), enabled)
-OPEN_PDK_ARGS += --enable-sram-sky130
-else ifneq ($(INSTALL_SRAM), disabled)
-OPEN_PDK_ARGS += --enable-sram-sky130=$(INSTALL_SRAM)
-endif 
 
-.PHONY: pdk
+.PHONY: pdk pdk-with-sram
+pdk-with-sram: OPEN_PDK_ARGS += --enable-sram-sky130
+pdk-with-sram: pdk
 pdk: skywater-pdk skywater-library open_pdks build-pdk gen-sources
-
-.PHONY: native-pdk
-native-pdk: skywater-pdk skywater-library open_pdks native-build-pdk gen-sources
-
-.PHONY: full-pdk
-full-pdk: skywater-pdk all-skywater-libraries open_pdks build-pdk gen-sources
-
-.PHONY: native-full-pdk
-native-full-pdk: skywater-pdk all-skywater-libraries open_pdks native-build-pdk gen-sources
 
 $(PDK_ROOT):
 	mkdir -p $(PDK_ROOT)
 
-$(PDK_ROOT)/skywater-pdk/LICENSE: $(PDK_ROOT)
+$(PDK_ROOT)/skywater-pdk/LICENSE: | $(PDK_ROOT)
 	git clone $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f repo) $(PDK_ROOT)/skywater-pdk
 
 .PHONY: skywater-pdk
 skywater-pdk: $(PDK_ROOT)/skywater-pdk/LICENSE
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git checkout main && git submodule init && git pull --no-recurse-submodules && \
+		git checkout main && \
+		git submodule init && git pull --no-recurse-submodules && \
 		git checkout -qf $(SKYWATER_COMMIT)
 
 .PHONY: skywater-library
 skywater-library: $(PDK_ROOT)/skywater-pdk
 	cd $(PDK_ROOT)/skywater-pdk && \
-		git submodule update --init libraries/$(STD_CELL_LIBRARY)/latest && \
-		git submodule update --init libraries/$(IO_LIBRARY)/latest && \
-		git submodule update --init libraries/$(SPECIAL_VOLTAGE_LIBRARY)/latest && \
-		git submodule update --init libraries/sky130_fd_pr/latest && \
-		$(MAKE) -j$(NPROC) timing
-
-.PHONY: all-skywater-libraries
-all-skywater-libraries: skywater-pdk
-	cd $(PDK_ROOT)/skywater-pdk && \
-		git submodule update --init libraries/sky130_fd_sc_hd/latest && \
-		git submodule update --init libraries/sky130_fd_sc_hs/latest && \
-		git submodule update --init libraries/sky130_fd_sc_hdll/latest && \
-		git submodule update --init libraries/sky130_fd_sc_ms/latest && \
-		git submodule update --init libraries/sky130_fd_sc_ls/latest && \
-		git submodule update --init libraries/sky130_fd_sc_hvl/latest && \
-		git submodule update --init libraries/sky130_fd_io/latest && \
-		git submodule update --init libraries/sky130_fd_pr/latest && \
+		for library in $(LIBRARY_LIST); do \
+			git submodule update --init libraries/$$library/latest ;\
+		done; \
 		$(MAKE) -j$(NPROC) timing
 
 ### OPEN_PDKS
@@ -83,17 +66,18 @@ open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
 .PHONY: build-pdk
-native-build-pdk: ENV_COMMAND=env
-native-build-pdk: build-pdk
 build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && rm -rf $(PDK_ROOT)/sky130A || true
+	
 	$(ENV_COMMAND) sh -c "\
 		cd $(PDK_ROOT)/open_pdks && \
 		./configure --enable-sky130-pdk=$(PDK_ROOT)/skywater-pdk/libraries $(OPEN_PDK_ARGS)\
 	"
+
 	cd $(PDK_ROOT)/open_pdks/sky130 && \
 		$(MAKE) veryclean && \
 		$(MAKE) prerequisites
+	
 	$(ENV_COMMAND) sh -c "\
 		cd $(PDK_ROOT)/open_pdks/sky130 && \
 		make && \

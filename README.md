@@ -1,5 +1,5 @@
 # OpenLane
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=latest)](https://openlane.readthedocs.io/) [![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master)](#) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=latest)](https://openlane.readthedocs.io/) [![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master)](#) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools) [![Python code style: black](https://img.shields.io/badge/python%20code%20style-black-000000.svg)](https://github.com/psf/black)
 
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
@@ -59,6 +59,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
 * The default pdk installation directory is $PWD/pdks. If you want to install the PDK at a different location, you'll need add this configuration variable:
     * `export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>`
         * Be sure to add this to your shell's profile for future use.
+* If you want to include the precompiled OpenRAM SRAM modules, try `make pdk-with-sram`.
 * The default SCL to be installed is `sky130_fd_sc_hd`.
     * To change that, you can add this configuration variable: `export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls>`, where the library name is one of:
         - sky130_fd_sc_hd
@@ -66,7 +67,7 @@ You can start setting up the Sky130 PDK and OpenLane by running:
         - sky130_fd_sc_ms
         - sky130_fd_sc_ls
         - sky130_fd_sc_hdll
-    * You can install all Sky130 SCLs by invoking `make full-pdk` instead of `make pdk`.
+    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make pdk`.
     * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
     * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
     
@@ -230,7 +231,7 @@ OpenLane integrated several key open source tools over the execution stages:
 - Clock Tree Synthesis: [TritonCTS][11]
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] or [CU-GR][36] (Global) and [TritonRoute][13] (Detailed)
-- SPEF Extraction: [SPEF-Extractor][27]
+- SPEF Extraction: [SPEF-Extractor][27] (formerly), [OpenRCX][37]
 - GDSII Streaming out: [Magic][14] and [Klayout][35]
 - DRC Checks: [Magic][14] and [Klayout][35]
 - LVS check: [Netgen][22]
@@ -401,3 +402,4 @@ To check the original author list of OpenLane, check [this][33].
 [34]: ./docs/source/openlane_commands.md
 [35]: https://github.com/KLayout/klayout
 [36]: https://github.com/cuhk-eda/cu-gr
+[37]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rcx

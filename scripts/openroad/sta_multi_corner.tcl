@@ -29,9 +29,15 @@ set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -
 
 define_corners ss tt ff
 
-read_liberty -corner ss $::env(LIB_SLOWEST)
-read_liberty -corner tt $::env(LIB_SYNTH_COMPLETE)
-read_liberty -corner ff $::env(LIB_FASTEST)
+foreach lib $::env(LIB_SLOWEST) {
+    read_liberty -corner ss $lib
+}
+foreach lib $::env(LIB_TYPICAL) {
+    read_liberty -corner tt $lib
+}
+foreach lib $::env(LIB_FASTEST) {
+    read_liberty -corner ff $lib
+}
 
 foreach corner {ss tt ff} {
     if { [info exists ::env(EXTRA_LIBS) ] } {

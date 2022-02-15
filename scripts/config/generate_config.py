@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import sys
-import os
 
 outputPrefix = sys.argv[1]
 baseConfigFile = sys.argv[2]
@@ -24,46 +23,50 @@ idx = [0]
 valuesList = []
 keysList = []
 
-extra =[]
+extra = []
 
 std_cell_library = []
 
 
 def readContent(regressionFile):
     try:
-        tmpFile = open(regressionFile,"r")
-        if tmpFile.mode == 'r':
+        tmpFile = open(regressionFile, "r")
+        if tmpFile.mode == "r":
             regressionFileContent = tmpFile.read().split("\n")
             i = 0
             while i < len(regressionFileContent):
                 line = regressionFileContent[i]
                 if line == "":
-                    i+=1
+                    i += 1
                     continue
                 elif line.find("extra") != -1:
-                    while regressionFileContent[i][0] != "\"":
-                        i+=1
-                        if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
+                    while regressionFileContent[i][0] != '"':
+                        i += 1
+                        if (regressionFileContent[i][0] != '"') and (
+                            regressionFileContent[i] != ""
+                        ):
                             extra.append(regressionFileContent[i])
                 elif line.find("std_cell_library") != -1:
-                    while regressionFileContent[i][0] != "\"":
-                        i+=1
-                        if (regressionFileContent[i][0] != "\"") and (regressionFileContent[i] != ""):
+                    while regressionFileContent[i][0] != '"':
+                        i += 1
+                        if (regressionFileContent[i][0] != '"') and (
+                            regressionFileContent[i] != ""
+                        ):
                             std_cell_library.append(regressionFileContent[i])
                 else:
                     keysList.append(line.split("=")[0])
                     vals = line.split("=")[1]
                     vals = vals[1:-1]
                     valuesList.append(vals.split(","))
-                i+=1
-    except  OSError:
-        print ("Could not open/read file:", regressionFile)
+                i += 1
+    except OSError:
+        print("Could not open/read file:", regressionFile)
         sys.exit()
 
 
-def resolveExpression(valExpression,expressionKeeper):
+def resolveExpression(valExpression, expressionKeeper):
     for i in expressionKeeper.keys():
-        valExpression= valExpression.replace(i,expressionKeeper[i])
+        valExpression = valExpression.replace(i, expressionKeeper[i])
     try:
         ret = eval(valExpression)
         return ret
@@ -77,49 +80,56 @@ def insertSCL(configs):
         for idx in range(len(lines)):
             if lines[idx].find("$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl") != -1:
                 for var in std_cell_library:
-                    lines.insert(idx,var)
-                    idx+=1
+                    lines.insert(idx, var)
+                    idx += 1
                 configs = "\n".join(lines)
                 return configs
         for var in std_cell_library:
-            lines.insert(0,var)
+            lines.insert(0, var)
         configs = "\n".join(lines)
         return configs
     else:
         return configs
 
-def Generator(i,j, regression_config, expressionKeeper):
-    if (i == len(keysList)-1):
-        outFileName = outputPrefix+str(idx[0])+".tcl"
+
+def Generator(i, j, regression_config, expressionKeeper):
+    if i == len(keysList) - 1:
+        outFileName = outputPrefix + str(idx[0]) + ".tcl"
         outFile = open(outFileName, "w")
         outFile.write("\n# Design\n")
-        baseConfigFileRead = open(baseConfigFile,"r")
+        baseConfigFileRead = open(baseConfigFile, "r")
         outFile.write(insertSCL(baseConfigFileRead.read()))
         outFile.write("\n# Regression\n")
         newVal = valuesList[i][j]
         if newVal.isupper() or newVal.islower():
             newVal = str(resolveExpression(newVal, expressionKeeper))
-        outFile.write(regression_config+"set ::env("+keysList[i]+") \""+newVal+"\"\n")
+        outFile.write(
+            regression_config + "set ::env(" + keysList[i] + ') "' + newVal + '"\n'
+        )
         outFile.write("\n# Extra\n")
         for x in extra:
-            outFile.write(x+"\n")
+            outFile.write(x + "\n")
         outFile.close()
-        idx[0]+=1
+        idx[0] += 1
     else:
-        for k in range(len(valuesList[i+1])):
+        for k in range(len(valuesList[i + 1])):
             newVal = valuesList[i][j]
             if newVal.isupper() or newVal.islower():
                 newVal = str(resolveExpression(newVal, expressionKeeper))
 
-            expressionKeeper[keysList[i]]=newVal
-            Generator(i+1,k,regression_config+"set ::env("+keysList[i]+") \""+newVal+"\"\n",expressionKeeper)
+            expressionKeeper[keysList[i]] = newVal
+            Generator(
+                i + 1,
+                k,
+                regression_config + "set ::env(" + keysList[i] + ') "' + newVal + '"\n',
+                expressionKeeper,
+            )
             expressionKeeper.pop(keysList[i])
-
 
 
 readContent(regressionFile)
 expressionKeeper = dict()
 for k in range(len(valuesList[0])):
-    Generator(0,k,"",expressionKeeper)
+    Generator(0, k, "", expressionKeeper)
 
-print (idx[0])
+print(idx[0])

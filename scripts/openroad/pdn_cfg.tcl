@@ -60,7 +60,7 @@ set macro {
     orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
     power_pins $::env(VDD_NET)
     ground_pins $::env(GND_NET)
-    blockages $::env(MACRO_BLOCKAGES_LAYER)
+    blockages {$::env(MACRO_BLOCKAGES_LAYER)}
     straps {
     }
     connect {{$::env(FP_PDN_LOWER_LAYER)_PIN_ver $::env(FP_PDN_UPPER_LAYER)}}
@@ -72,18 +72,18 @@ if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1} {
         foreach macro_instance $::env(FP_PDN_MACROS) {
             set macro_instance_grid [subst $macro] 
             dict append $macro_instance_grid instance $macro_instance
-            set ::halo [list $::env(FP_HORIZONTAL_HALO) $::env(FP_VERTICAL_HALO)]
+            set ::halo [list $::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)]
             pdngen::specify_grid macro [subst $macro_instance_grid]
         }
     } else {
-        set ::halo [list $::env(FP_HORIZONTAL_HALO) $::env(FP_VERTICAL_HALO)]
+        set ::halo [list $::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)]
         pdngen::specify_grid macro [subst $macro]
     }
     # CAN NOT ENABLE THE TCL COMMAND BECAUSE THERE IS NO ARGUMENT FOR SPECIFYING THE POWER AND GROUND PIN NAMES ON THE MACRO
-    # define_pdn_grid -macro -orient {R0 R180 MX MY R90 R270 MXR90 MYR90} -grid_over_pg_pins -starts_with POWER -pin_direction vertical -halo [subst {$::env(FP_HORIZONTAL_HALO) $::env(FP_VERTICAL_HALO)}]
+    # define_pdn_grid -macro -orient {R0 R180 MX MY R90 R270 MXR90 MYR90} -grid_over_pg_pins -starts_with POWER -pin_direction vertical -halo [subst {$::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)}]
     # add_pdn_connect -layers [subst {$::env(FP_PDN_LOWER_LAYER) $::env(FP_PDN_UPPER_LAYER)}]
 } else {
-    define_pdn_grid -macro -orient {R0 R180 MX MY R90 R270 MXR90 MYR90} -grid_over_pg_pins -starts_with POWER -halo [subst {$::env(FP_HORIZONTAL_HALO) $::env(FP_VERTICAL_HALO)}]
+    define_pdn_grid -macro -orient {R0 R180 MX MY R90 R270 MXR90 MYR90} -grid_over_pg_pins -starts_with POWER -halo [subst {$::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)}]
 }
 
 # POWER or GROUND #Std. cell rails starting with power or ground rails at the bottom of the core area

@@ -48,6 +48,7 @@ endif
 
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
+QUICK_RUN_DESIGN ?= spm
 BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
@@ -65,12 +66,16 @@ export PDK_ROOT := $(shell python3 -c "import os; print(os.path.realpath('$(PDK_
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 endif
 
+export STD_CELL_LIBRARY ?= sky130_fd_sc_hd
+STD_CELL_OPTS := -e STD_CELL_LIBRARY=$(STD_CELL_LIBRARY)
+
 # ./designs is mounted over ./install so env.tcl is not found inside the Docker
 # container if the user had previously installed it.
 ENV_START = docker run --rm\
 	-v $(OPENLANE_DIR):/openlane\
 	-v $(OPENLANE_DIR)/designs:/openlane/install\
 	$(PDK_OPTS)\
+	$(STD_CELL_OPTS)\
 	$(DOCKER_OPTIONS)
 
 ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
@@ -119,6 +124,11 @@ test:
 	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/finishing/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"
+
+.PHONY: quick_run
+quick_run:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
 
 # PDK build commands
 include ./dependencies/pdk.mk

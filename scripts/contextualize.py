@@ -17,24 +17,46 @@ import argparse
 import odb
 
 parser = argparse.ArgumentParser(
-    description='Produces a DEF file where a design is shown in the context of its instantiation in a top-level design')
+    description="Produces a DEF file where a design is shown in the context of its instantiation in a top-level design"
+)
 
-parser.add_argument('--macro-def', '-md', required=True,
-                    help='DEF view of the design')
+parser.add_argument("--macro-def", "-md", required=True, help="DEF view of the design")
 
-parser.add_argument('--macro-lef', '-ml', required=True,
-                    help='LEF file needed to have a proper view of the macro DEF')
+parser.add_argument(
+    "--macro-lef",
+    "-ml",
+    required=True,
+    help="LEF file needed to have a proper view of the macro DEF",
+)
 
-parser.add_argument('--top-def', '-td', required=True,
-                    help='DEF view of the top-level design where the macro is instantiated')
-parser.add_argument('--top-lef', '-tl', required=True,
-                    help='LEF file needed to have a proper view of the top-level DEF')
+parser.add_argument(
+    "--top-def",
+    "-td",
+    required=True,
+    help="DEF view of the top-level design where the macro is instantiated",
+)
+parser.add_argument(
+    "--top-lef",
+    "-tl",
+    required=True,
+    help="LEF file needed to have a proper view of the top-level DEF",
+)
 
-parser.add_argument('--output', '-o', required=True,
-                    default='output.def', help='Output Contextualized DEF')
+parser.add_argument(
+    "--output",
+    "-o",
+    required=True,
+    default="output.def",
+    help="Output Contextualized DEF",
+)
 
-parser.add_argument('--keep-inner-connections', '-keep', action='store_true', default=False,
-                help="If set, the internal cells will remain conneted in the otput DEF")
+parser.add_argument(
+    "--keep-inner-connections",
+    "-keep",
+    action="store_true",
+    default=False,
+    help="If set, the internal cells will remain conneted in the otput DEF",
+)
 
 
 args = parser.parse_args()
@@ -59,8 +81,12 @@ output_def_file_name = args.output
 
 db_macro = odb.dbDatabase.create()
 db_top = odb.dbDatabase.create()
-odb.read_lef(db_macro, top_lef_file_name) # must read first to have consistent views with the top-level
-odb.read_lef(db_macro, macro_lef_file_name) # rest of the macros that don't appear in the top-level are covered here
+odb.read_lef(
+    db_macro, top_lef_file_name
+)  # must read first to have consistent views with the top-level
+odb.read_lef(
+    db_macro, macro_lef_file_name
+)  # rest of the macros that don't appear in the top-level are covered here
 odb.read_def(db_macro, macro_def_file_name)
 
 odb.read_lef(db_top, top_lef_file_name)
@@ -83,7 +109,9 @@ MACRO_TOP_PLACEMENT_X = 0
 MACRO_TOP_PLACEMENT_Y = 0
 MACRO_TOP_PLACEMENT_ORIENT = 0
 
-assert macro_design_name in [inst.getMaster().getName() for inst in block_top.getInsts()], "%s not found in %s" % (macro_design_name, top_design_name)
+assert macro_design_name in [
+    inst.getMaster().getName() for inst in block_top.getInsts()
+], "%s not found in %s" % (macro_design_name, top_design_name)
 
 for net in nets_top:
     iterms = net.getITerms()  # asssumption: no pins (bterms) on top level
@@ -104,7 +132,6 @@ for net in nets_top:
             if macro_name != macro_design_name:
                 to_connect[block_net_name].append(iterm)
         block_net_name = None
-
 
         # print(macro_name, inst_name, end= ' ')
         # print(iterm.getMTerm().getName())
@@ -128,7 +155,10 @@ for net in nets_macro:
                 print("Creating: ", node_master.getName(), node_inst_name)
                 new_inst = odb.dbInst_create(block_macro, node_master, node_inst_name)
                 new_inst.setOrient(node_inst.getOrient())
-                new_inst.setLocation(node_inst.getLocation()[0]-MACRO_TOP_PLACEMENT_X, node_inst.getLocation()[1]-MACRO_TOP_PLACEMENT_Y)
+                new_inst.setLocation(
+                    node_inst.getLocation()[0] - MACRO_TOP_PLACEMENT_X,
+                    node_inst.getLocation()[1] - MACRO_TOP_PLACEMENT_Y,
+                )
                 new_inst.setPlacementStatus("FIRM")
             else:
                 new_inst = block_macro.findInst(node_inst_name)

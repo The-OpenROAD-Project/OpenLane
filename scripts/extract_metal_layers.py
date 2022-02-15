@@ -16,12 +16,13 @@ import re
 import click
 from typing import List
 
+
 def extract_metal_layers(techlef_str: str) -> List[str]:
     printed = False
     metal_list = []
-    current_layer_name = ''
+    current_layer_name = ""
 
-    pattern = re.compile(r'\s*LAYER\s*([\S+]+)\s*')
+    pattern = re.compile(r"\s*LAYER\s*([\S+]+)\s*")
 
     for line in techlef_str.split("\n"):
         m = pattern.match(line)
@@ -29,11 +30,12 @@ def extract_metal_layers(techlef_str: str) -> List[str]:
             current_layer_name = m.group(1)
             printed = False
 
-        if 'ROUTING' in line and not printed:
-            metal_list.append(current_layer_name + ' ')
+        if "ROUTING" in line and not printed:
+            metal_list.append(current_layer_name + " ")
             printed = True
 
     return metal_list
+
 
 @click.command()
 @click.option("--output", "-o", default="/dev/stdout", help="Output file.")
@@ -45,6 +47,7 @@ def cli(output, techlef):
 
     with open(output, "w") as f:
         f.write(" ".join(metal_list).strip())
+
 
 if __name__ == "__main__":
     cli()

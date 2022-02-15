@@ -1,0 +1,23 @@
+name: Lint
+on:
+  # Runs on pushes to all but CID-latest-branches
+  # CID-latest branches automatically create PRs, let's just let the tests run on those
+  push:
+  # Runs on Pull Requests
+  pull_request:
+  # Runs manually
+  workflow_dispatch:
+
+jobs:
+  lint_python:
+    name: Lint Python Code
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Install Linters
+        run: python3 -m pip install black==21.12b0 flake8==4.0.1
+      - name: Ensure Black Formatting
+        run: black --check .
+      - name: Lint with Flake8
+        run: flake8 .

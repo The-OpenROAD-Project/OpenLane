@@ -21,17 +21,32 @@ import math
 import click
 import textwrap
 
+
 @click.command()
 @click.option("--fanout", required=True)
 @click.option("--clk-net", required=True)
 @click.option("--root-clkbuf", required=True, help="Clock tree root buffer type")
 @click.option("--clkbuf", required=True, help="Clock tree branching buffer type")
-@click.option("--clkbuf-input-pin", required=True, help="Name of input pin in clock buffers")
-@click.option("--clkbuf-output-pin", required=True, help="Name of output pin in clock buffers")
+@click.option(
+    "--clkbuf-input-pin", required=True, help="Name of input pin in clock buffers"
+)
+@click.option(
+    "--clkbuf-output-pin", required=True, help="Name of output pin in clock buffers"
+)
 @click.option("--clk-port", required=True, help="Name of clock pin in storage elements")
 @click.option("-o", "--output", required=True, help="Name of output netlist")
 @click.argument("input_netlist")
-def cli(fanout, clk_net, clkbuf, root_clkbuf, clkbuf_input_pin, clkbuf_output_pin, clk_port, output, input_netlist):
+def cli(
+    fanout,
+    clk_net,
+    clkbuf,
+    root_clkbuf,
+    clkbuf_input_pin,
+    clkbuf_output_pin,
+    clk_port,
+    output,
+    input_netlist,
+):
     """
     Shalan's Simple Clock Tree Synthesizer
 
@@ -60,14 +75,18 @@ def cli(fanout, clk_net, clkbuf, root_clkbuf, clkbuf_input_pin, clkbuf_output_pi
         # obviously translated c-style for loop
         i = 0
         while i < leaves:
-            next_level_fanout = (fanout ** (level + 1))
-            ii = i//next_level_fanout * next_level_fanout
+            next_level_fanout = fanout ** (level + 1)
+            ii = i // next_level_fanout * next_level_fanout
             cell_name = f"{instance}{i}"
-            verilog_cells.append(textwrap.dedent(f"""
+            verilog_cells.append(
+                textwrap.dedent(
+                    f"""
             {clkbuf} {cell_name} (
             \t.{clkbuf_input_pin}({input_wire}{ii}),
             \t.{clkbuf_output_pin}({output_wire}{i})
-            );"""))
+            );"""
+                )
+            )
             verilog_wires.append(f"wire {output_wire}{i};")
             buffers[level] += 1
             cell_count += 1
@@ -75,11 +94,15 @@ def cli(fanout, clk_net, clkbuf, root_clkbuf, clkbuf_input_pin, clkbuf_output_pi
             i += fanout ** level
 
     root_net = f"clk_{levels - 1}_0"
-    verilog_cells.append(textwrap.dedent(f"""
+    verilog_cells.append(
+        textwrap.dedent(
+            f"""
     {root_clkbuf} _CTS_root(
     \t.{clkbuf_input_pin}({clk_net}),
     \t.{clkbuf_output_pin}({root_net})
-    );"""))
+    );"""
+        )
+    )
     verilog_wires.append(f"wire clk_{levels - 1}_0;\n")
 
     with io.StringIO() as sio:
@@ -91,7 +114,7 @@ def cli(fanout, clk_net, clkbuf, root_clkbuf, clkbuf_input_pin, clkbuf_output_pi
                     state = 1
                 print(line, file=sio)
             elif state == 1:
-                if not "wire" in line and not "input" in line and not "output" in line:
+                if "wire" not in line and "input" not in line and "output" not in line:
                     state = 2
                     print("\n// CTS added wires:", file=sio)
                     print("\n".join(verilog_wires), file=sio)
@@ -109,8 +132,9 @@ def cli(fanout, clk_net, clkbuf, root_clkbuf, clkbuf_input_pin, clkbuf_output_pi
                     print(line_replaced, file=sio)
                 else:
                     print(line, file=sio)
-        with open(output, 'w') as f:
+        with open(output, "w") as f:
             f.write(sio.getvalue())
+
 
 if __name__ == "__main__":
     cli()

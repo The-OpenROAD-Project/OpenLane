@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
 import re
 import click
 
 import odb
 
+
 @click.group()
 def cli():
     pass
+
 
 class OdbReader(object):
     def __init__(self, lef_in, def_in):
@@ -32,6 +33,7 @@ class OdbReader(object):
         self.rows = self.block.getRows()
         self.dbunits = self.block.getDefUnits()
 
+
 @click.command("extract_core_dims")
 @click.option("-o", "--output-data", required=True, help="Output")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
@@ -40,12 +42,20 @@ def extract_core_dims(output_data, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     core_area = reader.block.getCoreArea()
 
-    with open(output_data, 'w') as f:
-        print(f"{core_area.dx() / reader.dbunits} {core_area.dy() / reader.dbunits}", file=f)
+    with open(output_data, "w") as f:
+        print(
+            f"{core_area.dx() / reader.dbunits} {core_area.dy() / reader.dbunits}",
+            file=f,
+        )
+
+
 cli.add_command(extract_core_dims)
-    
+
+
 @click.command("mark_component_fixed")
-@click.option("-c", "--cell-name", required=True, help="Cell name of the components to mark fixed")
+@click.option(
+    "-c", "--cell-name", required=True, help="Cell name of the components to mark fixed"
+)
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
@@ -54,13 +64,19 @@ def mark_component_fixed(cell_name, output, input_lef, input_def):
     instances = reader.block.getInsts()
     for instance in instances:
         if instance.getMaster().getName() == cell_name:
-            instance.setPlacementStatus('FIRM')
+            instance.setPlacementStatus("FIRM")
 
-    assert(odb.write_def(reader.block, output) == 1)
+    assert odb.write_def(reader.block, output) == 1
+
+
 cli.add_command(mark_component_fixed)
 
-def merge_item_section(item: str, def_one_str: str, def_two_str: str, replace_two: bool=False) -> str:
+
+def merge_item_section(
+    item: str, def_one_str: str, def_two_str: str, replace_two: bool = False
+) -> str:
     import re
+
     section_start_rx = re.compile(rf"{item}\s+(\d+)\s*;\s*")
     section_end_rx = re.compile(rf"END\s+{item}")
 
@@ -104,6 +120,7 @@ def merge_item_section(item: str, def_one_str: str, def_two_str: str, replace_tw
 
     return "\n".join(final_out_lines)
 
+
 @click.command("merge_components")
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
@@ -114,10 +131,12 @@ def merge_components(output, input_lef, def_one, def_two):
     def_one_str = open(def_one).read()
     def_two_str = open(def_two).read()
 
-    with open(output, 'w') as f:
+    with open(output, "w") as f:
         f.write(merge_item_section("COMPONENTS", def_one_str, def_two_str))
 
+
 cli.add_command(merge_components)
+
 
 @click.command("merge_pins")
 @click.option("-o", "--output", default="./out.def")
@@ -129,8 +148,9 @@ def merge_pins(output, input_lef, def_one, def_two):
     def_one_str = open(def_one).read()
     def_two_str = open(def_two).read()
 
-    with open(output, 'w') as f:
+    with open(output, "w") as f:
         f.write(merge_item_section("PINS", def_one_str, def_two_str))
+
 
 @click.command("replace_pins")
 @click.option("-o", "--output", default="./out.def")
@@ -142,14 +162,23 @@ def replace_pins(output, input_lef, def_one, def_two):
     def_one_str = open(def_one).read()
     def_two_str = open(def_two).read()
 
-    with open(output, 'w') as f:
+    with open(output, "w") as f:
         f.write(merge_item_section("PINS", def_one_str, def_two_str, replace_two=True))
+
 
 cli.add_command(replace_pins)
 
+
 @click.command("remove_components")
-@click.option("--rx/--not-rx", default=True, help="Treat instance name as a regular expression")
-@click.option("-n", "--instance-name", default=".+", help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)")
+@click.option(
+    "--rx/--not-rx", default=True, help="Treat instance name as a regular expression"
+)
+@click.option(
+    "-n",
+    "--instance-name",
+    default=".+",
+    help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)",
+)
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
@@ -162,15 +191,27 @@ def remove_components(rx, instance_name, output, input_lef, input_def):
         name_m = matcher.search(name)
         if name_m is not None:
             odb.dbInst.destroy(instance)
-    
-    assert(odb.write_def(reader.block, output) == 1)
+
+    assert odb.write_def(reader.block, output) == 1
+
+
 cli.add_command(remove_components)
 
+
 @click.command("remove_nets")
-@click.option("--rx/--not-rx", default=True, help="Treat net name as a regular expression")
-@click.option("-n", "--net-name", default=".+", help="Net name to be removed (Default '.+', as a regular expression, removes everything.)")
+@click.option(
+    "--rx/--not-rx", default=True, help="Treat net name as a regular expression"
+)
+@click.option(
+    "-n",
+    "--net-name",
+    default=".+",
+    help="Net name to be removed (Default '.+', as a regular expression, removes everything.)",
+)
 @click.option("-o", "--output", default="./out.def")
-@click.option("--empty-only", is_flag=True, default=False, help="Only remove empty nets.")
+@click.option(
+    "--empty-only", is_flag=True, default=False, help="Only remove empty nets."
+)
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
 def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
@@ -190,13 +231,22 @@ def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
             else:
                 odb.dbNet.destroy(net)
 
-    
-    assert(odb.write_def(reader.block, output) == 1)
+    assert odb.write_def(reader.block, output) == 1
+
+
 cli.add_command(remove_nets)
 
+
 @click.command("remove_pins")
-@click.option("--rx/--not-rx", default=True, help="Treat pin name as a regular expression")
-@click.option("-n", "--pin-name", default=".+", help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)")
+@click.option(
+    "--rx/--not-rx", default=True, help="Treat pin name as a regular expression"
+)
+@click.option(
+    "-n",
+    "--pin-name",
+    default=".+",
+    help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)",
+)
 @click.option("-o", "--output", default="./out.def")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
 @click.argument("input_def")
@@ -209,10 +259,12 @@ def remove_pins(rx, pin_name, output, input_lef, input_def):
         name_m = matcher.search(name)
         if name_m is not None:
             odb.dbBTerm.destroy(pin)
-    
-    assert(odb.write_def(reader.block, output) == 1)
+
+    assert odb.write_def(reader.block, output) == 1
+
+
 cli.add_command(remove_pins)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     cli()

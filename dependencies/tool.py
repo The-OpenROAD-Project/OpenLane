@@ -17,10 +17,22 @@ import sys
 import yaml
 from typing import Dict, List
 
-class Tool(object):
-    by_name: Dict[str, 'Tool']
 
-    def __init__(self, name, repo, commit, build_script="make && make install", default_branch=None, in_install=True, in_container=True, dependencies=[], pdk=False):
+class Tool(object):
+    by_name: Dict[str, "Tool"]
+
+    def __init__(
+        self,
+        name,
+        repo,
+        commit,
+        build_script="make && make install",
+        default_branch=None,
+        in_install=True,
+        in_container=True,
+        dependencies=[],
+        pdk=False,
+    ):
         self.name = name
         self.repo = repo
         self.commit = commit
@@ -39,7 +51,7 @@ class Tool(object):
         gh_prefix = "https://github.com/"
         repo = self.repo
         if repo is not None and repo.startswith(gh_prefix):
-            return repo[len(gh_prefix):]
+            return repo[len(gh_prefix) :]
         return repo
 
     @property
@@ -55,33 +67,41 @@ class Tool(object):
             "--build-arg",
             f"{self.name.upper()}_REPO={self.repo}",
             "--build-arg",
-            f"{self.name.upper()}_COMMIT={self.commit}"
+            f"{self.name.upper()}_COMMIT={self.commit}",
         ]
 
     @staticmethod
-    def from_metadata_yaml(metadata_yaml: str) -> Dict[str, 'Tool']:
+    def from_metadata_yaml(metadata_yaml: str) -> Dict[str, "Tool"]:
         final_dict = {}
         tool_list = yaml.load(metadata_yaml, Loader=yaml.SafeLoader)
         for tool in tool_list:
-            final_dict[tool['name']] = Tool(
-                name=tool['name'],
-                repo=tool['repo'],
-                commit=tool['commit'],
-                build_script=tool.get('build') or "",
-                default_branch=tool.get('default_branch') or None,
-                in_container=tool['in_container'] if tool.get('in_container') is not None else True,
-                in_install=tool['in_install'] if tool.get('in_install') is not None else True,
-                dependencies= tool.get('dependencies') or [],
-                pdk=tool.get('pdk') or False
+            final_dict[tool["name"]] = Tool(
+                name=tool["name"],
+                repo=tool["repo"],
+                commit=tool["commit"],
+                build_script=tool.get("build") or "",
+                default_branch=tool.get("default_branch") or None,
+                in_container=tool["in_container"]
+                if tool.get("in_container") is not None
+                else True,
+                in_install=tool["in_install"]
+                if tool.get("in_install") is not None
+                else True,
+                dependencies=tool.get("dependencies") or [],
+                pdk=tool.get("pdk") or False,
             )
         return final_dict
 
-Tool.by_name = Tool.from_metadata_yaml(open(os.path.join(os.path.dirname(__file__), "tool_metadata.yml")).read())
+
+Tool.by_name = Tool.from_metadata_yaml(
+    open(os.path.join(os.path.dirname(__file__), "tool_metadata.yml")).read()
+)
+
 
 def main():
     import os
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Get Tool Info")
     parser.add_argument("--containerized", action="store_true")
     parser.add_argument("--docker-args", action="store_true")
@@ -98,20 +118,20 @@ def main():
                 pdk_keys.append(key)
 
         for key in pdk_keys:
-                del Tool.by_name[key]
+            del Tool.by_name[key]
 
     if args.containerized:
         for tool in Tool.by_name.values():
             if tool.in_container:
                 print(tool.name, end=" ")
         exit(0)
-    
+
     try:
         tool = Tool.by_name[args.tool]
-    except:
+    except Exception:
         print(f"Unknown tool {args.tool}.", file=sys.stderr)
         exit(os.EX_DATAERR)
-    
+
     if args.docker_tag_for_os:
         print(tool.get_docker_tag(for_os=args.docker_tag_for_os))
     elif args.docker_args:

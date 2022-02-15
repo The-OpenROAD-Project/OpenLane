@@ -24,7 +24,7 @@ metadata_path = os.path.join(dependencies_path, "tool_metadata.yml")
 
 sys.path.append(dependencies_path)
 
-from tool import Tool
+from tool import Tool  # noqa E402
 
 parser = argparse.ArgumentParser()
 parser.add_argument("tools", nargs="+")
@@ -35,18 +35,18 @@ tools = Tool.from_metadata_yaml(open(metadata_path).read())
 # Handle Multiline Strings Properly / https://stackoverflow.com/a/33300001
 def represent_str(dumper: yaml.Dumper, data: str):
     if "\n" in data:
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
-    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+        return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
+    return dumper.represent_scalar("tag:yaml.org,2002:str", data)
+
+
 yaml.add_representer(str, represent_str)
-dump_options = { 'sort_keys': False }
+dump_options = {"sort_keys": False}
 
 changes = False
 for tool_name in args.tools:
     tool = tools[tool_name]
 
-    repo = gh.Repo(
-        tool_name, tool.repo
-    )
+    repo = gh.Repo(tool_name, tool.repo)
     repo.commit = tool.commit
 
     print("Found %s@%s (latest: %s)." % (repo.url, repo.commit, repo.latest_commit))
@@ -56,8 +56,8 @@ for tool_name in args.tools:
         metadata_str = open(metadata_path).read()
         metadata = yaml.safe_load(metadata_str)
         for tool in metadata:
-            if tool['name'] == tool_name:
-                tool['commit'] = repo.latest_commit
+            if tool["name"] == tool_name:
+                tool["commit"] = repo.latest_commit
         metadata_str = yaml.dump(metadata, **dump_options)
         with open(metadata_path, "w") as f:
             f.write(metadata_str)

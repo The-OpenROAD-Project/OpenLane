@@ -1,0 +1,5 @@
+black==21.12b0
+flake8==4.0.1
+-r ./dependencies/python/precompile_time.txt
+-r ./dependencies/python/compile_time.txt
+-r ./requirements.txt

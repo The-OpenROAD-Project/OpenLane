@@ -21,7 +21,9 @@ import json
 args = sys.argv[1:]
 
 if len(args) < 1:
-    print(f"Usage: {__file__} [test set 0 name [test set 1 name [...]]]", file=sys.stderr)
+    print(
+        f"Usage: {__file__} [test set 0 name [test set 1 name [...]]]", file=sys.stderr
+    )
     exit(os.EX_USAGE)
 
 directory = os.path.dirname(os.path.realpath(__file__))
@@ -37,4 +39,4 @@ for file in files:
             continue
         designs.append(design)
 
-print(json.dumps({ "design": designs }))
+print(json.dumps({"design": designs}))

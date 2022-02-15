@@ -26,7 +26,7 @@ RUN yum install --setopt=skip_missing_names_on_install=False -y $(cat /yum_repos
 
 RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 
-## Set Git
+# Configure Git
 RUN git config --global user.name "OpenLane User" 
 RUN git config --global user.email "openlane.user@localhost"
 

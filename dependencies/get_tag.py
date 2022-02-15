@@ -18,33 +18,57 @@ import os
 import sys
 import subprocess
 
+
 class NoGitException(Exception):
     pass
 
+
 def get_tag() -> str:
     try:
-        try:
-            git_ok: subprocess.CompletedProcessProcess = subprocess.run(["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        except FileNotFoundError:
-            raise NoGitException(f"Cannot find the git binary. Please specify OPENLANE_IMAGE_NAME manually.")
+        if os.path.exists("/git_version"):
+            return open("/git_version").read().strip()
 
-        branch_name_data: subprocess.CompletedProcess = subprocess.run(["git", "branch", "--show-current"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            subprocess.run(
+                ["git", "status"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+        except FileNotFoundError:
+            raise NoGitException(
+                "Cannot find the git binary. Please specify OPENLANE_IMAGE_NAME manually."
+            )
+
+        branch_name_data: subprocess.CompletedProcess = subprocess.run(
+            ["git", "branch", "--show-current"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
 
         if branch_name_data.returncode != 0:
-            raise NoGitException(f"Cannot determine git branch. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {branch_name_data.stderr.decode('utf8').strip()}")
+            raise NoGitException(
+                f"Cannot determine git branch. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {branch_name_data.stderr.decode('utf8').strip()}"
+            )
 
-        branch_name = branch_name_data.stdout.decode('utf8').strip()
+        branch_name = branch_name_data.stdout.decode("utf8").strip()
         if branch_name not in ["main", "master"]:
             return f"{branch_name}-dev"
 
-        process_data: subprocess.CompletedProcess = subprocess.run(["git", "describe", "--tags", "--abbrev=0"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_data: subprocess.CompletedProcess = subprocess.run(
+            ["git", "describe", "--tags", "--abbrev=0"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         if process_data.returncode != 0:
-            raise NoGitException(f"Failed to extract tags. You are either using a shallow clone or not using a Git repository at all. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}")
-        return process_data.stdout.decode('utf8').strip()
+            raise NoGitException(
+                f"Failed to extract tags. You are either using a shallow clone or not using a Git repository at all. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}"
+            )
+        return process_data.stdout.decode("utf8").strip()
     except NoGitException as e:
         raise e
     except Exception as e:
-        raise Exception(f"An unexpected error has occurred when trying to find the OpenLane version: {e}.")
+        raise Exception(
+            f"An unexpected error has occurred when trying to find the OpenLane version: {e}."
+        )
+
 
 if __name__ == "__main__":
     try:
