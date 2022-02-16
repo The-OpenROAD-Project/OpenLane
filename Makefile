@@ -29,7 +29,10 @@ endif
 # Allow using GUIs
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host -v $(HOME)/.openroad:/.openroad
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
+  ifneq ("$(wildcard $(HOME)/.openroad)","")
+    DOCKER_OPTIONS += -v $(HOME)/.openroad:/.openroad
+  endif
 endif
 
 NPROC ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
