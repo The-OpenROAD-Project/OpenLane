@@ -82,7 +82,7 @@ if os.path.exists(input_file):
             vio_name = drcSections[i].strip()
             report_end_str = re.search("min_report_end", vio_name)
             if report_end_str is not None:
-                print("not complete report")
+                print("report is incomplete")
                 break
             minus_time_str = re.search(
                 r"([0-9]+\.[0-9]+) +slack +\(VIOLATED\)", vio_name
