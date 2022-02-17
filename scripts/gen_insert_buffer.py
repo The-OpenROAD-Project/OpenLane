@@ -81,7 +81,7 @@ if os.path.exists(input_file):
         for i in range(0, len(drcSections)):
             vio_name = drcSections[i].strip()
             report_end_str = re.search("min_report_end", vio_name)
-            if report_end_str != None:
+            if report_end_str is not None:
                 print("not complete report")
                 break
             minus_time_str = re.search(
