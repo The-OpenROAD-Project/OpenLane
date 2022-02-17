@@ -23,9 +23,13 @@ parser = argparse.ArgumentParser(
     description="Converts a 23-spef_extraction_multi_corner_sta.min.rpt file to a eco insert buffer tcl file."
 )
 
-parser.add_argument('--skip_pin', '-s', required=True, help='skip input ouput cases')
-parser.add_argument('--input_file', '-i', required=True,
-                    help='input 23-spef_extraction_multi_corner_sta.min.rpt')
+parser.add_argument("--skip_pin", "-s", required=True, help="skip input ouput cases")
+parser.add_argument(
+    "--input_file",
+    "-i",
+    required=True,
+    help="input 23-spef_extraction_multi_corner_sta.min.rpt",
+)
 parser.add_argument(
     "--lef_file", "-l", required=True, help="input lef file to load design"
 )
@@ -76,8 +80,8 @@ if os.path.exists(input_file):
         # if (len(drcSections) > 2):
         for i in range(0, len(drcSections)):
             vio_name = drcSections[i].strip()
-            report_end_str = re.search('min_report_end',vio_name)
-            if (report_end_str != None):
+            report_end_str = re.search("min_report_end", vio_name)
+            if report_end_str != None:
                 print("not complete report")
                 break
             minus_time_str = re.search(
@@ -105,14 +109,18 @@ if os.path.exists(input_file):
                                     pin_name = start_point + "/" + mterm.getName()
                                     pin_type = "ITerm"
                                     # master = inst.getMaster()
-                                    vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1))) 
+                                    vio_dict[pin_name + " " + pin_type].append(
+                                        float(minus_time_str.group(1))
+                                    )
                                     break
                     # pin
-                    if (pin_name == '' and skip_pin == 0 ):
-                        pin_name=start_point
-                        pin_type="BTerm"
+                    if pin_name == "" and skip_pin == 0:
+                        pin_name = start_point
+                        pin_type = "BTerm"
                         # continue
-                        vio_dict[pin_name + " " + pin_type].append(float(minus_time_str.group(1)))                     
+                        vio_dict[pin_name + " " + pin_type].append(
+                            float(minus_time_str.group(1))
+                        )
 
         eco_iter = os.environ["ECO_ITER"]
         for pin_unq in vio_dict.keys():
