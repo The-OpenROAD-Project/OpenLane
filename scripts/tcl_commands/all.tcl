@@ -946,4 +946,8 @@ proc run_antenna_check {args} {
     }
 }
 
+proc or_gui {args} {
+    run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
+}
+
 package provide openlane 0.9
