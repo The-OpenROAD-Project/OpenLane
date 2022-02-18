@@ -60,7 +60,7 @@ $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 $(TOOL_EXPORT_TARGETS): tar/%.tar.gz : FORCE
 	rm -f tar/$*.tar.gz && echo "Deleted existing tar/$*.tar.gz"
 	mkdir -p tar
-	python3 ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $*
+	python3 ./utils.py pull_if_doesnt_exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $*
 	id=$$(${ROOT} docker create $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)) ; \
 	  ${ROOT} docker cp $$id:/build.tar.gz tar/$*.tar.gz ; \
 	  ${ROOT} docker rm -v $$id
