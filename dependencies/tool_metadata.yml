@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 6ecd077ab4e8a7b6ccd8922954cd56862a8d4c05
+  commit: 7d601628e4e05fd17fcb80c3552dacb64e9f6e7b
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -79,7 +79,7 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 428d0fe8c941faece4eceebc54170cc04d916c03
-  build: ''
+  build: ""
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
@@ -106,4 +106,3 @@
   build: ""
   in_install: false
   in_container: false
-
