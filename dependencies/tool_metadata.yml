@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 0bb6ac1fa98b5371c73156b6e876925397fb7cbc
+  commit: 31639f61fc9029a59875d7cddf7706cd204b75b4
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
