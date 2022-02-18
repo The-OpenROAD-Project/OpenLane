@@ -178,15 +178,19 @@ proc run_openroad_script {args} {
         {-indexed_log optional}
     }
 
-	set flags {-netlist_in}
+    set flags {-netlist_in -gui}
 
     parse_key_args "run_openroad_script" args arg_values $options flag_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
 
-	set script [lindex $args 0]
+    set script [lindex $args 0]
 
-	set args "$::env(OPENROAD_BIN) -exit $script"
+    if { [info exists flag_map(-gui)] } {
+        set args "$::env(OPENROAD_BIN) -gui $script"
+    } else {
+        set args "$::env(OPENROAD_BIN) -exit $script"
+    }
 
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
         set timestamp [clock format [clock seconds]]
@@ -194,7 +198,7 @@ proc run_openroad_script {args} {
         close $cmd_log_file
     }
 
-    set exit_code [catch {exec $::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
+    set exit_code [catch {exec {*}$args |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
 
     if { $exit_code } {
         set tool [string range $args 0 [string first " " $args]]
