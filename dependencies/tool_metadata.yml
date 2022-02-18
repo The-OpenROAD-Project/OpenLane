@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 0bb6ac1fa98b5371c73156b6e876925397fb7cbc
+  commit: 7d601628e4e05fd17fcb80c3552dacb64e9f6e7b
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -79,30 +79,30 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 428d0fe8c941faece4eceebc54170cc04d916c03
-  build: ''
+  build: ""
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: 8d53e9b018dec98fa63e907ddeb6c5406f035361
-  build: ''
+  build: ""
   in_install: false
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ''
+  build: ""
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: 476f7428f7f686de51a5164c702629a9b9f2da46
-  build: ''
+  commit: 7519dfb04400f224f140749cda44ee7de6f5e095
+  build: ""
   in_install: false
   pdk: true
   dependencies:
-  - sky130
-  - magic
+    - sky130
+    - magic
 - name: sky130
   repo: https://github.com/google/skywater-pdk
   commit: c094b6e83a4f9298e47f696ec5a7fd53535ec5eb
-  build: ''
+  build: ""
   in_install: false
   in_container: false
