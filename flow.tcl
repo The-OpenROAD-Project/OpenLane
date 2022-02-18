@@ -73,8 +73,10 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 	} else {
 		set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
 	}
+
 	if { $lvs_enabled && $::env(RUN_LVS) } {
 		run_magic_spice_export;
+
 		run_lvs; # requires run_magic_spice_export
 	}
 
@@ -105,7 +107,8 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
-		run_eco
+
+		run_eco_flow
 	}
 }
 
