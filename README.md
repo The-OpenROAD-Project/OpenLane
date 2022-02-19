@@ -36,7 +36,7 @@ At a minimum:
 - Docker 19.03.12+
 - GNU Make
 - Python 3.6+ with PIP
-- Click, Pyyaml: `python3 -m pip install pyyaml click`
+- Click, Pyyaml: `python3 -m pip install pyyaml click>=7`
 
 ## Containerless Install
 Please see [here](./docs/source/local_installs.md).
