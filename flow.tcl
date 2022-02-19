@@ -73,8 +73,10 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 	} else {
 		set ::env(CURRENT_DEF) $::env(LVS_CURRENT_DEF)
 	}
+
 	if { $lvs_enabled && $::env(RUN_LVS) } {
 		run_magic_spice_export;
+
 		run_lvs; # requires run_magic_spice_export
 	}
 
@@ -105,7 +107,8 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
-		run_eco
+
+		run_eco_flow
 	}
 }
 
@@ -168,11 +171,15 @@ proc run_non_interactive_mode {args} {
 		{-save_path optional}
 		{-override_env optional}
 	}
-	set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck }
+	set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
 	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 	prep {*}$args
 	# signal trap SIGINT save_state;
 
+	if { [info exists flags_map(-gui)] } {
+            or_gui
+            return
+	}
 	if { [info exists arg_values(-override_env)] } {
 		set env_overrides [split $arg_values(-override_env) ',']
 		foreach override $env_overrides {

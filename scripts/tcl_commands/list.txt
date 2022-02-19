@@ -41,6 +41,7 @@ ins_diode_cells_4
 add_route_obs
 run_spef_extraction
 run_routing
+run_eco_flow
 check_assign_statements
 check_synthesis_failure
 check_floorplan_missing_lef

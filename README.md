@@ -36,7 +36,7 @@ At a minimum:
 - Docker 19.03.12+
 - GNU Make
 - Python 3.6+ with PIP
-- Click, Pyyaml: `python3 -m pip install pyyaml click`
+- Click, Pyyaml: `python3 -m pip install pyyaml click>=7`
 
 ## Containerless Install
 Please see [here](./docs/source/local_installs.md).
@@ -406,3 +406,4 @@ To check the original author list of OpenLane, check [this][33].
 [36]: https://github.com/cuhk-eda/cu-gr
 [37]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rcx
 [38]: ./docs/source/issue_regression_tests.md
+
