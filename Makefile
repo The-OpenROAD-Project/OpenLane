@@ -118,9 +118,10 @@ test_design_list:
 		"
 
 issue_regression:
+	# -u is needed, as the python buffers the stdout, so no output is generated
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
-			python3 run_issue_regressions.py"
+			python3 -u run_issue_regressions.py"
 
 .PHONY: test
 test:

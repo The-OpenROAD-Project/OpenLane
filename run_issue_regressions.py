@@ -21,7 +21,15 @@ for test_case in test_cases:
     result = ""
     test_case_issue_regression_script = test_case + "/issue_regression.py"
     script_exists = os.path.isfile(test_case_issue_regression_script)
+    (_, test_case_name) = os.path.split(test_case)
+    # print("test_case_name", test_case_name)
+    logpath = "./regression_results/issue_regression_" + test_case_name + ".log"
+    logpath_check = (
+        "./regression_results/issue_regression_" + test_case_name + "_check.log"
+    )
     try:
+        logfile = open(logpath, "w")
+        print("Running test case:", test_case_name, "Logfile:", logpath)
         result = subprocess.run(
             [
                 "./flow.tcl",
@@ -32,8 +40,9 @@ for test_case in test_cases:
                 "-run_hooks",
                 "-overwrite",
             ],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=logfile,
+            stderr=subprocess.STDOUT,
+            check=True,
         )
     except subprocess.CalledProcessError as err:
         if script_exists:
@@ -45,12 +54,14 @@ for test_case in test_cases:
             print(
                 "Flow failed and issue_regression.py does not exist, therefore test case",
                 test_case,
-                "failed",
+                "failed. Logfile:",
+                logpath,
             )
             raise err
 
     if script_exists:
-        print("Running", test_case_issue_regression_script)
+        print("Running", test_case_issue_regression_script, "Logfile:", logpath_check)
+        logfile_check = open(logpath_check, "w")
         subprocess.run(
             [
                 "openroad",
@@ -58,7 +69,10 @@ for test_case in test_cases:
                 test_case_issue_regression_script,
                 test_case + "/runs/issue_regression_run",
                 str(result.returncode),
-            ]
+            ],
+            check=True,
+            stdout=logfile_check,
+            stderr=subprocess.STDOUT,
         )
     else:
         print(
@@ -69,4 +83,4 @@ for test_case in test_cases:
             "has been found",
         )
 
-print("issuuer regression flow completed without errors")
+print("Issue regression flow completed without errors")
