@@ -147,7 +147,7 @@ jobs:
         run: python3 -m pip install pyyaml
 
       - name: Run Issue Regression Test
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/run_issue_regressions.py run ${{ matrix.design }}
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/run_issue_regressions.py run ${{ issue_regression_matrix.design }}
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
