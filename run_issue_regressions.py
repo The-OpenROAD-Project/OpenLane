@@ -31,6 +31,7 @@ def cli():
     pass
 
 
+# Note: Following command is executed outside of OpenRoad, so you can't run the ./flow.tcl
 @click.command("get_matrix")
 def get_matrix():
     print(json.dumps({"design": test_cases}))
@@ -59,6 +60,13 @@ cli.add_command(run_all)
 
 
 def run_test_case(test_case):
+    # test_case is the path to design
+    # test_case_name is name of design to test
+    # It is assumed that every test case is inside designs path
+
+    # -------------------------------
+    # 0. Calculate names
+    # -------------------------------
     result = ""
     test_case_issue_regression_script = test_case + "/issue_regression.py"
     script_exists = os.path.isfile(test_case_issue_regression_script)
@@ -68,6 +76,9 @@ def run_test_case(test_case):
     logpath_check = (
         "./regression_results/issue_regression_" + test_case_name + "_check.log"
     )
+    # -------------------------------
+    # 1. Run the flow
+    # -------------------------------
     try:
         logfile = open(logpath, "w")
         print("Running test case:", test_case_name, "Logfile:", logpath)
@@ -86,20 +97,28 @@ def run_test_case(test_case):
             check=True,
         )
     except subprocess.CalledProcessError as err:
+        # -------------------------------
+        # 2.1 If run was not successful, then run the issue_regression.py which
+        #       will check if the fail was expected or not and it will also check the logs
+        #       for errors to match
+        # 2.2 If issue_regression.py does not exist then it's enough for this design to pass LVS
+        # -------------------------------
         if script_exists:
             result = err
             print(
-                "Flow failed. This might be expected, as issue_regression.py may expect this"
+                "./flow.tcl failed. This might be expected, as issue_regression.py may expect this"
             )
         else:
             print(
-                "Flow failed and issue_regression.py does not exist, therefore test case",
+                "./flow.tcl failed and issue_regression.py does not exist, therefore test case",
                 test_case,
                 "failed. Logfile:",
                 logpath,
             )
             raise err
-
+    # -------------------------------
+    # 3. Run the issue_regression.py.
+    # -------------------------------
     if script_exists:
         print("Running", test_case_issue_regression_script, "Logfile:", logpath_check)
         logfile_check = open(logpath_check, "w")
@@ -117,6 +136,9 @@ def run_test_case(test_case):
                 stderr=subprocess.STDOUT,
             )
         except subprocess.CalledProcessError as err:
+            # -------------------------------
+            # 4. Run the issue_regression.py. If it errors out, log it and then raise an error
+            # -------------------------------
             print("Issue regression check failed, check log:", logpath_check)
             raise err
         print("Completed run successfully:", test_case)
