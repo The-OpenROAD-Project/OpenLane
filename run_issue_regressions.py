@@ -14,10 +14,51 @@
 import glob  # For finding all issue_regression designs
 import subprocess  # For running the flow
 import os  # For checking if file exists
+import click  # For command line parsing
+import json
+
 
 test_cases = glob.glob("./designs/issue_*")
 
-for test_case in test_cases:
+# TODO: If command is get designs
+# print(json.dumps({"design": designs}))
+# else if design specified
+#
+
+
+@click.group()
+def cli():
+    pass
+
+
+@click.command("get_matrix")
+def get_matrix():
+    print(json.dumps({"design": test_cases}))
+
+
+cli.add_command(get_matrix)
+
+
+@click.command("run")
+@click.argument("test_case")
+def run_test_case_cmd(test_case):
+    run_test_case(test_case)
+
+
+cli.add_command(run_test_case_cmd)
+
+
+@click.command("run_all")
+def run_all():
+    for test_case in test_cases:
+        run_test_case(test_case)
+    print("Issue regression flow completed without errors")
+
+
+cli.add_command(run_all)
+
+
+def run_test_case(test_case):
     result = ""
     test_case_issue_regression_script = test_case + "/issue_regression.py"
     script_exists = os.path.isfile(test_case_issue_regression_script)
@@ -62,18 +103,22 @@ for test_case in test_cases:
     if script_exists:
         print("Running", test_case_issue_regression_script, "Logfile:", logpath_check)
         logfile_check = open(logpath_check, "w")
-        subprocess.run(
-            [
-                "openroad",
-                "-python",
-                test_case_issue_regression_script,
-                test_case + "/runs/issue_regression_run",
-                str(result.returncode),
-            ],
-            check=True,
-            stdout=logfile_check,
-            stderr=subprocess.STDOUT,
-        )
+        try:
+            subprocess.run(
+                [
+                    "openroad",
+                    "-python",
+                    test_case_issue_regression_script,
+                    test_case + "/runs/issue_regression_run",
+                    str(result.returncode),
+                ],
+                check=True,
+                stdout=logfile_check,
+                stderr=subprocess.STDOUT,
+            )
+        except subprocess.CalledProcessError as err:
+            print("Issue regression check failed, check log:", logpath_check)
+            raise err
     else:
         print(
             "For design",
@@ -83,4 +128,6 @@ for test_case in test_cases:
             "has been found",
         )
 
-print("Issue regression flow completed without errors")
+
+if __name__ == "__main__":
+    cli()
