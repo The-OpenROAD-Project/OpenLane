@@ -119,6 +119,7 @@ def run_test_case(test_case):
         except subprocess.CalledProcessError as err:
             print("Issue regression check failed, check log:", logpath_check)
             raise err
+        print("Completed run successfully:", test_case)
     else:
         print(
             "For design",
