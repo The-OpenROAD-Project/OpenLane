@@ -35,7 +35,7 @@ The following table shows the timing results of the ECO flow for each ECO iterat
 If the user would like to enable this step, they would have to set the ECO_ENABLE environment variable to 1 as follows:
 
 ```tcl
-    set ::env(ECO_FLOW) {1}
+    set ::env(ECO_ENABLE) {1}
 ```
 
-Or they can invoke OpenLane with the option `-override_env ECO_FLOW=1`.
+Or they can invoke OpenLane with the option `-override_env ECO_ENABLE=1`.
