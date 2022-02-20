@@ -97,7 +97,7 @@ jobs:
           else
             echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
-          echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regression.py get_matrix)"
+          echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regressions.py get_matrix)"
   
   issue_regression_test:
     needs: docker_build
