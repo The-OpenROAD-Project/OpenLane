@@ -183,6 +183,7 @@ proc run_eco_flow {args} {
         exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
         eco_output_check
     }
+    ins_fill_cells
     # end of while
     if { $::env(ECO_ITER) != 0 } {
         set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
