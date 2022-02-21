@@ -33,7 +33,6 @@ if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_sdc $::env(CURRENT_SDC)
-
 set_propagated_clock [all_clocks]
 
 set rcx_flags ""
