@@ -79,30 +79,30 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 428d0fe8c941faece4eceebc54170cc04d916c03
-  build: ""
+  build: ''
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 8d53e9b018dec98fa63e907ddeb6c5406f035361
-  build: ""
+  commit: 8866b75841711a4b539f8b72ad74f610cccda2fa
+  build: ''
   in_install: false
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ""
+  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
   commit: 7519dfb04400f224f140749cda44ee7de6f5e095
-  build: ""
+  build: ''
   in_install: false
   pdk: true
   dependencies:
-    - sky130
-    - magic
+  - sky130
+  - magic
 - name: sky130
   repo: https://github.com/google/skywater-pdk
   commit: c094b6e83a4f9298e47f696ec5a7fd53535ec5eb
-  build: ""
+  build: ''
   in_install: false
   in_container: false
