@@ -33,6 +33,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
+set_propagated_clock [all_clocks]
 
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
@@ -40,8 +41,6 @@ if { [info exists ::env(DONT_USE_CELLS)] } {
 
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
-
-set_propagated_clock [all_clocks]
 
 # CTS and detailed placement move instances, so update parastic estimates.
 # estimate wire rc parasitics

@@ -33,6 +33,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
+set_propagated_clock [all_clocks]
 
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
@@ -69,11 +70,8 @@ global_route {*}$arg_list
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 
-set_propagated_clock [all_clocks]
-
 # estimate wire rc parasitics
 estimate_parasitics -global_routing
-
 
 # Resize
 if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1} {

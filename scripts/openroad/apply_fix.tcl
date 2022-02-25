@@ -52,6 +52,8 @@ if {[expr {$cur_iter == 0}]} {
 puts "ECO: Successfully read Verilog!"
 
 read_sdc -echo $::env(CURRENT_SDC)
+set_propagated_clock [all_clocks]
+
 puts "ECO: Successfully read SDC!"
 
 puts "ECO: Sourcing eco.tcl!"
