@@ -33,6 +33,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
+unset_propagated_clock [all_clocks]
 
 # set rc values
 source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 

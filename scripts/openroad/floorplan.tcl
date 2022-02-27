@@ -24,6 +24,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
 link_design $::env(DESIGN_NAME)
 read_sdc -echo $::env(CURRENT_SDC)
+unset_propagated_clock [all_clocks]
 
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
