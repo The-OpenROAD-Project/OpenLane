@@ -39,7 +39,7 @@ At a minimum:
 - Click, Pyyaml: `python3 -m pip install pyyaml click>=7`
 
 For building Sky130 PDK you also need:
-- Git 2.35+
+- Git 2.35+: `git --version`
 
 ## Containerless Install
 Please see [here](./docs/source/local_installs.md).
