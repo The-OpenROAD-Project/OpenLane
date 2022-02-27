@@ -19,14 +19,18 @@ proc run_sta {args} {
     }
     set flags {
         -multi_corner
+        -post_cts
     }
     parse_key_args "run_sta" args arg_values $options flags_map $flags
     set multi_corner [info exists flags_map(-multi_corner)]
+    set post_cts [info exists flags_map(-post_cts)]
     set ::env(RUN_STANDALONE) 1
 
     increment_index
     TIMER::timer_start
     puts_info "Running Static Timing Analysis..."
+
+    set ::env(STA_POST_CTS) $post_cts
 
     set log [index_file $arg_values(-log)]
 

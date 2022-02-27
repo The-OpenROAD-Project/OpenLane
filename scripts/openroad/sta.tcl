@@ -41,6 +41,11 @@ if { $::env(RUN_STANDALONE) == 1 } {
             read_liberty $lib
     }
     read_sdc -echo $::env(CURRENT_SDC)
+    if { $::env(STA_POST_CTS) == 1 } {
+        set_propagated_clock [all_clocks]
+    } else {
+        unset_propagated_clock [all_clocks]
+    }
 }
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
