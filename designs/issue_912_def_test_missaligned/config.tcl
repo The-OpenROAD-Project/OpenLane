@@ -1,0 +1,1 @@
+../issue_892_def_test/config.tcl

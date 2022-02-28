@@ -119,6 +119,16 @@ test_design_list:
 			--benchmark $(BENCHMARK)\
 			$(DESIGN_LIST)\
 		"
+# -u is needed, as the python buffers the stdout, so no output is generated
+run_issue_regression:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "\
+			python3 -u run_issue_regressions.py run $(ISSUE_REGRESSION_DESIGN)"
+
+issue_regression_all:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_COMMAND) sh -c "\
+			python3 -u run_issue_regressions.py run_all"
 
 .PHONY: test
 test:

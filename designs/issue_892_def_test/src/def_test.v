@@ -1,4 +1,4 @@
-// Copyright 2020 Matt Venn
+// Copyright 2022 Arman Avetisyan
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,12 @@
 `default_nettype none
 module def_test (
     input wire in,
-    output out );
+    output out,
+    output tied_to_zero,
+    output manufacturing_grid_missaligned_pin
+    );
+ // We tie this to one, so if def's pin is tied to zero, it will LVS error
+assign tied_to_zero = 1;
 
     assign out = !in;
 

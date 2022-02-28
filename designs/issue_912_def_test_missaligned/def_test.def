@@ -1,0 +1,33 @@
+VERSION 5.8 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN def_test ;
+UNITS DISTANCE MICRONS 1000 ;
+DIEAREA ( 0 0 ) ( 400000 400000 ) ;
+PINS 4 ;
+    - in + NET in + DIRECTION INPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 1000 350000 ) N ;
+    - out + NET out + DIRECTION OUTPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 400 2000 ) N ;
+    - tied_to_zero + NET zero_ + DIRECTION OUTPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 4000 2000 ) N ;
+    - manufacturing_grid_missaligned_pin + NET manufacturing_grid_missaligned_pin + DIRECTION OUTPUT + USE SIGNAL
+      + PORT
+        + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+        + PLACED ( 10001 2000 ) N ;
+    - VPWR + NET VPWR + DIRECTION INOUT + USE POWER
+        + PORT
+            + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+            + PLACED ( 20000 2000 ) N ;
+    - VGND + NET VGND + DIRECTION INOUT + USE GROUND
+        + PORT
+            + LAYER met2 ( -140 -2000 ) ( 140 2000 )
+            + PLACED ( 25000 2000 ) N ;
+END PINS
+END DESIGN
