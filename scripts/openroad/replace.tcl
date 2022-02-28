@@ -97,6 +97,7 @@ if {[info exists ::env(CLOCK_PORT)]} {
 			read_liberty $lib
 		}
 		read_sdc -echo $::env(CURRENT_SDC)
+		unset_propagated_clock [all_clocks]
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
 		estimate_parasitics -placement

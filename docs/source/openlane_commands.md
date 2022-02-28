@@ -82,10 +82,11 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-cfg <padframe_configurations_file>` | The file containing the padframe information. |
 | `set_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
-| `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/synthesis/opensta_spef_*`. |
+| `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)` either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/finishing/antenna.rpt`|
 | `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
+| `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
 
 ## Checker Commands
 
@@ -116,7 +117,6 @@ Most of the following commands' implementation exists in this [file][9]
 |---------------|------------------------|-----------------------------------------|
 | `run_yosys` | | Runs yosys synthesis on the design processed in the flow (the design is set by the `prep` command). if `LEC_ENABLE` is set to 1, a logic verification will be run after generating the new netlist vs the previous netlist if it exists. |
 |    | `[-output <output_file>]` | Sets the outputfile from yosys synthesis. <br> Defaults to `/<run_path>/results/synthesis/<design_name>.synthesis.v`  <br> Optional flag.       |
-| `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/synthesis/` and timing reports under `/<run_path>/reports/synthesis/`. |
 | `run_synthesis` | | Runs yosys synthesis on the current design as well as OpenSTA timing analysis on the generated netlist. The logs are produced under `/<run_path>/logs/synthesis/`, the timing reports are under `/<run_path>/reports/synthesis/`, and the synthesized netlist under `/<run_path>/results/synthesis/`. |
 | `run_synth_exploration` | | Runs synthesis exploration, which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under `<run_path>/results/synthesis` and a summary report under `<run_path>/reports` that compares the 4 outputs. |
 | `verilog_elaborate <optional args>` | | Runs on structural verilog (top-level netlists) and elaborates it. The `<optional args>` are used to control what is passed to `run_yosys` |
@@ -202,7 +202,7 @@ Most of the following commands' implementation exists in this [file][2]
 |    | `-clk_buf_output <pin_name>` | Clock buffer output pin name.    |
 |    | `-cell_clk_port <name>` | Clock buffer port name.    |
 |    | `-output <output_file>` | Output file path.    |
-| `run_cts` | | Runs clock tree synthesis using the openroad app on the processed design. The resulting file is under `/<run_path>/results/cts/`. It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `run_cts` | | Runs clock tree synthesis using the openroad app on the processed design. The resulting file is under `/<run_path>/results/cts/`. It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/cts` and runs yosys logic verification if enabled. |
 | `run_resizer_timing` | | Runs resizer timing optimizations which repairs setup and hold violations.  |
 
 
