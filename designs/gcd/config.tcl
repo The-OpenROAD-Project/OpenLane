@@ -5,6 +5,10 @@ set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/*.v]
 
 set ::env(CLOCK_PORT) "clk"
 
+# match ORFS
+set ::env(SYNTH_STRATEGY) "DELAY 4"
+set ::env(SYNTH_SHARE_RESOURCES) 0
+
 # Use OR defaults
 set ::env(FP_IO_VLENGTH) ""
 set ::env(FP_IO_HLENGTH) ""
