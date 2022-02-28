@@ -98,7 +98,7 @@ jobs:
             echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
           echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regressions.py get_matrix)"
-  
+
   issue_regression_test:
     needs: docker_build
     runs-on: ubuntu-20.04
@@ -285,10 +285,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Docker Push (Branch Name)
+      - name: Docker Push (Branch)
         if: ${{ env.PUSHING == '1' && github.event_name == 'push' }}
         run: |
+          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.GITHUB_SHA }}
           docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
+          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.GITHUB_SHA }}
           docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
 
       - name: Docker Push (Tag) (If scheduled or dispatched)

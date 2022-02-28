@@ -53,13 +53,13 @@ def get_tag() -> str:
             return f"{branch_name}-dev"
 
         process_data: subprocess.CompletedProcess = subprocess.run(
-            ["git", "describe", "--tags", "--abbrev=0"],
+            ["git", "rev-parse", "HEAD"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
         if process_data.returncode != 0:
             raise NoGitException(
-                f"Failed to extract tags. You are either using a shallow clone or not using a Git repository at all. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}"
+                f"Failed to get commit.  Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}"
             )
         return process_data.stdout.decode("utf8").strip()
     except NoGitException as e:
