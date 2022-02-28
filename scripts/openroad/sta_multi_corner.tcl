@@ -58,10 +58,10 @@ if { [info exists ::env(SPEF_TYPICAL)] } {
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
-if { $::env(STA_POST_CTS) == 1 } {
-    set_propagated_clock [all_clocks]
-} else {
+if { $::env(STA_PRE_CTS) == 1 } {
     unset_propagated_clock [all_clocks]
+} else {
+    set_propagated_clock [all_clocks]
 }
 
 puts "min_report"

@@ -105,7 +105,7 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
-    run_sta -log $::env(synthesis_logs)/sta.log
+    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/synthesis_sta]
 	
     if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
