@@ -23,7 +23,9 @@ parser = argparse.ArgumentParser(
     description="Converts a 23-spef_extraction_multi_corner_sta.min.rpt file to a eco insert buffer tcl file."
 )
 
-parser.add_argument("--skip_pin", "-s", required=True, help="skip input ouput cases")
+parser.add_argument(
+    "--skip_pin", "-s", type=int, required=True, help="skip input ouput cases"
+)
 parser.add_argument(
     "--input_file",
     "-i",
@@ -44,7 +46,6 @@ output_file = args.output_file
 def_file = args.def_file
 lef_file = args.lef_file
 skip_pin = args.skip_pin
-print(skip_pin)
 
 splitLine = "\n\n\n"
 printArr = []
