@@ -62,6 +62,10 @@ lappend arg_list -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)
 lappend arg_list -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
 lappend arg_list -sink_clustering_enable 
 
+if { $::env(CTS_DISTANCE_BETWEEN_BUFFERS) != 0 } {
+    lappend arg_list -distance_between_buffers $::env(CTS_DISTANCE_BETWEEN_BUFFERS)
+}
+
 if { $::env(CTS_DISABLE_POST_PROCESSING) } {
     lappend arg_list -post_cts_disable
 }
