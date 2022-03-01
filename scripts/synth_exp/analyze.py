@@ -16,6 +16,7 @@
 
 # Direct-translated from Perl to Python by Donn.
 
+from math import inf
 import re
 import click
 
@@ -39,14 +40,14 @@ def cli(output, input_file):
     # aw = 0.5
     # dw = 0.5
     # ascale = 100
-    minimum_area = 1000000000
-    minimum_gates = minimum_area
-    minimum_delay = minimum_area
+    minimum_area = inf
+    minimum_gates = inf
+    minimum_delay = inf
 
     best_area = ""
     best_delay = ""
 
-    strat_rx = re.compile(r"\{([A-Z]+ \d+)\}")
+    strat_rx = re.compile(r"USING STRATEGY ([A-Z]+\d+)")
     delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
     area_rx = re.compile(r"Area\s+\=\s+(\S+)")
     gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
@@ -55,7 +56,7 @@ def cli(output, input_file):
 
     strategy_name = "UNKNOWN"
     for line in file_lines:
-        if "EXPLORATION" in line:
+        if "USING STRATEGY " in line:
             strat_m = strat_rx.search(line)
             strat = strat_m[1]
 
@@ -231,7 +232,7 @@ def cli(output, input_file):
         # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
         # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
 
-        color = colors[index - 1 % len(colors)]
+        color = colors[index % len(colors)]
 
         write(
             f"""

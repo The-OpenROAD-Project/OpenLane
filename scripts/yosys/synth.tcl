@@ -99,7 +99,7 @@ puts $outfile "set_load ${cload}"
 close $outfile
 
 
-# ABC Scrips
+# Assemble Scripts (By Strategy)
 set abc_rs_K    "resub,-K,"
 set abc_rs      "resub"
 set abc_rsz     "resub,-z"
@@ -163,8 +163,7 @@ set area_scripts [list \
     "+read_constr,${sdc_file};strash;dch;map -B 0.9;topo;stime -c;buffer -c;upsize -c;dnsize -c;stime,-p;print_stats -m" \
 ]
 
-set all_scripts [list {*}$delay_scripts {*}$area_scripts]
-
+# Extract Utilized Strategy
 set strategy_parts [split $::env(SYNTH_STRATEGY)]
 
 proc synth_strategy_format_err { } {
@@ -198,13 +197,14 @@ if { $strategy_type == "AREA" && $strategy_type_idx >= [llength $area_scripts] }
 }
 
 if { $strategy_type == "DELAY" } {
-    set strategy $strategy_type_idx
+    set strategy_script [lindex $delay_scripts $strategy_type_idx]
     set strategy_name "DELAY $strategy_type_idx"
 } else {
-    set strategy [expr {[llength $delay_scripts]+$strategy_type_idx}]
+    set strategy_script [lindex $area_scripts $strategy_type_idx]
     set strategy_name "AREA $strategy_type_idx"
 }
 
+# Get Adder Type
 set adder_type $::env(SYNTH_ADDER_TYPE)
 if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
     log -stderr "\[ERROR] Misformatted SYNTH_ADDER_TYPE (\"$::env(SYNTH_ADDER_TYPE)\")."
@@ -212,6 +212,7 @@ if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
     exit 1
 }
 
+# Start Synthesis
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
     read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
@@ -233,7 +234,7 @@ if { [info exists ::env(TRISTATE_BUFFER_MAP)] } {
     }
 }
 
-# handle technology mapping of rca and csa adders
+# Handle technology mapping of RCS/CSA adders
 if { $adder_type == "RCA"} {
     if { [info exists ::env(RIPPLE_CARRY_ADDER_MAP)] && [file exists $::env(RIPPLE_CARRY_ADDER_MAP)] } {
         techmap -map $::env(RIPPLE_CARRY_ADDER_MAP)
@@ -250,7 +251,6 @@ if { $::env(SYNTH_NO_FLAT) } {
     synth -top $vtop -flatten
 }
 
-# write a post techmap dot file
 show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
@@ -271,19 +271,19 @@ opt_clean -purge
 
 tee -o "$::env(synth_report_prefix)_pre.stat" stat
 
-# Map tri-state buffers.
+# Map tri-state buffers
 if { $tbuf_map } {
     log {mapping tbuf}
     techmap -map $::env(TRISTATE_BUFFER_MAP)
     simplemap
 }
 
-# Map Full Adders.
+# Map full adders
 if { $fa_map } {
     techmap -map $::env(FULL_ADDER_MAP)
 }
 
-# handle technology mapping of latches
+# Handle technology mapping of latches
 if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP)] } {
     techmap -map $::env(SYNTH_LATCH_MAP)
     simplemap
@@ -292,89 +292,71 @@ if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP
 dfflibmap -liberty $dfflib
 tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
-if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-    design -save myDesign
+proc run_strategy {output script ext} {
+    upvar clock_period clock_period
+    upvar sdc_file sdc
+    upvar sclib lib
 
-    for { set index 0 }  { $index < [llength $delay_scripts] }  { incr index } {
-        log "\[INFO\]: EXPLORATION {DELAY $index}"
-        design -load myDesign
+    log "\[INFO\]: USING STRATEGY $ext"
 
-        abc -D $clock_period \
-            -constr "$sdc_file" \
-            -liberty $sclib  \
-            -script [lindex $delay_scripts $index]
+    design -load checkpoint
 
-        setundef -zero
-
-        hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
-
-        splitnets
-        opt_clean -purge
-        insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-
-        tee -o "$::env(synth_report_prefix)$chk_ext.script$index" check
-        tee -o "$::env(synth_report_prefix)$stat_ext.script$index" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
-        write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)/$::env(DESIGN_NAME)_$index.v"
-        design -reset
-    }
-
-    for { set index 0 }  { $index < [llength $area_scripts] }  { incr index } {
-        log "\[INFO\]: EXPLORATION {AREA $index}"
-
-        design -load myDesign
-
-        abc -D $clock_period \
-            -constr "$sdc_file" \
-            -liberty $sclib  \
-            -script [lindex $all_scripts $index]
-
-        setundef -zero
-
-        hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
-
-        splitnets
-        opt_clean -purge
-        insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-
-        tee -o "$::env(synth_report_prefix)$chk_ext.script$index" check
-        tee -o "$::env(synth_report_prefix)$stat_ext.script$index" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
-        write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(synthesis_results)/$::env(DESIGN_NAME)_$index.v"
-        design -reset
-    }
-} else {
-
-    log "\[INFO\]: Using synthesis strategy {$strategy_name}"
-
-    abc -D $clock_period \
-        -constr "$sdc_file" \
-        -liberty $sclib  \
-        -script [lindex $all_scripts $strategy] \
-        -showtmp;
+    abc -D "$clock_period" \
+        -constr "$sdc" \
+        -liberty "$lib" \
+        -script "$script" \
+        -showtmp
 
     setundef -zero
 
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-    # get rid of the assignments that make init_floorplan fail
     splitnets
     opt_clean -purge
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-    tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
-    tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
-    write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
-}
-
-if { $::env(SYNTH_NO_FLAT) } {
+    tee -o "$::env(synth_report_prefix).$ext.chk.rpt" check
+    tee -o "$::env(synth_report_prefix).$ext.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+    write_verilog -noattr -noexpr -nohex -nodec -defparam $output
     design -reset
-    read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE_NO_PG)
-    file copy -force $::env(SAVE_NETLIST) $::env(synthesis_tmpfiles)/hierarchical_netlist.v
-    read_verilog -sv $::env(SAVE_NETLIST)
-    synth -top $vtop -flatten
-    splitnets
-    opt_clean -purge
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
-    write_verilog -noattr -noexpr -nohex -nodec -defparam "$::env(SAVE_NETLIST)"
-    tee -o "$::env(synth_report_prefix)$chk_ext.strategy$strategy" check
-    tee -o "$::env(synth_report_prefix)$stat_ext.strategy$strategy" stat -top $vtop -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+}
+design -save checkpoint
+
+# Explore/Finalize
+if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
+    for { set index 0 }  { $index < [llength $delay_scripts] }  { incr index } {
+        set name "DELAY$index"
+        run_strategy\
+            "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
+            [lindex $delay_scripts $index]\
+            "$name"
+    }
+
+    for { set index 0 }  { $index < [llength $area_scripts] }  { incr index } {
+        set name "AREA$index"
+        run_strategy\
+            "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
+            [lindex $area_scripts $index]\
+            "$name"
+    }
+} else {
+    run_strategy\
+        "$::env(SAVE_NETLIST)"\
+        "$strategy_script"\
+        "$strategy_name"
+
+    if { $::env(SYNTH_NO_FLAT) } {
+        design -reset
+        read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE_NO_PG)
+        file copy -force $::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).hierarchy.v
+        read_verilog -sv $::env(SAVE_NETLIST)
+        synth -top $vtop -flatten
+
+        design -save checkpoint
+        run_strategy\
+            "$::env(SAVE_NETLIST)"\
+            "$strategy_script"\
+            "$strategy_name"
+    }
+
 }

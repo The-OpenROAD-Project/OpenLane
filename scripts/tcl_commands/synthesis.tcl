@@ -74,6 +74,11 @@ proc run_yosys {args} {
 }
 
 proc run_synth_exploration {args} {
+    if { $::env(SYNTH_NO_FLAT) } {
+        puts_err "Cannot run synthesis exploration with SYNTH_NO_FLAT."
+        return -code error
+    }
+
     puts_info "Running Synthesis Exploration..."
 
     set ::env(SYNTH_EXPLORE) 1
