@@ -26,6 +26,7 @@ git
 glibc-static
 graphviz
 help2man
+libcurl-devel
 libSM
 libX11-devel
 libXext
