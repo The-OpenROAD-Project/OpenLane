@@ -61,7 +61,7 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       set iterm [$block findITerm $pin_name]
       set old_net [$iterm getNet]
 
-      # Original disconnert command
+      # Original disconnect command
       odb::dbITerm_disconnect $iterm
 
       # Original connect command
@@ -89,10 +89,10 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
       # done inserting the buffer
       puts "done insert buffer"
       
-      odb::dbITerm_connect $in_iterm $old_net
+      odb::dbITerm_connect $in_iterm $new_net
       puts "connect to in_iterm"
       
-      odb::dbITerm_connect $out_iterm $new_net  
+      odb::dbITerm_connect $out_iterm $old_net
       puts "connect to out_iterm "
 
       puts "Done Inserting buffer for reg-* cases"
