@@ -10,7 +10,7 @@ When working with a proprietary PDK, also inspect the folder and ensure no propr
 If you're using OpenLane 2021.12.17_05.07.41 or later, chances are, `or_issue.py` was automatically run for you if OpenROAD failed. You'll find a message in the log that says something along the lines of: `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue.` The path will be under the current run_path, i.e., ./designs/<design>/runs/<run_tag>/openroad_issue_reproducible. You can then tarball/zip and upload that file.
 
 ## Running or_issue.py manually
-You'll have to extract three key elements from the error:
+You'll have to extract three key elements from the logs:
 * The Script Where The Failure Occurred -> script
 * The Final Layout Before The Failure Occurred -> input
 * The Run Path -> run_path
@@ -21,34 +21,30 @@ You'll have to extract three key elements from the error:
 As a practical example, for this log from openlane.log:
 
 ```log
-[INFO]: Changing layout from /openlane/designs/spm/runs/config_TEST_fastestTestSet1/results/cts/spm.cts.def to /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def
+[INFO]: Changing layout to designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def
 [...]
-[INFO]: Running Global Routing...
-[INFO]: current step index: 15
-[INFO]: Changing layout from /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def to /openlane/designs/spm/runs/config_TEST_fastestTestSet1/tmp/routing/15-fastroute.def
+[INFO]: Running Detailed Routing...
+[INFO]: Running OpenROAD script scripts/openroad/droute.tcl...
 ```
 
 The three elements would be:
-* input:    `./designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def`
-* script:   `./scripts/openroad/groute.tcl`
-* run_path: `./designs/spm/runs/config_TEST_fastestTestSet1`
+* input:    `designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def`
+* script:   `scripts/openroad/droute.tcl`
+* run_path: `designs/spm/runs/RUN_2022.03.01_19.21.10`
 
 Then you'd want to run this script as follows, from the root of the OpenLane Repo:
 ```sh
     python3 ./scripts/or_issue.py\
-        -s  ./scripts/openroad/groute.tcl\
-        ./designs/spm/runs/config_TEST_fastestTestSet1/tmp/placement/12-resizer_timing.def
-        # run path is implicitly specified by input def: ./designs/spm/runs/config_TEST_fastestTestSet1
+        -s  ./scripts/openroad/droute.tcl\
+        designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def
+        # run path is implicitly specified by input def
 ```
 
-Which will create a folder called `_build`, with a single sub entry:
-* `config_TEST_fastestTestSet1_or_groute_packaged/`
-
-Ensure that you inspect this folder manually and the output of this script. This script only attempts a best effort, and it is very likely that it might miss something, in which case, feel free to file an issue.
+Which will create a folder called `_build`, with a single subfolder. Ensure that you inspect this folder manually and the output of this script. This script only attempts a best effort, and it is very likely that it might miss something, in which case, feel free to file an issue.
 
 You can then verify that the script worked by running:
 ```sh
-    cd _build/config_TEST_fastestTestSet1_or_groute_packaged
+    cd _build/<name of folder>
     ./run
 ```
 

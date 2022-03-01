@@ -16,6 +16,7 @@
 
 # Direct-translated from Perl to Python by Donn.
 
+from math import inf
 import re
 import click
 
@@ -24,6 +25,10 @@ import click
 @click.option("-o", "--output", required=True, help="Output HTML file")
 @click.argument("input_file")
 def cli(output, input_file):
+    """
+    This script parses a yosys synthesis exploration log and generates a
+    rudimentary HTML report.
+    """
     output_file_handle = open(output, "w")
 
     def write(string):
@@ -35,23 +40,29 @@ def cli(output, input_file):
     # aw = 0.5
     # dw = 0.5
     # ascale = 100
-    minArea = 1000000000
-    minGates = minArea
-    minDelay = minArea
-    bestArea = ""
-    bestDelay = ""
+    minimum_area = inf
+    minimum_gates = inf
+    minimum_delay = inf
 
+    best_area = ""
+    best_delay = ""
+
+    strat_rx = re.compile(r"USING STRATEGY ([A-Z]+\d+)")
     delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
     area_rx = re.compile(r"Area\s+\=\s+(\S+)")
     gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
 
-    c = 0
+    data = []
+
+    strategy_name = "UNKNOWN"
     for line in file_lines:
-        # print chomp(line)
-        # data = line.split()
+        if "USING STRATEGY " in line:
+            strat_m = strat_rx.search(line)
+            strat = strat_m[1]
+
+            strategy_name = strat
+
         if "none" in line:
-            c += 1
-            sn = f"S{c}"
             delay_m = delay_rx.search(line)
             delay = float(delay_m[1])
             area_m = area_rx.search(line)
@@ -59,142 +70,128 @@ def cli(output, input_file):
             gates_m = gates_rx.search(line)
             gates = float(gates_m[1])
             # factor = aw * area / ascale + dw * delay
-            if area < minArea:
-                minArea = area
-                bestArea = sn
+            if area < minimum_area:
+                minimum_area = area
+                best_area = strategy_name
 
-            if delay < minDelay:
-                minDelay = delay
-                bestDelay = sn
+            if delay < minimum_delay:
+                minimum_delay = delay
+                best_delay = strategy_name
 
-            if gates < minGates:
-                minGates = gates
-                bestGates = sn
+            if gates < minimum_gates:
+                minimum_gates = gates
+                bestGates = strategy_name
 
-    # printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
+            data.append((strategy_name, delay, area, gates))
 
     write(
         f"""
-  <html>
+        <html>
 
-  <head>
-    <title>Scatter Chart</title>
-    <link href='table.css' rel='stylesheet' type='text/css' media='screen' />
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js'></script>
-    <script src='utils.js'></script>
-    <style>
-    canvas {{
-      -moz-user-select: none;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-    }}
-    </style>
-  </head>
+        <head>
+            <title>Scatter Chart</title>
+            <link href='table.css' rel='stylesheet' type='text/css' media='screen' />
+            <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js'></script>
+            <script src='utils.js'></script>
+            <style>
+            canvas {{
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            }}
+            </style>
+        </head>
 
-  <body>
-  <div style='width:50%''>
+        <body>
+        <div style='width:50%''>
 
-  <table cellspacing='0' cellpadding='0' class='demo-table' >
-  <tr>
-    <th bgcolor='b0c4de'>Best Area</th>
-    <th bgcolor='b0c4de'>Best Gate Count</th>
-    <th bgcolor='b0c4de'>Best Delay</th>
-  </tr>
-  <tr>
-    <td>{minArea}</td>
-    <td>{minGates}</td>
-    <td>{minDelay}</td>
-  </tr>
-  <tr>
-    <td>{bestArea}</td>
-    <td>{bestGates}</td>
-    <td>{bestDelay}</td>
-  </tr>
-  </table><br>
+        <table cellspacing='0' cellpadding='0' class='demo-table' >
+        <tr>
+            <th bgcolor='b0c4de'>Best Area</th>
+            <th bgcolor='b0c4de'>Best Gate Count</th>
+            <th bgcolor='b0c4de'>Best Delay</th>
+        </tr>
+        <tr>
+            <td>{minimum_area}</td>
+            <td>{minimum_gates}</td>
+            <td>{minimum_delay}</td>
+        </tr>
+        <tr>
+            <td>{best_area}</td>
+            <td>{bestGates}</td>
+            <td>{best_delay}</td>
+        </tr>
+        </table><br>
 
-  <table cellspacing='0' cellpadding='0' class='demo-table' >
-  <tr>
-    <th bgcolor='b0c4de'>Startegy</th>
-    <th bgcolor='b0c4de'>Gate Count</th>
-    <th bgcolor='b0c4de'>Area (um^2)</th>
-    <th bgcolor='b0c4de'>Delay (ps)</th>
+        <table cellspacing='0' cellpadding='0' class='demo-table' >
+        <tr>
+            <th bgcolor='b0c4de'>Strategy</th>
+            <th bgcolor='b0c4de'>Gate Count</th>
+            <th bgcolor='b0c4de'>Area (um^2)</th>
+            <th bgcolor='b0c4de'>Delay (ps)</th>
 
-    <th bgcolor='b0c4de'>Gates Ratio</th>
-    <th bgcolor='b0c4de'>Area Ratio</th>
-    <th bgcolor='b0c4de'>Delay Ratio</th>
+            <th bgcolor='b0c4de'>Gates Ratio</th>
+            <th bgcolor='b0c4de'>Area Ratio</th>
+            <th bgcolor='b0c4de'>Delay Ratio</th>
 
-  </tr>
-  """
+        </tr>
+        """
     )
 
-    c = 0
-    for line in file_lines:
-        # print chomp(line)
-        # data = line.split()
-        if "none" in line:
-            c += 1
-            sn = f"S{c}"
-            write("<tr>")
+    for index, datapoint in enumerate(data):
+        label, delay, area, gates = datapoint
+        write("<tr>")
 
-            delay_m = delay_rx.search(line)
-            delay = float(delay_m[1])
-            area_m = area_rx.search(line)
-            area = float(area_m[1])
-            gates_m = gates_rx.search(line)
-            gates = float(gates_m[1])
+        # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
+        # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
 
-            # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
-            # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
+        dratio = int(delay / minimum_delay * 1000) / 1000
+        aratio = int(area / minimum_area * 1000) / 1000
+        gratio = int(gates / minimum_gates * 1000) / 1000
 
-            dratio = int(delay / minDelay * 1000) / 1000
-            aratio = int(area / minArea * 1000) / 1000
-            gratio = int(gates / minGates * 1000) / 1000
+        write(f"<td>{label}</td>")
 
-            write(f"<td>{sn}</td>")
+        if gratio < 1.0001:
+            write(f"<td bgcolor='#ccff99'>{gates}</td>")
+        else:
+            write(f"<td>{gates}</td>")
 
-            if gratio < 1.0001:
-                write(f"<td bgcolor='#ccff99'>{gates}</td>")
-            else:
-                write(f"<td>{gates}</td>")
+        if aratio < 1.0001:
+            write(f"<td bgcolor='#ccff99'>{area}</td>")
+        else:
+            write(f"<td>{area}</td>")
 
-            if aratio < 1.0001:
-                write(f"<td bgcolor='#ccff99'>{area}</td>")
-            else:
-                write(f"<td>{area}</td>")
+        if dratio < 1.0001:
+            write(f"<td bgcolor='#ccff99'>{delay}</td>")
+        else:
+            write(f"<td>{delay}</td>\n")
 
-            if dratio < 1.0001:
-                write(f"<td bgcolor='#ccff99'>{delay}</td>")
-            else:
-                write(f"<td>{delay}</td>\n")
+        if gratio <= 1.1:
+            write(f"<td bgcolor='#fffacd'>{gratio}</td>")
+        else:
+            write(f"<td>{gratio}</td>")
 
-            if gratio <= 1.1:
-                write(f"<td bgcolor='#fffacd'>{gratio}</td>")
-            else:
-                write(f"<td>{gratio}</td>")
+        if aratio <= 1.1:
+            write(f"<td bgcolor='#fffacd'>{aratio}</td>")
+        else:
+            write(f"<td>{aratio}</td>")
 
-            if aratio <= 1.1:
-                write(f"<td bgcolor='#fffacd'>{aratio}</td>")
-            else:
-                write(f"<td>{aratio}</td>")
+        if dratio <= 1.1:
+            write(f"<td bgcolor='#fffacd'>{dratio}</td>")
+        else:
+            write(f"<td>{dratio}</td>")
+        # print " + Best Area" if(aratio < 1.0001)
+        # print " + Best Delay" if(dratio < 1.0001)
 
-            if dratio <= 1.1:
-                write(f"<td bgcolor='#fffacd'>{dratio}</td>")
-            else:
-                write(f"<td>{dratio}</td>")
-            # print " + Best Area" if(aratio < 1.0001)
-            # print " + Best Delay" if(dratio < 1.0001)
+        write("</tr>")
 
-            write("</tr>")
-
-            # if((dratio < 1.15) && (aratio < 1.15)){
-            #  printf (" <== Best Ratio: %.3f - %.3f\n", aratio, dratio)
-            # } else {
-            #  print "\n"
-            # }
+        # if((dratio < 1.15) && (aratio < 1.15)){
+        #  printf (" <== Best Ratio: %.3f - %.3f\n", aratio, dratio)
+        # } else {
+        #  print "\n"
+        # }
     write("</table>")
 
-    # printf ("Startegy\tGates\tArea\tDelay\tGR\tAR\tDR\n")
-    c = 0
     colors = [
         "red",
         "olive",
@@ -212,90 +209,81 @@ def cli(output, input_file):
 
     write(
         """
-  </div>
-    <div style='width:65%''>
-      <canvas id='myChart'></canvas>
-    </div>
+        </div>
+            <div style='width:65%''>
+            <canvas id='myChart'></canvas>
+            </div>
 
 
 
-  <script>
-  var ctx = document.getElementById('myChart');
-  var color = Chart.helpers.color;
-  var scatterChart = new Chart(ctx, {
-      type: 'scatter',
+        <script>
+        var ctx = document.getElementById('myChart');
+        var color = Chart.helpers.color;
+        var scatterChart = new Chart(ctx, {
+            type: 'scatter',
 
-      data: {
-          datasets: [
-
-  """
+            data: {
+                datasets: [
+        """
     )
 
-    for line in file_lines:
-        # print chomp(line)
-        # data = line.split()
-        if "none" in line:
-            c = c + 1
+    for index, datapoint in enumerate(data):
+        label, delay, area, gates = datapoint
+        # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
+        # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
 
-            delay_m = delay_rx.search(line)
-            delay = float(delay_m[1])
-            area_m = area_rx.search(line)
-            area = float(area_m[1])
+        color = colors[index % len(colors)]
 
-            # dfactor = 0.25 * area / minArea + 0.75 * delay / minDelay
-            # afactor = 0.75 * area / minArea + 0.25 * delay / minDelay
-
-            label = f"S{c}"
-            color = colors[c - 1 % len(colors)]
-
-            write(
-                f"""{{
-          label: '{label}',
-          borderColor: window.chartColors.{color},
-          backgroundColor: color(window.chartColors.{color}).alpha(0.2).rgbString(),
-          pointRadius: 7,
-          data: [{{
-              x: {area},
-              y: {delay}
-          }}]
-      }},"""
-            )
+        write(
+            f"""
+                    {{
+                        label: '{label}',
+                        borderColor: window.chartColors.{color},
+                        backgroundColor: color(window.chartColors.{color}).alpha(0.2).rgbString(),
+                        pointRadius: 7,
+                        data: [{{
+                            x: {area},
+                            y: {delay}
+                        }}]
+                    }},
+            """
+        )
 
     write(
         """
-  ]
-  },
-  options: {
-    title: {
-          display: true,
-          text: 'Synthesis Strategies Comparison'
-      },
-      scales: {
-          xAxes: [{
-              type: 'linear',
-              position: 'bottom',
-              scaleLabel: {
-                display: true,
-                labelString: 'Area'
-              }
-          }],
-          yAxes: [{
-              type: 'linear',
-              position: 'left',
-              scaleLabel: {
-                display: true,
-                labelString: 'Delay'
-              }
-          }]
-      }
-  }
-  });
-  </script>
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Synthesis Strategies Comparison'
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'linear',
+                        position: 'bottom',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Area'
+                        }
+                    }],
+                    yAxes: [{
+                        type: 'linear',
+                        position: 'left',
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Delay'
+                        }
+                    }]
+                }
+            }
+        });
+        </script>
 
-  </body>
+        </body>
 
-  </html>
-  """
+    </html>
+    """
     )
     output_file_handle.close()
 
