@@ -26,54 +26,41 @@ proc eco_read_fix {args} {
 proc eco_gen_buffer {args} {
     # Generate fixes via the gen_insert_buffer Python script
     # It reads in the LATEST multi-corner sta min report
-    if { $::env(ECO_ITER) == 0 } {
-        puts "Generating fixes for ECO iteration 1!"
-        puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(routing_logs) \
-            *multi_corner_sta*] end]
-        puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-            *_unpadded.lef] end]
-        puts "Input Def File: "
-        puts $::env(routing_results)
-        puts [lindex [glob -directory $::env(eco_results)/arcdef \
-            $::env(ECO_ITER)_post-route.def] end]
-        # pause;
 
-        try_catch $::env(OPENROAD_BIN) \
-            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -s $::env(ECO_SKIP_PIN) \
-            -i [lindex [glob -directory $::env(routing_logs) \
-            *multi_corner_sta*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-            *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(eco_results)/arcdef \
-            $::env(ECO_ITER)_post-route.def] end] \
-            -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
-    } else {
-        puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
-        puts "Parsing STA report: "
-        puts [lindex [glob -directory $::env(routing_logs) \
-            *multi_corner_sta*] end]
-        puts "Input Lef File: "
-        puts [lindex [glob -directory $::env(RUN_DIR)/tmp \
-            *_unpadded.lef] end]
-        puts "Input Def File: "
-        puts [lindex [glob -directory $::env(eco_results)/def \
-            *.def] end]
-        # pause;
+    set lef_file [lindex [glob -directory $::env(RUN_DIR)/tmp \
+        *_unpadded.lef] end]
+    set sta_file [lindex [glob -directory $::env(routing_logs) \
+        *multi_corner_sta*] end]
 
-        try_catch $::env(OPENROAD_BIN) \
-            -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
-            -s $::env(ECO_SKIP_PIN) \
-            -i [lindex [glob -directory $::env(routing_logs) \
-            *multi_corner_sta*] end] \
-            -l [lindex [glob -directory $::env(RUN_DIR)/tmp \
-            *_unpadded.lef] end] \
-            -d [lindex [glob -directory $::env(eco_results)/def \
-            *.def] end] \
-            -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
+    set files [glob -directory $::env(routing_logs) *multi_corner_sta*]
+    set newest 0
+    foreach f $files {
+        set mtime [file mtime $f]
+        if { $newest == 0 || $mtime > $newest } {
+            set newest $mtime
+            set sta_file $f
+        }
     }
+
+    if { $::env(ECO_ITER) == 0 } {
+        set def_file [lindex [glob -directory $::env(eco_results)/arcdef \
+            $::env(ECO_ITER)_post-route.def] end]
+    } else {
+        set def_file [lindex [glob -directory $::env(eco_results)/def \
+            *.def] end]
+    }
+    puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
+    puts "Parsing STA report: $sta_file"
+    puts "Input Lef File: $lef_file"
+    puts "Input Def File: $def_file"
+
+    try_catch $::env(OPENROAD_BIN) \
+        -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+        -s $::env(ECO_SKIP_PIN) \
+        -i $sta_file \
+        -l $lef_file \
+        -d $def_file \
+        -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
 }
 
 proc eco_output_check {args} {
