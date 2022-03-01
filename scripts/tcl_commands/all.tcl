@@ -39,7 +39,9 @@ proc set_netlist {netlist args} {
 
     parse_key_args "set_netlist" args arg_values $options flags_map $flags
 
-    puts_info "Changing netlist from $::env(CURRENT_NETLIST) to $netlist"
+    set netlist_relative [relpath . $netlist]
+
+    puts_info "Changing netlist to '$netlist_relative'..."
 
     set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
     set ::env(CURRENT_NETLIST) $netlist
@@ -56,14 +58,16 @@ proc set_netlist {netlist args} {
 }
 
 proc set_def {def} {
-    puts_info "Changing layout from $::env(CURRENT_DEF) to $def"
+    set def_relative [relpath . $def]
+    puts_info "Changing layout to '$def_relative'..."
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
 proc set_guide {guide} {
-    puts_info "Changing layout from $::env(CURRENT_GUIDE) to $guide"
+    set guide_relative [relpath . $guide]
+    puts_info "Changing guide to '$guide_relative'..."
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
     exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
