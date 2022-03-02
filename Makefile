@@ -43,9 +43,9 @@ DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
 ifeq ($(OPENLANE_IMAGE_NAME),)
-OPENLANE_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
-ifneq ($(OPENLANE_TAG),)
-export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_TAG)
+OPENLANE_DOCKER_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
+ifneq ($(OPENLANE_DOCKER_TAG),)
+export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_DOCKER_TAG)
 endif
 endif
 
