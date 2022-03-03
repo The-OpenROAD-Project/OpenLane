@@ -13,16 +13,16 @@
 # limitations under the License.
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
-foreach lib $::env(LIB_RCX) {
-	read_liberty $lib
+foreach lib $::env(RCX_LIB) {
+    read_liberty $lib
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(RCX_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -41,15 +41,12 @@ if { !$::env(RCX_MERGE_VIA_WIRE_RES) } {
 }
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 
-# RCX 
+# RCX
 define_process_corner -ext_model_index 0 X
-extract_parasitics $rcx_flags -ext_model_file $::env(RCX_RULES)\
-    -corner_cnt $::env(RCX_CORNER_COUNT)\
-    -max_res $::env(RCX_MAX_RESISTANCE)\
-    -coupling_threshold $::env(RCX_COUPLING_THRESHOLD)\
-    -cc_model $::env(RCX_CC_MODEL)\
-    -context_depth $::env(RCX_CONTEXT_DEPTH)
+extract_parasitics $rcx_flags\
+    -ext_model_file $::env(RCX_RULESET)\
+    -lef_res
 
 write_spef $::env(CURRENT_SPEF)

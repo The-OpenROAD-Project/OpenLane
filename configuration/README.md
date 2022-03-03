@@ -227,14 +227,14 @@ These variables worked initially, but they were too sky130 specific and will be 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (removed: `def2spef`). <br> (Default: `openrcx`) |
-| `RCX_CORNER_COUNT` | Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
-| `RCX_MAX_RESISTANCE` | Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
-| `RCX_COUPLING_THRESHOLD` | Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
-| `RCX_CC_MODEL` | Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
-| `RCX_CONTEXT_DEPTH` | Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
 | `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
+| `RCX_CORNER_COUNT` | **Removed**: Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
+| `RCX_MAX_RESISTANCE` | **Removed**: Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
+| `RCX_COUPLING_THRESHOLD` | **Removed**: Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
+| `RCX_CC_MODEL` | **Removed**: Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
+| `RCX_CONTEXT_DEPTH` | **Removed**: Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 
 ### Magic
 | Variable      | Description                                                   |

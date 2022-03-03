@@ -202,12 +202,14 @@ def issue_survey():
         with io.StringIO() as f:
             status = "OK"
             try:
-                mismatches = verify_versions(no_tools=True, report_file=f)
+                mismatches = verify_versions(
+                    no_tools=True, report_file=f, pdk="sky130A"
+                )
                 if mismatches:
                     status = "MISMATCH"
             except Exception:
                 status = "FAILED"
-                f.write("Failed to compare PDKs.")
+                f.write("Failed to verify sky130A.")
                 f.write("\n")
             final_report += "---\nPDK Version Verification Status: %s\n%s" % (
                 status,

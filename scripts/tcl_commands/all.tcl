@@ -74,54 +74,95 @@ proc set_guide {guide} {
 }
 
 proc prep_lefs {args} {
-    puts_info "Preparing LEF Files"
-    puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
+    set options {
+        {-tech_lef optional}
+        {-cell_lef optional}
+        {-corner optional}
+        {-env_var optional}
+    }
 
-    set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $::env(TECH_LEF)]
+    set flags {-no_widen}
+
+    parse_key_args "prep_lefs" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-tech_lef) $::env(TECH_LEF)
+    set_if_unset arg_values(-cell_lef) $::env(CELLS_LEF)
+    set_if_unset arg_values(-env_var) MERGED_LEF
+    set_if_unset arg_values(-corner) nom
+
+    if { ![file exists $arg_values(-tech_lef)] } {
+        if { $arg_values(-env_var) == "MERGED_LEF" } {
+            puts_err "Nominal extraction corner '$arg_values(-tech_lef)' not found."
+            return -code error
+        }
+        puts_info "'$arg_values(-tech_lef)' not found, skipping..."
+        return
+    }
+
+    puts_info "Preparing LEF Files..."
+
+    set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
-    puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+    puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)."
+
+    # Merge TLEF/CLEF
     puts_info "Merging LEF Files..."
 
-    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
+    set mlu $::env(TMP_DIR)/merged.unpadded.$arg_values(-corner).lef
 
-    set ::env(MERGED_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
-    # pad lef
-    set ::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged_unpadded.lef
+    try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+        -o $mlu\
+        -i $arg_values(-tech_lef) $arg_values(-cell_lef)\
+        |& tee $::env(TERMINAL_OUTPUT)
 
+    set mlu_relative [relpath . $mlu]
+    puts_info "Created merged LEF without pads at '$mlu_relative'..."
+
+    # Merged Extra Lefs (if they exist)
     if { [info exist ::env(EXTRA_LEFS)] } {
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
+        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)..."
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+            -o $mlu\
+            -i $mlu {*}$::env(EXTRA_LEFS)\
+            |& tee $::env(TERMINAL_OUTPUT)
+        puts_info "Added extra lefs to '$mlu_relative'..."
     }
 
-    # merge optimization library lef if it is different from the STD_CELL_LIBRARY
+    # Merge optimization TLEF/CLEF (if exists)
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
+        puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)..."
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+            -o $mlu\
+            -i $mlu $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
+        puts_info "Added optimization library tech lef and cell lefs to '$mlu_relative'..."
     }
 
-    file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
-    set ::env(CELLS_LEF) $::env(TMP_DIR)/merged.lef
+    # Merge pads (if GPIO_PADS_LEF exists)
+    set ml $::env(TMP_DIR)/merged.$arg_values(-corner).lef
+    set ml_relative [relpath . $ml]
     if { $::env(USE_GPIO_PADS) } {
         if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
             set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
         }
-        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
 
-        file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
-
-        file copy $::env(CELLS_LEF_UNPADDED) $::env(CELLS_LEF_UNPADDED).old
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF_UNPADDED).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF_UNPADDED)
-
-        file delete $::env(CELLS_LEF).old $::env(CELLS_LEF_UNPADDED).old
+        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
+        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+            -o $ml\
+            -i $mlu {*}$::env(GPIO_PADS_LEF)
+        puts_info "Created '$ml_relative' with gpio pads."
+    } else {
+        file copy -force $mlu $ml
+        puts_info "Created '$ml_relative' unaltered."
     }
 
-    set ::env(MERGED_LEF) $::env(CELLS_LEF)
+    set ::env($arg_values(-env_var)_UNPADDED) $mlu
+    set ::env($arg_values(-env_var)) $ml
 
-    widen_site_width
-    use_widened_lefs
-
+    if { ![info exists flags_map(-no_widen)] } {
+        widen_site_width
+        use_widened_lefs
+    }
 }
 
 proc gen_exclude_list {args} {
@@ -504,6 +545,8 @@ proc prep {args} {
     # Process LEFs and LIB files
     if { ! $skip_basic_prep } {
         prep_lefs
+        prep_lefs -tech_lef $::env(TECH_LEF_MIN) -corner min -env_var MERGED_LEF_MIN -no_widen
+        prep_lefs -tech_lef $::env(TECH_LEF_MAX) -corner max -env_var MERGED_LEF_MAX -no_widen
 
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
         # merge synthesis libraries

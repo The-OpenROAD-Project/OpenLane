@@ -38,7 +38,9 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `VDD_PIN` | Defines the power pin of the cells.  |
 | `GND_PIN` | Defines the ground pin of the cells. |
 | `TRACKS_INFO_FILE` | Points to the path of the tracks file. Used by the floorplanner to generate tracks |
-| `TECH_LEF` | Points to the path of the tech lef. |
+| `TECH_LEF_MIN` | Points to the path of the tech lef used for minimum corner extraction. (Optional) |
+| `TECH_LEF` | Points to the path of the tech lef used for nominal corner extraction. |
+| `TECH_LEF_MAX` | Points to the path of the tech lef used for maximum corner extraction. (Optional) |
 | `CELLS_LEF` | A list of paths to the cells lef views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/lef/*.lef"]` |
 | `GDS_FILES` | A list of paths to the cells GDS-II views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/gds/*.gds"]` |
 | `MAGIC_TECH_FILE` | Points to the magic tech file which mainly has drc rules. |
@@ -64,6 +66,10 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `met2`)|
 | `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Default: `met1`)|
 | `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Default: `met5`)|
+| `RCX_RULES_MIN` | OpenRCX rules at the minimum corner. (Optional) |
+| `RCX_RULES` | OpenRCX rules at the nominal corner. |
+| `RCX_RULES_MAX` | OpenRCX rules at the maximum corner. (Optional) |
+
 
 ## Standard cell library-specific variables
 

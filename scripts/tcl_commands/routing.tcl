@@ -366,30 +366,49 @@ proc run_spef_extraction {args} {
     set options {
         {-log required}
         {-rcx_lib optional}
+        {-rcx_lef optional}
+        {-rcx_rules optional}
         {-output_spef optional}
     }
     parse_key_args "run_spef_extraction" args arg_values $options
-    set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE);
-    set_if_unset arg_values(-output_spef) [file rootname $::env(CURRENT_DEF)].spef;
+
+    set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
+    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF_UNPADDED)
+    set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
+    set_if_unset arg_values(-output_spef) [file rootname $::env(CURRENT_DEF)].spef
+
     set ::env(CURRENT_SPEF) $arg_values(-output_spef)
-    set ::env(LIB_RCX) $arg_values(-rcx_lib)
 
-    if { $::env(RUN_SPEF_EXTRACTION) == 1 } {
-        set tool "openroad"
-        increment_index
-        TIMER::timer_start
-        set log [index_file $arg_values(-log)]
-        puts_info "Running SPEF Extraction..."
-        if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
-            puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
-            set ::env(SPEF_EXTRACTOR) "openrcx"
-        }
+    set ::env(RCX_LIB) $arg_values(-rcx_lib)
+    set ::env(RCX_LEF) $arg_values(-rcx_lef)
+    set ::env(RCX_RULESET) $arg_values(-rcx_rules)
 
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - $tool"
+    if { ![file exists $::env(RCX_RULESET)]} {
+        puts_err "RCX ruleset '$::env(RCX_RULESET)' does not exist."
+        return -code error
     }
+    if { ![file exists $::env(RCX_LEF)]} {
+        puts_err "Technology LEF file '$::env(RCX_LEF)' does not exist."
+        return -code error
+    }
+
+    if { $::env(RUN_SPEF_EXTRACTION) != 1 } {
+        return
+    }
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $arg_values(-log)]
+    puts_info "Running SPEF Extraction..."
+    if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
+        puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
+        set ::env(SPEF_EXTRACTOR) "openrcx"
+    }
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - openroad"
 }
 
 proc run_routing {args} {
@@ -413,7 +432,7 @@ proc run_routing {args} {
         file mkdir $sdf_path
         file mkdir $arc_def_path
     }
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } { 
+    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
         set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
         set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
     }
@@ -494,19 +513,31 @@ proc run_routing {args} {
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
     # spef extraction at the three corners
-    set ::env(SPEF_FASTEST) [file rootname $::env(CURRENT_DEF)].ff.spef;
-    set ::env(SPEF_TYPICAL) [file rootname $::env(CURRENT_DEF)].tt.spef;
-    set ::env(SPEF_SLOWEST) [file rootname $::env(CURRENT_DEF)].ss.spef;
-
+    set ::env(SPEF_PREFIX) [file rootname $::env(CURRENT_DEF)]
     if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
-        set ::env(SPEF_FASTEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ff.spef;
-        set ::env(SPEF_TYPICAL) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).tt.spef;
-        set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ss.spef;
+        set ::env(SPEF_PREFIX) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)
     }
 
-    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
-    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
-    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
+    foreach {time_corner lib} {
+        ff LIB_FASTEST
+        tt LIB_SYNTH_COMPLETE
+        ss LIB_SLOWEST
+    } {
+        foreach {extraction_corner tlef ruleset} {
+            max TECH_LEF_MAX RCX_RULES_MAX
+            nom TECH_LEF RCX_RULES
+            min TECH_LEF_MIN RCX_RULES_MIN
+        } {
+            if { [info exists ::env($tlef)] } {
+                run_spef_extraction\
+                    -rcx_lib $::env($lib)\
+                    -rcx_rules $::env($ruleset)\
+                    -rcx_lef $::env($tlef)\
+                    -log $::env(routing_logs)/parasitics_extraction.$time_corner.$extraction_corner.log\
+                    -output_spef $::env(SPEF_PREFIX).$time_corner.$extraction_corner.spef
+            }
+        }
+    }
 
     set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
 
