@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
+#
 # Copyright 2022 Arman Avetisyan
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -17,13 +20,23 @@ import os  # For checking if file exists
 import click  # For command line parsing
 import json
 
-
-test_cases = glob.glob("./designs/issue_*")
-
 # TODO: If command is get designs
 # print(json.dumps({"design": designs}))
 # else if design specified
 #
+
+
+openlane_dir = os.path.dirname(os.path.abspath(__file__))
+tests_dir = os.path.join(openlane_dir, "tests")
+
+
+def get_test_cases():
+    retval = []
+    for file in os.listdir(tests_dir):
+        test_path = os.path.join(tests_dir, file)
+        if os.path.isdir(test_path):
+            retval.append(test_path)
+    return retval
 
 
 @click.group()
@@ -34,7 +47,7 @@ def cli():
 # Note: Following command is executed outside of OpenRoad, so you can't run the ./flow.tcl
 @click.command("get_matrix")
 def get_matrix():
-    print(json.dumps({"design": test_cases}))
+    print(json.dumps({"design": get_test_cases()}))
 
 
 cli.add_command(get_matrix)
@@ -51,9 +64,9 @@ cli.add_command(run_test_case_cmd)
 
 @click.command("run_all")
 def run_all():
-    for test_case in test_cases:
+    for test_case in get_test_cases():
         run_test_case(test_case)
-    print("Issue regression flow completed without errors")
+    print("Done.")
 
 
 cli.add_command(run_all)
@@ -81,7 +94,7 @@ def run_test_case(test_case):
     # -------------------------------
     try:
         logfile = open(logpath, "w")
-        print("Running test case:", test_case_name, "Logfile:", logpath)
+        print(f"Running test case: {test_case_name} (logging to {logpath})")
         result = subprocess.run(
             [
                 "./flow.tcl",
@@ -105,22 +118,16 @@ def run_test_case(test_case):
         # -------------------------------
         if script_exists:
             result = err
-            print(
-                "./flow.tcl failed. This might be expected, as issue_regression.py may expect this"
-            )
         else:
             print(
-                "./flow.tcl failed and issue_regression.py does not exist, therefore test case",
-                test_case,
-                "failed. Logfile:",
-                logpath,
+                f"./flow.tcl failed and issue_regression.py does not exist, therefore test case {test_case} failed."
             )
             raise err
     # -------------------------------
     # 3. Run the issue_regression.py.
     # -------------------------------
     if script_exists:
-        print("Running", test_case_issue_regression_script, "Logfile:", logpath_check)
+        print("Running post-run hook...")
         logfile_check = open(logpath_check, "w")
         try:
             subprocess.run(
@@ -139,17 +146,9 @@ def run_test_case(test_case):
             # -------------------------------
             # 4. Run the issue_regression.py. If it errors out, log it and then raise an error
             # -------------------------------
-            print("Issue regression check failed, check log:", logpath_check)
+            print(f"{test_case_name} failed: see '{logpath_check}'.")
             raise err
-        print("Completed run successfully:", test_case)
-    else:
-        print(
-            "For design",
-            test_case,
-            "no regression script",
-            test_case_issue_regression_script,
-            "has been found",
-        )
+    print(f"{test_case_name} completed successfully.")
 
 
 if __name__ == "__main__":
