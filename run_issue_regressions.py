@@ -14,11 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import glob  # For finding all issue_regression designs
-import subprocess  # For running the flow
 import os  # For checking if file exists
+import json  # To serialize the matrix for the CI
 import click  # For command line parsing
-import json
+import subprocess  # For running the flow
 
 # TODO: If command is get designs
 # print(json.dumps({"design": designs}))
