@@ -25,14 +25,12 @@ import subprocess  # For running the flow
 #
 
 
-openlane_dir = os.path.dirname(os.path.abspath(__file__))
-tests_dir = os.path.join(openlane_dir, "tests")
-
-
 def get_test_cases():
+    openlane_dir_relative = os.path.dirname(os.path.relpath(__file__))
+    test_dir_relative = os.path.join(openlane_dir_relative, "tests")
     retval = []
-    for file in os.listdir(tests_dir):
-        test_path = os.path.join(tests_dir, file)
+    for file in os.listdir(test_dir_relative):
+        test_path = os.path.join(test_dir_relative, file)
         if os.path.isdir(test_path):
             retval.append(test_path)
     return retval
