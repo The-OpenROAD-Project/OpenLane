@@ -16,10 +16,9 @@ proc run_klayout {args} {
 	if {$::env(RUN_KLAYOUT)} {
 		TIMER::timer_start
 		set ::env(CURRENT_STAGE) finishing
-		puts_info "Generting GDS II with Klayout..."
+		puts_info "Streaming out GDS-II with Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			increment_index
-			puts_info "Streaming out GDS II..."
 			set gds_files_in ""
 			if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 				set gds_files_in $::env(EXTRA_GDS_FILES)
@@ -43,17 +42,19 @@ proc run_klayout {args} {
 				-rd lef_file=$::env(MERGED_LEF)\
 				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/gdsii-klayout.log]
 
-			if { $::env(PRIMARY_SIGNOFF_TOOL) == "klayout" } {
-				set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
-				file copy -force $klayout_out $::env(CURRENT_GDS)
-			}
 
 			if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
 				file copy -force $::env(KLAYOUT_PROPERTIES) $::env(finishing_results)/$::env(DESIGN_NAME).lyp
 			} else {
 				puts_warn "::env(KLAYOUT_PROPERTIES) is not defined. So, it won't be copied to the run directory."
 			}
-			puts_info "Back-up GDS-II streamed out."
+
+
+			if { $::env(PRIMARY_SIGNOFF_TOOL) == "klayout" } {
+				set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
+				file copy -force $klayout_out $::env(CURRENT_GDS)
+			}
+
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
 			scrot_klayout -layout $::env(finishing_results)/$::env(DESIGN_NAME).gds -log $::env(finishing_logs)/screenshot.klayout.log

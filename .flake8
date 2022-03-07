@@ -4,4 +4,5 @@ exclude =
     .git,
     __pycache__,
     scripts/klayout,
-    docker/tar
+    docker/tar,
+    install/

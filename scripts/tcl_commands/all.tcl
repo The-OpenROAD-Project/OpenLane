@@ -41,7 +41,7 @@ proc set_netlist {netlist args} {
 
     set netlist_relative [relpath . $netlist]
 
-    puts_info "Changing netlist to '$netlist_relative'..."
+    puts_verbose "Changing netlist to '$netlist_relative'..."
 
     set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
     set ::env(CURRENT_NETLIST) $netlist
@@ -59,7 +59,7 @@ proc set_netlist {netlist args} {
 
 proc set_def {def} {
     set def_relative [relpath . $def]
-    puts_info "Changing layout to '$def_relative'..."
+    puts_verbose "Changing layout to '$def_relative'..."
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -67,21 +67,21 @@ proc set_def {def} {
 
 proc set_guide {guide} {
     set guide_relative [relpath . $guide]
-    puts_info "Changing guide to '$guide_relative'..."
+    puts_verbose "Changing guide to '$guide_relative'..."
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
     exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
 proc prep_lefs {args} {
-    puts_info "Preparing LEF Files"
-    puts_info "Extracting the number of available metal layers from $::env(TECH_LEF)"
+    puts_info "Preparing LEF Files..."
+    puts_verbose "Extracting the number of available metal layers from $::env(TECH_LEF)"
 
     set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $::env(TECH_LEF)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
-    puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
-    puts_info "Merging LEF Files..."
+    puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+    puts_verbose "Merging LEF Files..."
 
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(TECH_LEF) $::env(CELLS_LEF) -o $::env(TMP_DIR)/merged_unpadded.lef |& tee $::env(TERMINAL_OUTPUT)
 
@@ -91,13 +91,13 @@ proc prep_lefs {args} {
 
     if { [info exist ::env(EXTRA_LEFS)] } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) {*}$::env(EXTRA_LEFS) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
+        puts_verbose "Merging the following extra LEFs: $::env(EXTRA_LEFS)"
     }
 
     # merge optimization library lef if it is different from the STD_CELL_LIBRARY
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF_UNPADDED) $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) -o $::env(MERGED_LEF_UNPADDED) |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
+        puts_verbose "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)"
     }
 
     file copy -force $::env(CELLS_LEF_UNPADDED) $::env(TMP_DIR)/merged.lef
@@ -106,7 +106,7 @@ proc prep_lefs {args} {
         if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
             set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
         }
-        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
+        puts_verbose "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)"
 
         file copy $::env(CELLS_LEF) $::env(CELLS_LEF).old
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(CELLS_LEF).old {*}$::env(GPIO_PADS_LEF) -o $::env(CELLS_LEF)
@@ -125,7 +125,7 @@ proc prep_lefs {args} {
 }
 
 proc gen_exclude_list {args} {
-    puts_info "Generating Exclude List..."
+    puts_verbose "Generating cell exclude list..."
     set options {
         {-lib required}
         {-drc_exclude_list optional}
@@ -252,7 +252,7 @@ proc prep {args} {
 
     set flags {
         -init_design_config
-        -disable_output
+        -verbose
         -overwrite
     }
 
@@ -293,10 +293,12 @@ proc prep {args} {
         exit 0
     }
 
-    if { ! [info exists flags_map(-disable_output)] } {
+    if { [info exists flags_map(-verbose)] } {
         set ::env(TERMINAL_OUTPUT) ">&@stdout"
+        set ::env(OPENLANE_VERBOSE) "1"
     } else {
         set ::env(TERMINAL_OUTPUT) "/dev/null"
+        set ::env(OPENLANE_VERBOSE) "0"
     }
 
     set ::env(datetime) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
@@ -633,7 +635,6 @@ proc prep {args} {
         }
     }
 
-    puts_info "Preparation complete"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok

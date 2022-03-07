@@ -31,8 +31,6 @@ proc check_synthesis_failure {args} {
     if { ! $checker } {
         puts_err "Synthesis failed"
         flow_fail
-    } else {
-        puts_info "Synthesis was successful"
     }
 }
 
@@ -165,8 +163,6 @@ proc check_cts_clock_nets {args} {
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
         flow_fail
-    } else {
-        puts_info "Clock Tree Synthesis was successful"
     }
 }
 
@@ -177,8 +173,6 @@ proc check_replace_divergence {args} {
         puts_err "Global placement failed"
         puts_err $error
         flow_fail
-    } else {
-        puts_info "Global placement was successful"
     }
 }
 
@@ -189,8 +183,6 @@ proc check_macro_placer_num_solns {args} {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
         flow_fail
-    } else {
-        puts_info "Macro placement was successful"
     }
 }
 
@@ -272,8 +264,6 @@ proc quit_on_unconnected_pdn_nodes {args} {
             offsets/pitches to power all standard cell rails (or other PDN stripes) \
             in your design."
         flow_fail
-    } else {
-        puts_info "PDN generation was successful."
     }
 }
 

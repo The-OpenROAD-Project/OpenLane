@@ -301,9 +301,7 @@ proc run_power_grid_generation {args} {
 		set ::env(GND_NETS) $::env(GND_PIN)
 	}
 
-	puts_info "Power planning the following nets"
-	puts_info "Power: $::env(VDD_NETS)"
-	puts_info "Ground: $::env(GND_NETS)"
+	puts_info "Power planning with power {$::env(VDD_NETS)} and ground {$::env(GND_NETS)}..."
 
 	if { [llength $::env(VDD_NETS)] != [llength $::env(GND_NETS)] } {
 		puts_err "VDD_NETS and GND_NETS must be of equal lengths"
@@ -368,73 +366,73 @@ proc run_power_grid_generation {args} {
 
 		set ::env(FP_PDN_CORE_RING_VOFFSET)\
 			[expr $::env(FP_PDN_CORE_RING_VOFFSET)\
-				+2*($::env(FP_PDN_CORE_RING_VWIDTH)\
-				+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
-			set ::env(FP_PDN_CORE_RING_HOFFSET) \
-				[expr $::env(FP_PDN_CORE_RING_HOFFSET)\
-					+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
-					max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
-			}
-			set ::env(FP_PDN_ENABLE_RAILS) 1
-		}
+			+2*($::env(FP_PDN_CORE_RING_VWIDTH)\
+			+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
+		set ::env(FP_PDN_CORE_RING_HOFFSET) \
+			[expr $::env(FP_PDN_CORE_RING_HOFFSET)\
+			+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
+			max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
+	}
+	set ::env(FP_PDN_ENABLE_RAILS) 1
+}
 
-		proc run_floorplan {args} {
-		puts_info "Running Floorplanning..."
-		# |----------------------------------------------------|
-		# |----------------   2. FLOORPLAN   ------------------|
-		# |----------------------------------------------------|
-		#
-		# intial fp
-		init_floorplan
+proc run_floorplan {args} {
+	puts_info "Running Floorplanning..."
+	# |----------------------------------------------------|
+	# |----------------   2. FLOORPLAN   ------------------|
+	# |----------------------------------------------------|
+	#
+	# intial fp
+	init_floorplan
 
-		# check for deprecated io variables
-		if { [info exists ::env(FP_IO_HMETAL)]} {
-			set ::env(FP_IO_HLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
-			puts_warn "You're using FP_IO_HMETAL in your configuration, which is a deprecated variable that will be removed in the future."
-			puts_warn "We recommend you update your configuration as follows:"
-			puts_warn "\tset ::env(FP_IO_HLAYER) {$::env(FP_IO_HLAYER)}"
-		}
-
-		if { [info exists ::env(FP_IO_VMETAL)]} {
-			set ::env(FP_IO_VLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
-			puts_warn "You're using FP_IO_VMETAL in your configuration, which is a deprecated variable that will be removed in the future."
-			puts_warn "We recommend you update your configuration as follows:"
-			puts_warn "\tset ::env(FP_IO_VLAYER) {$::env(FP_IO_VLAYER)}"
-		}
-
-
-		# place io
-		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
-			place_io_ol
-		} else {
-			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
-				place_io
-				global_placement_or
-				place_contextualized_io \
-					-lef $::env(FP_CONTEXT_LEF) \
-					-def $::env(FP_CONTEXT_DEF)
-			} else {
-				place_io
-			}
-		}
-
-		apply_def_template
-
-		if { [info exist ::env(EXTRA_LEFS)] } {
-			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
-				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
-				manual_macro_placement f
-			} else {
-				global_placement_or
-				basic_macro_placement
-			}
-		}
-
-		tap_decap_or
-
-		scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
-
-		run_power_grid_generation
+	# check for deprecated io variables
+	if { [info exists ::env(FP_IO_HMETAL)]} {
+		set ::env(FP_IO_HLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+		puts_warn "You're using FP_IO_HMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_HLAYER) {$::env(FP_IO_HLAYER)}"
 	}
 
-	package provide openlane 0.9
+	if { [info exists ::env(FP_IO_VMETAL)]} {
+		set ::env(FP_IO_VLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
+		puts_warn "You're using FP_IO_VMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_VLAYER) {$::env(FP_IO_VLAYER)}"
+	}
+
+
+	# place io
+	if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
+		place_io_ol
+	} else {
+		if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
+			place_io
+			global_placement_or
+			place_contextualized_io \
+				-lef $::env(FP_CONTEXT_LEF) \
+				-def $::env(FP_CONTEXT_DEF)
+		} else {
+			place_io
+		}
+	}
+
+	apply_def_template
+
+	if { [info exist ::env(EXTRA_LEFS)] } {
+		if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
+			file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
+			manual_macro_placement f
+		} else {
+			global_placement_or
+			basic_macro_placement
+		}
+	}
+
+	tap_decap_or
+
+	scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
+
+	run_power_grid_generation
+}
+
+package provide openlane 0.9
