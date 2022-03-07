@@ -1,0 +1,1 @@
+Also tests apply_def_template
