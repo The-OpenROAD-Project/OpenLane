@@ -86,7 +86,7 @@ proc run_cts {args} {
 		if { $::env(LEC_ENABLE) } {
 			logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
 		}
-		scrot_klayout -layout $::env(CURRENT_DEF) $::env(cts_logs)/screenshot.log
+		scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
 		increment_index
 		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
