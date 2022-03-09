@@ -15,18 +15,6 @@ pipeline {
             }
         }
 
-        stage("Checkout") {
-            steps {
-                checkout([$class: "GitSCM",
-                        branches: [[name: "*/master"]],
-                        doGenerateSubmoduleConfigurations: false,
-                        extensions: [[$class: 'CleanBeforeCheckout']],
-                        submoduleCfg: [],
-                        userRemoteConfigs: [[credentialsId: "openroad-ci", url: "https://github.com/The-OpenROAD-Project/OpenLane"]]
-                ]);
-            }
-        }
-
         stage('Checkout PDKs') {
             steps {
                 sh 'git switch -C main';
@@ -40,15 +28,15 @@ pipeline {
             }
         }
 
-        stage('Build Docker image with openroad/master') {
+        stage('Build OpenROAD Docker image with master branch') {
             steps {
                 sh 'make -C docker build-openroad_app';
             }
         }
 
-        stage('Merge Docker images') {
+        stage('Build Docker OpenLane image with openroad_app master') {
             steps {
-                sh 'make -C docker merge';
+                sh 'make -C docker openlane';
             }
         }
 
@@ -66,7 +54,7 @@ pipeline {
                         steps {
                             script {
                                 stage("${DESIGN}") {
-                                    sh "make OPENLANE_TAG=current TEST_DESIGN=${DESIGN} test";
+                                    sh "make OPENLANE_DOCKER_TAG=current TEST_DESIGN=${DESIGN} test";
                                 }
                             }
                         }
@@ -82,7 +70,7 @@ pipeline {
             archiveArtifacts artifacts: "designs/**/*.log, designs/**/openroad_issue_reproducible/**/*";
         }
         failure {
-            emailext (
+            emailext(
                     to: '$DEFAULT_RECIPIENTS',
                     subject: '$DEFAULT_SUBJECT',
                     body: '$DEFAULT_CONTENT',
