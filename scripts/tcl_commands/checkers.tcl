@@ -121,8 +121,8 @@ proc check_slew_violations {args} {
 
     set checker [catch {exec grep "VIOLATED" $report_file }]
     if { ! $checker } {
+        set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
-            set report_file_relative [relpath . $report_file]
             puts_err "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
             flow_fail
         } else {
