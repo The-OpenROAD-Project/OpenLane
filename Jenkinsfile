@@ -9,12 +9,6 @@ pipeline {
     }
     stages {
 
-        stage("Setup") {
-            steps {
-                sh 'docker system prune -a -f';
-            }
-        }
-
         stage('Checkout PDKs') {
             steps {
                 sh 'git switch -C main';
@@ -45,8 +39,26 @@ pipeline {
                 axes {
                     axis {
                         name 'DESIGN';
-                        // designs disabled "aes128", "chacha", "ldpcenc", "sha512", "des";
-                        values "aes", "aes_cipher", "aes_core", "APU", "blabla", "BM64", "digital_pll_sky130_fd_sc_hd", "genericfir", "inverter", "manual_macro_placement_test", "picorv32a", "PPU", "s44", "salsa20", "spm", "usb", "usb_cdc_core", "wbqspiflash", "xtea", "y_huff", "zipdiv";
+                        values "aes",
+                               "aes_core",
+                               "APU",
+                               "blabla",
+                               "BM64",
+                               "digital_pll_sky130_fd_sc_hd",
+                               "gcd",
+                               "inverter",
+                               "manual_macro_placement_test",
+                               "picorv32a",
+                               "PPU",
+                               "s44",
+                               "salsa20",
+                               "spm",
+                               "usb",
+                               "usb_cdc_core",
+                               "wbqspiflash",
+                               "xtea",
+                               "y_huff",
+                               "zipdiv";
                     }
                 }
                 stages {
