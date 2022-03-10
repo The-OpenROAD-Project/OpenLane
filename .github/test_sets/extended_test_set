@@ -1,1 +1,1 @@
-des BM64 salsa20 aes_core blabla genericfir picorv32a PPU y_huff aes #aes_cipher #aes128 #sha512 #chacha #ldpcenc
+BM64 salsa20 aes_core blabla picorv32a PPU y_huff aes 

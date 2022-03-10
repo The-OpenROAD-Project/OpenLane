@@ -1,0 +1,8 @@
+*/runs/
+*/lef/
+*/gds/
+*/mag/
+*/config*.tcl
+*/base_config.tcl
+!*/config.tcl
+!*/script.tcl
