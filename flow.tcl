@@ -89,8 +89,12 @@ proc run_drc_step {{ drc_enabled 1 }} {
 		set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
 	}
 	if { $drc_enabled } {
-		run_magic_drc
-		run_klayout_drc
+		if { $::env(RUN_MAGIC_DRC) } {
+			run_magic_drc
+		}
+		if {$::env(RUN_KLAYOUT_DRC)} {
+			run_klayout_drc
+		}
 	}
 }
 
@@ -109,6 +113,15 @@ proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
 
 		run_eco_flow
+	}
+}
+
+proc run_klayout_step {args} {
+	if {$::env(RUN_KLAYOUT)} {
+		run_klayout
+	}
+	if {$::env(RUN_KLAYOUT_XOR)} {
+		run_klayout_gds_xor
 	}
 }
 
@@ -204,8 +217,7 @@ proc run_non_interactive_mode {args} {
 		"eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
-		"gds_drc_klayout" {run_klayout ""} \
-		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"gds_klayout" {run_klayout_step ""} \
 		"lvs" "run_lvs_step $LVS_ENABLED" \
 		"drc" "run_drc_step $DRC_ENABLED" \
 		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \

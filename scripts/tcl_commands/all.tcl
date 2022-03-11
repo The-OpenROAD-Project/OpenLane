@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -163,7 +163,7 @@ proc gen_exclude_list {args} {
     }
 
     if { [file exists $arg_values(-output)] && [info exists flags_map(-create_dont_use_list)] } {
-        puts_info "Creating ::env(DONT_USE_CELLS)..."
+        puts_verbose "Creating ::env(DONT_USE_CELLS)..."
         set fp [open "$arg_values(-output)" r]
         set x [read $fp]
         set y [split $x]
@@ -175,7 +175,7 @@ proc gen_exclude_list {args} {
 }
 
 proc trim_lib {args} {
-    puts_info "Trimming Liberty..."
+    puts_verbose "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
@@ -248,12 +248,13 @@ proc prep {args} {
         {-run_path optional}
         {-src optional}
         {-override_env optional}
+        {-verbose optional}
     }
 
     set flags {
         -init_design_config
-        -verbose
         -overwrite
+        -last_run
     }
 
     set args_copy $args
@@ -293,20 +294,29 @@ proc prep {args} {
         exit 0
     }
 
-    if { [info exists flags_map(-verbose)] } {
+    set_if_unset arg_values(-verbose) "0"
+    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
+
+
+    set ::env(TERMINAL_OUTPUT) "/dev/null"
+    if { $::env(OPENLANE_VERBOSE) >= 2 } {
         set ::env(TERMINAL_OUTPUT) ">&@stdout"
-        set ::env(OPENLANE_VERBOSE) "1"
-    } else {
-        set ::env(TERMINAL_OUTPUT) "/dev/null"
-        set ::env(OPENLANE_VERBOSE) "0"
     }
 
-    set ::env(datetime) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
-    if { [lsearch -exact $args_copy -tag ] >= 0} {
-        set tag "$arg_values(-tag)"
-    } else {
-        set tag "RUN_$::env(datetime)"
+    set ::env(START_TIME) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
+
+    if { [info exists flags_map(-last_run)] } {
+        if { [info exists arg_values(-tag)] } {
+            puts_err "Cannot specify a tag with -last_run set."
+            return -code error
+        }
+
+        set arg_values(-tag) [exec python3 ./scripts/most_recent_run.py $::env(DESIGN_DIR)/runs]
     }
+
+    set_if_unset arg_values(-tag) "RUN_$::env(START_TIME)"
+    set tag $arg_values(-tag)
+
 
     set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
 
@@ -433,7 +443,7 @@ proc prep {args} {
             puts_warn "Removing exisiting run $::env(RUN_DIR)"
             after 1000
             file delete -force $::env(RUN_DIR)
-        } else {
+        } elseif { ![info exists flags_map(-last_run)] } {
             puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"
             puts_info "Now you can run commands that pick up where '$tag' left off"
             after 1000
@@ -492,7 +502,7 @@ proc prep {args} {
     set density $::env(PL_TARGET_DENSITY)
 
     # Fill config file
-    puts_info "Storing configs into config.tcl ..."
+    puts_verbose "Storing configs into config.tcl ..."
     exec echo "# Run configs" > $::env(GLB_CFG_FILE)
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {

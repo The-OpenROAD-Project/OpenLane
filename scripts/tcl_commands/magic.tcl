@@ -99,52 +99,51 @@ proc run_magic {args} {
 
 
 proc run_magic_drc {args} {
-	if { $::env(RUN_MAGIC_DRC) } {
-		increment_index
-		TIMER::timer_start
-		puts_info "Running Magic DRC..."
+	increment_index
+	TIMER::timer_start
+	puts_info "Running Magic DRC..."
 
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-		set ::env(drc_prefix) $::env(finishing_reports)/drc
-		# Has to be maglef for DRC Checking
-		set ::env(MAGTYPE) maglef
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
+	set ::env(drc_prefix) $::env(finishing_reports)/drc
+	# Has to be maglef for DRC Checking
+	set ::env(MAGTYPE) maglef
 
-		try_catch magic \
-			-noconsole \
-			-dnull \
-			-rcfile $::env(MAGIC_MAGICRC) \
-			$::env(SCRIPTS_DIR)/magic/drc.tcl \
-			</dev/null \
-			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/drc.log]
+	try_catch magic \
+		-noconsole \
+		-dnull \
+		-rcfile $::env(MAGIC_MAGICRC) \
+		$::env(SCRIPTS_DIR)/magic/drc.tcl \
+		</dev/null \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/drc.log]
 
-		puts_info "Converting Magic DRC Violations to Magic Readable Format..."
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
-			-i $::env(drc_prefix).rpt \
-			-o $::env(drc_prefix).tcl
+	puts_info "Converting Magic DRC Violations to Magic Readable Format..."
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tcl.py \
+		-i $::env(drc_prefix).rpt \
+		-o $::env(drc_prefix).tcl
 
-		puts_info "Converting Magic DRC Violations to Klayout XML Database..."
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
-			-i $::env(drc_prefix).rpt \
-			-o $::env(drc_prefix).tr
+	puts_info "Converting Magic DRC Violations to Klayout XML Database..."
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_tr_drc.py \
+		-i $::env(drc_prefix).rpt \
+		-o $::env(drc_prefix).tr
 
-		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
-			-i $::env(drc_prefix).tr \
-			-o $::env(drc_prefix).klayout.xml \
-			--design-name $::env(DESIGN_NAME)
+	puts_info "Converting TritonRoute DRC Violations to Klayout XML Database..."
+	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
+		-i $::env(drc_prefix).tr \
+		-o $::env(drc_prefix).klayout.xml \
+		--design-name $::env(DESIGN_NAME)
 
-		if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
-			puts_info "Converting DRC Violations to RDB Format..."
-			try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
-				--magic_drc_in $::env(drc_prefix).rpt \
-				--rdb_out $::env(drc_prefix).rdb
-			puts_info "Converted DRC Violations to RDB Format"
-		}
-		file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
-
-		quit_on_magic_drc -log $::env(drc_prefix).tr
+	if { $::env(MAGIC_CONVERT_DRC_TO_RDB) == 1 } {
+		puts_info "Converting DRC Violations to RDB Format..."
+		try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/magic_drc_to_rdb.py \
+			--magic_drc_in $::env(drc_prefix).rpt \
+			--rdb_out $::env(drc_prefix).rdb
 	}
+
+	file copy -force $::env(MAGIC_MAGICRC) $::env(finishing_results)/.magicrc
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
+
+	quit_on_magic_drc -log $::env(drc_prefix).tr
 }
 
 proc run_magic_spice_export {args} {

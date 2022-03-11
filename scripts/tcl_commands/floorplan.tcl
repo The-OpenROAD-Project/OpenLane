@@ -36,8 +36,8 @@ proc init_floorplan_or {args} {
 }
 
 proc init_floorplan {args} {
-	puts_info "Running Initial Floorplanning..."
 	increment_index
+	puts_info "Running Initial Floorplanning..."
 	TIMER::timer_start
 	set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
 	set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
@@ -61,8 +61,8 @@ proc init_floorplan {args} {
 	set core_width [expr {[lindex $::env(CORE_AREA) 2] - [lindex $::env(CORE_AREA) 0]}]
 	set core_height [expr {[lindex $::env(CORE_AREA) 3] - [lindex $::env(CORE_AREA) 1]}]
 
-	puts_info "Core area width: $core_width"
-	puts_info "Core area height: $core_height"
+	puts_verbose "Core area width: $core_width"
+	puts_verbose "Core area height: $core_height"
 
 	if { $::env(FP_PDN_AUTO_ADJUST) } {
 		if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
@@ -77,11 +77,12 @@ proc init_floorplan {args} {
 		}
 
 	}
-	puts_info "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
-	puts_info "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
 
-	puts_info "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
-	puts_info "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
+	puts_verbose "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
+	puts_verbose "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
+
+	puts_verbose "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
+	puts_verbose "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
 
 	TIMER::timer_stop
 	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
@@ -377,7 +378,6 @@ proc run_power_grid_generation {args} {
 }
 
 proc run_floorplan {args} {
-	puts_info "Running Floorplanning..."
 	# |----------------------------------------------------|
 	# |----------------   2. FLOORPLAN   ------------------|
 	# |----------------------------------------------------|

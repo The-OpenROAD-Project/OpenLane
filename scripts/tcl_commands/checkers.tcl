@@ -231,10 +231,8 @@ proc quit_on_lvs_error {args} {
         set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
-            puts_err "There are LVS errors in the design according to Netgen LVS."
+            puts_err "There are LVS errors in the design.."
             flow_fail
-        } else {
-            puts_info "No LVS mismatches."
         }
     }
 }
@@ -251,8 +249,6 @@ proc quit_on_illegal_overlaps {args} {
             puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
             puts_err "See $arg_values(-log) for more."
             flow_fail
-        } else {
-            puts_info "No illegal overlaps detected during extraction."
         }
     }
 }

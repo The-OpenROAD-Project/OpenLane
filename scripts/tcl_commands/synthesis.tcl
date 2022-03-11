@@ -165,11 +165,11 @@ proc verilog_elaborate {args} {
 
 proc yosys_rewrite_verilog {filename} {
     if { !$::env(LEC_ENABLE) } {
-        puts_info "Skipping Verilog rewrite (logic equivalency checks are disabled)..."
+        puts_verbose "Skipping Verilog rewrite (logic equivalency checks are disabled)..."
         return
     }
-    if { $::env(YOSYS_REWRITE_VERILOG) } {
-        puts_info "Skipping Verilog rewrite."
+    if { !$::env(YOSYS_REWRITE_VERILOG) } {
+        puts_verbose "Skipping Verilog rewrite."
         return
     }
 

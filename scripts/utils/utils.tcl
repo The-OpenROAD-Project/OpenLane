@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -241,8 +241,8 @@ proc run_openroad_script {args} {
 }
 
 proc increment_index {args} {
-    puts_verbose "Incremented step index to $::env(CURRENT_INDEX)."
     set ::env(CURRENT_INDEX) [expr 1 + $::env(CURRENT_INDEX)]
+    puts "\[STEP $::env(CURRENT_INDEX)\]"
 }
 
 proc index_file {args} {
@@ -277,7 +277,7 @@ proc flow_fail {args} {
 
 proc calc_total_runtime {args} {
     ## Calculate Total Runtime
-    if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
+    if {[info exists ::env(timer_start)] && [info exists ::env(START_TIME)]} {
         puts_verbose "Calculating runtime..."
         set ::env(timer_end) [clock seconds]
         set options {
