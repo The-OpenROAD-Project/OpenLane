@@ -523,16 +523,16 @@ proc run_routing {args} {
         tt LIB_SYNTH_COMPLETE
         ss LIB_SLOWEST
     } {
-        foreach {extraction_corner tlef ruleset} {
-            max TECH_LEF_MAX RCX_RULES_MAX
-            nom TECH_LEF RCX_RULES
-            min TECH_LEF_MIN RCX_RULES_MIN
+        foreach {extraction_corner lef ruleset} {
+            max MERGED_LEF_MAX RCX_RULES_MAX
+            nom MERGED_LEF RCX_RULES
+            min MERGED_LEF_MIN RCX_RULES_MIN
         } {
-            if { [info exists ::env($tlef)] } {
+            if { [info exists ::env($lef)] } {
                 run_spef_extraction\
                     -rcx_lib $::env($lib)\
                     -rcx_rules $::env($ruleset)\
-                    -rcx_lef $::env($tlef)\
+                    -rcx_lef $::env($lef)\
                     -log $::env(routing_logs)/parasitics_extraction.$time_corner.$extraction_corner.log\
                     -output_spef $::env(SPEF_PREFIX).$time_corner.$extraction_corner.spef
             }

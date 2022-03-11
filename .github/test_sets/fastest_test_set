@@ -1,1 +1,1 @@
-inverter wbqspiflash APU s44 zipdiv xtea usb usb_cdc_core manual_macro_placement_test spm digital_pll_sky130_fd_sc_hd gcd
+inverter wbqspiflash APU s44 zipdiv xtea #usb usb_cdc_core manual_macro_placement_test spm digital_pll_sky130_fd_sc_hd gcd
