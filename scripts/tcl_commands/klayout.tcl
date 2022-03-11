@@ -160,7 +160,7 @@ proc run_klayout_gds_xor {args} {
 					try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
 						-l [index_file $::env(finishing_logs)/xor.log] \
 						-o [index_file $::env(finishing_reports)/xor.rpt]
-					scrot_klayout -layout $arg_values(-output_gds)
+					scrot_klayout -layout $arg_values(-output_gds) -log $::env(finishing_logs)/screenshot.klayout.xor.log
 				}
 
 				if { $::env(KLAYOUT_XOR_XML) } {

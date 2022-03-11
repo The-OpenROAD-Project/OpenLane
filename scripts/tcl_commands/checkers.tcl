@@ -67,11 +67,12 @@ proc check_hold_violations {args} {
 
     set checker [catch {exec grep "VIOLATED" $report_file }]
     if { ! $checker } {
+        set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
-            puts_err "There are hold violations in the design at the $corner corner. Please refer to $report_file."
+            puts_err "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
             flow_fail
         } else {
-            puts_warn "There are hold violations in the design at the $corner corner. Please refer to $report_file."
+            puts_warn "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
     } else {
         puts_info "There are no hold violations in the design at the $corner corner."
@@ -92,11 +93,12 @@ proc check_setup_violations {args} {
 
     set checker [catch {exec grep "VIOLATED" $report_file }]
     if { ! $checker } {
+        set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
-            puts_err "There are setup violations in the design at the $corner corner. Please refer to $report_file."
+            puts_err "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
             flow_fail
         } else {
-            puts_warn "There are setup violations in the design at the $corner corner. Please refer to $report_file."
+            puts_warn "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
     } else {
         puts_info "There are no setup violations in the design at the $corner corner."
@@ -117,11 +119,12 @@ proc check_slew_violations {args} {
 
     set checker [catch {exec grep "VIOLATED" $report_file }]
     if { ! $checker } {
+        set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
-            puts_err "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
+            puts_err "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
             flow_fail
         } else {
-            puts_warn "There are max slew violations in the design at the $corner corner. Please refer to $report_file"
+            puts_warn "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
     } else {
         puts_info "There are no max slew violations in the design at the $corner corner."

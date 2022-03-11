@@ -1,4 +1,4 @@
-set ::env(CLOCK_PERIOD) "4.4"
+set ::env(CLOCK_PERIOD) "10"
 
 set ::env(FP_SIZING) "absolute"
 set ::env(DIE_AREA) "0 0 279.96 280.128"

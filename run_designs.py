@@ -32,7 +32,9 @@ import scripts.utils.utils as utils
 @click.option("-c", "--config_tag", default="config", help="Configuration file")
 @click.option("-r", "--regression", default=None, help="Regression file")
 @click.option("-t", "--tag", default="regression", help="Tag for the log file")
-@click.option("-j", "--threads", default=1, help="Number of designs in parallel")
+@click.option(
+    "-j", "--threads", default=1, type=int, help="Number of designs in parallel"
+)
 @click.option(
     "-p",
     "--configuration_parameters",
@@ -115,7 +117,7 @@ def cli(
     if print_rem_time is not None:
         rem_designs = dict.fromkeys(designs, 1)
 
-    num_workers = int(threads)
+    num_workers = threads
     config = config_tag
 
     if regression is not None:
