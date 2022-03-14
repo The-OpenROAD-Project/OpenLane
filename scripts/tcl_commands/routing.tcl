@@ -148,8 +148,6 @@ proc global_routing {args} {
     TIMER::timer_stop
 
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - $tool"
-    puts_info "Current Def is $::env(CURRENT_DEF)"
-    puts_info "Current Guide is $::env(CURRENT_GUIDE)"
 }
 
 proc detailed_routing_tritonroute {args} {
@@ -438,8 +436,6 @@ proc run_routing {args} {
     }
     set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
 
-    puts "Current DEF: $::env(CURRENT_DEF)"
-    puts "Routing Current DEF: $::env(ROUTING_CURRENT_DEF)"
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|

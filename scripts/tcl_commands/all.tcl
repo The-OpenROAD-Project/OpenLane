@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ proc set_netlist {netlist args} {
 
     set netlist_relative [relpath . $netlist]
 
-    puts_info "Changing netlist to '$netlist_relative'..."
+    puts_verbose "Changing netlist to '$netlist_relative'..."
 
     set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
     set ::env(CURRENT_NETLIST) $netlist
@@ -59,7 +59,7 @@ proc set_netlist {netlist args} {
 
 proc set_def {def} {
     set def_relative [relpath . $def]
-    puts_info "Changing layout to '$def_relative'..."
+    puts_verbose "Changing layout to '$def_relative'..."
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -67,7 +67,7 @@ proc set_def {def} {
 
 proc set_guide {guide} {
     set guide_relative [relpath . $guide]
-    puts_info "Changing guide to '$guide_relative'..."
+    puts_verbose "Changing guide to '$guide_relative'..."
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
     exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
@@ -98,16 +98,14 @@ proc prep_lefs {args} {
         puts_info "'$arg_values(-tech_lef)' not found, skipping..."
         return
     }
-
     puts_info "Preparing LEF Files..."
-
+    puts_verbose "Extracting the number of available metal layers from $::env(TECH_LEF)"
+    
     set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
-    puts_info "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)."
-
-    # Merge TLEF/CLEF
-    puts_info "Merging LEF Files..."
+    puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+    puts_verbose "Merging LEF Files..."
 
     set mlu $::env(TMP_DIR)/merged.unpadded.$arg_values(-corner).lef
 
@@ -126,7 +124,7 @@ proc prep_lefs {args} {
             -o $mlu\
             -i $mlu {*}$::env(EXTRA_LEFS)\
             |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Added extra lefs to '$mlu_relative'..."
+        puts_verbose "Added extra lefs to '$mlu_relative'..."
     }
 
     # Merge optimization TLEF/CLEF (if exists)
@@ -135,7 +133,7 @@ proc prep_lefs {args} {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $mlu\
             -i $mlu $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
-        puts_info "Added optimization library tech lef and cell lefs to '$mlu_relative'..."
+        puts_verbose "Added optimization library tech lef and cell lefs to '$mlu_relative'..."
     }
 
     # Merge pads (if GPIO_PADS_LEF exists)
@@ -146,7 +144,7 @@ proc prep_lefs {args} {
             set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
         }
 
-        puts_info "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
+        puts_verbose "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $ml\
             -i $mlu {*}$::env(GPIO_PADS_LEF)
@@ -166,7 +164,7 @@ proc prep_lefs {args} {
 }
 
 proc gen_exclude_list {args} {
-    puts_info "Generating Exclude List..."
+    puts_verbose "Generating cell exclude list..."
     set options {
         {-lib required}
         {-drc_exclude_list optional}
@@ -204,7 +202,7 @@ proc gen_exclude_list {args} {
     }
 
     if { [file exists $arg_values(-output)] && [info exists flags_map(-create_dont_use_list)] } {
-        puts_info "Creating ::env(DONT_USE_CELLS)..."
+        puts_verbose "Creating ::env(DONT_USE_CELLS)..."
         set fp [open "$arg_values(-output)" r]
         set x [read $fp]
         set y [split $x]
@@ -216,7 +214,7 @@ proc gen_exclude_list {args} {
 }
 
 proc trim_lib {args} {
-    puts_info "Trimming Liberty..."
+    puts_verbose "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
@@ -289,12 +287,13 @@ proc prep {args} {
         {-run_path optional}
         {-src optional}
         {-override_env optional}
+        {-verbose optional}
     }
 
     set flags {
         -init_design_config
-        -disable_output
         -overwrite
+        -last_run
     }
 
     set args_copy $args
@@ -334,18 +333,29 @@ proc prep {args} {
         exit 0
     }
 
-    if { ! [info exists flags_map(-disable_output)] } {
+    set_if_unset arg_values(-verbose) "0"
+    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
+
+
+    set ::env(TERMINAL_OUTPUT) "/dev/null"
+    if { $::env(OPENLANE_VERBOSE) >= 2 } {
         set ::env(TERMINAL_OUTPUT) ">&@stdout"
-    } else {
-        set ::env(TERMINAL_OUTPUT) "/dev/null"
     }
 
-    set ::env(datetime) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
-    if { [lsearch -exact $args_copy -tag ] >= 0} {
-        set tag "$arg_values(-tag)"
-    } else {
-        set tag "RUN_$::env(datetime)"
+    set ::env(START_TIME) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
+
+    if { [info exists flags_map(-last_run)] } {
+        if { [info exists arg_values(-tag)] } {
+            puts_err "Cannot specify a tag with -last_run set."
+            return -code error
+        }
+
+        set arg_values(-tag) [exec python3 ./scripts/most_recent_run.py $::env(DESIGN_DIR)/runs]
     }
+
+    set_if_unset arg_values(-tag) "RUN_$::env(START_TIME)"
+    set tag $arg_values(-tag)
+
 
     set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
 
@@ -472,7 +482,7 @@ proc prep {args} {
             puts_warn "Removing exisiting run $::env(RUN_DIR)"
             after 1000
             file delete -force $::env(RUN_DIR)
-        } else {
+        } elseif { ![info exists flags_map(-last_run)] } {
             puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"
             puts_info "Now you can run commands that pick up where '$tag' left off"
             after 1000
@@ -531,7 +541,7 @@ proc prep {args} {
     set density $::env(PL_TARGET_DENSITY)
 
     # Fill config file
-    puts_info "Storing configs into config.tcl ..."
+    puts_verbose "Storing configs into config.tcl ..."
     exec echo "# Run configs" > $::env(GLB_CFG_FILE)
     set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
     foreach index [lsort [array names ::env]] {
@@ -676,7 +686,6 @@ proc prep {args} {
         }
     }
 
-    puts_info "Preparation complete"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok

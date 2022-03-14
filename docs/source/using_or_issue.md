@@ -10,7 +10,7 @@ When working with a proprietary PDK, also inspect the folder and ensure no propr
 If you're using OpenLane 2021.12.17_05.07.41 or later, chances are, `or_issue.py` was automatically run for you if OpenROAD failed. You'll find a message in the log that says something along the lines of: `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue.` The path will be under the current run_path, i.e., ./designs/<design>/runs/<run_tag>/openroad_issue_reproducible. You can then tarball/zip and upload that file.
 
 ## Running or_issue.py manually
-You'll have to extract three key elements from the logs:
+You'll have to extract three key elements from the **verbose** logs (i.e. ./flow.tcl must be run with `-verbose`):
 * The Script Where The Failure Occurred -> script
 * The Final Layout Before The Failure Occurred -> input
 * The Run Path -> run_path

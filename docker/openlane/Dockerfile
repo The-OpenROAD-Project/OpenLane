@@ -39,6 +39,7 @@ ADD ./tool_metadata.yml /tool_metadata.yml
 
 ## Copy Version
 ADD ./git_version /git_version
+ADD ./git_version_short /git_version_short
 
 ## Artifacts
 COPY ./build /build

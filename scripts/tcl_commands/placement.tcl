@@ -131,7 +131,6 @@ proc basic_macro_placement {args} {
 }
 
 proc run_placement {args} {
-    puts_info "Running Placement..."
     # |----------------------------------------------------|
     # |----------------   3. PLACEMENT   ------------------|
     # |----------------------------------------------------|

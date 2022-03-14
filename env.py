@@ -129,20 +129,32 @@ def issue_survey():
         """
             % (os_info.container_info.engine, container_version, container_message)
         )
+    elif os.path.exists(
+        "/git_version"
+    ):  # i.e. if running inside the OpenLane container
+        print("Alert: Running in container.", file=alerts)
+        final_report = (
+            textwrap.dedent(
+                """\
+                WARNING: issue-survey appears to be running inside the OpenLane
+                container.
+
+                This makes it difficult to rule out issues with your
+                environment.
+
+                Unless instructed specifically to do so, please run this command
+                outside the OpenLane container.
+                ---\n
+                """
+            )
+            + final_report
+        )
     else:
-        try:
-            subprocess.check_output(
-                ["systemd-detect-virt", "-c"]
-            )  # Check if running inside container
-            if not os.path.exists("/openlane"):
-                raise Exception()
-            alert = "Alert: Running in container."
-            final_report += "%s\n" % alert
-            print(alert, file=alerts)
-        except Exception:
-            alert = "Critical Alert: No Docker or Docker-compatible container engine was found: {e}."
-            final_report += "%s\n" % alert
-            print(alert, file=alerts)
+        alert = (
+            "Critical Alert: No Docker or Docker-compatible container engine was found."
+        )
+        final_report += "%s\n" % alert
+        print(alert, file=alerts)
 
     if python_ok:
         from dependencies.get_tag import get_tag
