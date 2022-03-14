@@ -98,9 +98,9 @@ proc prep_lefs {args} {
         puts_info "'$arg_values(-tech_lef)' not found, skipping..."
         return
     }
-    puts_info "Preparing LEF Files..."
+    puts_info "Preparing LEF files for the $arg_values(-corner) corner..."
     puts_verbose "Extracting the number of available metal layers from $::env(TECH_LEF)"
-    
+
     set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
     set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
@@ -115,11 +115,10 @@ proc prep_lefs {args} {
         |& tee $::env(TERMINAL_OUTPUT)
 
     set mlu_relative [relpath . $mlu]
-    puts_info "Created merged LEF without pads at '$mlu_relative'..."
+    puts_verbose "Created merged LEF without pads at '$mlu_relative'..."
 
     # Merged Extra Lefs (if they exist)
     if { [info exist ::env(EXTRA_LEFS)] } {
-        puts_info "Merging the following extra LEFs: $::env(EXTRA_LEFS)..."
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $mlu\
             -i $mlu {*}$::env(EXTRA_LEFS)\
@@ -129,7 +128,6 @@ proc prep_lefs {args} {
 
     # Merge optimization TLEF/CLEF (if exists)
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-        puts_info "Merging the optimization library LEFs: $::env(TECH_LEF_OPT) $::env(CELLS_LEF_OPT)..."
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $mlu\
             -i $mlu $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
@@ -148,10 +146,10 @@ proc prep_lefs {args} {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $ml\
             -i $mlu {*}$::env(GPIO_PADS_LEF)
-        puts_info "Created '$ml_relative' with gpio pads."
+        puts_verbose "Created '$ml_relative' with gpio pads."
     } else {
         file copy -force $mlu $ml
-        puts_info "Created '$ml_relative' unaltered."
+        puts_verbose "Created '$ml_relative' unaltered."
     }
 
     set ::env($arg_values(-env_var)_UNPADDED) $mlu
