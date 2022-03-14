@@ -33,15 +33,17 @@ This documentation is also available at [ReadTheDocs](https://openlane.readthedo
 # Prerequisites
 At a minimum:
 
-- Docker 19.03.12+
 - GNU Make
-- Python 3.6+ with PIP
-- Click, Pyyaml: `python3 -m pip install pyyaml click>=7`
+- Python 3.6 with PIP
+    - Click 7.0+, Pyyaml: `python3 -m pip install pyyaml click>=7`
 
-For building Sky130 PDK you also need:
-- Git 2.35+: `git --version`
+To build the Sky130 PDK you also need:
+- Git 2.35+
 
-## Containerless Install
+## Using the Docker Image
+- Docker 19.03.12+
+
+## Containerless/Local Installations
 Please see [here](./docs/source/local_installs.md).
 
 # Setting Up OpenLane

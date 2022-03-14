@@ -88,7 +88,8 @@ FORCE:
 openlane: merge
 merge: run_base_image ./tar/build ./tar/openlane ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
-	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version
+	printf "$(shell git rev-parse HEAD)" > ./tar/git_version
+	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version_short
 	mkdir -p logs/tar
 	$(BUILD_COMMAND)\
 		--build-arg CACHE_INVALIDATOR=$(shell date +%s)\

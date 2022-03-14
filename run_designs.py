@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -249,7 +249,7 @@ def cli(
                 "-overwrite",
                 "-no_save",
                 "-run_hooks",
-            ] + ([] if show_log_output else ["-disable_output"])
+            ] + (["-verbose", "99"] if show_log_output else [])
             skip_rm_from_rems = False
             try:
                 if show_log_output:

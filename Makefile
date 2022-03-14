@@ -133,7 +133,7 @@ issue_regression_all:
 .PHONY: test
 test:
 	cd $(OPENLANE_DIR) && \
-		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -disable_output -overwrite"
+		$(ENV_COMMAND) sh -c "./flow.tcl -design $(TEST_DESIGN) -tag openlane_test -overwrite"
 	@[ -f $(OPENLANE_DIR)/designs/$(TEST_DESIGN)/runs/openlane_test/results/finishing/$(TEST_DESIGN).gds ] && \
 		echo "Basic test passed" || \
 		echo "Basic test failed"

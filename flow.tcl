@@ -89,8 +89,12 @@ proc run_drc_step {{ drc_enabled 1 }} {
 		set ::env(CURRENT_DEF) $::env(DRC_CURRENT_DEF)
 	}
 	if { $drc_enabled } {
-		run_magic_drc
-		run_klayout_drc
+		if { $::env(RUN_MAGIC_DRC) } {
+			run_magic_drc
+		}
+		if {$::env(RUN_KLAYOUT_DRC)} {
+			run_klayout_drc
+		}
 	}
 }
 
@@ -109,6 +113,15 @@ proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
 
 		run_eco_flow
+	}
+}
+
+proc run_klayout_step {args} {
+	if {$::env(RUN_KLAYOUT)} {
+		run_klayout
+	}
+	if {$::env(RUN_KLAYOUT_XOR)} {
+		run_klayout_gds_xor
 	}
 }
 
@@ -177,8 +190,8 @@ proc run_non_interactive_mode {args} {
 	# signal trap SIGINT save_state;
 
 	if { [info exists flags_map(-gui)] } {
-            or_gui
-            return
+		or_gui
+		return
 	}
 	if { [info exists arg_values(-override_env)] } {
 		set env_overrides [split $arg_values(-override_env) ',']
@@ -204,8 +217,7 @@ proc run_non_interactive_mode {args} {
 		"eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
-		"gds_drc_klayout" {run_klayout ""} \
-		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"gds_klayout" {run_klayout_step ""} \
 		"lvs" "run_lvs_step $LVS_ENABLED" \
 		"drc" "run_drc_step $DRC_ENABLED" \
 		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
@@ -388,30 +400,20 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
-puts_info {
-	___   ____   ___  ____   _       ____  ____     ___
-	/   \ |    \ /  _]|    \ | |     /    ||    \   /  _]
-	|   | |  o  )  [_ |  _  || |    |  o  ||  _  | /  [_
-	| O | |   _/    _]|  |  || |___ |     ||  |  ||    _]
-	|   | |  | |   [_ |  |  ||     ||  _  ||  |  ||   [_
-	\___/ |__| |_____||__|__||_____||__|__||__|__||_____|
-
-}
-
-if {[catch {exec cat $::env(OPENLANE_ROOT)/installed_version} ::env(OPENLANE_VERSION)]} {
-	if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git describe --tags} ::env(OPENLANE_VERSION)]} {
-		# if no tags yet
-		if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git log --pretty=format:'%h' -n 1} ::env(OPENLANE_VERSION)]} {
+if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPENLANE_VERSION)]} {
+	if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
+		if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
 			set ::env(OPENLANE_VERSION) "N/A"
 		}
 	}
 }
 
-puts_info "Version: $::env(OPENLANE_VERSION)"
+puts "OpenLane $::env(OPENLANE_VERSION)"
+puts "All rights reserved. (c) 2020-2022 Efabless Corporation and contributors."
+puts "Available under the Apache License, version 2.0. See the LICENSE file for more details."
+puts ""
 
 if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
-	puts_info "Running interactively"
-	puts_info "Note, that post_run_hooks.tcl will not be sourced automatically"
 	if { [info exists arg_values(-file)] } {
 		run_file [file normalize $arg_values(-file)] {*}$argv
 	} else {
@@ -425,7 +427,5 @@ if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
 	prep {*}$argv
 	run_synth_exploration
 } else {
-	puts_info "Running non-interactively"
-
 	run_non_interactive_mode {*}$argv
 }

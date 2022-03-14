@@ -1,19 +1,31 @@
 # How to Contribute
-
 We'd love to accept your patches and contributions to this project. There are
 just a few small guidelines you need to follow.
 
-## Submission and Testing Process
+# Branching
+For various reasons, it's recommended to call working branches, even in your forks, something else other than `master` or `main`, as those two branch names do have some special behavior associated with them. 
 
-- Submit a Pull Request to the [master](https://github.com/The-OpenROAD-Project/openlane/tree/master) branch only. Check [Code Reviews](#code_reviews) for more details.
-- Our CI that would test your PR once submitted, yet it would be nice for you to run a couple of tests from your end to shorten the cycle of reviews. For that purpose, you can use:
-    - `make fastest_test_set`: to run the same test set that the basic CI uses, which will be used to evaluate your Pull Request.
-    - [This](./regression_results/README.md) for custom test sets. (check the `-b` flag).
-    - `make test`: tests the flow against one design `$TEST_DESIGN`. The default is `spm`.
+# Testing and Code Standards
+Before you submit your changes, it's prudent to perform some kind of smoke test. `make test` tests a simple spm design to ensure nothing has gone horribly wrong.
 
-## Code reviews
+You will also need to ensure that your Python code passes linting with two tools: `black` and `flake8`. The commands are simply `black .` and `flake8 .`. Please fix all warnings.
 
-All submissions, including submissions by project members, require review. We
-use GitHub pull requests for this purpose. Consult
-[GitHub Help](https://help.github.com/articles/about-pull-requests/) for more
-information on using pull requests.
+Try to write all major code in Python. Writing some Tcl is usually a necessity because this project's backbone is unfortunately written in Tcl, but just keep the Tcl to as close to a Python shim as possible.
+
+Please do not write new shell scripts.
+
+# Submissions
+Make your changes and then submit them as a pull requests to the `master` branch.
+
+Consult [GitHub Help](https://help.github.com/articles/about-pull-requests/) for more information on using pull requests.
+
+## The Approval Process
+For a PR to be merged, there are two requirements:
+
+- There are two automated checks, one for linting and the other for functionality. Both must pass.
+- An OpenLane team member must inspect and approve the PR.
+
+# Licensing and Copyright
+Please add you (or your employer's) copyright headers to any files to which you have made major edits.
+
+Please note all code contributions must have the same license as OpenLane, i.e., the Apache License, version 2.0. 

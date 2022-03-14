@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -200,7 +200,7 @@ proc run_openroad_script {args} {
 
     set script_relative [relpath . $script]
 
-    puts_info "Executing OpenROAD with script '$script_relative'..."
+    puts_verbose "Executing OpenROAD with script '$script_relative'..."
 
     set exit_code [catch {exec {*}$args |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
 
@@ -241,8 +241,8 @@ proc run_openroad_script {args} {
 }
 
 proc increment_index {args} {
-    puts_info "Incremented step index to $::env(CURRENT_INDEX)."
     set ::env(CURRENT_INDEX) [expr 1 + $::env(CURRENT_INDEX)]
+    puts "\[STEP $::env(CURRENT_INDEX)\]"
 }
 
 proc index_file {args} {
@@ -277,8 +277,8 @@ proc flow_fail {args} {
 
 proc calc_total_runtime {args} {
     ## Calculate Total Runtime
-    if {[info exists ::env(timer_start)] && [info exists ::env(datetime)]} {
-        puts_info "Calculating Runtime From the Start..."
+    if {[info exists ::env(timer_start)] && [info exists ::env(START_TIME)]} {
+        puts_verbose "Calculating runtime..."
         set ::env(timer_end) [clock seconds]
         set options {
             {-report optional}
@@ -342,6 +342,16 @@ proc puts_info {txt} {
     puts "[color_text 6 "$message"]"
     if { [info exists ::env(RUN_DIR)] } {
         exec echo $message >> $::env(RUN_DIR)/openlane.log
+    }
+}
+
+proc puts_verbose {txt} {
+    if { $::env(OPENLANE_VERBOSE) } {
+        set message "\[INFO\]: $txt"
+        puts "[color_text 6 "$message"]"
+        if { [info exists ::env(RUN_DIR)] } {
+            exec echo $message >> $::env(RUN_DIR)/openlane.log
+        }
     }
 }
 

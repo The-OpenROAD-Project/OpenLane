@@ -31,8 +31,6 @@ proc check_synthesis_failure {args} {
     if { ! $checker } {
         puts_err "Synthesis failed"
         flow_fail
-    } else {
-        puts_info "Synthesis was successful"
     }
 }
 
@@ -168,8 +166,6 @@ proc check_cts_clock_nets {args} {
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
         flow_fail
-    } else {
-        puts_info "Clock Tree Synthesis was successful"
     }
 }
 
@@ -180,8 +176,6 @@ proc check_replace_divergence {args} {
         puts_err "Global placement failed"
         puts_err $error
         flow_fail
-    } else {
-        puts_info "Global placement was successful"
     }
 }
 
@@ -192,8 +186,6 @@ proc check_macro_placer_num_solns {args} {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
         flow_fail
-    } else {
-        puts_info "Macro placement was successful"
     }
 }
 
@@ -239,10 +231,8 @@ proc quit_on_lvs_error {args} {
         set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
-            puts_err "There are LVS errors in the design according to Netgen LVS."
+            puts_err "There are LVS errors in the design.."
             flow_fail
-        } else {
-            puts_info "No LVS mismatches."
         }
     }
 }
@@ -259,8 +249,6 @@ proc quit_on_illegal_overlaps {args} {
             puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
             puts_err "See $arg_values(-log) for more."
             flow_fail
-        } else {
-            puts_info "No illegal overlaps detected during extraction."
         }
     }
 }
@@ -275,8 +263,6 @@ proc quit_on_unconnected_pdn_nodes {args} {
             offsets/pitches to power all standard cell rails (or other PDN stripes) \
             in your design."
         flow_fail
-    } else {
-        puts_info "PDN generation was successful."
     }
 }
 
