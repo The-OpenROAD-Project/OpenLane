@@ -282,6 +282,9 @@ Most of the following commands' implementation exists in this [file][17]
 |    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDS-II under `<run_path>/results/klayout/<design_name>.gds`. |
 |    | `[-output_gds <gds_file>]` | The output GDS file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.gds`. |
 |    | `[-output_xml <xml_file>]` | The output XML file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.xml`. |
+| `open_in_klayout` | | Opens a design in the Klayout GUI with MERGED_LEF for the cell/macro definitions. Useful as it works around Klayout's LEF import peculiarities. |
+|    | `[-layout <def_file>]` | The input DEF file, the default is `::env(CURRENT_DEF)`. |
+
 ## LVS Commands
 
 Most of the following commands' implementation exists in this [file][5]
