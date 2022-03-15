@@ -51,8 +51,7 @@ configure_cts_characterization\
     -max_cap $max_cap
 
 puts "\[INFO]: Performing clock tree synthesis..."
-puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
-puts "\[INFO]: Running Clock Tree Synthesis..."
+puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET) based on $::env(CURRENT_SDC)"
 
 set arg_list [list]
 
@@ -66,6 +65,12 @@ if { $::env(CTS_DISABLE_POST_PROCESSING) } {
     lappend arg_list -post_cts_disable
 }
 
+if { $::env(CTS_FORCE_CLK_NETS) } {
+    puts "\[INFO]: Clock nets forced to: $::env(CLOCK_NET)"
+    lappend arg_list $::env(CLOCK_NET)
+}
+
+puts "\[INFO]: Running Clock Tree Synthesis..."
 clock_tree_synthesis {*}$arg_list
 
 set_propagated_clock [all_clocks]
