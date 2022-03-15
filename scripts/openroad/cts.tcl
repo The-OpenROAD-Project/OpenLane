@@ -67,7 +67,7 @@ if { $::env(CTS_DISABLE_POST_PROCESSING) } {
 
 if { $::env(CTS_FORCE_CLK_NETS) } {
     puts "\[INFO]: Clock nets forced to: $::env(CLOCK_NET)"
-    lappend arg_list $::env(CLOCK_NET)
+    lappend arg_list -clk_nets $::env(CLOCK_NET)
 }
 
 puts "\[INFO]: Running Clock Tree Synthesis..."
