@@ -128,46 +128,16 @@ if os.path.exists(input_file):
             insert_times = math.floor(
                 abs(min(vio_dict[pin_unq])) / 0.06
             )  # insert buffer conservatively
-            if insert_times == 0:
+            if insert_times < 1:
+                insert_times = 1
+
+            for i in range(0, insert_times):
                 vio_count += 1
                 print("insert multiple buffers: ", insert_times + 1)
-                insert_buffer_line = (
-                    "insert_buffer "
-                    + pin_unq
-                    + " "
-                    + "sky130_fd_sc_hd__dlygate4sd3_1"
-                    + " net_HOLD_NET_"
-                    + str(eco_iter)
-                    + "_"
-                    + str(vio_count)
-                    + " U_HOLD_FIX_BUF_"
-                    + str(eco_iter)
-                    + "_"
-                    + str(vio_count)
-                )
+                insert_buffer_line = f"insert_buffer {pin_unq} sky130_fd_sc_hd__dlygate4sd3_1 net_HOLD_NET_{eco_iter}_{vio_count} U_HOLD_FIX_BUF_{eco_iter}_{vio_count}"
                 printArr.append(insert_buffer_line)
                 print(insert_buffer_line)
-            else:
-                print("insert multiple buffers: ", insert_times)
-                for i in range(0, insert_times):
-                    vio_count += 1
-                    print("insert multiple buffers: ", insert_times + 1)
-                    insert_buffer_line = (
-                        "insert_buffer "
-                        + pin_unq
-                        + " "
-                        + "sky130_fd_sc_hd__dlygate4sd3_1"
-                        + " net_HOLD_NET_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                        + " U_HOLD_FIX_BUF_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                    )
-                    printArr.append(insert_buffer_line)
-                    print(insert_buffer_line)
+                
         if vio_count == 0:
             insert_buffer_line = "No violations found"
             printArr.append(insert_buffer_line)

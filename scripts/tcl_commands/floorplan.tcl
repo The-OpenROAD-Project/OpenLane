@@ -25,7 +25,7 @@ proc set_core_dims {args} {
 		--input-lef $::env(MERGED_LEF)\
 		$::env(CURRENT_DEF)
 
-	set dims [join [exec cat $out_tmp] " "]
+	set dims [join [cat $out_tmp] " "]
 
 	set ::env(CORE_WIDTH) [lindex $dims 0]
 	set ::env(CORE_HEIGHT) [lindex $dims 1]

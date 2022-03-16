@@ -1,4 +1,5 @@
 # Copyright 2021 The University of Michigan
+# Copyright 2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +13,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc eco_read_fix {args} {
-    set path "$::env(eco_results)/fix"
+proc insert_buffer {args} {
+    set options {
+        {-at_pin required}
+        {-buffer_cell required}
+        {-net_name optional}
+        {-inst_name optional}
+    }
+    set flags {-block -place}
 
-    set   fp   [open  $path/eco_fix_$::env(ECO_ITER).tcl "r"]
-    set   fd   [read  $fp]
-    set   txt  [split $fd "\n"]
-    close $fp
+    parse_key_args "insert_buffer" args arg_values $options flags_map $flags
 
-    return $txt
+    if { ![info exists ::env(INSERT_BUFFER_COUNTER)]} {
+        set ::env(INSERT_BUFFER_COUNTER) 0
+    }
+
+    set_if_unset arg_values(-net_name) "inserted_buffer_$::env(INSERT_BUFFER_COUNTER)_net"
+    set_if_unset arg_values(-inst_name) "inserted_buffer_$::env(INSERT_BUFFER_COUNTER)"
+
+    set pin_type "ITerm"
+    if { [info exists flags_map(-block)] } {
+        set pin_type "BTerm"
+    }
+
+    if { ![info exists flags_map(-place)] } {
+        set ::env(INSERT_BUFFER_NO_PLACE) "1"
+    }
+
+    set ::env(SAVE_DEF) [index_file $::env(eco_tmpfiles)/$::env(DESIGN_NAME).def]
+
+    set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl -indexed_log [index_file $::env(eco_logs)/insert_buffer.log]
+
+    unset ::env(INSERT_BUFFER_COMMAND)
+
+    if { ![info exists flags_map(-place)] } {
+        unset ::env(INSERT_BUFFER_NO_PLACE)
+    }
+
+
+    incr ::env(INSERT_BUFFER_COUNTER)
+
+    set_def $::env(SAVE_DEF)
+
+
 }
 
 proc eco_gen_buffer {args} {
@@ -49,10 +86,9 @@ proc eco_gen_buffer {args} {
         set def_file [lindex [glob -directory $::env(eco_results)/def \
             *.def] end]
     }
-    puts "Generating fixes for ECO iteration [expr {$::env(ECO_ITER) + 1}]!"
-    puts "Parsing STA report: $sta_file"
-    puts "Input Lef File: $lef_file"
-    puts "Input Def File: $def_file"
+
+    puts_info "\[ECO: $::env(ECO_ITER)\] Generating buffer insertion script..."
+    puts_verbose "Using report $sta_file..."
 
     try_catch $::env(OPENROAD_BIN) \
         -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
@@ -64,16 +100,18 @@ proc eco_gen_buffer {args} {
 }
 
 proc eco_output_check {args} {
-    puts "Entering eco_output_check subproc!"
+    puts_info "\[ECO: $::env(ECO_ITER)\] Checking output..."
 
     eco_gen_buffer
 
-    set lines [eco_read_fix]
+    set lines [split [cat "$::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl"] "\n"]
     foreach line $lines {
         # Use regex to determine if finished here
         if {[regexp {No violations} $line]} {
+            puts_info "ECO done after [expr $::env(ECO_ITER) + 1] iterations."
             set ::env(ECO_FINISH) 1;
         } else {
+            puts_info "\[ECO: $::env(ECO_ITER)\] Timing violations found, performing another ECO iteration..."
             incr ::env(ECO_ITER) 1;
         }
         break
@@ -81,44 +119,22 @@ proc eco_output_check {args} {
 }
 
 proc run_apply_step {args} {
-    puts "ECO: Applying Fixes!"
+    puts_info "\[ECO: $::env(ECO_ITER)\] Applying fixes..."
     try_catch $::env(OPENROAD_BIN) \
-        -exit $::env(SCRIPTS_DIR)/openroad/apply_fix.tcl \
+        -exit $::env(SCRIPTS_DIR)/openroad/eco.tcl \
         |& tee $::env(TERMINAL_OUTPUT) $::env(eco_logs)/$::env(ECO_ITER)_eco.log
 
     if { $::env(ECO_ITER) > 10 } {
         pause;
     }
-    set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
-    set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
 
-    puts "ECO Iteration $::env(ECO_ITER): "
-    puts "Set NETLIST/DEF in apply_fix.tcl"
-    puts $::env(CURRENT_NETLIST)
-    puts $::env(CURRENT_DEF)
+    set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
+    set_def $::env(eco_results)/def/eco_$::env(ECO_ITER).def
 }
 
 proc run_eco_flow {args} {
-    #set log          "$::env(eco_logs)"
-    #set path         "$::env(eco_results)"
-    #set fix_path     "$::env(eco_results)/fix"
-    #set def_path     "$::env(eco_results)/def"
-    #set net_path     "$::env(eco_results)/net"
-    #set spef_path    "$::env(eco_results)/spef"
-    #set sdf_path     "$::env(eco_results)/sdf"
-    #set arc_def_path "$::env(eco_results)/arcdef"
-    #file mkdir $log
-    #file mkdir $path
-    #file mkdir $fix_path
-    #file mkdir $def_path
-    #file mkdir $net_path
-    #file mkdir $spef_path
-    #file mkdir $sdf_path
-    #file mkdir $arc_def_path
-
-
     # Assume script generate fix commands
-    puts "Generating Fix commands (resize/insert)"
+    puts_info "Starting ECO flow..."
 
     # Re-organize report/result files here
     exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
@@ -126,58 +142,32 @@ proc run_eco_flow {args} {
 
     while {$::env(ECO_FINISH) != 1} {
 
-        puts "Start ECO loop $::env(ECO_ITER)!"
+        puts_info "\[ECO: $::env(ECO_ITER)\] Starting iteration..."
         # Then run detailed placement again
         # Get the connections then destroy them
 
         # Pause to see puts output
-        # pause;
         if {$::env(ECO_ITER) > 10} {
-            puts "Ran for 10 itertations; Check files"
+            puts_info "Ran for 10 itertations; Check files"
             pause;
         }
 
-        set eco_steps [dict create "apply" {run_apply_step ""}\
-            "routing" {run_routing_step ""}
+        run_apply_step
+        run_routing_step
+
+        set eco_steps [\
+            dict create "apply" { run_apply_step "" }\
+            "routing" { run_routing_step "" }
         ]
 
-        set_if_unset arg_values(-from) "apply";
-        set_if_unset arg_values(-to) "routing";
+        ins_fill_cells
 
-        set exe 0;
-        dict for {step_name step_exe} $eco_steps {
-            puts "Re-running"
-            puts $step_name
-            if { [ string equal $arg_values(-from) $step_name ] } {
-                set exe 1;
-            }
-
-            if { $exe } {
-                # For when it fails
-                set ::env(CURRENT_STEP) $step_name
-                [lindex $step_exe 0] [lindex $step_exe 1] ;
-            }
-
-            if { [ string equal $arg_values(-to) $step_name ] } {
-                set exe 0:
-                break;
-            }
-
+        if { $::env(ECO_ITER) != 0 } {
+            set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
+            set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end]
+            file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
+            file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
         }
-        # end of dict
-
-        # Re-organize report files here
-        exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
-        eco_output_check
-    }
-    ins_fill_cells
-    # end of while
-    if { $::env(ECO_ITER) != 0 } {
-        set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
-        set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end]
-        file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
-        file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
     }
 }
-
 package provide openlane 0.9
