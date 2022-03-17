@@ -367,6 +367,8 @@ proc run_spef_extraction {args} {
         {-rcx_lef optional}
         {-rcx_rules optional}
         {-output_spef optional}
+        {-process_corner optional}
+        {-timing_corner optional}
     }
     parse_key_args "run_spef_extraction" args arg_values $options
 
@@ -397,13 +399,31 @@ proc run_spef_extraction {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $arg_values(-log)]
-    puts_info "Running SPEF Extraction..."
+
+    set ec_postfix ""
+    if { [info exists arg_values(-process_corner)]} {
+        set ec_postfix " at the $arg_values(-process_corner) process corner"
+    }
+
+    set tc_postfix ""
+    if { [info exists arg_values(-timing_corner)]} {
+        if { $ec_postfix != "" } {
+            set tc_postfix " and the $arg_values(-timing_corner) timing corner"
+        } else {
+            set tc_postfix " at the $arg_values(-timing_corner) timing corner"
+        }
+    }
+
+    puts_info "Running SPEF Extraction$ec_postfix$tc_postfix..."
+
     if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
         puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
         set ::env(SPEF_EXTRACTOR) "openrcx"
     }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl -indexed_log $log
+
+    unset ::env(CURRENT_SPEF)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - openroad"
@@ -514,41 +534,65 @@ proc run_routing {args} {
         set ::env(SPEF_PREFIX) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)
     }
 
-    foreach {time_corner lib} {
-        ff LIB_FASTEST
-        tt LIB_SYNTH_COMPLETE
-        ss LIB_SLOWEST
+
+    foreach {process_corner lef ruleset} {
+        min MERGED_LEF_MIN RCX_RULES_MIN
+        max MERGED_LEF_MAX RCX_RULES_MAX
+        nom MERGED_LEF RCX_RULES
     } {
-        foreach {extraction_corner lef ruleset} {
-            max MERGED_LEF_MAX RCX_RULES_MAX
-            nom MERGED_LEF RCX_RULES
-            min MERGED_LEF_MIN RCX_RULES_MIN
+        set output_spef_prefix $::env(SPEF_PREFIX).$process_corner
+        set ::env(SPEF_FASTEST) "$output_spef_prefix.ff.spef"
+        set ::env(SPEF_SLOWEST) "$output_spef_prefix.ss.spef"
+        set ::env(SPEF_TYPICAL) "$output_spef_prefix.tt.spef"
+
+        foreach {time_corner lib spef} {
+            ff LIB_FASTEST SPEF_FASTEST
+            ss LIB_SLOWEST SPEF_SLOWEST
+            tt LIB_SYNTH_COMPLETE SPEF_TYPICAL
         } {
             if { [info exists ::env($lef)] } {
+                set output_spef $::env($spef)
+
                 run_spef_extraction\
+                    -log $::env(routing_logs)/parasitics_extraction.$process_corner.$time_corner.log\
                     -rcx_lib $::env($lib)\
                     -rcx_rules $::env($ruleset)\
                     -rcx_lef $::env($lef)\
-                    -log $::env(routing_logs)/parasitics_extraction.$time_corner.$extraction_corner.log\
-                    -output_spef $::env(SPEF_PREFIX).$time_corner.$extraction_corner.spef
+                    -output_spef $output_spef\
+                    -process_corner $process_corner\
+                    -timing_corner $time_corner
+
+                if { $time_corner == "tt" && $process_corner == "nom" } {
+                    set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
+
+                    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
+                        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
+                    }
+
+                    # run sta at the typical corner using the extracted spef
+
+                    run_sta\
+                        -log $::env(routing_logs)/parasitics_sta.log\
+                        -process_corner $process_corner
+
+                    set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
+
+                    set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+                }
             }
         }
+
+        set log_name $::env(routing_logs)/parasitics_multi_corner_sta.$process_corner.log
+        if { $process_corner == "nom" } {
+            set log_name $::env(routing_logs)/parasitics_multi_corner_sta.log
+        }
+
+        run_sta\
+            -lef $::env($lef)\
+            -log $log_name\
+            -process_corner $process_corner\
+            -multi_corner
     }
-
-    set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
-    }
-
-    # run sta at the typical corner using the extracted spef
-    run_sta -log $::env(routing_logs)/parasitics_sta.log
-    set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
-
-    set ::env(CURRENT_SDF) $::env(SAVE_SDF)
-
-    # run sta at the three corners
-    run_sta -log $::env(routing_logs)/parasitics_multi_corner_sta.log -multi_corner
 
     ## Calculate Runtime To Routing
     set ::env(timer_routed) [clock seconds]

@@ -27,7 +27,7 @@ if {[catch {read_lef $::env(RCX_LEF)} errmsg]} {
     exit 1
 }
 
-if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -40,13 +40,12 @@ if { !$::env(RCX_MERGE_VIA_WIRE_RES) } {
     set rcx_flags "-no_merge_via_res"
 }
 
-# set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
-
 # RCX
+puts "Using RCX ruleset '$::env(RCX_RULESET)'..."
 define_process_corner -ext_model_index 0 X
 extract_parasitics $rcx_flags\
     -ext_model_file $::env(RCX_RULESET)\
     -lef_res
 
+puts "Writing result to $::env(CURRENT_SPEF)..."
 write_spef $::env(CURRENT_SPEF)

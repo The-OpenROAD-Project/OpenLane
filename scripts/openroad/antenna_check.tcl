@@ -17,9 +17,9 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
-	exit 1
+    exit 1
 }
 
 # load layers' antenna rules into ARC

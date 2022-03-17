@@ -92,20 +92,23 @@ proc prep_lefs {args} {
 
     if { ![file exists $arg_values(-tech_lef)] } {
         if { $arg_values(-env_var) == "MERGED_LEF" } {
-            puts_err "Nominal extraction corner '$arg_values(-tech_lef)' not found."
+            puts_err "Nominal process corner '$arg_values(-tech_lef)' not found."
             return -code error
         }
         puts_info "'$arg_values(-tech_lef)' not found, skipping..."
         return
     }
     puts_info "Preparing LEF files for the $arg_values(-corner) corner..."
-    puts_verbose "Extracting the number of available metal layers from $::env(TECH_LEF)"
 
-    set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
-    set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
+    if { $arg_values(-corner) == "nom" } {
+        puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)"
 
-    puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
-    puts_verbose "Merging LEF Files..."
+        set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
+        set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
+
+        puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+        puts_verbose "Merging LEF Files..."
+    }
 
     set mlu $::env(TMP_DIR)/merged.unpadded.$arg_values(-corner).lef
 
@@ -552,7 +555,7 @@ proc prep {args} {
 
     # Process LEFs and LIB files
     if { ! $skip_basic_prep } {
-        prep_lefs
+        prep_lefs -tech_lef $::env(TECH_LEF) -corner nom -env_var MERGED_LEF
         prep_lefs -tech_lef $::env(TECH_LEF_MIN) -corner min -env_var MERGED_LEF_MIN -no_widen
         prep_lefs -tech_lef $::env(TECH_LEF_MAX) -corner max -env_var MERGED_LEF_MAX -no_widen
 

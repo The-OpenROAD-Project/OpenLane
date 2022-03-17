@@ -15,7 +15,9 @@
 proc run_sta {args} {
     set options {
         {-log required}
-        {-runtime_log -required} 
+        {-runtime_log -required}
+        {-lef optional}
+        {-process_corner optional}
     }
     set flags {
         -multi_corner
@@ -24,11 +26,23 @@ proc run_sta {args} {
     parse_key_args "run_sta" args arg_values $options flags_map $flags
     set multi_corner [info exists flags_map(-multi_corner)]
     set pre_cts [info exists flags_map(-pre_cts)]
+
+    set_if_unset arg_values(-lef) $::env(MERGED_LEF)
+    set ::env(STA_LEF) $arg_values(-lef)
     set ::env(RUN_STANDALONE) 1
 
     increment_index
     TIMER::timer_start
-    puts_info "Running Static Timing Analysis..."
+
+    set corner_prefix "Single-Corner"
+    if { $multi_corner } {
+        set corner_prefix "Multi-Corner"
+    }
+    set process_corner_postfix ""
+    if { [info exists arg_values(-process_corner)]} {
+        set process_corner_postfix " at the $arg_values(-process_corner) process corner"
+    }
+    puts_info "Running $corner_prefix Static Timing Analysis$process_corner_postfix..."
 
     set ::env(STA_PRE_CTS) $pre_cts
 
