@@ -51,10 +51,10 @@ read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)
 
 # read spef files if they are generated prior to this point
-if { [info exists ::env(SPEF_TYPICAL)] } {
-    read_spef -corner ss $::env(SPEF_SLOWEST)
-    read_spef -corner tt $::env(SPEF_TYPICAL)
-    read_spef -corner ff $::env(SPEF_FASTEST)
+if { [info exists ::env(CURRENT_SPEF)] } {
+    read_spef -corner ss $::env(CURRENT_SPEF)
+    read_spef -corner tt $::env(CURRENT_SPEF)
+    read_spef -corner ff $::env(CURRENT_SPEF)
 }
 
 read_sdc -echo $::env(CURRENT_SDC)

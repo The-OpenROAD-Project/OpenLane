@@ -50,8 +50,8 @@ if { $::env(RUN_STANDALONE) == 1 } {
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-if { [info exists ::env(SPEF_TYPICAL)] } {
-    read_spef $::env(SPEF_TYPICAL)
+if { [info exists ::env(CURRENT_SPEF)] } {
+    read_spef $::env(CURRENT_SPEF)
 }
 
 puts "min_report"

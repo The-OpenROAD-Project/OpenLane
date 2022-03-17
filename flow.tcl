@@ -146,8 +146,8 @@ proc save_final_views {args} {
 	lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
 
 	# Not guaranteed to have default values
-	if { [info exists ::env(SPEF_TYPICAL)] } {
-		lappend arg_list -spef_path $::env(SPEF_TYPICAL)
+	if { [info exists ::env(CURRENT_SPEF)] } {
+		lappend arg_list -spef_path $::env(CURRENT_SPEF)
 	}
 	if { [info exists ::env(CURRENT_SDF)] } {
 		lappend arg_list -sdf_path $::env(CURRENT_SDF)

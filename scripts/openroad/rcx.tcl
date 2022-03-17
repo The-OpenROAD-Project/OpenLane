@@ -47,5 +47,5 @@ extract_parasitics $rcx_flags\
     -ext_model_file $::env(RCX_RULESET)\
     -lef_res
 
-puts "Writing result to $::env(CURRENT_SPEF)..."
-write_spef $::env(CURRENT_SPEF)
+puts "Writing result to $::env(SAVE_SPEF)..."
+write_spef $::env(SAVE_SPEF)
