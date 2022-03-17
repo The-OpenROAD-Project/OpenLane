@@ -252,12 +252,12 @@ if { $::env(SYNTH_NO_FLAT) } {
     synth -top $vtop -flatten
 }
 
-if { [info exists ::env(YOSYS_EXTRA_MAPPING)] } {
-    if { [file exists $::env(YOSYS_EXTRA_MAPPING)] } {
-        log "\[INFO\] applying mappings in $::env(YOSYS_EXTRA_MAPPING)"
-        techmap -map $::env(YOSYS_EXTRA_MAPPING)
+if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
+    if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
+        log "\[INFO\] applying mappings in $::env(SYNTH_EXTRA_MAPPING_FILE)"
+        techmap -map $::env(SYNTH_EXTRA_MAPPING_FILE)
     } else {
-        log -stderr "\[ERROR] file not found $::env(YOSYS_EXTRA_MAPPING)."
+        log -stderr "\[ERROR] file not found $::env(SYNTH_EXTRA_MAPPING_FILE)."
     }
 }
 
