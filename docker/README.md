@@ -30,11 +30,7 @@ make # or make openlane # or make merge
 
 You can build a tool runnable using the following command: `make build-<tool_name>`.
 
-When you are doing that, presumably you want to build a different version of the
-tool than is shipped by default with the OpenLane docker image. For example, 
-suppose we would like to include OpenRoad's version of Yosys rather than one
-from https://github.com/yosyshq/yosys. We need to modify the file `tool_metadata.yml`
-that is located in `OpenLane/dependencies`. Here is an example of that
+When you are doing that, presumably you want to build a different version of the tool than is shipped by default with the OpenLane docker image. For example,  suppose we would like to include OpenRoad's version of Yosys rather than one from https://github.com/yosyshq/yosys. We need to modify the file `tool_metadata.yml` that is located in `OpenLane/dependencies`. Here is an example of such a change:
 
 ```
 - name: yosys
@@ -47,52 +43,27 @@ that is located in `OpenLane/dependencies`. Here is an example of that
     make PREFIX=$PREFIX install
 ```
 
-Be alert to the fact that if you mix and match different tool versions
-(ie different git commit hashes), you can possibly run into compatibility
-issues.
+Be alert to the fact that if you mix and match different tool versions (i.e. different git commit hashes), you can possibly run into compatibility issues.
 
-To list the available tools, `python3 ../dependencies/tool.py --containerized`,
-which is just essentially listing the contents of `tool_metadata.yml`
+To list the available tools, `python3 ../dependencies/tool.py --containerized`, which is just essentially listing the contents of `tool_metadata.yml`.
 
-Be sure to `make openlane` after building any tool. This will create a new docker
-image with a repository of `efabless/openlane`. What is important here is the
-Image ID of the new image. This can be found by running the `docker image ls` command.
-Here is an example:
+Be sure to `make openlane` **in the `docker/` folder** after building any tool, which will create the final OpenLane image. This will create a new Docker image tagged, by default, `efabless/openlane:current`. You can override the name as follows (again, **in the `docker/` folder**):
 
-```
-macd@macd-NUC9:~/dbm/OpenLane$ docker image ls
-REPOSITORY                TAG                                                               IMAGE ID       CREATED        SIZE
-efabless/openlane         current                                                           6935c38e7386   8 hours ago    1.54GB
-efabless/openlane-tools   yosys-bc027b2cae9a85b887684930705762fac720b529-centos-7           a39c26f693df   8 hours ago    793MB
-<none>                    <none>                                                            8c6c1fc1d5a7   8 hours ago    3.62GB
-openlane-run-base         latest                                                            205b284cb2d3   8 hours ago    749MB
-openlane-build-base       latest                                                            80342e290ca1   8 hours ago    2.24GB
-...
+```sh
+    make openlane OPENLANE_IMAGE_NAME=whatever/whatever:whatever
 ```
 
 ## Running the newly created Docker image
+OpenLane scripts depend upon a variety of different shell environment variables in order to run correctly. They are all conveniently set by using the `make mount` command at the root of the repository. However, if you just do that, it will spin up the original image and not the one you just created. In order to use your new Docker image, first set the shell varialble `OPENLANE_IMAGE_NAME` to the newly created image as follows (**in the root of the repository**):
 
-The OpenRoad tools and the OpenLane scripts depend upon a variety of different shell
-environment variables in order to run correctly. They are all conveniently set by 
-using the `make mount` command. However, if you just do that, it will spin up the
-original image and not the one you just created. In order to use your new Docker
-image, first set the shell varialble `OPENLANE_IMAGE_NAME` to the newly created
-image id. For the example image created above, that would look like: (Replace
-the image id with the one you get from `docker image ls`)
-
-```
-    export OPENLANE_IMAGE_NAME=6935c38e7386
+```sh
+    make mount OPENLANE_IMAGE_NAME=whatever/whatever:whatever
 ```
 
 ## Running as root
+* For security reasons, we don't recommend the default root Docker installation. See https://docs.docker.com/engine/security/rootless/ for a safer Docker installation also supported by OpenLane.
 
-By default `make mount` logs into the image with the user ID that is
-currently active. If you are running as an unprivledged user, you can
-use `make mount` to log in as root to the docker image, but you will
-need to use `sudo` to do this. But, if you are depending on shell
-environment variables that you may have set during the current session
-they will be dropped by the `sudo` command. One way to pass those on
-to the sudo shell is to use the `-E` option. The following shows how
+By default `make mount` logs into the image with the user ID that is currently active. If you are running as an unprivileged user, you can use `make mount` to log in as root to the Docker image, but you will need to use `sudo` to do this. But, if you are depending on shell environment variables that you may have set during the current session they will be dropped by the `sudo` command. One way to pass those on to the sudo shell is to use the `-E` option. The following shows how you can do that:
 
 ```
     sudo -E make mount
