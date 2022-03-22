@@ -35,7 +35,7 @@
   in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 083c0c10e9a090a00e266575d81d487e11d2cb98
+  commit: a205a0e9419f973346740171618956afe08b2d74
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -93,7 +93,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/rtimothyedwards/open_pdks
-  commit: 4040b7ca03d03bbbefbc8b1d0f7016cc04275c24
+  commit: 34eeb2743e99d44a21c2cedd467675a2e0f3bb91
   build: ''
   in_install: false
   pdk: true

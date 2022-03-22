@@ -249,7 +249,7 @@ def cli(
                 "-overwrite",
                 "-no_save",
                 "-run_hooks",
-            ] + (["-verbose", "99"] if show_log_output else [])
+            ] + (["-verbose", "1"] if show_log_output else [])
             skip_rm_from_rems = False
             try:
                 if show_log_output:
