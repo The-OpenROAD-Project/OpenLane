@@ -252,6 +252,15 @@ if { $::env(SYNTH_NO_FLAT) } {
     synth -top $vtop -flatten
 }
 
+if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
+    if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
+        log "\[INFO\] applying mappings in $::env(SYNTH_EXTRA_MAPPING_FILE)"
+        techmap -map $::env(SYNTH_EXTRA_MAPPING_FILE)
+    } else {
+        log -stderr "\[ERROR] file not found $::env(SYNTH_EXTRA_MAPPING_FILE)."
+    }
+}
+
 show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
