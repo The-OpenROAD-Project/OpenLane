@@ -421,11 +421,6 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
     set ::env(CURRENT_STAGE) routing
-
-    if { $::env(ECO_ENABLE) == 1 } {
-        puts_info "Current at ECO iteration: $::env(ECO_ITER)"
-    }
-
     run_resizer_timing_routing
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
