@@ -126,7 +126,7 @@ if os.path.exists(input_file):
         eco_iter = os.environ["ECO_ITER"]
         for pin_unq in vio_dict.keys():
             insert_times = math.floor(
-                abs(min(vio_dict[pin_unq])) / 0.06
+                abs(min(vio_dict[pin_unq])) / 0.5
             )  # insert buffer conservatively
             if insert_times < 1:
                 insert_times = 1
