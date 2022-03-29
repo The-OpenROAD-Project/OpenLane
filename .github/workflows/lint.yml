@@ -16,7 +16,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Install Linters
-        run: python3 -m pip install black==21.12b0 flake8==4.0.1
+        run: python3 -m pip install -r ./requirements_lint.txt
       - name: Ensure Black Formatting
         run: black --check .
       - name: Lint with Flake8

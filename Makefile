@@ -143,6 +143,15 @@ quick_run:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
 
+.PHONY: deps
+deps:
+	python3 -m pip install -r ./requirements.txt
+
+.PHONY: venv
+venv:
+	python3 -m venv ./venv
+	./venv/bin/python3 -m pip install -r ./requirements.txt
+
 # PDK build commands
 include ./dependencies/pdk.mk
 

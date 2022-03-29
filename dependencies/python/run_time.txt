@@ -1,7 +1,7 @@
-click
-pyyaml
-matplotlib
-jinja2<3.0.0
-pandas
-install
-XlsxWriter
+click~=8.1.0
+pyyaml~=5.4.0
+matplotlib~=3.5.1
+jinja2~=2.11.3
+pandas~=1.3.5
+install~=1.3.5
+XlsxWriter~=3.0.2

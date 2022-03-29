@@ -24,7 +24,7 @@ jobs:
 
       # EXPORT BLOCK
       - name: Export Repo URL
-        run: echo "REPO_URL=git://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
 
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/checkout@v2
       # EXPORT BLOCK
       - name: Export Repo URL
-        run: echo "REPO_URL=git://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
 
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
@@ -162,7 +162,7 @@ jobs:
 
       # EXPORT BLOCK
       - name: Export Repo URL
-        run: echo "REPO_URL=git://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
 
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
@@ -229,7 +229,7 @@ jobs:
 
       # EXPORT BLOCK
       - name: Export Repo URL
-        run: echo "REPO_URL=git://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
 
       - name: Export PDK ROOT
         run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
