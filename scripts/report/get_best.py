@@ -70,12 +70,12 @@ def build_dictionary(report_file):
 def convert_vio_to_int(val):
     val = int(val)
     if val < 0:
-        val = 2 ** 31  # Explode
+        val = 2**31  # Explode
     return val
 
 
 def convert_vio_to_string(val):
-    if val == 2 ** 31:
+    if val == 2**31:
         val = -1
     return str(val)
 

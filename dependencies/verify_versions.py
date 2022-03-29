@@ -16,10 +16,13 @@
 
 import os
 import re
+import io
 import sys
+import json
 import pathlib
 import traceback
 from os.path import dirname, abspath, join
+from typing import Optional
 
 try:
     import yaml
@@ -35,7 +38,11 @@ except ImportError:
 openlane_dir = abspath(dirname(dirname(__file__)))
 
 
-def verify_versions(no_tools: bool = False, report_file=sys.stderr):
+def verify_versions(
+    no_tools: bool = False,
+    report_file: io.TextIOBase = sys.stderr,
+    pdk: Optional[str] = os.getenv("PDK"),
+):
     # 1. Load Current Flow Script Manifest
     manifest = None
     try:
@@ -59,79 +66,79 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
     pdk_manifest_names = set(manifest_names_by_SOURCES_name.values())
 
     try:
-        # 2. Check if the Sky130 PDK is compatible with Flow Scripts
+        # 2. Check if the PDK is compatible with Flow Scripts
         pdk_root = os.getenv("PDK_ROOT")
         if not os.getenv("PDK_ROOT"):
             pdk_root = join(openlane_dir, "pdks")
 
-        sky130_dir = join(pdk_root, "sky130A")
+        if pdk is not None:
+            pdk_dir = join(pdk_root, pdk)
 
-        if pathlib.Path(sky130_dir).is_dir():
-            sources_file = join(sky130_dir, "SOURCES")
+            if not pathlib.Path(pdk_dir).is_dir():
+                raise Exception(f"{pdk_dir} not found.")
 
-            sources_str = None
-            try:
-                sources_str = open(sources_file).read()
-            except FileNotFoundError:
-                raise Exception(
-                    "Could not find SOURCES file for the installed sky130A PDK."
+            tool_versions = []
+
+            sources_file = join(pdk_dir, "SOURCES")
+            config_file = join(pdk_dir, ".config", "nodeinfo.json")
+
+            if os.path.isfile(sources_file):
+                sources_str = None
+                try:
+                    sources_str = open(sources_file).read()
+                except FileNotFoundError:
+                    raise Exception(
+                        f"Could not find SOURCES file for the installed {pdk} PDK."
+                    )
+
+                sources_str = sources_str.strip()
+
+                # Format: {tool} {commit}
+                #
+                #   This regex also handles an issue where older versions used the
+                #   non-standard echo -ne command, where the format is -ne {tool}\n{commit}\n.
+                #
+                name_rx = re.compile(
+                    r"(?:\-ne\s+)?([\w\-]+)\s+([A-Fa-f0-9]+)", re.MULTILINE
                 )
 
-            sources_str = sources_str.strip()
+                for tool_match in name_rx.finditer(sources_str):
+                    name = tool_match[1]
+                    commit = tool_match[2]
 
-            sources_lines = list(filter(lambda x: x, sources_str.split("\n")))
+                    manifest_name = manifest_names_by_SOURCES_name.get(name)
+                    if manifest_name is None:
+                        continue
 
-            # Format: {tool} {commit}
+                    tool_versions.append((manifest_name, commit))
+            elif os.path.isfile(config_file):
+                config_str = open(config_file).read()
+                try:
+                    config = json.loads(config_str)
+                    commit_set = config["commit"]
+                    if type(commit_set) == str:
+                        tool_versions.append(("open_pdks", commit_set))
+                    else:
+                        for key, value in commit_set.items():
+                            # Handle bug in some older versions of opdks where the magic commit field is empty.
+                            if value.strip() == "":
+                                continue
+                            tool_versions.append((key, value))
+                except json.decoder.JSONDecodeError:
+                    raise Exception("Malformed .config/nodeinfo.json.")
 
-            if sources_str.startswith("-ne"):
-                # Broken file on BSD/macOS where echo -ne is not a thing
-                # Solution: Translate to proper format
-                #
-                # Format:
-                # -ne {tool}
-                # {commit}
+            else:
+                raise Exception(
+                    "Neither SOURCES nor .config/nodeinfo.json exist in the PDK."
+                )
 
-                entries = len(sources_lines) // 2
-                name_rx = re.compile(r"\-ne\s+([\w\-]+)")
-
-                new_sources_lines = []
-
-                for entry in range(entries):
-                    name_line = sources_lines[entry * 2]
-                    commit_line = sources_lines[entry * 2 + 1]
-
-                    name_data = name_rx.match(name_line)
-                    if name_data is None:
-                        raise Exception(
-                            f"Malformed sky130A SOURCES file: {name_line} did not match regex."
-                        )
-
-                    name = name_data[1]
-                    commit = commit_line.strip()
-
-                    new_sources_lines.append(f"{name} {commit}")
-
-                sources_lines = new_sources_lines
-
-            name_rx = re.compile(r"([\w\-]+)\s+(\w+)")
-            for line in sources_lines:
-                match = name_rx.match(line)
-                if match is None:
-                    raise Exception(
-                        f"Malformed sky130A SOURCES file: {line} did not match regex."
-                    )
-                name = match[1]
-                commit = match[2]
-
-                manifest_name = manifest_names_by_SOURCES_name.get(name)
-                if manifest_name is None:
-                    continue
-                manifest_commit = manifest_dict[manifest_name]["commit"]
+            for name, commit in tool_versions:
+                manifest_commit = manifest_dict[name]["commit"]
 
                 if commit != manifest_commit:
                     mismatches = True
                     print(
-                        f"The version of {manifest_name} used in building PDK does not match the version OpenLane was tested on (installed: {commit}, tested: {manifest_commit})",
+                        f"The version of {name} used in building the PDK does not match the version OpenLane was tested on (installed: {commit}, tested: {manifest_commit})",
                         file=report_file,
                     )
                     print(
@@ -139,9 +146,7 @@ def verify_versions(no_tools: bool = False, report_file=sys.stderr):
                         file=report_file,
                     )
 
-                pdk_manifest_names.add(manifest_name)
-        else:
-            raise Exception(f"{sky130_dir} not found.")
+                pdk_manifest_names.add(name)
     except Exception as e:
         print(e, file=report_file)
         print(traceback.format_exc(), file=report_file)

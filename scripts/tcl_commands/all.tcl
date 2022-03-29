@@ -440,12 +440,11 @@ proc prep {args} {
 
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing exisiting run $::env(RUN_DIR)"
+            puts_warn "Removing existing run at $::env(RUN_DIR)..."
             after 1000
             file delete -force $::env(RUN_DIR)
         } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"
-            puts_info "Now you can run commands that pick up where '$tag' left off"
+            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
             after 1000
             set skip_basic_prep 1
         }
