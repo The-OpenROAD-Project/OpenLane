@@ -18,6 +18,7 @@ import os
 import re
 import io
 import sys
+import json
 import pathlib
 import traceback
 from os.path import dirname, abspath, join
@@ -76,38 +77,60 @@ def verify_versions(
             if not pathlib.Path(pdk_dir).is_dir():
                 raise Exception(f"{pdk_dir} not found.")
 
-            sources_file = join(pdk_dir, "SOURCES")
-
-            sources_str = None
-            try:
-                sources_str = open(sources_file).read()
-            except FileNotFoundError:
-                raise Exception(
-                    f"Could not find SOURCES file for the installed {pdk} PDK."
-                )
-
-            sources_str = sources_str.strip()
-
-            # Format: {tool} {commit}
-            #
-            #   This regex also handles an issue where older versions used the
-            #   non-standard echo -ne command, where the format is -ne {tool}\n{commit}\n.
-            #
-            name_rx = re.compile(
-                r"(?:\-ne\s+)?([\w\-]+)\s+([A-Fa-f0-9]+)", re.MULTILINE
-            )
-
             tool_versions = []
 
-            for tool_match in name_rx.finditer(sources_str):
-                name = tool_match[1]
-                commit = tool_match[2]
+            sources_file = join(pdk_dir, "SOURCES")
+            config_file = join(pdk_dir, ".config", "nodeinfo.json")
 
-                manifest_name = manifest_names_by_SOURCES_name.get(name)
-                if manifest_name is None:
-                    continue
+            if os.path.isfile(sources_file):
+                sources_str = None
+                try:
+                    sources_str = open(sources_file).read()
+                except FileNotFoundError:
+                    raise Exception(
+                        f"Could not find SOURCES file for the installed {pdk} PDK."
+                    )
 
-                tool_versions.append((manifest_name, commit))
+                sources_str = sources_str.strip()
+
+                # Format: {tool} {commit}
+                #
+                #   This regex also handles an issue where older versions used the
+                #   non-standard echo -ne command, where the format is -ne {tool}\n{commit}\n.
+                #
+                name_rx = re.compile(
+                    r"(?:\-ne\s+)?([\w\-]+)\s+([A-Fa-f0-9]+)", re.MULTILINE
+                )
+
+                for tool_match in name_rx.finditer(sources_str):
+                    name = tool_match[1]
+                    commit = tool_match[2]
+
+                    manifest_name = manifest_names_by_SOURCES_name.get(name)
+                    if manifest_name is None:
+                        continue
+
+                    tool_versions.append((manifest_name, commit))
+            elif os.path.isfile(config_file):
+                config_str = open(config_file).read()
+                try:
+                    config = json.loads(config_str)
+                    commit_set = config["commit"]
+                    if type(commit_set) == str:
+                        tool_versions.append(("open_pdks", commit_set))
+                    else:
+                        for key, value in commit_set.items():
+                            # Handle bug in some older versions of opdks where the magic commit field is empty.
+                            if value.strip() == "":
+                                continue
+                            tool_versions.append((key, value))
+                except json.decoder.JSONDecodeError:
+                    raise Exception("Malformed .config/nodeinfo.json.")
+
+            else:
+                raise Exception(
+                    "Neither SOURCES nor .config/nodeinfo.json exist in the PDK."
+                )
 
             for name, commit in tool_versions:
                 manifest_commit = manifest_dict[name]["commit"]

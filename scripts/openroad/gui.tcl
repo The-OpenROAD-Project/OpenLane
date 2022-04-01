@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2022 The Regents of the University of California
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,13 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# cts defaults
-set ::env(CLOCK_TREE_SYNTH) 1
-set ::env(CTS_TARGET_SKEW) 200
-set ::env(CTS_TOLERANCE) 100
-set ::env(CTS_SINK_CLUSTERING_SIZE) 25
-set ::env(CTS_SINK_CLUSTERING_MAX_DIAMETER) 50
-set ::env(CTS_REPORT_TIMING) 1
-set ::env(CTS_CLK_MAX_WIRE_LENGTH) 0
-set ::env(CTS_DISABLE_POST_PROCESSING) 0
-set ::env(CTS_DISTANCE_BETWEEN_BUFFERS) 0
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}

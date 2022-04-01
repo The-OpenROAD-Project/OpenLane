@@ -252,6 +252,15 @@ if { $::env(SYNTH_NO_FLAT) } {
     synth -top $vtop -flatten
 }
 
+if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
+    if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
+        log "\[INFO\] applying mappings in $::env(SYNTH_EXTRA_MAPPING_FILE)"
+        techmap -map $::env(SYNTH_EXTRA_MAPPING_FILE)
+    } else {
+        log -stderr "\[ERROR] file not found $::env(SYNTH_EXTRA_MAPPING_FILE)."
+    }
+}
+
 show -format dot -prefix $::env(synthesis_tmpfiles)/post_techmap
 
 if { $::env(SYNTH_SHARE_RESOURCES) } {
@@ -348,7 +357,30 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
 
     if { $::env(SYNTH_NO_FLAT) } {
         design -reset
-        read_liberty -lib -ignore_miss_dir -setattr blackbox $::env(LIB_SYNTH_COMPLETE_NO_PG)
+
+        if { [info exists ::env(SYNTH_DEFINES) ] } {
+            foreach define $::env(SYNTH_DEFINES) {
+                log "Defining $define"
+                verilog_defines -D$define
+            }
+        }
+
+        foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
+            read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+        }
+
+        if { [info exists ::env(EXTRA_LIBS) ] } {
+            foreach lib $::env(EXTRA_LIBS) {
+                read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
+            }
+        }
+
+        if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+            foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+                read_verilog -sv -lib {*}$vIdirsArgs $verilog_file
+            }
+        }
+
         file copy -force $::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).hierarchy.v
         read_verilog -sv $::env(SAVE_NETLIST)
         synth -top $vtop -flatten

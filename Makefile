@@ -143,6 +143,15 @@ quick_run:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
 
+.PHONY: deps
+deps:
+	python3 -m pip install -r ./requirements.txt
+
+.PHONY: venv
+venv:
+	python3 -m venv ./venv
+	./venv/bin/python3 -m pip install -r ./requirements.txt
+
 # PDK build commands
 include ./dependencies/pdk.mk
 
@@ -151,6 +160,7 @@ clean_all: clean_runs clean_results
 
 clean_runs:
 	@rm -rf ./designs/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
+	@rm -rf ./tests/*/runs && echo "Test runs cleaned successfully." || echo "Failed to delete test runs."
 
 clean_results:
 	@{ find regression_results -mindepth 1 -maxdepth 1 -type d | grep -v benchmark | xargs rm -rf ; } && echo "Results cleaned successfully." || echo "Failed to delete results."

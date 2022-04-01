@@ -42,3 +42,6 @@ pdks/
 
 # Local Install
 /install
+
+# Venv
+/venv

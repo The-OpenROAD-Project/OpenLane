@@ -37,6 +37,7 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_NO_FLAT` | A flag that disables flattening the hierarchy during synthesis, only flattening it after synthesis, mapping and optimizations. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_SHARE_RESOURCES` | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_ADDER_TYPE` | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
+| `SYNTH_EXTRA_MAPPING_FILE` | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
 | `LIB_FASTEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib`) |
 | `LIB_SLOWEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ss_100C_1v60.lib`) |
 | `LIB_TYPICAL` | Library used for typical delay calculation during STA. <br> (Default`LIB_SYNTH`) |
@@ -162,6 +163,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_REPORT_TIMING` | Specifies whether or not to run STA after clock tree synthesis using OpenROAD's estimate_parasitics -placement and generates reports under `logs/cts`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
+| `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
 | `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
 
 ### Routing
@@ -180,6 +182,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3`.  <br> (Default: `1`) |
 | `GLB_RT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma separated list of layer and coordinates: `layer llx lly urx ury`.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `0`)
+| `GLB_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
+| `GLB_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `10`)|
+| `GLB_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `10`)|
 | `GLB_RESIZER_HOLD_SLACK_MARGIN` | Specifies a time margin for the slack when fixing hold violations. Normally the resizer will stop when it reaches zero slack. This option allows you to overfix. <br> (Default: `0.1ns`)|
 | `GLB_RESIZER_SETUP_SLACK_MARGIN` | Specifies a time margin for the slack when fixing setup violations. <br> (Default: `0.05ns`)|
 | `GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|

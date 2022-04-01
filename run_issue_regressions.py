@@ -92,6 +92,10 @@ def run_test_case(test_case):
     try:
         logfile = open(logpath, "w")
         print(f"Running test case: {test_case_name} (logging to {logpath})")
+        interactive = []
+        interactive_file = os.path.join(test_case, "interactive.tcl")
+        if os.path.exists(interactive_file):
+            interactive = ["-it", "-file", interactive_file]
         result = subprocess.run(
             [
                 "./flow.tcl",
@@ -101,7 +105,8 @@ def run_test_case(test_case):
                 "issue_regression_run",
                 "-run_hooks",
                 "-overwrite",
-            ],
+            ]
+            + interactive,
             stdout=logfile,
             stderr=subprocess.STDOUT,
             check=True,

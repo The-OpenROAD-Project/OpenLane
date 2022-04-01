@@ -1,4 +1,4 @@
-#!/usr/bin/tclsh
+#!/usr/bin/env tclsh
 # Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
+set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
 
 if { [file exists $::env(OPENLANE_ROOT)/install/env.tcl ] } {
 	source $::env(OPENLANE_ROOT)/install/env.tcl

@@ -15,7 +15,6 @@
 proc run_sta {args} {
     set options {
         {-log required}
-        {-runtime_log -required}
         {-lef optional}
         {-process_corner optional}
     }

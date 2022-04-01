@@ -204,11 +204,9 @@ proc gen_exclude_list {args} {
 
     if { [file exists $arg_values(-output)] && [info exists flags_map(-create_dont_use_list)] } {
         puts_verbose "Creating ::env(DONT_USE_CELLS)..."
-        set fp [open "$arg_values(-output)" r]
-        set x [read $fp]
+        set x [cat "$arg_values(-output)"]
         set y [split $x]
         set ::env(DONT_USE_CELLS) [join $y " "]
-        close $fp
     }
 
 
@@ -255,9 +253,7 @@ proc source_config {config_file} {
         # for trusted end-users only
         source $config_file
     } elseif { [file extension $config_file] == ".json" } {
-        set json_chan [open $config_file r]
-        set config_content [read $json_chan]
-        close $json_chan
+        set config_content [cat $config_file]
 
         if { [catch {json::json2dict "$config_content"} config_dict] } {
             puts_err "Failed to parse JSON file $config_file"
@@ -278,7 +274,6 @@ proc source_config {config_file} {
 proc prep {args} {
 
     set ::env(timer_start) [clock seconds]
-    set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
     TIMER::timer_start
     set options {
         {-design required}
@@ -480,12 +475,11 @@ proc prep {args} {
 
     if { [file exists $::env(RUN_DIR)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing exisiting run $::env(RUN_DIR)"
+            puts_warn "Removing existing run at $::env(RUN_DIR)..."
             after 1000
             file delete -force $::env(RUN_DIR)
         } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass -overwrite option to overwrite it"
-            puts_info "Now you can run commands that pick up where '$tag' left off"
+            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
             after 1000
             set skip_basic_prep 1
         }

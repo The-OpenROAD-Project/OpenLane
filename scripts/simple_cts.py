@@ -91,7 +91,7 @@ def cli(
             buffers[level] += 1
             cell_count += 1
 
-            i += fanout ** level
+            i += fanout**level
 
     root_net = f"clk_{levels - 1}_0"
     verilog_cells.append(

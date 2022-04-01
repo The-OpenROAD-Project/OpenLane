@@ -259,7 +259,9 @@ proc index_file {args} {
 
     set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
-    exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    if { [info exists ::env(GLB_CFG_FILE)]} {
+        exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    }
     return $new_file_full_name
 }
 
@@ -452,6 +454,17 @@ proc assert_files_exist {files} {
 proc count_matches {pattern search_file} {
     set count [exec bash -c "grep $pattern $search_file | wc -l"]
     return $count
+}
+
+proc cat {args} {
+    set res {}
+    foreach file $args {
+        set f [open $file r]
+        set tmp [read $f]
+        close $f
+        append res $tmp
+    }
+    return $res
 }
 
 
