@@ -83,7 +83,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 944855835623e651e7b9c7c50efcce1fb04b4fee
+  commit: f12e2f474102bfb875eeee57fb610d7d7de17770
   build: ''
   in_install: false
 - name: git
