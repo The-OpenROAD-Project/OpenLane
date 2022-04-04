@@ -27,6 +27,8 @@ if { $::env(CURRENT_DEF) != 0 } {
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
+report_units
+
 define_corners ss tt ff
 
 foreach lib $::env(LIB_SLOWEST) {
