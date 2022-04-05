@@ -74,15 +74,6 @@ source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 estimate_parasitics -global_routing
 
 # Resize
-if { [info exists ::env(GLB_RESIZER_MAX_WIRE_LENGTH)] && $::env(GLB_RESIZER_MAX_WIRE_LENGTH) } {
-    repair_design -max_wire_length $::env(GLB_RESIZER_MAX_WIRE_LENGTH) \
-                  -slew_margin $::env(GLB_RESIZER_MAX_SLEW_MARGIN) \
-                  -cap_margin $::env(GLB_RESIZER_MAX_CAP_MARGIN)
-} else {
-    repair_design -slew_margin $::env(GLB_RESIZER_MAX_SLEW_MARGIN) \
-                  -cap_margin $::env(GLB_RESIZER_MAX_CAP_MARGIN)
-}
-
 if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1} {
     if { [catch {repair_timing -hold -allow_setup_violations \
             -slack_margin $::env(GLB_RESIZER_HOLD_SLACK_MARGIN) \
