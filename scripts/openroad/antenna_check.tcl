@@ -19,11 +19,11 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 
 if {[catch {read_def -order_wires $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
-	exit 1
+    exit 1
 }
 
 # load layers' antenna rules into ARC
 #load_antenna_rules
 
 # start checking antennas and generate a detail report
-check_antennas -report_file $::env(finishing_reports)/antenna.rpt
+check_antennas -report_file $::env(signoff_reports)/antenna.rpt

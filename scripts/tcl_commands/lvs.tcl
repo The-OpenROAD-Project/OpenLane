@@ -93,13 +93,13 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
     # Write Netlist
     if { $::env(LVS_INSERT_POWER_PINS) } {
-        set powered_netlist_name [index_file $::env(finishing_tmpfiles)/powered_netlist.v]
-        set powered_def_name [index_file $::env(finishing_tmpfiles)/powered_def.def]
+        set powered_netlist_name [index_file $::env(signoff_tmpfiles)/powered_netlist.v]
+        set powered_def_name [index_file $::env(signoff_tmpfiles)/powered_def.def]
         write_powered_verilog\
             -output_verilog $powered_netlist_name\
             -output_def $powered_def_name\
-            -log $::env(finishing_logs)/write_verilog.log\
-            -def_log $::env(finishing_logs)/write_powered_def.log
+            -log $::env(signoff_logs)/write_verilog.log\
+            -def_log $::env(signoff_logs)/write_powered_def.log
 
         set_netlist $powered_netlist_name
 
@@ -126,7 +126,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     set setup_file $::env(NETGEN_SETUP_FILE)
     set module_name $::env(DESIGN_NAME)
     #writes setup_file_*_lvs to tmp directory.
-    set lvs_file_path [index_file $::env(finishing_tmpfiles)/setup_file.$extract_type.lvs]
+    set lvs_file_path [index_file $::env(signoff_tmpfiles)/setup_file.$extract_type.lvs]
     set lvs_file [open $lvs_file_path w]
     if { "$extract_type" == "gds" } {
         if { [info exist ::env(LVS_EXTRA_STD_CELL_LIBRARY)] } {
@@ -153,7 +153,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         }
     }
 
-    set extraction_prefix [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).$extract_type]
+    set extraction_prefix [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).$extract_type]
 
     puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
     close $lvs_file
@@ -161,9 +161,9 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     puts_verbose "$layout against $schematic"
 
     try_catch netgen -batch source $lvs_file_path \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/$extract_type.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/$extract_type.log]
 
-    set count_lvs_log [index_file $::env(finishing_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
+    set count_lvs_log [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
 
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
         -f $extraction_prefix.json \

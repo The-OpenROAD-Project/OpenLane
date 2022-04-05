@@ -474,7 +474,7 @@ proc prep {args} {
         cts\
         routing\
         eco\
-        finishing
+        signoff
     ]
 
     foreach subfolder $run_subfolder_structure {
@@ -886,7 +886,7 @@ proc label_macro_pins {args} {
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(finishing_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        {*}$extra_args |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
@@ -939,7 +939,7 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-    set antenna_log [index_file $::env(finishing_logs)/antenna.log]
+    set antenna_log [index_file $::env(signoff_logs)/antenna.log]
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
     set ::env(ANTENNA_CHECKER_LOG) $antenna_log
     TIMER::timer_stop

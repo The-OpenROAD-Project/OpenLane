@@ -469,7 +469,7 @@ class Report(object):
                     other_violations -= 1
 
         # Magic Violations
-        magic_drc = Artifact(rp, "reports", "finishing", "drc.rpt")
+        magic_drc = Artifact(rp, "reports", "signoff", "drc.rpt")
         magic_drc_content = magic_drc.get_content()
 
         magic_violations = -1
@@ -483,7 +483,7 @@ class Report(object):
                 magic_violations = (magic_violations_raw + 3) // 4
 
         # Klayout DRC Violations
-        klayout_drc = Artifact(rp, "reports", "finishing", "magic.lydrc", True)
+        klayout_drc = Artifact(rp, "reports", "signoff", "magic.lydrc", True)
         klayout_drc_content = klayout_drc.get_content()
 
         klayout_violations = -1
@@ -494,7 +494,7 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, "reports", "finishing", "antenna.rpt")
+        arc_antenna_report = Artifact(rp, "reports", "signoff", "antenna.rpt")
         aar_content = arc_antenna_report.get_content()
 
         antenna_violations = -1
@@ -669,9 +669,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(
-            rp, "logs", "finishing", f"{self.design_name}.lvs.lef.log"
-        )
+        lvs_report = Artifact(rp, "logs", "signoff", f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
 
         lvs_total_errors = -1
@@ -682,7 +680,7 @@ class Report(object):
                 lvs_total_errors = int(match[1])
 
         # CVC Total Errors
-        cvc_log = Artifact(rp, "logs", "finishing", "erc_screen.log")
+        cvc_log = Artifact(rp, "logs", "signoff", "erc_screen.log")
         cvc_log_content = cvc_log.get_content()
 
         cvc_total_errors = -1
