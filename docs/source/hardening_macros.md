@@ -41,7 +41,7 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 1. The clock ports in the design, explained in the base requirements section `CLOCK_PORT`.
 
-2. The clock period that you prefer the design to run with. This could be set using `::env(CLOCK_PERIOD)` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/final_summary_report.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
+2. The clock period that you prefer the design to run with. This could be set using `::env(CLOCK_PERIOD)` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
 
 3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
 
@@ -215,7 +215,7 @@ You can control whether LVS should be run down to the device level or the cell l
 
 You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
 
-A final summary report is produced by default as `<run-path>/reports/final_summary_report.csv`, for more details about the contents of the report check [this documentation][10].
+A final summary report is produced by default as `<run-path>/reports/metrics.csv`, for more details about the contents of the report check [this documentation][10].
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.
 

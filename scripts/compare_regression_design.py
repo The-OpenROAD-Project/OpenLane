@@ -138,7 +138,7 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
 
     def missing_resulting_files(design):
         search_prefix = os.path.join(
-            run_path, "results", "finishing", str(design["design_name"])
+            run_path, "results", "signoff", str(design["design_name"])
         )
         for ext in magic_file_extensions:
             required_result = f"{search_prefix}.{ext}"

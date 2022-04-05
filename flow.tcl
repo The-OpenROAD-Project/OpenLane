@@ -136,11 +136,11 @@ proc save_final_views {args} {
 	set arg_list [list]
 
 	# If they don't exist, save_views will simply not copy them
-	lappend arg_list -lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef
-	lappend arg_list -gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds
-	lappend arg_list -mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag
-	lappend arg_list -maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag
-	lappend arg_list -spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice
+	lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
+	lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
+	lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
+	lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
+	lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
 
 	# Guaranteed to have default values
 	lappend arg_list -def_path $::env(CURRENT_DEF)
@@ -362,7 +362,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
@@ -377,7 +377,7 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "The file $::env(EXT_NETLIST) will be used. If you would like the file re-exported, please delete it."
 	} else {

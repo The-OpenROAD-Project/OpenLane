@@ -513,53 +513,6 @@ proc run_routing {args} {
         set ::env(SPEF_PREFIX) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)
     }
 
-    # Nom last so CURRENT_SPEF is the nom current SPEF after the loop is done
-    foreach {process_corner lef ruleset} {
-        min MERGED_LEF_MIN RCX_RULES_MIN
-        max MERGED_LEF_MAX RCX_RULES_MAX
-        nom MERGED_LEF RCX_RULES
-    } {
-        if { [info exists ::env($lef)] } {
-            set ::env(SAVE_SPEF) "$::env(SPEF_PREFIX).$process_corner.spef"
-
-            run_spef_extraction\
-                -log $::env(routing_logs)/parasitics_extraction.$process_corner.log\
-                -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
-                -rcx_rules $::env($ruleset)\
-                -rcx_lef $::env($lef)\
-                -process_corner $process_corner
-
-            set ::env(CURRENT_SPEF) $::env(SAVE_SPEF)
-
-            set log_name $::env(routing_logs)/parasitics_multi_corner_sta.$process_corner.log
-
-            if { $process_corner == "nom" } {
-                # First, we need this for the reports:
-                set log_name $::env(routing_logs)/parasitics_multi_corner_sta.log
-
-                # We also need to run a single-corner STA at the tt timing corner
-                set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-
-                if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-                    set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
-                }
-                run_sta\
-                    -log $::env(routing_logs)/parasitics_sta.log\
-                    -process_corner $process_corner
-
-                set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
-
-                set ::env(CURRENT_SDF) $::env(SAVE_SDF)
-            }
-
-            run_sta\
-                -lef $::env($lef)\
-                -log $log_name\
-                -process_corner $process_corner\
-                -multi_corner
-        }
-    }
-
     ## Calculate Runtime To Routing
     set ::env(timer_routed) [clock seconds]
 }

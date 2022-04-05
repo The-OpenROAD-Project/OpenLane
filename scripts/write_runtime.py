@@ -63,7 +63,7 @@ def write_runtime(status: str, time_in: float):
 
     obj = {}
     obj["status"] = f"{os.environ['CURRENT_INDEX']} - {status}"
-    obj["runtime_s"] = time_in
+    obj["runtime_s"] = round(time_in, 2)
     obj["runtime_ts"] = seconds_to_timestamp(time_in)
 
     runtime_data.append(obj)

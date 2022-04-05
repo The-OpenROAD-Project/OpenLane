@@ -85,7 +85,7 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)` either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
-| `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/finishing/antenna.rpt`|
+| `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna.rpt`|
 | `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
 
@@ -307,10 +307,9 @@ Most of the following commands' implementation exists in these files: [deflef][1
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations along with a new report `runtime_summary_report.rpt` which includes the runtime summary of each major step of the flow. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
-|    | `[-output_file <output_file>]` | The ouput final summary csv report file path. <br> Defaults to being generated under `<run_path>/reports/final_summary_report.csv`. |
-|    | `[-man_report <man_report>]` | The ouput manufacturability report file path. <br> Defaults to being generated under `<run_path>/reports/manufacturability_report.rpt`. |
-|    | `[-runtime_summary_<runtime_summary>]` | The ouput runtime summary report file path. <br> Defaults to being generated under `<run_path>/reports/runtime_summary_report.rpt`. |
+| `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
+|    | `[-output_file <output_file>]` | The ouput final summary csv report file path. <br> Defaults to being generated under `<run_path>/reports/metrics.csv`. |
+|    | `[-man_report <man_report>]` | The ouput manufacturability report file path. <br> Defaults to being generated under `<run_path>/reports/manufacturability.rpt`. |
 | `remove_pins` | | Removes the pins' section from a given DEF file. |
 |    | `-input <def_file>` | The input DEF file. |
 | `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
