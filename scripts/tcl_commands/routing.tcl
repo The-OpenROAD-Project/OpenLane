@@ -495,25 +495,6 @@ proc run_routing {args} {
         set ::env(SPEF_SLOWEST) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME).ss.spef;
     }
 
-    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
-    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
-    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
-
-    set ::env(SAVE_SDF) [file rootname $::env(CURRENT_DEF)].sdf
-
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-        set ::env(SAVE_SDF) $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
-    }
-
-    # run sta at the typical corner using the extracted spef
-    run_sta -log $::env(routing_logs)/parasitics_sta.log
-    set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
-
-    set ::env(CURRENT_SDF) $::env(SAVE_SDF)
-
-    # run sta at the three corners
-    run_sta -log $::env(routing_logs)/parasitics_multi_corner_sta.log -multi_corner
-
     ## Calculate Runtime To Routing
     set ::env(timer_routed) [clock seconds]
 }

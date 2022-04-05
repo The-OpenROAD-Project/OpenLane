@@ -48,4 +48,31 @@ proc run_sta {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }
 
+proc parasitics_sta {args} {
+    set options {
+        {-sdf_out optional}
+    }
+    set flags {}
+    parse_key_args "parasitics_sta" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-sdf_out) [file rootname $::env(CURRENT_DEF)].sdf
+
+    puts_info "Running parasitics-based static timing analysis..."
+
+    run_spef_extraction -rcx_lib $::env(LIB_SYNTH_COMPLETE) -output_spef $::env(SPEF_TYPICAL) -log $::env(routing_logs)/parasitics_extraction.tt.log
+    run_spef_extraction -rcx_lib $::env(LIB_SLOWEST) -output_spef $::env(SPEF_SLOWEST) -log $::env(routing_logs)/parasitics_extraction.ss.log
+    run_spef_extraction -rcx_lib $::env(LIB_FASTEST) -output_spef $::env(SPEF_FASTEST) -log $::env(routing_logs)/parasitics_extraction.ff.log
+
+    set ::env(SAVE_SDF) $arg_values(-sdf_out)
+
+    # run sta at the typical corner using the extracted spef
+    run_sta -log $::env(routing_logs)/parasitics_sta.log
+    set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(routing_reports)/parasitics_sta]
+
+    set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+
+    # run sta at the three corners
+    run_sta -log $::env(routing_logs)/parasitics_multi_corner_sta.log -multi_corner
+}
+
 package provide openlane 0.9
