@@ -74,6 +74,13 @@ source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 estimate_parasitics -global_routing
 
 # Resize
+if { [catch {repair_timing -setup \
+        -slack_margin $::env(GLB_RESIZER_SETUP_SLACK_MARGIN) \
+        -max_buffer_percent $::env(GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT)}
+]} {
+    puts "Setup utilization limit is reached. Continuing the flow... "
+}
+
 if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1} {
     if { [catch {repair_timing -hold -allow_setup_violations \
             -slack_margin $::env(GLB_RESIZER_HOLD_SLACK_MARGIN) \
@@ -88,13 +95,6 @@ if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1} {
     ]} {
         puts "Hold utilization limit is reached. Continuing the flow... "
     }
-}
-
-if { [catch {repair_timing -setup \
-        -slack_margin $::env(GLB_RESIZER_SETUP_SLACK_MARGIN) \
-        -max_buffer_percent $::env(GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT)}
-]} {
-    puts "Setup utilization limit is reached. Continuing the flow... "
 }
 
 # set_placement_padding -global -right $::env(CELL_PAD)
