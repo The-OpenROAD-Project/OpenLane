@@ -508,10 +508,6 @@ proc run_routing {args} {
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
     # spef extraction at the three corners
-    set ::env(SPEF_PREFIX) [file rootname $::env(CURRENT_DEF)]
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
-        set ::env(SPEF_PREFIX) $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)
-    }
 
     ## Calculate Runtime To Routing
     set ::env(timer_routed) [clock seconds]

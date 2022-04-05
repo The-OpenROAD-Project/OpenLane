@@ -550,8 +550,13 @@ proc prep {args} {
     # Process LEFs and LIB files
     if { ! $skip_basic_prep } {
         prep_lefs -tech_lef $::env(TECH_LEF) -corner nom -env_var MERGED_LEF
-        prep_lefs -tech_lef $::env(TECH_LEF_MIN) -corner min -env_var MERGED_LEF_MIN -no_widen
-        prep_lefs -tech_lef $::env(TECH_LEF_MAX) -corner max -env_var MERGED_LEF_MAX -no_widen
+
+        if { [info exists ::env(TECH_LEF_MIN)] } {
+            prep_lefs -tech_lef $::env(TECH_LEF_MIN) -corner min -env_var MERGED_LEF_MIN -no_widen
+        }
+        if { [info exists ::env(TECH_LEF_MAX)] } {
+            prep_lefs -tech_lef $::env(TECH_LEF_MAX) -corner max -env_var MERGED_LEF_MAX -no_widen
+        }
 
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
         # merge synthesis libraries

@@ -403,7 +403,7 @@ proc generate_final_summary_report {args} {
     set metrics_report_rel [relpath . $arg_values(-output)]
 
     puts_info "Created manufacturability report at '$man_report_rel'."
-    puts_info "Creted metrics report at '$metrics_report_rel'."
+    puts_info "Created metrics report at '$metrics_report_rel'."
 }
 
 namespace eval TIMER {
