@@ -3,6 +3,8 @@
 
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
+You can find the latest release of OpenLane [here](https://github.com/The-OpenROAD-Project/OpenLane/releases).
+
 This documentation is also available at [ReadTheDocs](https://openlane.readthedocs.io/).
 
 # Table of contents
