@@ -8,7 +8,7 @@ set ::env(VERILOG_FILES) $::env(DESIGN_DIR)/src/digital_pll.v
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 
 # Fill this
-set ::env(CLOCK_PERIOD) "15.8"
+set ::env(CLOCK_PERIOD) "18"
 set ::env(CLOCK_PORT) ""
 set ::env(CLOCK_TREE_SYNTH) 0
 set ::env(SYNTH_BUFFERING) 0
