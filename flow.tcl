@@ -56,6 +56,11 @@ proc run_routing_step {args} {
 }
 
 proc run_parasitics_sta_step {args} {
+	if { ! [ info exists ::env(PARSITICS_CURRENT_DEF) ] } {
+		set ::env(PARSITICS_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
+	}
 	run_parasitics_sta
 }
 
@@ -219,7 +224,7 @@ proc run_non_interactive_mode {args} {
 		"placement" {run_placement_step ""} \
 		"cts" {run_cts_step ""} \
 		"routing" {run_routing_step ""}\
-		"parasitics_sta" {run_parasitics_sta ""}\
+		"parasitics_sta" {run_parasitics_sta_step ""}\
 		"eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
