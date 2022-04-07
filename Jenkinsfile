@@ -44,7 +44,6 @@ pipeline {
                                "APU",
                                "blabla",
                                "BM64",
-                               "digital_pll_sky130_fd_sc_hd",
                                "gcd",
                                "inverter",
                                "manual_macro_placement_test",
