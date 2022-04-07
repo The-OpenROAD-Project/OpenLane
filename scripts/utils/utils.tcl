@@ -368,16 +368,9 @@ proc show_warnings {msg} {
 }
 
 proc generate_routing_report {args} {
-    puts_info "Generating Report for routing..."
-    set options {
-        {-output optional}
-        {-man_report optional}
-        {-runtime_summary optional}
-    }
-    set flags {}
-    parse_key_args "generate_routing_report" args arg_values $options flags_map $flags
+    puts_info "Generating a partial report for routing..."
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/gen_report_routing.py -d $::env(DESIGN_DIR) \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
         --design_name $::env(DESIGN_NAME) \
         --tag $::env(RUN_TAG) \
         --run_path $::env(RUN_DIR)
@@ -385,33 +378,32 @@ proc generate_routing_report {args} {
 
 
 proc generate_final_summary_report {args} {
-    if { ![info exists ::env(GENERATE_FINAL_SUMMARY_REPORT)] } {
-        set ::env(GENERATE_FINAL_SUMMARY_REPORT) {0}
+    if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 0 } {
+        return
     }
-    if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 1 } {
-        puts_info "Generating Final Summary Report..."
-        set options {
-            {-output optional}
-            {-man_report optional}
-            {-runtime_summary optional}
-        }
-        set flags {}
-        parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
-
-        set_if_unset arg_values(-output) $::env(REPORTS_DIR)/final_summary_report.csv
-        set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability_report.rpt
-        set_if_unset arg_values(-runtime_summary) $::env(REPORTS_DIR)/runtime_summary_report.rpt
-
-        try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
-            --design_name $::env(DESIGN_NAME) \
-            --tag $::env(RUN_TAG) \
-            --output_file $arg_values(-output) \
-            --man_report $arg_values(-man_report) \
-            --run_path $::env(RUN_DIR)
-
-        puts_info [read [open $arg_values(-man_report) r]]
-        puts_info "check full report here: $arg_values(-output)"
+    puts_info "Generating final set of reports..."
+    set options {
+        {-output optional}
+        {-man_report optional}
     }
+    set flags {}
+    parse_key_args "generate_final_summary_report" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-output) $::env(REPORTS_DIR)/metrics.csv
+    set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+        --design_name $::env(DESIGN_NAME) \
+        --tag $::env(RUN_TAG) \
+        --output_file $arg_values(-output) \
+        --man_report $arg_values(-man_report) \
+        --run_path $::env(RUN_DIR)
+
+    set man_report_rel [relpath . $arg_values(-man_report)]
+    set metrics_report_rel [relpath . $arg_values(-output)]
+
+    puts_info "Created manufacturability report at '$man_report_rel'."
+    puts_info "Created metrics report at '$metrics_report_rel'."
 }
 
 namespace eval TIMER {

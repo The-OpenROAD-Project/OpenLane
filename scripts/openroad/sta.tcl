@@ -13,7 +13,7 @@
 # limitations under the License.
 
 if { $::env(RUN_STANDALONE) == 1 } {
-    if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
@@ -32,13 +32,13 @@ if { $::env(RUN_STANDALONE) == 1 } {
     }
 
     if { [info exists ::env(EXTRA_LIBS) ] } {
-	    foreach lib $::env(EXTRA_LIBS) {
-		    read_liberty $lib
-	    }
+        foreach lib $::env(EXTRA_LIBS) {
+            read_liberty $lib
+        }
     }
 
     foreach lib $::env(LIB_SYNTH_COMPLETE) {
-            read_liberty $lib
+        read_liberty $lib
     }
     read_sdc -echo $::env(CURRENT_SDC)
     if { $::env(STA_PRE_CTS) == 1 } {
@@ -50,9 +50,9 @@ if { $::env(RUN_STANDALONE) == 1 } {
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-if { [info exists ::env(SPEF_TYPICAL)] } {
-    read_spef $::env(SPEF_TYPICAL)
-} 
+if { [info exists ::env(CURRENT_SPEF)] } {
+    read_spef $::env(CURRENT_SPEF)
+}
 
 puts "min_report"
 puts "\n==========================================================================="
@@ -65,7 +65,7 @@ puts "max_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
 puts "max_report_end"
 
 
@@ -73,7 +73,7 @@ puts "check_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
 puts "============================================================================"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded 
+report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
@@ -99,7 +99,7 @@ puts "tns_report"
 puts "\n==========================================================================="
 puts " report_tns"
 puts "============================================================================"
-report_tns  
+report_tns
 puts "tns_report_end"
 
 puts "wns_report"
@@ -113,12 +113,12 @@ puts "worst_slack"
 puts "\n==========================================================================="
 puts " report_worst_slack -max (Setup)"
 puts "============================================================================"
-report_worst_slack -max 
+report_worst_slack -max
 
 puts "\n==========================================================================="
 puts " report_worst_slack -min (Hold)"
 puts "============================================================================"
-report_worst_slack -min 
+report_worst_slack -min
 puts "worst_slack_end"
 
 # report clock skew if the clock port is defined
@@ -136,7 +136,7 @@ puts "power_report"
 puts "\n==========================================================================="
 puts " report_power"
 puts "============================================================================"
-report_power 
+report_power
 puts "power_report_end"
 
 puts "area_report"

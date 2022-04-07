@@ -210,124 +210,50 @@ class Report(object):
     def reports_from_logs(self):
         rp = self.run_path
 
-        cts_log = Artifact(rp, "logs", "cts", "cts.log")
-        cts_log.generate_reports(
-            ("cts.rpt", "cts_report"),
-            ("cts_sta.rpt", "check_report"),
-            ("cts_sta.min.rpt", "min_report"),
-            ("cts_sta.max.rpt", "max_report"),
-            ("cts_sta.wns.rpt", "wns_report"),
-            ("cts_sta.tns.rpt", "tns_report"),
-            ("cts_sta.clock_skew.rpt", "clock_skew"),
-        )
+        basic_set = [
+            ("_sta.rpt", "check_report"),
+            ("_sta.min.rpt", "min_report"),
+            ("_sta.max.rpt", "max_report"),
+            ("_sta.wns.rpt", "wns_report"),
+            ("_sta.tns.rpt", "tns_report"),
+            ("_sta.clock_skew.rpt", "clock_skew"),
+        ]
 
-        routing_log = Artifact(rp, "logs", "routing", "global.log")
-        routing_log.generate_reports(
-            ("groute_sta.rpt", "check_report"),
-            ("groute_sta.clock_skew.rpt", "clock_skew"),
-            ("groute_sta.min.rpt", "min_report"),
-            ("groute_sta.max.rpt", "max_report"),
-            ("groute_sta.wns.rpt", "wns_report"),
-            ("groute_sta.tns.rpt", "tns_report"),
-        )
+        additional_set = [
+            ("_sta.slew.rpt", "check_slew"),
+            ("_sta.worst_slack.rpt", "worst_slack"),
+            ("_sta.clock_skew.rpt", "clock_skew"),
+            ("_sta.power.rpt", "power_report"),
+            ("_sta.area.rpt", "design_area"),
+        ]
 
-        placement_log = Artifact(rp, "logs", "placement", "global.log")
-        placement_log.generate_reports(
-            ("global_sta.rpt", "check_report"),
-            ("global_sta.clock_skew.rpt", "clock_skew"),
-            ("global_sta.min.rpt", "min_report"),
-            ("global_sta.max.rpt", "max_report"),
-            ("global_sta.wns.rpt", "wns_report"),
-            ("global_sta.tns.rpt", "tns_report"),
-        )
+        for name, log in [
+            ("cts", Artifact(rp, "logs", "cts", "cts.log")),
+            ("gpl", Artifact(rp, "logs", "placement", "global.log")),
+            ("grt", Artifact(rp, "logs", "routing", "global.log")),
+        ]:
+            generate_report_args = [
+                (name + report_postfix, report_locus)
+                for report_postfix, report_locus in basic_set
+            ]
+            log.generate_reports(*generate_report_args)
 
-        sta_log = Artifact(rp, "logs", "synthesis", "sta.log")
-        sta_log.generate_reports(
-            ("synthesis_sta.rpt", "check_report"),
-            ("synthesis_sta.min.rpt", "min_report"),
-            ("synthesis_sta.max.rpt", "max_report"),
-            ("synthesis_sta.wns.rpt", "wns_report"),
-            ("synthesis_sta.tns.rpt", "tns_report"),
-            ("synthesis_sta.slew.rpt", "check_slew"),
-            ("synthesis_sta.worst_slack.rpt", "worst_slack"),
-            ("synthesis_sta.clock_skew.rpt", "clock_skew"),
-            ("synthesis_sta.power.rpt", "power_report"),
-            ("synthesis_sta.area.rpt", "design_area"),
-        )
-
-        sta_post_resizer_log = Artifact(rp, "logs", "placement", "resizer.log")
-        sta_post_resizer_log.generate_reports(
-            ("resizer_sta.rpt", "check_report"),
-            ("resizer_sta.min.rpt", "min_report"),
-            ("resizer_sta.max.rpt", "max_report"),
-            ("resizer_sta.wns.rpt", "wns_report"),
-            ("resizer_sta.tns.rpt", "tns_report"),
-            ("resizer_sta.slew.rpt", "check_slew"),
-            ("resizer_sta.worst_slack.rpt", "worst_slack"),
-            ("resizer_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_sta.power.rpt", "power_report"),
-            ("resizer_sta.area.rpt", "area_report"),
-        )
-
-        sta_post_resizer_timing_log = Artifact(rp, "logs", "cts", "resizer.log")
-        sta_post_resizer_timing_log.generate_reports(
-            ("resizer_sta.rpt", "check_report"),
-            ("resizer_sta.max.rpt", "min_report"),
-            ("resizer_sta.min.rpt", "max_report"),
-            ("resizer_sta.wns.rpt", "wns_report"),
-            ("resizer_sta.tns.rpt", "tns_report"),
-            ("resizer_sta.slew.rpt", "check_slew"),
-            ("resizer_sta.worst_slack.rpt", "worst_slack"),
-            ("resizer_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_sta.power.rpt", "power_report"),
-            ("resizer_sta.area.rpt", "area_report"),
-        )
-
-        sta_post_resizer_routing_timing_log = Artifact(
-            rp, "logs", "routing", "resizer.log"
-        )
-        sta_post_resizer_routing_timing_log.generate_reports(
-            ("resizer_sta.rpt", "check_report"),
-            ("resizer_sta.min.rpt", "min_report"),
-            ("resizer_sta.max.rpt", "max_report"),
-            ("resizer_sta.wns.rpt", "wns_report"),
-            ("resizer_sta.tns.rpt", "tns_report"),
-            ("resizer_sta.slew.rpt", "check_slew"),
-            ("resizer_sta.wost_slack.rpt", "worst_slack"),
-            ("resizer_sta.clock_skew.rpt", "clock_skew"),
-            ("resizer_sta.power.rpt", "power_report"),
-            ("resizer_sta.area.rpt", "area_report"),
-        )
-
-        sta_spef_log = Artifact(rp, "logs", "routing", "parasitics_sta.log")
-        sta_spef_log.generate_reports(
-            ("parasitics_sta.rpt", "check_report"),
-            ("parasitics_sta.min.rpt", "min_report"),
-            ("parasitics_sta.max.rpt", "max_report"),
-            ("parasitics_sta.wns.rpt", "wns_report"),
-            ("parasitics_sta.tns.rpt", "tns_report"),
-            ("parasitics_sta.slew.rpt", "check_slew"),
-            ("parasitics_sta.worst_slack.rpt", "worst_slack"),
-            ("parasitics_sta.clock_skew.rpt", "clock_skew"),
-            ("parasitics_sta.power.rpt", "power_report"),
-            ("parasitics_sta.area.rpt", "area_report"),
-        )
-
-        sta_spef_multi_corner_log = Artifact(
-            rp, "logs", "routing", "parasitics_multi_corner_sta.log"
-        )
-        sta_spef_multi_corner_log.generate_reports(
-            ("parasitics_multi_corner_sta.rpt", "check_report"),
-            ("parasitics_multi_corner_sta.min.rpt", "min_report"),
-            ("parasitics_multi_corner_sta.max.rpt", "max_report"),
-            ("parasitics_multi_corner_sta.wns.rpt", "wns_report"),
-            ("parasitics_multi_corner_sta.tns.rpt", "tns_report"),
-            ("parasitics_multi_corner_sta.slew.rpt", "check_slew"),
-            ("parasitics_multi_corner_sta.worst_slack.rpt", "worst_slack"),
-            ("parasitics_multi_corner_sta.clock_skew.rpt", "clock_skew"),
-            ("parasitics_multi_corner_sta.power.rpt", "power_report"),
-            ("parasitics_multi_corner_sta.area.rpt", "area_report"),
-        )
+        for name, log in [
+            ("syn", Artifact(rp, "logs", "synthesis", "sta.log")),
+            ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
+            ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
+            ("rt_rsz", Artifact(rp, "logs", "routing", "resizer.log")),
+            ("rcx", Artifact(rp, "logs", "signoff", "parasitics_sta.log")),
+            (
+                "rcx_mca",
+                Artifact(rp, "logs", "signoff", "parasitics_multi_corner_sta.log"),
+            ),
+        ]:
+            generate_report_args = [
+                (name + report_postfix, report_locus)
+                for report_postfix, report_locus in (basic_set + additional_set)
+            ]
+            log.generate_reports(*generate_report_args)
 
     def extract_all_values(self):
         rp = self.run_path
@@ -469,7 +395,7 @@ class Report(object):
                     other_violations -= 1
 
         # Magic Violations
-        magic_drc = Artifact(rp, "reports", "finishing", "drc.rpt")
+        magic_drc = Artifact(rp, "reports", "signoff", "drc.rpt")
         magic_drc_content = magic_drc.get_content()
 
         magic_violations = -1
@@ -483,7 +409,7 @@ class Report(object):
                 magic_violations = (magic_violations_raw + 3) // 4
 
         # Klayout DRC Violations
-        klayout_drc = Artifact(rp, "reports", "finishing", "magic.lydrc", True)
+        klayout_drc = Artifact(rp, "reports", "signoff", "magic.lydrc", True)
         klayout_drc_content = klayout_drc.get_content()
 
         klayout_violations = -1
@@ -494,7 +420,7 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, "reports", "finishing", "antenna.rpt")
+        arc_antenna_report = Artifact(rp, "reports", "signoff", "antenna.rpt")
         aar_content = arc_antenna_report.get_content()
 
         antenna_violations = -1
@@ -532,21 +458,17 @@ class Report(object):
                 debug(f"Can't find {sta_report_filename}")
             return value
 
-        wns = sta_report_extraction("synthesis_sta.wns.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction(
-            "parasitics_sta.wns.rpt", "wns", step="routing"
-        )
-        opt_wns = sta_report_extraction("resizer_sta.wns.rpt", "wns", step="routing")
+        wns = sta_report_extraction("syn_sta.wns.rpt", "wns", step="synthesis")
+        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="routing")
+        opt_wns = sta_report_extraction("rt_rsz_sta.wns.rpt", "wns", step="routing")
         pl_wns = sta_report_extraction(
             "global.log", "wns", kind="logs", step="placement"
         )
         fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
 
-        tns = sta_report_extraction("synthesis_sta.tns.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction(
-            "parasitics_sta.tns.rpt", "tns", step="routing"
-        )
-        opt_tns = sta_report_extraction("resizer_sta.tns.rpt", "tns", step="routing")
+        tns = sta_report_extraction("syn_sta.tns.rpt", "tns", step="synthesis")
+        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="routing")
+        opt_tns = sta_report_extraction("rt_rsz_sta.tns.rpt", "tns", step="routing")
         pl_tns = sta_report_extraction(
             "global.log", "tns", kind="logs", step="placement"
         )
@@ -669,9 +591,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(
-            rp, "logs", "finishing", f"{self.design_name}.lvs.lef.log"
-        )
+        lvs_report = Artifact(rp, "logs", "signoff", f"{self.design_name}.lvs.lef.log")
         lvs_report_content = lvs_report.get_content()
 
         lvs_total_errors = -1
@@ -682,7 +602,7 @@ class Report(object):
                 lvs_total_errors = int(match[1])
 
         # CVC Total Errors
-        cvc_log = Artifact(rp, "logs", "finishing", "erc_screen.log")
+        cvc_log = Artifact(rp, "logs", "signoff", "erc_screen.log")
         cvc_log_content = cvc_log.get_content()
 
         cvc_total_errors = -1

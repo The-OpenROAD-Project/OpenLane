@@ -30,12 +30,12 @@ cellname delete \(UNNAMED\)
 foreach design_name [cellname list allcells] {
 	load $design_name
 
-	cellname filepath $design_name $::env(finishing_results)
+	cellname filepath $design_name $::env(signoff_results)
 
 	save
 
 	# Copy GDS pointers from .full.mag files into .mag files
-	
+
 	set gds_properties [list]
 	set fp [open $design_name.full.mag r]
 

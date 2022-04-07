@@ -255,7 +255,7 @@ designs/<design_name>
 │   │   ├── config.tcl
 │   │   ├── {logs, reports, tmp}
 │   │   │   ├── cts
-│   │   │   ├── finishing
+│   │   │   ├── signoff
 │   │   │   ├── floorplan
 │   │   │   ├── placement
 │   │   │   ├── routing
@@ -263,7 +263,7 @@ designs/<design_name>
 │   │   ├── results
 │   │   │   ├── final
 │   │   │   ├── cts
-│   │   │   ├── finishing
+│   │   │   ├── signoff
 │   │   │   ├── floorplan
 │   │   │   ├── placement
 │   │   │   ├── routing

@@ -56,7 +56,7 @@ proc run_cts {args} {
 
 	if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
 		increment_index
-		puts_info "Running TritonCTS..."
+		puts_info "Running Clock Tree Synthesis..."
 		set ::env(CURRENT_STAGE) cts
 		TIMER::timer_start
 

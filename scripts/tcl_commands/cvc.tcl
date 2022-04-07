@@ -36,7 +36,7 @@ proc run_lef_cvc {args} {
         return
     }
 
-    set lef_spice $::env(finishing_results)/$::env(DESIGN_NAME).lef.spice
+    set lef_spice $::env(signoff_results)/$::env(DESIGN_NAME).lef.spice
     if { ![file exist $lef_spice] } {
         puts_warn "No lefspice found, skipping CVC..."
         return
@@ -62,15 +62,15 @@ proc run_lef_cvc {args} {
     # Create power file
     try_catch awk -v vdd=$::env(VDD_PIN) -v gnd=$::env(GND_PIN) \
         -f $::env(CVC_SCRIPTS_DIR)/power.awk $::env(CURRENT_NETLIST) \
-        > $::env(finishing_tmpfiles)/$::env(DESIGN_NAME).power
+        > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).power
 
     # Create cdl file by combining cdl library with lef spice
     try_catch awk -f $::env(CVC_SCRIPTS_DIR)/cdl.awk $lib_cdl $lef_spice \
-        > $::env(finishing_tmpfiles)/$::env(DESIGN_NAME).cdl
+        > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).cdl
 
     # The main event
     try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc.$::env(PDK) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(finishing_logs)/erc_screen.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/erc_screen.log]
 
     TIMER::timer_stop
 

@@ -57,7 +57,7 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 } else {
 	# makes origin zero based on the DIEAREA as defined in the DEF
 	# file. Shapes can extend outside the block boundary.
-	# magic "lef write -hide" doesn't produce nice results in this 
+	# magic "lef write -hide" doesn't produce nice results in this
 	# case for shapes outside the boundary.
 	box [lindex $::env(DIE_AREA) 0]um [lindex $::env(DIE_AREA) 1]um [lindex $::env(DIE_AREA) 2]um [lindex $::env(DIE_AREA) 3]um
 	property FIXED_BBOX [box values]
@@ -65,7 +65,7 @@ if { $::env(MAGIC_ZEROIZE_ORIGIN) } {
 
 select top cell
 
-cellname filepath $::env(DESIGN_NAME) $::env(finishing_results)
+cellname filepath $::env(DESIGN_NAME) $::env(signoff_results)
 
 save
 
@@ -81,7 +81,7 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 			gds read $gds_file
 		}
 	}
-	
+
 	load $::env(DESIGN_NAME)
 
 	select top cell

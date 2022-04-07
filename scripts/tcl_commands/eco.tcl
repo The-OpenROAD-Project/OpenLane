@@ -153,12 +153,10 @@ proc run_eco_flow {args} {
         }
 
         run_apply_step
-        run_routing_step
-
-        set eco_steps [\
-            dict create "apply" { run_apply_step "" }\
-            "routing" { run_routing_step "" }
-        ]
+        run_routing
+        run_parasitics_sta\
+            -spef_out_prefix $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)\
+            -sdf_out $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
 
         ins_fill_cells
 

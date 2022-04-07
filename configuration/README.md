@@ -123,8 +123,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
-| `PL_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `20`)|
-| `PL_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `20`)|
+| `PL_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews in percentage. <br> (Default: `20`)|
+| `PL_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances in percentage. <br> (Default: `20`)|
 | `PL_RESIZER_HOLD_SLACK_MARGIN` | Specifies a time margin for the slack when fixing hold violations. Normally the resizer will stop when it reaches zero slack. This option allows you to overfix. <br> (Default: `0.1ns`.)|
 | `PL_RESIZER_SETUP_SLACK_MARGIN` | Specifies a time margin for the slack when fixing setup violations. <br> (Default: `0.05ns`)|
 | `PL_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
@@ -181,7 +181,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GLB_RT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3`.  <br> (Default: `1`) |
 | `GLB_RT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma separated list of layer and coordinates: `layer llx lly urx ury`.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
-| `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `0`)
+| `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
+| `GLB_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
+| `GLB_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `10`)|
+| `GLB_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `10`)|
 | `GLB_RESIZER_HOLD_SLACK_MARGIN` | Specifies a time margin for the slack when fixing hold violations. Normally the resizer will stop when it reaches zero slack. This option allows you to overfix. <br> (Default: `0.1ns`)|
 | `GLB_RESIZER_SETUP_SLACK_MARGIN` | Specifies a time margin for the slack when fixing setup violations. <br> (Default: `0.05ns`)|
 | `GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
@@ -229,14 +232,14 @@ These variables worked initially, but they were too sky130 specific and will be 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
 | `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (removed: `def2spef`). <br> (Default: `openrcx`) |
-| `RCX_CORNER_COUNT` | Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
-| `RCX_MAX_RESISTANCE` | Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
-| `RCX_COUPLING_THRESHOLD` | Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
-| `RCX_CC_MODEL` | Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
-| `RCX_CONTEXT_DEPTH` | Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
 | `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
+| `RCX_CORNER_COUNT` | **Removed**: Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
+| `RCX_MAX_RESISTANCE` | **Removed**: Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
+| `RCX_COUPLING_THRESHOLD` | **Removed**: Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
+| `RCX_CC_MODEL` | **Removed**: Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
+| `RCX_CONTEXT_DEPTH` | **Removed**: Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 
 ### Magic
 | Variable      | Description                                                   |

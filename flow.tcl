@@ -55,6 +55,15 @@ proc run_routing_step {args} {
 	run_routing
 }
 
+proc run_parasitics_sta_step {args} {
+	if { ! [ info exists ::env(PARSITICS_CURRENT_DEF) ] } {
+		set ::env(PARSITICS_CURRENT_DEF) $::env(CURRENT_DEF)
+	} else {
+		set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
+	}
+	run_parasitics_sta
+}
+
 proc run_diode_insertion_2_5_step {args} {
 	if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
 		set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -136,19 +145,19 @@ proc save_final_views {args} {
 	set arg_list [list]
 
 	# If they don't exist, save_views will simply not copy them
-	lappend arg_list -lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef
-	lappend arg_list -gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds
-	lappend arg_list -mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag
-	lappend arg_list -maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag
-	lappend arg_list -spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice
+	lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
+	lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
+	lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
+	lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
+	lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
 
 	# Guaranteed to have default values
 	lappend arg_list -def_path $::env(CURRENT_DEF)
 	lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
 
 	# Not guaranteed to have default values
-	if { [info exists ::env(SPEF_TYPICAL)] } {
-		lappend arg_list -spef_path $::env(SPEF_TYPICAL)
+	if { [info exists ::env(CURRENT_SPEF)] } {
+		lappend arg_list -spef_path $::env(CURRENT_SPEF)
 	}
 	if { [info exists ::env(CURRENT_SDF)] } {
 		lappend arg_list -sdf_path $::env(CURRENT_SDF)
@@ -215,6 +224,7 @@ proc run_non_interactive_mode {args} {
 		"placement" {run_placement_step ""} \
 		"cts" {run_cts_step ""} \
 		"routing" {run_routing_step ""}\
+		"parasitics_sta" {run_parasitics_sta_step ""}\
 		"eco" {run_eco_step ""} \
 		"diode_insertion" {run_diode_insertion_2_5_step ""} \
 		"gds_magic" {run_magic ""} \
@@ -362,7 +372,7 @@ proc run_lvs_batch {args} {
 	if { [info exists arg_values(-gds)] } {
 		set ::env(CURRENT_GDS) [file normalize $arg_values(-gds)]
 	} else {
-		set ::env(CURRENT_GDS) $::env(finishing_results)/$::env(DESIGN_NAME).gds
+		set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
 	}
 	if { [info exists arg_values(-net)] } {
 		set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
@@ -377,7 +387,7 @@ proc run_lvs_batch {args} {
 	}
 
 	set ::env(MAGIC_EXT_USE_GDS) 1
-	set ::env(EXT_NETLIST) $::env(finishing_results)/$::env(DESIGN_NAME).gds.spice
+	set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).gds.spice
 	if { [file exists $::env(EXT_NETLIST)] } {
 		puts_warn "The file $::env(EXT_NETLIST) will be used. If you would like the file re-exported, please delete it."
 	} else {
