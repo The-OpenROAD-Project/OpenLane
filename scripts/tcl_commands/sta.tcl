@@ -65,6 +65,7 @@ proc run_sta {args} {
 proc run_parasitics_sta {args} {
     set options {
         {-sdf_out optional}
+        {-spef_out_prefix optional}
     }
     set flags {}
     parse_key_args "parasitics_sta" args arg_values $options flags_map $flags
