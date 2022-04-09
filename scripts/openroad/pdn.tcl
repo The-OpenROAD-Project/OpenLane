@@ -32,7 +32,14 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-if {[catch {pdngen $::env(PDN_CFG) -verbose} errmsg]} {
+# load the grid definitions
+if {[catch {source $::env(PDN_CFG)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+# run PDNGEN
+if {[catch {pdngen} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
