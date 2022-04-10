@@ -39,22 +39,7 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
 	set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
-set signal_min_layer $::env(RT_MIN_LAYER)
-set signal_max_layer $::env(RT_MAX_LAYER)
-set clock_min_layer $::env(RT_MIN_LAYER)
-set clock_max_layer $::env(RT_MAX_LAYER)
-
-if { [info exists ::env(RT_CLOCK_MIN_LAYER)]} {
-    set clock_min_layer $::env(RT_CLOCK_MIN_LAYER)
-}
-if { [info exists ::env(RT_CLOCK_MAX_LAYER)]} {
-    set clock_max_layer $::env(RT_CLOCK_MAX_LAYER)
-}
-
-puts "\[INFO]: Setting signal min routing layer to: $signal_min_layer and clock min routing layer to $clock_min_layer. "
-puts "\[INFO]: Setting signal max routing layer to: $signal_max_layer and clock max routing layer to $clock_max_layer. "
-
-set_routing_layers -signal [subst $signal_min_layer]-[subst $signal_max_layer] -clock [subst $clock_min_layer]-[subst $clock_max_layer]
+source $::env(SCRIPTS_DIR)/openroad/set_routing_layers.tcl
 
 set_macro_extension $::env(GLB_RT_MACRO_EXTENSION)
 
