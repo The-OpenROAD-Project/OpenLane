@@ -66,12 +66,16 @@ if { $::env(PL_BASIC_PLACEMENT) } {
 }
 
 if { $::env(PL_TIME_DRIVEN) } {
+	source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 	read_sdc $::env(CURRENT_SDC)
 	read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
 	lappend arg_list -timing_driven
 }
 
 if { $::env(PL_ROUTABILITY_DRIVEN) } {
+	source $::env(SCRIPTS_DIR)/openroad/set_routing_layers.tcl
+	set_macro_extension $::env(GLB_RT_MACRO_EXTENSION)
+	source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 	lappend arg_list -routability_driven
 	lappend arg_list -routability_max_density [expr $::env(PL_TARGET_DENSITY) + 0.1]
 	lappend arg_list -routability_max_inflation_iter 10
