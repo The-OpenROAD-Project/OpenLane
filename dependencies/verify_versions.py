@@ -168,7 +168,9 @@ def verify_versions(
                     open(join(installed_versions_path, tool)).read().split(":")
                 )
                 repo = f"{protocol}:{url}"
-                environment_manifest.append({"name": tool, "repo": repo, "commit": commit})
+                environment_manifest.append(
+                    {"name": tool, "repo": repo, "commit": commit}
+                )
         else:
             # 3b. Compare Container And Installation Manifests
             try:
@@ -179,9 +181,12 @@ def verify_versions(
                     "Container manifest not found. What this likely means is that the container is severely out of date."
                 )
 
-        tool_set_flow = set([element["name"] for element in manifest]) - pdk_manifest_names
+        tool_set_flow = (
+            set([element["name"] for element in manifest]) - pdk_manifest_names
+        )
         tool_set_container = (
-            set([element["name"] for element in environment_manifest]) - pdk_manifest_names
+            set([element["name"] for element in environment_manifest])
+            - pdk_manifest_names
         )
 
         unmatched_tools_flow = tool_set_flow - tool_set_container
