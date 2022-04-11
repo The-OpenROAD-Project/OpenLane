@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+foreach lib $::env(RCX_LIB) {
+    read_liberty $lib
+}
+
 if { [info exists ::env(EXTRA_LIBS) ] } {
     foreach lib $::env(EXTRA_LIBS) {
         read_liberty $lib
     }
-}
-
-foreach lib $::env(RCX_LIB) {
-    read_liberty $lib
 }
 
 if {[catch {read_lef $::env(RCX_LEF)} errmsg]} {

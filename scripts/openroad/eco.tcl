@@ -59,13 +59,19 @@ proc run_eco {args} {
 
 }
 
+foreach lib $::env(LIB_CTS) {
+    read_liberty $lib
+}
+
+if { [info exists ::env(EXTRA_LIBS) ] } {
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
+}
+
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
-}
-
-foreach lib $::env(LIB_CTS) {
-    read_liberty $lib
 }
 
 set cur_iter [expr $::env(ECO_ITER) == 0 ? \

@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
+foreach lib $::env(LIB_CTS) {
+    read_liberty $lib
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
@@ -23,8 +22,9 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 	}
 }
 
-foreach lib $::env(LIB_CTS) {
-    read_liberty $lib
+if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
 }
 
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
