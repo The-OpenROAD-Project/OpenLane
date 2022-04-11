@@ -677,13 +677,14 @@ proc prep {args} {
 
 
     if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { [info exists ::env(MISMATCHES_OK)] && $::env(MISMATCHES_OK) == "1" } {
-            puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
-        } else {
+        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
             puts_err $::env(VCHECK_OUTPUT)
             puts_err "Please update your environment. OpenLane will now quit."
             flow_fail
+            return -code error
         }
+        
+        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 
     TIMER::timer_stop
