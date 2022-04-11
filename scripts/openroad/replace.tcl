@@ -12,6 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+    read_liberty $lib
+}
+
+if { [info exists ::env(EXTRA_LIBS) ] } {
+	foreach lib $::env(EXTRA_LIBS) {
+		read_liberty $lib
+	}
+}
+
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     puts stderr $errmsg
     exit 1
@@ -20,12 +30,6 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
 }
 
 set ::block [[[::ord::get_db] getChip] getBlock]
@@ -47,10 +51,6 @@ if { ! $free_insts_flag } {
 	puts "\[WARN] Skipping..."
 	file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
 	exit 0
-}
-
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
 }
 
 set arg_list [list]
@@ -93,9 +93,6 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
-		foreach lib $::env(LIB_SYNTH_COMPLETE) {
-			read_liberty $lib
-		}
 		read_sdc -echo $::env(CURRENT_SDC)
 		unset_propagated_clock [all_clocks]
 		# set rc values

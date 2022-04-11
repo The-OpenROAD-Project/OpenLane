@@ -13,20 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if { $::env(CURRENT_DEF) != 0 } {
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-}
-
-set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
-
 define_corners ss tt ff
 
 foreach lib $::env(LIB_SLOWEST) {
@@ -46,6 +32,20 @@ foreach corner {ss tt ff} {
         }
     }
 }
+
+if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
+}
+
+if { $::env(CURRENT_DEF) != 0 } {
+    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+        puts stderr $errmsg
+        exit 1
+    }
+}
+
+set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
 read_verilog $::env(CURRENT_NETLIST)
 link_design $::env(DESIGN_NAME)

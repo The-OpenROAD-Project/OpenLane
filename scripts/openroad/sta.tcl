@@ -13,6 +13,16 @@
 # limitations under the License.
 
 if { $::env(RUN_STANDALONE) == 1 } {
+    foreach lib $::env(LIB_SYNTH_COMPLETE) {
+        read_liberty $lib
+    }
+
+    if { [info exists ::env(EXTRA_LIBS) ] } {
+        foreach lib $::env(EXTRA_LIBS) {
+            read_liberty $lib
+        }
+    }
+
     if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
         puts stderr $errmsg
         exit 1
@@ -31,15 +41,6 @@ if { $::env(RUN_STANDALONE) == 1 } {
         link_design $::env(DESIGN_NAME)
     }
 
-    if { [info exists ::env(EXTRA_LIBS) ] } {
-        foreach lib $::env(EXTRA_LIBS) {
-            read_liberty $lib
-        }
-    }
-
-    foreach lib $::env(LIB_SYNTH_COMPLETE) {
-        read_liberty $lib
-    }
     read_sdc -echo $::env(CURRENT_SDC)
     if { $::env(STA_PRE_CTS) == 1 } {
         unset_propagated_clock [all_clocks]
