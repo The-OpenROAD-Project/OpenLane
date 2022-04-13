@@ -24,7 +24,7 @@ if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
 
 set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET)
 
-# Assesses whether the deisgn is the core of the chip or not based on the 
+# Assesses whether the design is the core of the chip or not based on the 
 # value of $::env(DESIGN_IS_CORE) and uses the appropriate stdcell section
 if { $::env(DESIGN_IS_CORE) == 1 } {
     # Used if the design is the core of the chip
