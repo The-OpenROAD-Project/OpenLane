@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# <from>
 FROM openlane-run-base
 
 # Environment Configuration
@@ -28,9 +29,6 @@ ENV LC_CTYPE en_US.UTF-8
 ENV PDK_ROOT /build/pdk
 
 # Tools
-ARG CACHE_INVALIDATOR=1
-RUN echo "$CACHE_INVALIDATOR"
-
 ## Qt Thing
 RUN dbus-uuidgen --ensure
 
@@ -42,8 +40,8 @@ ADD ./git_version /git_version
 ADD ./git_version_short /git_version_short
 
 ## Artifacts
-COPY ./build /build
 COPY ./openlane /openlane
+# <copy>
 
 ## Tclsh RC
 COPY ./.tclshrc /.tclshrc

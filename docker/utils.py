@@ -76,6 +76,54 @@ cli.add_command(pull_if_doesnt_exist)
 
 
 @click.command()
+@click.option("-r", "--repository", required=True)
+@click.option(
+    "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
+)
+@click.argument("tools", nargs=-1)
+def process_dockerfile_tpl(repository, operating_system, tools):
+    image_tags = [
+        (
+            subprocess.check_output(
+                [
+                    "python3",
+                    "../dependencies/tool.py",
+                    f"--docker-tag-for-os={operating_system}",
+                    tool,
+                ]
+            )
+            .decode("utf8")
+            .rstrip()
+        )
+        for tool in tools
+    ]
+
+    image_names = [f"{repository}:{tag}" for tag in image_tags]
+
+    from_lines = [f"FROM {name} as container{i}" for i, name in enumerate(image_names)]
+
+    copy_lines = [
+        f"COPY --from=container{i} /build /build" for i, _ in enumerate(image_names)
+    ]
+
+    template = open("./openlane/Dockerfile.tpl").read()
+
+    parts = template.split("# <from>")
+    parts.insert(1, "\n".join(from_lines))
+
+    from_filled = "\n".join(parts)
+
+    parts = from_filled.split("# <copy>")
+    parts.insert(1, "\n".join(copy_lines))
+
+    final = "\n".join(parts)
+    print(final)
+
+
+cli.add_command(process_dockerfile_tpl)
+
+
+@click.command()
 @click.option(
     "--filter", default=".", help="regular expression to match submodule paths"
 )
@@ -194,7 +242,6 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
 
 cli.add_command(fetch_submodules_from_tarballs)
-
 
 if __name__ == "__main__":
     cli()

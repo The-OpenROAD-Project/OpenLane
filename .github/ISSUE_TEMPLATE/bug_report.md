@@ -14,13 +14,13 @@ A clear and concise description of what the bug is.
 
 ### Environment
 ```
-Please run the following command in the OpenLane folder:
+Please run the following set of commands in the OpenLane folder:
 
-python3 ./env.py issue-survey
+make survey || python3 ./env.py issue-survey
 
 And copy and paste the ENTIRE output between the triple-backticks. Please do not gzip and upload the output.
 
-If there's no env.py, you are using an out of date version of OpenLane and should probably update. 
+If neither command succeeds, you are using an out of date version of OpenLane and should probably update. 
 ```
 
 ### Reproduction Material
