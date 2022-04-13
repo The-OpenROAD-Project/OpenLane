@@ -224,7 +224,7 @@ class Report(object):
             ("_sta.worst_slack.rpt", "worst_slack"),
             ("_sta.clock_skew.rpt", "clock_skew"),
             ("_sta.power.rpt", "power_report"),
-            ("_sta.area.rpt", "design_area"),
+            ("_sta.area.rpt", "area_report"),
         ]
 
         for name, log in [
