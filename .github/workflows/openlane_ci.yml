@@ -59,15 +59,6 @@ jobs:
           fi
           cd docker/ && make merge
 
-      - name: Export Docker Image
-        run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
-
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker-image
-          path: /tmp/image.tar
-
       - name: Build (or Get) PDK
         run: |
           sudo mkdir -p ${{ env.PDK_ROOT }}
@@ -77,15 +68,26 @@ jobs:
           if [ "${{ secrets.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
               --also-push\
+              --token ${{ secrets.MY_TOKEN }}\
               --owner ${{ secrets.VOLARE_OWNER }}\
               --repository ${{ secrets.VOLARE_REPO }}\
               -j$(nproc)\
               $OPDKS_VER
           else
             volare enable_or_build\
+              --token ${{ secrets.MY_TOKEN }}\
               -j$(nproc)\
               $OPDKS_VER
           fi
+
+      - name: Export Docker Image
+        run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
+
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image
+          path: /tmp/image.tar
 
       - name: Tarball PDK
         run: |
