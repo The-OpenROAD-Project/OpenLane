@@ -154,7 +154,7 @@ quick_run:
 .PHONY: pdk
 pdk: venv/created
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
-	volare enable
+	./venv/bin/volare enable
 
 .PHONY: survey
 survey:
