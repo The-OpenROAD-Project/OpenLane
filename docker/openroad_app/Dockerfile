@@ -68,9 +68,7 @@ RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPE
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
-# Max will be four cores: more than that and there are too many files open at the same time
-# To clarify, llvm-ar *crashes*.
-RUN cd build && make -j2
+RUN cd build && make -j$(nproc)
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
 
