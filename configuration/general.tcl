@@ -22,6 +22,13 @@ if { ![info exists ::env(STD_CELL_LIBRARY)] } {
 
 set ::env(USE_GPIO_PADS) 0
 
+if { ![info exists ::env(QUIT_ON_MISMATCHES)] } {
+    set ::env(QUIT_ON_MISMATCHES) {1}
+}
+if { ![info exists ::env(TEST_MISMATCHES)] } {
+    set ::env(TEST_MISMATCHES) {all}
+}
+
 # Flow control defaults
 set ::env(RUN_LVS) 1
 
@@ -67,6 +74,8 @@ set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_CVC) 1
 
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
+
+
 # 0: no diodes
 # 1: spray inputs with diodes
 # 2: spray inputs with fake diodes first then fix up the violators with real ones
@@ -78,6 +87,7 @@ set ::env(DIODE_INSERTION_STRATEGY) 3
 set ::env(STA_REPORT_POWER) {1}
 set ::env(SAVE_FINAL_VIEWS) {1}
 
+## ECO Flow
 set ::env(ECO_ENABLE) {0}
 set ::env(ECO_STARTED) {0}
 set ::env(ECO_ITER) {0}
