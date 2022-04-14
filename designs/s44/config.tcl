@@ -13,7 +13,7 @@ set ::env(FP_CORE_UTIL) 5
 # Placement config
 set ::env(PL_TARGET_DENSITY) 0.5
 
-set ::env(PDN_CFG) $::env(DESIGN_DIR)/pdn.tcl
+#set ::env(PDN_CFG) $::env(DESIGN_DIR)/pdn.tcl
 
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
