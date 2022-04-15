@@ -26,12 +26,10 @@ ifeq ($(NATIVE_PDK),1)
 ENV_COMMAND = env
 endif
 
-OPEN_PDK_ARGS ?= ""
+OPEN_PDK_ARGS ?= --enable-sram-sky130
 
-.PHONY: pdk pdk-with-sram
-pdk-with-sram: OPEN_PDK_ARGS += --enable-sram-sky130
-pdk-with-sram: pdk
-pdk: skywater-pdk skywater-library open_pdks build-pdk gen-sources
+.PHONY: build-pdk-conda
+build-pdk-conda: skywater-pdk skywater-library open_pdks build-open_pdks gen-sources
 
 $(PDK_ROOT):
 	mkdir -p $(PDK_ROOT)
@@ -65,8 +63,8 @@ open_pdks: $(PDK_ROOT)/ $(PDK_ROOT)/open_pdks
 		git pull && \
 		git checkout -qf $(OPEN_PDKS_COMMIT)
 
-.PHONY: build-pdk
-build-pdk: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
+.PHONY: build-open_pdks
+build-open_pdks: $(PDK_ROOT)/open_pdks $(PDK_ROOT)/skywater-pdk
 	[ -d $(PDK_ROOT)/sky130A ] && rm -rf $(PDK_ROOT)/sky130A || true
 	
 	$(ENV_COMMAND) sh -c "\

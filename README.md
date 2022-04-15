@@ -1,7 +1,7 @@
 # OpenLane
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=latest)](https://openlane.readthedocs.io/) [![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master)](#) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools) [![Python code style: black](https://img.shields.io/badge/python%20code%20style-black-000000.svg)](https://github.com/psf/black)
 
-OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
+OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
 You can find the latest release of OpenLane [here](https://github.com/The-OpenROAD-Project/OpenLane/releases).
 
@@ -34,58 +34,37 @@ This documentation is also available at [ReadTheDocs](https://openlane.readthedo
 At a minimum:
 
 - GNU Make
-- Python 3.6 with PIP
-    - Click 7.0+, Pyyaml: `python3 -m pip install pyyaml click>=7`
-
-To build the Sky130 PDK you also need:
+- Python 3.6+ with pip and virtualenv
 - Git 2.35+
-
-## Using the Docker Image
 - Docker 19.03.12+
+
+## On Ubuntu, that's...
+`apt install -y build-essential python3 python3-venv python3-pip`
+
+* [Docker Installation Instructions](https://docs.docker.com/engine/install/ubuntu/)
+
+## On macOS, that's...
+Get [Homebrew](https://brew.sh/), then:
+
+`brew install python make`
+`brew install --cask docker`
 
 ## Containerless/Local Installations
 Please see [here](./docs/source/local_installs.md).
 
 # Setting Up OpenLane
-You can start setting up the Sky130 PDK and OpenLane by running:
+You can set up the Sky130 PDK and OpenLane by running:
 
 ```bash
     git clone https://github.com/The-OpenROAD-Project/OpenLane.git
     cd OpenLane/
-    make pull-openlane
-```
-
----
-
-```bash
-    <configuration variables: see notes below>
-    make pdk
-```
-* The default pdk installation directory is $PWD/pdks. If you want to install the PDK at a different location, you'll need add this configuration variable:
-    * `export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>`
-        * Be sure to add this to your shell's profile for future use.
-* If you want to include the precompiled OpenRAM SRAM modules, try `make pdk-with-sram`.
-* The default SCL to be installed is `sky130_fd_sc_hd`.
-    * To change that, you can add this configuration variable: `export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls>`, where the library name is one of:
-        - sky130_fd_sc_hd
-        - sky130_fd_sc_hs
-        - sky130_fd_sc_ms
-        - sky130_fd_sc_ls
-        - sky130_fd_sc_hdll
-    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make pdk`.
-    * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
-    * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
-    
----
-
-```bash
+    make
     make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 ```
 
 - The Makefile should do the following when you run the above:
-    - Clone Skywater PDK and the specified STD_CELL_LIBRARY, SPECIAL_VOLTAGE_LIBRARY, and IO_LIBRARY and build it.
-    - Clone open_pdks and set up the pdk for OpenLane use.
-    - Pull the OpenLane Docker image.
+    - Pulls the OpenLane Docker image.
+    - Pulls and updates the PDK
     - Test the whole setup with a complete run on a small design, `spm`.
 
 This should produce a clean run for the spm. The final layout will be generated at this path: `./designs/spm/runs/openlane_test/results/magic/spm.gds`.
@@ -94,19 +73,15 @@ If everything is okay, you can skip forward to [running OpenLane](#running-openl
 
 ## Updating OpenLane
 
-If you already have the repo locally, then no need to re-clone it. You can directly run the following:
+If you already have the repo locally, then there is no need to re-clone it. You can run the following:
 
 ```bash
-    cd openlane/
+    cd OpenLane/
     git checkout master
     git pull
-    export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>
-    make pull-openlane
-    make pdk
-    make test # This is to test that the flow and the pdk were properly installed
+    make 
+    make test # This is to test that the flow and the pdk were properly updated
 ```
-
-This should install the latest openlane docker container, and re-install the pdk for the latest used version.
 
 ## Pulling or Building the OpenLane Docker Container
 
@@ -114,6 +89,26 @@ This should install the latest openlane docker container, and re-install the pdk
 
 For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
 
+## Building the PDK Manually
+You don't have to build the PDK yourself anymore. But, if you insist, or require SCLs that are not installed by default, you can try the follow
+
+```bash
+    <configuration variables: see notes below>
+    make build-pdk-conda
+```
+* The default pdk installation directory is $PWD/pdks. If you want to install the PDK at a different location, you'll need add this configuration variable:
+    * `export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>`
+        * Be sure to add this to your shell's profile for future use.
+* The default SCL to be installed is `sky130_fd_sc_hd`.
+    * To change that, you can add this configuration variable: `export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls>`, where the library name is one of:
+        - sky130_fd_sc_hd
+        - sky130_fd_sc_hs
+        - sky130_fd_sc_ms
+        - sky130_fd_sc_ls
+        - sky130_fd_sc_hdll
+    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make build-pdk-conda`.
+    * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
+    * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
 
 # Running OpenLane
 You need to start the Docker container with proper paths mounted. There are two ways to do this.

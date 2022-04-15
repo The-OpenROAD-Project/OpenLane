@@ -24,16 +24,8 @@ import traceback
 from os.path import dirname, abspath, join
 from typing import Optional
 
-try:
-    import yaml
-except ImportError:
-    # If YAML doesn't exist, there is 100% a version mismatch.
-    print("Environment does not support yaml manifest comparison.", file=sys.stderr)
-    print(
-        "What this likely means is that your environment is very out of date.",
-        file=sys.stderr,
-    )
-    exit(os.EX_CONFIG)
+sys.path.append(os.path.dirname(__file__))
+import flatyaml as yaml  # noqa: E402
 
 openlane_dir = abspath(dirname(dirname(__file__)))
 

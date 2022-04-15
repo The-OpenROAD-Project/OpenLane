@@ -5,4 +5,7 @@ exclude =
     __pycache__,
     scripts/klayout,
     docker/tar,
-    install/
+    install/,
+    venv/,
+    pdks/,
+    dependencies/flatyaml.py

@@ -166,47 +166,35 @@ def issue_survey():
             % get_tag()
         )
 
-    click_ok = True
+    pip_ok = True
     try:
-        import click  # noqa F401
+        import pip  # noqa F401
     except ImportError:
-        click_ok = False
+        pip_ok = False
 
     alert = (
-        "pip:click: " + "INSTALLED"
-        if click_ok
-        else "NOT FOUND: python3 -m pip install click"
+        "pip: " + "INSTALLED"
+        if pip_ok
+        else "NOT FOUND: Please install pip using your operating system's package manager."
     )
+
     final_report += "%s\n" % alert
     print(alert, file=alerts)
 
-    yaml_ok = True
-    try:
-        import yaml  # noqa F401
-    except ImportError:
-        yaml_ok = False
+    if pip_ok:
+        venv_ok = True
+        try:
+            import venv  # noqa F401
+        except ImportError:
+            venv_ok = False
 
-    alert = (
-        "pip:pyyaml: " + "INSTALLED"
-        if yaml_ok
-        else "NOT FOUND: python3 -m pip install pyyaml"
-    )
-    final_report += "%s\n" % alert
-    print(alert, file=alerts)
-
-    venv_ok = True
-    try:
-        import venv  # noqa F401
-    except ImportError:
-        venv_ok = False
-
-    alert = (
-        "pip:venv: " + "INSTALLED"
-        if venv_ok
-        else "NOT FOUND: needed for containerless installs"
-    )
-    final_report += "%s\n" % alert
-    print(alert, file=alerts)
+        alert = (
+            "pip:venv: " + "INSTALLED"
+            if venv_ok
+            else "NOT FOUND: needed for containerless installs"
+        )
+        final_report += "%s\n" % alert
+        print(alert, file=alerts)
 
     if python_ok:
         from dependencies.verify_versions import verify_versions

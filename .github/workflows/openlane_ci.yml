@@ -59,6 +59,27 @@ jobs:
           fi
           cd docker/ && make merge
 
+      - name: Build (or Get) PDK
+        run: |
+          sudo mkdir -p ${{ env.PDK_ROOT }}
+          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
+          python3 -m pip install --upgrade --no-cache-dir volare
+          export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
+          if [ "${{ secrets.VOLARE_REPO }}" != "" ]; then
+            volare enable_or_build\
+              --also-push\
+              --token ${{ secrets.MY_TOKEN }}\
+              --owner ${{ secrets.VOLARE_OWNER }}\
+              --repository ${{ secrets.VOLARE_REPO }}\
+              -j$(nproc)\
+              $OPDKS_VER
+          else
+            volare enable_or_build\
+              --token ${{ secrets.MY_TOKEN }}\
+              -j$(nproc)\
+              $OPDKS_VER
+          fi
+
       - name: Export Docker Image
         run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
 
@@ -67,12 +88,6 @@ jobs:
         with:
           name: docker-image
           path: /tmp/image.tar
-
-      - name: Build PDK
-        run: |
-          sudo mkdir -p ${{ env.PDK_ROOT }}
-          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
-          make -j 1 NPROC=1 pdk
 
       - name: Tarball PDK
         run: |

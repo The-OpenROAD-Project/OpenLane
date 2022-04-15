@@ -65,7 +65,7 @@ PDK_OPTS =
 EXTERNAL_PDK_INSTALLATION ?= 1
 ifeq ($(EXTERNAL_PDK_INSTALLATION), 1)
 export PDK_ROOT ?= ./pdks
-export PDK_ROOT := $(shell python3 -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
+export PDK_ROOT := $(shell $(PYTHON_BIN) -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 endif
 
@@ -86,20 +86,28 @@ ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 .DEFAULT_GOAL := all
 
 .PHONY: all
-all: openlane
+all: get-openlane pdk
 
 .PHONY: openlane
 openlane:
 	$(MAKE) -C docker openlane
 
 pull-openlane:
-	@echo "Pulling most recent OpenLane image relative to your commit..."
+	@echo "Pulling OpenLane image matching your commit..."
 	docker pull $(OPENLANE_IMAGE_NAME)
+
+get-openlane:
+	@docker pull $(OPENLANE_IMAGE_NAME) || $(MAKE) -C docker openlane
 
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
+
+venv/created:
+	$(PYTHON_BIN) -m venv ./venv
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements.txt
+	touch $@
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
@@ -143,20 +151,17 @@ quick_run:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
 
-.PHONY: deps
-deps:
-	python3 -m pip install -r ./requirements.txt
+.PHONY: pdk
+pdk: venv/created
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
+	./venv/bin/volare enable
 
-.PHONY: venv
-venv:
-	python3 -m venv ./venv
-	./venv/bin/python3 -m pip install -r ./requirements.txt
+.PHONY: survey
+survey:
+	$(PYTHON_BIN) ./env.py issue-survey
 
-# PDK build commands
-include ./dependencies/pdk.mk
-
-.PHONY: clean_all clean_runs clean_results
-clean_all: clean_runs clean_results
+.PHONY: clean_all clean_runs clean_results clean_venv
+clean_all: clean_runs clean_results clean_venv
 
 clean_runs:
 	@rm -rf ./designs/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
@@ -164,3 +169,6 @@ clean_runs:
 
 clean_results:
 	@{ find regression_results -mindepth 1 -maxdepth 1 -type d | grep -v benchmark | xargs rm -rf ; } && echo "Results cleaned successfully." || echo "Failed to delete results."
+
+clean_venv:
+	@rm -rf ./venv
