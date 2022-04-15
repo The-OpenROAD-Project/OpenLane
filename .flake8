@@ -8,4 +8,4 @@ exclude =
     install/,
     venv/,
     pdks/,
-    dependencies/flatyaml.py
+    dependencies/includedyaml

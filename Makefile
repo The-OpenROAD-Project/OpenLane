@@ -35,7 +35,6 @@ DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HO
   endif
 endif
 
-NPROC ?= $(shell getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu)
 THREADS ?= 1
 
 ifneq (,$(ROUTING_CORES))
@@ -89,23 +88,33 @@ ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 all: get-openlane pdk
 
 .PHONY: openlane
-openlane:
-	$(MAKE) -C docker openlane
+openlane: venv/created
+	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
 
 pull-openlane:
-	@echo "Pulling OpenLane image matching your commit..."
-	docker pull $(OPENLANE_IMAGE_NAME)
+	@docker pull $(OPENLANE_IMAGE_NAME)
 
 get-openlane:
-	@docker pull $(OPENLANE_IMAGE_NAME) || $(MAKE) -C docker openlane
+	@$(MAKE) pull-openlane || $(MAKE) openlane
 
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
 
-venv/created:
+.PHONY: pdk
+pdk: venv/created
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
+	./venv/bin/volare enable
+
+.PHONY: survey
+survey:
+	$(PYTHON_BIN) ./env.py issue-survey
+
+venv/created: ./requirements.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt
+	rm -rf ./venv
 	$(PYTHON_BIN) -m venv ./venv
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements.txt
 	touch $@
 
@@ -150,15 +159,6 @@ test:
 quick_run:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
-
-.PHONY: pdk
-pdk: venv/created
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
-	./venv/bin/volare enable
-
-.PHONY: survey
-survey:
-	$(PYTHON_BIN) ./env.py issue-survey
 
 .PHONY: clean_all clean_runs clean_results clean_venv
 clean_all: clean_runs clean_results clean_venv

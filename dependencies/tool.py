@@ -17,7 +17,7 @@ import sys
 from typing import Dict, List
 
 sys.path.append(os.path.dirname(__file__))
-import flatyaml as yaml  # noqa: E402
+import includedyaml as yaml  # noqa: E402
 
 
 class Tool(object):

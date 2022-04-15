@@ -1,4 +1,6 @@
 # The OpenLane Docker Image
+Note: You probably shouldn't be here.
+
 ## Structure
 
 There are two "families" of images: one is for building tools, and the other is for running tools.

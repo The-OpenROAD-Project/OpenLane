@@ -25,7 +25,7 @@ from os.path import dirname, abspath, join
 from typing import Optional
 
 sys.path.append(os.path.dirname(__file__))
-import flatyaml as yaml  # noqa: E402
+import includedyaml as yaml  # noqa: E402
 
 openlane_dir = abspath(dirname(dirname(__file__)))
 
