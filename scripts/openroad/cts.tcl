@@ -32,7 +32,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-read_verilog $::env(CURRENT_NETLIST)
 read_sdc -echo $::env(CURRENT_SDC)
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
