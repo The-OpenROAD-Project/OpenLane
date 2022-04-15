@@ -89,15 +89,14 @@ ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
 all: get-openlane pdk
 
 .PHONY: openlane
-openlane:
-	$(MAKE) -C docker openlane
+openlane: venv
+	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
 
 pull-openlane:
-	@echo "Pulling OpenLane image matching your commit..."
-	docker pull $(OPENLANE_IMAGE_NAME)
+	@docker pull $(OPENLANE_IMAGE_NAME)
 
 get-openlane:
-	@docker pull $(OPENLANE_IMAGE_NAME) || $(MAKE) -C docker openlane
+	@$(MAKE) pull-openlane || $(MAKE) openlane
 
 .PHONY: mount
 mount:

@@ -15,10 +15,12 @@ ifeq ($(NO_PDKS), 1)
 NO_PDKS_ARGS = --no-pdks
 endif
 
-TOOLS = $(shell python3 ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
+PYTHON_BIN ?= python3
+TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
 OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),pull-$(tool))
+
 
 # ==============================================================================
 # Build Tools
@@ -48,9 +50,9 @@ $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 	mkdir -p logs
 	cp ./utils.py $*
 	$(BUILD_COMMAND)\
-		$(shell python3 ../dependencies/tool.py --docker-args $*)\
+		$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-args $*)\
 		--target runnable\
-		-t $(TOOL_REPOSITORY):$(shell python3 ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
+		-t $(TOOL_REPOSITORY):$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
 		$* |\
 		tee logs/$*.build.txt
 
@@ -58,7 +60,7 @@ $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 # Export Tools
 # ==============================================================================
 $(TOOL_EXPORT_TARGETS): pull-% : FORCE
-	python3 ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $*
+	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $*
 
 ./tar/openlane: FORCE
 	rm -rf ./tar/openlane
@@ -73,7 +75,7 @@ merge: run_base_image $(TOOL_EXPORT_TARGETS) ./tar/openlane ../dependencies/tool
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	printf "$(shell git rev-parse HEAD)" > ./tar/git_version
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version_short
-	python3 ./utils.py process-dockerfile-tpl --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $(TOOLS) > ./openlane/Dockerfile
+	$(PYTHON_BIN) ./utils.py process-dockerfile-tpl --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $(TOOLS) > ./openlane/Dockerfile
 	mkdir -p logs/tar
 	$(BUILD_COMMAND)\
 		-t $(OPENLANE_IMAGE_NAME)\

@@ -1,1 +1,2 @@
+-r ./dependencies/python/precompile_time.txt
 -r ./dependencies/python/run_time.txt

@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This file is intended to be included by the top-level Makefile. Please don't use it directly. :)
+# This file is intended to be included by the top-level Makefile.
+# Please don't use it directly. Consider efabless/volare instead.
 
 STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 SPECIAL_VOLTAGE_LIBRARY ?= sky130_fd_sc_hvl
