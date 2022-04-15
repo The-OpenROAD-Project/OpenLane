@@ -64,6 +64,7 @@ jobs:
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           go get -u github.com/tcnksm/ghr
+          export PATH=$PATH:$(go env GOPATH)/bin
           python3 -m pip install --upgrade --no-cache-dir volare
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           if [ "${{ secrets.VOLARE_REPO }}" != "" ]; then
