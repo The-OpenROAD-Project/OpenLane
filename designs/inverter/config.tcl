@@ -11,7 +11,7 @@ set ::env(CLOCK_PORT) ""
 set ::env(PL_RANDOM_GLB_PLACEMENT) 1
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 34.165 54.885"
+set ::env(DIE_AREA) "0 0 34.5 57.12"
 set ::env(PL_TARGET_DENSITY) 0.75
 
 set ::env(FP_PDN_HORIZONTAL_HALO) 6
