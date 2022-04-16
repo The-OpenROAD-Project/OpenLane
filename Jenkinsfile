@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout PDKs') {
             steps {
                 sh 'git switch -C main';
-                sh 'make -j 1 NPROC=1 pdk';
+                sh 'volare enable_or_build -j$(nproc)';
             }
         }
 
