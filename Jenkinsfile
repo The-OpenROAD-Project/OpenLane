@@ -12,6 +12,7 @@ pipeline {
         stage('Checkout PDKs') {
             steps {
                 sh 'git switch -C main';
+                sh 'python3 -m pip install --user --upgrade --no-cache-dir pip';
                 sh 'python3 -m pip install --user --upgrade --no-cache-dir volare';
                 sh 'PDK_ROOT=$(pwd)/pdks python3 -m volare enable_or_build -j$(nproc) $(python3 ./dependencies/tool.py open_pdks -f commit)';
             }
