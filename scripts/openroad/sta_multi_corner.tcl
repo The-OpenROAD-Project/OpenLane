@@ -43,12 +43,15 @@ if { $::env(CURRENT_DEF) != 0 } {
         puts stderr $errmsg
         exit 1
     }
+} else {
+    if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
+        puts stderr $errmsg
+        exit 1
+    }
+    link_design $::env(DESIGN_NAME)
 }
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
-
-read_verilog $::env(CURRENT_NETLIST)
-link_design $::env(DESIGN_NAME)
 
 # read spef files if they are generated prior to this point
 if { [info exists ::env(CURRENT_SPEF)] } {
