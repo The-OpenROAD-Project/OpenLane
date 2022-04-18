@@ -37,21 +37,6 @@ def get_tag() -> str:
                 "Cannot find the git binary. Please specify OPENLANE_IMAGE_NAME manually."
             )
 
-        branch_name_data: subprocess.CompletedProcess = subprocess.run(
-            ["git", "branch", "--show-current"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-
-        if branch_name_data.returncode != 0:
-            raise NoGitException(
-                f"Cannot determine git branch. Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {branch_name_data.stderr.decode('utf8').strip()}"
-            )
-
-        branch_name = branch_name_data.stdout.decode("utf8").strip()
-        if branch_name not in ["main", "master"]:
-            return f"{branch_name}-dev"
-
         process_data: subprocess.CompletedProcess = subprocess.run(
             ["git", "rev-parse", "HEAD"],
             stdout=subprocess.PIPE,
