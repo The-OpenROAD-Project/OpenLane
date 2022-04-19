@@ -39,6 +39,7 @@
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
+    make database/database.h
     make -j$(nproc)
     make install
 - name: netgen
@@ -98,8 +99,8 @@
   in_install: false
   pdk: true
   dependencies:
-  - sky130
-  - magic
+    - sky130
+    - magic
 - name: sky130
   repo: https://github.com/google/skywater-pdk
   commit: f70d8ca46961ff92719d8870a18a076370b85f6c

@@ -400,16 +400,18 @@ class Installer(object):
             venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
             venv_builder.create("./venv")
 
+            pip_install_cmd = "python3 -m pip install --upgrade --no-cache-dir"
+
             subprocess.run(
                 [
                     "bash",
                     "-c",
-                    """
+                    f"""
                     source ./venv/bin/activate
-                    python3 -m pip install --upgrade -r ../dependencies/python/precompile_time.txt
-                    python3 -m pip install --upgrade -r ../dependencies/python/compile_time.txt
-                    python3 -m pip install --upgrade -r ../dependencies/python/run_time.txt
-                """,
+                    {pip_install_cmd} -r ../dependencies/python/precompile_time.txt
+                    {pip_install_cmd} -r ../dependencies/python/compile_time.txt
+                    {pip_install_cmd} -r ../dependencies/python/run_time.txt
+                    """,
                 ]
             )
 
