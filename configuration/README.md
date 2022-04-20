@@ -171,8 +171,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `GLOBAL_ROUTER` | Specifies which global router to use. Values: `fastroute` or `cugr`. <br> (Default: `fastroute`) |
-| `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`, `tritonroute_or` (identical to `tritonroute`, deprecated) or `drcu`. <br> (Default: `tritonroute`)|
+| `GLOBAL_ROUTER` | Specifies which global router to use. Values: `fastroute`. (`cugr` is deprecated and fastroute will be used instead.) <br> (Default: `fastroute`) |
+| `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`. (`drcu`/`tritonroute_or` are both deprecated and tritonroute will be used instead.) <br> (Default: `tritonroute`)|
 | `ROUTING_CORES` | Specifies the number of threads to be used in TritonRoute. Can be overriden via environment variable. <br> (Default: `2`) |
 | `RT_CLOCK_MIN_LAYER` | The name of lowest layer to be used in routing the clock net. <br> (Default: `RT_MIN_LAYER`)|
 | `RT_CLOCK_MAX_LAYER` | The name of highest layer to be used in routing the clock net. <br> (Default: `RT_MAX_LAYER`)|

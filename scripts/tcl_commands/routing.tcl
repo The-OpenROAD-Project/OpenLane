@@ -47,21 +47,6 @@ proc translate_min_max_layer_variables {args} {
     }
 }
 
-proc global_routing_cugr {args} {
-    if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
-        puts_err "DIODE_INSERTION_STRATEGY 3 is only valid when OpenROAD is used for global routing."
-        puts_err "Please try a different strategy."
-        return -code error
-    }
-    try_catch cugr \
-        -lef $::env(MERGED_LEF_UNPADDED) \
-        -def $::env(CURRENT_DEF) \
-        -output $::env(SAVE_GUIDE) \
-        -threads $::env(ROUTING_CORES) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/global.log]
-    file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
-}
-
 proc groute_antenna_extract {args} {
     set options {
         {-from_log required}
@@ -127,6 +112,10 @@ proc global_routing_fastroute {args} {
     }
 }
 
+proc global_routing_cugr {args} {
+    handle_deprecated_command global_routing_fastroute
+}
+
 proc global_routing {args} {
     increment_index
     TIMER::timer_start
@@ -136,11 +125,11 @@ proc global_routing {args} {
 
     set tool "openroad"
     if { $::env(GLOBAL_ROUTER) == "cugr" } {
-        set tool "cugr"
-        global_routing_cugr
-    } else {
-        global_routing_fastroute
+        puts_warn "CU-GR is no longer supported. OpenROAD fastroute will be used instead."
+        set ::env(GLOBAL_ROUTER) "fastroute"
     }
+
+    global_routing_fastroute
 
     set_def $::env(SAVE_DEF)
     set_guide $::env(SAVE_GUIDE)
@@ -166,14 +155,7 @@ proc detailed_routing_tritonroute {args} {
 }
 
 proc detailed_routing_drcu {args} {
-    try_catch drcu \
-        -lef $::env(MERGED_LEF_UNPADDED) \
-        -def $::env(CURRENT_DEF) \
-        -guide $::env(CURRENT_GUIDE) \
-        -threads $::env(ROUTING_CORES) \
-        -tat 99999999 \
-        -output $::env(routing_results)/$::env(DESIGN_NAME).def \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/detailed.log]
+    handle_deprecated_command detailed_routing_tritonroute
 }
 
 proc detailed_routing {args} {
@@ -189,11 +171,11 @@ proc detailed_routing {args} {
     set tool "openroad"
     if {$::env(RUN_ROUTING_DETAILED)} {
         if { $::env(DETAILED_ROUTER) == "drcu" } {
-            set tool "drcu"
-            detailed_routing_drcu
-        } else {
-            detailed_routing_tritonroute
+            puts_warn "DR-CU is no longer supported. OpenROAD tritonroute will be used instead."
+            set ::env(DETAILED_ROUTER) "tritonroute"
         }
+        detailed_routing_tritonroute
+
     } else {
         exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/detailed.log]
     }
