@@ -517,7 +517,7 @@ proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Resizer Timing Optimizations..."
+        puts_info "Running Global Routing Resizer Timing Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/resizer_timing.def]
         set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/resizer_timing.sdc]
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log [index_file $::env(routing_logs)/resizer.log]

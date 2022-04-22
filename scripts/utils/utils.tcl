@@ -187,9 +187,9 @@ proc run_openroad_script {args} {
     set script [lindex $args 0]
 
     if { [info exists flag_map(-gui)] } {
-        set args "$::env(OPENROAD_BIN) -gui $script"
+        set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } else {
-        set args "$::env(OPENROAD_BIN) -exit $script"
+        set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     }
 
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
@@ -202,7 +202,7 @@ proc run_openroad_script {args} {
 
     puts_verbose "Executing OpenROAD with script '$script_relative'..."
 
-    set exit_code [catch {exec {*}$args |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)} error_msg]
+    set exit_code [catch {exec {*}$args } error_msg]
 
     if { $exit_code } {
         set tool [string range $args 0 [string first " " $args]]
