@@ -210,6 +210,7 @@ proc run_openroad_script {args} {
 
         puts_err "$print_error_msg"
         puts_err "Exit code: $exit_code"
+        puts_err "full log: [relpath $::env(PWD) $arg_values(-indexed_log)]"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
 
         save_state
