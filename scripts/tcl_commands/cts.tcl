@@ -101,7 +101,7 @@ proc run_resizer_timing {args} {
 	if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
 		increment_index
 		TIMER::timer_start
-		puts_info "Running Resizer Timing Optimizations..."
+		puts_info "Running Placement Resizer Timing Optimizations..."
 		set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
 		set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
 		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log [index_file $::env(cts_logs)/resizer.log]
@@ -119,7 +119,7 @@ proc run_resizer_timing {args} {
 		}
 
 	} else {
-		puts_info "Skipping Resizer Timing Optimizations."
+		puts_info "Skipping Placement Resizer Timing Optimizations."
 	}
 }
 
