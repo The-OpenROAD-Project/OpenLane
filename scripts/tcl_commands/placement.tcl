@@ -184,7 +184,7 @@ proc run_resizer_design {args} {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
     } else {
-        puts_info "Skipping Resizer Design Optimizations."
+        puts_info "Skipping Placement Resizer Design Optimizations."
     }
 }
 

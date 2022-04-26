@@ -119,7 +119,7 @@ proc run_resizer_timing {args} {
 		}
 
 	} else {
-		puts_info "Skipping Resizer Timing Optimizations."
+		puts_info "Skipping Placement Resizer Timing Optimizations."
 	}
 }
 

@@ -535,7 +535,7 @@ proc run_resizer_timing_routing {args} {
         }
 
     } else {
-        puts_info "Skipping Resizer Timing Optimizations."
+        puts_info "Skipping Global Routing Resizer Timing Optimizations."
     }
 }
 
