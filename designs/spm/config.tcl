@@ -11,4 +11,7 @@ set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 set filename ./designs/$::env(DESIGN_NAME)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
+} else {
+	puts_err "can't find $::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl file in $::env(DESIGN_DIR)"
+	exit 1
 }
