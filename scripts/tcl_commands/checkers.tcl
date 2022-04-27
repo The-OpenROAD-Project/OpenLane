@@ -231,7 +231,8 @@ proc quit_on_lvs_error {args} {
         set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
-            puts_err "There are LVS errors in the design.."
+            set log_relative [relpath . $arg_values(-log)]
+            puts_err "There are LVS errors in the design: See '$log_relative' for details."
             flow_fail
         }
     }
