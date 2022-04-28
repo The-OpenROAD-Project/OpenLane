@@ -117,6 +117,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
       - name: Docker Build
         run: |
           export BUILD_IF_CANT_PULL=1
@@ -127,7 +130,7 @@ jobs:
           cd docker/ && make merge
 
       - name: Export Docker Image
-        run: docker save -o /tmp/image-${{ matrix.arch }}.tar ${{ env.OPENLANE_IMAGE_NAME }}-$arch
+        run: docker save -o /tmp/image-${{ matrix.arch }}.tar ${{ env.OPENLANE_IMAGE_NAME }}-${{ matrix.arch }}
 
       - name: Upload Docker Image
         uses: actions/upload-artifact@v2
@@ -235,7 +238,9 @@ jobs:
         run: python3 -m pip install pyyaml
 
       - name: Run Test
-        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
+        run: |
+          OPENLANE_IMAGE_NAME=$OPENLANE_IMAGE_NAME-amd64\
+            python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design }}
 
       - name: Upload Run Tarball
         if: ${{ always() }}
