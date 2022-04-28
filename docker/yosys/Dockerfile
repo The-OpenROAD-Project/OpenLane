@@ -13,7 +13,8 @@
 # limitations under the License.
 
 # syntax = docker/dockerfile:1.0-experimental
-FROM openlane-build-base AS builder
+ARG ARCH=
+FROM openlane-build-base-${ARCH} AS builder 
 
 # git clone yosys
 ARG YOSYS_REPO
@@ -32,7 +33,7 @@ RUN echo ${YOSYS_COMMIT} >> /build/version/yosys.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base AS runnable
+FROM openlane-run-base-${ARCH} AS  runnable
 
 ENV PATH /build/bin:$PATH
 

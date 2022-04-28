@@ -11,7 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-FROM openlane-build-base AS builder
+ARG ARCH=
+FROM openlane-build-base-${ARCH} AS builder 
 
 ARG GIT_REPO
 ARG GIT_COMMIT
@@ -30,7 +31,7 @@ RUN echo ${GIT_COMMIT} >> /build/version/git.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base AS runnable
+FROM openlane-run-base-${ARCH} AS  runnable
 
 ENV PATH /build/bin:$PATH
 

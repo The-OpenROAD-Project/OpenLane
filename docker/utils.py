@@ -33,20 +33,25 @@ def cli():
 @click.option(
     "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
 )
+@click.option(
+    "-m", "--architecture", required=True, type=click.Choice(["amd64", "arm64v8"])
+)
 @click.argument("tool")
-def pull_if_doesnt_exist(repository, operating_system, tool):
+def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
     image_tag = (
         subprocess.check_output(
             [
                 "python3",
                 "../dependencies/tool.py",
                 f"--docker-tag-for-os={operating_system}",
+                f"--docker-arch={architecture}",
                 tool,
             ]
         )
         .decode("utf8")
         .rstrip()
     )
+
     image = f"{repository}:{image_tag}"
     images = (
         subprocess.check_output(["docker", "images", image])
@@ -100,7 +105,7 @@ def process_dockerfile_tpl(repository, operating_system, tools):
 
     image_names = [f"{repository}:{tag}" for tag in image_tags]
 
-    from_lines = [f"FROM {name} as container{i}" for i, name in enumerate(image_names)]
+    from_lines = [f"FROM {name}-${{ARCH}} as container{i}" for i, name in enumerate(image_names)]
 
     copy_lines = [
         f"COPY --from=container{i} /build /build" for i, _ in enumerate(image_names)
@@ -242,6 +247,20 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
 
 cli.add_command(fetch_submodules_from_tarballs)
+
+@click.command()
+def current_architecture():
+    import platform
+
+    arch = platform.machine()
+
+    if arch in ["x86_64"]:
+        print("amd64", end="")
+
+    if arch in ["aarch64", "arm64"]:
+        print("arm64v8", end="")
+
+cli.add_command(current_architecture)
 
 if __name__ == "__main__":
     cli()

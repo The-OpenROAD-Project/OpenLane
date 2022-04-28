@@ -17,6 +17,8 @@ OPENLANE_DIR ?= $(shell pwd)
 
 DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
+DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/utils.py current-architecture)
+
 # Allow Configuring Memory Limits
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
 DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
@@ -44,7 +46,7 @@ endif
 ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_DOCKER_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
 ifneq ($(OPENLANE_DOCKER_TAG),)
-export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_DOCKER_TAG)
+export OPENLANE_IMAGE_NAME ?= donn/openlane:$(OPENLANE_DOCKER_TAG)
 endif
 endif
 
@@ -80,7 +82,7 @@ ENV_START = docker run --rm\
 	$(STD_CELL_OPTS)\
 	$(DOCKER_OPTIONS)
 
-ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .DEFAULT_GOAL := all
 
@@ -100,7 +102,7 @@ get-openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: pdk
 pdk: venv/created

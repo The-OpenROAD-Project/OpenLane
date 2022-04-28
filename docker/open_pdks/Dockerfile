@@ -14,7 +14,8 @@
 
 # WIP, probably will never make it to the image because it's taking forever to build
 
-FROM openlane-build-base AS builder
+ARG ARCH=
+FROM openlane-build-base-${ARCH} AS builder 
 
 ARG SKY130_REPO
 ARG SKY130_COMMIT

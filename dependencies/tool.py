@@ -14,7 +14,7 @@
 # limitations under the License.
 import os
 import sys
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 sys.path.append(os.path.dirname(__file__))
 import includedyaml as yaml  # noqa: E402
@@ -60,8 +60,11 @@ class Tool(object):
     def version_string(self) -> str:
         return f"{self.repo or 'None'}:{self.commit or 'None'}"
 
-    def get_docker_tag(self, for_os: str) -> str:
-        return f"{self.name}-{self.commit}-{for_os}"
+    def get_docker_tag(self, for_os: str, arch: Optional[str] = None) -> str:
+        tag = f"{self.name}-{self.commit}-{for_os}"
+        if arch is not None:
+            tag += f"-{arch}"
+        return tag
 
     @property
     def docker_args(self) -> List[str]:
@@ -109,6 +112,7 @@ def main():
     parser.add_argument("--docker-args", action="store_true")
     parser.add_argument("--no-pdks", action="store_true")
     parser.add_argument("--docker-tag-for-os", default=None)
+    parser.add_argument("--docker-arch", default=None)
     parser.add_argument("--field", "-f")
     parser.add_argument("tool")
     args = parser.parse_args()
@@ -135,7 +139,7 @@ def main():
         exit(os.EX_DATAERR)
 
     if args.docker_tag_for_os:
-        print(tool.get_docker_tag(for_os=args.docker_tag_for_os))
+        print(tool.get_docker_tag(for_os=args.docker_tag_for_os, arch=args.docker_arch))
     elif args.docker_args:
         arg_list = tool.docker_args
 
