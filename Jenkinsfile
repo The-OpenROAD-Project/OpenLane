@@ -1,4 +1,6 @@
 // This file is used for internal testing by the OpenROAD team.
+def NEW_SHA = "NONE"
+def OLD_SHA = "NONE"
 pipeline {
     agent any;
     options {
@@ -9,28 +11,30 @@ pipeline {
     }
     stages {
 
-        stage('Checkout PDKs') {
+        // not used, checkout just to keep track of changes
+        stage("Update OpenROAD to HEAD of master branch") {
             steps {
-                sh 'git switch -C main';
-                sh 'make -j 1 NPROC=1 pdk';
-            }
-        }
-
-        stage('Build Docker update OpenROAD commit') {
-            steps {
-                sh 'PDK_ROOT=$(pwd)/pdks OPENLANE_IMAGE_NAME=efabless/openlane python3 .github/scripts/update_tools.py openroad_app';
+                checkout([$class: "GitSCM",
+                        branches: [[name: "*/master"]],
+                        userRemoteConfigs: [[url: "https://github.com/The-OpenROAD-Project/OpenROAD"]],
+                        extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'openroad']]
+                ]);
             }
         }
 
         stage('Build OpenROAD Docker image with master branch') {
             steps {
+                sh 'PDK_ROOT=$(pwd)/pdks OPENLANE_IMAGE_NAME=efabless/openlane python3 .github/scripts/update_tools.py openroad_app';
                 sh 'make -C docker build-openroad_app';
+                script { NEW_SHA  = sh (returnStdout: true, script: "python3 dependencies/tool.py -f commit openroad_app").trim(); }
             }
         }
 
         stage('Build Docker OpenLane image with openroad_app master') {
             steps {
                 sh 'make -C docker openlane';
+                sh 'docker save efabless/openlane:current | gzip > openlane-current.tar.gz';
+                stash name: 'data', includes: 'openlane-current.tar.gz';
             }
         }
 
@@ -62,11 +66,30 @@ pipeline {
                 }
                 stages {
                     stage('Test') {
+                        agent any;
                         steps {
                             script {
-                                stage("${DESIGN}") {
+                                stage("${DESIGN} - Install PDK") {
+                                    sh 'python3 -m pip install --user --upgrade --no-cache-dir pip';
+                                    sh 'python3 -m pip install --user --upgrade --no-cache-dir volare';
+                                    sh 'PDK_ROOT=$(pwd)/pdks ~/.local/bin/volare enable_or_build -t NULL -j$(nproc) $(python3 ./dependencies/tool.py open_pdks -f commit)';
+                                }
+                                stage("${DESIGN} - Import Docker image") {
+                                    unstash "data";
+                                    sh 'docker load --input openlane-current.tar.gz';
+                                }
+                                stage("${DESIGN} - Update OpenROAD commit") {
+                                    script { OLD_SHA  = sh (returnStdout: true, script: "python3 dependencies/tool.py -f commit openroad_app").trim(); }
+                                    sh "sed -i s/${OLD_SHA}/${NEW_SHA}/ ./dependencies/tool_metadata.yml"
+                                }
+                                stage("${DESIGN} - Run test") {
                                     sh "make OPENLANE_DOCKER_TAG=current TEST_DESIGN=${DESIGN} test";
                                 }
+                            }
+                        }
+                        post {
+                            failure {
+                                archiveArtifacts artifacts: "designs/**/*.log, designs/**/openroad_issue_reproducible/**/*";
                             }
                         }
                     }
@@ -77,9 +100,6 @@ pipeline {
     }
 
     post {
-        always {
-            archiveArtifacts artifacts: "designs/**/*.log, designs/**/openroad_issue_reproducible/**/*";
-        }
         failure {
             emailext(
                     to: '$DEFAULT_RECIPIENTS',

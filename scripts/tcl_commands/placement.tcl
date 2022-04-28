@@ -167,7 +167,7 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Resizer Design Optimizations..."
+        puts_info "Running Placement Resizer Design Optimizations..."
         set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
         set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log [index_file $::env(placement_logs)/resizer.log]
@@ -184,7 +184,7 @@ proc run_resizer_design {args} {
             logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
         }
     } else {
-        puts_info "Skipping Resizer Design Optimizations."
+        puts_info "Skipping Placement Resizer Design Optimizations."
     }
 }
 
