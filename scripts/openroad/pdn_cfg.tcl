@@ -1,5 +1,13 @@
 # Power nets
 
+if { ! [info exists ::env(VDD_NET)] } {
+	set ::env(VDD_NET) $::env(VDD_PIN)
+}
+
+if { ! [info exists ::env(GND_NET)] } {
+	set ::env(GND_NET) $::env(GND_PIN)
+}
+
 if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     if { $::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) == 1 } {
         foreach power_pin $::env(STD_CELL_POWER_PINS) {
