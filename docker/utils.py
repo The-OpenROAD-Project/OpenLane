@@ -105,7 +105,9 @@ def process_dockerfile_tpl(repository, operating_system, tools):
 
     image_names = [f"{repository}:{tag}" for tag in image_tags]
 
-    from_lines = [f"FROM {name}-${{ARCH}} as container{i}" for i, name in enumerate(image_names)]
+    from_lines = [
+        f"FROM {name}-${{ARCH}} as container{i}" for i, name in enumerate(image_names)
+    ]
 
     copy_lines = [
         f"COPY --from=container{i} /build /build" for i, _ in enumerate(image_names)
@@ -248,6 +250,7 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
 cli.add_command(fetch_submodules_from_tarballs)
 
+
 @click.command()
 def current_architecture():
     import platform
@@ -259,6 +262,7 @@ def current_architecture():
 
     if arch in ["aarch64", "arm64"]:
         print("arm64v8", end="")
+
 
 cli.add_command(current_architecture)
 

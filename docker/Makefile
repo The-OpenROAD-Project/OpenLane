@@ -100,14 +100,6 @@ merge: run_base_image $(TOOL_EXPORT_TARGETS) ./tar/openlane ../dependencies/tool
 	done
 	rm -rf ./tar/openlane
 
-.PHONY: list_manifest
-list_manifest: openlane
-	for image in $(FINAL_IMAGE_SET); do \
-		docker push $$image ;\
-	done
-	docker manifest create $(OPENLANE_IMAGE_NAME) $(FINAL_IMAGE_AMENDS)
-	docker manifest push $(OPENLANE_IMAGE_NAME)
-
 .PHONY: clean
 clean: clean_export clean_merge
 

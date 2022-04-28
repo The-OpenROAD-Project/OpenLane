@@ -113,11 +113,18 @@ pdk: venv/created
 survey:
 	$(PYTHON_BIN) ./env.py issue-survey
 
-venv/created: ./requirements.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt
+
+.PHONY: lint
+lint: venv/created
+	./venv/bin/black --check .
+	./venv/bin/flake8 .
+
+venv: venv/created
+venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
 	rm -rf ./venv
 	$(PYTHON_BIN) -m venv ./venv
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements.txt
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
 	touch $@
 
 DLTAG=custom_design_List

@@ -123,6 +123,7 @@ jobs:
           if [ $PUSHING = '1' ]; then
             export BUILD_IF_CANT_PULL_THEN_PUSH=1
           fi
+          export BUILD_ARCHS=${{ matrix.arch }}
           cd docker/ && make merge
 
       - name: Export Docker Image
