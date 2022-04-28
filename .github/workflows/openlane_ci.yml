@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  docker_build:
+  pdk_build:
     runs-on: ubuntu-20.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -35,29 +35,6 @@ jobs:
       - name: Export Temp Image Name
         run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
-
-      - name: Check If Going To Push An Image To Docker
-        # # Uncomment the next line if you want to only build & push a container if entire test set succeeds
-        # if: needs.test.result == 'success'
-        # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
-        run: |
-          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
-          echo "PUSHING=$PUSHING" >> $GITHUB_ENV
-
-      - name: Login to DockerHub
-        if: ${{ env.PUSHING == '1' }}
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Docker Build
-        run: |
-          export BUILD_IF_CANT_PULL=1
-          if [ $PUSHING = '1' ]; then
-            export BUILD_IF_CANT_PULL_THEN_PUSH=1
-          fi
-          cd docker/ && make merge
 
       - name: Build (or Get) PDK
         run: |
@@ -81,15 +58,6 @@ jobs:
               -j$(nproc)\
               $OPDKS_VER
           fi
-
-      - name: Export Docker Image
-        run: docker save -o /tmp/image.tar ${{ env.OPENLANE_IMAGE_NAME }}
-
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v2
-        with:
-          name: docker-image
-          path: /tmp/image.tar
 
       - name: Tarball PDK
         run: |
@@ -115,13 +83,63 @@ jobs:
             echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
           echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regressions.py get_matrix)"
+  docker_build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64v8]
+    steps:
+      - uses: actions/checkout@v2
+
+      # EXPORT BLOCK
+      - name: Export Repo URL
+        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+
+      - name: Export PDK ROOT
+        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
+
+      - name: Export Branch Name
+        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Export Temp Image Name
+        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
+      # END EXPORT BLOCK
+
+      - name: Check If Going To Push An Image To Docker
+        run: |
+          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
+          echo "PUSHING=$PUSHING" >> $GITHUB_ENV
+
+      - name: Login to DockerHub
+        if: ${{ env.PUSHING == '1' }}
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker Build
+        run: |
+          export BUILD_IF_CANT_PULL=1
+          if [ $PUSHING = '1' ]; then
+            export BUILD_IF_CANT_PULL_THEN_PUSH=1
+          fi
+          cd docker/ && make merge
+
+      - name: Export Docker Image
+        run: docker save -o /tmp/image-${{ matrix.arch }}.tar ${{ env.OPENLANE_IMAGE_NAME }}-$arch
+
+      - name: Upload Docker Image
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-image-${{ matrix.arch }}
+          path: /tmp/image-${{ matrix.arch }}.tar
 
   issue_regression_test:
-    needs: docker_build
+    needs: [docker_build, pdk_build]
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.docker_build.outputs.issue_regression_matrix) }}
+      matrix: ${{ fromJSON(needs.pdk_build.outputs.issue_regression_matrix) }}
     name: Test Issue Regression ${{ matrix.design }}
     steps:
       - uses: actions/checkout@v2
@@ -142,11 +160,11 @@ jobs:
       - name: Download Docker Image
         uses: actions/download-artifact@v2
         with:
-          name: docker-image
+          name: docker-image-amd64
           path: /tmp
 
       - name: Import Docker Image
-        run: docker load --input /tmp/image.tar
+        run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
         uses: actions/download-artifact@v2
@@ -168,11 +186,11 @@ jobs:
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
-    needs: docker_build
+    needs: [docker_build, pdk_build]
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.docker_build.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.pdk_build.outputs.matrix) }}
     name: Test Design ${{ matrix.design }}
     steps:
       - uses: actions/checkout@v2
@@ -191,14 +209,14 @@ jobs:
         run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
-      - name: Download Docker Image
+      - name: Download Docker Image (amd64)
         uses: actions/download-artifact@v2
         with:
-          name: docker-image
+          name: docker-image-amd64
           path: /tmp
 
       - name: Import Docker Image
-        run: docker load --input /tmp/image.tar
+        run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
         uses: actions/download-artifact@v2
@@ -258,17 +276,27 @@ jobs:
         run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
       # END EXPORT BLOCK
 
-      - name: Download Docker Image
-        if: ${{ env.PUSHING == '1' }}
+      - name: Download Docker Image (amd64)
         uses: actions/download-artifact@v2
         with:
-          name: docker-image
+          name: docker-image-amd64
           path: /tmp
 
-      - name: Delete Docker Image
+      - name: Download Docker Image (arm64v8)
+        uses: actions/download-artifact@v2
+        with:
+          name: docker-image-arm64v8
+          path: /tmp
+
+      - name: Delete Docker Image (amd64)
         uses: geekyeggo/delete-artifact@v1
         with:
-          name: docker-image
+          name: docker-image-amd64
+
+      - name: Delete Docker Image (arm64v8)
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: docker-image-arm64v8
 
       - name: Delete PDK
         uses: geekyeggo/delete-artifact@v1
@@ -306,22 +334,36 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Docker Push (Hash)
+      - name: Start Tag List
+        if: ${{ env.PUSHING == '1' }}
+        run: |
+          echo "TAG_LIST=" >> $GITHUB_ENV
+
+      - name: Docker Tag (Main Branch Hashes)
         if: ${{ env.PUSHING == '1' && github.event_name == 'push' && env.BRANCH_NAME == env.MAIN_BRANCH }}
         run: |
-          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.GIT_COMMIT_HASH }}
-          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.GIT_COMMIT_HASH }}
+          echo "TAG_LIST=$TAG_LIST ${{ env.GIT_COMMIT_HASH }}" >> $GITHUB_ENV
 
-      - name: Docker Push (Branch)
+      - name: Docker Tag (Branches)
         if: ${{ env.PUSHING == '1' && github.event_name == 'push' }}
         run: |
-          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
-          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.BRANCH_NAME }}
+          echo "TAG_LIST=$TAG_LIST ${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
 
-      - name: Docker Push (Tag) (If scheduled or dispatched)
+      - name: Docker Push (Version Tag/Latest)
         if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
         run: |
-          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker image tag ${{ env.OPENLANE_IMAGE_NAME }} ${{ secrets.DOCKER_IMAGE }}:latest
-          docker push ${{ secrets.DOCKER_IMAGE }}:${{ env.NEW_TAG }}
-          docker push ${{ secrets.DOCKER_IMAGE }}:latest
+          echo "TAG_LIST=$TAG_LIST ${{ env.NEW_TAG }} latest" >> $GITHUB_ENV
+
+      - name: Docker Pushes
+        if: ${{ env.PUSHING == '1' }}
+        run: |
+          for tag in "$TAG_LIST"; do
+            for arch in "amd64 arm64v8"; do
+              docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
+              docker push ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
+            done
+            docker manifest create ${{ secrets.DOCKER_IMAGE }}:$tag\
+              --amend ${{ secrets.DOCKER_IMAGE }}:$tag-amd64\
+              --amend ${{ secrets.DOCKER_IMAGE }}:$tag-arm64v8
+            docker manifest push ${{ secrets.DOCKER_IMAGE }}:$tag
+          done
