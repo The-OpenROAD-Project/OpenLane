@@ -61,9 +61,9 @@ $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 	for arch in $(BUILD_ARCHS); do \
 		$(BUILD_COMMAND)\
 			$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-args $*)\
-			--build-arg ARCH=$$arch\
-			--target runnable\
-			-t $(TOOL_REPOSITORY):$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) --docker-arch=$$arch $*)\
+			--build-arg ARCH=$$arch \
+			--target runnable \
+			-t $(TOOL_REPOSITORY):`$(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) --docker-arch=$$arch $*` \
 			$* |\
 			tee logs/$*.build.txt ;\
 	done
