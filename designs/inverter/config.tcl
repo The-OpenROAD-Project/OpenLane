@@ -14,8 +14,11 @@ set ::env(FP_SIZING) absolute
 set ::env(DIE_AREA) "0 0 34.5 57.12"
 set ::env(PL_TARGET_DENSITY) 0.75
 
-set ::env(FP_PDN_HORIZONTAL_HALO) 6
-set ::env(FP_PDN_VERTICAL_HALO) $::env(FP_TAP_HORIZONTAL_HALO)
+set ::env(FP_PDN_AUTO_ADJUST) 0
+set ::env(FP_PDN_VPITCH) 25.0
+set ::env(FP_PDN_HPITCH) 25.0
+set ::env(FP_PDN_VOFFSET) 5.0
+set ::env(FP_PDN_HOFFSET) 5.0
 
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
