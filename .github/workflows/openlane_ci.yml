@@ -320,9 +320,9 @@ jobs:
       - name: Import Docker Images
         if: ${{ env.PUSHING == '1' }}
         run: |
-          ls /tmp
-          docker load --input /tmp/image-amd64.tar
-          docker load --input /tmp/image-arm64v8.tar
+          for arch in amd64 arm64v8; do
+            docker load --input /tmp/image-$arch.tar
+          done
 
       - name: Create Tag (If scheduled or dispatched)
         if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
@@ -365,8 +365,8 @@ jobs:
       - name: Docker Pushes
         if: ${{ env.PUSHING == '1' }}
         run: |
-          for tag in "$TAG_LIST"; do
-            for arch in "amd64 arm64v8"; do
+          for tag in $TAG_LIST; do
+            for arch in amd64 arm64v8; do
               docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
               docker push ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
             done
