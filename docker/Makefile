@@ -9,7 +9,7 @@ PYTHON_BIN ?= python3
 
 DOCKER_BUILD_OPTS ?= --rm
 
-BUILD_ARCHS ?= $(shell $(PYTHON_BIN) ./utils.py current-architecture)
+BUILD_ARCHS ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
 FINAL_IMAGE_SET = $(addprefix $(OPENLANE_IMAGE_NAME)-,$(BUILD_ARCHS))
 FINAL_IMAGE_AMENDS = $(addprefix --amend ,$(FINAL_IMAGE_SET))
 DOCKER_BUILD_INVOCATION ?= DOCKER_BUILDKIT=0 docker build

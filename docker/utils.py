@@ -22,6 +22,8 @@ import tempfile
 import subprocess
 import urllib.parse
 
+SUPPORTED_ARCHITECTURES = ["amd64", "arm64v8", "ppc64le"]
+
 
 @click.group()
 def cli():
@@ -34,7 +36,10 @@ def cli():
     "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
 )
 @click.option(
-    "-m", "--architecture", required=True, type=click.Choice(["amd64", "arm64v8"])
+    "-m",
+    "--architecture",
+    required=True,
+    type=click.Choice(SUPPORTED_ARCHITECTURES),
 )
 @click.argument("tool")
 def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
@@ -67,7 +72,9 @@ def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
         except Exception as e:
             if os.getenv("BUILD_IF_CANT_PULL") == "1":
                 print(f"{image} not found in the repository, building...")
-                subprocess.check_call(["make", f"build-{tool}"])
+                env = os.environ.copy()
+                env["BUILD_ARCHS"] = architecture
+                subprocess.check_call(["make", f"build-{tool}"], env=env)
                 print(f"Built {image}.")
                 if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
                     print(f"Pushing {image} to the container repository...")
@@ -252,19 +259,26 @@ cli.add_command(fetch_submodules_from_tarballs)
 
 
 @click.command()
-def current_architecture():
+def current_docker_platform():
     import platform
 
     arch = platform.machine()
 
-    if arch in ["x86_64"]:
+    if arch in ["x86_64", "amd64"]:
+        print("amd64", end="")
+    elif arch in ["aarch64", "arm64"]:
+        print("arm64v8", end="")
+    elif arch in ["ppc64le"]:
+        print("ppc64le", end="")
+    else:
+        print(
+            f"Unsupported architecture '{platform.machine()}' Falling back to x86-64 for Docker.",
+            file=sys.stderr,
+        )
         print("amd64", end="")
 
-    if arch in ["aarch64", "arm64"]:
-        print("arm64v8", end="")
 
-
-cli.add_command(current_architecture)
+cli.add_command(current_docker_platform)
 
 if __name__ == "__main__":
     cli()

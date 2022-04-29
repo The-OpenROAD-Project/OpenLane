@@ -22,7 +22,7 @@ import getpass
 import subprocess
 from gh import gh
 
-threads_used = int(subprocess.check_output(["nproc"]).decode("utf-8")) - 1
+threads_used = os.cpu_count() - 1
 test_name = "ci_test"
 design = sys.argv[1]
 print(f"Running on designs {test_name} using {threads_used} threads…")

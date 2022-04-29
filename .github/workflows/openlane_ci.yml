@@ -309,18 +309,20 @@ jobs:
         with:
           name: pdk-tarball
 
-      - name: Import Docker Image
-        if: ${{ env.PUSHING == '1' }}
-        run: docker load --input /tmp/image.tar
-
       - name: Write Main Branch
-        if: ${{ env.PUSHING == '1' }}
         run: |
           echo "MAIN_BRANCH=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
 
       - name: Write Hash
         run: |
           echo "GIT_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
+      - name: Import Docker Images
+        if: ${{ env.PUSHING == '1' }}
+        run: |
+          for arch in "amd64 arm64v8"; do
+            docker load --input /tmp/image-$arch.tar
+          done
 
       - name: Create Tag (If scheduled or dispatched)
         if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
