@@ -45,7 +45,7 @@ if { $::env(DESIGN_IS_CORE) == 1 } {
         -width $::env(FP_PDN_VWIDTH) \
         -pitch $::env(FP_PDN_VPITCH) \
         -offset $::env(FP_PDN_VOFFSET) \
-        -starts_with POWER
+        -starts_with POWER -extend_to_core_ring
 
     add_pdn_stripe \
         -grid stdcell_grid \
@@ -53,7 +53,7 @@ if { $::env(DESIGN_IS_CORE) == 1 } {
         -width $::env(FP_PDN_HWIDTH) \
         -pitch $::env(FP_PDN_HPITCH) \
         -offset $::env(FP_PDN_HOFFSET) \
-        -starts_with POWER
+        -starts_with POWER -extend_to_core_ring
 
     add_pdn_connect \
         -grid stdcell_grid \
