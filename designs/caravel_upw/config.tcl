@@ -80,28 +80,32 @@ set ::env(VERILOG_FILES) "\
 
 ## Clock configurations
 set ::env(CLOCK_PORT) "user_clock2"
-set ::env(CLOCK_NET) "mprj.clk"
+set ::env(CLOCK_NET) "mprj1.clk"
 
 set ::env(CLOCK_PERIOD) "10"
 
 ## Internal Macros
 ### Macro PDN Connections
 set ::env(FP_PDN_MACRO_HOOKS) "\
-    mprj vccd1 vssd1"
+    mprj1 vccd1 vssd1,\
+    mprj2 vccd2 vssd2"
 
 ### Macro Placement
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
-    $script_dir/src/defines.v \
-    $script_dir/src/user_proj_example.v"
+    $script_dir/src/defines.v 
+    $script_dir/src/user_proj_example.v 
+    $script_dir/src/user_proj_example2.v"
 
 set ::env(EXTRA_LEFS) "\
-    $script_dir/macros/user_proj_example.lef"
+    $script_dir/macros/user_proj_example.lef 
+    $script_dir/macros/user_proj_example2.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-    $script_dir/macros/user_proj_example.gds"
+    $script_dir/macros/user_proj_example.gds 
+    $script_dir/macros/user_proj_example2.gds"
 
 set ::env(RT_MAX_LAYER) {met4}
 
@@ -124,6 +128,3 @@ set ::env(DIODE_INSERTION_STRATEGY) 0
 set ::env(FILL_INSERTION) 0
 set ::env(TAP_DECAP_INSERTION) 0
 set ::env(CLOCK_TREE_SYNTH) 0
-
-set ::env(STD_CELL_POWER_PINS) "VDD vccd1"
-set ::env(STD_CELL_GROUND_PINS) "VSS vssd1"
