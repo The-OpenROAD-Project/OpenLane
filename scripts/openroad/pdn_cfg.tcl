@@ -27,7 +27,59 @@ if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     }
 }
 
-set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET)
+if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 } {
+    set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
+    foreach pdn_hook $pdn_hooks {
+        set instance_name [lindex $pdn_hook 0]
+        set power_net [lindex $pdn_hook 1]
+        set ground_net [lindex $pdn_hook 2]
+        # This assumes the power pin and the power net have the same name.
+        # The macro hooks only give an instance name and not power pin names.
+
+        add_global_connection \
+            -net $power_net \
+            -inst_pattern $instance_name \
+            -pin_pattern $power_net \
+            -power
+
+        add_global_connection \
+            -net $ground_net \
+            -inst_pattern $instance_name \
+            -pin_pattern $ground_net \
+            -ground
+    }
+}
+
+set secondary []
+
+foreach net $::env(VDD_NETS) {
+    if { $net != $::env(VDD_NET)} {
+        lappend secondary $net
+
+        set db_net [[ord::get_db_block] findNet $net]
+        if {$db_net == "NULL"} {
+            set net [odb::dbNet_create [ord::get_db_block] $net]
+            $net setSpecial
+            $net setSigType "POWER"
+        }
+    }
+}
+
+foreach net $::env(GND_NETS) {
+    if { $net != $::env(GND_NET)} {
+        lappend secondary $net
+
+        set db_net [[ord::get_db_block] findNet $net]
+        if {$db_net == "NULL"} {
+            set net [odb::dbNet_create [ord::get_db_block] $net]
+            $net setSpecial
+            $net setSigType "GROUND"
+        }
+    }
+}
+
+set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET) \
+    -secondary_power $secondary
 
 # Assesses whether the design is the core of the chip or not based on the
 # value of $::env(DESIGN_IS_CORE) and uses the appropriate stdcell section
