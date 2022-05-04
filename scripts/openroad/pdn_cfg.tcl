@@ -27,7 +27,8 @@ if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     }
 }
 
-if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 } {
+if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 &&
+     [info exists ::env(FP_PDN_MACRO_HOOKS)]} {
     set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
     foreach pdn_hook $pdn_hooks {
         set instance_name [lindex $pdn_hook 0]
