@@ -34,6 +34,13 @@ import random
 
 
 @click.command()
+@click.option(
+    "-u",
+    "--unmatched-error",
+    is_flag=True,
+    default=False,
+    help="Treat unmatched pins as error",
+)
 @click.option("-l", "--input-lef", required=True, help="Input merged tlef/lef file.")
 @click.option(
     "-o",
@@ -100,6 +107,7 @@ def cli(
     reverse,
     bus_sort,
     input_def,
+    unmatched_error,
 ):
     """
     Places the IOs in an input def with an optional config file that supports regexes.
@@ -118,6 +126,7 @@ def cli(
     output_def_file_name = output_def
     config_file_name = config
     bus_sort_flag = bus_sort
+    unmatched_error_flag = unmatched_error
 
     h_layer_name = hor_layer
     v_layer_name = ver_layer
@@ -299,13 +308,14 @@ def cli(
     if len(unmatched_bterms) > 0:
         print("Warning: Some pins weren't matched by the config file")
         print("Those are:", [bterm.getName() for bterm in unmatched_bterms])
-        if True:
+        if unmatched_error_flag:
+            print("Treating unmatched pins as errors. Exiting..")
+            sys.exit(1)
+        else:
             print("Assigning random sides to the above pins")
             for bterm in unmatched_bterms:
                 random_side = random.choice(list(pin_placement.keys()))
                 pin_placement[random_side].append(bterm)
-        else:
-            sys.exit(1)
 
     assert len(block_top.getBTerms()) == len(
         pin_placement["#N"]

@@ -39,6 +39,7 @@ set ::env(FP_IO_HEXTEND) -1
 set ::env(FP_IO_VTHICKNESS_MULT) 2
 set ::env(FP_IO_HTHICKNESS_MULT) 2
 set ::env(FP_IO_MIN_DISTANCE) 3
+set ::env(FP_IO_UNMATCHED_ERROR) 0
 
 set ::env(BOTTOM_MARGIN_MULT) 4
 set ::env(TOP_MARGIN_MULT) 4
