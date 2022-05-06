@@ -16,7 +16,7 @@ set ::env(FP_IO_VTHICKNESS_MULT) ""
 set ::env(FP_IO_HTHICKNESS_MULT) ""
 set ::env(FP_IO_MIN_DISTANCE) ""
 
-set filename ./designs/$::env(DESIGN_NAME)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
+set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename
 }
