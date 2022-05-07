@@ -68,7 +68,6 @@ if { $::env(PL_BASIC_PLACEMENT) } {
 if { $::env(PL_TIME_DRIVEN) } {
 	source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 	read_sdc $::env(CURRENT_SDC)
-	read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
 	lappend arg_list -timing_driven
 }
 

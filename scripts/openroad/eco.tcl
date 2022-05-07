@@ -84,17 +84,12 @@ if {[expr {$cur_iter == 0}]} {
         puts stderr $errmsg
         exit 1
     }
-    puts "Reading '$::env(CURRENT_NETLIST)'..."
-    read_verilog $::env(CURRENT_NETLIST)
 } else {
     if {[catch {read_def \
         $::env(eco_results)/def/eco_$cur_iter.def} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
-    set nl $::env(eco_results)/net/eco_$cur_iter.v
-    puts "Reading '$nl'..."
-    read_verilog $nl
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
