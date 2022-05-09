@@ -309,7 +309,7 @@ proc run_power_grid_generation {args} {
 		return -code error
 	}
 
-	# internal macros power connections
+	# check internal macros' power connection definitions
 	if {[info exists ::env(FP_PDN_MACRO_HOOKS)]} {
 		set macro_hooks [dict create]
 		set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
@@ -330,51 +330,7 @@ proc run_power_grid_generation {args} {
 		}
 	}
 
-	# generate multiple power grids per pair of (VDD,GND)
-	# offseted by WIDTH + SPACING
-	foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
-		set ::env(VDD_NET) $vdd
-		set ::env(GND_NET) $gnd
-
-		# internal macros power connections
-		set ::env(FP_PDN_MACROS) ""
-		if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 } {
-			# if macros connections to power are explicitly set
-			# default behavoir macro pins will be connected to the first power domain
-			if { [info exists ::env(FP_PDN_MACRO_HOOKS)] } {
-				set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
-				foreach {instance_name hooks} $macro_hooks {
-					set power [lindex $hooks 0]
-					set ground [lindex $hooks 1]
-					if { $power == $::env(VDD_NET) && $ground == $::env(GND_NET) } {
-						set ::env(FP_PDN_ENABLE_MACROS_GRID) 1
-						puts_info "Connecting $instance_name to $power and $ground nets."
-						lappend ::env(FP_PDN_MACROS) $instance_name
-					}
-				}
-			}
-		} else {
-			puts_warn "All internal macros will not be connected to power."
-		}
-
-		gen_pdn
-
-		set ::env(FP_PDN_ENABLE_RAILS) 0
-		set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
-
-		set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]
-		set ::env(FP_PDN_HOFFSET) [expr $::env(FP_PDN_HOFFSET)+$::env(FP_PDN_HWIDTH)+$::env(FP_PDN_HSPACING)]
-
-		set ::env(FP_PDN_CORE_RING_VOFFSET)\
-			[expr $::env(FP_PDN_CORE_RING_VOFFSET)\
-			+2*($::env(FP_PDN_CORE_RING_VWIDTH)\
-			+max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
-		set ::env(FP_PDN_CORE_RING_HOFFSET) \
-			[expr $::env(FP_PDN_CORE_RING_HOFFSET)\
-			+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
-			max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]
-	}
-	set ::env(FP_PDN_ENABLE_RAILS) 1
+	gen_pdn
 }
 
 proc run_floorplan {args} {
