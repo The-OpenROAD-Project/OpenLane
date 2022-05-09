@@ -75,7 +75,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_HLENGTH`  | The length of the horizontal IOs in microns. <br> (Default: `4`) |
 | `FP_IO_VTHICKNESS_MULT`  | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth <br> (Default: `2`) |
 | `FP_IO_HTHICKNESS_MULT`  | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth <br> (Default: `2`) |
-| `FP_IO_UNMATCHED_ERROR`  | Exit on unmatched pins in a provided `FP_PIN_ORDER_CFG` file. 0=Disable 1=Enable. <br> (Default: `0` Disabled) |
+| `FP_IO_UNMATCHED_ERROR`  | Exit on unmatched pins in a provided `FP_PIN_ORDER_CFG` file. 0=Disable 1=Enable. <br> (Default: `1` Enabled) |
 | `BOTTOM_MARGIN_MULT`     | The core margin, in multiples of site heights, from the bottom boundary. <br> (Default: `4`) |
 | `TOP_MARGIN_MULT`        | The core margin, in multiples of site heights, from the top boundary. <br> (Default: `4`) |
 | `LEFT_MARGIN_MULT`       | The core margin, in multiples of site widths, from the left boundary.  <br> (Default: `12`) |
