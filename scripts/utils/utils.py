@@ -12,17 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-
 import os
-import pandas as pd
 import re
+import csv
 
 
 def get_design_path(design):
     path = os.path.abspath(design) + "/"
     if not os.path.exists(path):
-        path = os.path.join(os.getcwd(), "./designs/{design}/".format(design=design))
+        path = os.path.join(os.getcwd(), f"./designs/{design}/")
     if os.path.exists(path):
         return path
     else:
@@ -37,10 +35,7 @@ def get_design_name(design, config):
     design_path = get_design_path(design=design)
     if design_path is None:
         return ("Design path not found", None)
-    config_file = "{design_path}/{config}.tcl".format(
-        design_path=design_path,
-        config=config,
-    )
+    config_file = f"{design_path}/{config}.tcl"
     try:
         config_file_opener = open(config_file, "r")
         configs = config_file_opener.read()
@@ -53,31 +48,42 @@ def get_design_name(design, config):
         return ("Configuration file not found", None)
 
 
-# add_computed_statistics adds: CellPerMMSquaredOverCoreUtil, suggested_clock_period, and suggested_clock_frequency to a report.csv
 def add_computed_statistics(filename):
-    data = pd.read_csv(filename)
-    df = pd.DataFrame(data)
+    """
+    Adds some calculated values to a report CSV file, namely:
 
-    diearea_mm2_index = df.columns.get_loc("DIEAREA_mm^2")
-    df.insert(
-        diearea_mm2_index,
-        column="(Cell/mm^2)/Core_Util",
-        value=df["CellPer_mm^2"] / (df["FP_CORE_UTIL"] / 100),
-        allow_duplicates=True,
-    )
+    * Cells per mm sq over core utilization
+    * Suggested clock period
+    * Suggested clock frequency
+    """
+    rows = []
 
-    suggest_clock_period = df["CLOCK_PERIOD"] - df["spef_wns"]
-    clock_period_index = df.columns.get_loc("CLOCK_PERIOD")
-    df.insert(
-        clock_period_index,
-        column="suggested_clock_period",
-        value=suggest_clock_period,
-        allow_duplicates=True,
-    )
-    df.insert(
-        clock_period_index,
-        column="suggested_clock_frequency",
-        value=1000.0 / suggest_clock_period,
-        allow_duplicates=True,
-    )
-    df.to_csv(filename)
+    csv_headers = open(filename).read().split("\n")[0].split(",")
+
+    def add(name: str, before: str):
+        nonlocal csv_headers
+        idx = csv_headers.index(before)
+        csv_headers.insert(idx, name)
+
+    add("(Cell/mm^2)/Core_Util", "DIEAREA_mm^2")
+    add("suggested_clock_period", "CLOCK_PERIOD")
+    add("suggested_clock_frequency", "CLOCK_PERIOD")
+
+    csv_file_in = open(filename)
+    reader = csv.DictReader(csv_file_in)
+    for row in reader:
+        row["(Cell/mm^2)/Core_Util"] = float(row["CellPer_mm^2"]) / (
+            float(row["FP_CORE_UTIL"]) / 100
+        )
+
+        suggest_clock_period = float(row["CLOCK_PERIOD"]) - float(row["spef_wns"])
+        row["suggested_clock_period"] = suggest_clock_period
+        row["suggested_clock_frequency"] = 1000 / suggest_clock_period
+        rows.append(row)
+    csv_file_in.close()
+
+    with open(filename, "w") as f:
+        writer = csv.DictWriter(f, csv_headers)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)

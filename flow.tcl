@@ -61,7 +61,10 @@ proc run_parasitics_sta_step {args} {
 	} else {
 		set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
 	}
-	run_parasitics_sta
+
+	if { $::env(RUN_SPEF_EXTRACTION) } {
+		run_parasitics_sta
+	}
 }
 
 proc run_diode_insertion_2_5_step {args} {
@@ -86,7 +89,6 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 
 	if { $lvs_enabled && $::env(RUN_LVS) } {
 		run_magic_spice_export;
-
 		run_lvs; # requires run_magic_spice_export
 	}
 
@@ -121,8 +123,13 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 
 proc run_eco_step {args} {
 	if {  $::env(ECO_ENABLE) == 1 } {
-
 		run_eco_flow
+	}
+}
+
+proc run_magic_step {args} {
+	if {$::env(RUN_MAGIC)} {
+		run_magic
 	}
 }
 
@@ -219,20 +226,20 @@ proc run_non_interactive_mode {args} {
 	set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
 	set steps [dict create \
-		"synthesis" {run_synthesis "" } \
-		"floorplan" {run_floorplan ""} \
-		"placement" {run_placement_step ""} \
-		"cts" {run_cts_step ""} \
-		"routing" {run_routing_step ""}\
-		"parasitics_sta" {run_parasitics_sta_step ""}\
-		"eco" {run_eco_step ""} \
-		"diode_insertion" {run_diode_insertion_2_5_step ""} \
-		"gds_magic" {run_magic ""} \
-		"gds_klayout" {run_klayout_step ""} \
-		"lvs" "run_lvs_step $LVS_ENABLED" \
-		"drc" "run_drc_step $DRC_ENABLED" \
-		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-		"cvc" {run_lef_cvc}
+		"synthesis" "run_synthesis" \
+		"floorplan" "run_floorplan" \
+		"placement" "run_placement_step" \
+		"cts" "run_cts_step" \
+		"routing" "run_routing_step" \
+		"parasitics_sta" "run_parasitics_sta_step" \
+		"eco" "run_eco_step" \
+		"diode_insertion" "run_diode_insertion_2_5_step" \
+		"gds_magic" "run_magic_step" \
+		"gds_klayout" "run_klayout_step" \
+		"lvs" "run_lvs_step $LVS_ENABLED " \
+		"drc" "run_drc_step $DRC_ENABLED " \
+		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
+		"cvc" "run_lef_cvc"
 	]
 
 	set_if_unset arg_values(-to) "cvc";
