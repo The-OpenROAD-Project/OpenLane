@@ -13,88 +13,86 @@
 # limitations under the License.
 
 proc run_magic {args} {
-	if { $::env(RUN_MAGIC) } {
-		TIMER::timer_start
-		increment_index
-		puts_info "Running Magic to generate various views..."
-		# |----------------------------------------------------|
-		# |----------------   6. TAPE-OUT ---------------------|
-		# |----------------------------------------------------|
-		puts_info "Streaming out GDS-II with Magic..."
-		set ::env(CURRENT_STAGE) signoff
-		set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
-		# the following MAGTYPE better be mag for clean GDS generation
-		# use load -dereference to ignore it later if needed
+	TIMER::timer_start
+	increment_index
+	puts_info "Running Magic to generate various views..."
+	# |----------------------------------------------------|
+	# |----------------   6. TAPE-OUT ---------------------|
+	# |----------------------------------------------------|
+	puts_info "Streaming out GDS-II with Magic..."
+	set ::env(CURRENT_STAGE) signoff
+	set ::env(PDKPATH) "$::env(PDK_ROOT)/$::env(PDK)"
+	# the following MAGTYPE better be mag for clean GDS generation
+	# use load -dereference to ignore it later if needed
 
+	set ::env(MAGTYPE) mag
+	# Generate GDS and MAG views
+	set ::env(MAGIC_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).magic.gds
+
+	try_catch magic \
+		-noconsole \
+		-dnull \
+		-rcfile $::env(MAGIC_MAGICRC) \
+		$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
+		</dev/null \
+		|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/gdsii.log]
+
+	if { $::env(PRIMARY_SIGNOFF_TOOL) == "magic" } {
+		set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
+		file copy -force $::env(MAGIC_GDS) $::env(CURRENT_GDS)
+	}
+
+	file copy -force $::env(MAGIC_MAGICRC) $::env(signoff_results)/.magicrc
+	# Take a PNG screenshot
+	scrot_klayout -log $::env(cts_logs)/screenshot.log
+
+	if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+		puts_info "Generating MAGLEF views..."
+
+		# Generate mag file that includes GDS pointers
 		set ::env(MAGTYPE) mag
-		# Generate GDS and MAG views
-		set ::env(MAGIC_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).magic.gds
-
 		try_catch magic \
 			-noconsole \
 			-dnull \
 			-rcfile $::env(MAGIC_MAGICRC) \
-			$::env(SCRIPTS_DIR)/magic/mag_gds.tcl \
+			$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
 			</dev/null \
-			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/gdsii.log]
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/gds_ptrs.log]
+		# Only keep the properties section in the file
+		try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
+	}
 
-		if { $::env(PRIMARY_SIGNOFF_TOOL) == "magic" } {
-			set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
-			file copy -force $::env(MAGIC_GDS) $::env(CURRENT_GDS)
-		}
+	# If desired, copy GDS_* properties into the mag/ view
+	if { $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+		copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).mag
+	}
 
-		file copy -force $::env(MAGIC_MAGICRC) $::env(signoff_results)/.magicrc
-		# Take a PNG screenshot
-		scrot_klayout -log $::env(cts_logs)/screenshot.log
-
-		if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
-			puts_info "Generating MAGLEF views..."
-
-			# Generate mag file that includes GDS pointers
-			set ::env(MAGTYPE) mag
-			try_catch magic \
-				-noconsole \
-				-dnull \
-				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/gds_pointers.tcl \
-				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/gds_ptrs.log]
-			# Only keep the properties section in the file
-			try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
-		}
-
-		# If desired, copy GDS_* properties into the mag/ view
-		if { $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
-			copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).mag
-		}
-
-		if { $::env(MAGIC_GENERATE_LEF) } {
-			# Generate LEF view
+	if { $::env(MAGIC_GENERATE_LEF) } {
+		# Generate LEF view
+		set ::env(MAGTYPE) maglef
+		try_catch magic \
+			-noconsole \
+			-dnull \
+			-rcfile $::env(MAGIC_MAGICRC) \
+			$::env(SCRIPTS_DIR)/magic/lef.tcl \
+			</dev/null \
+			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/lef.log]
+		if { $::env(MAGIC_GENERATE_MAGLEF) } {
+			# Generate MAGLEF view
 			set ::env(MAGTYPE) maglef
 			try_catch magic \
 				-noconsole \
 				-dnull \
 				-rcfile $::env(MAGIC_MAGICRC) \
-				$::env(SCRIPTS_DIR)/magic/lef.tcl \
+				$::env(SCRIPTS_DIR)/magic/maglef.tcl \
 				</dev/null \
-				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/lef.log]
-			if { $::env(MAGIC_GENERATE_MAGLEF) } {
-				# Generate MAGLEF view
-				set ::env(MAGTYPE) maglef
-				try_catch magic \
-					-noconsole \
-					-dnull \
-					-rcfile $::env(MAGIC_MAGICRC) \
-					$::env(SCRIPTS_DIR)/magic/maglef.tcl \
-					</dev/null \
-					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/maglef.log]
-				# By default, copy the GDS properties into the maglef/ view
-				copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
-			}
+				|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/maglef.log]
+			# By default, copy the GDS properties into the maglef/ view
+			copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
 		}
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 	}
+	TIMER::timer_stop
+	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 }
 
 

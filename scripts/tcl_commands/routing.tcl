@@ -387,10 +387,6 @@ proc run_spef_extraction {args} {
         return -code error
     }
 
-    if { $::env(RUN_SPEF_EXTRACTION) != 1 } {
-        return
-    }
-
     increment_index
     TIMER::timer_start
     set log [index_file $arg_values(-log)]
