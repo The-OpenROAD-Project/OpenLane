@@ -18,6 +18,8 @@ runs:
   steps:
     - uses: actions/checkout@v2
 
+    - uses: ./.github/actions/set_env_variables
+
     - name: Check If Going To Push An Image To Docker
       shell: bash
       run: |

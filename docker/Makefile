@@ -39,14 +39,14 @@ build_base_image: ./build_base/Dockerfile
 	cat ../dependencies/python/compile_time.txt > ./build_base/pip_compile_dependencies.txt
 	cat ../dependencies/python/run_time.txt > ./build_base/pip_dependencies.txt
 	mkdir -p logs
-	$(BUILD_COMMAND) -t openlane-build-base-$$arch --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) build_base | tee logs/base.build.txt
+	$(BUILD_COMMAND) -t openlane-build-base-$(BUILD_ARCH) --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) build_base | tee logs/base.build.txt
 
 run_base_image: ./run_base/Dockerfile
 	cat ../dependencies/python/run_time.txt > ./run_base/pip_dependencies.txt
 	cat ../dependencies/centos-7/precompile_time.txt > ./run_base/yum_repos.txt
 	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
 	mkdir -p logs
-	$(BUILD_COMMAND) -t openlane-run-base-$$arch --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) run_base | tee logs/base.run.txt
+	$(BUILD_COMMAND) -t openlane-run-base-$(BUILD_ARCH) --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) run_base | tee logs/base.run.txt
 
 
 $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
