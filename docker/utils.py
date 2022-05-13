@@ -21,8 +21,39 @@ import pathlib
 import tempfile
 import subprocess
 import urllib.parse
+import urllib.request
 
-SUPPORTED_ARCHITECTURES = ["amd64", "arm64v8", "ppc64le"]
+SUPPORTED_ARCHITECTURES = {"amd64", "arm64v8", "ppc64le"}
+CI_ARCHITECTURES = {"amd64", "arm64v8"}
+SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
+
+
+def current_docker_platform() -> str:
+    import platform
+
+    arch = platform.machine()
+
+    if arch in ["x86_64", "amd64"]:
+        return "amd64"
+    elif arch in ["aarch64", "arm64"]:
+        return "arm64v8"
+    elif arch in ["ppc64le"]:
+        return "ppc64le"
+    else:
+        print(
+            f"Unsupported architecture '{platform.machine()}' Falling back to x86-64 for Docker.",
+            file=sys.stderr,
+        )
+        return "amd64"
+
+
+def test_manifest_exists(repository, tag) -> str:
+    url = f"https://index.docker.io/v1/repositories/{repository}/tags/{tag}"
+    req = urllib.request.Request(url, headers={"Accept": "application/json"})
+    status = None
+    with urllib.request.urlopen(req) as res:
+        status = int(res.status)
+    return status is not None and status >= 200 and status < 300
 
 
 @click.group()
@@ -31,9 +62,14 @@ def cli():
 
 
 @click.command()
-@click.option("-r", "--repository", required=True)
+@click.option("-R", "--registry", default="docker.io")
+@click.option("-r", "--repository", default="efabless/openlane-tools")
 @click.option(
-    "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
+    "-o",
+    "--os",
+    "operating_system",
+    required=True,
+    type=click.Choice(SUPPORTED_OPERATING_SYSTEMS),
 )
 @click.option(
     "-m",
@@ -42,20 +78,27 @@ def cli():
     type=click.Choice(SUPPORTED_ARCHITECTURES),
 )
 @click.argument("tool")
-def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
-    image_tag = (
-        subprocess.check_output(
-            [
-                "python3",
-                "../dependencies/tool.py",
-                f"--docker-tag-for-os={operating_system}",
-                f"--docker-arch={architecture}",
-                tool,
-            ]
+def pull_if_doesnt_exist(registry, repository, operating_system, architecture, tool):
+    """
+    Requires *actual* Docker. Podman won't cut it.
+    """
+
+    def get_tag_for(os, arch=None):
+        return (
+            subprocess.check_output(
+                [
+                    "python3",
+                    "../dependencies/tool.py",
+                    tool,
+                    f"--docker-tag-for-os={os}",
+                ]
+                + ([f"--docker-arch={arch}"] if arch is not None else [])
+            )
+            .decode("utf8")
+            .rstrip()
         )
-        .decode("utf8")
-        .rstrip()
-    )
+
+    image_tag = get_tag_for(operating_system, architecture)
 
     image = f"{repository}:{image_tag}"
     images = (
@@ -65,23 +108,58 @@ def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
         .split("\n")[1:]
     )
     if len(images) < 1:
-        print(f"{image} not found, pulling...")
-        try:
-            subprocess.check_call(["docker", "pull", image])
+        print(f"[*] {image} not found, pulling...")
+
+        pull_result = subprocess.call(["docker", "pull", image])
+        if pull_result == os.EX_OK:
             print(f"Pulled {image}.")
-        except Exception as e:
-            if os.getenv("BUILD_IF_CANT_PULL") == "1":
-                print(f"{image} not found in the repository, building...")
-                env = os.environ.copy()
-                env["BUILD_ARCHS"] = architecture
-                subprocess.check_call(["make", f"build-{tool}"], env=env)
-                print(f"Built {image}.")
-                if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
-                    print(f"Pushing {image} to the container repository...")
-                    subprocess.check_call(["docker", "push", image])
-                    print(f"Pushed {image}.")
-            else:
-                raise e
+
+        if os.getenv("BUILD_IF_CANT_PULL") != "1":
+            print(f"[*] Failed to pull {image}.")
+        else:
+            print(f"[*] {image} not found in the repository, building...")
+            env = os.environ.copy()
+            env["BUILD_ARCH"] = architecture
+            subprocess.check_call(["make", f"build-{tool}"], env=env)
+            print(f"Built {image}.")
+
+    if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
+        print(f"[*] Pushing {image} to the container repository...")
+        subprocess.check_call(["docker", "push", image])
+        print(f"[*] Pushed {image}.")
+
+    if os.getenv("TRY_CREATE_MULTIARCH_MANIFEST") != "1":
+        print("[*] Done.")
+        return
+
+    manifest_tag = get_tag_for(operating_system)
+    manifest_name = f"{repository}:{manifest_tag}"
+
+    print(f"[*] Creating multi-arch manifest {manifest_name}...")
+    arch_images = []
+    for arch in CI_ARCHITECTURES:
+        print(f"[*] Verifying if the image for {arch} has been pushed...")
+        arch_image_tag = get_tag_for(operating_system, arch)
+        arch_image = f"{repository}:{arch_image_tag}"
+        if not test_manifest_exists(repository, arch_image_tag):
+            print(f"[*] {arch_image} not yet pushed. Aborting multi-arch manifest.")
+            exit(os.EX_OK)
+        arch_images.append(arch_image)
+
+    print("[*] All images verified, creating and pushing manifest...")
+
+    subprocess.call(["docker", "manifest", "rm", manifest_name])
+    subprocess.check_call(["docker", "manifest", "create", manifest_name, *arch_images])
+    subprocess.check_call(
+        [
+            "docker",
+            "manifest",
+            "push",
+            manifest_name,
+        ]
+    )
+
+    print("[*] Done.")
 
 
 cli.add_command(pull_if_doesnt_exist)
@@ -90,7 +168,11 @@ cli.add_command(pull_if_doesnt_exist)
 @click.command()
 @click.option("-r", "--repository", required=True)
 @click.option(
-    "-o", "--os", "operating_system", required=True, type=click.Choice(["centos-7"])
+    "-o",
+    "--os",
+    "operating_system",
+    required=True,
+    type=click.Choice(SUPPORTED_OPERATING_SYSTEMS),
 )
 @click.argument("tools", nargs=-1)
 def process_dockerfile_tpl(repository, operating_system, tools):
@@ -258,27 +340,12 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 cli.add_command(fetch_submodules_from_tarballs)
 
 
-@click.command()
-def current_docker_platform():
-    import platform
-
-    arch = platform.machine()
-
-    if arch in ["x86_64", "amd64"]:
-        print("amd64", end="")
-    elif arch in ["aarch64", "arm64"]:
-        print("arm64v8", end="")
-    elif arch in ["ppc64le"]:
-        print("ppc64le", end="")
-    else:
-        print(
-            f"Unsupported architecture '{platform.machine()}' Falling back to x86-64 for Docker.",
-            file=sys.stderr,
-        )
-        print("amd64", end="")
+@click.command("current-docker-platform")
+def current_docker_platform_cmd():
+    print(current_docker_platform(), end="")
 
 
-cli.add_command(current_docker_platform)
+cli.add_command(current_docker_platform_cmd)
 
 if __name__ == "__main__":
     cli()

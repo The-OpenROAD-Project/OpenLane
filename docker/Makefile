@@ -9,9 +9,7 @@ PYTHON_BIN ?= python3
 
 DOCKER_BUILD_OPTS ?= --rm
 
-BUILD_ARCHS ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
-FINAL_IMAGE_SET = $(addprefix $(OPENLANE_IMAGE_NAME)-,$(BUILD_ARCHS))
-FINAL_IMAGE_AMENDS = $(addprefix --amend ,$(FINAL_IMAGE_SET))
+BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
 DOCKER_BUILD_INVOCATION ?= DOCKER_BUILDKIT=0 docker build
 BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
 
@@ -41,40 +39,33 @@ build_base_image: ./build_base/Dockerfile
 	cat ../dependencies/python/compile_time.txt > ./build_base/pip_compile_dependencies.txt
 	cat ../dependencies/python/run_time.txt > ./build_base/pip_dependencies.txt
 	mkdir -p logs
-	for arch in $(BUILD_ARCHS); do \
-		$(BUILD_COMMAND) -t openlane-build-base-$$arch --build-arg OS_IMAGE=$$arch/$(OS_IMAGE) build_base | tee logs/base.build.txt ;\
-	done
+	$(BUILD_COMMAND) -t openlane-build-base-$$arch --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) build_base | tee logs/base.build.txt
 
 run_base_image: ./run_base/Dockerfile
 	cat ../dependencies/python/run_time.txt > ./run_base/pip_dependencies.txt
 	cat ../dependencies/centos-7/precompile_time.txt > ./run_base/yum_repos.txt
 	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
 	mkdir -p logs
-	for arch in $(BUILD_ARCHS); do \
-		$(BUILD_COMMAND) -t openlane-run-base-$$arch --build-arg OS_IMAGE=$$arch/$(OS_IMAGE) run_base | tee logs/base.run.txt ;\
-	done
+	$(BUILD_COMMAND) -t openlane-run-base-$$arch --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) run_base | tee logs/base.run.txt
 
 
 $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
 	mkdir -p logs
 	cp ./utils.py $*
-	for arch in $(BUILD_ARCHS); do \
-		$(BUILD_COMMAND)\
-			$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-args $*)\
-			--build-arg ARCH=$$arch \
-			--target runnable \
-			-t $(TOOL_REPOSITORY):`$(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) --docker-arch=$$arch $*` \
-			$* |\
-			tee logs/$*.build.txt ;\
-	done
+	$(BUILD_COMMAND)\
+		$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-args $*)\
+		--build-arg ARCH=$(BUILD_ARCH) \
+		--target runnable \
+		-t $(TOOL_REPOSITORY):`$(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) --docker-arch=$(BUILD_ARCH) $*` \
+		$* |\
+		tee logs/$*.build.txt
 
 # ==============================================================================
 # Export Tools
 # ==============================================================================
 $(TOOL_EXPORT_TARGETS): pull-% : FORCE
-	for arch in $(BUILD_ARCHS); do \
-		$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $$arch $*;\
-	done
+	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $(BUILD_ARCH) $*
+	@echo "-----------"
 
 ./tar/openlane: FORCE
 	rm -rf ./tar/openlane
@@ -91,13 +82,11 @@ merge: run_base_image $(TOOL_EXPORT_TARGETS) ./tar/openlane ../dependencies/tool
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version_short
 	$(PYTHON_BIN) ./utils.py process-dockerfile-tpl --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $(TOOLS) > ./openlane/Dockerfile
 	mkdir -p logs/tar
-	for arch in $(BUILD_ARCHS); do \
-		$(BUILD_COMMAND)\
-			--build-arg ARCH=$$arch\
-			-t $(OPENLANE_IMAGE_NAME)-$$arch\
-			-f ./openlane/Dockerfile ./tar\
-			| tee logs/$<.build.txt ;\
-	done
+	$(BUILD_COMMAND)\
+		--build-arg ARCH=$(BUILD_ARCH)\
+		-t $(OPENLANE_IMAGE_NAME)-$(BUILD_ARCH)\
+		-f ./openlane/Dockerfile ./tar\
+		| tee logs/$<.build.txt
 	rm -rf ./tar/openlane
 
 .PHONY: clean

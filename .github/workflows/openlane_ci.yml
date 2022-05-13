@@ -15,26 +15,16 @@ on:
 
 jobs:
   pdk_build:
+    name: Fetch or Build PDK
     runs-on: ubuntu-20.04
     outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      design_matrix: ${{ steps.set-matrix.outputs.design_matrix }}
       issue_regression_matrix: ${{ steps.set-matrix.outputs.issue_regression_matrix }}
     steps:
       - uses: actions/checkout@v2
 
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Export Temp Image Name
-        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
-      # END EXPORT BLOCK
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Build (or Get) PDK
         run: |
@@ -74,92 +64,49 @@ jobs:
           export EVENT_NAME=${{ github.event_name }};
           python3 ./.github/scripts/determine_test_set.py
 
-      - name: Prepare Test Matrix
+      - name: Prepare Test Matrices
         id: set-matrix
         run: |
           if [[ "$USE_ETS" = "1" ]]; then
-            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set extended_test_set)"
+            echo "::set-output name=design_matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set extended_test_set)"
           else
-            echo "::set-output name=matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
+            echo "::set-output name=design_matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
           echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regressions.py get_matrix)"
-  docker_build:
+  docker_build_amd64:
+    name: Docker Build (amd64)
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        arch: [amd64, arm64v8]
     steps:
       - uses: actions/checkout@v2
-
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Export Temp Image Name
-        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
-      # END EXPORT BLOCK
-
-      - name: Check If Going To Push An Image To Docker
-        run: |
-          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
-          echo "PUSHING=$PUSHING" >> $GITHUB_ENV
-
-      - name: Login to DockerHub
-        if: ${{ env.PUSHING == '1' }}
-        uses: docker/login-action@v1
+      - name: Build
+        uses: ./.github/actions/docker_build
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-
-      - name: Docker Build
-        run: |
-          export BUILD_IF_CANT_PULL=1
-          if [ $PUSHING = '1' ]; then
-            export BUILD_IF_CANT_PULL_THEN_PUSH=1
-          fi
-          export BUILD_ARCHS=${{ matrix.arch }}
-          cd docker/ && make merge
-
-      - name: Export Docker Image
-        run: docker save -o /tmp/image-${{ matrix.arch }}.tar ${{ env.OPENLANE_IMAGE_NAME }}-${{ matrix.arch }}
-
-      - name: Upload Docker Image
-        uses: actions/upload-artifact@v2
+          arch: amd64
+          dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+  docker_build_arm64v8:
+    name: Docker Build (arm64v8)
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        uses: ./.github/actions/docker_build
         with:
-          name: docker-image-${{ matrix.arch }}
-          path: /tmp/image-${{ matrix.arch }}.tar
-
+          arch: arm64v8
+          dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
+          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
   issue_regression_test:
-    needs: [docker_build, pdk_build]
+    name: Regression Test (Issue ${{ matrix.design }})
+    needs: [docker_build_amd64, pdk_build]
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.pdk_build.outputs.issue_regression_matrix) }}
-    name: Test Issue Regression ${{ matrix.design }}
     steps:
       - uses: actions/checkout@v2
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
 
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Export Temp Image Name
-        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
-      # END EXPORT BLOCK
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image
         uses: actions/download-artifact@v2
@@ -190,28 +137,17 @@ jobs:
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
-    needs: [docker_build, pdk_build]
+    name: Test Design ${{ matrix.design }}
+    needs: [docker_build_amd64, pdk_build]
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
-      matrix: ${{ fromJSON(needs.pdk_build.outputs.matrix) }}
-    name: Test Design ${{ matrix.design }}
+      matrix: ${{ fromJSON(needs.pdk_build.outputs.design_matrix) }}
     steps:
       - uses: actions/checkout@v2
 
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Export Temp Image Name
-        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
-      # END EXPORT BLOCK
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
         uses: actions/download-artifact@v2
@@ -251,7 +187,8 @@ jobs:
 
   cleanup_and_deploy:
     name: Cleanup (and Possibly Deployment)
-    needs: [test, issue_regression_test]
+    needs:
+      [docker_build_amd64, docker_build_arm64v8, test, issue_regression_test]
     if: always()
     runs-on: ubuntu-20.04
     steps:
@@ -268,19 +205,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Export Temp Image Name
-        run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV
-      # END EXPORT BLOCK
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
         uses: actions/download-artifact@v2

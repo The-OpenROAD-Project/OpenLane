@@ -46,7 +46,7 @@ endif
 ifeq ($(OPENLANE_IMAGE_NAME),)
 OPENLANE_DOCKER_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
 ifneq ($(OPENLANE_DOCKER_TAG),)
-export OPENLANE_IMAGE_NAME ?= donn/openlane:$(OPENLANE_DOCKER_TAG)
+export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_DOCKER_TAG)
 endif
 endif
 
