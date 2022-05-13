@@ -110,18 +110,19 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
     if len(images) < 1:
         print(f"[*] {image} not found, pulling...")
 
-        pull_result = subprocess.call(["docker", "pull", image])
-        if pull_result == os.EX_OK:
-            print(f"Pulled {image}.")
-
-        if os.getenv("BUILD_IF_CANT_PULL") != "1":
-            print(f"[*] Failed to pull {image}.")
+        if test_manifest_exists(repository, image_tag):
+            subprocess.call(["docker", "pull", image])
+            print(f"[*] Pulled {image}.")
         else:
-            print(f"[*] {image} not found in the repository, building...")
-            env = os.environ.copy()
-            env["BUILD_ARCH"] = architecture
-            subprocess.check_call(["make", f"build-{tool}"], env=env)
-            print(f"Built {image}.")
+            if os.getenv("BUILD_IF_CANT_PULL") != "1":
+                print(f"[*] {image} not found in the repository.")
+                exit(os.EX_UNAVAILABLE)
+            else:
+                print(f"[*] {image} not found in the repository, building...")
+                env = os.environ.copy()
+                env["BUILD_ARCH"] = architecture
+                subprocess.check_call(["make", f"build-{tool}"], env=env)
+                print(f"Built {image}.")
 
     if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
         print(f"[*] Pushing {image} to the container repository...")
