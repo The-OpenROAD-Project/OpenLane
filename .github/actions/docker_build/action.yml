@@ -17,6 +17,9 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
+    - uses: docker/setup-buildx-action@v2
+      with:
+        install: true
 
     - uses: ./.github/actions/set_env_variables
 
