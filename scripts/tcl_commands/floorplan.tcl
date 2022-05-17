@@ -112,7 +112,7 @@ proc place_io_ol {args} {
 		{-output_def optional}
 		{-extra_args optional}
 	}
-	set flags {}
+	set flags {-unmatched_error optional}
 
 	parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
@@ -133,7 +133,12 @@ proc place_io_ol {args} {
 	set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
 	set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
 
-	set_if_unset arg_values(-extra_args) ""
+    if { $::env(FP_IO_UNMATCHED_ERROR) } {
+        set_if_unset flags_map(-unmatched_error) "--unmatched-error"
+    } else {
+        set_if_unset flags_map(-unmatched_error) ""
+    }
+    set_if_unset arg_values(-extra_args) ""
 
 	try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/io_place.py\
 		--input-lef $arg_values(-lef)\
@@ -145,6 +150,7 @@ proc place_io_ol {args} {
 		--hor-extension $arg_values(-horizontal_ext)\
 		--ver-extension $arg_values(-vertical_ext)\
 		--length $arg_values(-length)\
+        {*}$flags_map(-unmatched_error)\
 		-o $arg_values(-output_def)\
 		{*}$arg_values(-extra_args)\
 		$arg_values(-def) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
