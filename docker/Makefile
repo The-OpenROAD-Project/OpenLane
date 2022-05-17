@@ -7,10 +7,10 @@ OS_IMAGE ?= centos:centos7
 
 PYTHON_BIN ?= python3
 
-DOCKER_BUILD_OPTS ?= --rm
-
 BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
+
 DOCKER_BUILD_INVOCATION ?= docker build
+DOCKER_BUILD_OPTS ?= --rm --load
 BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
 
 NO_PDKS_ARGS =
