@@ -20,9 +20,9 @@ import shutil
 import pathlib
 import tempfile
 import subprocess
+import urllib.error
 import urllib.parse
 import urllib.request
-
 SUPPORTED_ARCHITECTURES = {"amd64", "arm64v8", "ppc64le"}
 CI_ARCHITECTURES = {"amd64", "arm64v8"}
 SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
@@ -51,8 +51,11 @@ def test_manifest_exists(repository, tag) -> str:
     url = f"https://index.docker.io/v1/repositories/{repository}/tags/{tag}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     status = None
-    with urllib.request.urlopen(req) as res:
-        status = int(res.status)
+    try:
+        with urllib.request.urlopen(req) as res:
+            status = int(res.status)
+    except urllib.error.HTTPError as e:
+        status = int(e.code)
     return status is not None and status >= 200 and status < 300
 
 
