@@ -1,4 +1,3 @@
-#DOCKER_BUILD_OPTS ?= --rm --no-cache
 TOOL_REPOSITORY ?= efabless/openlane-tools
 OPENLANE_IMAGE_NAME ?= donnio/openlane:current
 
@@ -9,9 +8,7 @@ PYTHON_BIN ?= python3
 
 BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
 
-DOCKER_BUILD_INVOCATION ?= docker build
-DOCKER_BUILD_OPTS ?= --rm --load
-BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
+BUILD_COMMAND ?= docker buildx build --load
 
 NO_PDKS_ARGS =
 NO_PDKS ?= 1
@@ -47,6 +44,7 @@ run_base_image: ./run_base/Dockerfile
 	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
 	mkdir -p logs
 	$(BUILD_COMMAND) -t openlane-run-base-$(BUILD_ARCH) --build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE) run_base | tee logs/base.run.txt
+	docker image ls
 
 
 $(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
