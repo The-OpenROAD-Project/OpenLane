@@ -45,9 +45,10 @@ runs:
         export BUILD_IF_CANT_PULL=1
         if [ $PUSHING = '1' ]; then
           export BUILD_IF_CANT_PULL_THEN_PUSH=1
-          export TRY_CREATE_MULTIARCH_MANIFEST=1
         fi
+        export USE_BUILDX=true
         export BUILD_ARCH=${{ inputs.arch }}
+        export GITHUB_WORKFLOW=${{ github.workflow }}
         cd docker/ && make merge
 
     - name: Export Docker Image

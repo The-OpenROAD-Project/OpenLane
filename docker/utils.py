@@ -23,6 +23,7 @@ import subprocess
 import urllib.error
 import urllib.parse
 import urllib.request
+
 SUPPORTED_ARCHITECTURES = {"amd64", "arm64v8", "ppc64le"}
 CI_ARCHITECTURES = {"amd64", "arm64v8"}
 SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
@@ -132,14 +133,10 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
         subprocess.check_call(["docker", "push", image])
         print(f"[*] Pushed {image}.")
 
-    if os.getenv("TRY_CREATE_MULTIARCH_MANIFEST") != "1":
-        print("[*] Done.")
-        return
-
     manifest_tag = get_tag_for(operating_system)
     manifest_name = f"{repository}:{manifest_tag}"
 
-    print(f"[*] Creating multi-arch manifest {manifest_name}...")
+    print(f"[*] Trying to create multi-arch manifest {manifest_name}...")
     arch_images = []
     for arch in CI_ARCHITECTURES:
         print(f"[*] Verifying if the image for {arch} has been pushed...")

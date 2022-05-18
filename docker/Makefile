@@ -8,15 +8,16 @@ PYTHON_BIN ?= python3
 
 BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
 
-BUILD_COMMAND ?= docker buildx build --load
-
-NO_PDKS_ARGS =
-NO_PDKS ?= 1
-ifeq ($(NO_PDKS), 1)
-NO_PDKS_ARGS = --no-pdks
+ifeq ($(USE_BUILDX),true)
+BUILD_COMMAND := docker buildx build --load
+ifeq ($(GITHUB_ACTIONS),true)
+BUILD_COMMAND += --cache-from=type=gha --cache-to=type=gha,scope=$(GITHUB_WORKFLOW)
+endif
+else
+BUILD_COMMAND := docker build
 endif
 
-TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
+TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized --no-pdks .)
 OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),pull-$(tool))
