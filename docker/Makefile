@@ -17,7 +17,7 @@ BUILD_BASE_IMAGE := $(TOOL_REPOSITORY):$(BUILD_BASE_TAG)
 RUN_BASE_IMAGE := $(TOOL_REPOSITORY):$(RUN_BASE_TAG)
 
 # To use buildx: docker buildx build --push
-BUILD_COMMAND ?= docker build
+export BUILD_COMMAND ?= docker build --no-cache
 
 TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized --no-pdks .)
 OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
@@ -38,6 +38,7 @@ build-build-base: ./build_base/Dockerfile
 	cat ../dependencies/python/run_time.txt > ./build_base/pip_dependencies.txt
 	mkdir -p logs
 	$(BUILD_COMMAND)\
+		--build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE)\
 		-t $(BUILD_BASE_IMAGE)\
 		build_base | tee logs/base.build.txt
 
@@ -51,6 +52,7 @@ build-run-base: ./run_base/Dockerfile
 	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
 	mkdir -p logs
 	$(BUILD_COMMAND)\
+		--build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE)\
 		-t $(RUN_BASE_IMAGE)\
 		run_base | tee logs/base.run.txt
 

@@ -11,8 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-FROM centos:centos7
+ARG OS_IMAGE=
+FROM ${OS_IMAGE}
 
 # Install Yum Dependencies
 COPY ./yum_dependencies.txt /yum_dependencies.txt
