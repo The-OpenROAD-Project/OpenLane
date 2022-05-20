@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG ARCH=
-FROM openlane-build-base-${ARCH} AS builder 
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 ARG PADRING_REPO
 ARG PADRING_COMMIT
@@ -31,8 +32,8 @@ RUN echo ${PADRING_COMMIT} >> /build/version/padring.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base-${ARCH} AS  runnable
-
+ARG RUN_BASE_IMAGE=
+FROM ${RUN_BASE_IMAGE} AS runnable
 ENV PATH /build/bin:$PATH
 
 COPY --from=builder /build /build

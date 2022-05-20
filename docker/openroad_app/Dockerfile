@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG ARCH=
-FROM openlane-build-base-${ARCH} AS builder 
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 # Build Boost
 WORKDIR /boost
@@ -81,8 +82,7 @@ RUN echo ${OPENROAD_APP_COMMIT} >> /build/version/openroad.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base-${ARCH} AS  runnable
-
+FROM ${RUN_BASE_IMAGE} AS runnable
 ENV PATH /build/bin:$PATH
 
 COPY --from=builder /build /build

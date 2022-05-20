@@ -102,7 +102,13 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
             .rstrip()
         )
 
-    image_tag = get_tag_for(operating_system, architecture)
+    image_tag = None
+    if tool == "build-base":
+        image_tag = os.getenv("BUILD_BASE_TAG")
+    elif tool == "run-base":
+        image_tag = os.getenv("RUN_BASE_TAG")
+    else:
+        image_tag = get_tag_for(operating_system, architecture)
 
     image = f"{repository}:{image_tag}"
     images = (
@@ -111,27 +117,33 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
         .rstrip()
         .split("\n")[1:]
     )
-    if len(images) < 1:
-        print(f"[*] {image} not found, pulling...")
+    if len(images) >= 1:
+        print(f"[*] Found {image}.")
+        return
 
-        if test_manifest_exists(repository, image_tag):
-            subprocess.call(["docker", "pull", image])
-            print(f"[*] Pulled {image}.")
+    print(f"[*] {image} not found, pulling...")
+
+    if test_manifest_exists(repository, image_tag):
+        subprocess.call(["docker", "pull", image])
+        print(f"[*] Pulled {image}.")
+    else:
+        if os.getenv("BUILD_IF_CANT_PULL") != "1":
+            print(f"[*] {image} not found in the repository.")
+            exit(os.EX_UNAVAILABLE)
         else:
-            if os.getenv("BUILD_IF_CANT_PULL") != "1":
-                print(f"[*] {image} not found in the repository.")
-                exit(os.EX_UNAVAILABLE)
-            else:
-                print(f"[*] {image} not found in the repository, building...")
-                env = os.environ.copy()
-                env["BUILD_ARCH"] = architecture
-                subprocess.check_call(["make", f"build-{tool}"], env=env)
-                print(f"Built {image}.")
+            print(f"[*] {image} not found in the repository, building...")
+            env = os.environ.copy()
+            env["BUILD_ARCH"] = architecture
+            subprocess.check_call(["make", f"build-{tool}"], env=env)
+            print(f"Built {image}.")
 
-    if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") == "1":
-        print(f"[*] Pushing {image} to the container repository...")
-        subprocess.check_call(["docker", "push", image])
-        print(f"[*] Pushed {image}.")
+    if os.getenv("BUILD_IF_CANT_PULL_THEN_PUSH") != "1":
+        return
+
+    # Not needed for buildx, but won't hurt
+    print(f"[*] Pushing {image} to the container repository...")
+    subprocess.check_call(["docker", "push", image])
+    print(f"[*] Pushed {image}.")
 
     manifest_tag = get_tag_for(operating_system)
     manifest_name = f"{repository}:{manifest_tag}"

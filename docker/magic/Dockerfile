@@ -11,8 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-ARG ARCH=
-FROM openlane-build-base-${ARCH} AS builder 
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 # Upstream is git://opencircuitdesign.com/magic, but servers are not stable enough for CI.
 ARG MAGIC_REPO
@@ -30,8 +31,7 @@ RUN echo ${MAGIC_COMMIT} >> /build/version/magic.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base-${ARCH} AS  runnable
-
+FROM ${RUN_BASE_IMAGE} AS runnable
 ENV PATH /build/bin:$PATH
 
 COPY --from=builder /build /build

@@ -43,12 +43,7 @@ ifneq (,$(ROUTING_CORES))
 DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
-ifeq ($(OPENLANE_IMAGE_NAME),)
-OPENLANE_DOCKER_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
-ifneq ($(OPENLANE_DOCKER_TAG),)
-export OPENLANE_IMAGE_NAME ?= donnio/openlane:$(OPENLANE_DOCKER_TAG)
-endif
-endif
+include ./dependencies/image_name.mk
 
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm

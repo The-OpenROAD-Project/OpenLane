@@ -13,8 +13,9 @@
 # limitations under the License.
 
 ARG ARCH=
+ARG RUN_BASE_IMAGE=
 # <from>
-FROM openlane-run-base-${ARCH}
+FROM ${RUN_BASE_IMAGE}
 
 # Environment Configuration
 ENV OPENLANE_ROOT=/openlane
