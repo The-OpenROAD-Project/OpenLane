@@ -103,12 +103,16 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
         )
 
     image_tag = None
+    skip_manifest = None
     if tool == "build-base":
         image_tag = os.getenv("BUILD_BASE_TAG")
+        skip_manifest = True
     elif tool == "run-base":
         image_tag = os.getenv("RUN_BASE_TAG")
+        skip_manifest = True
     else:
         image_tag = get_tag_for(operating_system, architecture)
+        skip_manifest = False
 
     image = f"{repository}:{image_tag}"
     images = (
@@ -144,6 +148,9 @@ def pull_if_doesnt_exist(registry, repository, operating_system, architecture, t
     print(f"[*] Pushing {image} to the container repository...")
     subprocess.check_call(["docker", "push", image])
     print(f"[*] Pushed {image}.")
+
+    if skip_manifest:
+        return
 
     manifest_tag = get_tag_for(operating_system)
     manifest_name = f"{repository}:{manifest_tag}"
