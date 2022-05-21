@@ -43,7 +43,7 @@ runs:
         export BUILD_COMMAND="docker build"
         if [ "$PUSHING" = "1" ]; then
           export BUILD_IF_CANT_PULL_THEN_PUSH=1
-          export BUILD_COMMAND="docker buildx build --push --cache-from=type=gha --cache-to=type=gha,scope=${{ github.workflow }}}"
+          export BUILD_COMMAND="docker buildx build --load --cache-from=type=gha --cache-to=type=gha,scope=${{ github.workflow }}}"
         fi
         export BUILD_ARCH=${{ inputs.arch }}
         cd docker/ && make merge
