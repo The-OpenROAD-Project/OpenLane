@@ -38,6 +38,8 @@ def main(argv):
     files = glob.glob(f"{__dir__}/python/*")
     files += glob.glob(f"{__dir__}/{os}/*")
 
+    files.sort()
+
     content = ""
     for file in files:
         content += open(file).read()
