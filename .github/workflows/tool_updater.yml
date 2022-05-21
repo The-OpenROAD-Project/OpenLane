@@ -1,6 +1,5 @@
 name: Tool Updater
 
-# To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
   # Runs every day at midnight UTC
   schedule:
@@ -15,20 +14,12 @@ jobs:
       matrix:
         tools: [magic, netgen, yosys, openroad_app]
     steps:
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
-      # END EXPORT BLOCK
-
       - uses: actions/checkout@v2
         with:
           ref: ${{ secrets.MAIN_BRANCH }}
+
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Export TOOL Name
         run: echo "TOOL=${{ matrix.tools }}" >> $GITHUB_ENV
@@ -56,20 +47,12 @@ jobs:
   create-cid-pdk-branch:
     runs-on: ubuntu-20.04
     steps:
-      # EXPORT BLOCK
-      - name: Export Repo URL
-        run: echo "REPO_URL=https://github.com/${{ github.repository }}" >> $GITHUB_ENV
-
-      - name: Export Branch Name
-        run: echo "BRANCH_NAME=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
-
-      - name: Export PDK ROOT
-        run: echo "PDK_ROOT=${{ github.workspace }}/pdks" >> $GITHUB_ENV
-      # END EXPORT BLOCK
-
       - uses: actions/checkout@v2
         with:
           ref: ${{ secrets.MAIN_BRANCH }}
+
+      - name: Set up environment variables
+        uses: ./.github/actions/set_env_variables
 
       - name: Update PDK
         run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py sky130 open_pdks

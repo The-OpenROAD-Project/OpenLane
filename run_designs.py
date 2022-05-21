@@ -155,26 +155,19 @@ def cli(
     store_dir = ""
     report_file_name = ""
     if enable_timestamp:
-        store_dir = "./regression_results/{tag}_{date}/".format(
-            tag=tag, date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
-        )
-        report_file_name = "{store_dir}/{tag}_{date}".format(
-            store_dir=store_dir,
-            tag=tag,
-            date=datetime.datetime.now().strftime("%d_%m_%Y_%H_%M"),
-        )
+        timestamp = datetime.datetime.now().strftime("%d_%m_%Y_%H_%M")
+        store_dir = f"./regression_results/{tag}_{timestamp}"
+        report_file_name = f"{store_dir}/{tag}_{timestamp}"
     else:
-        store_dir = "./regression_results/{tag}/".format(tag=tag)
-        report_file_name = "{store_dir}/{tag}".format(store_dir=store_dir, tag=tag)
+        store_dir = f"./regression_results/{tag}"
+        report_file_name = f"{store_dir}/{tag}"
 
     if not os.path.exists(store_dir):
         os.makedirs(store_dir, exist_ok=True)
 
     log = logging.getLogger("log")
     log_formatter = logging.Formatter("[%(asctime)s - %(levelname)5s] %(message)s")
-    handler1 = logging.FileHandler(
-        "{report_file_name}.log".format(report_file_name=report_file_name), "w"
-    )
+    handler1 = logging.FileHandler(f"{report_file_name}.log", "w")
     handler1.setFormatter(log_formatter)
     log.addHandler(handler1)
     handler2 = logging.StreamHandler()
@@ -184,9 +177,7 @@ def cli(
 
     report_log = logging.getLogger("report_log")
     report_formatter = logging.Formatter("%(message)s")
-    report_handler = logging.FileHandler(
-        "{report_file_name}.csv".format(report_file_name=report_file_name), "w"
-    )
+    report_handler = logging.FileHandler(f"{report_file_name}.csv", "w")
     report_handler.setFormatter(report_formatter)
     report_log.addHandler(report_handler)
     report_log.setLevel(logging.INFO)
@@ -373,7 +364,7 @@ def cli(
                     if design in rem_designs.keys():
                         rem_designs.pop(design)
                 continue
-            default_config_tag = "config_{tag}".format(tag=tag)
+            default_config_tag = f"config_{tag}"
             err, design_name = utils.get_design_name(design, config)
             if err is not None:
                 update("ERROR", design, f"Cannot run: {err}")

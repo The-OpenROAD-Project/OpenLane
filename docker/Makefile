@@ -1,34 +1,35 @@
-#DOCKER_BUILD_OPTS ?= --rm --no-cache
-OPENLANE_IMAGE_NAME ?= efabless/openlane:current
 TOOL_REPOSITORY ?= efabless/openlane-tools
 
-OS_NAME ?= centos-7
-OS_IMAGE ?= centos:centos7
+include ../dependencies/image_name.mk
 
-DOCKER_BUILD_OPTS ?= --rm
-DOCKER_BUILD_INVOCATION ?= docker build # docker buildx build --platform linux/amd64 --load
-BUILD_COMMAND = $(DOCKER_BUILD_INVOCATION) $(DOCKER_BUILD_OPTS)
-
-NO_PDKS_ARGS =
-NO_PDKS ?= 1
-ifeq ($(NO_PDKS), 1)
-NO_PDKS_ARGS = --no-pdks
-endif
+BASE_HASH = $(shell $(PYTHON_BIN) ../dependencies/hash_for.py $(OS_NAME))
 
 PYTHON_BIN ?= python3
-TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized $(NO_PDKS_ARGS) .)
+
+OS_NAME := centos-7
+OS_IMAGE := centos:centos7
+BASE_HASH := $(shell $(PYTHON_BIN) ../dependencies/hash_for.py $(OS_NAME))
+BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
+
+export BUILD_BASE_TAG := build-base-$(BASE_HASH)-$(OS_NAME)-$(BUILD_ARCH)
+export RUN_BASE_TAG := run-base-$(BASE_HASH)-$(OS_NAME)-$(BUILD_ARCH)
+BUILD_BASE_IMAGE := $(TOOL_REPOSITORY):$(BUILD_BASE_TAG)
+RUN_BASE_IMAGE := $(TOOL_REPOSITORY):$(RUN_BASE_TAG)
+
+# To use buildx: docker buildx build --push
+export BUILD_COMMAND ?= docker build --no-cache
+
+TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized --no-pdks .)
 OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),pull-$(tool))
 
 
-# ==============================================================================
-# Build Tools
-# ==============================================================================
 all: openlane
 
+# Build/Run Base Images
 build-all: $(TOOL_BUILD_TARGETS)
-build_base_image: ./build_base/Dockerfile
+build-build-base: ./build_base/Dockerfile
 	cat ../dependencies/centos-7/precompile_time.txt > ./build_base/yum_precompile_dependencies.txt
 	cat ../dependencies/centos-7/compile_time.txt > ./build_base/yum_compile_dependencies.txt
 	cat ../dependencies/centos-7/run_time.txt > ./build_base/yum_dependencies.txt
@@ -36,53 +37,71 @@ build_base_image: ./build_base/Dockerfile
 	cat ../dependencies/python/compile_time.txt > ./build_base/pip_compile_dependencies.txt
 	cat ../dependencies/python/run_time.txt > ./build_base/pip_dependencies.txt
 	mkdir -p logs
-	$(BUILD_COMMAND) -t openlane-build-base --build-arg OS_IMAGE=$(OS_IMAGE) build_base | tee logs/base.build.txt
+	$(BUILD_COMMAND)\
+		--build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE)\
+		-t $(BUILD_BASE_IMAGE)\
+		build_base | tee logs/base.build.txt
 
-run_base_image: ./run_base/Dockerfile
+pull-build-base:
+	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $(BUILD_ARCH) build-base
+	@echo "-----------"
+
+build-run-base: ./run_base/Dockerfile
 	cat ../dependencies/python/run_time.txt > ./run_base/pip_dependencies.txt
 	cat ../dependencies/centos-7/precompile_time.txt > ./run_base/yum_repos.txt
 	cat ../dependencies/centos-7/run_time.txt > ./run_base/yum_dependencies.txt
 	mkdir -p logs
-	$(BUILD_COMMAND) -t openlane-run-base --build-arg OS_IMAGE=$(OS_IMAGE) run_base | tee logs/base.run.txt
+	$(BUILD_COMMAND)\
+		--build-arg OS_IMAGE=$(BUILD_ARCH)/$(OS_IMAGE)\
+		-t $(RUN_BASE_IMAGE)\
+		run_base | tee logs/base.run.txt
 
+pull-run-base:
+	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $(BUILD_ARCH) run-base
+	@echo "-----------"
 
-$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile build_base_image run_base_image
+# Tool Images
+$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile pull-build-base
 	mkdir -p logs
 	cp ./utils.py $*
 	$(BUILD_COMMAND)\
-		$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-args $*)\
+		`$(PYTHON_BIN) ../dependencies/tool.py --docker-args $*`\
+		--build-arg RUN_BASE_IMAGE=$(RUN_BASE_IMAGE)\
+		--build-arg BUILD_BASE_IMAGE=$(BUILD_BASE_IMAGE)\
 		--target runnable\
-		-t $(TOOL_REPOSITORY):$(shell $(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) $*)\
+		-t $(TOOL_REPOSITORY):`$(PYTHON_BIN) ../dependencies/tool.py --docker-tag-for-os=$(OS_NAME) --docker-arch=$(BUILD_ARCH) $*`\
 		$* |\
 		tee logs/$*.build.txt
 
-# ==============================================================================
-# Export Tools
-# ==============================================================================
 $(TOOL_EXPORT_TARGETS): pull-% : FORCE
-	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $*
+	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $(BUILD_ARCH) $*
+	@echo "-----------"
 
+# OpenLane Image
 ./tar/openlane: FORCE
 	rm -rf ./tar/openlane
 	mkdir -p ./tar/openlane
-	for file in $(OPENLANE_SKELETON); do \
-		cp -r ../$$file ./tar/openlane/$$file ; \
+	for file in $(OPENLANE_SKELETON); do\
+		cp -r ../$$file ./tar/openlane/$$file ;\
 	done
 
 .PHONY: merge openlane
 openlane: merge
-merge: run_base_image $(TOOL_EXPORT_TARGETS) ./tar/openlane ../dependencies/tool_metadata.yml
+merge: pull-run-base $(TOOL_EXPORT_TARGETS) ./tar/openlane ../dependencies/tool_metadata.yml
 	cat ../dependencies/tool_metadata.yml > ./tar/tool_metadata.yml
 	printf "$(shell git rev-parse HEAD)" > ./tar/git_version
 	printf "$(shell git rev-parse --short=7 HEAD)" > ./tar/git_version_short
 	$(PYTHON_BIN) ./utils.py process-dockerfile-tpl --repository $(TOOL_REPOSITORY) --os $(OS_NAME) $(TOOLS) > ./openlane/Dockerfile
 	mkdir -p logs/tar
 	$(BUILD_COMMAND)\
-		-t $(OPENLANE_IMAGE_NAME)\
+		--build-arg ARCH=$(BUILD_ARCH)\
+		--build-arg RUN_BASE_IMAGE=$(RUN_BASE_IMAGE)\
+		-t $(OPENLANE_IMAGE_NAME)-$(BUILD_ARCH)\
 		-f ./openlane/Dockerfile ./tar\
 		| tee logs/$<.build.txt
 	rm -rf ./tar/openlane
 
+# Cleanup
 .PHONY: clean
 clean: clean_export clean_merge
 

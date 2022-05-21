@@ -17,6 +17,8 @@ OPENLANE_DIR ?= $(shell pwd)
 
 DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
+DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/utils.py current-docker-platform)
+
 # Allow Configuring Memory Limits
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
 DOCKER_OPTIONS += --memory-swap=$(DOCKER_SWAP)
@@ -41,12 +43,7 @@ ifneq (,$(ROUTING_CORES))
 DOCKER_OPTIONS += -e ROUTING_CORES=$(ROUTING_CORES)
 endif
 
-ifeq ($(OPENLANE_IMAGE_NAME),)
-OPENLANE_DOCKER_TAG ?= $(shell $(PYTHON_BIN) ./dependencies/get_tag.py)
-ifneq ($(OPENLANE_DOCKER_TAG),)
-export OPENLANE_IMAGE_NAME ?= efabless/openlane:$(OPENLANE_DOCKER_TAG)
-endif
-endif
+include ./dependencies/image_name.mk
 
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
@@ -80,7 +77,7 @@ ENV_START = docker run --rm\
 	$(STD_CELL_OPTS)\
 	$(DOCKER_OPTIONS)
 
-ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)
+ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .DEFAULT_GOAL := all
 
@@ -100,7 +97,7 @@ get-openlane:
 .PHONY: mount
 mount:
 	cd $(OPENLANE_DIR) && \
-		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: pdk
 pdk: venv/created
@@ -111,11 +108,18 @@ pdk: venv/created
 survey:
 	$(PYTHON_BIN) ./env.py issue-survey
 
-venv/created: ./requirements.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt
+
+.PHONY: lint
+lint: venv/created
+	./venv/bin/black --check .
+	./venv/bin/flake8 .
+
+venv: venv/created
+venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
 	rm -rf ./venv
 	$(PYTHON_BIN) -m venv ./venv
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements.txt
+	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
 	touch $@
 
 DLTAG=custom_design_List

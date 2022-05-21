@@ -1,0 +1,20 @@
+name: Set up environment variables
+description: Sets up various environment variables required by various OpenLane steps.
+runs:
+  using: "composite"
+  steps:
+    - name: Export Repo URL
+      shell: bash
+      run: echo "REPO_URL=https://github.com/${{ github.repository }}.git" >> $GITHUB_ENV
+
+    - name: Export PDK ROOT
+      shell: bash
+      run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
+
+    - name: Export Branch Name
+      shell: bash
+      run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+    - name: Export Temp Image Name
+      shell: bash
+      run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV

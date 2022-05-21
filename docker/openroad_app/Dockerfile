@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openlane-build-base AS builder
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 # Build Boost
 WORKDIR /boost
@@ -52,12 +54,14 @@ RUN curl -L https://github.com/swig/swig/archive/refs/tags/v4.0.1.tar.gz | tar -
     make -j $(nproc) && \
     make install
 
-ARG OPENROAD_APP_REPO
-ARG OPENROAD_APP_COMMIT
-
+# Set up OpenROAD Build Files
+RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LC_ALL en_US.UTF-8
 ENV LC_CTYPE en_US.UTF-8
+
+ARG OPENROAD_APP_REPO
+ARG OPENROAD_APP_COMMIT
 
 WORKDIR /openroad
 RUN curl -L ${OPENROAD_APP_REPO}/tarball/${OPENROAD_APP_COMMIT} | tar -xzC . --strip-components=1
@@ -66,6 +70,7 @@ RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPE
 
 # Build OpenROAD
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
+RUN sed -i "s/static char Cases/static signed char Cases/" third-party/abc/src/misc/extra/extraUtilMisc.c
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
 RUN cd build && make -j$(nproc)
@@ -77,8 +82,7 @@ RUN echo ${OPENROAD_APP_COMMIT} >> /build/version/openroad.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base AS runnable
-
+FROM ${RUN_BASE_IMAGE} AS runnable
 ENV PATH /build/bin:$PATH
 
 COPY --from=builder /build /build

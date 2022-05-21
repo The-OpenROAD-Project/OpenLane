@@ -240,15 +240,15 @@ Most of the following commands' implementation exists in this [file][8]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `global_routing` | | Runs global routing  on the processed design using either the openroad app's fastroute or cugr based on the value of `GLOBAL_ROUTER`. The resulting file is under `/<run_path>/tmp/routing/` . |
+| `global_routing` | | Runs global routing  on the processed design The resulting file is under `/<run_path>/tmp/routing/` . |
 | `global_routing_fastroute` | | Runs global routing  on the processed design using the openroad app's fastroute. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `global_routing_cugr` | | Runs global routing  on the processed design using cugr. The resulting file is under `/<run_path>/tmp/routing/` . |
 | `detailed_routing` | | Runs detailed routing on the processed design using OpenROAD TritonRoute, or DRCU based onthe value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
 | `detailed_routing_tritonroute` | | Runs detailed routing on the processed design using OpenROAD TritonRoute based on the value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
-| `detailed_routing_drcu` | | Runs detailed routing on the processed design using DRCU. The resulting file is under `/<run_path>/results/routing/` . |
 | `apply_route_obs`| | Uses `GLB_RT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GLB_RT_OBS` in the configurations documentation for more details.|
 | `add_route_obs`| | Uses `GLB_RT_OBS` to call `apply_route_obs`, then calls `apply_route_obs` again to apply obstructions over the whole die area based on the value of `GLB_RT_MAXLAYER` up to the highest available metal layer.|
 | `run_routing` | | Runs diode insertion based on the strategy, then adds the routing obstructions, followed by `global_routing`, then `ins_fill_cells`, `detailed_routing`, and finally SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist using yosys and stores the results under `/<run_path>/results/synthesis`, and it runs yosys logic verification if enabled. |
+| `global_routing_cugr` | | **Removed: Aliases global_routing_fastroute**: Runs global routing  on the processed design using cugr. The resulting file is under `/<run_path>/tmp/routing/` . |
+| `detailed_routing_drcu` | | **Removed: Aliases detailed_routing_tritonroute** Runs detailed routing on the processed design using DRCU. The resulting file is under `/<run_path>/results/routing/` . |
 
 ## Magic Commands
 

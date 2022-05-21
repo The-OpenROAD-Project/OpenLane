@@ -1,17 +1,3 @@
-- name: cugr
-  repo: https://github.com/ax3ghazy/cu-gr
-  commit: 1632b4b450cbd3e5b6bdc9bf92c96cadde6a01b9
-  build: |
-    xxd -i src/flute/POST9.dat > src/flute/POST9.c
-    xxd -i src/flute/POWV9.dat > src/flute/POWV9.c
-    rm -rf build/
-    mkdir -p build/
-    cd build
-    cmake ../src
-    make clean
-    make -j$(nproc)
-    cp iccad19gr $PREFIX/bin/cugr
-  in_install: false
 - name: cvc
   repo: https://github.com/d-m-bailey/cvc
   commit: d172016a791af3089b28070d80ad92bdfef9c585
@@ -21,24 +7,13 @@
     make clean
     make -j$(nproc) $READLINE_CXXFLAGS
     make install
-- name: drcu
-  repo: https://github.com/cuhk-eda/dr-cu
-  commit: 427b4a4f03bb98d8a78b1712fe9e52cfb83a8347
-  build: |
-    rm -rf build/
-    mkdir -p build/
-    cd build
-    cmake ../src
-    make clean
-    make -j$(nproc)
-    cp ispd19dr $PREFIX/bin/drcu
-  in_install: false
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
   commit: a205a0e9419f973346740171618956afe08b2d74
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
+    make database/database.h
     make -j$(nproc)
     make install
 - name: netgen
@@ -79,7 +54,7 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 428d0fe8c941faece4eceebc54170cc04d916c03
-  build: ''
+  build: ""
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
@@ -89,20 +64,20 @@
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ''
+  build: ""
   in_install: false
 - name: open_pdks
   repo: https://github.com/efabless/open_pdks
   commit: 41c0908b47130d5675ff8484255b43f66463a7d6
-  build: ''
+  build: ""
   in_install: false
   pdk: true
   dependencies:
-  - sky130
-  - magic
+    - sky130
+    - magic
 - name: sky130
   repo: https://github.com/google/skywater-pdk
   commit: f70d8ca46961ff92719d8870a18a076370b85f6c
-  build: ''
+  build: ""
   in_install: false
   in_container: false

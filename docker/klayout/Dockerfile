@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM openlane-build-base AS builder
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 # git clone yosys
 ARG KLAYOUT_REPO
@@ -36,8 +38,7 @@ RUN echo ${KLAYOUT_COMMIT} >> /build/version/klayout.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
-FROM openlane-run-base AS runnable
-
+FROM ${RUN_BASE_IMAGE} AS runnable
 ENV PATH /build/bin:$PATH
 
 COPY --from=builder /build /build

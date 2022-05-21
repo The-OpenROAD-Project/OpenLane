@@ -1,0 +1,59 @@
+name: Docker Build
+description: Build an OpenLane Docker Container
+inputs:
+  arch:
+    description: "The Docker architecture/platform to build for"
+    required: true
+    default: "amd64"
+  dockerhub_user:
+    description: The input dockerhub user
+    required: false
+    default: ""
+  dockerhub_password:
+    description: The input dockerhub password
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+    - uses: docker/setup-buildx-action@v2
+    - uses: ./.github/actions/set_env_variables
+
+    - name: Check If Going To Push An Image To Docker
+      shell: bash
+      run: |
+        export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ inputs.dockerhub_user }}" != ""); print(1) else print(0) end')
+        echo "PUSHING=$PUSHING" >> $GITHUB_ENV
+
+    - name: Login to DockerHub
+      if: ${{ env.PUSHING == '1' }}
+      uses: docker/login-action@v1
+      with:
+        username: ${{ inputs.dockerhub_user }}
+        password: ${{ inputs.dockerhub_password }}
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Docker Build
+      shell: bash
+      run: |
+        export BUILD_IF_CANT_PULL=1
+        export BUILD_COMMAND="docker build"
+        if [ "$PUSHING" = "1" ]; then
+          export BUILD_IF_CANT_PULL_THEN_PUSH=1
+          export BUILD_COMMAND="docker buildx build --load --cache-from=type=gha --cache-to=type=gha,scope=${{ github.workflow }}}"
+        fi
+        export BUILD_ARCH=${{ inputs.arch }}
+        cd docker/ && make merge
+
+    - name: Export Docker Image
+      shell: bash
+      run: docker save -o /tmp/image-${{ inputs.arch }}.tar ${{ env.OPENLANE_IMAGE_NAME }}-${{ inputs.arch }}
+
+    - name: Upload Docker Image
+      uses: actions/upload-artifact@v2
+      with:
+        name: docker-image-${{ inputs.arch }}
+        path: /tmp/image-${{ inputs.arch }}.tar

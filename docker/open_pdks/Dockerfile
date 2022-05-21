@@ -14,7 +14,9 @@
 
 # WIP, probably will never make it to the image because it's taking forever to build
 
-FROM openlane-build-base AS builder
+ARG RUN_BASE_IMAGE=
+ARG BUILD_BASE_IMAGE=
+FROM ${BUILD_BASE_IMAGE} AS builder
 
 ARG SKY130_REPO
 ARG SKY130_COMMIT
@@ -95,7 +97,7 @@ RUN tar -c /build | gzip -1 > /build.tar.gz
 
 # ---
 # pdk can't really be runnable, might as well shed a few layers
-FROM centos:centos7 as runnable
+FROM centos:centos7 AS runnable
 
 COPY --from=builder /build.tar.gz /build.tar.gz
 
