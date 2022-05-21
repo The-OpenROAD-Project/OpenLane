@@ -1,11 +1,9 @@
 name: CI
 
-# To run on the GCP replace all 'ubuntu-latest' with 'self-hosted'
 on:
-  # Runs on pushes to all but CID-latest-branches
-  # CID-latest branches automatically create PRs, let's just let the tests run on those
+  # Runs on all pushes to branches
   push:
-  # Runs on Pull Requests
+  # Runs on all PRs
   pull_request:
   # Runs every day at midnight UTC
   schedule:
@@ -201,7 +199,6 @@ jobs:
           echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
-        if: ${{ env.PUSHING == '1' }}
         with:
           fetch-depth: 0
 

@@ -1,11 +1,10 @@
 name: Lint
 on:
-  # Runs on pushes to all but CID-latest-branches
-  # CID-latest branches automatically create PRs, let's just let the tests run on those
+  # Runs on all pushes to branches
   push:
-  # Runs on Pull Requests
+  # Runs on all PRs
   pull_request:
-  # Runs manually
+  # Manual Dispatch
   workflow_dispatch:
 
 jobs:
