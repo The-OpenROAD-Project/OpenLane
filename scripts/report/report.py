@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import defaultdict
 import os
 import re
 import sys
@@ -200,6 +201,19 @@ class Report(object):
             "Diodes",
             "Total_Physical_Cells",
         ]
+        + [
+            "CoreArea_um^2",
+            "power_slowest_internal_uW",
+            "power_slowest_switching_uW",
+            "power_slowest_leakage_uW",
+            "power_typical_internal_uW",
+            "power_typical_switching_uW",
+            "power_typical_leakage_uW",
+            "power_fastest_internal_uW",
+            "power_fastest_switching_uW",
+            "power_fastest_leakage_uW",
+            "critical_path_ns",
+        ]
     )
 
     @classmethod
@@ -316,6 +330,79 @@ class Report(object):
                 die_area = ((ux - lx) / 1000) * ((uy - ly) / 1000)
 
                 die_area /= 1000000  # To mm^2
+
+        # Initial FP Core Area
+        core_area = -1
+        floorplan_report = Artifact(rp, "reports", "floorplan", "initial_fp_core_area.rpt")
+        floorplan_report_content = floorplan_report.get_content()
+        if floorplan_report_content is not None:
+            match = re.search(
+                r"\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*",
+                floorplan_report_content,
+            )
+            if match is not None:
+                lx, ly, ux, uy = (
+                    float(match[1]),
+                    float(match[2]),
+                    float(match[3]),
+                    float(match[4]),
+                )
+                core_area = (ux-lx) * (uy-ly)   # Probably um^2
+
+        # Power after parasitics-extraction, multi-corner STA
+        power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
+        power_report = Artifact(rp, "reports", "routing", "parasitics_multi_corner_sta.power.rpt")
+        power_report_content = power_report.get_content()
+        if power_report_content is not None:
+            current_corner = None
+            for line in power_report_content.splitlines():
+                if "Slowest Corner" in line:
+                    current_corner = "slowest"
+                elif "Typical Corner" in line:
+                    current_corner = "typical"
+                elif "Fastest Corner" in line:
+                    current_corner = "fastest"
+
+                match = re.match(
+                        r"^Total\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+).*$",
+                        line)
+                if match:
+                    power_multi_corner_sta[current_corner].update({
+                        "internal": float(match[1]),
+                        "switching": float(match[2]),
+                        "leakage": float(match[3]),
+                        "total": float(match[4])
+                    })
+        power_metrics_values = [
+            power_multi_corner_sta["slowest"]["internal"],
+            power_multi_corner_sta["slowest"]["switching"],
+            power_multi_corner_sta["slowest"]["leakage"],
+            power_multi_corner_sta["typical"]["internal"],
+            power_multi_corner_sta["typical"]["switching"],
+            power_multi_corner_sta["typical"]["leakage"],
+            power_multi_corner_sta["fastest"]["internal"],
+            power_multi_corner_sta["fastest"]["switching"],
+            power_multi_corner_sta["fastest"]["leakage"],
+        ]
+
+        # Critical path
+        critical_path_ns = -1
+        critical_path_report = Artifact(rp, "reports", "routing", "parasitics_multi_corner_sta.max.rpt")
+        critical_path_report_content = critical_path_report.get_content()
+        if critical_path_report_content is not None:
+            start = 0
+            end = None
+            for line in critical_path_report_content.splitlines():
+                match = re.search("([\-.\d]+)[\sv^]+input external delay", line)
+                if match:
+                    start = float(match[1])
+                    continue
+                match = re.search("([\-.\d]+)[\sv^]+data arrival time", line)
+                if match:
+                    end = float(match[1])
+                    break
+            if end is not None:
+                critical_path_ns = end - start
 
         # Cells per micrometer
         cells_per_mm = -1
@@ -653,6 +740,9 @@ class Report(object):
             tapcells,
             diodes,
             filler_cells,
+            core_area,
+            *power_metrics_values,
+            critical_path_ns,
         ]
 
     def get_report(self):
