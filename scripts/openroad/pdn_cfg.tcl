@@ -53,26 +53,24 @@ if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 &&
 
 set secondary []
 
-foreach net $::env(VDD_NETS) {
-    if { $net != $::env(VDD_NET)} {
-        lappend secondary $net
+foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
+    if { $vdd != $::env(VDD_NET)} {
+        lappend secondary $vdd
 
-        set db_net [[ord::get_db_block] findNet $net]
+        set db_net [[ord::get_db_block] findNet $vdd]
         if {$db_net == "NULL"} {
-            set net [odb::dbNet_create [ord::get_db_block] $net]
+            set net [odb::dbNet_create [ord::get_db_block] $vdd]
             $net setSpecial
             $net setSigType "POWER"
         }
     }
-}
 
-foreach net $::env(GND_NETS) {
-    if { $net != $::env(GND_NET)} {
-        lappend secondary $net
+    if { $gnd != $::env(GND_NET)} {
+        lappend secondary $gnd
 
-        set db_net [[ord::get_db_block] findNet $net]
+        set db_net [[ord::get_db_block] findNet $gnd]
         if {$db_net == "NULL"} {
-            set net [odb::dbNet_create [ord::get_db_block] $net]
+            set net [odb::dbNet_create [ord::get_db_block] $gnd]
             $net setSpecial
             $net setSigType "GROUND"
         }
