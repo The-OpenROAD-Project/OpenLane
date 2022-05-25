@@ -23,7 +23,6 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 tapcell\
-    -endcap_cpp "1"\
     -distance $::env(FP_TAPCELL_DIST)\
     -tapcell_master "$::env(FP_WELLTAP_CELL)"\
     -endcap_master "$::env(FP_ENDCAP_CELL)"\
