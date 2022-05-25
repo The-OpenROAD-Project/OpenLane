@@ -349,13 +349,11 @@ class Report(object):
                     float(match[3]),
                     float(match[4]),
                 )
-                core_area = (ux - lx) * (uy - ly)  # Probably um^2
+                core_area = (ux - lx) * (uy - ly)   # Probably um^2
 
         # Power after parasitics-extraction, multi-corner STA
         power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
-        power_report = Artifact(
-            rp, "reports", "routing", "parasitics_multi_corner_sta.power.rpt"
-        )
+        power_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.power.rpt")
         power_report_content = power_report.get_content()
         if power_report_content is not None:
             current_corner = None
@@ -369,8 +367,7 @@ class Report(object):
 
                 match = re.match(
                     r"^Total\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+).*$",
-                    line,
-                )
+                    line)
                 if match:
                     power_multi_corner_sta[current_corner].update(
                         {
@@ -394,9 +391,7 @@ class Report(object):
 
         # Critical path
         critical_path_ns = -1
-        critical_path_report = Artifact(
-            rp, "reports", "routing", "parasitics_multi_corner_sta.max.rpt"
-        )
+        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.max.rpt")
         critical_path_report_content = critical_path_report.get_content()
         if critical_path_report_content is not None:
             start = 0
