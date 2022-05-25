@@ -70,8 +70,18 @@
 | `Diodes`   | The number of diodes in the final design. Extracted from diode logs or Fastroute log based on the used diode insertion strategy.        |
 | `Total_Physical_Cells`   | The sum of endcaps, tapcells, and diodes in the final design.        |
 | `suggested_clock_frequency`   | The suggested clock frequency to be used with the design. Calculated based on the value of `spef_wns`, and reported in `MHz`.       |
-| `suggested_clock_period`   | TThe suggested clock period to be used with the design. Calculated based on the value of `spef_wns`, and reported in `ns`.        |
-
+| `suggested_clock_period`   | The suggested clock period to be used with the design. Calculated based on the value of `spef_wns`, and reported in `ns`.        |
+| `CoreArea_um^2`   | The area of the core, in um^2. Extracted from the initial floorplan. |
+| `power_slowest_internal_uW`   | Total internal (within cell) power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_slowest_switching_uW`   | Total switching power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_slowest_leakage_uW`   | Total leakage power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_typical_internal_uW`   | Total internal (within cell) power use at the typical corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_typical_switching_uW`   | Total switching power use at the typical corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_typical_leakage_uW`   | Total leakage power use at the typical corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_fastest_internal_uW`   | Total internal (within cell) power use at the fastest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_fastest_switching_uW`   | Total switching power use at the fastest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `power_fastest_leakage_uW`   | Total leakage power use at the fastest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
+| `critical_path_ns`   | Delay of the longest path, in ns, reported by multi-corner post-parasitics STA. |
 
 ## Default Printed Configuration Variables
 
