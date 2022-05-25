@@ -349,7 +349,7 @@ class Report(object):
                     float(match[3]),
                     float(match[4]),
                 )
-                core_area = (ux - lx) * (uy - ly)   # Probably um^2
+                core_area = (ux - lx) * (uy - ly)  # Probably um^2
 
         # Power after parasitics-extraction, multi-corner STA
         power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
@@ -367,7 +367,8 @@ class Report(object):
 
                 match = re.match(
                     r"^Total\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+)\s+([\d.Ee\-+]+).*$",
-                    line)
+                    line,
+                )
                 if match:
                     power_multi_corner_sta[current_corner].update(
                         {
