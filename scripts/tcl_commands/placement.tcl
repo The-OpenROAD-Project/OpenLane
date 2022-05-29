@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -103,31 +103,34 @@ proc add_macro_placement {args} {
 }
 
 proc manual_macro_placement {args} {
-    set options {}
-    set flags {-fixed}
-    parse_key_args "manual_macro_placement" args arg_values $options flags_map $flags
-
     increment_index
     TIMER::timer_start
     puts_info "Performing Manual Macro Placement..."
+
+    set options {}
+    set flags {-f}
+    parse_key_args "manual_macro_placement" args arg_values $options flags_map $flags
+
+
     set fbasename [file rootname $::env(CURRENT_DEF)]
+    set output_def ${fbasename}.macro_placement.def
 
     set arg_list [list]
-    lappend arg_list --input-lef $::env(MERGED_LEF)
-    lappend arg_list --output ${fbasename}.macro_placement.def
-    lappend arg_list --config $::env(placement_tmpfiles)/macro_placement.cfg
 
-    if { [info exists flags_map(-fixed)] } {
+    lappend arg_list --output $output_def
+    lappend arg_list --input-lef $::env(MERGED_LEF)
+    lappend arg_list --config $::env(placement_tmpfiles)/macro_placement.cfg
+    lappend arg_list $::env(CURRENT_DEF)
+
+    if { [info exists flags_map(-f)] } {
         lappend arg_list --fixed
     }
 
-    lappend arg_list $::env(CURRENT_DEF)
+    try_catch openroad -python\
+        $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
+        tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "macro placement - openlane"
-    set_def ${fbasename}.macro_placement.def
+    set_def $output_def
 }
 
 proc basic_macro_placement {args} {

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -377,7 +377,7 @@ proc run_floorplan {args} {
     if { [info exist ::env(EXTRA_LEFS)] } {
         if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
             file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
-            manual_macro_placement f
+            manual_macro_placement -f
         } else {
             global_placement_or
             basic_macro_placement
