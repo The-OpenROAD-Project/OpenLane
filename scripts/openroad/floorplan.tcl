@@ -13,18 +13,18 @@
 # limitations under the License.
 
 foreach lib $::env(LIB_SYNTH_COMPLETE) {
-	read_liberty $lib
+  read_liberty $lib
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+  foreach lib $::env(EXTRA_LIBS) {
+    read_liberty $lib
+  }
 }
 
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
+  puts stderr $errmsg
+  exit 1
 }
 
 read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
@@ -51,7 +51,7 @@ if {$::env(FP_SIZING) == "absolute"} {
 
     set ::env(CORE_AREA) [list $core_ll_x $core_ll_y $core_ur_x $core_ur_y]
   } else {
-	  puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
+    puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
   }
 
   initialize_floorplan \
@@ -67,37 +67,37 @@ if {$::env(FP_SIZING) == "absolute"} {
     -core_space "$bottom_margin $top_margin $left_margin $right_margin" \
     -site $::env(PLACE_SITE)
 
-    set ::chip [[::ord::get_db] getChip]
-    set ::tech [[::ord::get_db] getTech]
-    set ::block [$::chip getBlock]
-    puts "\[INFO] Extracting DIE_AREA and CORE_AREA from the floorplan"
-    set ::env(DIE_AREA) [list]
-    set ::env(CORE_AREA) [list]
+  set ::chip [[::ord::get_db] getChip]
+  set ::tech [[::ord::get_db] getTech]
+  set ::block [$::chip getBlock]
+  puts "\[INFO] Extracting DIE_AREA and CORE_AREA from the floorplan"
+  set ::env(DIE_AREA) [list]
+  set ::env(CORE_AREA) [list]
 
-    set die_area [$::block getDieArea]
-    set core_area [$::block getCoreArea] 
+  set die_area [$::block getDieArea]
+  set core_area [$::block getCoreArea]
 
-    set die_area [list [$die_area xMin] [$die_area yMin] [$die_area xMax] [$die_area yMax]]
-    set core_area [list [$core_area xMin] [$core_area yMin] [$core_area xMax] [$core_area yMax]]
+  set die_area [list [$die_area xMin] [$die_area yMin] [$die_area xMax] [$die_area yMax]]
+  set core_area [list [$core_area xMin] [$core_area yMin] [$core_area xMax] [$core_area yMax]]
 
-    set dbu [$tech getDbUnitsPerMicron]
+  set dbu [$tech getDbUnitsPerMicron]
 
-    foreach coord $die_area {
-      lappend ::env(DIE_AREA) [expr {1.0 * $coord / $dbu}]
-    }
-    foreach coord $core_area {
-      lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
-    }
+  foreach coord $die_area {
+    lappend ::env(DIE_AREA) [expr {1.0 * $coord / $dbu}]
+  }
+  foreach coord $core_area {
+    lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
+  }
 
-    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
-    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
+  puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
+  puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
 }
-source $::env(TRACKS_INFO_FILE_PROCESSED) 
+source $::env(TRACKS_INFO_FILE_PROCESSED)
 
 set die_area_file [open $::env(fp_report_prefix)_die_area.rpt w]
 set core_area_file [open $::env(fp_report_prefix)_core_area.rpt w]
-    puts -nonewline $die_area_file $::env(DIE_AREA)
-    puts -nonewline $core_area_file $::env(CORE_AREA)
+puts -nonewline $die_area_file $::env(DIE_AREA)
+puts -nonewline $core_area_file $::env(CORE_AREA)
 close $core_area_file
 close $die_area_file
 

@@ -60,7 +60,7 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-netlist_def <def_file>` |  DEF view of the design that has the connectivity information.|
 |    | `-pad_pin_name <pad_pin_name>` |  Name of the pin of the pad as it appears in the netlist def. |
 |    | `[-output <output_def>]` |  Output labeled def file. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
-|    | `[-extra_args <extra_args>]` | Gives extra control on the rest of the flags of the labeling script. For more information on the other args that the script supports, run: `python3 $OPENLANE_ROOT/scripts/label_macro_pins.py -h`. <br> Optional flag.|
+|    | `[-extra_args <extra_args>]` | Gives extra control on the rest of the flags of the labeling script. For more information on the other args that the script supports, run: `openroad -python $OPENLANE_ROOT/scripts/odbpy/label_macro_pins.py -h`. <br> Optional flag.|
 | `write_verilog <filename>` | | Generates a verilog netlist from a given def file. Stores the resulting netlist in `<filename>`, and sets the generated netlist as the `CURRENT_NETLIST` used by the flow.|
 |    | `[-def <def_file>]` |  DEF view of the design from which to generate the netlist. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
 | `add_macro_obs` | |Creates and obstruction in def and lef files.|
@@ -79,9 +79,7 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-layer <layer_name>` | layer to change.|
 |    | `-valuesFile <file>` |  tmp file to read the new track values from.|
 |    | `-originalFile <file>` |  tmp file to store the original value.|
-| `padframe_extract_area` | | Returns the Diearea extracted from the given padframe configuration file. |
-|    | `-cfg <padframe_configurations_file>` | The file containing the padframe information. |
-| `set_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
+| `extract_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)` either calling `run_or_antenna_check` or `run_magic_antenna_check`. |

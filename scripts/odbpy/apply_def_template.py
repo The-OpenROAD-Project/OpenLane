@@ -14,20 +14,18 @@
 # limitations under the License.
 
 import click
-import shutil
 import defutil
+import shutil
 
 
 @click.command()
 @click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
 @click.option("-l", "--lef", "lef", required=True, help="LEF file")
-@click.option("-lg", "--log", "logfile", required=True, help="Log output file")
+@click.option("--log", "logfile", required=True, help="Log output file")
 @click.argument("userdef")
 def cli(templatedef, userdef, lef, logfile):
     userDEF = userdef
     templateDEF = templatedef
-
-    # Removed section to remove the power/ground pins as defutil:replace_pins implements this
 
     defutil.replace_pins(
         input_lef=lef,
@@ -37,12 +35,12 @@ def cli(templatedef, userdef, lef, logfile):
         output_def=f"{userDEF}.replace_pins.tmp",
     )
 
-    # Call defutil to move die area
     defutil.move_diearea(
         template_def=templateDEF,
         output_def=f"{userDEF}.replace_pins.tmp",
         input_lef=lef,
     )
+
     shutil.copy(f"{userDEF}.replace_pins.tmp", userDEF)
 
 

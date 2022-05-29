@@ -84,7 +84,13 @@ proc global_routing_fastroute {args} {
             set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global_$iter.guide]
             set saveLOG [index_file $::env(routing_logs)/global_$iter.log]
             set replaceWith "INSDIODE$iter"
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/replace_prefix_from_def_instances.py -op "ANTENNA" -np $replaceWith -d $::env(CURRENT_DEF)
+
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_instance_prefixes\
+                --output $::env(CURRENT_DEF)\
+                --original-prefix "ANTENNA"\
+                --new-prefix $replaceWith\
+                $::env(CURRENT_DEF)
+
             puts_info "FastRoute Iteration $iter"
             puts_info "Antenna Violations Previous: $prevAntennaVal"
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
@@ -146,10 +152,10 @@ proc detailed_routing_tritonroute {args} {
     translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/tr_drc_to_klayout_drc.py \
-        -i $::env(routing_reports)/detailed.drc \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/detailed.klayout.xml \
-        --design-name $::env(DESIGN_NAME)
+        --design-name $::env(DESIGN_NAME) \
+        $::env(routing_reports)/detailed.drc
 
     quit_on_tr_drc
 }
@@ -230,17 +236,18 @@ proc power_routing {args} {
     set_if_unset arg_values(-extra_args) ""
 
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/power_route.py\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py power_route\
         --input-lef $arg_values(-lef)\
-        --input-def $arg_values(-def)\
         --core-vdd-pin $arg_values(-power)\
         --core-gnd-pin $arg_values(-ground)\
-        -o $arg_values(-output_def)\
-        {*}$arg_values(-extra_args) |& tee [index_file $::env(routing_logs)/power_routing.log] $::env(TERMINAL_OUTPUT)
+        --output $arg_values(-output_def)\
+        {*}$arg_values(-extra_args)\
+        $arg_values(-def)\
+        |& tee [index_file $::env(routing_logs)/power_routing.log] $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "top level power routing - power_route.py"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "top level power routing - openlane"
 }
 
 proc gen_pdn {args} {
@@ -303,7 +310,14 @@ proc ins_diode_cells_4 {args} {
     }
 
     # Custom script
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/place_diodes.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o $::env(SAVE_DEF) --diode-cell $::env(DIODE_CELL)  --diode-pin  $::env(DIODE_CELL_PIN) --fake-diode-cell $::antenna_cell_name  |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
+        place\
+        --output $::env(SAVE_DEF)\
+        --input-lef $::env(MERGED_LEF)\
+        --diode-cell $::env(DIODE_CELL)\
+        --diode-pin  $::env(DIODE_CELL_PIN)\
+        --fake-diode-cell $::antenna_cell_name\
+        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
 
     set_def $::env(SAVE_DEF)
 
@@ -315,7 +329,7 @@ proc ins_diode_cells_4 {args} {
     set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - place_diodes.py"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
@@ -327,12 +341,13 @@ proc apply_route_obs {args} {
     puts_warn "Specifying a routing obstruction is now done using the coordinates"
     puts_warn "of its bounding box instead of the now deprecated (x, y, size_x, size_y)."
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/add_def_obstructions.py \
-        --input-def $::env(CURRENT_DEF) \
-        --lef $::env(MERGED_LEF) \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py add_def_obstructions\
+        --output [file rootname $::env(CURRENT_DEF)].obs.def \
+        --input-lef $::env(MERGED_LEF) \
         --obstructions $::env(GLB_RT_OBS) \
-        --output [file rootname $::env(CURRENT_DEF)].obs.def |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/obs.log
-    puts_info "Obstructions added over $::env(GLB_RT_OBS)"
+        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/obs.log
+
+    puts_info "Obstructions added over $::env(GLB_RT_OBS)."
     set_def [file rootname $::env(CURRENT_DEF)].obs.def
 }
 
