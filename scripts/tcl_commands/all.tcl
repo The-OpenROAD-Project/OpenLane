@@ -477,19 +477,6 @@ proc prep {args} {
 
     set skip_basic_prep 0
 
-    if { [file exists $::env(RUN_DIR)] } {
-        if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing existing run at $::env(RUN_DIR)..."
-            after 1000
-            file delete -force $::env(RUN_DIR)
-        } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-            after 1000
-            set skip_basic_prep 1
-        }
-    }
-
-
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
 
@@ -498,15 +485,21 @@ proc prep {args} {
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_info "Removing $::env(GLB_CFG_FILE)"
+            after 1000
             file delete $::env(GLB_CFG_FILE)
         } else {
-            puts_info "Sourcing $::env(GLB_CFG_FILE)\nAny changes to the DESIGN config file will NOT be applied"
+            if { ![info exists flags_map(-last_run)] } {
+                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
+                after 1000
+            }
+            puts_info "Sourcing $::env(GLB_CFG_FILE). Any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
             if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
                 puts_info "Current DEF: $::env(CURRENT_DEF)."
                 puts_info "Use 'set_def file_name.def' if you'd like to change it."
             }
             after 1000
+            set skip_basic_prep 1
         }
     }
 
@@ -675,8 +668,8 @@ proc prep {args} {
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
-        puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
-        assert_files_exist $::env(EXTRA_GDS_FILES)
+        puts_verbose "Verifying existence of files defined in ::env(EXTRA_GDS_FILES)..."
+        assert_files_exist "$::env(EXTRA_GDS_FILES)"
     }
 
 

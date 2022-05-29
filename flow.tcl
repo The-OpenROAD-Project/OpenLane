@@ -245,8 +245,7 @@ proc run_non_interactive_mode {args} {
     set_if_unset arg_values(-to) "cvc";
 
     if {  [info exists ::env(CURRENT_STEP) ] } {
-        puts "\[INFO\]:Picking up where last execution left off"
-        puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
+        puts_info "Resuming flow where $::env(RUN_TAG) stopped (stage: $::env(CURRENT_STEP))..."
     } else {
         set ::env(CURRENT_STEP) "synthesis";
     }
@@ -384,14 +383,8 @@ proc run_lvs_batch {args} {
     if { [info exists arg_values(-net)] } {
         set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
     }
-    if { ! [file exists $::env(CURRENT_GDS) ] } {
-        puts_err "Could not find GDS file \"$::env(CURRENT_GDS)\""
-        exit 1
-    }
-    if { ! [file exists $::env(CURRENT_NETLIST) ] } {
-        puts_err "Could not find NET file \"$::env(CURRENT_NETLIST)\""
-        exit 1
-    }
+
+    assert_files_exist "$::env(CURRENT_GDS) $::env(CURRENT_NETLIST)"
 
     set ::env(MAGIC_EXT_USE_GDS) 1
     set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).gds.spice

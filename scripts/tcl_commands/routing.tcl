@@ -375,14 +375,7 @@ proc run_spef_extraction {args} {
     set ::env(RCX_LEF) $arg_values(-rcx_lef)
     set ::env(RCX_RULESET) $arg_values(-rcx_rules)
 
-    if { ![file exists $::env(RCX_RULESET)]} {
-        puts_err "RCX ruleset '$::env(RCX_RULESET)' does not exist."
-        return -code error
-    }
-    if { ![file exists $::env(RCX_LEF)]} {
-        puts_err "Technology LEF file '$::env(RCX_LEF)' does not exist."
-        return -code error
-    }
+    assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LEF)"
 
     increment_index
     TIMER::timer_start

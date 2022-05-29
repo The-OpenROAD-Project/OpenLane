@@ -233,17 +233,15 @@ def write_powered_def(
 
         openroad_script = "\n".join(openroad_script)
 
-        output = p.communicate(openroad_script)
-        print("STDOUT:")
-        print(output[0].strip())
-        print("STDERR:")
-        print(output[1].strip())
+        openroad_stdout, openroad_stderr = p.communicate(openroad_script)
+        print(f"STDOUT: {openroad_stdout.strip()}")
+        print(f"STDERR: {openroad_stderr.strip()}")
         print("openroad exit code:", p.returncode)
         assert p.returncode == 0, p.returncode
         assert os.path.exists(tmp_def_file), "DEF file doesn't exist"
 
         power = OdbReader(input_lef, tmp_def_file)
-        assert power.name.getName() == reader.name
+        assert power.name == reader.name
         POWER_GROUND_PORT_NAMES = [port.getName() for port in VDD_PORTS + GND_PORTS]
 
         # using get_power_ground_ports doesn't work since the pins weren't
@@ -282,6 +280,7 @@ def write_powered_def(
                 original_iterm.connect(original_port.getNet())
                 print("Modified connections between", port.getName(), "and", inst_name)
 
+    print(reader.block, output)
     odb.write_def(reader.block, output)
 
 

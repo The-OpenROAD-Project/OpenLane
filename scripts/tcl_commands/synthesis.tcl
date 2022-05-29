@@ -173,10 +173,7 @@ proc yosys_rewrite_verilog {filename} {
         return
     }
 
-    if { ! [file exists $filename] } {
-        puts_err "Failed to rewrite Verilog file $filename: File does not exist."
-        return -code error
-    }
+    assert_files_exist $filename
 
     set ::env(SAVE_NETLIST) $filename
 

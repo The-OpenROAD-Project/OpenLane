@@ -28,8 +28,8 @@ proc global_placement_or {args} {
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
-        puts_err "Failure in global placement"
-        return -code error
+        puts_err "Global placement has failed to produce a DEF file."
+        flow_fail
     }
 
     check_replace_divergence
