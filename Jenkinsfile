@@ -32,8 +32,8 @@ pipeline {
 
         stage('Build Docker OpenLane image with openroad_app master') {
             steps {
-                sh 'make -C docker openlane';
-                sh 'docker save efabless/openlane:current | gzip > openlane-current.tar.gz';
+                sh 'make -C docker openlane OPENLANE_IMAGE_NAME=current:latest';
+                sh 'docker save current:latest-amd64 | gzip > openlane-current.tar.gz';
                 stash name: 'data', includes: 'openlane-current.tar.gz';
             }
         }
@@ -83,7 +83,7 @@ pipeline {
                                     sh "sed -i s/${OLD_SHA}/${NEW_SHA}/ ./dependencies/tool_metadata.yml"
                                 }
                                 stage("${DESIGN} - Run test") {
-                                    sh "make OPENLANE_DOCKER_TAG=current TEST_DESIGN=${DESIGN} test";
+                                    sh "make OPENLANE_IMAGE_NAME=current:latest TEST_DESIGN=${DESIGN} test";
                                 }
                             }
                         }
