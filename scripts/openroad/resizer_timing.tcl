@@ -47,28 +47,18 @@ source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 estimate_parasitics -placement
 
 # Resize
-if { [catch {repair_timing -setup \
-        -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
-        -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)}
-]} {
-    puts "Setup utilization limit is reached. Continuing the flow... "
-}
+repair_timing -setup \
+    -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
+    -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)
 
-if { $::env(PL_RESIZER_ALLOW_SETUP_VIOS) == 1} {
-    if { [catch {repair_timing -hold -allow_setup_violations \
-            -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
-            -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)}
-    ]} {
-        puts "Hold utilization limit is reached. Continuing the flow... "
-    }
-} else {
-    if { [catch {repair_timing -hold \
-            -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN) \
-            -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)}
-    ]} {
-        puts "Hold utilization limit is reached. Continuing the flow... "
-    }
+set arg_list [list]
+lappend arg_list -hold
+lappend arg_list -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN)
+lappend arg_list -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)
+if { $::env(PL_RESIZER_ALLOW_SETUP_VIOS) == 1 } {
+    lappend arg_list -allow_setup_violations
 }
+repair_timing {*}$arg_list
 
 set_placement_padding -global -right $::env(CELL_PAD)
 if { $::env(CELL_PAD_EXCLUDE) != "" } {
