@@ -1,10 +1,37 @@
 {
-	"DESIGN_NAME" : "spm",
-	"VERILOG_FILES" : "./designs/spm/src/spm.v",
-	"CLOCK_PERIOD" : 10.000,
-	"CLOCK_PORT" : "clk",
-	"CLOCK_NET" : "clk",
-	"SYNTH_MAX_FANOUT" : 6,
-	"FP_CORE_UTIL" : 65,
-	"PL_TARGET_DENSITY" : 0.70
+    "DESIGN_NAME": "spm",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PERIOD": "10.000",
+    "CLOCK_PORT": "clk",
+    "FP_PDN_AUTO_ADJUST": "0",
+    "FP_PDN_VOFFSET": "7.0",
+    "FP_PDN_HOFFSET": "7.0",
+    "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+    "pdk::sky130A": {
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": "10.0",
+            "SYNTH_MAX_FANOUT": "5",
+            "FP_CORE_UTIL": "45"
+        },
+        "scl::sky130_fd_sc_hdll": {
+            "CLOCK_PERIOD": "10.0",
+            "SYNTH_MAX_FANOUT": "5",
+            "FP_CORE_UTIL": "49"
+        },
+        "scl::sky130_fd_sc_hs": {
+            "CLOCK_PERIOD": "10.0",
+            "SYNTH_MAX_FANOUT": "5",
+            "FP_CORE_UTIL": "49"
+        },
+        "scl::sky130_fd_sc_ls": {
+            "CLOCK_PERIOD": "10.0",
+            "SYNTH_MAX_FANOUT": "5",
+            "FP_CORE_UTIL": "49"
+        },
+        "scl::sky130_fd_sc_ms": {
+            "CLOCK_PERIOD": "10.0",
+            "SYNTH_MAX_FANOUT": "5",
+            "FP_CORE_UTIL": "49"
+        }
+    }
 }

@@ -190,6 +190,7 @@ proc gen_exclude_list {args} {
             fcopy $in $out
             close $in
         }
+        puts $out ""
         close $out
     }
 
@@ -207,6 +208,7 @@ proc gen_exclude_list {args} {
         set x [cat "$arg_values(-output)"]
         set y [split $x]
         set ::env(DONT_USE_CELLS) [join $y " "]
+        puts_verbose "Created ::env(DONT_USE_CELLS): {$::env(DONT_USE_CELLS)}"
     }
 
 
@@ -244,31 +246,26 @@ proc trim_lib {args} {
 }
 
 proc source_config {config_file} {
-    puts_info "Sourcing Configurations from $config_file"
     if { ![file exists $config_file] } {
-        puts_err "Configuration file $config_file not found"
+        puts_err "$config_file_rel error: file not found"
         return -code error
     }
-    if { [file extension $config_file] == ".tcl" } {
+
+    set ext [file extension $config_file]
+    if { $ext == ".tcl" } {
         # for trusted end-users only
         source $config_file
-    } elseif { [file extension $config_file] == ".json" } {
-        set config_content [cat $config_file]
-
-        if { [catch {json::json2dict "$config_content"} config_dict] } {
-            puts_err "Failed to parse JSON file $config_file"
-            return -code error
-        }
-        dict for {config_key config_value} $config_dict {
-            # TODO after refactor: check if config_key is a valid configuration
-            set ::env($config_key) $config_value
-        }
+    } elseif { $ext == ".json" } {
+        exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json\
+            --pdk $::env(PDK) --scl $::env(STD_CELL_LIBRARY)\
+            --output $::env(RUN_DIR)/config_in.tcl\
+            --design-dir $::env(DESIGN_DIR)\
+            $config_file
+        source $::env(RUN_DIR)/config_in.tcl
     } else {
-        puts_err "Configuration file $config_file with invalid extension"
+        puts_err "$config_file error: unsupported extension '$ext'"
         return -code error
     }
-
-    return -code ok
 }
 
 proc prep {args} {
@@ -352,31 +349,56 @@ proc prep {args} {
     set_if_unset arg_values(-tag) "RUN_$::env(START_TIME)"
     set tag $arg_values(-tag)
 
-
-    set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
+    set ::env(CONFIGS) [cat $::env(OPENLANE_ROOT)/configuration/load_order.txt]
 
     if { [info exists arg_values(-config_file)] } {
         set ::env(DESIGN_CONFIG) $arg_values(-config_file)
     } else {
         if { [file exists $::env(DESIGN_DIR)/$config_tag.tcl] } {
             set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.tcl
-        } else {
+        } elseif { [file exists $::env(DESIGN_DIR)/$config_tag.json] } {
             set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.json
+        } else {
+            puts_err "No design configuration (config.json/config.tcl) found in $::env(DESIGN_DIR)."
+            return -code error
         }
     }
 
-    if { ! [file exists $::env(DESIGN_CONFIG)] } {
-        puts_err "No design configuration found at $::env(DESIGN_CONFIG)"
-        return -code error
-    }
-
-    puts_info "Using design configuration at $::env(DESIGN_CONFIG)"
-
     foreach config $::env(CONFIGS) {
-        source $config
+        source $::env(OPENLANE_ROOT)/configuration/$config
     }
 
-    # needs to be sourced first since it can choose to determine the PDK and SCL
+    if { [info exists arg_values(-run_path)] } {
+        set run_path "[file normalize $arg_values(-run_path)]/$tag"
+    } else {
+        set run_path $::env(DESIGN_DIR)/runs/$tag
+    }
+
+    set ::env(RUN_TAG)		"$tag"
+    set ::env(RUN_DIR) 		"$run_path"
+
+    set skip_basic_prep 0
+
+    if { [file exists $::env(RUN_DIR)] } {
+        if { [info exists flags_map(-overwrite)] } {
+            puts_warn "Removing existing run at $::env(RUN_DIR)..."
+            after 1000
+            file delete -force $::env(RUN_DIR)
+        } elseif { ![info exists flags_map(-last_run)] } {
+            puts_warn "A run for this design with the tag '$tag' already exists. Pass the -overwrite option to overwrite it."
+            after 1000
+            set skip_basic_prep 1
+        }
+    }
+
+    file mkdir $run_path
+
+
+    # Needs to be preliminarily sourced at this point, as the PDK
+    # and STD_CELL_LIBRARY values can be in this file.
+    set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
+
+    puts_info "Using configuration in '$config_file_rel'..."
     source_config $::env(DESIGN_CONFIG)
 
     if { [info exists arg_values(-override_env)] } {
@@ -385,10 +407,9 @@ proc prep {args} {
             set kva [split $override '=']
             set key [lindex $kva 0]
             set value [lindex $kva 1]
-            set ::env(${key}) $value
+            set ::env("$key") $value
         }
     }
-
 
     # DEPRECATED PDK_VARIANT
     handle_deprecated_config PDK_VARIANT STD_CELL_LIBRARY
@@ -398,15 +419,15 @@ proc prep {args} {
         puts_err "PDK_ROOT is not specified. Please make sure you have it set."
         return -code error
     } else {
-        puts_info "PDKs root directory: $::env(PDK_ROOT)"
+        puts_info "PDK Root: $::env(PDK_ROOT)"
     }
 
     if { ! [info exists ::env(PDK)] } {
         puts_err "PDK is not specified."
         return -code error
     } else {
-        puts_info "PDK: $::env(PDK)"
-        puts_info "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
+        puts_info "Process Design Kit: $::env(PDK)"
+        puts_verbose "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
         set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
 
@@ -419,7 +440,7 @@ proc prep {args} {
 
     if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
         set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
-        puts_info "Optimization Standard Cell Library is set to: $::env(STD_CELL_LIBRARY_OPT)"
+        puts_verbose "Optimization SCL also set to $::env(STD_CELL_LIBRARY_OPT)."
     } else {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
@@ -432,11 +453,6 @@ proc prep {args} {
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
     source $pdk_config
-
-    # Value set by PDK for some reason
-    if { [info exists ::env(GLB_RT_L1_ADJUSTMENT) ] } {
-        unset ::env(GLB_RT_L1_ADJUSTMENT)
-    }
 
     source $scl_config
 
@@ -451,39 +467,17 @@ proc prep {args} {
     handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
-    if { [info exists arg_values(-run_path)] } {
-        set run_path "[file normalize $arg_values(-run_path)]/$tag"
-    } else {
-        set run_path $::env(DESIGN_DIR)/runs/$tag
-    }
-
 
     #
     ############################
     # Prep directories and files
     ############################
     #
-    set ::env(RUN_TAG)		"$tag"
-    set ::env(RUN_DIR) 		"$run_path"
     set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
     set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
     set ::env(LOGS_DIR) 		"$::env(RUN_DIR)/logs"
     set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
     set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
-
-    set skip_basic_prep 0
-
-    if { [file exists $::env(RUN_DIR)] } {
-        if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing existing run at $::env(RUN_DIR)..."
-            after 1000
-            file delete -force $::env(RUN_DIR)
-        } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-            after 1000
-            set skip_basic_prep 1
-        }
-    }
 
 
     # file mkdir *ensures* they exists (no problem if they already do)
@@ -683,7 +677,7 @@ proc prep {args} {
             flow_fail
             return -code error
         }
-        
+
         puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 

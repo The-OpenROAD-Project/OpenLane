@@ -1,0 +1,39 @@
+{
+    "DESIGN_NAME": "usb",
+    "VERILOG_FILES": "dir::src/usb2p0_core.v",
+    "CLOCK_PORT": "clk_48",
+    "CLOCK_NET": "clk_48",
+    "pdk::sky130A": {
+        "scl::sky130_fd_sc_hd": {
+            "FP_CORE_UTIL": "40",
+            "CLOCK_PERIOD": "15.00",
+            "SYNTH_STRATEGY": "DELAY 0",
+            "SYNTH_MAX_FANOUT": "6",
+            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+        },
+        "scl::sky130_fd_sc_hdll": {
+            "FP_CORE_UTIL": "40",
+            "CLOCK_PERIOD": "12.55",
+            "SYNTH_MAX_FANOUT": "6",
+            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+        },
+        "scl::sky130_fd_sc_hs": {
+            "FP_CORE_UTIL": "40",
+            "CLOCK_PERIOD": "12.55",
+            "SYNTH_MAX_FANOUT": "6",
+            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+        },
+        "scl::sky130_fd_sc_ls": {
+            "FP_CORE_UTIL": "40",
+            "CLOCK_PERIOD": "12.55",
+            "SYNTH_MAX_FANOUT": "6",
+            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+        },
+        "scl::sky130_fd_sc_ms": {
+            "FP_CORE_UTIL": "40",
+            "CLOCK_PERIOD": "12.55",
+            "SYNTH_MAX_FANOUT": "6",
+            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+        }
+    }
+}

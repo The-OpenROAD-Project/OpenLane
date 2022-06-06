@@ -15,7 +15,7 @@
 import os
 import re
 import csv
-
+import json
 
 def get_design_path(design):
     path = os.path.abspath(design) + "/"
@@ -31,21 +31,24 @@ def get_run_path(design, tag):
     return os.path.join(get_design_path(design), "runs", tag)
 
 
+DESIGN_NAME_RX = re.compile(r"\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*")
 def get_design_name(design, config):
     design_path = get_design_path(design=design)
     if design_path is None:
-        return ("Design path not found", None)
-    config_file = f"{design_path}/{config}.tcl"
-    try:
-        config_file_opener = open(config_file, "r")
-        configs = config_file_opener.read()
-        config_file_opener.close()
-        pattern = re.compile(r"\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*")
-        for name in re.findall(pattern, configs):
+        return (f"Path for '{design}' not found", None)
+    config_file_json = f"{design_path}/{config}.json"
+    config_file_tcl = f"{design_path}/{config}.tcl"
+    if os.path.isfile(config_file_json):
+        config_json_str = open(config_file_json).read()
+        config = json.loads(config_json_str)
+        return (None, config["DESIGN_NAME"])
+    elif os.path.isfile(config_file_tcl):
+        config_tcl_str = open(config_file_tcl).read()
+        for name in DESIGN_NAME_RX.findall(config_tcl_str):
             return (None, name.strip('"{}'))
-        return ("Invalid configuration file", None)
-    except OSError:
-        return ("Configuration file not found", None)
+        return ("::env(DESIGN_NAME) not found in config.tcl", None)
+    else:
+        return ("config.tcl/config.json not found", None)
 
 
 def add_computed_statistics(filename):

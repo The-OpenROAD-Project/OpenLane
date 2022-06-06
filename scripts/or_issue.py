@@ -418,4 +418,3 @@ with open(lldb_env, "w") as f:
     )
 
 print("[FIN] Done.", file=sys.stderr)
-print(destination_folder)

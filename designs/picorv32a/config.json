@@ -1,0 +1,18 @@
+{
+    "DESIGN_NAME": "picorv32a",
+    "VERILOG_FILES": "dir::src/picorv32a.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_NET": "clk",
+    "GLB_RESIZER_TIMING_OPTIMIZATIONS": "1",
+    "pdk::sky130A": {
+        "SYNTH_MAX_FANOUT": "6",
+        "CLOCK_PERIOD": "24.73",
+        "FP_CORE_UTIL": "35",
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": "24"
+        },
+        "scl::sky130_fd_sc_ms": {
+            "FP_CORE_UTIL": "30"
+        }
+    }
+}

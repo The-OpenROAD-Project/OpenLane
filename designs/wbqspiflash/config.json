@@ -1,0 +1,34 @@
+{
+    "DESIGN_NAME": "wbqspiflash",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "i_clk",
+    "CLOCK_NET": "i_clk",
+    "pdk::sky130A": {
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": "20",
+            "SYNTH_STRATEGY": "DELAY 0",
+            "SYNTH_MAX_FANOUT": "4",
+            "FP_CORE_UTIL": "40"
+        },
+        "scl::sky130_fd_sc_hdll": {
+            "CLOCK_PERIOD": "18.86",
+            "FP_CORE_UTIL": "40",
+            "SYNTH_MAX_FANOUT": "6"
+        },
+        "scl::sky130_fd_sc_hs": {
+            "CLOCK_PERIOD": "18.86",
+            "FP_CORE_UTIL": "30",
+            "SYNTH_MAX_FANOUT": "6"
+        },
+        "scl::sky130_fd_sc_ls": {
+            "CLOCK_PERIOD": "18.86",
+            "FP_CORE_UTIL": "35",
+            "SYNTH_MAX_FANOUT": "6"
+        },
+        "scl::sky130_fd_sc_ms": {
+            "CLOCK_PERIOD": "18.86",
+            "FP_CORE_UTIL": "30",
+            "SYNTH_MAX_FANOUT": "6"
+        }
+    }
+}

@@ -1,4 +1,4 @@
-# set resistance and capacitence
+# Resistance/Capacitance Overrides
 # Via resistance
 puts "\[INFO\]: Setting RC values..."
 if { [info exist ::env(VIAS_RC)] } {
@@ -21,5 +21,7 @@ if { [info exist ::env(LAYERS_RC)] } {
     }
 }
 
-set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-set_wire_rc -clock -layer $::env(WIRE_RC_LAYER)
+# if { [info exist ::env(WIRE_RC_LAYER)] } {
+#     set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
+#     set_wire_rc -clock -layer $::env(WIRE_RC_LAYER)
+# }
