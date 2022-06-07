@@ -15,7 +15,6 @@
 package require json
 package require openlane_utils
 
-
 proc save_state {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
     puts_info "Saving runtime environment..."
@@ -101,12 +100,17 @@ proc prep_lefs {args} {
     puts_info "Preparing LEF files for the $arg_values(-corner) corner..."
 
     if { $arg_values(-corner) == "nom" } {
-        puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)"
+        puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)..."
 
-        set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
+        try_catch openroad -python\
+            $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
+            -o $::env(TMP_DIR)/layers.list\
+            $arg_values(-tech_lef)
+
+        set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
         set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
-        puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+        puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)."
         puts_verbose "Merging LEF Files..."
     }
 
@@ -242,7 +246,7 @@ proc trim_lib {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
         --cell-file $arg_values(-output).exclude.list\
         --output $arg_values(-output)\
-        $arg_values(-input)
+        {*}$arg_values(-input)
 }
 
 proc source_config {config_file} {
@@ -484,6 +488,7 @@ proc prep {args} {
     set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
     set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
 
+    set skip_basic_prep 0
 
     # file mkdir *ensures* they exists (no problem if they already do)
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
@@ -493,15 +498,21 @@ proc prep {args} {
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_info "Removing $::env(GLB_CFG_FILE)"
+            after 1000
             file delete $::env(GLB_CFG_FILE)
         } else {
-            puts_info "Sourcing $::env(GLB_CFG_FILE)\nAny changes to the DESIGN config file will NOT be applied"
+            if { ![info exists flags_map(-last_run)] } {
+                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
+                after 1000
+            }
+            puts_info "Sourcing $::env(GLB_CFG_FILE). Any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
             if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
                 puts_info "Current DEF: $::env(CURRENT_DEF)."
                 puts_info "Use 'set_def file_name.def' if you'd like to change it."
             }
             after 1000
+            set skip_basic_prep 1
         }
     }
 
@@ -674,8 +685,8 @@ proc prep {args} {
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
-        puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
-        assert_files_exist $::env(EXTRA_GDS_FILES)
+        puts_verbose "Verifying existence of files defined in ::env(EXTRA_GDS_FILES)..."
+        assert_files_exist "$::env(EXTRA_GDS_FILES)"
     }
 
 
@@ -845,24 +856,29 @@ proc heal_antenna_violators {args} {
         increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
+        set violators_file [index_file $::env(routing_reports)/antenna_violators.rpt]
         if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
             #ARC specific
             if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
-                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o [index_file $::env(routing_reports)/violators.txt]
+                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o $violators_file
             } else {
                 puts_err "Ran heal_antenna_violators without running the antenna check first."
                 flow_fail
             }
         } else {
             #Magic Specific
-            set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
-            set violators [split [string trim [read $report_file]]]
-            close $report_file
-            # may need to speed this up for extremely huge files using hash tables
+            set violators [split [string trim [cat $violators_file]]]
             exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
         }
+
         #replace violating cells with real diodes
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fake_diode_replace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
+            replace_fake\
+            -o $::env(routing_results)/$::env(DESIGN_NAME).def\
+            -v $violators_file\
+            -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)\
+            $::env(routing_results)/$::env(DESIGN_NAME).def
+
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
     }
@@ -876,17 +892,25 @@ proc widen_site_width {args} {
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(MERGED_LEF_UNPADDED)
         set ::env(MERGED_LEF_WIDENED) $::env(MERGED_LEF)
     } else {
-        puts_info "Widenning Site Width..."
+        puts_info "Widening Site Width..."
         set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
         set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
-        if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
 
-        } else {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
+        set widen_args [list]
+        lappend widen_args --widen-value $::env(WIDEN_SITE)
+        if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
+            lappend widen_args --factor
         }
+
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/lefutil.py widen_site\
+            {*}$widen_args\
+            --output $::env(MERGED_LEF_UNPADDED_WIDENED)\
+            $::env(MERGED_LEF_UNPADDED)
+
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/lefutil.py widen_site\
+            {*}$widen_args\
+            --output $::env(MERGED_LEF_WIDENED)\
+            $::env(MERGED_LEF)
     }
 }
 
@@ -931,13 +955,13 @@ proc label_macro_pins {args} {
 
     set_if_unset arg_values(-pad_pin_name) ""
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/label_macro_pins.py\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
         --lef $arg_values(-lef)\
-        --input-def $::env(CURRENT_DEF)\
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
-        -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        --output $output_def\
+        {*}$extra_args $::env(CURRENT_DEF)\
+        |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }

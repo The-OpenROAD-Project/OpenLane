@@ -439,7 +439,7 @@ proc assert_files_exist {files} {
             puts_err "$f doesn't exist."
             flow_fail
         } else {
-            puts_info "$f exists."
+            puts_verbose "$f existence verified."
         }
     }
 }

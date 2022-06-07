@@ -1,14 +1,32 @@
 #!/usr/bin/env python3
+# Copyright 2022 Efabless Corporation
+# place_diodes Copyright (C) 2020 Sylvain Munaut <tnt@246tNt.com>
 #
-# Copyright (C) 2020  Sylvain Munaut <tnt@246tNt.com>
-# SPDX-License-Identifier: Apache-2.0
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-
-import argparse
-import random
-import sys
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import odb
+
+import re
+import sys
+import click
+import random
+
+from reader import OdbReader, click_odb
+
+
+@click.group()
+def cli():
+    pass
 
 
 class DiodeInserter:
@@ -282,112 +300,123 @@ class DiodeInserter:
                     self.insert_diode(it, src_pos, force_true=io_protect)
 
 
-# Arguments
-parser = argparse.ArgumentParser(description="Diode Insertion script")
-
-parser.add_argument(
-    "--lef",
-    "-l",
-    nargs="+",
-    type=str,
-    default=None,
-    required=True,
-    help="Input LEF file(s)",
+@click.command()
+@click.option(
+    "-v", "--verbose", default=False, is_flag=True, help="Verbose debug output"
 )
-
-parser.add_argument(
-    "--input-def",
-    "-id",
-    required=True,
-    help="DEF view of the design that needs to have diodes inserted",
-)
-
-parser.add_argument("--output-def", "-o", required=True, help="Output DEF file")
-
-parser.add_argument(
-    "--verbose",
-    "-v",
-    action="store_true",
-    default=False,
-    help="Enable verbose debug output",
-)
-
-parser.add_argument(
-    "--diode-cell",
+@click.option(
     "-c",
+    "--diode-cell",
     default="sky130_fd_sc_hd__diode_2",
     help="Name of the cell to use as diode",
 )
-
-parser.add_argument(
-    "--fake-diode-cell", "-f", help="Name of the cell to use as fake diode"
+@click.option(
+    "-f",
+    "--fake-diode-cell",
+    required=True,
+    help="Name of the cell to use as fake diode",
 )
-
-parser.add_argument(
-    "--diode-pin", "-p", default="DIODE", help="Name of the pin to use on diode cells"
+@click.option(
+    "-p", "--diode-pin", default="DIODE", help="Name of the pin to use on diode cells"
 )
-
-parser.add_argument(
+@click.option(
     "--side-strategy",
-    choices=["source", "pin", "balanced", "random"],
+    type=click.Choice(["source", "pin", "balanced", "random"]),
     default="source",
     help="Strategy to select if placing diode left/right of the cell",
 )
-
-parser.add_argument(
-    "--short-span",
-    "-s",
-    default=90000,
-    type=int,
-    help='Maximum span of a net to be considered "short" and not needing a diode',
-)
-
-parser.add_argument(
+@click.option(
     "--port-protect",
-    choices=["none", "in", "out", "both"],
+    type=click.Choice(["none", "in", "out", "both"]),
     default="in",
     help="Always place a true diode on nets connected to selected ports",
 )
-
-
-args = parser.parse_args()
-input_lef_file_names = args.lef
-input_def_file_name = args.input_def
-output_def_file_name = args.output_def
-
-# Load
-db_design = odb.dbDatabase.create()
-
-for lef in input_lef_file_names:
-    odb.read_lef(db_design, lef)
-odb.read_def(db_design, input_def_file_name)
-
-chip_design = db_design.getChip()
-block_design = chip_design.getBlock()
-top_design_name = block_design.getConstName()
-print("Design name:", top_design_name)
-
-
-pp_val = {
-    "none": [],
-    "in": ["INPUT"],
-    "out": ["OUTPUT"],
-    "both": ["INPUT", "OUTPUT"],
-}
-
-di = DiodeInserter(
-    block_design,
-    diode_cell=args.diode_cell,
-    diode_pin=args.diode_pin,
-    fake_diode_cell=args.fake_diode_cell,
-    side_strategy=args.side_strategy,
-    short_span=args.short_span,
-    port_protect=pp_val[args.port_protect],
-    verbose=args.verbose,
+@click.option(
+    "-s",
+    "--short-span",
+    type=int,
+    default=90000,
+    help='Maximum span of a net to be considered "short" and not needing a diode',
 )
-di.execute()
+@click_odb
+def place(
+    output,
+    input_lef,
+    verbose,
+    diode_cell,
+    fake_diode_cell,
+    diode_pin,
+    side_strategy,
+    port_protect,
+    short_span,
+    input_def,
+):
+    reader = OdbReader(input_lef, input_def)
 
-print("Inserted", len(di.inserted), "diodes.")
+    print(f"Design name: {reader.name}")
 
-# Write result
-odb.write_def(block_design, output_def_file_name)
+    pp_val = {
+        "none": [],
+        "in": ["INPUT"],
+        "out": ["OUTPUT"],
+        "both": ["INPUT", "OUTPUT"],
+    }
+
+    di = DiodeInserter(
+        reader.block,
+        diode_cell=diode_cell,
+        diode_pin=diode_pin,
+        fake_diode_cell=fake_diode_cell,
+        side_strategy=side_strategy,
+        short_span=short_span,
+        port_protect=pp_val[port_protect],
+        verbose=verbose,
+    )
+    di.execute()
+
+    print("Inserted", len(di.inserted), "diodes.")
+
+    # Write result
+    odb.write_def(reader.block, output)
+
+
+cli.add_command(place)
+
+
+@click.command("replace_fake")
+@click.option("-f", "--fake-diode", required=True, help="Name of the fake diode cell")
+@click.option("-t", "--true-diode", required=True, help="Name of the true diode")
+@click.option(
+    "-v",
+    "--violations-file",
+    required=True,
+    help="Text file with white space separated cells that cause antenna violations",
+)
+@click_odb
+def replace_fake(fake_diode, true_diode, violations_file, output, input_lef, input_def):
+    reader = OdbReader(input_lef, input_def)
+
+    violations = open(violations_file).read().strip().split()
+
+    diode = [sc for sc in reader.lef.getMasters() if sc.getName() == true_diode]
+
+    antenna_rx = re.compile(r"ANTENNA_(\s+)_.*")
+
+    instances = reader.block.getInsts()
+
+    for instance in instances:
+        name: str = instance.getName()
+        m = antenna_rx.match(name)
+        if m is None:
+            continue
+        if m[1] not in violations:
+            continue
+        master_name = instance.getMaster().getName()
+        if master_name == fake_diode:
+            instance.swapMasters(diode)
+
+    assert odb.write_def(reader.block, output) == 1
+
+
+if __name__ == "__main__":
+    cli()

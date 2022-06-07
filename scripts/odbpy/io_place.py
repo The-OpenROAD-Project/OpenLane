@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,19 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-"""
-Places the IOs according to an input file. Supports regexes.
-File format:
-#N|#S|#E|#W
-pin1_regex
-pin2_regex
-...
-
-#S|#N|#E|#W
-...
-...
-"""
 import odb
 
 import os
@@ -31,6 +18,59 @@ import re
 import sys
 import click
 import random
+
+from reader import OdbReader, click_odb
+
+
+def getGrid(origin, count, step):
+    tracks = []
+    pos = origin
+    for i in range(count):
+        tracks.append(pos)
+        pos += step
+    assert len(tracks) > 0
+    tracks.sort()
+
+    return tracks
+
+
+def equallySpacedSeq(m, arr):
+    seq = []
+    n = len(arr)
+    # Bresenham
+    indices = [i * n // m + n // (2 * m) for i in range(m)]
+    for i in indices:
+        seq.append(arr[i])
+    return seq
+
+
+# HUMAN SORTING: https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
+def natural_keys(enum):
+    def atof(text):
+        try:
+            retval = float(text)
+        except ValueError:
+            retval = text
+        return retval
+
+    text = enum[0]
+    text = re.sub(r"(\[|\]|\.|\$)", "", text)
+    """
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (see toothy's implementation in the comments)
+    float regex comes from https://stackoverflow.com/a/12643073/190597
+    """
+    return [atof(c) for c in re.split(r"[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)", text)]
+
+
+def bus_keys(enum):
+    text = enum[0]
+    m = re.match(r"^.*\[(\d+)\]$", text)
+    if not m:
+        return -1
+    else:
+        return int(m.group(1))
 
 
 @click.command()
@@ -40,13 +80,6 @@ import random
     is_flag=True,
     default=False,
     help="Treat unmatched pins as error",
-)
-@click.option("-l", "--input-lef", required=True, help="Input merged tlef/lef file.")
-@click.option(
-    "-o",
-    "--output-def",
-    default="./output.def",
-    help="Output DEF file with newly placed pins",
 )
 @click.option("-c", "--config", required=False, help="Optional configuration file.")
 @click.option(
@@ -92,10 +125,8 @@ import random
     default=False,
     help="Misnomer: pins are grouped by index instead of bus, i.e. a[0] goes with b[0] instead of a[1].",
 )
-@click.argument("input_def")
-def cli(
-    input_lef,
-    output_def,
+@click_odb
+def io_place(
     config,
     ver_layer,
     hor_layer,
@@ -106,6 +137,8 @@ def cli(
     ver_extension,
     reverse,
     bus_sort,
+    output,
+    input_lef,
     input_def,
     unmatched_error,
 ):
@@ -123,7 +156,7 @@ def cli(
 
     def_file_name = input_def
     lef_file_name = input_lef
-    output_def_file_name = output_def
+    output_def_file_name = output
     config_file_name = config
     bus_sort_flag = bus_sort
     unmatched_error_flag = unmatched_error
@@ -135,12 +168,9 @@ def cli(
     v_width_mult = float(ver_width_mult)
 
     # Initialize OpenDB
-    db_top = odb.dbDatabase.create()
-    odb.read_lef(db_top, lef_file_name)
-    odb.read_def(db_top, def_file_name)
-    block = db_top.getChip().getBlock()
+    reader = OdbReader(lef_file_name, def_file_name)
 
-    micron_in_units = block.getDefUnits()
+    micron_in_units = reader.dbunits
 
     LENGTH = int(micron_in_units * length)
 
@@ -158,56 +188,6 @@ def cli(
     for element in reverse_arr_raw:
         if element.strip() != "":
             reverse_arr.append(f"#{element}")
-
-    def getGrid(origin, count, step):
-        tracks = []
-        pos = origin
-        for i in range(count):
-            tracks.append(pos)
-            pos += step
-        assert len(tracks) > 0
-        tracks.sort()
-
-        return tracks
-
-    def equallySpacedSeq(m, arr):
-        seq = []
-        n = len(arr)
-        # Bresenham
-        indices = [i * n // m + n // (2 * m) for i in range(m)]
-        for i in indices:
-            seq.append(arr[i])
-        return seq
-
-    # HUMAN SORTING: https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
-    def natural_keys(enum):
-        def atof(text):
-            try:
-                retval = float(text)
-            except ValueError:
-                retval = text
-            return retval
-
-        text = enum[0]
-        text = re.sub(r"(\[|\]|\.|\$)", "", text)
-        """
-        alist.sort(key=natural_keys) sorts in human order
-        http://nedbatchelder.com/blog/200712/human_sorting.html
-        (see toothy's implementation in the comments)
-        float regex comes from https://stackoverflow.com/a/12643073/190597
-        """
-        return [
-            atof(c) for c in re.split(r"[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)", text)
-        ]
-
-    def bus_keys(enum):
-        text = enum[0]
-        m = re.match(r"^.*\[(\d+)\]$", text)
-        if not m:
-            return -1
-        else:
-            return int(m.group(1))
-
     # read config
 
     pin_placement_cfg = {"#N": [], "#E": [], "#S": [], "#W": []}
@@ -253,21 +233,15 @@ def cli(
                     cur_side = token
 
     # build a list of pins
-
-    chip_top = db_top.getChip()
-    block_top = chip_top.getBlock()
-    top_design_name = block_top.getName()
-    tech = db_top.getTech()
-
-    H_LAYER = tech.findLayer(h_layer_name)
-    V_LAYER = tech.findLayer(v_layer_name)
+    H_LAYER = reader.tech.findLayer(h_layer_name)
+    V_LAYER = reader.tech.findLayer(v_layer_name)
 
     H_WIDTH = int(h_width_mult * H_LAYER.getWidth())
     V_WIDTH = int(v_width_mult * V_LAYER.getWidth())
 
-    print("Top-level design name:", top_design_name)
+    print("Top-level design name:", reader.name)
 
-    bterms = block_top.getBTerms()
+    bterms = reader.block.getBTerms()
     bterms_enum = []
     for bterm in bterms:
         pin_name = bterm.getName()
@@ -317,7 +291,7 @@ def cli(
                 random_side = random.choice(list(pin_placement.keys()))
                 pin_placement[random_side].append(bterm)
 
-    assert len(block_top.getBTerms()) == len(
+    assert len(reader.block.getBTerms()) == len(
         pin_placement["#N"]
         + pin_placement["#E"]
         + pin_placement["#S"]
@@ -326,7 +300,7 @@ def cli(
 
     # generate slots
 
-    DIE_AREA = block_top.getDieArea()
+    DIE_AREA = reader.block.getDieArea()
     BLOCK_LL_X = DIE_AREA.xMin()
     BLOCK_LL_Y = DIE_AREA.yMin()
     BLOCK_UR_X = DIE_AREA.xMax()
@@ -334,10 +308,10 @@ def cli(
 
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
-    origin, count, step = block_top.findTrackGrid(H_LAYER).getGridPatternY(0)
+    origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
     h_tracks = getGrid(origin, count, step)
 
-    origin, count, step = block_top.findTrackGrid(V_LAYER).getGridPatternX(0)
+    origin, count, step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
     v_tracks = getGrid(origin, count, step)
 
     for rev in reverse_arr:
@@ -387,8 +361,8 @@ def cli(
     print(
         f"Writing {output_def_file_name}...",
     )
-    odb.write_def(block_top, output_def_file_name)
+    odb.write_def(reader.block, output_def_file_name)
 
 
 if __name__ == "__main__":
-    cli()
+    io_place()
