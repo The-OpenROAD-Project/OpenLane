@@ -344,7 +344,7 @@ cli.add_command(magic)
 @click.argument("magic_input")
 def magic_to_rdb_cmd(output, magic_input):
     with open(output, "w") as f:
-        f.write(magic_to_rdb(open(magic_input).read()), magic_input)
+        f.write(magic_to_rdb(open(magic_input).read(), magic_input))
 
 
 magic.add_command(magic_to_rdb_cmd)
