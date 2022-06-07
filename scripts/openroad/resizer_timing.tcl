@@ -48,12 +48,13 @@ estimate_parasitics -placement
 
 # Resize
 repair_timing -setup \
-    -slack_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
+    -setup_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN) \
     -max_buffer_percent $::env(PL_RESIZER_SETUP_MAX_BUFFER_PERCENT)
 
 set arg_list [list]
 lappend arg_list -hold
-lappend arg_list -slack_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN)
+lappend arg_list -setup_margin $::env(PL_RESIZER_SETUP_SLACK_MARGIN)
+lappend arg_list -hold_margin $::env(PL_RESIZER_HOLD_SLACK_MARGIN)
 lappend arg_list -max_buffer_percent $::env(PL_RESIZER_HOLD_MAX_BUFFER_PERCENT)
 if { $::env(PL_RESIZER_ALLOW_SETUP_VIOS) == 1 } {
     lappend arg_list -allow_setup_violations
