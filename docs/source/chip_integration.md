@@ -79,7 +79,7 @@ The following inputs are provided to produce the final GDSII:
 - Sources configurations.
 - Elaborates the verilog.
 - Runs floorplan.
-- Uses padringer.py to generate the padframe.
+- Uses odbpy/padringer.py to generate the padframe.
 - Adds the obstructions to the core area, and removes core nets and pins.
 - Routes.
 - Streams out the GDS-II and the LEFv view.

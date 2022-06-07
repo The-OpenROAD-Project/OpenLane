@@ -1,4 +1,4 @@
-# Copyright 2021 Efabless Corporation
+# Copyright 2021-2022 Efabless Corporation
 # Copyright 2022 Arman Avetisyan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,11 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import odb
 
 import re
 import click
 
-import odb
+from reader import OdbReader, click_odb
 
 import os  # For checks of file existance
 import shutil  # For copy
@@ -26,20 +27,6 @@ import sys  # For stderr
 @click.group()
 def cli():
     pass
-
-
-class OdbReader(object):
-    def __init__(self, lef_in, def_in):
-        self.db = odb.dbDatabase.create()
-
-        self.lef = odb.read_lef(self.db, lef_in)
-        self.sites = self.lef.getSites()
-
-        self.df = odb.read_def(self.db, def_in)
-        self.block = self.db.getChip().getBlock()
-        self.rows = self.block.getRows()
-        self.dbunits = self.block.getDefUnits()
-        self.nets = self.block.getNets()
 
 
 @click.command("extract_core_dims")
@@ -64,9 +51,7 @@ cli.add_command(extract_core_dims)
 @click.option(
     "-c", "--cell-name", required=True, help="Cell name of the components to mark fixed"
 )
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("input_def")
+@click_odb
 def mark_component_fixed(cell_name, output, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     instances = reader.block.getInsts()
@@ -235,13 +220,10 @@ def check_pin_grid(
         return True
 
 
-# openroad -python scripts/defutil.py replace_pins -o output.def -l designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
-
-
 @click.command("replace_pins")
 @click.option("-o", "--output-def", default="./out.def", help="Destination DEF path")
 @click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.option("-lg", "--log", "logpath", help="Log output file")
+@click.option("--log", "logpath", help="Log output file")
 @click.argument("source_def")
 @click.argument("template_def")
 def replace_pins_command(output_def, input_lef, logpath, source_def, template_def):
@@ -249,7 +231,12 @@ def replace_pins_command(output_def, input_lef, logpath, source_def, template_de
         Copies source_def to output, then if same pin exists in template def and first def then, it's written to output def
 
     Example to run:
-    openroad -python scripts/defutil.py replace_pins -o output.def -l designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def --log defutil.log
+
+        openroad -python scripts/defutil.py replace_pins -o output.def\
+            --log defutil.log\
+            --input-lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef\
+                designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
+
     Note: Assumes that all pins are on metal layers and via pins dont exist.
     Note: It assumes that all pins are rectangles, not polygons.
     Note: This tool assumes no power pins exist in template def.
@@ -513,9 +500,7 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
     default=".+",
     help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)",
 )
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("input_def")
+@click_odb
 def remove_components(rx, instance_name, output, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     matcher = re.compile(instance_name if rx else f"^{re.escape(instance_name)}$")
@@ -542,12 +527,10 @@ cli.add_command(remove_components)
     default=".+",
     help="Net name to be removed (Default '.+', as a regular expression, removes everything.)",
 )
-@click.option("-o", "--output", default="./out.def")
 @click.option(
     "--empty-only", is_flag=True, default=False, help="Only remove empty nets."
 )
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("input_def")
+@click_odb
 def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     matcher = re.compile(net_name if rx else f"^{re.escape(net_name)}$")
@@ -581,9 +564,7 @@ cli.add_command(remove_nets)
     default=".+",
     help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)",
 )
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("input_def")
+@click_odb
 def remove_pins(rx, pin_name, output, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
     matcher = re.compile(pin_name if rx else f"^{re.escape(pin_name)}$")
@@ -599,6 +580,79 @@ def remove_pins(rx, pin_name, output, input_lef, input_def):
 
 cli.add_command(remove_pins)
 
+
+@click.command("replace_instance_prefixes")
+@click.option("-f", "--original-prefix", required=True, help="The original prefix.")
+@click.option("-t", "--new-prefix", required=True, help="The new prefix.")
+@click_odb
+def replace_instance_prefixes(
+    original_prefix, new_prefix, output, input_lef, input_def
+):
+    reader = OdbReader(input_lef, input_def)
+
+    for instance in reader.block.getInsts():
+        name: str = instance.getName()
+        if name.startswith(f"{original_prefix}_"):
+            new_name = name.replace(f"{original_prefix}_", f"{new_prefix}_")
+            instance.rename(new_name)
+
+    assert odb.write_def(reader.block, output) == 1
+
+
+cli.add_command(replace_instance_prefixes)
+
+
+@click.command("add_def_obstructions")
+@click.option(
+    "-O",
+    "--obstructions",
+    required=True,
+    help="Format: layer llx lly urx ury, (microns)",
+)
+@click_odb
+def add_def_obstructions(output, obstructions, input_lef, input_def):
+    reader = OdbReader(input_lef, input_def)
+
+    RE_NUMBER = r"[\-]?[0-9]+(\.[0-9]+)?"
+    RE_OBS = (
+        r"(?P<layer>\S+)\s+"
+        + r"(?P<bbox>"
+        + RE_NUMBER
+        + r"\s+"
+        + RE_NUMBER
+        + r"\s+"
+        + RE_NUMBER
+        + r"\s+"
+        + RE_NUMBER
+        + r")"
+    )
+
+    obses = obstructions.split(",")
+    obs_list = []
+    for obs in obses:
+        obs = obs.strip()
+        m = re.match(RE_OBS, obs)
+        assert (
+            m
+        ), "Incorrectly formatted input (%s).\n Format: layer llx lly urx ury, ..." % (
+            obs
+        )
+        layer = m.group("layer")
+        bbox = [float(x) for x in m.group("bbox").split()]
+        obs_list.append((layer, bbox))
+
+    for obs in obs_list:
+        layer = obs[0]
+        bbox = obs[1]
+        dbu = reader.tech.getDbUnitsPerMicron()
+        bbox = [int(x * dbu) for x in bbox]
+        print("Creating an obstruction on", layer, "at", *bbox, "(DBU)")
+        odb.dbObstruction_create(reader.block, reader.tech.findLayer(layer), *bbox)
+
+    odb.write_def(reader.block, output)
+
+
+cli.add_command(add_def_obstructions)
 
 if __name__ == "__main__":
     cli()

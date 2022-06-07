@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-drc off
+lef read $::env(TECH_LEF)
+if {  [info exist ::env(EXTRA_LEFS)] } {
+    set lefs_in $::env(EXTRA_LEFS)
+    foreach lef_file $lefs_in {
+        lef read $lef_file
+    }
+}
+def read $::env(_tmp_def_in)
 
-gds readonly true
-gds rescale false
+save $::env(_tmp_save_mag)
 
-puts "\[INFO\]: Saving .mag view With BBox Values: [box values]"
-# This comes afterwards, so that it would contain GDS pointers
-# And yes, we need to re-read the GDS we just generated...
-gds read $::env(MAGIC_GDS)
-cellname filepath $::env(DESIGN_NAME) $::env(signoff_results)
-save
-
-puts "\[INFO\]: MAGIC TAPEOUT STEP DONE"
-exit 0
+puts "[INFO]: Done exporting $::env(_tmp_save_mag)."

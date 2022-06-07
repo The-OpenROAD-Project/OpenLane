@@ -16,8 +16,6 @@
 
 """
 See <openlane_root>/docs/source/using_or_issue.md.
-
-This script is intended for use by bug reporters and maintainers and is not part of the flow.
 """
 
 import os
@@ -155,7 +153,7 @@ def read_env(config_path: str, from_path: str, input_env={}) -> dict:
         string_data = open(config_path).read()
     except FileNotFoundError:
         print(
-            f"❌ File {config_path} not found. The path {from_path} may have been specified incorrectly.",
+            f"[ERR] File {config_path} not found. The path {from_path} may have been specified incorrectly.",
             file=sys.stderr,
         )
         exit(os.EX_NOINPUT)
@@ -417,5 +415,5 @@ with open(lldb_env, "w") as f:
     """
     )
 
-print("[FIN] Done.", file=sys.stderr)
+print("Done.", file=sys.stderr)
 print(destination_folder)
