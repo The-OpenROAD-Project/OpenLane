@@ -5,35 +5,17 @@
     "CLOCK_NET": "clock",
     "pdk::sky130A": {
         "SDC_FILE": "dir::src/xtea.sdc",
-        "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": "26.03",
-            "FP_CORE_UTIL": "45",
-            "SYNTH_MAX_FANOUT": "6",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
-        },
-        "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": "26.03",
-            "FP_CORE_UTIL": "45",
-            "SYNTH_MAX_FANOUT": "6",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
-        },
+        "CLOCK_PERIOD": 26.03,
+        "FP_CORE_UTIL": 45,
+        "SYNTH_MAX_FANOUT": 6,
         "scl::sky130_fd_sc_hs": {
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "35",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0",
-            "CLOCK_PERIOD": "26.03"
+            "FP_CORE_UTIL": 35
         },
         "scl::sky130_fd_sc_ls": {
-            "CLOCK_PERIOD": "26.03",
-            "FP_CORE_UTIL": "35",
-            "SYNTH_MAX_FANOUT": "6",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+            "FP_CORE_UTIL": 35
         },
         "scl::sky130_fd_sc_ms": {
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "35",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0",
-            "CLOCK_PERIOD": "26.03"
+            "FP_CORE_UTIL": 35
         }
     }
 }

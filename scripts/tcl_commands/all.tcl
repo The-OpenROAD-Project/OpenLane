@@ -252,20 +252,23 @@ proc source_config {config_file} {
     }
 
     set ext [file extension $config_file]
+    set config_in_path $::env(RUN_DIR)/config_in.tcl
+
     if { $ext == ".tcl" } {
         # for trusted end-users only
+        exec cp $config_file $config_in_path
         source $config_file
     } elseif { $ext == ".json" } {
         exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json\
             --pdk $::env(PDK) --scl $::env(STD_CELL_LIBRARY)\
-            --output $::env(RUN_DIR)/config_in.tcl\
+            --output $config_in_path\
             --design-dir $::env(DESIGN_DIR)\
             $config_file
-        source $::env(RUN_DIR)/config_in.tcl
     } else {
         puts_err "$config_file error: unsupported extension '$ext'"
         return -code error
     }
+    source $config_in_path
 }
 
 proc prep {args} {
@@ -275,7 +278,6 @@ proc prep {args} {
     set options {
         {-design required}
         {-tag optional}
-        {-config_tag optional}
         {-config_file optional}
         {-run_path optional}
         {-src optional}
@@ -285,6 +287,7 @@ proc prep {args} {
 
     set flags {
         -init_design_config
+        -add_to_designs
         -overwrite
         -last_run
     }
@@ -294,17 +297,7 @@ proc prep {args} {
 
     # Storing the current state of environment variables
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-
-    if { [info exists arg_values(-config_tag)] } {
-        if { [info exists arg_values(-config_file)] } {
-            puts_err "Cannot specify both -config_tag and -config_file"
-            return -code error
-        }
-        set config_tag $arg_values(-config_tag)
-    } else {
-        set config_tag "config"
-    }
-    set src_files ""
+    set_if_unset arg_values(-src) ""
 
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {
@@ -312,17 +305,29 @@ proc prep {args} {
     }
 
     if { [info exists flags_map(-init_design_config)] } {
-        set config_tag "config"
-        if { [info exists arg_values(-tag) ] } {
-            set config_tag $arg_values(-tag)
+        set filename "$::env(DESIGN_DIR)/config.json"
+
+        if { [info exists arg_values(-config_file)] } {
+            set filename $arg_values(-config_file)
         }
 
-        if { [info exists arg_values(-src) ] } {
-            set src_files $arg_values(-src)
-        }
+        set basename [file tail $filename]
 
-        init_design $arg_values(-design) $config_tag $src_files
-        puts_success "Done..."
+        set arg_list [list]
+
+        lappend arg_list --design-dir $::env(DESIGN_DIR)
+        lappend arg_list --config-file-name $basename
+        lappend arg_list --design-name $arg_values(-design)
+        if { [info exists flags_map(-add_to_designs)] } {
+            lappend arg_list --add-to-designs
+        }
+        lappend arg_list {*}$arg_values(-src)
+
+        set filename [exec python3 $::env(SCRIPTS_DIR)/config/init.py {*}$arg_list]
+
+        set filename_rel [relpath . $filename]
+
+        puts_success "$filename_rel created with the default configuration. Please update the values as you see fit."
         exit 0
     }
 
@@ -354,10 +359,10 @@ proc prep {args} {
     if { [info exists arg_values(-config_file)] } {
         set ::env(DESIGN_CONFIG) $arg_values(-config_file)
     } else {
-        if { [file exists $::env(DESIGN_DIR)/$config_tag.tcl] } {
-            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.tcl
-        } elseif { [file exists $::env(DESIGN_DIR)/$config_tag.json] } {
-            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.json
+        if { [file exists $::env(DESIGN_DIR)/config.tcl] } {
+            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/config.tcl
+        } elseif { [file exists $::env(DESIGN_DIR)/config.json] } {
+            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/config.json
         } else {
             puts_err "No design configuration (config.json/config.tcl) found in $::env(DESIGN_DIR)."
             return -code error
@@ -524,6 +529,10 @@ proc prep {args} {
 
         set ::env(${subfolder}_results) $::env(RESULTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_results)
+    }
+
+    if { ![info exists ::env(PL_TARGET_DENSITY)] } {
+        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 5.0) / 100.0]
     }
 
     set util 	$::env(FP_CORE_UTIL)

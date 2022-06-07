@@ -6,10 +6,10 @@
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 1200 1200",
     "pdk::sky130A": {
-        "FP_CORE_UTIL": "13",
-        "CLOCK_PERIOD": "65.0",
+        "FP_CORE_UTIL": 13,
+        "CLOCK_PERIOD": 65,
         "scl::sky130_fd_sc_hd": {
-            "FP_CORE_UTIL": "11"
+            "FP_CORE_UTIL": 11
         }
     }
 }

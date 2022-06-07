@@ -6,8 +6,8 @@
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 1000 1000",
     "pdk::sky130A": {
-        "SYNTH_MAX_FANOUT": "6",
-        "CLOCK_PERIOD": "20.0",
-        "FP_CORE_UTIL": "18"
+        "SYNTH_MAX_FANOUT": 6,
+        "CLOCK_PERIOD": 20,
+        "FP_CORE_UTIL": 18
     }
 }

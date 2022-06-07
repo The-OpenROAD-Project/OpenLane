@@ -244,6 +244,8 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                 value = 1
             else:
                 value = 0
+        elif value is None:
+            value = ""
         elif not (isinstance(value, int) or isinstance(value, float)):
             raise InvalidConfig(f"Invalid value type {type(value)} for key '{key}'.")
 

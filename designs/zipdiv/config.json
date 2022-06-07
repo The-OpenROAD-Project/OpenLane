@@ -4,36 +4,17 @@
     "CLOCK_PORT": "i_clk",
     "CLOCK_NET": "i_clk",
     "pdk::sky130A": {
+        "CLOCK_PERIOD": 20,
+        "SYNTH_MAX_FANOUT": 6,
+        "FP_CORE_UTIL": 40,
         "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": "20.00",
-            "SYNTH_STRATEGY": "DELAY 2",
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "40",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
-        },
-        "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": "20.00",
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "40",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+            "SYNTH_STRATEGY": "DELAY 2"
         },
         "scl::sky130_fd_sc_hs": {
-            "CLOCK_PERIOD": "20.00",
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "35",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
-        },
-        "scl::sky130_fd_sc_ls": {
-            "CLOCK_PERIOD": "20.00",
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "40",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+            "FP_CORE_UTIL": 35
         },
         "scl::sky130_fd_sc_ms": {
-            "CLOCK_PERIOD": "20.00",
-            "SYNTH_MAX_FANOUT": "6",
-            "FP_CORE_UTIL": "35",
-            "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL+5) / 100.0"
+            "FP_CORE_UTIL": 35
         }
     }
 }

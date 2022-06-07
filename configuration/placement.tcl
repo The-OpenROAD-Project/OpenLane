@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # Placement defaults
-set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 5.0) / 100.0]
 set ::env(PL_ROUTABILITY_DRIVEN) 1
 set ::env(PL_TIME_DRIVEN) 1
 set ::env(PL_RANDOM_GLB_PLACEMENT) 0

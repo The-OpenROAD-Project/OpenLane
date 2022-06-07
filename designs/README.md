@@ -30,10 +30,10 @@ designs/<design_name>
 │   ├── design.v
 ```
 
-However, you can point to the src files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
+However, you can point to the src files (space-delimited) while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
 
 ```bash
-./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
+./flow.tcl -design <design_name> -init_design_config -src "<list_verilog_files>"
 ```
 
 Optionally, you can specify the configuration file name (without the extension) by using:

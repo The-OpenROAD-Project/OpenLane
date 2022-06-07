@@ -6,30 +6,22 @@
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 700 700",
     "pdk::sky130A": {
+        "CLOCK_PERIOD": 11.35,
+        "SYNTH_MAX_FANOUT": 6,
         "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": "14",
-            "FP_CORE_UTIL": "40",
-            "SYNTH_MAX_FANOUT": "6"
+            "FP_CORE_UTIL": 40
         },
         "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": "11.35",
-            "FP_CORE_UTIL": "40",
-            "SYNTH_MAX_FANOUT": "6"
+            "FP_CORE_UTIL": 40
         },
         "scl::sky130_fd_sc_hs": {
-            "CLOCK_PERIOD": "11.35",
-            "FP_CORE_UTIL": "30",
-            "SYNTH_MAX_FANOUT": "6"
+            "FP_CORE_UTIL": 30
         },
         "scl::sky130_fd_sc_ls": {
-            "CLOCK_PERIOD": "11.35",
-            "FP_CORE_UTIL": "35",
-            "SYNTH_MAX_FANOUT": "6"
+            "FP_CORE_UTIL": 35
         },
         "scl::sky130_fd_sc_ms": {
-            "CLOCK_PERIOD": "11.35",
-            "FP_CORE_UTIL": "30",
-            "SYNTH_MAX_FANOUT": "6"
+            "FP_CORE_UTIL": 30
         }
     }
 }

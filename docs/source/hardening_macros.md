@@ -4,34 +4,61 @@ Using openlane, you can produce a GDSII from an RTL for macros, and then use the
 
 In this document we will go through the hardening steps and discuss in some detail what considerations should be made when hardening your macro.
 
-**NOTE:** For all the configurations mentioned in this documentation and any other openlane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
+> **NOTE:** For all the configurations mentioned in this documentation and any other openlane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
 
 ## Base Requirements:
 
 You should start by setting the basic configuration file for your design. Check [this][5] for how to add your new design.
 
-The basic configurations `config.tcl` should at least contain:
-```tcl
-set ::env(DESIGN_NAME) <the name of the design>
+The basic configuration `config.json` or `config.tcl` file should at least contain these variables:
 
-set ::env(VERILOG_FILES) <pointer to the verilog source(s) of the design>
-set ::env(CLOCK_PORT) <list of clock ports in the design rtl>
-set ::env(DESIGN_IS_CORE) 0 # Since you are hardening a macro.
+| Key | Description |
+|-|-|
+| `DESIGN_NAME` | The Verilog module name of your design. |
+| `VERILOG_FILES` | Space-delimited list of Verilog files used in your design*. |
+| `CLOCK_PORT` | List of clock ports used in your design. If your design is purely combinational, you can set this value to `""` (Tcl) or `null` (JSON). |
+| `DESIGN_IS_CORE` | `1/0` (Tcl), `true/false` (json): Whether your design is a core or a reusable macro: for macros, you want to set this to `0`/`false`<sup>**</sup>. |
+> \* The ``` `include ``` directive is not supported.
+>
+> \** If you're hardening the chip core, check [this][4] for more details about chip integration.
+
+So, for example:
+
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "DESIGN_NAME": "spm",
+    "VERILOG_FILES": "dir::src/*.v",
+    "DESIGN_IS_CORE": false
 ```
 
-If you are hardening the chip core. Then make sure to set `::env(DESIGN_IS_CORE)` to `1` and check [this][4] for more details about chip integration.
+</td>
+<td>
 
-In case your design doesn't have a clock port, then you can either omit ::env(CLOCK_PORT) or give it an empty string.
+```tcl
+set ::env(DESIGN_NAME) {spm}
+
+set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
+set ::env(CLOCK_PORT) {clk}
+set ::env(DESIGN_IS_CORE) {0}
+```
+
+</td>
+</tr>
+</table>
 
 These configurations should get you through the flow with the all other configurations using openlane default values, read about those [here][0]. However, in the coming sections we will take a closer look on how to determine the best values for most of the other configurations.
 
 ## Synthesis
 
-The first decision in synthesis is determining the optimal synthesis strategy `::env(SYNTH_STRATEGY)` for your design. For that purpose there is a flag in the `flow.tcl` script, `-synth_explore` that runs a synthesis strategy exploration and reports the results in a table under `<run_path>/reports/`.
+The first decision in synthesis is determining the optimal synthesis strategy `SYNTH_STRATEGY` for your design. For that purpose there is a flag in the `flow.tcl` script, `-synth_explore` that runs a synthesis strategy exploration and reports the results in a table under `<run_path>/reports/`.
 
 Then you need to consider the best values for the `SYNTH_MAX_FANOUT`.
 
-If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1`, which will postpone the flattening of the design during synthesis until the very end.
+If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1` (Tcl)/`true` (JSON), which will postpone the flattening of the design during synthesis until the very end.
 
 Other configurations like `SYNTH_SIZING`, `SYNTH_BUFFERING`, and other synthesis configurations don't have to be changed. However, the advanced user can check [this][0] documentation for more details about those configurations and their values.
 
@@ -41,7 +68,7 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 1. The clock ports in the design, explained in the base requirements section `CLOCK_PORT`.
 
-2. The clock period that you prefer the design to run with. This could be set using `::env(CLOCK_PERIOD)` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
+2. The clock period that you prefer the design to run with. This could be set using `CLOCK_PERIOD` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
 
 3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
 
@@ -132,48 +159,8 @@ You can disable it by setting `CLOCK_TREE_SYNTH` to `0`.
 
 If you don't want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 
-## Power Grid (pdn)
-
-You can skip reading this section and jump ahead to reading the advanced power grid controls to get an overall vision of how the whole chip would be powered and as such make a more educated decision in this stage. This detailed documentation exists [here][9].
-
-Each macro in your design should configure the `common_pdn.tcl` for it's use. Generally, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4. This is done by setting the following configs:
-
-```tcl
-set ::env(DESIGN_IS_CORE) 0
-set ::env(FP_PDN_CORE_RING) 0
-set ::env(RT_MAX_LAYER) "met4"
-```
-
-Pdngen configs for macros contain a special stdcell section, instead of the one used for the core in the `common_pdn.tcl`. The purpose of this is to prohibit the use of metal 5 in the power grid of the macros and use it exclusively for the core and top level.
-
-If your macro contains other macros inside it, then make sure to check the `macro` section and see if it requires any modifications for each of them depending on their special configs. The following example is using default `connect` section but a different `straps` section:
-```tcl
-pdngen::specify_grid macro {
-    orient {R0 R180 MX MY R90 R270 MXR90 MYR90}
-    power_pins "vpwr"
-    ground_pins "vgnd"
-    straps {
-	    met1 {width 0.74 pitch 3.56 offset 0}
-	    met4 {width $::env(FP_PDN_VWIDTH) pitch $::env(FP_PDN_VPITCH) offset $::env(FP_PDN_VOFFSET)}
-    }
-    connect {{met1 met4}}
-}
-```
-
-**WARNING:** only use met1 and met4 for rails and straps.
-
-Refer to [this][3] for more details about the syntax in case you needed to create your own `pdn.tcl` and then point to it using `::env(PDN_CFG)`.
-
-- The height of each macro must be greater than or equal to the value of `$::env(FP_PDN_HPITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
-
-If your design is a core, then check the power routing section in the [chip integration documentation][4]. However, the basic thing you'll need to do is to announce that your design is a chip core and that it should have a core ring. This is done by setting the following values:
-
-```tcl
-set ::env(DESIGN_IS_CORE) 1
-set ::env(FP_PDN_CORE_RING) 1
-```
-
-For more details about power grid control automation at the core and macro level and using multiple power domains please check [this documentation][9].
+## Power Grid/Power Distribution Network
+See [here][9].
 
 ## Diode Insertion
 
@@ -219,7 +206,7 @@ A final summary report is produced by default as `<run-path>/reports/metrics.csv
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.
 
-The final GDS-II should be found under `<run-path>/results/magic/`.
+The final GDS-II should be found under `<run-path>/results/signoff/`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
