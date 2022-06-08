@@ -19,6 +19,7 @@ import json
 import glob
 import click
 from enum import Enum
+from io import TextIOWrapper
 from typing import Any, Dict, List, Tuple
 
 PDK_VAR = "PDK"
@@ -160,6 +161,10 @@ class Expr(object):
                 try:
                     value = vars[token.value]
                     eval_stack.append(float(value))
+                except KeyError:
+                    raise SyntaxError(
+                        f"Configuration variable '{token.value}' not found."
+                    )
                 except Exception:
                     raise SyntaxError(
                         f"Invalid non-numeric value '{value}' for variable ${token.value}."
@@ -259,6 +264,14 @@ def process_config_dict(config_in: dict, pdk: str, scl: str, design_dir: str):
     return state.vars
 
 
+def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
+    character_rx = re.compile(r"([{}])")
+    for key, value in key_value_pairs.items():
+        if isinstance(value, str):
+            value = character_rx.sub(r"\\\1", value)
+        print(f"set ::env({key}) {{{value}}}", file=file_in)
+
+
 @click.group()
 def cli():
     pass
@@ -285,8 +298,7 @@ def config_json_to_tcl(output, pdk, scl, design_dir, config_json):
     config_dict = json.loads(config_json_str)
     resolved = process_config_dict(config_dict, pdk, scl, design_dir)
     with open(output, "w") as f:
-        for key, value in resolved.items():
-            print(f"set ::env({key}) {{{value}}}", file=f)
+        write_key_value_pairs(f, resolved)
 
 
 cli.add_command(config_json_to_tcl)

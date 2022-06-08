@@ -420,8 +420,6 @@ proc prep {args} {
         }
     }
 
-    # DEPRECATED PDK_VARIANT
-    handle_deprecated_config PDK_VARIANT STD_CELL_LIBRARY
 
     # Diagnostics
     if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
@@ -458,15 +456,23 @@ proc prep {args} {
         set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/pdn_cfg.tcl
     }
 
-    # source PDK and SCL specific configurations
+    # Source PDK and SCL specific configurations
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
     source $pdk_config
-
     source $scl_config
 
-    # needs to be resourced to make sure it overrides the above
+    # Re-source/re-override to make sure it overrides any configurations from the previous two sources
     source_config $::env(DESIGN_CONFIG)
+    if { [info exists arg_values(-override_env)] } {
+        set env_overrides [split $arg_values(-override_env) ',']
+        foreach override $env_overrides {
+            set kva [split $override '=']
+            set key [lindex $kva 0]
+            set value [lindex $kva 1]
+            set ::env("$key") $value
+        }
+    }
 
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST;
@@ -475,6 +481,17 @@ proc prep {args} {
     handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
     handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
+
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            exit -1
+        }
+
+        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
+    }
 
 
     #
@@ -687,18 +704,6 @@ proc prep {args} {
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
         puts_verbose "Verifying existence of files defined in ::env(EXTRA_GDS_FILES)..."
         assert_files_exist "$::env(EXTRA_GDS_FILES)"
-    }
-
-
-    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
-            puts_err $::env(VCHECK_OUTPUT)
-            puts_err "Please update your environment. OpenLane will now quit."
-            flow_fail
-            return -code error
-        }
-
-        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 
     TIMER::timer_stop
