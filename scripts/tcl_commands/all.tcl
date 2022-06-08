@@ -280,7 +280,7 @@ proc prep {args} {
     set ::env(timer_start) [clock seconds]
     TIMER::timer_start
     set options {
-        {-design required}
+        {-design optional}
         {-tag optional}
         {-config_file optional}
         {-run_path optional}
@@ -302,6 +302,7 @@ proc prep {args} {
     # Storing the current state of environment variables
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
     set_if_unset arg_values(-src) ""
+    set_if_unset arg_values(-design) "."
 
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {

@@ -40,7 +40,7 @@ def init_config(
     glob_in_config = True
     if not add_to_designs:
         glob_in_config = False
-        design_dir = f"./openlane/{design_name}"
+        design_dir = os.path.join(".", "openlane", design_name)
     config_path = os.path.join(design_dir, config_file_name)
 
     mkdirp(design_dir)
@@ -57,23 +57,24 @@ def init_config(
     ]
 
     if extension == ".tcl":
-        verilog_arg = f"[glob $::env(DESIGN_DIR)/src/*.v]"
+        verilog_arg = "[glob $::env(DESIGN_DIR)/src/*.v]"
         if not glob_in_config:
-            verilog_arg = " ".join(verilog_files_rel)
-            verilog_arg = f"{{{verilog_arg}}}"
+            verilog_arg = " ".join(
+                [os.path.join("$::env(DESIGN_DIR)", file) for file in verilog_files_rel]
+            )
+            verilog_arg = f'"{verilog_arg}"'
         with open(config_path, "w") as f:
             f.write(
                 textwrap.dedent(
                     f"""
                         set ::env(DESIGN_NAME) {{{design_name}}}
-                        set ::env(VERILOG_FILES) {{{verilog_arg}}}
+                        set ::env(VERILOG_FILES) {verilog_arg}
                         set ::env(CLOCK_PORT) "clk"
                         set ::env(CLOCK_PERIOD) "10.0"
 
                         set ::env(DESIGN_IS_CORE) {{1}}
 
-                        set tech_specific_config $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
-
+                        set tech_specific_config "$::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl"
                         if {{ [file exists $tech_specific_config] == 1 }} {{
                             source $tech_specific_config
                         }}
