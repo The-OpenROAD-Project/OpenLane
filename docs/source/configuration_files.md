@@ -50,7 +50,7 @@ cd ./openlane/SuccessiveApproximationRegister
 ```
 
 ## JSON
-The JSON files are simple key value pairs. The values can be strings, numbers, booleans, `null`s and, in special cases, a dictionary.
+The JSON files are simple key value pairs. The values can be scalars (strings, numbers, booleans, and `null`s), *one-dimensional lists of scalars*, and, in special cases, a dictionary.
 
 An minimal demonstrative configuration file would look as follows:
 
@@ -72,43 +72,15 @@ An minimal demonstrative configuration file would look as follows:
 ```
 
 ### Processing
-The JSON files are processed at runtime to simulate conditional execution, a way to reference the design directory, and a basic expression engine.
+The JSON files are processed at runtime to conditional execution, a way to reference the design directory, and a basic expression engine.
 
 * Conditional Execution
-
 
 The JSON configuration files support conditional execution based on PDK or standard cell library (or, by nesting as shown above, a combination thereof.) You can do this using the `pdk::` or `scl::` key prefixes.
 
 The value for this key would be a `dict` that is only evaluated if the PDK or SCL matches those in the key, i.e., for `pdk::sky130A` as shown above, this particular `dict` will be evaluated and its values used if and only if the PDK is set to `sky130A`, meanwhile with say, `asap7`, it will not be evaluated.
 
-* The Design Directory
-
-You can reference files relative to the design directory using the `dir::` value prefix, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
-
-* Expression Engine
-
-By using the `expr::` value prefix, you can write basic infix mathematical expressions. Binary operators supported are `**`, `*`, `/`, `+`, and `-`, while operands can be any floating-point value, and previously evaluated numeric variables prefixed with a dollar sign. Unary operators are not supported, though negative numbers with the - sign stuck to them are. Parentheses (`()`) are also supported to prioritize certain operations.
-
-Your expressions must return exactly one value: multiple expressions in the same `expr::` field are considered invalid and so are empty expressions.
-
-A noteworthy use of this expression engine is that you may use it to reference the values of other variable: `expr::$CLOCK_PERIOD` would for example return the value of the CLOCK_PERIOD without any further processing.
-
-It is important to note that the ***order of declarations matter***: i.e., you cannot reference a variable that is declared after the current expression.
-
-```jsonc
-{
-    "A": "expr::$B", // Invalid!
-    "B": 4
-}
-
-
-{
-    "B": 4,
-    "A": "expr::$B" // OK!
-}
-```
-
-This also affects conditional evaluations: as seen in the following example, despite a more specific value for a PDK existing, the unconditionally declared value later in the code would end up overwriting it:
+Note that ***the order of declarations matter here***: as seen in the following example, despite a more specific value for a PDK existing, the unconditionally declared value later in the code would end up overwriting it:
 
 ```jsonc
 {
@@ -119,7 +91,6 @@ This also affects conditional evaluations: as seen in the following example, des
 }
 // Final value for A would always be 4.
 
-
 {
     "A": 4,
     "pdk::sky130A": {
@@ -127,6 +98,33 @@ This also affects conditional evaluations: as seen in the following example, des
     }
 }
 // Final value for A would be 40 if the PDK is sky130A and 4 otherwise.
+```
+
+* The Design Directory
+
+You can reference files relative to the design directory by adding `dir::` to the beginning of a string, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
+> **Note:** Paths with whitespace are not supported by OpenLane.
+
+* Expression Engine
+
+By adding `expr::` to the beginning of a string, you can write basic infix mathematical expressions. Binary operators supported are `**`, `*`, `/`, `+`, and `-`, while operands can be any floating-point value, and previously evaluated numeric variables prefixed with a dollar sign. Unary operators are not supported, though negative numbers with the - sign stuck to them are. Parentheses (`()`) are also supported to prioritize certain operations.
+
+Your expressions must return exactly one value: multiple expressions in the same `expr::`-prefixed value are considered invalid and so are empty expressions.
+
+A noteworthy use of this expression engine is that you may use it to reference the values of other variable: `expr::$CLOCK_PERIOD` would for example return the value of the CLOCK_PERIOD without any further processing.
+
+It is important to note that, like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
+
+```jsonc
+{
+    "A": "expr::$B", // Invalid!
+    "B": 4
+}
+
+{
+    "B": 4,
+    "A": "expr::$B" // OK!
+}
 ```
 
 

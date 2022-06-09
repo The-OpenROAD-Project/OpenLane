@@ -15,12 +15,13 @@
 
 import re
 import os
+import sys
 import json
 import glob
 import click
 from enum import Enum
 from io import TextIOWrapper
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 PDK_VAR = "PDK"
 SCL_VAR = "STD_CELL_LIBRARY"
@@ -202,10 +203,48 @@ class Expr(object):
         return eval_stack[0]
 
 
-def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
-
+def process_string(value: str, state: State) -> str:
     EXPR_PREFIX = "expr::"
     DIR_PREFIX = "dir::"
+    if value.startswith(EXPR_PREFIX):
+        try:
+            value = f"{Expr.evaluate(value[len(EXPR_PREFIX):], state.vars)}"
+        except SyntaxError as e:
+            raise InvalidConfig(f"Invalid expression '{value}': {e}")
+    elif value.startswith(DIR_PREFIX):
+        path = value[len(DIR_PREFIX) :]
+        full_path = os.path.join(state.design_dir, path)
+        full_abspath = os.path.abspath(full_path)
+        # print(state.design_dir, path, full_path, full_abspath, file=stderr)
+        if full_abspath.startswith(
+            state.design_dir
+        ):  # Just so people don't try to be funny with ./../
+            files = glob.glob(full_abspath)
+            files_escaped = [file.replace("$", r"\$") for file in files]
+            value = " ".join(files_escaped)
+    return value
+
+
+Scalar = Union[str, int, float, bool, None]
+
+
+def process_scalar(key: str, value: Scalar, state: State) -> Scalar:
+    if isinstance(value, str):
+        value = process_string(value, state)
+    elif isinstance(value, bool):
+        if value:
+            value = 1
+        else:
+            value = 0
+    elif value is None:
+        value = ""
+    elif not (isinstance(value, int) or isinstance(value, float)):
+        raise InvalidConfig(f"Invalid value type {type(value)} for key '{key}'.")
+
+    return value
+
+
+def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
     PDK_PREFIX = "pdk::"
     SCL_PREFIX = "scl::"
 
@@ -227,32 +266,20 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                 raise InvalidConfig(
                     f"Invalid value type {type(value)} for key '{key}'."
                 )
-        elif isinstance(value, str):
-            if value.startswith(EXPR_PREFIX):
-                try:
-                    value = f"{Expr.evaluate(value[len(EXPR_PREFIX):], state.vars)}"
-                except SyntaxError as e:
-                    raise InvalidConfig(f"Invalid expression '{value}': {e}")
-            elif value.startswith(DIR_PREFIX):
-                path = value[len(DIR_PREFIX) :]
-                full_path = os.path.join(state.design_dir, path)
-                full_abspath = os.path.abspath(full_path)
-                # print(state.design_dir, path, full_path, full_abspath, file=stderr)
-                if full_abspath.startswith(
-                    state.design_dir
-                ):  # Just so people don't try to be funny with ./../
-                    files = glob.glob(full_abspath)
-                    files_escaped = [file.replace("$", r"\$") for file in files]
-                    value = " ".join(files_escaped)
-        elif isinstance(value, bool):
-            if value:
-                value = 1
-            else:
-                value = 0
-        elif value is None:
-            value = ""
-        elif not (isinstance(value, int) or isinstance(value, float)):
-            raise InvalidConfig(f"Invalid value type {type(value)} for key '{key}'.")
+        elif isinstance(value, list):
+            valid = True
+            processed = []
+            for (i, item) in enumerate(value):
+                current_key = f"{key}[{i}]"
+                processed.append(f"{process_scalar(current_key, item, state)}")
+
+            if not valid:
+                raise InvalidConfig(
+                    f"Invalid value for key '{key}': Arrays must consist only of strings."
+                )
+            value = " ".join(processed)
+        else:
+            value = process_scalar(key, value, state)
 
         if not withhold:
             state.vars[key] = value
@@ -296,9 +323,14 @@ def cli():
 def config_json_to_tcl(output, pdk, scl, design_dir, config_json):
     config_json_str = open(config_json).read()
     config_dict = json.loads(config_json_str)
-    resolved = process_config_dict(config_dict, pdk, scl, design_dir)
-    with open(output, "w") as f:
-        write_key_value_pairs(f, resolved)
+    try:
+        resolved = process_config_dict(config_dict, pdk, scl, design_dir)
+        with open(output, "w") as f:
+            write_key_value_pairs(f, resolved)
+    except InvalidConfig as e:
+        relpath = os.path.relpath(config_json, ".")
+        print(f"{relpath}: {e}", file=sys.stderr)
+        exit(os.EX_DATAERR)
 
 
 cli.add_command(config_json_to_tcl)

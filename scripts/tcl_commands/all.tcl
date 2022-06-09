@@ -263,11 +263,18 @@ proc source_config {config_file} {
         exec cp $config_file $config_in_path
         source $config_file
     } elseif { $ext == ".json" } {
-        exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json\
+        set cmd "python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json\
             --pdk $::env(PDK) --scl $::env(STD_CELL_LIBRARY)\
             --output $config_in_path\
             --design-dir $::env(DESIGN_DIR)\
             $config_file
+        "
+
+        if { [catch {exec {*}$cmd} errmsg] } {
+            puts_err $errmsg
+            exit -1
+        }
+
     } else {
         puts_err "$config_file error: unsupported extension '$ext'"
         return -code error
