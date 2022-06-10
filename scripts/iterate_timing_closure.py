@@ -117,7 +117,7 @@ iteration_start_step = "routing"
 def presynthesize(design: str) -> Tuple[str, Dict[str, float]]:
     run_tag = f"{datetime.datetime.now().isoformat()}"
 
-    override_env = {"QUIT_ON_TIMING_VIOLATIONS": 0, "SAVE_FINAL_VIEWS": 0}
+    override_env = {"QUIT_ON_TIMING_VIOLATIONS": 0}
 
     design_name = os.path.basename(design)
 

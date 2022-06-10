@@ -283,7 +283,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
 | `EXTRA_LEFS` | Specifies LEF files of pre-hardened macros to be merged in the design currently getting hardened |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros to be merged in the design currently getting hardened |
-| `SAVE_FINAL_VIEWS` | Specifies whether OpenLane should save all final views to a specific folder or not. (Default: `0`) |
 | `TEST_MISMATCHES` | Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
 | `QUIT_ON_MISMATCHES` | Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
 

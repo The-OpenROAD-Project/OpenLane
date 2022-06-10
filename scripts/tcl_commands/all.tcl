@@ -747,7 +747,8 @@ proc save_views {args} {
     } else {
         set path $::env(RESULTS_DIR)/final
     }
-    puts_info "Saving final set of views in '$path'..."
+    set path_rel [relpath . $path]
+    puts_info "Saving current set of views in '$path_rel'..."
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
@@ -1015,6 +1016,47 @@ proc run_antenna_check {args} {
 
 proc or_gui {args} {
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
+}
+
+proc save_final_views {args} {
+    set options {
+        {-save_path optional}
+    }
+    set flags {}
+    parse_key_args "save_final_views" args arg_values $options flags_map $flags
+
+    set arg_list [list]
+
+    # If they don't exist, save_views will simply not copy them
+    lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
+    lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
+    lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
+    lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
+    lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
+
+    # Guaranteed to have default values
+    lappend arg_list -def_path $::env(CURRENT_DEF)
+    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+
+    # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_SPEF)] } {
+        lappend arg_list -spef_path $::env(CURRENT_SPEF)
+    }
+    if { [info exists ::env(CURRENT_SDF)] } {
+        lappend arg_list -sdf_path $::env(CURRENT_SDF)
+    }
+    if { [info exists ::env(CURRENT_SDC)] } {
+        lappend arg_list -sdc_path $::env(CURRENT_SDC)
+    }
+
+    # Add the path if it exists...
+    if { [info exists arg_values(-save_path) ] } {
+        lappend arg_list -save_path $arg_values(-save_path)
+    }
+
+    # Aaand fire!
+    save_views {*}$arg_list
+
 }
 
 package provide openlane 0.9
