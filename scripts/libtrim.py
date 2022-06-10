@@ -24,7 +24,11 @@ import click
 @click.option("-o", "--output", required=True, help="Output liberty file")
 @click.argument("input_lib_files", nargs=-1)
 def cli(cell_file, output, input_lib_files):
-    excluded_cells = [cell.strip() for cell in open(cell_file).read().strip().split("\n") if cell.strip() != ""]
+    excluded_cells = [
+        cell.strip()
+        for cell in open(cell_file).read().strip().split("\n")
+        if cell.strip() != ""
+    ]
 
     output_file_handle = open(output, "w")
 
