@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,9 +24,7 @@ import click
 @click.option("-o", "--output", required=True, help="Output liberty file")
 @click.argument("input_lib_files", nargs=-1)
 def cli(cell_file, output, input_lib_files):
-    excluded_cells = list(
-        map(lambda x: x.strip(), open(cell_file).read().strip().split("\n"))
-    )
+    excluded_cells = [cell.strip() for cell in open(cell_file).read().strip().split("\n") if cell.strip() != ""]
 
     output_file_handle = open(output, "w")
 

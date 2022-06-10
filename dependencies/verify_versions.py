@@ -65,7 +65,7 @@ def verify_versions(
             if not os.getenv("PDK_ROOT"):
                 pdk_root = join(openlane_dir, "pdks")
 
-            if pdk is not None:
+            if pdk.startswith("sky130"):
                 pdk_dir = join(pdk_root, pdk)
 
                 if not pathlib.Path(pdk_dir).is_dir():

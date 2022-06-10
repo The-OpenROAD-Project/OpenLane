@@ -51,6 +51,14 @@ proc run_yosys {args} {
         lappend ::env(LIB_SYNTH_COMPLETE_NO_PG) $lib_path
     }
 
+    set ::env(LIB_SYNTH_NO_PG) [list]
+    foreach lib $::env(LIB_SYNTH) {
+        set fbasename [file rootname [file tail $lib]]
+        set lib_path [index_file $::env(synthesis_tmpfiles)/$fbasename.no_pg.lib]
+        convert_pg_pins $lib $lib_path
+        lappend ::env(LIB_SYNTH_NO_PG) $lib_path
+    }
+
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SYNTH_SCRIPT) \
         -l [index_file $::env(synthesis_logs)/synthesis.log] \

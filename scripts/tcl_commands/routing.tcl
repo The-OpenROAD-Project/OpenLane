@@ -258,6 +258,14 @@ proc gen_pdn {args} {
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
     set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
+    if { ! [info exists ::env(VDD_NET)] } {
+        set ::env(VDD_NET) $::env(VDD_PIN)
+    }
+
+    if { ! [info exists ::env(GND_NET)] } {
+        set ::env(GND_NET) $::env(GND_PIN)
+    }
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
         |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
 
