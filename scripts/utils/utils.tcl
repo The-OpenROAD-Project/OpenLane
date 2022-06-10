@@ -270,6 +270,7 @@ proc flow_fail {args} {
     if { ! [info exists ::env(FLOW_FAILED)] || ! $::env(FLOW_FAILED) } {
         set ::env(FLOW_FAILED) 1
         calc_total_runtime -status "flow failed"
+        save_final_views
         generate_final_summary_report
         save_state
         puts_err "Flow failed."

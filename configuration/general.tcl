@@ -85,7 +85,6 @@ set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 set ::env(DIODE_INSERTION_STRATEGY) 3
 
 set ::env(STA_REPORT_POWER) {1}
-set ::env(SAVE_FINAL_VIEWS) {1}
 
 ## ECO Flow
 set ::env(ECO_ENABLE) {0}
