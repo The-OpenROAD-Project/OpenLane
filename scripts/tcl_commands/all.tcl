@@ -843,8 +843,8 @@ proc heal_antenna_violators {args} {
         set violators_file [index_file $::env(routing_reports)/antenna_violators.rpt]
         if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
             #ARC specific
-            if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
-                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o $violators_file
+            if { [info exists ::env(ANTENNA_CHECKER_REPORT)] } {
+                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_REPORT) -o $violators_file
             } else {
                 puts_err "Ran heal_antenna_violators without running the antenna check first."
                 flow_fail
@@ -1000,7 +1000,9 @@ proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
     set antenna_log [index_file $::env(signoff_logs)/antenna.log]
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
-    set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+    set antenna_rpt [index_file $::env(signoff_reports)/antenna.rpt]
+    exec cp $antenna_log $antenna_rpt
+    set ::env(ANTENNA_CHECKER_REPORT) $antenna_rpt
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }

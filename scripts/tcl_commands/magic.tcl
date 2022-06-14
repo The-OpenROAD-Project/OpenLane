@@ -215,12 +215,8 @@ proc run_magic_antenna_check {args} {
     increment_index
     TIMER::timer_start
     puts_info "Running Magic Antenna Checks..."
-    set feedback_file [index_file $::env(signoff_logs)/ext2spice.antenna.feedback.txt]
-    set magic_export $::env(signoff_tmpfiles)/magic_antenna.tcl
+    set feedback_file [index_file $::env(signoff_reports)/antenna.feedback.txt]
 
-    set magic_export_file [open $magic_export w]
-    puts $magic_export_file $commands
-    close $magic_export_file
     # the following MAGTYPE has to be mag; antennacheck needs to know
     # about the underlying devices, layers, etc.
     set ::env(MAGTYPE) mag
@@ -237,10 +233,12 @@ proc run_magic_antenna_check {args} {
         |& tee $::env(TERMINAL_OUTPUT) $antenna_log
     unset ::env(_tmp_feedback_file)
 
-    # process the log
-    try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_log
+    set antenna_rpt [index_file $::env(signoff_reports)/antenna.rpt]
 
-    set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+    # process the log
+    try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_rpt
+
+    set ::env(ANTENNA_CHECKER_REPORT) $antenna_rpt
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"
