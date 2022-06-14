@@ -218,9 +218,6 @@ proc run_magic_antenna_check {args} {
     set feedback_file [index_file $::env(signoff_logs)/ext2spice.antenna.feedback.txt]
     set magic_export $::env(signoff_tmpfiles)/magic_antenna.tcl
 
-    set magic_export_file [open $magic_export w]
-    puts $magic_export_file $commands
-    close $magic_export_file
     # the following MAGTYPE has to be mag; antennacheck needs to know
     # about the underlying devices, layers, etc.
     set ::env(MAGTYPE) mag
