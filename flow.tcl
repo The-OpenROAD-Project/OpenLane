@@ -201,15 +201,18 @@ proc run_non_interactive_mode {args} {
         "cvc" "run_lef_cvc"
     ]
 
-    set_if_unset arg_values(-to) "cvc";
-
-    if {  [info exists ::env(CURRENT_STEP) ] } {
-        puts_info "Resuming flow where $::env(RUN_TAG) stopped (stage: $::env(CURRENT_STEP))..."
+    if { [info exists arg_values(-from) ]} {
+        puts_info "Starting flow at $arg_values(-from)..."
+        set ::env(CURRENT_STEP) $arg_values(-from)
+    } elseif {  [info exists ::env(CURRENT_STEP) ] } {
+        puts_info "Resuming flow from $::env(CURRENT_STEP)..."
     } else {
-        set ::env(CURRENT_STEP) "synthesis";
+        set ::env(CURRENT_STEP) "synthesis"
     }
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+    set_if_unset arg_values(-from) $::env(CURRENT_STEP)
+    set_if_unset arg_values(-to) "cvc"
+
     set exe 0;
     dict for {step_name step_exe} $steps {
         if { [ string equal $arg_values(-from) $step_name ] } {
