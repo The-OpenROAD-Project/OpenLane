@@ -34,5 +34,5 @@ Then you can view the generated html files using Firefox or other browser. To op
 
 .. code-block:: console
 
-    firefox ./sphinx_output/docs/source/contributing_to_docs.html
+    firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
