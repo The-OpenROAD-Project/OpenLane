@@ -13,6 +13,8 @@ All of the required packages are included in the Docker image, so the list of pa
 
 Note: It is known issue that the git verison in Ubuntu before 21.04 does not satisfy the requirements.
 
+.. image:: ../_static/successful_package_requirements_installation.png
+
 Step 2. Installation of Docker
 ------------
 
