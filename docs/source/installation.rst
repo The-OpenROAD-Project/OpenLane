@@ -3,7 +3,7 @@ Step 1. Installation of Requirements
 ------------
 
 
-Step 1.1. Installation of packages in Ubuntu
+Step 1.1. Installation of packages in Ubuntu 20.04 and above
 ===========
 All of the required packages are included in the Docker image, so the list of packages is slim.
 
@@ -11,9 +11,32 @@ All of the required packages are included in the Docker image, so the list of pa
 
    sudo apt install -y build-essential python3 python3-venv python3-pip make git
 
-Note: It is known issue that the git verison in Ubuntu before 21.04 does not satisfy the requirements.
+
 
 .. image:: ../_static/successful_package_requirements_installation.png
+
+
+Step 1.2. Installation under Mac OS X
+===========
+
+First install `Homebrew <https://brew.sh/>`_ then ran script below to install the required packages:
+
+.. code-block:: console
+
+   brew install python make
+   brew install --cask docker
+
+Step 2 can be skipped.
+
+Step 1.3. Installation on other Operating Systems
+===========
+
+* Docker 19.03.12+
+* Git 2.35+
+* Python 3.6+  
+   * pip  
+   * virtualenv
+* GNU Make
 
 Step 2. Installation of Docker
 ------------
@@ -83,3 +106,17 @@ Otherwise you will get a little happy message of Hello world, once again, but th
 Step 3. Checking the requirements
 ------------
 
+In order to check installation you can use following commands:
+
+.. code-block:: console
+
+   git --version
+   docker --version
+   python3 --version
+   python3 -m pip --version
+   make --version
+
+
+
+.. image:: https://asciinema.org/a/VWAJiy3ORyy1hVeTWMv6goElh.svg
+   :target: https://asciinema.org/a/VWAJiy3ORyy1hVeTWMv6goElh
