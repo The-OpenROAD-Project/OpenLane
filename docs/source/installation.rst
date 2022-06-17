@@ -1,4 +1,5 @@
 
+TODO: the OpenLane should be OpenLane
 Step 1.1. Installation of packages in Ubuntu 20.04 and above
 ===========
 All of the required packages are included in the Docker image, so the installation list is slim.
@@ -47,6 +48,9 @@ TODO: Replace the image with asciinema
 .. image:: ../_static/docker_installation_hello_world.png
 
 Now follow step 2.
+
+
+TODO: Add Fedora
 
 Step 1.2. Installation under Mac OS X
 ===========

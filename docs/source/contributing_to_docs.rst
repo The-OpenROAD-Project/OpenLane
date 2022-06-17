@@ -19,7 +19,7 @@ You can check the installation and see that sphinx was installed.
   :width: 800
   :alt: docs contribution tools installation successful
 
-After installation everytime you can enter the venv and build the documentation. 
+After installation, everytime you want to build the documentation you can enter the venv and run following commands: 
 
 .. code-block:: console
 
