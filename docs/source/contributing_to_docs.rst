@@ -36,3 +36,31 @@ Then you can view the generated html files using Firefox or other browser. To op
 
     firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
+Using asciinema
+------------
+
+Asciinema is used to record terminal's output. The output is played using asciinema player embedded into Sphinx.
+
+First we set the terminal prompt to '> '; Add following line at the end of your $HOME/.bashrc
+
+.. code-block:: console
+
+    export PS1="> "
+
+Then we need to start the recording using following commands:
+
+.. code-block:: console
+
+    asciinema rec version_check.cast
+
+After you are done with the commands press Ctrl + D to stop the recording. It will create the .cast file with the recordded playback.
+
+In order to include the local recording place the .cast file in the docs/_static/ folder and then include following in your .rst file:
+
+.. code-block:: console
+
+    .. asciinema:: ../_static/version_check.cast
+
+Note that the .. asciinema is supposed to have trailing and following newlines in order to be parsed. It will  create a nice embedded player that will play the file.
+
+.. asciinema:: ../_static/version_check.cast

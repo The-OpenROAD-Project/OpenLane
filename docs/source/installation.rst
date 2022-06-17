@@ -120,5 +120,6 @@ In order to check installation you can use following commands:
    python -m venv -h
 
 TODO: Rerecord the animation for added venv check
-.. image:: https://asciinema.org/a/VWAJiy3ORyy1hVeTWMv6goElh.svg
-   :target: https://asciinema.org/a/VWAJiy3ORyy1hVeTWMv6goElh
+
+.. asciinema:: ../_static/version_check.cast
+
