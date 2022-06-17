@@ -14,6 +14,9 @@ All of the required packages are included in the Docker image, so the installati
 
 Second you need to install Docker. Follow `instructions provided in Docker's documentation here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
+TODO: BIG YELLOW WARNING ABOUT DOCKER Installation
+TODO: BIG YELLOW WARNING ABOUT DOCKER WITHOUT SUDO INSTALLATION
+
 .. code-block::
 
    # Remove old installations
@@ -72,7 +75,7 @@ Step 1.3. Installation on other Operating Systems
 * Git 2.35+
 * Python 3.6+  
    * pip  
-   * virtualenv
+   * venv
 * GNU Make
 
 After installing all of the above, you need to make Docker available without sudo command.
