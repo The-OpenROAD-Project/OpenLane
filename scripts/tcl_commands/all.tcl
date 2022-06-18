@@ -499,7 +499,9 @@ proc prep {args} {
                 puts_info "Use 'set_def file_name.def' if you'd like to change it."
             }
             after 1000
-            set skip_basic_prep 1
+            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
+                set skip_basic_prep 1
+            }
         }
     }
 
@@ -606,6 +608,16 @@ proc prep {args} {
                 puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
             }
         }
+
+
+        # Convert Tracks
+        if { $::env(TRACKS_INFO_FILE) != "" } {
+            set tracks_processed $::env(routing_tmpfiles)/config.tracks
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+            set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
+        }
+
+        set ::env(BASIC_PREP_COMPLETE) {1}
     }
 
     # Fill config file with special cases
@@ -658,13 +670,6 @@ proc prep {args} {
     }
     if { [info exists ::env(OPENLANE_VERSION) ] } {
         try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
-    }
-
-    # Convert Tracks
-    if { $::env(TRACKS_INFO_FILE) != "" } {
-        set tracks_processed $::env(routing_tmpfiles)/config.tracks
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-        set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
