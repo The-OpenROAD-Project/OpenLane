@@ -1,15 +1,13 @@
 # Variables information
-
-This page describes configuration variables and their default values.
-
+This page describes user-configurable variables and their default values.
 ## Required variables
 
-| Variable      | Description                                           |
-|---------------|-------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `DESIGN_NAME`   | The name of the top level module of the design        |
-| `VERILOG_FILES` | The path of the design's verilog files |
-| `CLOCK_PERIOD`  | The clock period for the design in ns       |
-| `CLOCK_NET` | The name of the Net input to root clock buffer used in Clock Tree Synthesis. |
+| `VERILOG_FILES` | The path of the design's verilog files, space-delimited. |
+| `CLOCK_PERIOD`  | The clock period for the design in nanoseconds. |
+| `CLOCK_NET` | The name of the net input to root clock buffer used in Clock Tree Synthesis. |
 | `CLOCK_PORT`    | The name of the design's clock port used in Static Timing Analysis.   |
 
 ## Optional variables
@@ -18,12 +16,9 @@ These variables are optional that can be specified in the design configuration f
 
 ### Synthesis
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `SYNTH_BIN` | The yosys binary used in the flow. <br> (Default: `yosys`) |
-| `LIB_SYNTH` | The library used for synthesis by yosys. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__tt_025C_1v80.lib`)|
-| `SYNTH_DRIVING_CELL`  | The cell to drive the input ports. <br>(Default: `sky130_fd_sc_hd__inv_1`)|
-| `SYNTH_DRIVING_CELL_PIN`  | The name of the SYNTH_DRIVING_CELL output pin. <br>(Default: `Y`)|
 | `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `33.5` ff)|
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `5` cells) |
 | `SYNTH_MAX_TRAN` | The max transition time (slew) from high to low or low to high on cell inputs in ns. Used in synthesis <br> (Default: Calculated at runtime as `10%` of the provided clock period, unless this exceeds a set DEFAULT_MAX_TRAN, in which case it will be used as is). |
@@ -39,14 +34,7 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_ADDER_TYPE` | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
 | `SYNTH_EXTRA_MAPPING_FILE` | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
 | `SYNTH_PARAMETERS` | Space-separated key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> Default: None.  |
-| `LIB_FASTEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib`) |
-| `LIB_SLOWEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. <br> (Default: `$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/lib/sky130_fd_sc_hd__ss_100C_1v60.lib`) |
-| `LIB_TYPICAL` | Library used for typical delay calculation during STA. <br> (Default`LIB_SYNTH`) |
 | `CLOCK_BUFFER_FANOUT` | Fanout of clock tree buffers. <br> (Default: `16`) |
-| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Default: `sky130_fd_sc_hd__clkbuf_16`) |
-| `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Default: `sky130_fd_sc_hd__clkbuf_4`) |
-| `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Default: `A`) |
-| `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Default: `X`) |
 | `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 | `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
 | `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> Default: `0`. |
@@ -55,8 +43,8 @@ These variables are optional that can be specified in the design configuration f
 
 ### Floorplanning
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `FP_CORE_UTIL`  | The core utilization percentage. <br> (Default: `50` percent)|
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
 | `FP_SIZING`  | Whether to use relative sizing by making use of `FP_CORE_UTIL` or absolute one using `DIE_AREA`. <br> (Default: `"relative"` - accepts "absolute" as well)|
@@ -104,16 +92,16 @@ These variables are optional that can be specified in the design configuration f
 #### Deprecated I/O Layer variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be used, but it's recommended to update your configuration to use `FP_IO_HLAYER` and `FP_IO_VLAYER`, which are defined in the PDK.
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `FP_IO_HMETAL`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `4`)|
 | `FP_IO_VMETAL`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `3`)|
 
 
 ### Placement
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `0.55`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
 | `PL_LIB` | Specifies the library for time driven placement <br> (Default: `LIB_TYPICAL`)|
@@ -144,16 +132,11 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MACRO_HALO` | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `PL_MACRO_CHANNEL` | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros |
-| `LIB_OPT` | **Removed**: Points to the lib file, corresponding to the slowest corner, for max delay calculation during OpenPhySyn optimizations. This is usually a trimmed version of `LIB_SYNTH`. <br> Default: `$::env(TMP_DIR)/opt.lib` |
-| `PL_DIAMOND_SEARCH_HEIGHT` | **Removed: Use PL_MAX_DISPLACEMENT_(X/Y) instead**: Specifies the diamond search height used for legalizing the cells during detailed placement. The search width is calculated internally as `heigh*5`. For designs that contain big macros, increasing this value to above 400 will allow for more search space and more potentail for successful legalization. <br> (Default: `100`) |
-| `PL_OPENPHYSYN_OPTIMIZATIONS` | **Removed**: Specifies whether OpenPhySyn should be used to perform timing optimizations or not. 0 = false, 1 = true <br> (Default: `0`) |
-| `PSN_ENABLE_RESIZING` | **Removed**: Enables driver resizing by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
-| `PSN_ENABLE_PIN_SWAP` | **Removed**: Enables pin swapping for timing optimization by OpenPhySyn. 0 = Disabled, 1 = Enabled <br> (Default: `1`)|
 
 ### CTS
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `200`ps)|
 | `CTS_ROOT_BUFFER`| The name of cell inserted at the root of the clock tree. |
 | `CLOCK_TREE_SYNTH` | Enable clock tree synthesis. <br> (Default: `1`)|
@@ -170,8 +153,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Routing
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `GLOBAL_ROUTER` | Specifies which global router to use. Values: `fastroute`. (`cugr` is deprecated and fastroute will be used instead.) <br> (Default: `fastroute`) |
 | `DETAILED_ROUTER` | Specifies which detailed router to use. Values: `tritonroute`. (`drcu`/`tritonroute_or` are both deprecated and tritonroute will be used instead.) <br> (Default: `tritonroute`)|
 | `ROUTING_CORES` | Specifies the number of threads to be used in TritonRoute. Can be overriden via environment variable. <br> (Default: `2`) |
@@ -203,8 +186,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 #### Deprecated Layer Adjustment Variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be concatenated into GLB_RT_LAYER_ADJUSTMENTS, but it's recommended to update your configuration to use `GLB_RT_LAYER_ADJUSTMENTS`, which is defined in the PDK.
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `GLB_RT_L1_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to li1 layer in sky130A. Values range from 0 to 1 <br> (Default: `0.99`) |
 | `GLB_RT_L2_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met1 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
 | `GLB_RT_L3_ADJUSTMENT` | **Deprecated**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to met2 in sky130A. Values range from 0 to 1 <br> (Default: `0`) |
@@ -215,8 +198,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 #### Deprecated Min/Max Layer Variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be translated to the correct variables, `RT_{MIN/MAX}_LAYER` and `RT_CLOCK_{MIN/MAX}_LAYER`.
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `GLB_RT_MINLAYER` | **Deprecated**: The number of lowest layer to be used in routing. <br> (Default: `1`)|
 | `GLB_RT_MAXLAYER` | **Deprecated**: The number of highest layer to be used in routing. <br> (Default: `6`)|
 | `GLB_RT_CLOCK_MINLAYER` | **Deprecated**: The number of lowest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MINLAYER`)|
@@ -224,28 +207,23 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 #### Removed
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
 
 ### RC Extraction
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (removed: `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
 | `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
-| `RCX_CORNER_COUNT` | **Removed**: Specifies the number of corners used during the parasitic extractions. <br> (Default: `1`)|
-| `RCX_MAX_RESISTANCE` | **Removed**: Specifies the maximum threshold value for combining resistors in series. Resistors in series are combined up to this value. Units in ohms <br> (Default: `50`)|
-| `RCX_COUPLING_THRESHOLD` | **Removed**: Specifies the maximum threshold value for grounding coupling values. Coupling values below this threshold are grounded. Units in fF <br> (Default: `0.1`)|
-| `RCX_CC_MODEL` | **Removed**: Specifies the maximum number of tracks on the same routing level. Coupling is calculated within the `RCX_CC_MODEL` distance. <br> (Default: `10`)|
-| `RCX_CONTEXT_DEPTH` | **Removed**: Specifies the number of levels considered when calculating the capacitance. <br> (Default: `5`)|
 
 ### Magic
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `MAGIC_PAD` |  A flag to pad the views generated by magic (.mag, .lef, .gds) with one site. 1 = Enabled, 0 = Disabled <br> (Default: `0` )|
 | `MAGIC_ZEROIZE_ORIGIN` | A flag to move the layout such that it's origin in the lef generated by magic is 0,0. 1 = Enabled, 0 = Disabled  <br> (Default: `1` )|
 | `MAGIC_GENERATE_GDS` | A flag to generate gds view via magic . 1 = Enabled, 0 = Disabled  <br> (Default: `1` )|
@@ -261,16 +239,16 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### LVS
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `LVS_INSERT_POWER_PINS` |  Enables power pins insertion before running lvs. 1 = Enabled, 0 = Disabled <br> (Default: `1` )|
 | `LVS_CONNECT_BY_LABEL` | Enables connections by label in LVS by skipping `extract unique` in magic extractions. <br> Default: `0` |
 | `YOSYS_REWRITE_VERILOG` | Enables yosys to rewrite the verilog before LVS producing a canonical verilog netlist with verbose wire declarations. This flag will be ignored if `LEC_ENABLE` is 1, and it will be rewritten anyways. 1 = Enabled, 0 = Disabled <br> (Default: `0` ) |
 
 ### Misc
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `PDK` | Specifies the process design kit (PDK). <br> (Default: `sky130A` )|
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
 | `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `$STD_CELL_LIBRARY` )|
@@ -288,8 +266,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Flow control
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
 | `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_ROUTING_DETAILED` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
@@ -316,8 +294,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Checkers
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
+|Variable|Description|
+|-|-|
 | `CHECK_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `CHECK_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|

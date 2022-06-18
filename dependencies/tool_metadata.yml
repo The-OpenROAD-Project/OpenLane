@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: a205a0e9419f973346740171618956afe08b2d74
+  commit: 085131b090cb511d785baf52a10cf6df8a657d44
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -59,7 +59,7 @@
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: 0b8b7ae255f8fbbbefa57d443949b84e73eed757
-  build: ''
+  build: ""
   in_install: false
 - name: git
   repo: https://github.com/git/git

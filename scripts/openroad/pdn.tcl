@@ -13,13 +13,13 @@
 # limitations under the License.
 #
 foreach lib $::env(LIB_SYNTH_COMPLETE) {
-	read_liberty $lib
+    read_liberty $lib
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
@@ -52,7 +52,7 @@ if { $::env(FP_PDN_CHECK_NODES) } {
 
 if { $::env(FP_PDN_IRDROP) } {
     # set rc values
-    source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+    source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
     analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
 }
 

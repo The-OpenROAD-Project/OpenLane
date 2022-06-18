@@ -1,13 +1,4 @@
 # Power nets
-
-if { ! [info exists ::env(VDD_NET)] } {
-	set ::env(VDD_NET) $::env(VDD_PIN)
-}
-
-if { ! [info exists ::env(GND_NET)] } {
-	set ::env(GND_NET) $::env(GND_PIN)
-}
-
 if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     if { $::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) == 1 } {
         foreach power_pin $::env(STD_CELL_POWER_PINS) {
@@ -28,7 +19,7 @@ if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
 }
 
 if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 &&
-     [info exists ::env(FP_PDN_MACRO_HOOKS)]} {
+    [info exists ::env(FP_PDN_MACRO_HOOKS)]} {
     set pdn_hooks [split $::env(FP_PDN_MACRO_HOOKS) ","]
     foreach pdn_hook $pdn_hooks {
         set instance_name [lindex $pdn_hook 0]
@@ -138,7 +129,7 @@ if { $::env(FP_PDN_ENABLE_RAILS) == 1 } {
     add_pdn_connect \
         -grid stdcell_grid \
         -layers "$::env(FP_PDN_RAILS_LAYER) $::env(FP_PDN_LOWER_LAYER)"
-} 
+}
 
 
 # Adds the core ring if enabled.

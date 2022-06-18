@@ -203,7 +203,7 @@ def issue_survey():
             status = "OK"
             try:
                 mismatches = verify_versions(
-                    no_tools=True, report_file=f, pdk="sky130A"
+                    no_tools=True, report_file=f, pdk=os.getenv("PDK") or "sky130A"
                 )
                 if mismatches:
                     status = "MISMATCH"
