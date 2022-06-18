@@ -21,12 +21,6 @@ proc move_to_dir {filenames dirname} {
     }
 }
 
-proc pause {{message "Press enter to continue ==> "}} {
-    puts -nonewline $message
-    flush stdout
-    gets stdin
-}
-
 proc size_cell {inst_name new_master_name} {
     set db [ord::get_db]
     set new_master [$db findMaster $new_master_name]

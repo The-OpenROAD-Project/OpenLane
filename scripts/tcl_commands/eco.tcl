@@ -124,10 +124,6 @@ proc run_apply_step {args} {
         -exit $::env(SCRIPTS_DIR)/openroad/eco.tcl \
         |& tee $::env(TERMINAL_OUTPUT) $::env(eco_logs)/$::env(ECO_ITER)_eco.log
 
-    if { $::env(ECO_ITER) > 10 } {
-        pause;
-    }
-
     set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
     set_def $::env(eco_results)/def/eco_$::env(ECO_ITER).def
 }
@@ -146,12 +142,6 @@ proc run_eco_flow {args} {
         puts_info "\[ECO: $::env(ECO_ITER)\] Starting iteration..."
         # Then run detailed placement again
         # Get the connections then destroy them
-
-        # Pause to see puts output
-        if {$::env(ECO_ITER) > 10} {
-            puts_info "Ran for 10 itertations; Check files"
-            pause;
-        }
 
         run_apply_step
         run_routing
