@@ -138,6 +138,7 @@ proc run_eco_flow {args} {
 
     # Re-organize report/result files here
     exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
+
     eco_output_check
 
     while {$::env(ECO_FINISH) != 1} {
@@ -158,14 +159,16 @@ proc run_eco_flow {args} {
             -spef_out_prefix $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)\
             -sdf_out $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
 
-        ins_fill_cells
-
         if { $::env(ECO_ITER) != 0 } {
             set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
             set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end]
             file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
             file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
         }
+
+        eco_output_check
     }
+
+    ins_fill_cells
 }
 package provide openlane 0.9
