@@ -289,8 +289,8 @@ proc ins_diode_cells_1 {args} {
 
     set_def $::env(SAVE_DEF)
 
-    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
-    set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
+    write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
+    set_netlist $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
@@ -333,8 +333,8 @@ proc ins_diode_cells_4 {args} {
     detailed_placement_or -def $::env(CURRENT_DEF) -log $::env(routing_logs)/diode_legalization.log
 
     # Update netlist
-    write_verilog $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
-    set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME)_diodes.v
+    write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
+    set_netlist $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
