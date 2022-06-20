@@ -15,6 +15,7 @@ import re
 import os
 import math
 import click
+from collections import defaultdict
 
 from reader import OdbReader
 
@@ -42,7 +43,7 @@ def insert_buffer(output, input_lef, input_rpt, skip_pin, input_def):
     top = OdbReader(input_lef, input_def)
     insts = top.block.getInsts()
 
-    vio_dict = {}
+    vio_dict = defaultdict(list)
 
     # iteration to find minus slack
     # create insert_buffer command

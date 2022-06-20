@@ -61,7 +61,7 @@ proc insert_buffer {args} {
 }
 
 proc eco_gen_buffer {args} {
-    # Generate fixes via the gen_insert_buffer Python script
+    # Generate fixes via the eco.py Python script
     # It reads in the LATEST multi-corner sta min report
 
     set lef_file [lindex [glob -directory $::env(RUN_DIR)/tmp \
@@ -91,12 +91,12 @@ proc eco_gen_buffer {args} {
     puts_verbose "Using report $sta_file..."
 
     try_catch $::env(OPENROAD_BIN) \
-        -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+        -python $::env(SCRIPTS_DIR)/odbpy/eco.py \
         -s $::env(ECO_SKIP_PIN) \
         -i $sta_file \
         -l $lef_file \
-        -d $def_file \
-        -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
+        -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl \
+        $def_file
 }
 
 proc eco_output_check {args} {
