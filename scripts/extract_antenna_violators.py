@@ -12,42 +12,40 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import argparse
 import re
-
-parser = argparse.ArgumentParser(
-    description="extracts the list of violating nets from an ARC report file"
-)
-
-parser.add_argument("--report", "-i", required=True, help="report file")
-
-parser.add_argument(
-    "--output", "-o", required=True, help="output file to store results"
-)
-
-args = parser.parse_args()
-report_file_name = args.report
-out_file_name = args.output
-
-pattern = re.compile(r"\s*([\S+]+)\s*\([\S+]+\)\s*[\S+]+")
-
-vios_list = []
-current_net = ""
-printed = False
-
-with open(report_file_name, "r") as f:
-    for line in f:
-        m = pattern.match(line)
-        if m:
-            current_net = m.group(1)
-            printed = False
-
-        if "*" in line and not printed:
-            print(current_net)
-            vios_list.append(current_net + " ")
-            printed = True
+import click
 
 
-outFileOpener = open(out_file_name, "w")
-outFileOpener.write(" ".join(vios_list))
-outFileOpener.close()
+@click.command()
+@click.option("-o", "--output", required=True, help="Output file to store results.")
+@click.argument("report", nargs=1)
+def extract_antenna_violators(output, report):
+    """
+    Usage: extract_antenna_violators.py -o <output text file> <input ARC report>
+    Extracts the list of violating nets from an ARC report file"
+    """
+
+    pattern = re.compile(r"\s*([\S+]+)\s*\([\S+]+\)\s*[\S+]+")
+
+    vios_list = []
+    current_net = ""
+    printed = False
+
+    with open(report, "r") as f:
+        for line in f:
+            m = pattern.match(line)
+            if m is not None:
+                current_net = m.group(1)
+                printed = False
+
+            if "*" in line and not printed:
+                print(current_net)
+                vios_list.append(current_net + " ")
+                printed = True
+
+    with open(output, "w") as f:
+        f.write(" ".join(vios_list))
+
+
+if __name__ == "__main__":
+    extract_antenna_violators()

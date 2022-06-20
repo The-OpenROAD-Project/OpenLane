@@ -89,6 +89,7 @@ proc global_routing_fastroute {args} {
                 --output $::env(CURRENT_DEF)\
                 --original-prefix "ANTENNA"\
                 --new-prefix $replaceWith\
+                --input-lef $::env(MERGED_LEF)\
                 $::env(CURRENT_DEF)
 
             puts_info "FastRoute Iteration $iter"

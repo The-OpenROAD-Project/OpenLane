@@ -106,6 +106,7 @@ proc check_setup_violations {args} {
 }
 
 proc check_slew_violations {args} {
+    # Perhaps counterintuitively, this also checks max fanout and max capacitance.
     set options {
         {-report_file required}
         {-corner required}
@@ -117,17 +118,44 @@ proc check_slew_violations {args} {
     set quit_on_vios $arg_values(-quit_on_vios)
     set corner $arg_values(-corner)
 
-    set checker [catch {exec grep "VIOLATED" $report_file }]
-    if { ! $checker } {
-        set report_file_relative [relpath . $report_file]
+    set report_file_relative [relpath . $report_file]
+
+    set violated 0
+
+    set check_slew [catch {exec grep "slew violation count 0" $report_file}]
+    if { $check_slew } {
         if { $quit_on_vios } {
             puts_err "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            flow_fail
+            set violated 1
         } else {
             puts_warn "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
+    }
+
+    set check_fanout [catch {exec grep "fanout violation count 0" $report_file}]
+    if { $check_fanout } {
+        if { $quit_on_vios } {
+            puts_err "There are max fanout violations in the design at the $corner corner. Please refer to '$report_file_relative'."
+            set violated 1
+        } else {
+            puts_warn "There are max fanout violations in the design at the $corner corner. Please refer to '$report_file_relative'."
+        }
+    }
+
+    set check_capacitance [catch {exec grep "cap violation count 0" $report_file}]
+    if { $check_capacitance } {
+        if { $quit_on_vios } {
+            puts_err "There are max capacitance violations in the design at the $corner corner. Please refer to '$report_file_relative'."
+            set violated 1
+        } else {
+            puts_warn "There are max capacitance violations in the design at the $corner corner. Please refer to '$report_file_relative'."
+        }
+    }
+
+    if { $violated } {
+        flow_fail
     } else {
-        puts_info "There are no max slew violations in the design at the $corner corner."
+        puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
     }
 }
 

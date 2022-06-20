@@ -447,6 +447,9 @@ proc prep {args} {
     # needs to be resourced to make sure it overrides the above
     source_config $::env(DESIGN_CONFIG)
 
+    set_if_unset arg_values(-verbose) "0"
+    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
+
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
@@ -467,32 +470,23 @@ proc prep {args} {
     # Prep directories and files
     ############################
     #
-    set ::env(RUN_TAG)		"$tag"
-    set ::env(RUN_DIR) 		"$run_path"
-    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
-    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOGS_DIR) 		"$::env(RUN_DIR)/logs"
-    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
-    set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
 
     set skip_basic_prep 0
+    set ::env(GLB_CFG_FILE) 	"$run_path/config.tcl"
 
-    # file mkdir *ensures* they exists (no problem if they already do)
-    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
-
-    puts_info "Current run directory is $::env(RUN_DIR)"
+    puts_info "Run Directory: $run_path"
 
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing $::env(GLB_CFG_FILE)"
+            puts_info "Removing existing $::env(RUN_DIR)..."
             after 1000
-            file delete $::env(GLB_CFG_FILE)
+            file delete -force $::env(RUN_DIR)
         } else {
             if { ![info exists flags_map(-last_run)] } {
                 puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
                 after 1000
             }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Any changes to the DESIGN config file will NOT be applied."
+            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
             if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
                 puts_info "Current DEF: $::env(CURRENT_DEF)."
@@ -505,6 +499,15 @@ proc prep {args} {
         }
     }
 
+    set ::env(RUN_TAG)		"$tag"
+    set ::env(RUN_DIR) 		"$run_path"
+    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
+    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
+    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
+    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
+
+    # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
+    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
 
     set run_subfolder_structure [list \
         synthesis\
@@ -517,7 +520,6 @@ proc prep {args} {
     ]
 
     foreach subfolder $run_subfolder_structure {
-
         set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_reports)
 
@@ -842,34 +844,27 @@ proc heal_antenna_violators {args} {
     # that need the real diode in place of the fake diode:
     # => fixes the routed def
     if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
+            puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
+            flow_fail
+        }
+
         increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
-        set violators_file [index_file $::env(routing_reports)/antenna_violators.rpt]
-        if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-            #ARC specific
-            if { [info exists ::env(ANTENNA_CHECKER_REPORT)] } {
-                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_REPORT) -o $violators_file
-            } else {
-                puts_err "Ran heal_antenna_violators without running the antenna check first."
-                flow_fail
-            }
-        } else {
-            #Magic Specific
-            set violators [split [string trim [cat $violators_file]]]
-            exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
-        }
 
         #replace violating cells with real diodes
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
             replace_fake\
-            -o $::env(routing_results)/$::env(DESIGN_NAME).def\
-            -v $violators_file\
-            -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)\
+            --output $::env(routing_results)/$::env(DESIGN_NAME).def\
+            --input-lef $::env(MERGED_LEF_UNPADDED)\
+            --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
+            --fake-diode $::env(FAKEDIODE_CELL)\
+            --true-diode $::env(DIODE_CELL)\
             $::env(routing_results)/$::env(DESIGN_NAME).def
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
     }
 }
 
@@ -945,7 +940,7 @@ proc label_macro_pins {args} {
     set_if_unset arg_values(-pad_pin_name) ""
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
-        --lef $arg_values(-lef)\
+        --input-lef $arg_values(-lef)\
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         --output $output_def\
@@ -1003,17 +998,22 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-    set antenna_log [index_file $::env(signoff_logs)/antenna.log]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
-    set antenna_rpt [index_file $::env(signoff_reports)/antenna.rpt]
-    exec cp $antenna_log $antenna_rpt
-    set ::env(ANTENNA_CHECKER_REPORT) $antenna_rpt
+
+    set log [index_file $::env(signoff_logs)/antenna.log]
+    set ::env(ANTENNA_CHECKER_REPORT) [index_file $::env(signoff_reports)/antenna.rpt]
+    set ::env(ANTENNA_VIOLATOR_LIST) [index_file $::env(signoff_reports)/antenna_violators.rpt]
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
+        --output $::env(ANTENNA_VIOLATOR_LIST)\
+        $::env(ANTENNA_CHECKER_REPORT)
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }
 
 proc run_antenna_check {args} {
-    puts_info "Running Antenna Checks..."
     if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
         run_or_antenna_check
     } else {
