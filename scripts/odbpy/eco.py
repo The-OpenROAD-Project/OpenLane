@@ -16,7 +16,7 @@ import os
 import math
 import click
 
-from scripts.odbpy.reader import OdbReader
+from reader import OdbReader
 
 
 @click.group()
@@ -27,6 +27,7 @@ def cli():
 @click.command("insert_buffer")
 @click.option("-o", "--output", default="./out.tcl", help="Output eco_fix.tcl")
 @click.option("-i", "--input-rpt", required=True, help="Input multi corner sta report")
+@click.option("-s", "--skip_pin", type=int, required=True, help="skip input output cases")
 @click.option(
     "-l",
     "--input-lef",
@@ -34,7 +35,7 @@ def cli():
     help="LEF file needed to have a proper view of the DEF files",
 )
 @click.argument("input_def")
-def insert_buffer(output, input_lef, input_rpt, input_def):
+def insert_buffer(output, input_lef, input_rpt, skip_pin, input_def):
     splitLine = "\n\n\n"
     printArr = []
 
@@ -64,9 +65,7 @@ def insert_buffer(output, input_lef, input_rpt, input_def):
                 vio_name = drcSections[i].strip()
                 report_end_str = re.search("min_report_end", vio_name)
                 if report_end_str is not None:
-                    print(
-                        "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
-                    )
+                    print("report is incomplete")
                     break
                 minus_time_str = re.search(
                     r"([0-9]+\.[0-9]+) +slack +\(VIOLATED\)", vio_name
@@ -95,61 +94,33 @@ def insert_buffer(output, input_lef, input_rpt, input_def):
                                         pin_name = start_point + "/" + mterm.getName()
                                         pin_type = "ITerm"
                                         # master = inst.getMaster()
+                                        vio_dict[pin_name + " " + pin_type].append(
+                                            float(minus_time_str.group(1))
+                                        )
                                         break
                         # pin
-                        if pin_name == "":
+                        if pin_name == "" and skip_pin == 0:
                             pin_name = start_point
                             pin_type = "BTerm"
-                            # continue
-                        vio_dict[pin_name + " " + pin_type].append(
-                            float(minus_time_str.group(1))
-                        )
+                            vio_dict[pin_name + " " + pin_type].append(
+                                float(minus_time_str.group(1))
+                            )
 
             eco_iter = os.environ["ECO_ITER"]
             for pin_unq in vio_dict.keys():
                 insert_times = math.floor(
-                    abs(min(vio_dict[pin_unq])) / 0.06
+                    abs(min(vio_dict[pin_unq])) / 0.5
                 )  # insert buffer conservatively
-                if insert_times == 0:
+                if insert_times < 1:
+                    insert_times = 1
+
+                for i in range(0, insert_times):
                     vio_count += 1
                     print("insert multiple buffers: ", insert_times + 1)
-                    insert_buffer_line = (
-                        "insert_buffer "
-                        + pin_unq
-                        + " "
-                        + "sky130_fd_sc_hd__dlygate4sd3_1"
-                        + " net_HOLD_NET_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                        + " U_HOLD_FIX_BUF_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                    )
+                    insert_buffer_line = f"insert_buffer {pin_unq} sky130_fd_sc_hd__dlygate4sd3_1 net_HOLD_NET_{eco_iter}_{vio_count} U_HOLD_FIX_BUF_{eco_iter}_{vio_count}"
                     printArr.append(insert_buffer_line)
                     print(insert_buffer_line)
-                else:
-                    print("insert multiple buffers: ", insert_times)
-                    for i in range(0, insert_times):
-                        vio_count += 1
-                        print("insert multiple buffers: ", insert_times + 1)
-                        insert_buffer_line = (
-                            "insert_buffer "
-                            + pin_unq
-                            + " "
-                            + "sky130_fd_sc_hd__dlygate4sd3_1"
-                            + " net_HOLD_NET_"
-                            + str(eco_iter)
-                            + "_"
-                            + str(vio_count)
-                            + " U_HOLD_FIX_BUF_"
-                            + str(eco_iter)
-                            + "_"
-                            + str(vio_count)
-                        )
-                        printArr.append(insert_buffer_line)
-                        print(insert_buffer_line)
+
             if vio_count == 0:
                 insert_buffer_line = "No violations found"
                 printArr.append(insert_buffer_line)
