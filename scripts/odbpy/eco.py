@@ -33,7 +33,6 @@ class eco:
         self.vio_re = re.compile(r"([0-9]+\.[0-9]+) +slack +\(VIOLATED\)")
         self.startpoint_re = re.compile(r"Startpoint: (.*?)[ \n]")
 
-
     def _parse_one_stanza(self, s):
         m = self.vio_re.search(s)
         if not m:
@@ -48,7 +47,6 @@ class eco:
 
         if minus_time > self.vio_dict[start_point]:
             self.vio_dict[start_point] = minus_time
-
 
     def parse_rpt(self, filename):
         with open(filename) as f:
@@ -79,7 +77,6 @@ class eco:
                     if in_stanza:
                         s = s + line
 
-
     def _repair_one(self, pin_name, pin_type, minus_time):
         insert_times = math.floor(minus_time / 0.5)
         if insert_times < 1:
@@ -89,7 +86,6 @@ class eco:
             self.vio_count += 1
             insert_buffer_line = f"insert_buffer {pin_name} {pin_type} sky130_fd_sc_hd__dlygate4sd3_1 net_HOLD_NET_{self.eco_iter}_{self.vio_count} U_HOLD_FIX_BUF_{self.eco_iter}_{self.vio_count}"
             self.repairs.append(insert_buffer_line)
-
 
     def repair(self):
         insts = self.odb.block.getInsts()
@@ -112,7 +108,6 @@ class eco:
                     pin_type = "BTerm"
                     self._repair_one(pin_name, pin_type, minus_time)
 
-
     def write_tcl(self, filename):
         with open(filename, "w") as f:
             if len(self.repairs) == 0:
@@ -130,8 +125,16 @@ def cli():
 
 @click.command("insert_buffer")
 @click.option("-o", "--output", default="./out.tcl", help="Output eco_fix.tcl")
-@click.option("-i", "--input-rpt", required=True, multiple=True, help="Input multi corner sta report")
-@click.option("-s", "--skip_pin", type=int, required=True, help="skip input output cases")
+@click.option(
+    "-i",
+    "--input-rpt",
+    required=True,
+    multiple=True,
+    help="Input multi corner sta report",
+)
+@click.option(
+    "-s", "--skip_pin", type=int, required=True, help="skip input output cases"
+)
 @click.option(
     "-l",
     "--input-lef",
@@ -139,8 +142,6 @@ def cli():
     help="LEF file needed to have a proper view of the DEF files",
 )
 @click.argument("input_def")
-
-
 def insert_buffer(output, input_lef, input_rpt, skip_pin, input_def):
     e = eco(input_lef=input_lef, input_def=input_def, skip_pin=skip_pin)
     for rpt in input_rpt:

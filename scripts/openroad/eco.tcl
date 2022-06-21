@@ -15,12 +15,6 @@
 
 source $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl
 
-proc move_to_dir {filenames dirname} {
-    foreach filename $filenames {
-        file rename $filename [file join $dirname [file tail $filename]]
-    }
-}
-
 proc size_cell {inst_name new_master_name} {
     set db [ord::get_db]
     set new_master [$db findMaster $new_master_name]
@@ -31,11 +25,7 @@ proc size_cell {inst_name new_master_name} {
 }
 
 proc run_eco {args} {
-    set cur_iter [expr $::env(ECO_ITER) == 0 ? 0 : expr {$::env(ECO_ITER) -1}]]
-    # Uncomment to source the generated fix
-    # Currently args in the fix tcl has some bugs:
-    # 1st argument of insert_buffer (pin_name) not found
-    source "$::env(eco_results)/fix/eco_fix_$cur_iter.tcl"
+    source $::env(ECO_FIX_FILE)
 
     # Run detailed placement
     detailed_placement
@@ -50,7 +40,6 @@ proc run_eco {args} {
             [odb::dbWire_destroy $wire]
         }
     }
-
 }
 
 foreach lib $::env(LIB_CTS) {
@@ -68,22 +57,9 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
     exit 1
 }
 
-set cur_iter [expr $::env(ECO_ITER) == 0 ? \
-    0 : \
-    [expr {$::env(ECO_ITER) -1}] \
-]
-
-if {[expr {$cur_iter == 0}]} {
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-} else {
-    if {[catch {read_def \
-        $::env(eco_results)/def/eco_$cur_iter.def} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
+    puts stderr $errmsg
+    exit 1
 }
 
 read_sdc -echo $::env(CURRENT_SDC)
@@ -91,5 +67,5 @@ set_propagated_clock [all_clocks]
 
 run_eco
 
-write_verilog $::env(eco_results)/net/eco_$::env(ECO_ITER).v
-write_def     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
+write_verilog $::env(SAVE_NETLIST)
+write_def     $::env(SAVE_DEF)

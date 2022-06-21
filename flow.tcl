@@ -52,7 +52,9 @@ proc run_routing_step {args} {
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
-    run_routing
+    if { $::env(ECO_ENABLE) == 0 } {
+        run_routing
+    }
 }
 
 proc run_parasitics_sta_step {args} {
@@ -62,7 +64,7 @@ proc run_parasitics_sta_step {args} {
         set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
     }
 
-    if { $::env(RUN_SPEF_EXTRACTION) } {
+    if { $::env(RUN_SPEF_EXTRACTION) && ($::env(ECO_ENABLE) == 0)} {
         run_parasitics_sta
     }
 }
@@ -122,7 +124,7 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 }
 
 proc run_eco_step {args} {
-    if {  $::env(ECO_ENABLE) == 1 } {
+    if { $::env(ECO_ENABLE) == 1 } {
         run_eco_flow
     }
 }

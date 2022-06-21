@@ -170,9 +170,6 @@ proc detailed_routing {args} {
     puts_info "Running Detailed Routing..."
 
     set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
-        set ::env(SAVE_DEF) $::env(eco_results)/arcdef/$::env(ECO_ITER)_post-route.def
-    }
 
     set tool "openroad"
     if {$::env(RUN_ROUTING_DETAILED)} {
@@ -410,30 +407,6 @@ proc run_spef_extraction {args} {
 proc run_routing {args} {
     puts_info "Routing..."
 
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) == 0 } {
-        set log          "$::env(eco_logs)"
-        set path         "$::env(eco_results)"
-        set fix_path     "$::env(eco_results)/fix"
-        set def_path     "$::env(eco_results)/def"
-        set net_path     "$::env(eco_results)/net"
-        set spef_path    "$::env(eco_results)/spef"
-        set sdf_path     "$::env(eco_results)/sdf"
-        set arc_def_path "$::env(eco_results)/arcdef"
-        file mkdir $log
-        file mkdir $path
-        file mkdir $fix_path
-        file mkdir $def_path
-        file mkdir $net_path
-        file mkdir $spef_path
-        file mkdir $sdf_path
-        file mkdir $arc_def_path
-    }
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-        set ::env(CURRENT_DEF)     $::env(eco_results)/def/eco_$::env(ECO_ITER).def
-        set ::env(CURRENT_NETLIST) $::env(eco_results)/net/eco_$::env(ECO_ITER).v
-    }
-    set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
-
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
@@ -490,10 +463,6 @@ proc run_routing {args} {
 
     # for lvs
     set_netlist $detailed_routed_netlist
-
-    if { $::env(ECO_ENABLE) == 1 && $::env(ECO_ITER) != 0 } {
-        set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
-    }
 
     if { $::env(LEC_ENABLE) } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)

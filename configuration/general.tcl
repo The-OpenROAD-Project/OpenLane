@@ -88,7 +88,6 @@ set ::env(STA_REPORT_POWER) {1}
 
 ## ECO Flow
 set ::env(ECO_ENABLE) {0}
-set ::env(ECO_STARTED) {0}
 set ::env(ECO_ITER) {0}
 set ::env(ECO_FINISH) {0}
 set ::env(ECO_SKIP_PIN) {1}
