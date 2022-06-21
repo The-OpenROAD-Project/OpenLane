@@ -21,23 +21,22 @@ if {  [info exist ::env(EXTRA_LEFS)] } {
 }
 def read $::env(CURRENT_DEF)
 load $::env(DESIGN_NAME) -dereference
-cd $::env(signoff_tmpfiles)
-select top cell
 
-# for now, do extraction anyway; can be optimized by reading the maglef ext
-# but getting many warnings
-if { ! [file exists $::env(DESIGN_NAME).ext] } {
-    extract do local
-    extract no capacitance
-    extract no coupling
-    extract no resistance
-    extract no adjust
-    if { ! $::env(LVS_CONNECT_BY_LABEL) } {
-        extract unique
-    }
-    # extract warn all
-    extract
-    feedback save $feedback_file
+set extdir $::env(signoff_tmpfiles)/magic_antenna_ext
+file mkdir $extdir
+cd $extdir
+
+select top cell
+extract do local
+extract no capacitance
+extract no coupling
+extract no resistance
+extract no adjust
+if { ! $::env(LVS_CONNECT_BY_LABEL) } {
+    extract unique
 }
+extract
+feedback save $::env(_tmp_feedback_file)
+
 antennacheck debug
 antennacheck

@@ -56,7 +56,7 @@ proc groute_antenna_extract {args} {
 
     set value [exec python3 $::env(SCRIPTS_DIR)/extract_antenna_count.py < $arg_values(-from_log)]
 
-    return value
+    return $value
 }
 
 proc global_routing_fastroute {args} {
@@ -84,18 +84,20 @@ proc global_routing_fastroute {args} {
             set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global_$iter.guide]
             set saveLOG [index_file $::env(routing_logs)/global_$iter.log]
             set replaceWith "INSDIODE$iter"
+            puts_info "Starting antenna repair iteration $iter with $prevAntennaVal violations..."
 
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_instance_prefixes\
                 --output $::env(CURRENT_DEF)\
                 --original-prefix "ANTENNA"\
                 --new-prefix $replaceWith\
+                --input-lef $::env(MERGED_LEF)\
                 $::env(CURRENT_DEF)
 
-            puts_info "FastRoute Iteration $iter"
-            puts_info "Antenna Violations Previous: $prevAntennaVal"
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
+
             set currAntennaVal [groute_antenna_extract -from_log $saveLOG]
-            puts_info "Antenna Violations Current: $currAntennaVal"
+            puts_info "Reduced violations to $currAntennaVal."
+
             if { $currAntennaVal >= $prevAntennaVal } {
                 set iter [expr $iter - 1]
                 set ::env(SAVE_DEF) $prevDEF1

@@ -145,6 +145,7 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-extra_args) ""
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/io_place.py\
+        --output $arg_values(-output_def)\
         --input-lef $arg_values(-lef)\
         --config $arg_values(-cfg)\
         --hor-layer $arg_values(-horizontal_layer)\
@@ -155,7 +156,6 @@ proc place_io_ol {args} {
         --ver-extension $arg_values(-vertical_ext)\
         --length $arg_values(-length)\
         {*}$flags_map(-unmatched_error)\
-        -o $arg_values(-output_def)\
         {*}$arg_values(-extra_args)\
         $arg_values(-def) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
 
@@ -200,7 +200,6 @@ proc place_contextualized_io {args} {
         --input-lef $::env(MERGED_LEF_UNPADDED) \
         --top-def $::env(placement_tmpfiles)/top_level.def \
         --top-lef $::env(placement_tmpfiles)/top_level.lef \
-        -o $::env(SAVE_DEF) \
         $prev_def |& tee [index_file $::env(floorplan_logs)/io.contextualize.log]
 
     puts_info "Custom floorplan created."
@@ -257,9 +256,10 @@ proc apply_def_template {args} {
         set def [index_file $::env(floorplan_tmpfiles)/apply_def_template.def]
         puts_info "Applying DEF template. See log: $log"
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
-            --lef $::env(MERGED_LEF) \
+            --output $::env(CURRENT_DEF)\
+            --log $log\
             --def-template $::env(FP_DEF_TEMPLATE)\
-            --log $log \
+            --input-lef $::env(MERGED_LEF) \
             $::env(CURRENT_DEF)
     }
 

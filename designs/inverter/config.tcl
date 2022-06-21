@@ -20,8 +20,6 @@ set ::env(FP_PDN_HPITCH) 25.0
 set ::env(FP_PDN_VOFFSET) 5.0
 set ::env(FP_PDN_HOFFSET) 5.0
 
-set ::env(DIODE_INSERTION_STRATEGY) 3
-
 set filename $::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
 if { [file exists $filename] == 1} {
 	source $filename

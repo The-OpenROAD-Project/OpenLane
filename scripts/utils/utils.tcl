@@ -172,24 +172,35 @@ proc relpath {args} {
     return [exec python3 -c "import os; print(os.path.relpath('$to', '$from'), end='')"]
 }
 
-proc run_openroad_script {args} {
+proc run_tcl_script {args} {
     # Note that this proc is not responsible for indexing its own logs.
     set options {
+        {-tool required}
         {-indexed_log optional}
     }
 
+    # -gui only supported for OpenROAD
     set flags {-netlist_in -gui}
 
-    parse_key_args "run_openroad_script" args arg_values $options flag_map $flags
+    parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
 
     set script [lindex $args 0]
 
-    if { [info exists flag_map(-gui)] } {
-        set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+    set tool $arg_values(-tool)
+
+    if { $tool == "openroad" } {
+        if { [info exists flag_map(-gui)] } {
+            set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        } else {
+            set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        }
+    } elseif { $arg_values(-tool) == "magic" } {
+        set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } else {
-        set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        puts_err "run_tcl_script only supports '-tool magic' and '-tool openroad' for now."
+        return -code error
     }
 
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
@@ -200,13 +211,12 @@ proc run_openroad_script {args} {
 
     set script_relative [relpath . $script]
 
-    puts_verbose "Executing OpenROAD with script '$script_relative'..."
+    puts_verbose "Executing $tool with Tcl script '$script_relative'..."
 
-    set exit_code [catch {exec {*}$args } error_msg]
+    set exit_code [catch {exec {*}$args} error_msg]
 
     if { $exit_code } {
-        set tool [string range $args 0 [string first " " $args]]
-        set print_error_msg "during executing openroad script $script"
+        set print_error_msg "during executing $tool script $script"
 
         puts_err "$print_error_msg"
         puts_err "Exit code: $exit_code"
@@ -216,13 +226,14 @@ proc run_openroad_script {args} {
         save_state
         puts_info "Creating reproducible..."
 
-        set reproducible_dir $::env(RUN_DIR)/openroad_issue_reproducible
+        set reproducible_dir $::env(RUN_DIR)/issue_reproducible
         set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
 
         set or_issue_arg_list [list]
 
+        lappend or_issue_arg_list --tool $tool
         lappend or_issue_arg_list --output-dir $reproducible_dir
-        lappend or_issue_arg_list --or-script $script
+        lappend or_issue_arg_list --script $script
         lappend or_issue_arg_list --run-path $::env(RUN_DIR)
 
         if { [info exists flag_map(-netlist_in)] } {
@@ -239,6 +250,14 @@ proc run_openroad_script {args} {
 
         flow_fail
     }
+}
+
+proc run_openroad_script {args} {
+    run_tcl_script -tool openroad -no_consume {*}$args
+}
+
+proc run_magic_script {args} {
+    run_tcl_script -tool magic -no_consume {*}$args
 }
 
 proc increment_index {args} {

@@ -418,5 +418,7 @@ def replace_fake(fake_diode, true_diode, violations_file, output, input_lef, inp
     assert odb.write_def(reader.block, output) == 1
 
 
+cli.add_command(replace_fake)
+
 if __name__ == "__main__":
     cli()
