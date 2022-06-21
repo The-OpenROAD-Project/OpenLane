@@ -7,7 +7,7 @@ In order to contribute to documentation you can install the sphinx and build the
 
     # assuming you are inside OpenLane folder
 
-    python -m venv ven
+    python -m venv venv
     source venv/bin/activate
 
     python -m pip install -r docs/requirements.txt 
@@ -36,31 +36,34 @@ Then you can view the generated html files using Firefox or other browser. To op
 
     firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
-Using asciinema
-------------
-
-Asciinema is used to record terminal's output. The output is played using asciinema player embedded into Sphinx.
-
-First we set the terminal prompt to '> '; Add following line at the end of your $HOME/.bashrc
+Making screenshots
+-----------
+The screenshots in documentation should use following prompt:
 
 .. code-block:: console
 
-    export PS1="> "
+    export PS1="\W> "
 
-Then we need to start the recording using following commands:
+You can add it to your `.bashrc` or just run it before you take the screenshot.
 
-.. code-block:: console
 
-    asciinema rec version_check.cast
+Troubleshooting
+----------------
 
-After you are done with the commands press Ctrl + D to stop the recording. It will create the .cast file with the recordded playback.
-
-In order to include the local recording place the .cast file in the docs/_static/ folder and then include following in your .rst file:
+If you did not source `venv/bin/activate` when running `sphinx-build` then you will get error similar to the one below.
 
 .. code-block:: console
 
-    .. asciinema:: ../_static/version_check.cast
+    Running Sphinx v5.0.1
 
-Note that the .. asciinema is supposed to have trailing and following newlines in order to be parsed. It will  create a nice embedded player that will play the file.
+    Configuration error:
+    There is a programmable error in your configuration file:
 
-.. asciinema:: ../_static/version_check.cast
+    Traceback (most recent call last):
+    File "/home/armleo/.local/lib/python3.10/site-packages/sphinx/config.py", line 343, in eval_config_file
+        exec(code, namespace)
+    File "/home/armleo/Desktop/OpenLaneGSOC/conf.py", line 24, in <module>
+        from recommonmark.parser import CommonMarkParser
+    ModuleNotFoundError: No module named 'recommonmark'
+
+In order to resolve this, repeat the steps above for enabling venv.

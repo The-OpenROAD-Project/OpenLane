@@ -1,7 +1,9 @@
 
 TODO: the OpenLane should be OpenLane
+
+
 Step 1.1. Installation of packages in Ubuntu 20.04 and above
-===========
+----------
 All of the required packages are included in the Docker image, so the installation list is slim.
 
 .. code-block:: console
@@ -46,8 +48,6 @@ TODO: BIG YELLOW WARNING ABOUT DOCKER WITHOUT SUDO INSTALLATION
 
 After installation you will get Docker's Hello World:
 
-TODO: Replace the image with asciinema
-
 .. image:: ../_static/docker_installation_hello_world.png
 
 Now follow step 2.
@@ -56,7 +56,7 @@ Now follow step 2.
 TODO: Add Fedora
 
 Step 1.2. Installation under Mac OS X
-===========
+----------
 
 First install `Homebrew <https://brew.sh/>`_ then ran script below to install the required packages:
 
@@ -69,7 +69,7 @@ TODO: Ask somebody with Mac OS X to make an animation for this
 TODO: Ask somebody if the docker installed with brew does not require additional steps to make it avaialabe without root
 
 Step 1.3. Installation on other Operating Systems
-===========
+----------
 
 * Docker 19.03.12+
 * Git 2.35+
@@ -81,9 +81,9 @@ Step 1.3. Installation on other Operating Systems
 After installing all of the above, you need to make Docker available without sudo command.
 
 Step 2. Making Docker available without root
-------------
+===========
 
-This is a **mandatory step**, without this all of the OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
+This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
 
 .. code-block::
 
@@ -91,8 +91,6 @@ This is a **mandatory step**, without this all of the OpenLane scripts will fail
    sudo usermod -aG docker $USER
 
 Then you have to restart your operating system for the group permissions to apply. 
-
-TODO: Replace the image with asciinema
 
 .. image:: ../_static/docker_permission.png
 
@@ -104,12 +102,11 @@ After that you can run Docker Hello World without root. Let's try it out:
 
 If you get permission error then you skipped a step or two. Did you forget to reboot?
 
-TODO: Replace the image with asciinema
+
 .. image:: ../_static/installation_docker_permission_issue.png
 
 Otherwise you will get a little happy message of Hello world, once again, but this time without root.
 
-TODO: Replace the image with asciinema
 .. image:: ../_static/docker_without_sudo_done.png
 
 Step 3. Checking the requirements
@@ -126,7 +123,4 @@ In order to check installation you can use following commands:
    make --version
    python -m venv -h
 
-TODO: Rerecord the animation for added venv check
-
-.. asciinema:: ../_static/version_check.cast
 

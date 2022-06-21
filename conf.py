@@ -44,8 +44,7 @@ extensions = [
     "sphinx_markdown_tables",
     "image_links",  # CUSTOM
     "toc_from_markdown",  # CUSTOM
-    "recommonmark",
-    "sphinxcontrib.asciinema"
+    "recommonmark"
 ]
 
 # Expand source suffixes
