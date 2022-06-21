@@ -44,7 +44,7 @@ def extract_antenna_violators(output, report):
                 printed = True
 
     with open(output, "w") as f:
-        f.write(" ".join(vios_list))
+        f.write("\n".join(vios_list))
 
 
 if __name__ == "__main__":

@@ -1000,14 +1000,19 @@ proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
 
     set log [index_file $::env(signoff_logs)/antenna.log]
-    set ::env(ANTENNA_CHECKER_REPORT) [index_file $::env(signoff_reports)/antenna.rpt]
-    set ::env(ANTENNA_VIOLATOR_LIST) [index_file $::env(signoff_reports)/antenna_violators.rpt]
 
+    set antenna_checker_rpt [index_file $::env(signoff_reports)/antenna.rpt]
+    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
+
+    set ::env(_tmp_antenna_checker_rpt) $antenna_checker_rpt
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
+    unset ::env(_tmp_antenna_checker_rpt)
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
-        --output $::env(ANTENNA_VIOLATOR_LIST)\
-        $::env(ANTENNA_CHECKER_REPORT)
+        --output $antenna_violators_rpt\
+        $antenna_checker_rpt
+
+    set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"

@@ -135,13 +135,13 @@ proc run_magic_spice_export {args} {
         # LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
     }
 
-    set ::env(magic_extract_prefix) [index_file $::env(signoff_logs)/ext2]
-
     set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).$extract_type
+    set feedback_file [index_file $::env(signoff_reports)/$extract_type.ext_feedback.txt]
 
     # the following MAGTYPE has to be maglef for the purpose of LVS
     # otherwise underlying device circuits would be considered
     set ::env(_tmp_magic_extract_type) $extract_type
+    set ::env(_tmp_magic_feedback_file) $feedback_file
     set ::env(MAGTYPE) maglef
 
     run_magic_script\
@@ -149,15 +149,16 @@ proc run_magic_spice_export {args} {
         $::env(SCRIPTS_DIR)/magic/extract_spice.tcl
 
     unset ::env(_tmp_magic_extract_type)
+    unset ::env(_tmp_magic_feedback_file)
 
     if { $extract_type == "spice" } {
         file copy -force $::env(signoff_results)/$::env(DESIGN_NAME).spice $::env(signoff_results)/$::env(DESIGN_NAME).lef.spice
     }
-    file rename -force {*}[glob $::env(signoff_results)/*.ext] $::env(signoff_tmpfiles)
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
 
-    quit_on_illegal_overlaps -log [index_file $::env(signoff_logs)/ext2$extract_type.feedback.txt]
+    quit_on_illegal_overlaps -log $feedback_file
 }
 
 proc export_magic_view {args} {
@@ -209,12 +210,12 @@ proc run_magic_antenna_check {args} {
 
     unset ::env(_tmp_feedback_file)
 
-    set antenna_rpt [index_file $::env(signoff_reports)/antenna.rpt]
+    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
 
     # process the log
-    try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_rpt
+    try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_violators_rpt
 
-    set ::env(ANTENNA_VIOLATOR_LIST) $antenna_rpt
+    set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - magic"

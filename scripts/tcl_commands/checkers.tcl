@@ -124,9 +124,9 @@ proc check_slew_violations {args} {
 
     set check_slew [catch {exec grep "slew violation count 0" $report_file}]
     if { $check_slew } {
+        set violated 1
         if { $quit_on_vios } {
             puts_err "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            set violated 1
         } else {
             puts_warn "There are max slew violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -134,9 +134,9 @@ proc check_slew_violations {args} {
 
     set check_fanout [catch {exec grep "fanout violation count 0" $report_file}]
     if { $check_fanout } {
+        set violated 1
         if { $quit_on_vios } {
             puts_err "There are max fanout violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            set violated 1
         } else {
             puts_warn "There are max fanout violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -144,16 +144,18 @@ proc check_slew_violations {args} {
 
     set check_capacitance [catch {exec grep "cap violation count 0" $report_file}]
     if { $check_capacitance } {
+        set violated 1
         if { $quit_on_vios } {
             puts_err "There are max capacitance violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            set violated 1
         } else {
             puts_warn "There are max capacitance violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
     }
 
     if { $violated } {
-        flow_fail
+        if { $quit_on_vios } {
+            flow_fail
+        }
     } else {
         puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
     }
