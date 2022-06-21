@@ -11,12 +11,111 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import re
 import os
 import math
 import click
+from collections import defaultdict
 
-from scripts.odbpy.reader import OdbReader
+from reader import OdbReader
+
+
+class eco:
+    def __init__(self, input_lef, input_def, skip_pin):
+        self.odb = OdbReader(input_lef, input_def)
+        self.skip_pin = skip_pin
+
+        self.vio_dict = defaultdict(float)
+        self.vio_count = 0
+        self.eco_iter = os.environ["ECO_ITER"]
+        self.repairs = []
+        self.vio_re = re.compile(r"([0-9]+\.[0-9]+) +slack +\(VIOLATED\)")
+        self.startpoint_re = re.compile(r"Startpoint: (.*?)[ \n]")
+
+    def _parse_one_stanza(self, s):
+        m = self.vio_re.search(s)
+        if not m:
+            return
+        minus_time = float(m.group(1))
+
+        m = self.startpoint_re.search(s)
+        if not m:
+            print("WARN: could not find Startpoint")
+            return
+        start_point = m.group(1)
+
+        if minus_time > self.vio_dict[start_point]:
+            self.vio_dict[start_point] = minus_time
+
+    def parse_rpt(self, filename):
+        with open(filename) as f:
+            in_min = False
+            in_stanza = False
+            s = ""
+            for line in f:
+                if line.strip() == "min_report":
+                    in_min = True
+                    in_stanza = False
+                    s = ""
+                    continue
+                elif line.strip() == "min_report_end":
+                    in_min = False
+                    in_stanza = False
+                    if len(s):
+                        self._parse_one_stanza(s)
+                    s = ""
+                    continue
+
+                if in_min:
+                    if "Startpoint" in line:
+                        in_stanza = True
+                        if len(s):
+                            self._parse_one_stanza(s)
+                        s = ""
+
+                    if in_stanza:
+                        s = s + line
+
+    def _repair_one(self, pin_name, pin_type, minus_time):
+        insert_times = math.floor(minus_time / 0.5)
+        if insert_times < 1:
+            insert_times = 1
+
+        for i in range(0, insert_times):
+            self.vio_count += 1
+            insert_buffer_line = f"insert_buffer {pin_name} {pin_type} sky130_fd_sc_hd__dlygate4sd3_1 net_HOLD_NET_{self.eco_iter}_{self.vio_count} U_HOLD_FIX_BUF_{self.eco_iter}_{self.vio_count}"
+            self.repairs.append(insert_buffer_line)
+
+    def repair(self):
+        insts = self.odb.block.getInsts()
+        # Single pass through insts
+        for inst in insts:
+            if inst.getName() in self.vio_dict:
+                start_point = inst.getName()
+                minus_time = self.vio_dict[start_point]
+                for iterm in inst.getITerms():
+                    mterm = iterm.getMTerm()  # mterm get the information
+                    if mterm.getIoType() == "OUTPUT":
+                        pin_name = start_point + "/" + mterm.getName()
+                        pin_type = "ITerm"
+                        self._repair_one(pin_name, pin_type, minus_time)
+                        break
+
+                # pin
+                if pin_name == "" and self.skip_pin == 0:
+                    pin_name = start_point
+                    pin_type = "BTerm"
+                    self._repair_one(pin_name, pin_type, minus_time)
+
+    def write_tcl(self, filename):
+        with open(filename, "w") as f:
+            if len(self.repairs) == 0:
+                f.write("No violations found")
+            else:
+                f.write("\n".join(self.repairs))
+
+            f.write("\n")
 
 
 @click.group()
@@ -26,7 +125,16 @@ def cli():
 
 @click.command("insert_buffer")
 @click.option("-o", "--output", default="./out.tcl", help="Output eco_fix.tcl")
-@click.option("-i", "--input-rpt", required=True, help="Input multi corner sta report")
+@click.option(
+    "-i",
+    "--input-rpt",
+    required=True,
+    multiple=True,
+    help="Input multi corner sta report",
+)
+@click.option(
+    "-s", "--skip_pin", type=int, required=True, help="skip input output cases"
+)
 @click.option(
     "-l",
     "--input-lef",
@@ -34,132 +142,12 @@ def cli():
     help="LEF file needed to have a proper view of the DEF files",
 )
 @click.argument("input_def")
-def insert_buffer(output, input_lef, input_rpt, input_def):
-    splitLine = "\n\n\n"
-    printArr = []
-
-    top = OdbReader(input_lef, input_def)
-    insts = top.block.getInsts()
-
-    vio_dict = {}
-
-    # iteration to find minus slack
-    # create insert_buffer command
-    # Converting Magic DRC
-    if os.path.exists(input_rpt):
-        drcFileOpener = open(input_rpt)
-        if drcFileOpener.mode == "r":
-            drcContent = drcFileOpener.read()
-        drcFileOpener.close()
-
-        # design name
-        # violation message
-        # list of violations
-        # Total Count:
-        vio_count = 0
-        if drcContent is not None:
-            drcSections = drcContent.split(splitLine)
-            # if (len(drcSections) > 2):
-            for i in range(0, len(drcSections)):
-                vio_name = drcSections[i].strip()
-                report_end_str = re.search("min_report_end", vio_name)
-                if report_end_str is not None:
-                    print(
-                        "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL"
-                    )
-                    break
-                minus_time_str = re.search(
-                    r"([0-9]+\.[0-9]+) +slack +\(VIOLATED\)", vio_name
-                )
-                if minus_time_str is not None:
-                    # vio_count += 1
-                    start_point_str = re.search("Startpoint: (.*?)[ \n]", vio_name)
-                    if start_point_str is not None:
-                        start_point = start_point_str.group(1)
-                        # FF
-                        pin_name = ""
-                        for inst in insts:
-                            # find the pin inside inst
-                            if inst.getName() == start_point:
-                                for iterm in inst.getITerms():  # instance pin
-                                    mterm = (
-                                        iterm.getMTerm()
-                                    )  # mterm get the information
-                                    if mterm.getIoType() == "OUTPUT":
-                                        printArr.append(
-                                            "# Found SP: "
-                                            + start_point
-                                            + "mterm: "
-                                            + mterm.getName()
-                                        )
-                                        pin_name = start_point + "/" + mterm.getName()
-                                        pin_type = "ITerm"
-                                        # master = inst.getMaster()
-                                        break
-                        # pin
-                        if pin_name == "":
-                            pin_name = start_point
-                            pin_type = "BTerm"
-                            # continue
-                        vio_dict[pin_name + " " + pin_type].append(
-                            float(minus_time_str.group(1))
-                        )
-
-            eco_iter = os.environ["ECO_ITER"]
-            for pin_unq in vio_dict.keys():
-                insert_times = math.floor(
-                    abs(min(vio_dict[pin_unq])) / 0.06
-                )  # insert buffer conservatively
-                if insert_times == 0:
-                    vio_count += 1
-                    print("insert multiple buffers: ", insert_times + 1)
-                    insert_buffer_line = (
-                        "insert_buffer "
-                        + pin_unq
-                        + " "
-                        + "sky130_fd_sc_hd__dlygate4sd3_1"
-                        + " net_HOLD_NET_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                        + " U_HOLD_FIX_BUF_"
-                        + str(eco_iter)
-                        + "_"
-                        + str(vio_count)
-                    )
-                    printArr.append(insert_buffer_line)
-                    print(insert_buffer_line)
-                else:
-                    print("insert multiple buffers: ", insert_times)
-                    for i in range(0, insert_times):
-                        vio_count += 1
-                        print("insert multiple buffers: ", insert_times + 1)
-                        insert_buffer_line = (
-                            "insert_buffer "
-                            + pin_unq
-                            + " "
-                            + "sky130_fd_sc_hd__dlygate4sd3_1"
-                            + " net_HOLD_NET_"
-                            + str(eco_iter)
-                            + "_"
-                            + str(vio_count)
-                            + " U_HOLD_FIX_BUF_"
-                            + str(eco_iter)
-                            + "_"
-                            + str(vio_count)
-                        )
-                        printArr.append(insert_buffer_line)
-                        print(insert_buffer_line)
-            if vio_count == 0:
-                insert_buffer_line = "No violations found"
-                printArr.append(insert_buffer_line)
-    else:
-        printArr.append("Source not found.")
-
-    # write into file
-    outputFileOpener = open(output, "w")
-    outputFileOpener.write("\n".join(printArr))
-    outputFileOpener.close()
+def insert_buffer(output, input_lef, input_rpt, skip_pin, input_def):
+    e = eco(input_lef=input_lef, input_def=input_def, skip_pin=skip_pin)
+    for rpt in input_rpt:
+        e.parse_rpt(rpt)
+    e.repair()
+    e.write_tcl(output)
 
 
 cli.add_command(insert_buffer)
