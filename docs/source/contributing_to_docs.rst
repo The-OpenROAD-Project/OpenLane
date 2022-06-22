@@ -1,3 +1,5 @@
+Contributors guide
+============
 Installation of sphinx for documentation
 ------------
 
@@ -7,15 +9,19 @@ In order to contribute to documentation you can install the sphinx and build the
 
     # assuming you are inside OpenLane folder
 
+    # create venv enviornment
     python -m venv venv
+
+    # activate venv
     source venv/bin/activate
 
+    # Install required modules
     python -m pip install -r docs/requirements.txt 
 
 
 You can check the installation and see that sphinx was installed.
 
-.. image:: ../_static/docs_contribution_tools_installation.png
+.. image:: ../_static/docs_contribution/tools_installation.png
   :width: 800
   :alt: docs contribution tools installation successful
 
@@ -23,10 +29,13 @@ After installation, everytime you want to build the documentation you can enter 
 
 .. code-block:: console
 
+    # activate venv
     source venv/bin/activate
+
+    # Run sphinx
     sphinx-build . ../sphinx_output
 
-.. image:: ../_static/docs_contribution_sphinx_build.png
+.. image:: ../_static/docs_contribution/sphinx_build.png
   :width: 800
   :alt: docs contribution tools installation successful
 
@@ -44,7 +53,34 @@ The screenshots in documentation should use following prompt:
 
     export PS1="\W> "
 
-You can add it to your `.bashrc` or just run it before you take the screenshot.
+You can add it to your `.bashrc` or just run it before you run the command to then take the screenshot.
+
+
+How to contribute
+-----------
+
+TODO: Add the proper coverage of contribution
+
+Keep trademarks and terms consistent
+-----------
+In order to improve the readability of the documentation we recommend to use the names of the projects properly. Some examples you can see below:
+
+.. code-block::
+
+    OpenLANE → OpenLane
+    OpenRoad → OpenROAD
+    Mac OS X → macOS
+    MAGIC → Magic
+
+Use OpenROAD documentation preferences:
+
+.. code-block::
+
+    co-ordinates → coordinates
+    pad ring → padring
+    pad cell → padcell
+    key value pair → key-value pair
+    micrometre → micron (or, micrometer)
 
 
 Troubleshooting

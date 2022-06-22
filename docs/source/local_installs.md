@@ -1,3 +1,5 @@
+.. local_installs_label:
+
 **NOTE: It is more complex to set up OpenLane without a Docker container. If you are a novice user, it is recommended to use the Docker container.**
 
 # Using OpenLane without Docker

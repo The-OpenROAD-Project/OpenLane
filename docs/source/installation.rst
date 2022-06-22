@@ -2,7 +2,19 @@
 TODO: the OpenLane should be OpenLane
 
 
-Step 1.1. Installation of packages in Ubuntu 20.04 and above
+Step 1a) Installation on other Operating Systems
+----------
+
+* Docker 19.03.12+
+* Git 2.35+
+* Python 3.6+  
+   * pip  
+   * venv
+* GNU Make
+
+After installing all of the above, you need to make Docker available without sudo command.
+
+Step 1b) Installation of packages in Ubuntu 20.04 and above
 ----------
 All of the required packages are included in the Docker image, so the installation list is slim.
 
@@ -12,12 +24,13 @@ All of the required packages are included in the Docker image, so the installati
 
 
 
-.. image:: ../_static/successful_package_requirements_installation.png
+.. image:: ../_static/installation/successful_package_requirements_installation.png
 
 Second you need to install Docker. Follow `instructions provided in Docker's documentation here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
-TODO: BIG YELLOW WARNING ABOUT DOCKER Installation
-TODO: BIG YELLOW WARNING ABOUT DOCKER WITHOUT SUDO INSTALLATION
+.. warning::
+    The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
+
 
 .. code-block::
 
@@ -48,14 +61,14 @@ TODO: BIG YELLOW WARNING ABOUT DOCKER WITHOUT SUDO INSTALLATION
 
 After installation you will get Docker's Hello World:
 
-.. image:: ../_static/docker_installation_hello_world.png
+.. image:: ../_static/installation/docker_installation_hello_world.png
 
 Now follow step 2.
 
 
 TODO: Add Fedora
 
-Step 1.2. Installation under Mac OS X
+Step 1c) Installation under Mac OS X
 ----------
 
 First install `Homebrew <https://brew.sh/>`_ then ran script below to install the required packages:
@@ -68,22 +81,27 @@ First install `Homebrew <https://brew.sh/>`_ then ran script below to install th
 TODO: Ask somebody with Mac OS X to make an animation for this
 TODO: Ask somebody if the docker installed with brew does not require additional steps to make it avaialabe without root
 
-Step 1.3. Installation on other Operating Systems
-----------
+Step 1d) Containerless/Local Installations
+---------
 
-* Docker 19.03.12+
-* Git 2.35+
-* Python 3.6+  
-   * pip  
-   * venv
-* GNU Make
+.. warning::
+   OpenLane encourages you to avoid using Containerless/Local installation method. As the version of the packages can affect the perfomance and reproducibility. Most of the documentation assumes that you are using Docker based flow, but if you choose to use containerless installation, then you are on your own.
 
-After installing all of the above, you need to make Docker available without sudo command.
+Please see :ref:`local_installs_label`
+
+TODO: Ask for help,  as the link does not work???
 
 Step 2. Making Docker available without root
-===========
+---------
 
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
+
+.. warning::
+    The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
+
+.. warning::
+    This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the Docker's installation. DO NOT SKIP!
+
 
 .. code-block::
 
@@ -92,7 +110,7 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
 
 Then you have to restart your operating system for the group permissions to apply. 
 
-.. image:: ../_static/docker_permission.png
+.. image:: ../_static/installation/docker_permission.png
 
 After that you can run Docker Hello World without root. Let's try it out:
 .. code-block::
@@ -102,15 +120,14 @@ After that you can run Docker Hello World without root. Let's try it out:
 
 If you get permission error then you skipped a step or two. Did you forget to reboot?
 
-
-.. image:: ../_static/installation_docker_permission_issue.png
+.. image:: ../_static/installation/docker_permission_issue.png
 
 Otherwise you will get a little happy message of Hello world, once again, but this time without root.
 
-.. image:: ../_static/docker_without_sudo_done.png
+.. image:: ../_static/installation/docker_without_sudo_done.png
 
 Step 3. Checking the requirements
-------------
+---------
 
 In order to check installation you can use following commands:
 
@@ -123,4 +140,22 @@ In order to check installation you can use following commands:
    make --version
    python -m venv -h
 
+.. image:: ../_static/installation/version_check.png
 
+Step 4. Installing OpenLane
+----------
+
+Clone OpenLane repository and change directory into it. Then install the Skywater130 PDK and run flow on the test design.
+
+.. code-block:: console
+
+   git clone https://github.com/The-OpenROAD-Project/OpenLane.git
+   cd OpenLane/
+   make
+   make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
+
+.. image:: ../_static/installation/git_clone_openlane.png
+
+After it downloads OpenLane and installs it, the `make test` command will test the installation of PDK and OpenLane
+
+.. image:: ../_static/installation/successful_make_test.png
