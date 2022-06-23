@@ -10,12 +10,12 @@ The tool encapsulates the underlying tools to allow engineers to configure them 
 
 The rest of the tutorial assumes :ref:`_installation_label` has been complete.
 
-Entering the OpenLane enviornment
+Entering the OpenLane environment
 ====================================
 .. note::
     If you installed OpenLane following local installation steps, then you are on your own.
 
-OpenLane uses Docker to create reproducible enviornment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane enviornment:
+OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
 .. code-block::
 
@@ -33,9 +33,9 @@ Advanced: Using custom PDK locations and Docker images
 .. warning::
     If you accidently used wrong version of PDK or OpenLane docker image then you might have *significant issues* down the line. *Avoid overwriting PDK on your own or using different OpenLane images*, if you don't know what are you doing then do not set any of those variable.
 
-While this is not recommended, if you need to overwrite the location of PDK, then set the enviornment variable ``PDK_ROOT`` before running ``make mount``.
+While this is not recommended, if you need to overwrite the location of PDK, then set the environment variable ``PDK_ROOT`` before running ``make mount``.
 
-Another enviornment variable is ``OPENLANE_IMAGE_NAME``, but by default it's dynamically obtained using your current git version. Example:
+Another environment variable is ``OPENLANE_IMAGE_NAME``, but by default it's dynamically obtained using your current git version. Example:
 
 .. code-block::
 
