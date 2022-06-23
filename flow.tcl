@@ -52,7 +52,9 @@ proc run_routing_step {args} {
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
-    run_routing
+    if { $::env(ECO_ENABLE) == 0 } {
+        run_routing
+    }
 }
 
 proc run_parasitics_sta_step {args} {
@@ -62,7 +64,7 @@ proc run_parasitics_sta_step {args} {
         set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
     }
 
-    if { $::env(RUN_SPEF_EXTRACTION) } {
+    if { $::env(RUN_SPEF_EXTRACTION) && ($::env(ECO_ENABLE) == 0)} {
         run_parasitics_sta
     }
 }
@@ -122,7 +124,7 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 }
 
 proc run_eco_step {args} {
-    if {  $::env(ECO_ENABLE) == 1 } {
+    if { $::env(ECO_ENABLE) == 1 } {
         run_eco_flow
     }
 }
@@ -140,47 +142,6 @@ proc run_klayout_step {args} {
     if {$::env(RUN_KLAYOUT_XOR)} {
         run_klayout_gds_xor
     }
-}
-
-proc save_final_views {args} {
-    set options {
-        {-save_path optional}
-    }
-    set flags {}
-    parse_key_args "save_final_views" args arg_values $options flags_map $flags
-
-    set arg_list [list]
-
-    # If they don't exist, save_views will simply not copy them
-    lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
-    lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
-    lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
-    lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
-    lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
-
-    # Guaranteed to have default values
-    lappend arg_list -def_path $::env(CURRENT_DEF)
-    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
-
-    # Not guaranteed to have default values
-    if { [info exists ::env(CURRENT_SPEF)] } {
-        lappend arg_list -spef_path $::env(CURRENT_SPEF)
-    }
-    if { [info exists ::env(CURRENT_SDF)] } {
-        lappend arg_list -sdf_path $::env(CURRENT_SDF)
-    }
-    if { [info exists ::env(CURRENT_SDC)] } {
-        lappend arg_list -sdc_path $::env(CURRENT_SDC)
-    }
-
-    # Add the path if it exists...
-    if { [info exists arg_values(-save_path) ] } {
-        lappend arg_list -save_path $arg_values(-save_path)
-    }
-
-    # Aaand fire!
-    save_views {*}$arg_list
-
 }
 
 proc run_post_run_hooks {} {
@@ -243,15 +204,18 @@ proc run_non_interactive_mode {args} {
         "cvc" "run_lef_cvc"
     ]
 
-    set_if_unset arg_values(-to) "cvc";
-
-    if {  [info exists ::env(CURRENT_STEP) ] } {
-        puts_info "Resuming flow where $::env(RUN_TAG) stopped (stage: $::env(CURRENT_STEP))..."
+    if { [info exists arg_values(-from) ]} {
+        puts_info "Starting flow at $arg_values(-from)..."
+        set ::env(CURRENT_STEP) $arg_values(-from)
+    } elseif {  [info exists ::env(CURRENT_STEP) ] } {
+        puts_info "Resuming flow from $::env(CURRENT_STEP)..."
     } else {
-        set ::env(CURRENT_STEP) "synthesis";
+        set ::env(CURRENT_STEP) "synthesis"
     }
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+    set_if_unset arg_values(-from) $::env(CURRENT_STEP)
+    set_if_unset arg_values(-to) "cvc"
+
     set exe 0;
     dict for {step_name step_exe} $steps {
         if { [ string equal $arg_values(-from) $step_name ] } {
@@ -277,9 +241,7 @@ proc run_non_interactive_mode {args} {
     set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
     # Saves to <RUN_DIR>/results/final
-    if { $::env(SAVE_FINAL_VIEWS) == "1" } {
-        save_final_views
-    }
+    save_final_views
 
     # Saves to design directory or custom
     if {  [info exists flags_map(-save) ] } {

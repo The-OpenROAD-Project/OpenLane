@@ -40,11 +40,11 @@ proc insert_buffer {args} {
         set ::env(INSERT_BUFFER_NO_PLACE) "1"
     }
 
-    set ::env(SAVE_DEF) [index_file $::env(eco_tmpfiles)/$::env(DESIGN_NAME).def]
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).def]
 
     set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl -indexed_log [index_file $::env(eco_logs)/insert_buffer.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]
 
     unset ::env(INSERT_BUFFER_COMMAND)
 
@@ -52,51 +52,29 @@ proc insert_buffer {args} {
         unset ::env(INSERT_BUFFER_NO_PLACE)
     }
 
-
     incr ::env(INSERT_BUFFER_COUNTER)
 
     set_def $::env(SAVE_DEF)
-
-
 }
 
 proc eco_gen_buffer {args} {
-    # Generate fixes via the gen_insert_buffer Python script
-    # It reads in the LATEST multi-corner sta min report
-
-    set lef_file [lindex [glob -directory $::env(RUN_DIR)/tmp \
-        *_unpadded.lef] end]
-    set sta_file [lindex [glob -directory $::env(routing_logs) \
-        *multi_corner_sta*] end]
-
-    set files [glob -directory $::env(routing_logs) *multi_corner_sta*]
-    set newest 0
+    # Read all multi corner STA files
+    set files [glob -directory $::env(signoff_logs) *parasitics_multi_corner_sta*log]
+    set sta_args [list]
     foreach f $files {
-        set mtime [file mtime $f]
-        if { $newest == 0 || $mtime > $newest } {
-            set newest $mtime
-            set sta_file $f
-        }
-    }
-
-    if { $::env(ECO_ITER) == 0 } {
-        set def_file [lindex [glob -directory $::env(eco_results)/arcdef \
-            $::env(ECO_ITER)_post-route.def] end]
-    } else {
-        set def_file [lindex [glob -directory $::env(eco_results)/def \
-            *.def] end]
+        lappend sta_args -i $f
     }
 
     puts_info "\[ECO: $::env(ECO_ITER)\] Generating buffer insertion script..."
-    puts_verbose "Using report $sta_file..."
 
     try_catch $::env(OPENROAD_BIN) \
-        -python $::env(SCRIPTS_DIR)/gen_insert_buffer.py \
+        -python $::env(SCRIPTS_DIR)/odbpy/eco.py \
+        "insert_buffer" \
         -s $::env(ECO_SKIP_PIN) \
-        -i $sta_file \
-        -l $lef_file \
-        -d $def_file \
-        -o $::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl
+        {*}$sta_args \
+        -l $::env(MERGED_LEF_UNPADDED) \
+        -o $::env(routing_results)/eco_fix.tcl \
+        $::env(CURRENT_DEF)
 }
 
 proc eco_output_check {args} {
@@ -104,7 +82,7 @@ proc eco_output_check {args} {
 
     eco_gen_buffer
 
-    set lines [split [cat "$::env(eco_results)/fix/eco_fix_$::env(ECO_ITER).tcl"] "\n"]
+    set lines [split [cat "$::env(routing_results)/eco_fix.tcl"] "\n"]
     foreach line $lines {
         # Use regex to determine if finished here
         if {[regexp {No violations} $line]} {
@@ -119,53 +97,71 @@ proc eco_output_check {args} {
 }
 
 proc run_apply_step {args} {
+
     puts_info "\[ECO: $::env(ECO_ITER)\] Applying fixes..."
+
+    set ::env(ECO_FIX_FILE) $::env(routing_results)/eco_fix.tcl
+    set ::env(SAVE_NETLIST) $::env(routing_results)/eco_fix.v
+    set ::env(SAVE_DEF) $::env(routing_results)/eco_fix.def
+
+    # This runs the tcl script to apply the fixes. Buffers are placed over the top of
+    # the cells being fixed, and then detailed placement is called to fix it up.
     try_catch $::env(OPENROAD_BIN) \
         -exit $::env(SCRIPTS_DIR)/openroad/eco.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(eco_logs)/$::env(ECO_ITER)_eco.log
+        |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/eco.log
 
-    if { $::env(ECO_ITER) > 10 } {
-        pause;
-    }
-
-    set_netlist $::env(eco_results)/net/eco_$::env(ECO_ITER).v
-    set_def $::env(eco_results)/def/eco_$::env(ECO_ITER).def
+    set_netlist $::env(SAVE_NETLIST)
+    set_def $::env(SAVE_DEF)
 }
 
 proc run_eco_flow {args} {
-    # Assume script generate fix commands
     puts_info "Starting ECO flow..."
 
-    # Re-organize report/result files here
-    exec sh $::env(SCRIPTS_DIR)/reorg_reports.sh
-    eco_output_check
+    set prev_routing_tmpfiles $::env(routing_tmpfiles)
+    set prev_routing_logs $::env(routing_logs)
+    set prev_routing_reports $::env(routing_reports)
+    set prev_routing_results $::env(routing_results)
+    set prev_signoff_logs $::env(signoff_logs)
 
-    while {$::env(ECO_FINISH) != 1} {
+    while (1) {
+        set ::env(routing_tmpfiles) ${prev_routing_tmpfiles}/eco_$::env(ECO_ITER)
+        set ::env(routing_logs) ${prev_routing_logs}/eco_$::env(ECO_ITER)
+        set ::env(routing_reports) ${prev_routing_reports}/eco_$::env(ECO_ITER)
+        set ::env(routing_results) ${prev_routing_results}/eco_$::env(ECO_ITER)
+        set ::env(signoff_logs) ${prev_signoff_logs}/eco_$::env(ECO_ITER)
+
+        file mkdir $::env(routing_tmpfiles)
+        file mkdir $::env(routing_logs)
+        file mkdir $::env(routing_reports)
+        file mkdir $::env(routing_results)
+        file mkdir $::env(signoff_logs)
+
+        run_routing
+        run_parasitics_sta
+        eco_output_check
+
+        if {$::env(ECO_FINISH) == 1} {
+            break
+        }
 
         puts_info "\[ECO: $::env(ECO_ITER)\] Starting iteration..."
-        # Then run detailed placement again
-        # Get the connections then destroy them
-
-        # Pause to see puts output
-        if {$::env(ECO_ITER) > 10} {
-            puts_info "Ran for 10 itertations; Check files"
-            pause;
-        }
-
         run_apply_step
-        run_routing
-        run_parasitics_sta\
-            -spef_out_prefix $::env(eco_results)/spef/$::env(ECO_ITER)_$::env(DESIGN_NAME)\
-            -sdf_out $::env(eco_results)/sdf/$::env(ECO_ITER)_$::env(DESIGN_NAME).sdf
-
-        ins_fill_cells
-
-        if { $::env(ECO_ITER) != 0 } {
-            set post_eco_net [lindex [glob -directory $::env(eco_results)/net *.v]   end]
-            set post_eco_def [lindex [glob -directory $::env(eco_results)/def *.def] end]
-            file copy -force $post_eco_net $::env(synthesis_results)/$::env(DESIGN_NAME).synthesis_preroute.v
-            file copy -force $post_eco_def $::env(routing_results)/post_eco-$::env(DESIGN_NAME).def
-        }
     }
+
+    # Copy post ECO files back to the non ECO directories
+    file copy -force {*}[glob -dir $::env(routing_tmpfiles) *] $prev_routing_tmpfiles
+    file copy -force {*}[glob -dir $::env(routing_logs) *] $prev_routing_logs
+    file copy -force {*}[glob -dir $::env(routing_reports) *] $prev_routing_reports
+    file copy -force {*}[glob -dir $::env(routing_results) *] $prev_routing_results
+    file copy -force {*}[glob -dir $::env(signoff_logs) *] $prev_signoff_logs
+
+    ins_fill_cells
+
+    set ::env(routing_tmpfiles) $prev_routing_tmpfiles
+    set ::env(routing_logs) $prev_routing_logs
+    set ::env(routing_reports) $prev_routing_reports
+    set ::env(routing_results) $prev_routing_results
+    set ::env(signoff_logs) $prev_signoff_logs
 }
+
 package provide openlane 0.9

@@ -482,6 +482,9 @@ proc prep {args} {
         }
     }
 
+    set_if_unset arg_values(-verbose) "0"
+    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
+
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
@@ -507,40 +510,44 @@ proc prep {args} {
     # Prep directories and files
     ############################
     #
-    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
-    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOGS_DIR) 		"$::env(RUN_DIR)/logs"
-    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
-    set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
 
     set skip_basic_prep 0
+    set ::env(GLB_CFG_FILE) 	"$run_path/config.tcl"
 
-    # file mkdir *ensures* they exists (no problem if they already do)
-    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
-
-    puts_info "Current run directory is $::env(RUN_DIR)"
+    puts_info "Run Directory: $run_path"
 
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing $::env(GLB_CFG_FILE)"
+            puts_info "Removing existing $::env(RUN_DIR)..."
             after 1000
-            file delete $::env(GLB_CFG_FILE)
+            file delete -force $::env(RUN_DIR)
         } else {
             if { ![info exists flags_map(-last_run)] } {
                 puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
                 after 1000
             }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Any changes to the DESIGN config file will NOT be applied."
+            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
             if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
                 puts_info "Current DEF: $::env(CURRENT_DEF)."
                 puts_info "Use 'set_def file_name.def' if you'd like to change it."
             }
             after 1000
-            set skip_basic_prep 1
+            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
+                set skip_basic_prep 1
+            }
         }
     }
 
+    set ::env(RUN_TAG)		"$tag"
+    set ::env(RUN_DIR) 		"$run_path"
+    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
+    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
+    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
+    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
+
+    # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
+    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
 
     set run_subfolder_structure [list \
         synthesis\
@@ -553,7 +560,6 @@ proc prep {args} {
     ]
 
     foreach subfolder $run_subfolder_structure {
-
         set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_reports)
 
@@ -648,6 +654,16 @@ proc prep {args} {
                 puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
             }
         }
+
+
+        # Convert Tracks
+        if { $::env(TRACKS_INFO_FILE) != "" } {
+            set tracks_processed $::env(routing_tmpfiles)/config.tracks
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+            set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
+        }
+
+        set ::env(BASIC_PREP_COMPLETE) {1}
     }
 
     # Fill config file with special cases
@@ -700,13 +716,6 @@ proc prep {args} {
     }
     if { [info exists ::env(OPENLANE_VERSION) ] } {
         try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
-    }
-
-    # Convert Tracks
-    if { $::env(TRACKS_INFO_FILE) != "" } {
-        set tracks_processed $::env(routing_tmpfiles)/config.tracks
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-        set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
@@ -777,7 +786,8 @@ proc save_views {args} {
     } else {
         set path $::env(RESULTS_DIR)/final
     }
-    puts_info "Saving final set of views in '$path'..."
+    set path_rel [relpath . $path]
+    puts_info "Saving current set of views in '$path_rel'..."
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
@@ -866,34 +876,27 @@ proc heal_antenna_violators {args} {
     # that need the real diode in place of the fake diode:
     # => fixes the routed def
     if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
+            puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
+            flow_fail
+        }
+
         increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
-        set violators_file [index_file $::env(routing_reports)/antenna_violators.rpt]
-        if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-            #ARC specific
-            if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
-                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o $violators_file
-            } else {
-                puts_err "Ran heal_antenna_violators without running the antenna check first."
-                flow_fail
-            }
-        } else {
-            #Magic Specific
-            set violators [split [string trim [cat $violators_file]]]
-            exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
-        }
 
         #replace violating cells with real diodes
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
             replace_fake\
-            -o $::env(routing_results)/$::env(DESIGN_NAME).def\
-            -v $violators_file\
-            -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)\
+            --output $::env(routing_results)/$::env(DESIGN_NAME).def\
+            --input-lef $::env(MERGED_LEF_UNPADDED)\
+            --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
+            --fake-diode $::env(FAKEDIODE_CELL)\
+            --true-diode $::env(DIODE_CELL)\
             $::env(routing_results)/$::env(DESIGN_NAME).def
 
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
     }
 }
 
@@ -969,7 +972,7 @@ proc label_macro_pins {args} {
     set_if_unset arg_values(-pad_pin_name) ""
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
-        --lef $arg_values(-lef)\
+        --input-lef $arg_values(-lef)\
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         --output $output_def\
@@ -1027,15 +1030,27 @@ proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running OpenROAD Antenna Rule Checker..."
-    set antenna_log [index_file $::env(signoff_logs)/antenna.log]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
-    set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+
+    set log [index_file $::env(signoff_logs)/antenna.log]
+
+    set antenna_checker_rpt [index_file $::env(signoff_reports)/antenna.rpt]
+    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
+
+    set ::env(_tmp_antenna_checker_rpt) $antenna_checker_rpt
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
+    unset ::env(_tmp_antenna_checker_rpt)
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
+        --output $antenna_violators_rpt\
+        $antenna_checker_rpt
+
+    set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }
 
 proc run_antenna_check {args} {
-    puts_info "Running Antenna Checks..."
     if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
         run_or_antenna_check
     } else {
@@ -1045,6 +1060,47 @@ proc run_antenna_check {args} {
 
 proc or_gui {args} {
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
+}
+
+proc save_final_views {args} {
+    set options {
+        {-save_path optional}
+    }
+    set flags {}
+    parse_key_args "save_final_views" args arg_values $options flags_map $flags
+
+    set arg_list [list]
+
+    # If they don't exist, save_views will simply not copy them
+    lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
+    lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
+    lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
+    lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
+    lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
+
+    # Guaranteed to have default values
+    lappend arg_list -def_path $::env(CURRENT_DEF)
+    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+
+    # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_SPEF)] } {
+        lappend arg_list -spef_path $::env(CURRENT_SPEF)
+    }
+    if { [info exists ::env(CURRENT_SDF)] } {
+        lappend arg_list -sdf_path $::env(CURRENT_SDF)
+    }
+    if { [info exists ::env(CURRENT_SDC)] } {
+        lappend arg_list -sdc_path $::env(CURRENT_SDC)
+    }
+
+    # Add the path if it exists...
+    if { [info exists arg_values(-save_path) ] } {
+        lappend arg_list -save_path $arg_values(-save_path)
+    }
+
+    # Aaand fire!
+    save_views {*}$arg_list
+
 }
 
 package provide openlane 0.9

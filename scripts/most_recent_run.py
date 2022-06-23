@@ -32,6 +32,7 @@ def main(runs_directory):
             continue
         time = os.stat(run_folder_path).st_mtime
         if time > max_time:
+            max_time = time
             latest_run_name = run
 
     if latest_run_name is not None:

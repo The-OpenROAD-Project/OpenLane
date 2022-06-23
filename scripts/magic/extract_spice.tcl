@@ -25,7 +25,11 @@ if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
     def read $::env(CURRENT_DEF)
 }
 load $::env(DESIGN_NAME) -dereference
-cd $::env(signoff_results)/
+
+set extdir $::env(signoff_tmpfiles)/magic_spice_ext
+file mkdir $extdir
+cd $extdir
+
 extract do local
 extract no capacitance
 extract no coupling

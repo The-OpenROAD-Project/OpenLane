@@ -334,7 +334,7 @@ proc run_strategy {output script ext} {
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
     tee -o "$::env(synth_report_prefix).$ext.chk.rpt" check
-    tee -o "$::env(synth_report_prefix).$ext.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_COMPLETE_NO_PG) 0]
+    tee -o "$::env(synth_report_prefix).$ext.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
     design -reset
 }

@@ -91,15 +91,16 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_CLK_DRIVING_CELL_PIN`  | The name of the SYNTH_CLK_DRIVING_CELL output pin. Can be left empty, where the SDC script will use `SYNTH_DRIVING_CELL_PIN`. |
 | `SYNTH_CAP_LOAD` | Defines the capacitive load on the output ports in femtofarads. Used in synthesis |
 | `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. <br> (Example: `sky130_fd_sc_hd__buf_2 A X`  )|
-| `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 HI` )|
-| `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO` )|
+| `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 HI`)|
+| `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
 | `CELL_CLK_PORT` | Defines the name of clk port of the flip flops and other cells. Used in CTS. |
 | `PL_LIB` | Points to the lib view used in time driven placement.  |
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `CELL_PAD` | Defines the number of sites to pad the cells lef views with. |
 | `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding. |
-| `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. | `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_16`) |
+| `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
+| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_16`) |
 | `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_4`) |
 | `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Example: `A`) |
 | `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Example: `X`)|

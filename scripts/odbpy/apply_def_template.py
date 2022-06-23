@@ -17,31 +17,30 @@ import click
 import defutil
 import shutil
 
+from reader import click_odb
+
 
 @click.command()
-@click.option("-t", "--def-template", "templatedef", required=True, help="Template DEF")
-@click.option("-l", "--lef", "lef", required=True, help="LEF file")
+@click.option("-t", "--def-template", required=True, help="Template DEF")
 @click.option("--log", "logfile", required=True, help="Log output file")
-@click.argument("userdef")
-def cli(templatedef, userdef, lef, logfile):
-    userDEF = userdef
-    templateDEF = templatedef
+@click_odb
+def cli(output, input_lef, input_def, def_template, logfile):
 
     defutil.replace_pins(
-        input_lef=lef,
+        input_lef=input_lef,
+        template_def=def_template,
+        source_def=input_def,
+        output_def=f"{input_def}.replace_pins.tmp",
         logpath=logfile,
-        template_def=templateDEF,
-        source_def=userDEF,
-        output_def=f"{userDEF}.replace_pins.tmp",
     )
 
     defutil.move_diearea(
-        template_def=templateDEF,
-        output_def=f"{userDEF}.replace_pins.tmp",
-        input_lef=lef,
+        input_lef=input_lef,
+        template_def=def_template,
+        output_def=f"{input_def}.replace_pins.tmp",
     )
 
-    shutil.copy(f"{userDEF}.replace_pins.tmp", userDEF)
+    shutil.copy(f"{input_def}.replace_pins.tmp", output)
 
 
 if __name__ == "__main__":
