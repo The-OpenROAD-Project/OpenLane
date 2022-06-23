@@ -114,4 +114,4 @@ autosectionlabel_prefix_document = True
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
 
 
-root_doc = 'docs/source/index'
+root_doc = 'index'
