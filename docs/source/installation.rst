@@ -1,3 +1,4 @@
+.. _installation_label:
 
 TODO: the OpenLane should be OpenLane
 
@@ -94,8 +95,6 @@ TODO: Ask for help,  as the link does not work???
 Step 2. Making Docker available without root
 ---------
 
-This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
-
 .. warning::
     The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
 
@@ -103,30 +102,47 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
     This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the Docker's installation. DO NOT SKIP!
 
 
+This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
+
+
 .. code-block::
 
    sudo groupadd docker
    sudo usermod -aG docker $USER
+   # REBOOT!
 
 Then you have to restart your operating system for the group permissions to apply. 
 
+.. warning::
+    REBOOT! This is mandatory step. Without rebooting the user groups will no apply. DO NOT SKIP!
+
+
 .. image:: ../_static/installation/docker_permission.png
 
+
+Step 3. Checking the docker installation
+------
+
 After that you can run Docker Hello World without root. Let's try it out:
+
 .. code-block::
 
    # After reboot
    docker run hello-world
 
+You will get a little happy message of Hello world, once again, but this time without root.
+
+.. image:: ../_static/installation/docker_without_sudo_done.png
+
+Troubleshooting of Step 3.
+------
+
 If you get permission error then you skipped a step or two. Did you forget to reboot?
 
 .. image:: ../_static/installation/docker_permission_issue.png
 
-Otherwise you will get a little happy message of Hello world, once again, but this time without root.
 
-.. image:: ../_static/installation/docker_without_sudo_done.png
-
-Step 3. Checking the requirements
+Step 4. Checking the requirements
 ---------
 
 In order to check installation you can use following commands:
@@ -142,7 +158,7 @@ In order to check installation you can use following commands:
 
 .. image:: ../_static/installation/version_check.png
 
-Step 4. Installing OpenLane
+Step 5. Installing OpenLane
 ----------
 
 Clone OpenLane repository and change directory into it. Then install the Skywater130 PDK and run flow on the test design.
@@ -156,6 +172,21 @@ Clone OpenLane repository and change directory into it. Then install the Skywate
 
 .. image:: ../_static/installation/git_clone_openlane.png
 
-After it downloads OpenLane and installs it, the `make test` command will test the installation of PDK and OpenLane
+After the above script downloads OpenLane and installs it, the ``make test`` command will test the installation of PDK and OpenLane
 
 .. image:: ../_static/installation/successful_make_test.png
+
+
+Updating OpenLane
+==========
+TODO: Add links to the update process and building PDK with other configurations
+
+.. code-block:: console
+
+   cd OpenLane/
+   git checkout master
+   git pull
+   make 
+   make test # This is to test that the flow and the pdk were properly updated
+
+
