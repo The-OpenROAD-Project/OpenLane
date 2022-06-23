@@ -1,7 +1,7 @@
 **DISCLAIMER: THIS PAGE IS STILL UNDER DEVELOPMENT.**
 **THE INFORMATION HERE MIGHT BE INCORRECT OR OUTDATED.**
 
-# Chip Integration
+# Chip Level Integration
 
 Using openlane, you can produce a GDSII from a chip RTL.
 

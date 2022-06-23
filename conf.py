@@ -27,7 +27,7 @@ sys.path.insert(0, os.path.abspath("docs/_ext"))
 
 # -- Project information -----------------------------------------------------
 project = "OpenLane"
-copyright = "2020-2021 Efabless Corporation"
+copyright = "2020-2022 Efabless Corporation"
 author = "Efabless Corporation"
 
 
@@ -68,7 +68,7 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     "scripts/tcl_commands/README.md",
-    ".github/ISSUE_TEMPLATE"
+    ".github/ISSUE_TEMPLATE/*"
     "venv/lib"
     # Files included in other rst files.
 ]

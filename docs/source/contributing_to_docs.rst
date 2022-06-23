@@ -1,9 +1,9 @@
 Contributors guide
-==================
+================================================================================
 
 
 Installation of sphinx for documentation
-------------
+--------------------------------------------------------------------------------
 
 In order to contribute to documentation you can install the sphinx and build the documentation.
 
@@ -48,7 +48,7 @@ Then you can view the generated html files using Firefox or other browser. To op
     firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
 Making screenshots
------------
+--------------------------------------------------------------------------------
 The screenshots in documentation should use following prompt:
 
 .. code-block:: console
@@ -59,13 +59,15 @@ You can add it to your `.bashrc` or just run it before you run the command to th
 
 
 How to contribute
------------
+--------------------------------------------------------------------------------
 
 .. todo::
     Add the proper coverage of contribution
 
+New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get glimps of it's syntax.
+
 Keep trademarks and terms consistent
------------
+--------------------------------------------------------------------------------
 In order to improve the readability of the documentation we recommend to use the names of the projects properly. Some examples you can see below:
 
 .. code-block::
@@ -87,16 +89,21 @@ Use OpenROAD documentation preferences:
 
 
 Headers structure
-------------------
+--------------------------------------------------------------------------------
 
-Here is the priorities. Top is the highest priority.
 
-# with overline
-* with overline
-=
--
-^
-"
+In Markdown avoid using same header type both for the title of the document and it's content. It looks awful in the table of content.
+
+Use headers to make structure of the documentation better. For underline and overlines use 80 symbol. Here is the header priorities. Top is the highest priority.
+
+.. code-block::
+
+    # with overline
+    * with overline
+    =
+    -
+    ^
+    "
 
 What's overline?
 
@@ -107,8 +114,11 @@ What's overline?
     ##################
 
 Troubleshooting
-----------------
+--------------------------------------------------------------------------------
 
+
+Pip module related errors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you did not source `../venv/bin/activate` when running `sphinx-build` then you will get error similar to the one below.
 
 .. code-block:: console
@@ -126,3 +136,17 @@ If you did not source `../venv/bin/activate` when running `sphinx-build` then yo
     ModuleNotFoundError: No module named 'recommonmark'
 
 In order to resolve this, repeat the steps above for enabling venv.
+
+Sphinx build complains about title underline being too short
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When running ``sphinx-build`` you may get following warning:
+
+.. code-block:: 
+
+    /home/armleo/Desktop/OpenLaneGSOC/docs/source/installation.rst:3: WARNING: Title underline too short.
+
+    Installation of OpenLane
+    ########
+
+Try to use 80 symbol long header underlines. This makes replacing them easier and keeps the documentation code consistent.

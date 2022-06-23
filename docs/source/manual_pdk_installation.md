@@ -1,10 +1,11 @@
+# Manual PDK Installation
 **DISCLAIMER: The following sections are to give you an understanding of what happens under the hood in the Makefile.**
 
-# Prerequisites
+## Prerequisites
 
  - [Magic VLSI Layout Tool](http://opencircuitdesign.com/magic/index.html) is needed to run open_pdks -- version >= 8.3.60*
 
-# Setting up the PDK: skywater-pdk
+## Setting up the PDK: skywater-pdk
 
 - Clone and build at least one [skywater-pdk](https://github.com/google/skywater-pdk) standard cell Library inside the pdks directory:
     - To setup one standard cell library only
