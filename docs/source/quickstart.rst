@@ -1,4 +1,4 @@
-Quick start guide
+Quick start
 =======================
 
 Overview

@@ -1,9 +1,11 @@
+# Contributors
+
 Efabless Corporation is the principal author of this software for the purpose
 of copyright. All binaries provided are also distributed by Efabless Corporation.
 
 https://efabless.com
 
-# OpenLane Project Founders
+## OpenLane Project Founders
 
 - Tim Edwards <tim@efabless.com>
 - Kareem Farid <kareem.farid@efabless.com>
@@ -11,7 +13,7 @@ https://efabless.com
 - Amr Gouhar <aagouhar@efabless.com>
 - Mohamed Shalan, PhD. <mshalan@efabless.com>
 
-# OpenLane Core Team
+## OpenLane Core Team
 
 - Manar Abdelatty <manarabdelaty@efabless.com>
 - Tim Edwards <tim@efabless.com>
@@ -19,10 +21,10 @@ https://efabless.com
 - Mohamed Gaber <mohamed.gaber@efabless.com>
 - Mohamed Shalan, PhD. <mshalan@efabless.com>
 
-# All Contributors
+## All Contributors
 https://github.com/The-OpenROAD-Project/OpenLane/graphs/contributors
 
-# Special Thanks
+## Special Thanks
 
 - Tim Ansell <tansell@google.com>
 - Risto Bell <rb@efabless.com>

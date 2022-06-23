@@ -1,4 +1,4 @@
-# The OpenLane Docker Image
+# For developers: Building the Docker Image
 Note: You probably shouldn't be here.
 
 ## Structure

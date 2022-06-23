@@ -1,6 +1,6 @@
 
-Installation of OpenLane
-########
+Installation
+################################################################################
 
 Step 1a) Installation on other Operating Systems
 ****************************************************************************************************************************************************************************************************************************
@@ -12,7 +12,7 @@ Step 1a) Installation on other Operating Systems
    * venv
 * GNU Make
 
-After installing all of the above, you need to make Docker available without sudo command.
+After installing all of the above, you need to make Docker available without sudo command in Step 2 and follow rest of the steps.
 
 Step 1b) Installation of packages in Ubuntu 20.04 and above
 ****************************************************************************************************************************************************************************************************************************
@@ -33,7 +33,7 @@ Second you need to install Docker. Follow `instructions provided in Docker's doc
     The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
 
 
-.. code-block::
+.. code-block:: console
 
    # Remove old installations
    sudo apt-get remove docker docker-engine docker.io containerd runc
@@ -46,10 +46,10 @@ Second you need to install Docker. Follow `instructions provided in Docker's doc
       lsb-release
    # Add the keyrings of docker
    sudo mkdir -p /etc/apt/keyrings
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg **dearmor -o /etc/apt/keyrings/docker.gpg
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
    # Add the package repository
    echo \
-      "deb [arch=$(dpkg **print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
    # Update the package repository
    sudo apt-get update
@@ -77,7 +77,7 @@ First install `Homebrew <https://brew.sh/>`_ then ran script below to install th
 .. code-block:: console
 
    brew install python make
-   brew install **cask docker
+   brew install --cask docker
 
 .. todo:: Ask somebody with Mac OS X to make an animation for this
 .. todo:: Ask somebody if the docker installed with brew does not require additional steps to make it avaialabe without root
@@ -105,7 +105,7 @@ Step 2. Making Docker available without root
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
 
 
-.. code-block::
+.. code-block:: console
 
    sudo groupadd docker
    sudo usermod -aG docker $USER
@@ -125,7 +125,7 @@ Step 3. Checking the docker installation
 
 After that you can run Docker Hello World without root. Let's try it out:
 
-.. code-block::
+.. code-block:: console
 
    # After reboot
    docker run hello-world
@@ -149,11 +149,11 @@ In order to check installation you can use following commands:
 
 .. code-block:: console
 
-   git **version
-   docker **version
-   python3 **version
-   python3 -m pip **version
-   make **version
+   git --version
+   docker --version
+   python3 --version
+   python3 -m pip --version
+   make --version
    python -m venv -h
 
 .. image:: ../_static/installation/version_check.png
@@ -165,7 +165,7 @@ Clone OpenLane repository and change directory into it. Then install the Skywate
 
 .. code-block:: console
 
-   git clone https://github.com/The-OpenROAD-Project/OpenLane.git
+   git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
    cd OpenLane/
    make
    make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
@@ -184,9 +184,8 @@ Updating OpenLane
 .. code-block:: console
 
    cd OpenLane/
-   git checkout master
-   git pull
-   make 
+   git pull --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git master
+   make
    make test # This is to test that the flow and the pdk were properly updated
 
 

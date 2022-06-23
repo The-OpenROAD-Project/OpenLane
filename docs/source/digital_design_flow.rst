@@ -1,4 +1,4 @@
-Understanding general digital design flow
+Digital design flow
 ====================================
 
 RTL

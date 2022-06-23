@@ -68,8 +68,8 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     "scripts/tcl_commands/README.md",
-    ".github/ISSUE_TEMPLATE/*"
-    "venv/lib"
+    ".github/ISSUE_TEMPLATE"
+    "scripts"
     # Files included in other rst files.
 ]
 

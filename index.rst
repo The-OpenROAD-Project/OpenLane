@@ -9,7 +9,13 @@ OpenLane is an automated RTL to GDSII flow based on several components including
 
    docs/source/installation
    docs/source/quickstart
+   designs/README.md
+   CONTRIBUTING
    docs/source/contributing_to_docs
    docs/source/digital_design_flow
    docs/source/*
+   configuration/README
+   AUTHORS
+   .github/workflow-documentation.md
+   docker/README.md
 

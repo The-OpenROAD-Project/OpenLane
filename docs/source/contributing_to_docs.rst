@@ -1,4 +1,4 @@
-Contributors guide
+Documentation Contributors guide
 ================================================================================
 
 
@@ -142,7 +142,7 @@ Sphinx build complains about title underline being too short
 
 When running ``sphinx-build`` you may get following warning:
 
-.. code-block:: 
+.. code-block:: console
 
     /home/armleo/Desktop/OpenLaneGSOC/docs/source/installation.rst:3: WARNING: Title underline too short.
 
