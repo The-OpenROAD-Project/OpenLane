@@ -3,11 +3,11 @@ This script creates a reproducible, self-contained package of files to demonstra
 
 It creates a folder with all the needed files that you can inspect, then zip or tarball and pass on to https://github.com/RTimothyEdwards/magic or https://github.com/The-OpenROAD-Project/OpenROAD.
 
-# Warning about proprietary files
+## Warning about proprietary files
 When working with a proprietary PDK, also inspect the folder and ensure no proprietary data resulting ends up in there. This is *critical*, if something leaks, this scripts' authors take no responsibility and you are very much on your own. We will try our best to output warnings for your own good if something looks like a part of a proprietary PDK, but the absence of this message does not necessarily indicate that your folder is free of confidential material. 
 
-# Usage
-If you're using OpenLane 2021.12.17 or later (OpenLane 2022.06.21 or later for Magic,) chances are, `or_issue.py` was automatically run for you if Magic or OpenROAD fail. You'll find a message in the log that says something along the lines of: `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue.` The path will be under the current run_path, i.e., ./designs/<design>/runs/<run_tag>/issue_reproducible. You can then tarball/zip and upload that file.
+## Usage
+If you're using OpenLane 2021.12.17_05.07.41 or later, chances are, `or_issue.py` was automatically run for you if OpenROAD failed. You'll find a message in the log that says something along the lines of: `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue.` The path will be under the current run_path, i.e., ./designs/<design>/runs/<run_tag>/openroad_issue_reproducible. You can then tarball/zip and upload that file.
 
 ## Running or_issue.py manually
 You'll have to extract three key elements from the **verbose** logs (i.e. ./flow.tcl must be run with `-verbose`):

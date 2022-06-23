@@ -43,7 +43,6 @@ extensions = [
     "sphinx.ext.autosectionlabel",
     "sphinx_markdown_tables",
     "image_links",  # CUSTOM
-    "toc_from_markdown",  # CUSTOM
     "recommonmark"
 ]
 
@@ -113,11 +112,6 @@ markdown_code_links_codefileextensions = [
 autosectionlabel_prefix_document = True
 
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
-
-
-def setup(app):
-    app.emit("create_index_softlink", "docs/source/index.rst", True)
-    # app.emit("toc_from_markdown", "docs/source/index.rst", ".autotoc.rst")
 
 
 root_doc = 'docs/source/index'

@@ -1,5 +1,7 @@
 Contributors guide
-============
+==================
+
+
 Installation of sphinx for documentation
 ------------
 
@@ -10,10 +12,10 @@ In order to contribute to documentation you can install the sphinx and build the
     # assuming you are inside OpenLane folder
 
     # create venv enviornment
-    python -m venv venv
+    python -m venv ../venv
 
     # activate venv
-    source venv/bin/activate
+    source ../venv/bin/activate
 
     # Install required modules
     python -m pip install -r docs/requirements.txt 
@@ -30,7 +32,7 @@ After installation, everytime you want to build the documentation you can enter 
 .. code-block:: console
 
     # activate venv
-    source venv/bin/activate
+    source ../venv/bin/activate
 
     # Run sphinx
     sphinx-build . ../sphinx_output
@@ -59,7 +61,8 @@ You can add it to your `.bashrc` or just run it before you run the command to th
 How to contribute
 -----------
 
-TODO: Add the proper coverage of contribution
+.. todo::
+    Add the proper coverage of contribution
 
 Keep trademarks and terms consistent
 -----------
@@ -83,10 +86,30 @@ Use OpenROAD documentation preferences:
     micrometre → micron (or, micrometer)
 
 
+Headers structure
+------------------
+
+Here is the priorities. Top is the highest priority.
+
+# with overline
+* with overline
+=
+-
+^
+"
+
+What's overline?
+
+.. code-block::
+
+    ################## <- Overline
+    OVERLINED TITLE
+    ##################
+
 Troubleshooting
 ----------------
 
-If you did not source `venv/bin/activate` when running `sphinx-build` then you will get error similar to the one below.
+If you did not source `../venv/bin/activate` when running `sphinx-build` then you will get error similar to the one below.
 
 .. code-block:: console
 

@@ -1,8 +1,8 @@
 Quick start guide
---------------------
+=======================
 
 Overview
-==================
+------------------------------------
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization.
 The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
@@ -11,7 +11,7 @@ The tool encapsulates the underlying tools to allow engineers to configure them 
 The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
 
 Entering the OpenLane environment
-====================================
+------------------------------------------------------------------------
 .. note::
     If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
 
@@ -25,11 +25,11 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
 
 
 Creating new designs
-====================================
+------------------------------------------------------------------------
 
 
 Advanced: Using custom PDK locations and Docker images
-=================================================================================
+-----------------------------------------------------------
 .. warning::
     If you accidently used wrong version of PDK or OpenLane docker image then you might have *significant issues* down the line. *Avoid overwriting PDK on your own or using different OpenLane images*, if you don't know what are you doing then do not set any of those variable.
 
@@ -45,73 +45,5 @@ Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overw
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.
 
 Advanced: Installing other Standard Cell Libraries
-========================================================
+------------------------------------------------------------------------------------------------------------
 
-Understanding general digital design flow
-------------------------------------------------------
-
-RTL
-==================
-RTL stands for Register Transfer Level. RTL is accepted by Yosys + abc.
-
-Testbenches
-==================
-
-Synthesis
-==================
-
-Static timing analysis
-====================================
-
-Floorplanning
-==================
-
-IO Placement
-^^^^^^^^^^^^^^
-
-Macro placement
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Power grid
-^^^^^^^^^^^^^^
-
-Currently OpenLane does not have integrated Electromigration flow. However, the Sky130's tech LEF files have the required parameters like DCCURRENTDENSITY.
-
-Placement
-==================
-
-Understanding the placement issues
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Clock Tree Synthesis
-====================================
-
-Understanding the CTS, skew, etc
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Optimization
-==================
-
-Global routing
-==================
-
-Troubleshooting global routing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Memory usage
-^^^^^^^^^^^^^^
-
-Detailed routing
-====================================
-
-Troubleshooting detailed routing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Randomly crashing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Memory usage by detailed router
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Final Static Timing Analysis
-========================================

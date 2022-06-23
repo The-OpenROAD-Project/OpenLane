@@ -3,10 +3,10 @@
 TODO: the OpenLane should be OpenLane
 
 Installation of OpenLane
----------------------------
+###########
 
 Step 1a) Installation on other Operating Systems
-=================================================
+*************************************************
 
 * Docker 19.03.12+
 * Git 2.35+
@@ -18,7 +18,7 @@ Step 1a) Installation on other Operating Systems
 After installing all of the above, you need to make Docker available without sudo command.
 
 Step 1b) Installation of packages in Ubuntu 20.04 and above
-==========
+**********
 All of the required packages are included in the Docker image, so the installation list is slim.
 
 .. code-block:: console
@@ -48,10 +48,10 @@ Second you need to install Docker. Follow `instructions provided in Docker's doc
       lsb-release
    # Add the keyrings of docker
    sudo mkdir -p /etc/apt/keyrings
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg **dearmor -o /etc/apt/keyrings/docker.gpg
    # Add the package repository
    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      "deb [arch=$(dpkg **print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
    # Update the package repository
    sudo apt-get update
@@ -72,20 +72,20 @@ Now follow step 2.
 TODO: Add Fedora
 
 Step 1c) Installation under Mac OS X
-==========
+**********
 
 First install `Homebrew <https://brew.sh/>`_ then ran script below to install the required packages:
 
 .. code-block:: console
 
    brew install python make
-   brew install --cask docker
+   brew install **cask docker
 
 TODO: Ask somebody with Mac OS X to make an animation for this
 TODO: Ask somebody if the docker installed with brew does not require additional steps to make it avaialabe without root
 
 Step 1d) Containerless/Local Installations
-==========
+**********
 
 .. warning::
    OpenLane encourages you to avoid using Containerless/Local installation method. As the version of the packages can affect the perfomance and reproducibility. Most of the documentation assumes that you are using Docker based flow, but if you choose to use containerless installation, then you are on your own.
@@ -95,7 +95,7 @@ Please see `local installation <local_installs.html>`_
 TODO: Ask for help,  as the link does not work???
 
 Step 2. Making Docker available without root
-==========
+**********
 
 .. warning::
     The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
@@ -123,7 +123,7 @@ Then you have to restart your operating system for the group permissions to appl
 
 
 Step 3. Checking the docker installation
-==========
+**********
 
 After that you can run Docker Hello World without root. Let's try it out:
 
@@ -137,7 +137,7 @@ You will get a little happy message of Hello world, once again, but this time wi
 .. image:: ../_static/installation/docker_without_sudo_done.png
 
 Troubleshooting of Step 3.
-==========
+**********
 
 If you get permission error then you skipped a step or two. Did you forget to reboot?
 
@@ -145,23 +145,23 @@ If you get permission error then you skipped a step or two. Did you forget to re
 
 
 Step 4. Checking the requirements
-==========
+**********
 
 In order to check installation you can use following commands:
 
 .. code-block:: console
 
-   git --version
-   docker --version
-   python3 --version
-   python3 -m pip --version
-   make --version
+   git **version
+   docker **version
+   python3 **version
+   python3 -m pip **version
+   make **version
    python -m venv -h
 
 .. image:: ../_static/installation/version_check.png
 
 Step 5. Installing OpenLane
-==========
+**********
 
 Clone OpenLane repository and change directory into it. Then install the Skywater130 PDK and run flow on the test design.
 
@@ -180,7 +180,7 @@ After the above script downloads OpenLane and installs it, the ``make test`` com
 
 
 Updating OpenLane
-==========
+**********
 TODO: Add links to the update process and building PDK with other configurations
 
 .. code-block:: console

@@ -1,11 +1,15 @@
 OpenLane
---------------
+###########
 To proceed to installation press this `link <installation.html>`_
 
 
 .. toctree::
+   :glob:
    :hidden:
 
-   installation.rst
-   quickstart.rst
+   installation
+   quickstart
+   contributing_to_docs
+   digital_design_flow
+   *
 
