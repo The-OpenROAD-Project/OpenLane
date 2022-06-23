@@ -8,12 +8,12 @@ The flow performs full ASIC implementation steps from RTL all the way down to GD
 
 The tool encapsulates the underlying tools to allow engineers to configure them all in one place: ``config.tcl``. This file contains assignments to the variables that flow uses. 
 
-The rest of the tutorial assumes :ref:`_installation_label` has been complete.
+The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
 
 Entering the OpenLane environment
 ====================================
 .. note::
-    If you installed OpenLane following local installation steps, then you are on your own.
+    If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
 
 OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
@@ -29,13 +29,12 @@ Creating new designs
 
 
 Advanced: Using custom PDK locations and Docker images
-===========================
+=================================================================================
 .. warning::
     If you accidently used wrong version of PDK or OpenLane docker image then you might have *significant issues* down the line. *Avoid overwriting PDK on your own or using different OpenLane images*, if you don't know what are you doing then do not set any of those variable.
 
 While this is not recommended, if you need to overwrite the location of PDK, then set the environment variable ``PDK_ROOT`` before running ``make mount``.
-
-Another environment variable is ``OPENLANE_IMAGE_NAME``, but by default it's dynamically obtained using your current git version. Example:
+Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overwrite the Docker image that will be used but by default it's dynamically obtained using your current git version. Both ``PDK_ROOT`` and ``OPENLANE_IMAGE_NAME`` can be set independently. Example for setting both variables:
 
 .. code-block::
 

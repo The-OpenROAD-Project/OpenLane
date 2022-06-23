@@ -117,7 +117,7 @@ suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warn
 
 def setup(app):
     app.emit("create_index_softlink", "docs/source/index.rst", True)
-    app.emit("toc_from_markdown", "docs/source/index.rst", ".autotoc.rst", True)
+    # app.emit("toc_from_markdown", "docs/source/index.rst", ".autotoc.rst")
 
 
 root_doc = 'docs/source/index'
