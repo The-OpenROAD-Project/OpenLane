@@ -1,57 +1,11 @@
-# Designs, Their Configuration, useful utilties:
+# ``./flow.tcl`` Usage
 
+Assuming you followed quickstart guide you already know how to create simple designs and how to run the flow. However, OpenLane supports multiple PDKs and Standard Cell Libraries (SCLs). The commands and tools provided below cover the usage of ./flow.tcl and the recommended way on exploring your designs. This guide allows you to answer the question "which standrad cell library or PDK should I Use for my design?".
 
-## Adding a design
-
-To add a new design, the following command creates a configuration file for your design:
-
-```bash
-./flow.tcl -design <design_name> -init_design_config
-```
-
-This will create the following directory structure:
-
-```bash
-designs/<design_name>
-├── config.tcl
-```
-In the configuration file, you should edit the required variables and the optional variables, if needed. Further information about the variables can be found [here][2]
-
-Also, the <design_name> could be  replaced by the <design_directory>, which will allow you to run any design on your machine.
-
-**Note: config.tcl is a global configuration for all PDKs. For more information about design configuration files please visit this [section](#configuration-files)**
-
-It is recommended to place the design's verilog files in a `src` directory inside the design's folder as following:
-
-```bash
-designs/<design_name>
-├── config.tcl
-├── src
-│   ├── design.v
-```
-
-However, you can point to the src files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
-
-```bash
-./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
-```
-
-Optionally, you can specify the configuration file name (without the extension) by using:
+For example, you can specify the configuration file name (without the extension) by using ``-tag <config_name>``:
 
 ```bash
 ./flow.tcl -design <design_name> -init_design_config -tag <config_name>
-```
-
-After adding the design, you can specify the design name using a `-design` argument:
-
-```bash
-./flow.tcl -design <design_name>
-```
-
-Finally, you can specify the configuration file (belonging to that design) the flow should use:
-
-```bash
-./flow.tcl -design <design_name> -config <config_name>
 ```
 
 
@@ -238,4 +192,4 @@ The following is the list of flags used with the script:
 **Important Note:** *The `update.py` script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the `replicate.py` script copies the whole file.*
 
 [1]: ../regression_results/README.md
-[2]: ../configuration/README.md
+[2]: configuration.md

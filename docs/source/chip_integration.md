@@ -123,6 +123,8 @@ When you use the `power_routing` command in the chip interactive script, the pow
 
 [This][1] has a description for all OpenLane commands.
 
+TODO: UPDATE efabless/openlane links
+
 [0]: ./../../configuration/README.md
 [1]: ./openlane_commands.md
 [2]: ./advanced_readme.md

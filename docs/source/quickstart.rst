@@ -22,10 +22,60 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
     make mount
 
 
-
-
 Creating new designs
 ------------------------------------------------------------------------
+
+.. warning:: This guide assumes that you are running inside ``make mount`` Docker image. If you are not running inside docker that run ``make mount`` before following steps below
+
+The ``./flow.tcl`` is the entry point for OpenLane.
+This script is used to run the interactive sessions,
+select the configuration and create OpenLane design files.
+
+To add a new design, the following command creates a configuration file for your design:
+
+.. code-block:: console
+
+    ./flow.tcl -design <design_name> -init_design_config
+
+This will create the following directory structure:
+
+.. code-block:: console
+
+    designs/<design_name>
+    ├── config.tcl
+
+In the configuration file, you should edit the required variables and the optional variables, if needed. Further information about the variables can be found [here][2]
+
+Also, the ``design_name``` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
+
+.. note:: ``config.tcl`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_
+
+It is recommended to place the design's verilog files in a `src` directory inside the design's folder as following:
+
+.. code-block:: console
+
+    designs/<design_name>
+    ├── config.tcl
+    ├── src
+    │   ├── design.v
+
+However, you can point to the src files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
+
+.. code-block:: console
+
+    ./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
+
+.. todo:: Add proper screenshot showcasing how source is copied and the directory structure using ``tree command``
+
+You can find more information regarding the `./flow.tcl` in the documentation here. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
+
+Running the flow
+------------------------------------------------------------------------
+
+
+
+.. todo:: Add links to the follow up guide
+
 
 
 Advanced: Using custom PDK locations and Docker images
@@ -39,7 +89,7 @@ Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overw
 .. code-block::
 
     export PDK_ROOT=/opt/pdks
-    export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca-amd64
+    export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
     make mount
 
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.

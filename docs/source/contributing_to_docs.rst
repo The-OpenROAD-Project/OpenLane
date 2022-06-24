@@ -55,7 +55,7 @@ The screenshots in documentation should use following prompt:
 
     export PS1="\W> "
 
-You can add it to your `.bashrc` or just run it before you run the command to then take the screenshot.
+You can add it to your ``.bashrc`` or just run it before you run the command to then take the screenshot.
 
 
 How to contribute
@@ -119,7 +119,7 @@ Troubleshooting
 
 Pip module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you did not source `../venv/bin/activate` when running `sphinx-build` then you will get error similar to the one below.
+If you did not source ``../venv/bin/activate`` when running ``sphinx-build`` then you will get error similar to the one below.
 
 .. code-block:: console
 
