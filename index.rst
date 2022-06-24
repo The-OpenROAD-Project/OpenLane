@@ -10,3 +10,4 @@ The OpenRoad Openlane is a automated RTL to GDSII flow build around open source 
     :glob:
 
     docs/source/installation
+    docs/source/Running_OpenLane
