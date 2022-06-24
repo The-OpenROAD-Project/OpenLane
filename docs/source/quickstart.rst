@@ -44,13 +44,11 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.tcl
 
-In the configuration file, you should edit the required variables and the optional variables, if needed. Further information about the variables can be found [here][2]
+``config.tcl`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
-Also, the ``design_name``` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
+The ``design_name`` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
 
-.. note:: ``config.tcl`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_
-
-It is recommended to place the design's verilog files in a `src` directory inside the design's folder as following:
+It is recommended to place the design's verilog files in a ``src`` directory inside the design's folder as following:
 
 .. code-block:: console
 
@@ -59,7 +57,7 @@ It is recommended to place the design's verilog files in a `src` directory insid
     ├── src
     │   ├── design.v
 
-However, you can point to the src files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
+However, you can point to the source files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
 
 .. code-block:: console
 
@@ -72,11 +70,19 @@ You can find more information regarding the `./flow.tcl` in the documentation he
 Running the flow
 ------------------------------------------------------------------------
 
+In order to run the flow you need to execute following commands:
 
+.. code-block:: console
+
+    ./flow.tcl -design <design_name>
+
+This will run the flow for design ``<design_name>``.
+
+Now that you know how to run the flow for your design, let's actually take a deep dive into real life example. Take a look `at the full guide here <full_guide.html>`_.
+
+.. todo:: Add a screenshot or log
 
 .. todo:: Add links to the follow up guide
-
-
 
 Advanced: Using custom PDK locations and Docker images
 -----------------------------------------------------------

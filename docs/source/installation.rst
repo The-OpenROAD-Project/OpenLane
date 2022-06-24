@@ -2,7 +2,13 @@
 Installation
 ################################################################################
 
-Step 1a) Installation on other Operating Systems
+.. todo:: Replace screenshots with different code-block
+
+
+.. todo:: fix Dependecies
+.. todo:: fix the name to Step 1.
+
+Step 1a) Dependecies
 ****************************************************************************************************************************************************************************************************************************
 
 * Docker 19.03.12+

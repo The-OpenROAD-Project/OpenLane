@@ -1,16 +1,19 @@
 Documentation Contributors guide
 ================================================================================
 
+.. note:: This page is for documentaiton contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
 
 Installation of sphinx for documentation
 --------------------------------------------------------------------------------
+
+.. note:: ``venv`` for sphinx documentation is not the same ``venv`` used for development of OpenLane. Avoid mixing them.
 
 In order to contribute to documentation you can install the sphinx and build the documentation.
 
 .. code-block:: console
 
-    # assuming you are inside OpenLane folder
-
+    # assuming you are inside OpenLane folder and the parent direcoty of OpenLane can be used to store the venv directory.
+    
     # create venv enviornment
     python -m venv ../venv
 
@@ -30,6 +33,8 @@ You can check the installation and see that sphinx was installed.
 After installation, everytime you want to build the documentation you can enter the venv and run following commands: 
 
 .. code-block:: console
+
+    # assuming you are inside OpenLane folder
 
     # activate venv
     source ../venv/bin/activate
@@ -65,6 +70,8 @@ How to contribute
     Add the proper coverage of contribution
 
 New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get glimps of it's syntax.
+
+.. todo:: A simple guide to code blocks and stuff
 
 Keep trademarks and terms consistent
 --------------------------------------------------------------------------------

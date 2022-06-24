@@ -360,7 +360,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [11]: ./../../scripts/utils/fake_display_buffer.tcl
 [12]: ./../../scripts/utils/utils.tcl
 [13]: ./../../configuration/README.md
-[14]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
+[14]: https://github.com/The-OpenROAD-Project/openlane/blob/master/designs/spm/pin_order.cfg
 [15]: ./chip_integration.md
 [16]: ./advanced_power_grid_control.md
 [17]: ./../../scripts/tcl_commands/klayout.tcl
