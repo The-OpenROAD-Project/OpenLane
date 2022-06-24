@@ -18,9 +18,35 @@ Prerequisites
 .. code-block:: console
     sudo apt install -y build-essential python3 python3-venv python3-pip
 
-2.Installing Docker
+
+Installing Docker
 -------------------
 Install docker follows the instruction provided in the below link.
-* _`Docker installation steps<https://docs.docker.com/engine/install/ubuntu/>`__
+
+* `Docker installation instruction<https://docs.docker.com/engine/install/ubuntu/>`_
+
+After installing Docker restart your Machine
+
+Checking Docker Installation
+----------------------------
+Run the below commands
+.. code-block:: console
+    $ group
+    user_name adm cdrom sudo dip plugdev lpadmin lxd sambashare docker    #Docker installed properly
+
+Installation in Mac OS X
+------------------------
+First get `Homebrew<https://brew.sh/>`_ then install the required packages:
+
+.. code-block:: console
+     brew install python make
+     brew install --cask docker
+
+
+
+
+
+
+
 
 
