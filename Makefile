@@ -91,7 +91,7 @@ openlane: venv/created
 	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
 
 pull-openlane:
-	@docker pull "$(OPENLANE_IMAGE_NAME)"
+	@docker pull "$(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)"
 
 get-openlane:
 	@$(MAKE) pull-openlane || $(MAKE) openlane
