@@ -357,9 +357,15 @@ def io_place(
     # create the pins
     for side in pin_placement:
         if side in ["#N", "#S"]:
-            slots = equally_spaced_sequence(len(pin_placement[side]), v_tracks)
+            if len(pin_placement[side]) == 0:
+                slots = []
+            else:
+                slots = equally_spaced_sequence(len(pin_placement[side]), v_tracks)
         else:
-            slots = equally_spaced_sequence(len(pin_placement[side]), h_tracks)
+            if len(pin_placement[side]) == 0:
+                slots = []
+            else:
+                slots = equally_spaced_sequence(len(pin_placement[side]), h_tracks)
 
         assert len(slots) == len(pin_placement[side])
 
