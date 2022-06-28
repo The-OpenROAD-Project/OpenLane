@@ -5,6 +5,8 @@ Tcl offers more flexibility at the detriment of security, while JSON is more str
 
 By default, `config.tcl` is used. If `config.tcl` is ***not*** found, `config.json` is looked for as a fallback. If neither is found, OpenLane will throw an error and quit.
 
+The folder containing your `config.tcl`/`config.json` is known  as the **Design Directory**. The design directory is special in that paths in the JSON configuration files can be resolved relative to this directory and that in TCL configuration files, it can be referenced via the environment variable `DESIGN_DIR`. This will be explained in detail in later sections.
+
 ## Initializing a design for use with OpenLane
 There are two ways to use a design with OpenLane: by adding it to the `designs` folder in the OpenLane root directory, or by adding an OpenLane configuration folder to your existing design.
 > Adding a design to the root folder is covered inside the `README.md` of the `designs` folder, so it won't be covered in this document. It is, however, the most straightforward of the two options if you're using a dockerized setup, so it is recommended for beginners.
@@ -40,8 +42,6 @@ You can also initialize a `config.tcl` file instead:
 <openlane-root>/flow.tcl -design SuccessiveApproximationRegister -init_design_config -src "src/*.v" -config_file config.tcl
 ```
 
-Regardless of the format: the folder containing your 
-
 You can then run the designs by moving into the directory `openlane/SuccessiveApproximationRegister` and running `flow.tcl`:
 
 ```bash
@@ -54,7 +54,7 @@ The JSON files are simple key value pairs. The values can be scalars (strings, n
 
 An minimal demonstrative configuration file would look as follows:
 
-```jsonc
+```json
 {
     "DESIGN_NAME": "spm",
     "VERILOG_FILES": "dir::src/*.v",
@@ -82,14 +82,13 @@ The value for this key would be a `dict` that is only evaluated if the PDK or SC
 
 Note that ***the order of declarations matter here***: as seen in the following example, despite a more specific value for a PDK existing, the unconditionally declared value later in the code would end up overwriting it:
 
-```jsonc
+```json
 {
     "pdk::sky130A": {
         "A": 40
     },
     "A": 4
 }
-// Final value for A would always be 4.
 
 {
     "A": 4,
@@ -97,13 +96,13 @@ Note that ***the order of declarations matter here***: as seen in the following 
         "A": 40
     }
 }
-// Final value for A would be 40 if the PDK is sky130A and 4 otherwise.
 ```
+> In the first example, the final value for A would always be 4 given the order of declarations. In the second example, it would be 40 is the PDK is sky130A and 4 otherwise.
 
 * The Design Directory
 
 You can reference files relative to the design directory by adding `dir::` to the beginning of a string, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
-> **Note:** Paths with whitespace are not supported by OpenLane.
+> **Note:** Paths with whitespace are not presently supported by OpenLane.
 
 * Expression Engine
 
@@ -115,18 +114,18 @@ A noteworthy use of this expression engine is that you may use it to reference t
 
 It is important to note that, like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
 
-```jsonc
+```json
 {
-    "A": "expr::$B", // Invalid!
+    "A": "expr::$B",
     "B": 4
 }
 
 {
     "B": 4,
-    "A": "expr::$B" // OK!
+    "A": "expr::$B"
 }
 ```
-
+> In this example, the first configuration is invalid, as B is referenced before declaration, but the latter is OK.
 
 ## Tcl
 These configuration files are simple Tcl scripts with environment variables that are sourced by the OpenLane flow.
