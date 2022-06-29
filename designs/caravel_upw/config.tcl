@@ -87,8 +87,8 @@ set ::env(CLOCK_PERIOD) "10"
 ## Internal Macros
 ### Macro PDN Connections
 set ::env(FP_PDN_MACRO_HOOKS) "\
-    mprj1 vccd1 vssd1,\
-    mprj2 vccd2 vssd2"
+    mprj1 vccd1 vssd1 vccd1 vssd1,\
+    mprj2 vccd2 vssd2 vccd2 vssd2"
 
 ### Macro Placement
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
