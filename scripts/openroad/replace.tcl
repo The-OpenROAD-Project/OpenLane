@@ -57,6 +57,7 @@ set arg_list [list]
 
 lappend arg_list -verbose_level 1
 lappend arg_list -density $::env(PL_TARGET_DENSITY)
+lappend arg_list -pad_right $::env(CELL_PAD)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -overflow 0.9
@@ -80,12 +81,6 @@ if { $::env(PL_ROUTABILITY_DRIVEN) } {
 
 if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
-}
-
-set_placement_padding -global -right $::env(CELL_PAD)
-
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 }
 
 global_placement {*}$arg_list
