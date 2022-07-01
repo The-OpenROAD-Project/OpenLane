@@ -11,7 +11,7 @@ Additionally, a brief description of each step in the flow is provided,
 facilitating the user’s comprehension and ease of usage.
 
 Overview Of OpenLane Flow
-=========================
+-------------------------
 
 .. figure:: https://user-images.githubusercontent.com/81620928/176864059-abbe30c5-034e-419a-9a4e-da068d1d1a12.png
    :alt: image
@@ -19,7 +19,7 @@ Overview Of OpenLane Flow
    image
 
 PDK Support
-===========
+-----------
 
 The major component of physical design is PDK (Process Design Kit). The
 OpenROAD application is PDK independent. However it is tested and
@@ -176,7 +176,7 @@ OpenLane Structure
    │   │   │   └── routing.tcl
 
 Runs Structure
-~~~~~~~~~~~~~~
+--------------
 
 ::
 
@@ -223,6 +223,7 @@ Runs Structure
    │   │       ├── placement
    │   │       ├── routing
    │   │       └── synthesis
+
 
 Platform Configuration
 ----------------------
