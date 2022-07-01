@@ -249,14 +249,32 @@ proc trim_lib {args} {
         {*}$arg_values(-input)
 }
 
-proc source_config {config_file} {
+proc source_config {args} {
+    set options {
+        {-run_path optional}
+    }
+    set flags {}
+    parse_key_args "source_config" args arg_values $options flags_map $flags
+
+    if { ![info exists arg_values(-run_path)] } {
+        if { ![info exists ::env(RUN_DIR)] } {
+            puts_err "source_config needs either the -run_path option or ::env(RUN_DIR) set."
+            return -code error
+        } else {
+            set_if_unset $arg_values(-run_path) $::env(RUN_DIR)
+        }
+    }
+
+    set config_file [lindex $args 0]
+    set config_file_rel [relpath . $config_file]
+
     if { ![file exists $config_file] } {
         puts_err "$config_file_rel error: file not found"
         return -code error
     }
 
     set ext [file extension $config_file]
-    set config_in_path $::env(RUN_DIR)/config_in.tcl
+    set config_in_path $arg_values(-run_path)/config_in.tcl
 
     if { $ext == ".tcl" } {
         # for trusted end-users only
@@ -398,7 +416,7 @@ proc prep {args} {
     set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
 
     puts_info "Using configuration in '$config_file_rel'..."
-    source_config $::env(DESIGN_CONFIG)
+    source_config -run_path $run_path $::env(DESIGN_CONFIG)
 
     if { [info exists arg_values(-override_env)] } {
         set env_overrides [split $arg_values(-override_env) ',']
@@ -453,7 +471,7 @@ proc prep {args} {
     source $scl_config
 
     # Re-source/re-override to make sure it overrides any configurations from the previous two sources
-    source_config $::env(DESIGN_CONFIG)
+    source $run_path/config_in.tcl
     if { [info exists arg_values(-override_env)] } {
         set env_overrides [split $arg_values(-override_env) ',']
         foreach override $env_overrides {

@@ -206,6 +206,7 @@ class Expr(object):
 def process_string(value: str, state: State) -> str:
     EXPR_PREFIX = "expr::"
     DIR_PREFIX = "dir::"
+    REF_PREFIX = "ref::$"
     if value.startswith(EXPR_PREFIX):
         try:
             value = f"{Expr.evaluate(value[len(EXPR_PREFIX):], state.vars)}"
@@ -222,6 +223,12 @@ def process_string(value: str, state: State) -> str:
             files = glob.glob(full_abspath)
             files_escaped = [file.replace("$", r"\$") for file in files]
             value = " ".join(files_escaped)
+    elif value.startswith(REF_PREFIX):
+        reference = value[len(REF_PREFIX) :]
+        try:
+            value = state.vars[reference]
+        except KeyError:
+            raise InvalidConfig(f"Configuration variable '{reference}' not found.")
     return value
 
 

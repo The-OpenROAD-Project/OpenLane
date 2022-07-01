@@ -72,7 +72,7 @@ An minimal demonstrative configuration file would look as follows:
 ```
 
 ### Processing
-The JSON files are processed at runtime to conditional execution, a way to reference the design directory, and a basic expression engine.
+The JSON files are processed at runtime to conditional execution, a way to reference the design directory, other variables, and a basic ***mathematical*** expression engine.
 
 * Conditional Execution
 
@@ -104,28 +104,48 @@ Note that ***the order of declarations matter here***: as seen in the following 
 You can reference files relative to the design directory by adding `dir::` to the beginning of a string, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
 > **Note:** Paths with whitespace are not presently supported by OpenLane.
 
+* Variable Reference
+
+If a string's value starts with `ref::$`, all text after that prefix will be interpreted as a variable name, where you can reference any previously declared variable.
+
+To be accurate, you can only identically copy exactly one variable. You cannot perform any sort of string interpolation or concatenation.
+
+Like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
+
+```json
+{
+    "A": "ref::$B",
+    "B": "vdd gnd"
+}
+
+{
+    "B": "vdd gnd",
+    "A": "ref::$B"
+}
+```
+> In this example, the first configuration is invalid, as B is referenced before it is declared, but the latter is OK, where the value will be "vdd gnd" as well.
+
+
 * Expression Engine
 
 By adding `expr::` to the beginning of a string, you can write basic infix mathematical expressions. Binary operators supported are `**`, `*`, `/`, `+`, and `-`, while operands can be any floating-point value, and previously evaluated numeric variables prefixed with a dollar sign. Unary operators are not supported, though negative numbers with the - sign stuck to them are. Parentheses (`()`) are also supported to prioritize certain operations.
 
 Your expressions must return exactly one value: multiple expressions in the same `expr::`-prefixed value are considered invalid and so are empty expressions.
 
-A noteworthy use of this expression engine is that you may use it to reference the values of other variable: `expr::$CLOCK_PERIOD` would for example return the value of the CLOCK_PERIOD without any further processing.
-
-It is important to note that, like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
+It is important to note that, like variable referencing and conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
 
 ```json
 {
-    "A": "expr::$B",
+    "A": "expr::$B * 2",
     "B": 4
 }
 
 {
     "B": 4,
-    "A": "expr::$B"
+    "A": "expr::$B * 2"
 }
 ```
-> In this example, the first configuration is invalid, as B is referenced before declaration, but the latter is OK.
+> In this example, the first configuration is invalid, as B is used in a mathematical expression before declaration, but the latter is OK, evaluating to 8.
 
 ## Tcl
 These configuration files are simple Tcl scripts with environment variables that are sourced by the OpenLane flow.

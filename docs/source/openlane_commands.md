@@ -29,7 +29,8 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-lib <lib_file_path>` | The lib file that the list will be trimmed from. This will general a `<-lib>.exclude.list` |
 |    | `[-drc_exclude_only]` | If provided, it will only use `DRC_EXCLUDE_CELL_LIST` to create the exclude list. <br> Optional flag. |
 |    | `[-create_dont_use_list]` | If provided, it will create an environment variable with the file content. The variable will be named `DONT_USE_CELLS`. <br> Optional flag. |
-| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file.|
+| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file. |
+|    | `[-run_path <path>]` |  Specifies a <code>path</code> to save `config_in.tcl` in. By default the path will be `$::env(RUN_DIR)`. <br> Optional flag. |
 | `prep`  | | Prepares a run in openlane or loads a previously stopped run in order to proceed with it. It calls `trim_lib`, `prep_lefs`, `source_config`, and other procs to set all the needed environment variables.<br> It has similar flags to ./flow.tcl. |
 |    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a `config.tcl` or `config.json` file defining the design parameters. <br> If the folder is not found, the ./designs directory is searched for said file. |
 |    | `[-overwrite]` |  Flag to overwirte an existing run with the same tag. <br> Optional flag. |
