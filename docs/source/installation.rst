@@ -13,7 +13,7 @@ Prerequisites
 
     * Docker 19.03.12+
 
-1.Installing Packages in Ubuntu 20.04 +
+Installing Packages in Ubuntu 20.04 +
 ---------------------------------------
 .. code-block:: console
     sudo apt install -y build-essential python3 python3-venv python3-pip
@@ -35,7 +35,7 @@ Run the below commands
     
     user_name adm cdrom sudo dip plugdev lpadmin lxd sambashare docker    #Docker installed properly
 
-Installation in Mac OS X
+Installation in macOS
 ------------------------
 First get `Homebrew<https://brew.sh/>`_ then install the required packages:
 
@@ -55,7 +55,7 @@ Please click `local installation <local_installs.html>`_
 
 
 
-2.Setting up OpenLane
+Setting up OpenLane
 ---------------------
 first clone the repository:
 .. code-block:: console
