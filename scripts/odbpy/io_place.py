@@ -16,16 +16,17 @@ import odb
 import os
 import re
 import sys
+import math
 import click
 import random
 
 from reader import OdbReader, click_odb
 
 
-def getGrid(origin, count, step):
+def grid_to_tracks(origin, count, step):
     tracks = []
     pos = origin
-    for i in range(count):
+    for _ in range(count):
         tracks.append(pos)
         pos += step
     assert len(tracks) > 0
@@ -34,14 +35,52 @@ def getGrid(origin, count, step):
     return tracks
 
 
-def equallySpacedSeq(m, arr):
-    seq = []
-    n = len(arr)
-    # Bresenham
-    indices = [i * n // m + n // (2 * m) for i in range(m)]
-    for i in indices:
-        seq.append(arr[i])
-    return seq
+def equally_spaced_sequence(pin_count, possible_locations):
+    result = []
+    tracks = len(possible_locations)
+
+    if pin_count > tracks:
+        raise Exception(
+            "There are more pins than places to put them. Try making your floorplan area larger."
+        )
+    elif pin_count == tracks:
+        return possible_locations  # All positions.
+    elif pin_count == 0:
+        return []
+
+    # From this point, pin_count always < tracks.
+    tracks_per_pin = math.floor(tracks / pin_count)  # >=1
+
+    # O| | | O| | | O| | |
+    # tracks_per_pin = 3
+    # notice the last two tracks are unused
+    # thus:
+    used_tracks = tracks_per_pin * (pin_count - 1) + 1
+    unused_tracks = tracks - used_tracks
+
+    # Place the pins at those tracks...
+    current_track = unused_tracks // 2  # So that the tracks used are centered
+    for _ in range(0, pin_count):
+        result.append(possible_locations[current_track])
+        current_track += tracks_per_pin
+
+    VISUALIZE_PLACEMENT = False
+    if VISUALIZE_PLACEMENT:
+        print("[", end="")
+        used_track_indices = []
+        for i, location in enumerate(possible_locations):
+            if location in result:
+                print(f"\033[91m{location}\033[0m, ", end="")
+                used_track_indices.append(i)
+            else:
+                print(f"{location}, ", end="")
+        print("]")
+        print(f"Total tracks: {tracks}")
+        print(f"Track spacing between pins: {tracks_per_pin - 1}")
+        print(f"Indices of used tracks: {used_track_indices}")
+        print("---")
+
+    return result
 
 
 # HUMAN SORTING: https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
@@ -309,10 +348,10 @@ def io_place(
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
     origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
-    h_tracks = getGrid(origin, count, step)
+    h_tracks = grid_to_tracks(origin, count, step)
 
     origin, count, step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
-    v_tracks = getGrid(origin, count, step)
+    v_tracks = grid_to_tracks(origin, count, step)
 
     for rev in reverse_arr:
         pin_placement[rev].reverse()
@@ -320,9 +359,9 @@ def io_place(
     # create the pins
     for side in pin_placement:
         if side in ["#N", "#S"]:
-            slots = equallySpacedSeq(len(pin_placement[side]), v_tracks)
+            slots = equally_spaced_sequence(len(pin_placement[side]), v_tracks)
         else:
-            slots = equallySpacedSeq(len(pin_placement[side]), h_tracks)
+            slots = equally_spaced_sequence(len(pin_placement[side]), h_tracks)
 
         assert len(slots) == len(pin_placement[side])
 

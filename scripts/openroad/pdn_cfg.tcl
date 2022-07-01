@@ -1,3 +1,5 @@
+source $::env(SCRIPTS_DIR)/utils/utils.tcl
+
 # Power nets
 if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     if { $::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) == 1 } {
@@ -25,19 +27,26 @@ if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 &&
         set instance_name [lindex $pdn_hook 0]
         set power_net [lindex $pdn_hook 1]
         set ground_net [lindex $pdn_hook 2]
+        set power_pin [lindex $pdn_hook 3]
+        set ground_pin [lindex $pdn_hook 4]
         # This assumes the power pin and the power net have the same name.
         # The macro hooks only give an instance name and not power pin names.
+
+        if { $power_pin == "" || $ground_pin == "" } {
+            puts_err "FP_PDN_MACRO_HOOKS missing power and ground pin names"
+            return -code error
+        }
 
         add_global_connection \
             -net $power_net \
             -inst_pattern $instance_name \
-            -pin_pattern $power_net \
+            -pin_pattern $power_pin \
             -power
 
         add_global_connection \
             -net $ground_net \
             -inst_pattern $instance_name \
-            -pin_pattern $ground_net \
+            -pin_pattern $ground_pin \
             -ground
     }
 }
