@@ -1,5 +1,6 @@
+==================
 OpenLane Variables
-------------------
+==================
 
 The variable information and their default value are given below:
 

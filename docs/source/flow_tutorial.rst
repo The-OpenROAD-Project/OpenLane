@@ -113,12 +113,12 @@ below:
     -  ``Netgen`` - Performs LVS Checks ## Setting Up Design To setup
        the design, follow the instructions given below:
 
-8.  Make a directtory of your design in openlane/design/ using the
+-  Make a directtory of your design in openlane/design/ using the
     command: ``mkdir design_name``
-9.  Go in the OpenLane Directory and run ``make mount``
-10. To Generate the config.tcl file in the docker using command
+-  Go in the OpenLane Directory and run ``make mount``
+-  To Generate the config.tcl file in the docker using command
     ``./flow.tcl -design ”your design name” -init_deisgn_config``
-11. Exit and Go to the directory to check generate the config.tcl
+-  Exit and Go to the directory to check generate the config.tcl
 
 The OpenLane flow RTL to GDSII run in two mode defined below:
 
