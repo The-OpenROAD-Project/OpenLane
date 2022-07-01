@@ -476,6 +476,13 @@ proc prep {args} {
 
     puts_info "Run Directory: $run_path"
 
+    set ::env(RUN_TAG)		"$tag"
+    set ::env(RUN_DIR) 		"$run_path"
+    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
+    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
+    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
+    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
+
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_info "Removing existing $::env(RUN_DIR)..."
@@ -498,13 +505,6 @@ proc prep {args} {
             }
         }
     }
-
-    set ::env(RUN_TAG)		"$tag"
-    set ::env(RUN_DIR) 		"$run_path"
-    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
-    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
-    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
 
     # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
