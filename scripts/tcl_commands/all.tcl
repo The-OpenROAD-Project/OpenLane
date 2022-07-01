@@ -391,25 +391,7 @@ proc prep {args} {
         set run_path $::env(DESIGN_DIR)/runs/$tag
     }
 
-    set ::env(RUN_TAG)		"$tag"
-    set ::env(RUN_DIR) 		"$run_path"
-
-    set skip_basic_prep 0
-
-    if { [file exists $::env(RUN_DIR)] } {
-        if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing existing run at $::env(RUN_DIR)..."
-            after 1000
-            file delete -force $::env(RUN_DIR)
-        } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for this design with the tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-            after 1000
-            set skip_basic_prep 1
-        }
-    }
-
     file mkdir $run_path
-
 
     # Needs to be preliminarily sourced at this point, as the PDK
     # and STD_CELL_LIBRARY values can be in this file.
@@ -512,9 +494,16 @@ proc prep {args} {
     #
 
     set skip_basic_prep 0
-    set ::env(GLB_CFG_FILE) 	"$run_path/config.tcl"
 
-    puts_info "Run Directory: $run_path"
+    set ::env(RUN_TAG)		"$tag"
+    set ::env(RUN_DIR) 		"$run_path"
+    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
+    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
+    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
+    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
+    set ::env(GLB_CFG_FILE) "$::env(RUN_DIR)/config.tcl"
+
+    puts_info "Run Directory: $::env(RUN_DIR)"
 
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
@@ -538,13 +527,6 @@ proc prep {args} {
             }
         }
     }
-
-    set ::env(RUN_TAG)		"$tag"
-    set ::env(RUN_DIR) 		"$run_path"
-    set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
-    set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
-    set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
 
     # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
     file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
