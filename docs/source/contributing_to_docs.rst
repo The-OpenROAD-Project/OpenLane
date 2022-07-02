@@ -1,14 +1,14 @@
 Documentation Contributors guide
 ================================================================================
 
-.. note:: This page is for documentaiton contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
+.. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
 
 Installation of sphinx for documentation
 --------------------------------------------------------------------------------
 
 .. note:: ``venv`` for sphinx documentation is not the same ``venv`` used for development of OpenLane. Avoid mixing them.
 
-In order to contribute to documentation you can install the sphinx and build the documentation.
+In order to contribute to documentation, it is useful to take a look at a preview, before pushing your changes. For this purpose, you can install the sphinx and build the documentation.
 
 .. code-block:: console
 
@@ -30,7 +30,7 @@ You can check the installation and see that sphinx was installed.
   :width: 800
   :alt: docs contribution tools installation successful
 
-After installation, everytime you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
+After installation, every time you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
 .. code-block:: console
 
@@ -67,7 +67,7 @@ How to contribute
 --------------------------------------------------------------------------------
 
 * New documentation should be written in reStructuredText not Markdown.
-* Take a look at existing RST documentation to get glimps of it's syntax.
+* Take a look at existing RST documentation to get glimpse of its syntax.
 * Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of the Docker``.
 * Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
 
@@ -81,6 +81,7 @@ In order to improve the readability of the documentation we recommend to use the
     OpenRoad → OpenROAD
     Mac OS X → macOS
     MAGIC → Magic
+    open source → open-source
 
 Use OpenROAD documentation preferences:
 
@@ -93,13 +94,13 @@ Use OpenROAD documentation preferences:
     micrometre → micron (or, micrometer)
 
 
-Headers structure
+Header's structure
 --------------------------------------------------------------------------------
 
 
-In Markdown avoid using same header type both for the title of the document and it's content. It looks awful in the table of content.
+In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
 
-Use headers to make structure of the documentation better. For underline and overlines use 80 symbol. Here is the header priorities. Top is the highest priority.
+Use headers to make structure of the documentation better. For underline and overlines use 80 symbols. Here are the header priorities. Top is the highest priority.
 
 .. code-block::
 

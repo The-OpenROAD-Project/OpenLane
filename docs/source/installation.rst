@@ -17,11 +17,11 @@ available without sudo command.
 
 Docker images and their purpose
 ****************************************************************************************************************************************************************************************************************************
-Many Open source projects in the space are struggling with reproducibility. It is practically impossible to create perfectly same environment
+Many open-source projects in the space are struggling with reproducibility. It is practically impossible to create perfectly same environment
 across many Operating Systems and distributions.
 For this specific reason Docker images are created.
-They run on top of your existing kernel, however everything build on top of it,
-like ``libc`` and system libraries is under control of Docker image. Therefore, for OpenLane, there was no better way for perfectly reproducible environment than using Docker images.
+They run on top of your existing kernel, however everything on top of it ,
+like ``libc`` and system libraries are under control of Docker image. Therefore, for OpenLane, there was no better way for perfectly reproducible environment than using Docker images.
 
 Installation of requirements on Ubuntu
 ****************************************************************************************************************************************************************************************************************************
@@ -39,7 +39,7 @@ You need at least Ubuntu 20.04 and above. All of the required packages are inclu
 Second you need to install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
 .. warning::
-    The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentatation
+    The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
 
 
 .. code-block:: console
@@ -92,7 +92,7 @@ Requirements in Containerless/Local Installations
 ******************************************************************************************************************************************************
 
 .. warning::
-   OpenLane encourages you to avoid using Containerless/Local installation method. As the version of the packages can affect the perfomance and reproducibility. Most of the documentation assumes that you are using Docker based flow, but if you choose to use containerless installation, then you are on your own.
+   OpenLane encourages you to avoid using Containerless/Local installation method. As the version of the packages can affect the performance and reproducibility. Most of the documentation assumes that you are using Docker based flow, but if you choose to use containerless installation, then you are on your own.
 
 Please see `local installation <local_installs.html>`_
 
@@ -100,7 +100,7 @@ Step 2. Making Docker available without root
 ******************************************************************************************************************************************************
 
 .. warning::
-    The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentatation
+    The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
 
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
 
@@ -145,7 +145,7 @@ If you get permission error then you skipped a step or two. Did you forget to re
 Step 4. Checking the requirements
 ******************************************************************************************************************************************************
 
-In order to check installation you can use following commands:
+In order to check installation, you can use following commands:
 
 .. code-block:: console
 
