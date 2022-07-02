@@ -123,6 +123,23 @@ What's overline?
 Troubleshooting
 --------------------------------------------------------------------------------
 
+Your ``code-block`` s do not look like they are supposed to
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. important::
+    Intendation, whitespaces, newlines of the reStructuredText is really important. They all have meaning in .rst files, so take a look at the already existing code to help you figure out the issues.
+
+How it looks:
+
+.. image:: ../_static/docs_contribution/code_block_issue.png
+
+How it is supposed to look:
+
+.. image:: ../_static/docs_contribution/code_block_supposed_look.png
+
+This is because ``code-blocks`` need to have empty lines around code sections, like shown in the picture below:
+
+.. image:: ../_static/docs_contribution/code_block_spaces_around_the_code.png
 
 Pip module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
