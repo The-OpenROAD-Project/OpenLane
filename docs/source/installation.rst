@@ -5,12 +5,12 @@ Installation
 Step 1. System Requirements
 --------------------------------------------------------------------------------
 
-* Docker 19.03.12+
-* Git 2.35+
-* Python 3.6+  
-   * pip  
-   * venv
-* GNU Make
+   * Docker 19.03.12+
+   * Git 2.35+
+   * Python 3.6+  
+      * pip  
+      * venv
+   * GNU Make
 
 After installing all of the above, proceed to make Docker
 available without sudo command.
@@ -169,7 +169,7 @@ In order to check installation, you can use following commands:
 Step 5. Installing OpenLane
 --------------------------------------------------------------------------------
 
-Clone OpenLane repository and change directory into it. Then install the Skywater130 PDK and run flow on the test design.
+Clone OpenLane repository and change directory into it. Then install the sky130 PDK and run flow on the test design.
 
 .. code-block:: console
 
