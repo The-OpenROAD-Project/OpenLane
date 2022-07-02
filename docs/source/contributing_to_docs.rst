@@ -82,6 +82,7 @@ In order to improve the readability of the documentation we recommend to use the
     Mac OS X → macOS
     MAGIC → Magic
     open source → open-source
+    Skywater130 → sky130
 
 Use OpenROAD documentation preferences:
 
