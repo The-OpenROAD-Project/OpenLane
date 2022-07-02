@@ -25,10 +25,17 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
 Creating new designs
 ------------------------------------------------------------------------
 
-.. warning:: This guide assumes that you are running inside ``make mount`` Docker image. If you are not running inside docker that run ``make mount`` before following steps below
+.. warning:: This guide assumes that you are running inside Docker image. If you are not running inside docker that run ``make mount`` before following steps below you are on your own
+
+First, start OpenLane Docker image using following command:
+
+.. code-block:: console
+
+    make mount
+
 
 The ``./flow.tcl`` is the entry point for OpenLane.
-This script is used to run the interactive sessions,
+This script is used to run the flow, run the interactive sessions,
 select the configuration and create OpenLane design files.
 
 To add a new design, the following command creates a configuration file for your design:
@@ -63,9 +70,32 @@ However, you can point to the source files while initializing the design and the
 
     ./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
 
-.. todo:: Add proper screenshot showcasing how source is copied and the directory structure using ``tree command``
 
-You can find more information regarding the `./flow.tcl` in the documentation here. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
+This is typical structure of the design folder:
+
+.. code-block:: console
+
+    .
+    ├── config.tcl
+    ├── runs
+    │   └── RUN_2022.06.24_16.52.13
+    │       ├── cmds.log
+    │       ├── config.tcl
+    │       ├── logs
+    │       ├── openlane.log
+    │       ├── OPENLANE_VERSION
+    │       ├── PDK_SOURCES
+    │       ├── reports
+    │       ├── results
+    │       ├── runtime.yaml
+    │       ├── tmp
+    │       └── warnings.log
+    └── src
+        └── mem_1r1w.v
+
+Main files are ``config.tcl`` and ``src/`` folder that contains source code.
+
+You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
 Running the flow
 ------------------------------------------------------------------------
@@ -78,11 +108,7 @@ In order to run the flow you need to execute following commands:
 
 This will run the flow for design ``<design_name>``.
 
-Now that you know how to run the flow for your design, let's actually take a deep dive into real life example. Take a look `at the full guide here <full_guide.html>`_.
-
-.. todo:: Add a screenshot or log
-
-.. todo:: Add links to the follow up guide
+Now that you know how to run the flow for your design, let's actually take a deep dive into real life example.
 
 Advanced: Using custom PDK locations and Docker images
 -----------------------------------------------------------
@@ -103,3 +129,4 @@ Keep in mind, that if tool is unable to recognize the git commit, you might want
 Advanced: Installing other Standard Cell Libraries
 ------------------------------------------------------------------------------------------------------------
 
+Follow the `guide on this page <manual_pdk_installation.html>`_

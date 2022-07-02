@@ -2,13 +2,7 @@
 Installation
 ################################################################################
 
-.. todo:: Replace screenshots with different code-block
-
-
-.. todo:: fix Dependecies
-.. todo:: fix the name to Step 1.
-
-Step 1a) Dependecies
+System Requirements
 ****************************************************************************************************************************************************************************************************************************
 
 * Docker 19.03.12+
@@ -18,12 +12,14 @@ Step 1a) Dependecies
    * venv
 * GNU Make
 
-After installing all of the above, you need to make Docker available without sudo command in Step 2 and follow rest of the steps.
+After installing all of the above, you need to make Docker
+available without sudo command in Step 2 and follow rest of the steps.
 
-Step 1b) Installation of packages in Ubuntu 20.04 and above
+
+Installation of requirements on Ubuntu
 ****************************************************************************************************************************************************************************************************************************
 
-All of the required packages are included in the Docker image, so the installation list is slim.
+You need at least Ubuntu 20.04 and above. All of the required packages are included in the Docker image, so the installation list is slim.
 
 .. code-block:: console
 
@@ -33,7 +29,7 @@ All of the required packages are included in the Docker image, so the installati
 
 .. image:: ../_static/installation/successful_package_requirements_installation.png
 
-Second you need to install Docker. Follow `instructions provided in Docker's documentation here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
+Second you need to install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
 .. warning::
     The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
@@ -66,29 +62,26 @@ Second you need to install Docker. Follow `instructions provided in Docker's doc
    # Check for installation
    sudo docker run hello-world
 
-After installation you will get Docker's Hello World:
+After installation you will get Hello World of Docker:
 
 .. image:: ../_static/installation/docker_installation_hello_world.png
 
 Now follow step 2.
 
 
-.. todo:: Add Fedora
-
-Step 1c) Installation under Mac OS X
+Installation of requirements under macOS
 ******************************************************************************************************************************************************
 
-First install `Homebrew <https://brew.sh/>`_ then ran script below to install the required packages:
+First install `Homebrew <https://brew.sh/>`_ then run script below to install the required packages:
 
 .. code-block:: console
 
    brew install python make
    brew install --cask docker
 
-.. todo:: Ask somebody with Mac OS X to make an animation for this
-.. todo:: Ask somebody if the docker installed with brew does not require additional steps to make it avaialabe without root
+Proceed to Step 2.
 
-Step 1d) Containerless/Local Installations
+Requirements in Containerless/Local Installations
 ******************************************************************************************************************************************************
 
 .. warning::
@@ -96,32 +89,26 @@ Step 1d) Containerless/Local Installations
 
 Please see `local installation <local_installs.html>`_
 
-.. todo:: Ask for help,  as the link does not work???
-
 Step 2. Making Docker available without root
 ******************************************************************************************************************************************************
 
 .. warning::
-    The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
-
-.. warning::
-    This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the Docker's installation. DO NOT SKIP!
-
+    The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentatation
 
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
+
+
+.. important::
+    This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the installation of the Docker. DO NOT SKIP!
 
 
 .. code-block:: console
 
    sudo groupadd docker
    sudo usermod -aG docker $USER
-   # REBOOT!
+   sudo reboot # REBOOT!
 
-Then you have to restart your operating system for the group permissions to apply. 
-
-.. warning::
-    REBOOT! This is mandatory step. Without rebooting the user groups will no apply. DO NOT SKIP!
-
+Then you have to **restart your operating system** for the group permissions to apply.
 
 .. image:: ../_static/installation/docker_permission.png
 
@@ -185,7 +172,6 @@ After the above script downloads OpenLane and installs it, the ``make test`` com
 
 Updating OpenLane
 ******************************************************************************************************************************************************
-.. todo:: Add links to the update process and building PDK with other configurations
 
 .. code-block:: console
 

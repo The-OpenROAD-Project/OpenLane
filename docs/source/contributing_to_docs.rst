@@ -30,7 +30,7 @@ You can check the installation and see that sphinx was installed.
   :width: 800
   :alt: docs contribution tools installation successful
 
-After installation, everytime you want to build the documentation you can enter the venv and run following commands: 
+After installation, everytime you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
 .. code-block:: console
 
@@ -66,12 +66,10 @@ You can add it to your ``.bashrc`` or just run it before you run the command to 
 How to contribute
 --------------------------------------------------------------------------------
 
-.. todo::
-    Add the proper coverage of contribution
-
-New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get glimps of it's syntax.
-
-.. todo:: A simple guide to code blocks and stuff
+* New documentation should be written in reStructuredText not Markdown.
+* Take a look at existing RST documentation to get glimps of it's syntax.
+* Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of the Docker``.
+* Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
 
 Keep trademarks and terms consistent
 --------------------------------------------------------------------------------
