@@ -12,9 +12,16 @@ System Requirements
    * venv
 * GNU Make
 
-After installing all of the above, you need to make Docker
-available without sudo command in Step 2 and follow rest of the steps.
+After installing all of the above, proceed to make Docker
+available without sudo command.
 
+Docker images and their purpose
+****************************************************************************************************************************************************************************************************************************
+Many Open source projects in the space are struggling with reproducibility. It is practically impossible to create perfectly same environment
+across many Operating Systems and distributions.
+For this specific reason Docker images are created.
+They run on top of your existing kernel, however everything build on top of it,
+like ``libc`` and system libraries is under control of Docker image. Therefore, for OpenLane, there was no better way for perfectly reproducible environment than using Docker images.
 
 Installation of requirements on Ubuntu
 ****************************************************************************************************************************************************************************************************************************
@@ -32,7 +39,7 @@ You need at least Ubuntu 20.04 and above. All of the required packages are inclu
 Second you need to install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
 .. warning::
-    The steps below might be simply outdated, OpenLane team encourages to follow the link to the official Docker documentatation
+    The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentatation
 
 
 .. code-block:: console
@@ -108,7 +115,7 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
    sudo usermod -aG docker $USER
    sudo reboot # REBOOT!
 
-Then you have to **restart your operating system** for the group permissions to apply.
+You **must restart your operating system** for the group permissions to apply.
 
 .. image:: ../_static/installation/docker_permission.png
 
@@ -116,7 +123,7 @@ Then you have to **restart your operating system** for the group permissions to 
 Step 3. Checking the docker installation
 ******************************************************************************************************************************************************
 
-After that you can run Docker Hello World without root. Let's try it out:
+After that you can run Docker Hello World without root. To test it use following command:
 
 .. code-block:: console
 
@@ -172,6 +179,8 @@ After the above script downloads OpenLane and installs it, the ``make test`` com
 
 Updating OpenLane
 ******************************************************************************************************************************************************
+
+To update the OpenLane, run following commands:
 
 .. code-block:: console
 
