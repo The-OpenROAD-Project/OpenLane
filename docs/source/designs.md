@@ -191,5 +191,5 @@ The following is the list of flags used with the script:
 
 **Important Note:** *The `update.py` script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the `replicate.py` script copies the whole file.*
 
-[1]: ../regression_results/README.md
+[1]: ../../regression_results/README.md
 [2]: configuration.md

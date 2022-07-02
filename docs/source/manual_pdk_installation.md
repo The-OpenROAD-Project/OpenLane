@@ -56,4 +56,4 @@
 
 Refer to [this][1] for more details on the structure.
 
-[1]: ./PDK_STRUCTURE.md
+[1]: ./pdk_structure.md

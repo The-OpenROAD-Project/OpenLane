@@ -103,4 +103,4 @@
 
 ## Optional variables
 
-These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](../configuration/README.md) for the full list of configurations.
+These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](../docs/source/configuration.md) for the full list of configurations.

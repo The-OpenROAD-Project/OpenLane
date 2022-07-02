@@ -125,7 +125,7 @@ When you use the `power_routing` command in the chip interactive script, the pow
 
 TODO: UPDATE efabless/openlane links
 
-[0]: ./../../configuration/README.md
+[0]: ./configuration.md
 [1]: ./openlane_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md

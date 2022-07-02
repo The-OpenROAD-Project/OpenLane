@@ -176,9 +176,9 @@ The following are arguments that can be passed to `flow.tcl`
 
 ## Adding a design
 
-To add a new design, follow the instructions provided [here](./designs/README.md)
+To add a new design, follow the instructions provided [here](./docs/source/designs.md)
 
-This [file](./designs/README.md) also includes useful information about the design configuration files. It also includes useful utilities for exploring and updating design configurations for each (PDK,STD_CELL_LIBRARY) pair.
+This [file](./docs/source/designs.md) also includes useful information about the design configuration files. It also includes useful utilities for exploring and updating design configurations for each (PDK,STD_CELL_LIBRARY) pair.
 
 # OpenLane Architecture
 
@@ -293,14 +293,14 @@ To delete all generated runs under all designs:
     ./configuration/
     ```
 
-- Finally, each design should have it's own configuration file with some required variables which are available in this [list][17]. A design configuration file may override any of the variables defined in PDK or flow configuration files. This is the global configurations for the design:
+- Finally, each design should have it's own configuration file with some required variables which are available in this [list][2]. A design configuration file may override any of the variables defined in PDK or flow configuration files. This is the global configurations for the design:
 
     ```
     ./designs/<design>/config.tcl
     ```
-    - More on design configurations in [here](./designs/README.md)
+    - More on design configurations in [here](./docs/source/designs.md)
 
-A list of all available variables can be found [here][17].
+A list of all available variables can be found [here][2].
 
 
 
@@ -320,7 +320,7 @@ For more information on how to run this script, refer to this [file][21]
 
 OpenLane also has flow for issue regression testing. Refer to this [document][38].
 
-For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./designs/README.md)
+For more information on design configurations, how to update them, and the need for an exploration for each design, refer to this [file](./docs/source/designs.md)
 
 # Hardening Macros
 
@@ -371,7 +371,7 @@ To check the original author list of OpenLane, check [this][33].
 - [Skywater 130nm PDK - Initial Discovery, Sylvain Munaut](https://www.youtube.com/watch?v=gRYBdTXbxiU)
 
 [1]: ./docker/README.md
-[2]: ./configuration/README.md
+[2]: ./docs/source/configuration.md
 [4]: https://github.com/YosysHQ/yosys
 [5]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ifp
 [6]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/ppl
@@ -385,7 +385,6 @@ To check the original author list of OpenLane, check [this][33].
 [14]: https://github.com/RTimothyEdwards/magic
 [15]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/rsz
 [16]: https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/pdn
-[17]: ./configuration/README.md
 [18]: https://github.com/RTimothyEdwards/qflow/blob/master/src/addspacers.c
 [19]: https://github.com/The-OpenROAD-Project/
 [20]: https://github.com/git-lfs/git-lfs/wiki/Installation

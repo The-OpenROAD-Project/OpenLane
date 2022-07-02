@@ -225,15 +225,15 @@ To integrate that macro into a core or a chip, check this [documentation on chip
 
 If you want to create further tweaks in the flow that the abundant configurations don't allow, make sure to check [this][2] for more details about the interactive mode of the OpenLane flow.
 
-[0]: ./../../configuration/README.md
+[0]: ./../../docs/source/configuration.md
 [1]: ./openlane_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: ./chip_integration.md
-[5]: ./../../designs/README.md
+[5]: ./../../docs/source/designs.md
 [6]: ./../../regression_results/README.md
 [7]: https://github.com/The-OpenROAD-Project/openlane/blob/master/designs/spm/pin_order.cfg
-[8]: ./PDK_STRUCTURE.md
+[8]: ./pdk_structure.md
 [9]: ./advanced_power_grid_control.md
 [10]: ./../../regression_results/columns_defintions.md
 [11]: ./../../scripts/base.sdc
