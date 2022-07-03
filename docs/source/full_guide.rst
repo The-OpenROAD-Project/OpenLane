@@ -52,7 +52,7 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 .. code-block:: verilog
 
     module mem_1r1w (clk, read_addr, read, read_data, write_addr, write, write_data);
-        parameter DEPTH_LOG2 = 5;
+        parameter DEPTH_LOG2 = 4;
         localparam ELEMENTS = 2**DEPTH_LOG2;
         parameter WIDTH = 32;
 
@@ -78,6 +78,8 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
     end
 
     endmodule
+
+
 
 .. note::
     Originally we used a very small macro block as an example,
@@ -109,6 +111,18 @@ Add following lines:
 
 
 .. todo:: explain why
+
+Step 3. Run the flow on the macro block
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    ./flow.tcl -design mem_1r1w -tag full_guide -overwrite
+
+Step 4. Analyzing the flow generated files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 Include the RTL files in the design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
