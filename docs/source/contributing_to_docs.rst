@@ -127,7 +127,7 @@ Your ``code-block`` s do not look like they are supposed to
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. important::
-    Intendation, whitespaces, newlines of the reStructuredText is really important. They all have meaning in .rst files, so take a look at the already existing code to help you figure out the issues.
+    Intendation, whitespaces, newlines of the reStructuredText are really important. They all have meaning in .rst files, so take a look at the already existing code to help you figure out the issues.
 
 How it looks:
 
