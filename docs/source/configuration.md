@@ -1,12 +1,5 @@
-<<<<<<< HEAD:configuration/README.md
 # Variables information
 This page describes user-configurable variables and their default values.
-=======
-# Configuration Variables
-
-This page describes configuration variables and their default values.
-
->>>>>>> 8bf2bbe (Quckistart, first steps complete):docs/source/configuration.md
 ## Required variables
 
 |Variable|Description|
