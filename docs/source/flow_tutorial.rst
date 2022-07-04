@@ -45,8 +45,8 @@ these platforms independently, you can create the necessary
 platform-specific files yourself. - GF55 - 55nm - GF12 - 12nm - GF180 -
 180nm - Intel22 - 22nm - Intel16 - 16nm - TSMC65 - 65nm
 
-OpenLane with Google-SKY130-PDK
--------------------------------
+OpenLane with SkyWater Sky130-PDK
+---------------------------------
 
 The SkyWater Open Source PDK is a collaboration between Google and
 SkyWater Technology Foundry to provide a fully open source Process
@@ -110,15 +110,34 @@ below:
 
     -  ``Magic``- Performs DRC Checks & Antenna Checks
     -  ``Klayout`` - Performs DRC Checks
-    -  ``Netgen`` - Performs LVS Checks ## Setting Up Design To setup
-       the design, follow the instructions given below:
+    -  ``Netgen`` - Performs LVS Checks 
 
--  Make a directtory of your design in openlane/design/ using the
-    command: ``mkdir design_name``
--  Go in the OpenLane Directory and run ``make mount``
--  To Generate the config.tcl file in the docker using command
-    ``./flow.tcl -design ”your design name” -init_deisgn_config``
--  Exit and Go to the directory to check generate the config.tcl
+Setting Up New Design
+---------------------
+
+To setup the design, follow the instructions given below:
+
+1.  Make a directtory of your design in openlane/design/ using the
+    command: 
+.. code-block:: console
+
+   mkdir design_name
+
+2.  Go in the OpenLane Directory and run command
+
+.. code-block:: console
+
+   make mount
+
+
+3. To Generate the config.tcl file in the docker using command
+
+.. code-block:: console
+
+   ./flow.tcl -design ”your design name” -init_design_config
+
+
+4.  Exit and Go to the directory to check generate the config.tcl
 
 The OpenLane flow RTL to GDSII run in two mode defined below:
 
@@ -130,7 +149,7 @@ using command to enter in a interactive mode
 ::
 
      ./flow.tcl -interactive
-      %Prep -design <design_name> # will configure the selected cell for a design by merging LEF file
+      %prep -design <design_name> # will configure the selected cell for a design by merging LEF file
       run_synthesis
       run_floorplan
       run_placement
