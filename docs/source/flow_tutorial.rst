@@ -13,7 +13,7 @@ facilitating the user’s comprehension and ease of usage.
 Overview Of OpenLane Flow
 -------------------------
 
-.. image:: ../_static/OpenLane flow.png
+.. image:: ../_static/OpenLane_flow.png
 
 PDK Support
 -----------
