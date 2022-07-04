@@ -13,10 +13,7 @@ facilitating the user’s comprehension and ease of usage.
 Overview Of OpenLane Flow
 -------------------------
 
-.. figure:: https://user-images.githubusercontent.com/81620928/176864059-abbe30c5-034e-419a-9a4e-da068d1d1a12.png
-   :alt: image
-
-   image
+.. image:: ../_static/OpenLane flow.png
 
 PDK Support
 -----------
