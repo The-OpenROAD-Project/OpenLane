@@ -10,11 +10,6 @@ tools,Design Explorations, and Different Design Experiments.
 Additionally, a brief description of each step in the flow is provided,
 facilitating the user’s comprehension and ease of usage.
 
-Overview Of OpenLane Flow
--------------------------
-
-.. image:: ../_static/OpenLane_flow.png
-
 PDK Support
 -----------
 
@@ -74,7 +69,7 @@ below:
        rows (used for placement) and the tracks (used for routing)
     -  ``ioplacer`` - Places the macro input and output ports
     -  ``pdn`` - Generates the power distribution network
-    -  ``tap cell`` - Inserts well tap in the floorplan
+    -  ``tap cell`` - Inserts well tap in the floor plan
 
 3.  **Placement**
 
@@ -114,7 +109,7 @@ Setting Up New Design
 
 To setup the design, follow the instructions given below:
 
-1.  Make a directtory of your design in openlane/design/ using the
+1.  Make a directory of your design in openlane/design/ using the
     command: 
 .. code-block:: console
 
@@ -139,7 +134,7 @@ To setup the design, follow the instructions given below:
 The OpenLane flow RTL to GDSII run in two mode defined below:
 
 **Interactive Mode** will run the OpenLane in a interactive mode where
-every steps of a design run by the user .
+every steps of a design run by the user.
 
 using command to enter in a interactive mode
 
@@ -148,7 +143,7 @@ using command to enter in a interactive mode
      ./flow.tcl -interactive
       %prep -design <design_name> # will configure the selected cell for a design by merging LEF file
       run_synthesis
-      run_floorplan
+      run_floor plan
       run_placement
       run_cts
       run_routing

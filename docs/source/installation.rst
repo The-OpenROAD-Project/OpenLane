@@ -64,9 +64,10 @@ Please click `local installation <local_installs.html>`_
 Setting up OpenLane
 ---------------------
 first clone the repository:
+
 .. code-block:: console
 
-    git clone https://github.com/The-OpenROAD-Project/OpenLane.git
+    git clone  https://github.com/The-OpenROAD-Project/OpenLane.git
 
 
 Set up Sky130-PDK and OpenLane by running:
@@ -75,7 +76,7 @@ Set up Sky130-PDK and OpenLane by running:
 .. code-block:: console
 
     cd OpenLane/
-    make Openlane
+    make OpenLane
     make pdk
     make test # This is to test the flow and pdk run properly.
 
@@ -87,7 +88,7 @@ if you clone the repository locally , don't need to reclone it
 
 .. code-block:: console
 
-    cd Openlane
+    cd OpenLane
     git checkout master
     git pull
     make 
