@@ -74,7 +74,7 @@ An minimal demonstrative configuration file would look as follows:
 ### Processing
 The JSON files are processed at runtime to conditional execution, a way to reference the design directory, other variables, and a basic ***mathematical*** expression engine.
 
-* Conditional Execution
+#### Conditional Execution
 
 The JSON configuration files support conditional execution based on PDK or standard cell library (or, by nesting as shown above, a combination thereof.) You can do this using the `pdk::` or `scl::` key prefixes.
 
@@ -99,12 +99,12 @@ Note that ***the order of declarations matter here***: as seen in the following 
 ```
 > In the first example, the final value for A would always be 4 given the order of declarations. In the second example, it would be 40 is the PDK is sky130A and 4 otherwise.
 
-* The Design Directory
+#### The Design Directory
 
 You can reference files relative to the design directory by adding `dir::` to the beginning of a string, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
 > **Note:** Paths with whitespace are not presently supported by OpenLane.
 
-* Variable Reference
+#### Variable Reference
 
 If a string's value starts with `ref::$`, all text after that prefix will be interpreted as a variable name, where you can reference any previously declared variable.
 
@@ -126,7 +126,7 @@ Like conditional execution, the order of declarations matter: i.e., you cannot r
 > In this example, the first configuration is invalid, as B is referenced before it is declared, but the latter is OK, where the value will be "vdd gnd" as well.
 
 
-* Expression Engine
+#### Expression Engine
 
 By adding `expr::` to the beginning of a string, you can write basic infix mathematical expressions. Binary operators supported are `**`, `*`, `/`, `+`, and `-`, while operands can be any floating-point value, and previously evaluated numeric variables prefixed with a dollar sign. Unary operators are not supported, though negative numbers with the - sign stuck to them are. Parentheses (`()`) are also supported to prioritize certain operations.
 
