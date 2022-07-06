@@ -17,7 +17,7 @@ Entering the OpenLane environment
 
 OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
-.. code-block::
+.. code-block:: console
 
     make mount
 
@@ -118,7 +118,7 @@ Advanced: Using custom PDK locations and Docker images
 While this is not recommended, if you need to overwrite the location of PDK, then set the environment variable ``PDK_ROOT`` before running ``make mount``.
 Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overwrite the Docker image that will be used but by default it's dynamically obtained using your current git version. Both ``PDK_ROOT`` and ``OPENLANE_IMAGE_NAME`` can be set independently. Example for setting both variables:
 
-.. code-block::
+.. code-block:: console
 
     export PDK_ROOT=/opt/pdks
     export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
