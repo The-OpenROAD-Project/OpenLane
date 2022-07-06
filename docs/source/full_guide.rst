@@ -13,11 +13,11 @@ OpenLane is one of the leading-edge Open-Source tools created exactly for this p
 .. todo:: Add links to the Wikipedia covering every word.
 
 Multiple foundries exist and each of the foundries may have dozens of technologies supported.
-Currently, OpenLane supports only Skywater130,
+Currently, OpenLane supports only sky130,
 which was published by `Google in cooperation with Skywater <https://github.com/google/skywater-pdk>`_,
 but there is active work to support `fictional technologies like ASAP7 <https://asap.asu.edu/>`_ and other PDKs. There is a guide on `porting new PDKs to OpenLane located here <pdk_structure.html>`_ .
 
-The coolest part about Skywater130 is `Google funded Multi Project Wafer in partnership with Efabless <https://efabless.com/open_shuttle_program>`_.
+The coolest part about sky130 is `Google funded Multi Project Wafer in partnership with Efabless <https://efabless.com/open_shuttle_program>`_.
 Using OpenMPW you can produce your integrated circuit for free (some limitations apply).
 
 This guide covers everything that you need to know in order to be able to create a final integrated circuit layout files, 
@@ -32,6 +32,10 @@ Introduction into the flow
 --------------------------------------------------------------------------------
 
 .. todo:: Make high level image showcasing the flow
+
+
+Running the flow for simple memory macro design
+--------------------------------------------------------------------------------
 
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +88,7 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 .. note::
     Originally we used a very small macro block as an example,
     however there is known issue: Small macro blocks do not fit proper power grid,
-    therefore you need to avoid making small macro blocks.
+    therefore you need to avoid making small macro blocks. Alternatively, set the ``FP_SIZING`` to ``absolute`` and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
 
 In your designs it might be beneficial to have macro level and chip level.
 This separation allows you to reuse already generated macro blocks multiple times.

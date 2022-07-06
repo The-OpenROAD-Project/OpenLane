@@ -1,6 +1,6 @@
 # ``./flow.tcl`` Usage
 
-Assuming you followed quickstart guide you already know how to create simple designs and how to run the flow. However, OpenLane supports multiple PDKs and Standard Cell Libraries (SCLs). The commands and tools provided below cover the usage of ./flow.tcl and the recommended way on exploring your designs. This guide allows you to answer the question "which standrad cell library or PDK should I Use for my design?".
+Assuming you followed quickstart guide you already know how to create simple designs and how to run the flow. However, OpenLane supports multiple PDKs and Standard Cell Libraries (SCLs). The commands and tools provided below cover the usage of ``./flow.tcl`` and the recommended way on exploring your designs. This guide allows you to answer the question "which standrad cell library or PDK should I use for my design?".
 
 For example, you can specify the configuration file name (without the extension) by using ``-tag <config_name>``:
 
@@ -190,6 +190,32 @@ The following is the list of flags used with the script:
 **Note:** `config/update.py` skips designs that fail during the exploration, which means their flow_status is not `flow_completed`.
 
 **Important Note:** *The `update.py` script only copies new configuration to the file. The new configurations are marked with a preceeding "# Regression" comment that is automatically written before them by the exploration script. However, the `replicate.py` script copies the whole file.*
+
+## ``flow.tcl`` command arguments
+
+The following are arguments that can be passed to `flow.tcl`
+
+| Argument | Description |
+| - | - |
+| `-design <folder path>`  <br>(Required) | Specifies the design folder. A design folder should contain a config.tcl defining the design parameters.  <br>If the folder is not found, ./designs directory is searched |
+| `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
+| `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
+| `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `/spm/config2.tcl`  <br>Use run `./flow.tcl -design /spm -config_file /spm/config2.tcl`  <br>By default `config.tcl` is used. |
+| `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `KEY1=VALUE1,KEY2=VALUE2` |
+| `-config_tag <name>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design spm -config_tag config2`  <br>By default `config` is used. |
+| `-tag <name>`  <br>(Optional) | Specifies a `name` for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  <br>Can Specify the configuration file name in case of using `-init_design_config` |
+| `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
+| `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
+| `-init_design_config`  <br>(Optional) | Creates a tcl configuration file for a design. `-tag <name>` can be added to rename the config file to `<name>.tcl` |
+| `-overwrite`  <br>(Optional) | Flag to overwirte an existing run with the same tag |
+| `-interactive`  <br>(Optional) | Flag to run openlane flow in interactive mode |
+| `-file <file_path>`  <br>(Optional) | Passes a script of interactive commands in interactive mode |
+| `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
+| `-lvs`  <br>(Boolean) | If enabled, only LVS will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -net DESIGN_NETLIST. |
+| `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
+| `-save`  <br>(Optional) |  A flag to save a runs results like .mag and .lef in the design's folder. |
+| `-save_path <path>`  <br>(Optional) | Specifies a different path to save the design's result. This option is to be used with the `-save` flag. |
+
 
 [1]: ../../regression_results/README.md
 [2]: configuration.md
