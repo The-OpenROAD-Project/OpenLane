@@ -6,11 +6,11 @@ Overview
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization.
 The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
 
-The tool encapsulates the underlying tools to allow engineers to configure them all in one place: ``config.tcl``. This file contains assignments to the variables that flow uses. 
+The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.tcl``. This file contains assignments to the variables that flow uses. 
 
 The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
 
-Entering the OpenLane environment
+Entering OpenLane environment
 ------------------------------------------------------------------------
 .. note::
     If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
@@ -19,6 +19,7 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
 
 .. code-block:: console
 
+    cd OpenLane/
     make mount
 
 
@@ -31,6 +32,7 @@ First, start OpenLane Docker image using following command:
 
 .. code-block:: console
 
+    cd OpenLane/
     make mount
 
 

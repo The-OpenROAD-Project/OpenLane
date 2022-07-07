@@ -1,7 +1,8 @@
 
 Installation
 ================================================================================
-OpenLane uses Docker images that contain majority of tools ready to use. 
+OpenLane uses Docker images that contain binaries, libraries and packages ready-to-use.
+All of the flow tools are encapsulated inside the container image
 
 Many open-source projects in the space are struggling with reproducibility.
 It is practically **impossible to create perfectly same environment**
@@ -10,8 +11,8 @@ The reasonable suggestion would be to use virtual machines,
 however virtual machines are heavy, hard to build and take up a lot of space.
 
 Docker containers make things much easier and lightweight.
-They run on top of your existing kernel but everything on top of it,
-like ``libc`` and system libraries, are under control of the container.
+They run on top of your existing kernel
+but libraries and binaries are isolated from the rest of the system.
 
 For this specific reason, it was decided to use containers and `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_ was selected as container engine.
 It saves you the struggle of installation,
@@ -186,19 +187,32 @@ explanation of each step is provided below:
    make
    make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 
+
 .. image:: ../_static/installation/git_clone_openlane.png
 
-- ``git clone`` downloads latest stable version of OpenLane
-- ``cd OpenLane/`` changes current directory to the newly downloaded OpenLane 
-- The Makefile ``make`` does following:
-    - Pulls the OpenLane Docker image.
-    - Pulls and updates the PDK
-- ``make test`` Tests the whole setup with a complete run on a small design, `spm`.
+
+This installs the latest, stable version of OpenLane. Then ``make test`` ensures that PDK and flow are installed correctly. THe command runs the flow on a small design called ``spm``.
+
 
 .. image:: ../_static/installation/successful_make_test.png
 
 
-This should produce a clean run for the spm. The final layout will be generated at this path: ``./designs/spm/runs/openlane_test/results/magic/spm.gds``.
+This should produce a clean run for the ``spm``. The final layout can be found here: ``designs/spm/runs/openlane_test/results/final/gds/spm.gds``.
+
+.. code-block:: console
+
+   # Enter a Docker session:
+   make mount
+
+   # Open the spm.gds using KLayout with sky130 PDK
+   klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/sky130A.lyt \
+      -l $PDK_ROOT/sky130A/libs.tech/klayout/sky130A.lyp \
+      ./designs/spm/runs/openlane_test/results/final/gds/spm.gds
+
+This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
+
+.. image:: ../_static/installation/spm.png
+
 
 Updating OpenLane
 --------------------------------------------------------------------------------
