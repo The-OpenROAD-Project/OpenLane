@@ -3,7 +3,7 @@ Documentation Contributors guide
 
 .. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
 
-Installation of sphinx for documentation
+Installation of sphinx
 --------------------------------------------------------------------------------
 
 .. note:: ``venv`` for sphinx documentation is not the same ``venv`` used for development of OpenLane. Avoid mixing them.
@@ -46,34 +46,40 @@ After installation, every time you want to build the documentation proceed to en
   :width: 800
   :alt: docs contribution tools installation successful
 
-Then you can view the generated html files using Firefox or other browser. To open this document in browser:
+View the generated html files using Firefox or other browser. To open this document in browser:
 
 .. code-block:: console
 
+    # Assuming same folder as OpenLane
     firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
-Making screenshots
+Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_.
+
+Documentation organization
 --------------------------------------------------------------------------------
-The screenshots in documentation should use following prompt:
+All of the documentation is concetrated in ``docs/``.
+Static files are stored in ``docs/_static`` in respective directory.
+For example, screenshots for this guide are located in ``docs/_static/docs_contrbution``,
+while the screenshots for the installation guide are located in ``docs/_static/installation``.
 
-.. code-block:: console
+Directory ``docs/source/`` contains all of the page's content.
+You can add pages by creating the corresponding file in that folder.
+Then you need to add your page to the Table of Contents in ``index.rst``.
 
-    export PS1="\W> "
-
-You can add it to your ``.bashrc`` or just run it before you run the command to then take the screenshot.
-
-
-How to contribute
+Writing Style and Consistency
 --------------------------------------------------------------------------------
 
-* New documentation should be written in reStructuredText not Markdown.
+* New documentation should be written in reStructuredText not Markdown. Information regarding RST 
 * Take a look at existing RST documentation to get glimpse of its syntax.
 * Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of the Docker``.
 * Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
+* The first command of the page should have `cd` in it to specify where you are running and all following commands assume the continuation of the session and don't need the cd command.
+* In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
 
-Keep trademarks and terms consistent
---------------------------------------------------------------------------------
-In order to improve the readability of the documentation we recommend to use the names of the projects properly. Some examples you can see below:
+Terms Consistency
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In order to improve the readability of the documentation it is recommended to use the names of the projects properly. Some examples you can see below:
 
 .. code-block::
 
@@ -83,8 +89,9 @@ In order to improve the readability of the documentation we recommend to use the
     MAGIC → Magic
     open source → open-source
     Skywater130 → sky130
+    Klayout → KLayout
 
-Use OpenROAD documentation preferences:
+* For technical terms use OpenROAD documentation preferences:
 
 .. code-block::
 
@@ -94,12 +101,19 @@ Use OpenROAD documentation preferences:
     key value pair → key-value pair
     micrometre → micron (or, micrometer)
 
+Making screenshots
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The screenshots in documentation should use following prompt:
 
-Header's structure
---------------------------------------------------------------------------------
+.. code-block:: console
+
+    export PS1="\W> "
+
+You can add it to your ``.bashrc`` or just run it before you run the command.
 
 
-In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
+Confusing Header structure of RST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use headers to make structure of the documentation better. For underline and overlines use 80 symbols. Here are the header priorities. Top is the highest priority.
 

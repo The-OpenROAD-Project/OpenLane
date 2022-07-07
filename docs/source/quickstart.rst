@@ -3,8 +3,12 @@ Quick start
 
 Overview
 ------------------------------------
-OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization.
-The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
+OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
+Yosys, Magic, Netgen, CVC, OpenRCX, CU-GR, KLayout.
+It also provides a number of custom scripts for design exploration, optimization and ECO.
+
+The flow performs a complete synthesis, floorplanning, placement and routing of your designs.
+Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
 
 The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.tcl``. This file contains assignments to the variables that flow uses. 
 

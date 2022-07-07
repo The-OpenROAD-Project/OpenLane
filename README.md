@@ -1,7 +1,12 @@
 # OpenLane
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Documentation Status](https://readthedocs.org/projects/openlane/badge/?version=latest)](https://openlane.readthedocs.io/) [![CI](https://github.com/The-OpenROAD-Project/OpenLane/workflows/CI/badge.svg?branch=master)](#) [![Slack Invite](https://img.shields.io/badge/Community-Skywater%20PDK%20Slack-ff69b4?logo=slack)](https://invite.skywater.tools) [![Python code style: black](https://img.shields.io/badge/python%20code%20style-black-000000.svg)](https://github.com/psf/black)
 
-OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, CU-GR, Klayout and a number of custom scripts for design exploration and optimization. The flow performs full ASIC implementation steps from RTL all the way down to GDSII.
+OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
+Yosys, Magic, Netgen, CVC, OpenRCX, CU-GR, KLayout.
+It also provides a number of custom scripts for design exploration, optimization and ECO.
+
+The flow performs a complete synthesis, floorplanning, placement and routing of your designs.
+Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
 
 You can find the latest release of OpenLane [here](https://github.com/The-OpenROAD-Project/OpenLane/releases).
 
