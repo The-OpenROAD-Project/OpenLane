@@ -114,8 +114,6 @@ In order to run the flow you need to execute following commands:
 
 This will run the flow for design ``<design_name>``.
 
-Now that you know how to run the flow for your design, let's actually take a deep dive into real life example.
-
 Advanced: Using custom PDK locations and Docker images
 -----------------------------------------------------------
 .. warning::
