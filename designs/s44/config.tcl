@@ -9,7 +9,7 @@ set ::env(CLOCK_NET) $::env(CLOCK_PORT)
 # Synthesis config
 
 # Floorplan config
-set ::env(FP_CORE_UTIL) 5
+set ::env(FP_CORE_UTIL) 4
 # Placement config
 set ::env(PL_TARGET_DENSITY) 0.5
 
