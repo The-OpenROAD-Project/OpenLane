@@ -53,7 +53,7 @@ View the generated html files using Firefox or other browser. To open this docum
     # Assuming same folder as OpenLane
     firefox ../sphinx_output/docs/source/contributing_to_docs.html
 
-Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_.
+Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_. More information `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_.
 
 Documentation organization
 --------------------------------------------------------------------------------
