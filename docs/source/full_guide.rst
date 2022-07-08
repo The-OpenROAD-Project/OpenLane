@@ -28,6 +28,101 @@ then use the generated memory to make a top level chip register file.
 While the guide covers only digital blocks, the digital macro blocks can be replaced by analog macros.
 Use `this guide to create the required files <custom_macros.html>`_.
 
+Structure of integrated circuits
+--------------------------------------------------------------------------------
+
+Integrated circuits consist of three main components: die, connections between pin and die pads, pin itsalf, and package.
+Two primary variants exist for packaging from standpoint of pads: Wire bond and Flip chip
+
+.. todo:: Add the picture of an integrated circuits
+
+
+- Chip Core
+    - The hard macros
+    - The rest of the design
+- Chip IO
+    - IO Pads
+    - Power Pads
+    - Corener Pads
+
+Wirebond
+^^^^^^^^^^^^^^^
+Wirebond places the die area in the plastics mold.
+Then wire bond connection is soldered from the pad on die area to the pad on the package.
+
+.. figure:: https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/071R01.jpg/640px-071R01.jpg
+
+    Wirebond Integrated Circuit. Source: https://commons.wikimedia.org/wiki/File:071R01.jpg
+
+Main downside of wirebond is parasitics of the wires.
+In contrast to this, the length of Flip Chip connection is much shorter, therefore parasitics are lower.
+
+
+Flip Chip
+^^^^^^^^^^^^^^^
+Flip Chip is different from Wirebond by both the connection method and package pad structure.
+Wirebond typically places the pads on the edges of the package,
+meanwhile Flip Chip typically places the pads underneath the integrated circuit.
+The die is placed upside-down, where metal layers are closer to the circuit board (PCB),
+meanwhile in Wire bond die is typically placed with metal layers on the upper side of the integrated circuit, further from the circuit board.
+
+.. todo:: Add picture of Flip Chip from wikipedia
+
+Main advantage of Flip Chip is the increased pad density.
+The big chips, like CPUs and GPUs, useFlip Chip because they have multiple thousands of pads.
+
+Downside is the need to have a separate mask for layer called ``AP``. Tapeouts on OpenMPW of Google/Efabless uses Flip Chip and AP layer is fixed.
+
+.. todo:: Add picture of the AP layer of the caravel
+
+Even though the location of the pads on the caravel user project is on the sides,
+Flip Chip provides the benefit of improved pads density and smaller packages.
+
+.. todo:: comparison between BGA and LQFP
+
+Understanding CMOS transistors
+--------------------------------------------------------------------------------
+
+Analog design flow
+--------------------------------------------------------------------------------
+
+CMOS digital cells
+^^^
+
+Understanding CMOS production and masks
+--------------------------------------------------------------------------------
+
+Stick figures
+--------------------------------------------------------------------------------
+
+PDK content
+--------------------------------------------------------------------------------
+
+OpenLane PDK vs Tech PDK vs Foundary PDK
+--------------------------------------------------------------------------------
+
+Tech Files
+--------------------------------------------------------------------------------
+
+DRC
+^^^^^^^^^^^^^^^
+LVS
+^^^^^^^^^^^^^^^
+PEX
+^^^^^^^^^^^^^^^
+
+Tech LEF
+^^^^^^^^^^^^^^^
+
+Standrad Cells Library
+--------------------------------------------------------------------------------
+LEF
+^^^^^^^^^^^
+GDS
+^^^^^^^^^^^
+LIB
+^^^^^^^^^^^
+
 Introduction into the flow
 --------------------------------------------------------------------------------
 
@@ -41,10 +136,23 @@ Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Let's create the design. The following command will create a directory ``design/mem_1r1w/`` and one file ``config.tcl`` that will be mostly empty.
+
 .. code-block:: console
 
     ./flow.tcl -design mem_1r1w -init_design_config
 
+
+One of the common mistakes people make is copying existing designs,
+like ``designs/inverter`` and then they face issues with their configuration.
+Always create new designs using ``-init_design_config``.
+It will ensure that your configuration is the absolute minimum.
+
+Example of the common issues people face:
+They copy ``inverter`` design, rename it. Then run the flow and the router crashes with ``error 10``.
+This is caused by enabled "basic placement",
+which works only for designs with a couple of dozen standard cells, not hundreds.
+So when you change the basic inverter with a design containing many cells
+router will not be able to route your design, therefore crashing with cryptic message.
 
 Step 2. Create the RTL files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -101,8 +209,8 @@ all of the cores will be placed and routed together, resulting in significant ru
 
 In contrast, by running OpenLane first on single core module
 then reusing the generated GDS means that the timing might not be as good,
-but the runtime will be much faster,
-since you are running one placement and route for only one core.
+but the runtime will be much faster.
+The runtime is much faster since you are running one placement and route for only one core and then reusing it in the top level.
 
 In your designs it might be beneficial to have macro level and chip level.
 This separation allows you to reuse already generated macro blocks multiple times.

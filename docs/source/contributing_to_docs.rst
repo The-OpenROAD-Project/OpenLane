@@ -3,7 +3,40 @@ Documentation Contributors guide
 
 .. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
 
-Installation of sphinx
+Introduction
+--------------------------------------------------------------------------------
+Documentation plays an important role in OpenLane.
+Good documentation should cover as much information as possible,
+while staying readable, up-to-date and clean.
+This page covers installation of required tools
+and outlines simple principles that are used when current documentation was created.
+
+In order to fix typos, you do not need to install anything.
+Pull requests can be created from ReadTheDocs page, using GitHub's editor.
+
+For more complex documentation it is recommended to follow this steps:
+
+1. Read this guide
+2. Either create a new page in ``docs/source/``
+3. ... or open existing one from the same folder.
+4. Then create the general structure of the documentation.
+This steps ensures continuity with the rest of the documentation and allows the writer to better organize their thoughts.
+
+5. Use reStructuredText and existing plugins to write the documentation.
+6. Create as much visual documentation as possible. More is better.
+Pictures, figures, tables significantly improve the quality of documentation and make the documentation available for begginers.
+
+7. Add links to references, guide and pointers to other available documentation or books.
+8. Use :ref:`building_docs_locally` to preview and visualize the documentation.
+9. Copy the text from preview into an editor that highlights the mistakes and fix them.
+10. Rebuild documentation and repeat.
+11. Once satisfied commit the changes to your repository using git.
+12. Create a Pull-request to the main repository, so the maintainers can review your changes.
+13. Maintainers will request some tweaking, do it and then push the changes again.
+14. Once changes are approved they will be merged and then you can delete your branch or repository.
+
+.. _building_docs_locally:
+Building documentation locally
 --------------------------------------------------------------------------------
 
 .. note:: ``venv`` for sphinx documentation is not the same ``venv`` used for development of OpenLane. Avoid mixing them.
@@ -69,8 +102,7 @@ Then you need to add your page to the Table of Contents in ``index.rst``.
 Writing Style and Consistency
 --------------------------------------------------------------------------------
 
-* New documentation should be written in reStructuredText not Markdown. Information regarding RST 
-* Take a look at existing RST documentation to get glimpse of its syntax.
+* New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get glimpse of its syntax.
 * Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of the Docker``.
 * Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
 * The first command of the page should have `cd` in it to specify where you are running and all following commands assume the continuation of the session and don't need the cd command.
