@@ -11,6 +11,7 @@ OpenLane is an automated RTL to GDSII flow based on several components including
    docs/source/quickstart
    docs/source/configuration
    docs/source/hardening_macros
+   docs/source/chip_integration.md
    CONTRIBUTING
    docs/source/contributing_to_docs
    docs/source/advanced_power_grid_control

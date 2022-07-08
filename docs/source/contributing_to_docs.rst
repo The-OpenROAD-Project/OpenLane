@@ -17,7 +17,7 @@ Pull requests can be created from ReadTheDocs page, using GitHub's editor.
 For more complex documentation it is recommended to follow this steps:
 
 1. Read this guide
-2. Either create a new page in ``docs/source/``
+2. Either create a new page in ``docs/source/``. Then you need to add your page to the Table of Contents in ``index.rst``
 3. ... or open existing one from the same folder.
 4. Then create the general structure of the documentation.
 This steps ensures continuity with the rest of the documentation and allows the writer to better organize their thoughts.
