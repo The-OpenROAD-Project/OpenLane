@@ -77,6 +77,16 @@ Set up Sky130-PDK and OpenLane by running:
 
     cd OpenLane/
     make OpenLane
+
+By Default [PDK_ROOT] ``$pwd/pdks``. If it need to installed it in a different directory set the following variable before running ``make mount``:
+
+.. code-block:: console
+
+    export PDK_ROOT=<absolute path to where skyWater-pdk, open-pdk and sky130A reside>
+
+
+The above variable could be set in the .bashrc file to set the PDK path. Please click to learn `.bashrc file <https://cloudzy.com/knowledge-base/linux-bashrc/>`_
+
     make pdk
     make test # This is to test the flow and pdk run properly.
 
@@ -84,7 +94,7 @@ Set up Sky130-PDK and OpenLane by running:
 
 Updating OpenLane
 -----------------
-if you clone the repository locally , don't need to reclone it 
+if you clone the repository locally, don't need to reclone it 
 
 .. code-block:: console
 

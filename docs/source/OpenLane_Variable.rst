@@ -2,6 +2,9 @@
 OpenLane Variables
 ==================
 
+Configuration file
+-------------------
+
 The variable information and their default value are given below:
 
 Required variables
