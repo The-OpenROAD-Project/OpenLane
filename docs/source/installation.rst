@@ -15,7 +15,7 @@ Prerequisites
 
 Installing Packages in Ubuntu
 -----------------------------
-.. code-block:: console
+.. code-block:: shell
 
     sudo apt install -y build-essential python3 python3-venv python3-pip
 
@@ -33,7 +33,7 @@ Checking Docker Installation
 ----------------------------
 Run the below commands
 
-.. code-block:: console
+.. code-block:: shell
 
     $ group
     user_name adm cdrom sudo dip plugdev lpadmin lxd sambashare docker    #Docker installed properly
@@ -43,7 +43,7 @@ Installation in macOS
 ------------------------
 First get `Homebrew <https://brew.sh/>`_ then install the required packages:
 
-.. code-block:: console
+.. code-block:: shell
 
      brew install python make
      brew install --cask docker
@@ -54,7 +54,7 @@ First get `Homebrew <https://brew.sh/>`_ then install the required packages:
 Containerless/local Installation
 --------------------------------
 
-.. note::
+.. important::
     Run the OpenLane without docker , you must set up all the tool in your machine using the instruction link below:
 
 Please click `local installation <local_installs.html>`_
@@ -65,7 +65,7 @@ Setting up OpenLane
 ---------------------
 first clone the repository:
 
-.. code-block:: console
+.. code-block:: shell
 
     git clone  https://github.com/The-OpenROAD-Project/OpenLane.git
 
@@ -73,30 +73,30 @@ first clone the repository:
 Set up Sky130-PDK and OpenLane by running:
 
 
-.. code-block:: console
+.. code-block:: shell
 
     cd OpenLane/
     make OpenLane
+    make pdk
+    make test # This is to test the flow and pdk run properly.
 
-By Default [PDK_ROOT] ``$pwd/pdks``. If it need to installed it in a different directory set the following variable before running ``make mount``:
+
+By Default [PDK_ROOT] ``$pwd/pdks``. If it need to installed it in a different directory set the following variable before running ``make pdk``:
 
 .. code-block:: console
 
     export PDK_ROOT=<absolute path to where skyWater-pdk, open-pdk and sky130A reside>
 
 
-The above variable could be set in the .bashrc file to set the PDK path. Please click to learn `.bashrc file <https://cloudzy.com/knowledge-base/linux-bashrc/>`_
+The above variable could be set in the `.bashrc file <https://cloudzy.com/knowledge-base/linux-bashrc/>`_ to set the PDK path. 
 
-    make pdk
-    make test # This is to test the flow and pdk run properly.
 
-    
 
 Updating OpenLane
 -----------------
 if you clone the repository locally, don't need to reclone it 
 
-.. code-block:: console
+.. code-block:: shell
 
     cd OpenLane
     git checkout master
