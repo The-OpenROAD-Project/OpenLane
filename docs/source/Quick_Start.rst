@@ -67,9 +67,87 @@ This will create a design directory structure:
     └── src
            ├── design.v
 
-The ``config.tcl`` is a global configuration for all PDKs. In the ``config.tcl`` file edit the `required variables <OpenLane_Variable.html>`_ and `optional variables <OpenLane_Variable.html>`_ if needed. 
+The ``config.tcl`` is a global configuration for all PDKs. In the ``config.tcl`` file edit the `required variables <OpenLane_Variable.html>`_ and `optional variables <OpenLane_Variable.html>`_ if needed.
+
+OpenLane Structure
+------------------
+
+.. code-block:: shell
+
+   designs/<design_name>
+   ├── config.tcl
+   ├── runs
+   │── src
+   │   ├── design.v
+   configuration
+   ├── cts.tcl
+   ├── floorplan.tcl
+   ├── general.tcl
+   ├── lvs.tcl
+   ├── placement.tcl
+   ├── routing.tcl
+   └── synthesis.tcl
+   scripts
+   ├── tcl_commands
+      ├── cts.tcl
+      ├── floorplan.tcl
+      ├── lvs.tcl
+      ├── magic.tcl
+      ├── placement.tcl
+      ├── routing.tcl
+      └── synthesis.tcl
+
+Run Structure
+-------------
+
+.. code-block:: shell
+
+     designs/<design_name>
+   ├── config.tcl
+   ├── src
+   ├── runs
+   │   ├── run1
+   │   │   ├── config.tcl
+   │   │   ├── logs
+   │   │   │   ├── cts
+   │   │   │   ├── cvc
+   │   │   │   ├── floorplan
+   │   │   │   ├── klayout
+   │   │   │   ├── magic
+   │   │   │   ├── placement
+   │   │   │   ├── routing
+   │   │   │   └── synthesis
+   │   │   ├── reports
+   │   │   │   ├── cts
+   │   │   │   ├── cvc
+   │   │   │   ├── floorplan
+   │   │   │   ├── klayout
+   │   │   │   ├── magic
+   │   │   │   ├── placement
+   │   │   │   ├── routing
+   │   │   │   └── synthesis
+   │   │   ├── results
+   │   │   │   ├── cts
+   │   │   │   ├── cvc
+   │   │   │   ├── floorplan
+   │   │   │   ├── klayout
+   │   │   │   ├── magic
+   │   │   │   ├── placement
+   │   │   │   ├── routing
+   │   │   │   └── synthesis
+   │   │   └── tmp
+   │   │       ├── cts
+   │   │       ├── cvc
+   │   │       ├── floorplan
+   │   │       ├── klayout
+   │   │       ├── magic
+   │   │       ├── placement
+   │   │       ├── routing
+   │   │       └── synthesis
 
 
+   
+   
 
 
 
