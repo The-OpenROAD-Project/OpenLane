@@ -40,6 +40,19 @@ To add a new design,
 
     ./flow.tcl -design <design_name> -init_design_config
 
+After running the above command the output is:
+
+.. code-block:: shell
+
+    [INFO]: Creating design src directory /openlane/designs/design_name/src
+    [INFO]: Populating /openlane/designs/design_name/config.tcl..
+    [INFO]: Finished populating:
+    /openlane/designs/caravel_upwl/config.tcl 
+    Please modify CLOCK_PORT, CLOCK_PERIOD and add your advanced settings to /openlane/designs/design_name/config.tcl
+    [SUCCESS]: Done...
+
+
+
 2. Exit the Docker using the command:
 
 .. code-block:: shell

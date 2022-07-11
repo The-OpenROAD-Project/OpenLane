@@ -26,16 +26,7 @@ Open Source PDK
 -  Nangate45
 -  ASAP7 - Predictive FinFET 7nm
 
-Proprietary PDKs
-----------------
 
-These PDKS are supported in OpenROAD-flow-scripts only. They are used to
-test and calibrate OpenROAD against commercial platforms and ensure good
-QoR. The PDKs and platform-specific files for these kits cannot be
-provided due to NDA restrictions. However, if you are able to access
-these platforms independently, you can create the necessary
-platform-specific files yourself. - GF55 - 55nm - GF12 - 12nm - GF180 -
-180nm - Intel22 - 22nm - Intel16 - 16nm - TSMC65 - 65nm
 
 OpenLane with SkyWater Sky130-PDK
 ---------------------------------
@@ -108,8 +99,72 @@ below:
 Platform Configuration
 ----------------------
 
+View the platform configuration file setup for default variable for sky130hd.
+
+.. code-block:: shell
+
+   ./platform/sky130hd/config.mk
+
+The ``config.mk`` has all the required variable for the sky130hd platform and hence it is not recommended  to change any variable. View the ``sky130hd`` platform configuration `here <https://github.com/The-OpenROAD-Project/OpenROAD-flow-scripts/blob/master/flow/platforms/sky130hd/config.mk>`_.
+
+The libraries cell information can found `here <https://antmicro-skywater-pdk-docs.readthedocs.io/en/test-submodules-in-rtd/contents/libraries.html>`_.
+
 Design Configuration
 --------------------
 
+View the design configuration file of caravel_upw:
+
+.. code-block:: shell
+
+   cd OpenLane/design/caravel_upw/config.tcl
+
+View the design configuration file `here <https://github.com/nimra471/OpenLane/tree/master/designs/caravel_upw/config.tcl>`_.
+
+**Important**
+
+The following design_specific Configuration are required to specify main design input such as platform, top-level design and timing constraints.
+
+The required variables for design configuration is `here <OpenLane_Variable.html>`_.
+
+
 Design Input Verilog
 --------------------
+
+The input Verilog files are located at this path:
+
+.. code-block:: shell
+
+   cd OpenLane/designs/caravel_upw/src/
+
+The top-level module of design is ``user_project_wrapper.v`` available `here <https://github.com/nimra471/OpenLane/tree/master/designs/caravel_upw/src/>`_.
+
+Running The Automatic RTL-to-GDS Flow
+-------------------------------------
+This section describe the complete RTL-to-GDS flow of the design. In this tutorial, user will learn both automated and interactive way to run the flow.
+
+Design Goals:
+------------
+
+**Area**
+
+.. code-block:: shell
+
+   DIE_AREA= "0 0 2920 3520" (in microns)
+
+**Timing**
+
+.. code-block:: shell
+
+   CLOCK_PERIOD= "10" (in ns)
+
+
+
+
+
+
+
+
+
+
+
+
