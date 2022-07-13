@@ -111,7 +111,7 @@ proc run_magic_drc {args} {
         --design-name $::env(DESIGN_NAME) \
         $::env(drc_prefix).tr
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
         -o $::env(drc_prefix).rdb \
         $::env(drc_prefix).rpt
 
