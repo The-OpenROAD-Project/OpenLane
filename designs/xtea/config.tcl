@@ -1,6 +1,3 @@
-
-# Design
-
 # Design
 set ::env(DESIGN_NAME) "xtea"
 

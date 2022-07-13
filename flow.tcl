@@ -156,7 +156,7 @@ proc run_post_run_hooks {} {
 
 proc run_non_interactive_mode {args} {
     set options {
-        {-design required}
+        {-design optional}
         {-from optional}
         {-to optional}
         {-save_path optional}
@@ -164,6 +164,7 @@ proc run_non_interactive_mode {args} {
     }
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
+
     prep {*}$args
     # signal trap SIGINT save_state;
 

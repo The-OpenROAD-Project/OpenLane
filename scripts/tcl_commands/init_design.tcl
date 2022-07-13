@@ -14,6 +14,8 @@
 
 
 proc init_design {design_name config_tag src_files} {
+    puts_warn "init_design is deprecated and will be removed in a future version."
+    
     set src "\$::env(DESIGN_DIR)/src"
     set src_dir "$::env(DESIGN_DIR)/src"
     set config_path "$::env(DESIGN_DIR)/$config_tag.tcl"
@@ -45,8 +47,8 @@ if { \[file exists \$filename\] == 1} {
     close $config_file
 
     foreach src_file $src_files {
-	puts_info "Copying $src_file to $src_file"
-	file copy $src_file $src_dir
+        puts_info "Copying $src_file to $src_file"
+        file copy $src_file $src_dir
     }
 
     puts_info "Finished populating:\n$config_path \nPlease modify CLOCK_PORT, CLOCK_PERIOD and add your advanced settings to $config_path"
