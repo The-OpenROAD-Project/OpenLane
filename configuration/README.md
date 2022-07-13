@@ -170,8 +170,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
 | `GLB_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `10`)|
 | `GLB_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `10`)|
-| `GLB_RESIZER_HOLD_SLACK_MARGIN` | Specifies a time margin for the slack when fixing hold violations. Normally the resizer will stop when it reaches zero slack. This option allows you to overfix. <br> (Default: `0.1ns`)|
-| `GLB_RESIZER_SETUP_SLACK_MARGIN` | Specifies a time margin for the slack when fixing setup violations. <br> (Default: `0.05ns`)|
+| `GLB_RESIZER_HOLD_SLACK_MARGIN` | Specifies a time margin for the slack when fixing hold violations. Normally the resizer will stop when it reaches zero slack. This option allows you to overfix. <br> (Default: `0.05ns`)|
+| `GLB_RESIZER_SETUP_SLACK_MARGIN` | Specifies a time margin for the slack when fixing setup violations. <br> (Default: `0.025ns`)|
 | `GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `GLB_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
