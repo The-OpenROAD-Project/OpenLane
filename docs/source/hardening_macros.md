@@ -206,7 +206,7 @@ A final summary report is produced by default as `<run-path>/reports/metrics.csv
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.
 
-The final GDS-II should be found under `<run-path>/results/signoff/`.
+The final GDS-II file can be found under `<run-path>/results/final/gds`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
