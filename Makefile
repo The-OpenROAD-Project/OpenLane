@@ -17,7 +17,7 @@ OPENLANE_DIR ?= $(shell pwd)
 
 DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
-DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/utils.py current-docker-platform)
+DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/current_platform.py)
 
 # Allow Configuring Memory Limits
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
