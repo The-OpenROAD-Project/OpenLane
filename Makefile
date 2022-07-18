@@ -77,8 +77,6 @@ ENV_START = docker run --rm\
 
 ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
-include ./dependencies/pdk.mk
-
 .DEFAULT_GOAL := all
 
 .PHONY: all
@@ -116,7 +114,7 @@ lint: venv/created
 
 .PHONY: start-build-env
 start-build-env: venv/created
-	bash --rcfile "./venv/bin/activate"
+	bash -c "bash --rcfile <(cat ~/.bashrc ./venv/bin/activate)"
 
 venv: venv/created
 venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
