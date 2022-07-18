@@ -300,6 +300,16 @@ proc source_config {args} {
     source $config_in_path
 }
 
+proc load_overrides {overrides} {
+    set env_overrides [split $overrides ',']
+    foreach override $env_overrides {
+        set kva [split $override '=']
+        set key [lindex $kva 0]
+        set value [lindex $kva 1]
+        set ::env(${key}) $value
+    }
+}
+
 proc prep {args} {
 
     set ::env(timer_start) [clock seconds]
@@ -418,16 +428,13 @@ proc prep {args} {
     puts_info "Using configuration in '$config_file_rel'..."
     source_config -run_path $run_path $::env(DESIGN_CONFIG)
 
+    puts_info $::env(STD_CELL_LIBRARY)
+
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env("$key") $value
-        }
+        load_overrides $arg_values(-override_env)
     }
 
+    puts_info $::env(STD_CELL_LIBRARY)
 
     # Diagnostics
     if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
@@ -473,13 +480,7 @@ proc prep {args} {
     # Re-source/re-override to make sure it overrides any configurations from the previous two sources
     source $run_path/config_in.tcl
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env("$key") $value
-        }
+        load_overrides $arg_values(-override_env)
     }
 
     set_if_unset arg_values(-verbose) "0"

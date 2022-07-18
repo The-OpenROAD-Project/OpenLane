@@ -173,13 +173,7 @@ proc run_non_interactive_mode {args} {
         return
     }
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env(${key}) $value
-        }
+        load_overrides $arg_values(-override_env)
     }
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
