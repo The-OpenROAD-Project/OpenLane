@@ -310,7 +310,7 @@ if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP
 dfflibmap -liberty $dfflib
 tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
-proc run_strategy {output script strategy_name} {
+proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     upvar clock_period clock_period
     upvar sdc_file sdc
     upvar sclib lib
@@ -337,6 +337,11 @@ proc run_strategy {output script strategy_name} {
 
     tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
     tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
+
+    if { $postfix_with_strategy } {
+        set output "$output.$strategy_escaped.nl.v"
+    }
+
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
     design -reset
 }
@@ -347,17 +352,19 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
     for { set index 0 }  { $index < [llength $delay_scripts] }  { incr index } {
         set name "DELAY $index"
         run_strategy\
-            "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
+            "$::env(synthesis_results)/$::env(DESIGN_NAME)"\
             [lindex $delay_scripts $index]\
-            "$name"
+            "$name"\
+            1
     }
 
     for { set index 0 }  { $index < [llength $area_scripts] }  { incr index } {
         set name "AREA $index"
         run_strategy\
-            "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
+            "$::env(synthesis_results)/$::env(DESIGN_NAME)"\
             [lindex $area_scripts $index]\
-            "$name"
+            "$name"\
+            1
     }
 } else {
     run_strategy\
@@ -391,7 +398,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
             }
         }
 
-        file copy -force $::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).hierarchy.v
+        file copy -force $::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).hierarchy.nl.v
         read_verilog -sv $::env(SAVE_NETLIST)
         synth -top $vtop -flatten
 
