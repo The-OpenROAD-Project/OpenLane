@@ -54,53 +54,6 @@ Usually this information is provided as part of `Process design kit <https://en.
 .. todo:: replace PDK link with link to the local PDK section
 
 
-Understanding CMOS transistors
---------------------------------------------------------------------------------
-Silicon is the building block of the integrated circuit.
-It consists of cubic (3D) grid of silicon atoms that are connected to their neihbours.
-Dopant such as arsenic is integrated into the silicon grid to form a n-type semiconductor.
-Similarly boron is used to form p-type semiconductor.
-
-Diode
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-A junction between p-type and n-type silicon is called a diode.
-
-.. todo:: Add picture of diode
-
-When the voltage on the p-type semiconductor is raised above the n-type cathode,
-the current flows through diode. Meanwhile if the voltage on n-type is higher or equal to p-type then the diode is closed and current does not flow.
-
-MOS transistors
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-The NMOS and PMOS transistors consists of the conducting gate, an insulating layer of silicon oxide, drain, source and bulk.
-
-.. figure:: https://skywater-pdk.readthedocs.io/en/main/_images/cross-section-nfet_01v8.svg
-
-    Cross section of an NFET.
-
-.. todo:: edit the cross section of the NFET.
-
-The gate voltage acts as control input.
-The value of the gate controls the current between drain and source.
-
-Let's take a look at nMOS transistor.
-The body is connected to the ground so the p–n junctions of the source and drain to body are reverse-biased.
-
-If the gate is also grounded, then no current flows. Therefore, we say the transistor is OFF.
-
-If the gate voltage increases, then the the capacitor charges.
-This creates electrons at bottom plate of the Si–SiO2 interface.
-If the voltage is raised enough, the electrons outnumber the holes
-and a thin region under the gate called the channel turns into an n-type semiconductor.
-Hence, a conducting path of electron carriers is formed from
-source to drain and current can flow. We say the transistor is ON.
-
-The voltage where the electrons number is equal to the holes is called Vthreshold.
-
-.. todo:: Add picture visualizing this
-
-.. todo:: Add PMOS explainaion
-
 Process design kit
 --------------------------------------------------------------------------------
 
@@ -109,7 +62,7 @@ The PDK is specific to the technology and contains any combination of these file
 
 * Documentation
   
-  * Design Rule Manual. For example, Documentation for `sky130 can be found here <https://skywater-pdk.readthedocs.io/en/main/>`_, meanwhile the `Design Rule Manual is scattered here <https://skywater-pdk.readthedocs.io/en/main/rules/periphery.html#x>`_
+  * Design Rule Manual.
 
 * Primitives
   
@@ -141,6 +94,13 @@ The PDK is specific to the technology and contains any combination of these file
 Keep in mind that in some cases multiple standard cell libraries can be used together.
 For example, sky130 High-Density and sky130 High-Density Low leakage. OpenLane currently does not support multiple libraries.
 
+Documentation
+^^^^^^^^^^^^^^^
+Documentation is the starting point for any technology.
+Engineers read the documentation and experiment with different features. Documentation may have many pointers
+For example, Documentation for `sky130 can be found here <https://skywater-pdk.readthedocs.io/en/main/>`_, meanwhile the `Design Rule Manual is scattered here <https://skywater-pdk.readthedocs.io/en/main/rules/periphery.html#x>`_
+
+
 Die Manufacturing
 --------------------------------------------------------------------------------
 
@@ -148,6 +108,16 @@ Die Manufacturing
 
 Multi Project Wafer
 --------------------------------------------------------------------------------
+
+Making masks is very expensive.
+Typically. to keep the costs of prototypes low, foundries organize multi project wafers.
+Multiple companies provide down payment for a specific tapeout date.
+
+Then, regardless if every company provided their layout files or not, foundry produces the mask with all of the designs.
+Then multiple wafers are produced, each containing all of the design.
+Then each wafer is cut and designs are sent to customers.
+
+.. todo:: Find a picture of a single wafer mask with multiple designs.
 
 Analog design flow
 --------------------------------------------------------------------------------
@@ -157,8 +127,65 @@ Analog design flow
 Analog design flow allows to design any integrated circuits. This flexibility comes with a big cost.
 
 In order to be able to actually design an analog component experience is a must have.
-Usually there is multiple issues to the specific design.
+Usually there is multiple issues related to the specific design.
 For example, IO cells have to add ESD related testbenches, measure the Electromigration, account for IR drop and many more.
+Standard Cell libraries have to verify the compatability of the cells when placed close to each other
+
+Specification
+^^^^^^^^^^^^^^^
+
+Specification consitutes the requirements to the component.
+This is typically a file containing a set of requirements and features.
+
+This file is usually very flexible and the requirements and features can be modified as the project progresses,
+adding additional features or removing them to meet the required deadlines or other marker related goals.
+
+Components are usually divided into subcomponents.
+Each subcomponents is distributed as task to the team members or sub-teams.
+Subcomponents specification allows to define the responsibility between teams and avoids a lot of confusion.
+
+Let's make an example specification for our project, so we will see what we are dealing with.
+
+Schematics
+^^^^^^^^^^^^^^^
+
+Schematics is a representation of your circuit. It contains the transistors, their parameters and connections.
+
+.. image::  ../_static/analog_flow/example_schematic.png
+
+You can build multiple components and multiple levels of subcomponents.
+Each circuit is hidden in the form of symbols.
+This allows engineers to abstract away from the internal structure of each of the subcomponents.
+
+Testbenches
+^^^^^^^^^^^^^^^
+
+Layout
+^^^^^^^^^^^^^^^
+
+Signoff checks
+^^^^^^^^^^^^^^^
+
+DRC
+"""""""""""""""
+
+LVS
+"""""""""""""""
+
+PEX and Simulation
+"""""""""""""""
+
+ESD
+"""""""""""""""
+
+EM
+"""""""""""""""
+
+IR drop
+"""""""""""""""
+
+Log review
+"""""""""""""""
 
 
 Tech Files
@@ -185,12 +212,6 @@ sky130 supports Magic VLSI and KLayout DRC checks, the rulesets are provided by 
 PEX
 ^^^^^^^^^^^^^^^
 
-CVC
-
-Circuit Validity Checker
-
-https://github.com/d-m-bailey/cvc
-
 Tech LEF
 ^^^^^^^^^^^^^^^
 
@@ -210,6 +231,39 @@ PDK content
 OpenLane PDK vs Tech PDK vs Foundary PDK
 --------------------------------------------------------------------------------
 
+
+
+
+MOS transistors and switch level representation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+The NMOS and PMOS transistors consists of the conducting gate, an insulating layer of silicon oxide, drain, source and bulk.
+
+.. figure:: https://skywater-pdk.readthedocs.io/en/main/_images/cross-section-nfet_01v8.svg
+
+    Cross section of an NFET.
+
+.. todo:: edit the cross section of the NFET.
+
+The gate voltage acts as control input.
+The value of the gate controls the current between drain and source.
+
+Let's take a look at nMOS transistor.
+The body is connected to the ground so the p–n junctions of the source and drain to body are reverse-biased.
+
+If the gate is also grounded, then no current flows. Therefore, we say the transistor is OFF.
+
+If the gate voltage increases, then the the capacitor charges.
+This creates electrons at bottom plate of the Si–SiO2 interface.
+If the voltage is raised enough, the electrons outnumber the holes
+and a thin region under the gate called the channel turns into an n-type semiconductor.
+Hence, a conducting path of electron carriers is formed from
+source to drain and current can flow. We say the transistor is ON.
+
+The voltage where the electrons number is equal to the holes is called Vthreshold.
+
+.. todo:: Add picture visualizing this
+
+.. todo:: Add PMOS explainaion
 
 
 Analog design flow
@@ -239,13 +293,18 @@ It will open the xschem window:
 
 .. image:: ../_static/analog_flow/xschem_window.png
 
-Introduction into the flow
---------------------------------------------------------------------------------
 
-.. todo:: Make high level image showcasing the flow
+Let's make a simple schematic for a NAND. For this let's use ``File -> New Schematic``
+
+.. image:: ../_static/analog_flow/new_schematic.png
+
+Next, let's actually draw our NAND unit. Let's create transistors.
+Click on the ``Tools -> Insert Symbol`` to create new componets.
+
+.. image::  ../_static/analog_flow/tools_insert.png
 
 
-Running the flow for simple memory macro design
+Digital Design Flow
 --------------------------------------------------------------------------------
 
 Step 1. Create the memory macro design
@@ -377,7 +436,7 @@ set ::env(EXTRA_LEFS) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/fin
 set ::env(EXTRA_GDS_FILES) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds
 
 
-Step 7. Run the floe
+Step 7. Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Troubleshooting Figure out why it does not fit
@@ -422,62 +481,8 @@ child process exited abnormally
 Solution: Set DIE_AREA to correct value, see https://github.com/The-OpenROAD-Project/OpenLane/issues/1189
 
 
-
-Include the RTL files in the design
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Understanding the synthesis
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-This guide does not cover other tools. But if your design is written VHDL you can use. If you use SystemVerilog then you should use sv2v and surelog.
-
-.. todo:: add the vhdl related info
-.. todo:: add the sv2v/surelog related info
-
 Exploring your designs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 
-
-
-Wirebond
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Wirebond places the die area in the plastics mold.
-Then wire bond connection is soldered from the pad on die area to the pad on the package.
-
-.. figure:: https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/071R01.jpg/640px-071R01.jpg
-
-    Wirebond Integrated Circuit. Source: https://commons.wikimedia.org/wiki/File:071R01.jpg
-
-Main downside of wirebond is parasitics of the wires.
-In contrast to this, the length of Flip Chip connection is much shorter, therefore parasitics are lower.
-
-
-Flip Chip
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Flip Chip is different from Wirebond by both the connection method and package pad structure.
-Wirebond typically places the pads on the edges of the package,
-meanwhile Flip Chip typically places the pads underneath the integrated circuit.
-The die is placed upside-down, where metal layers are closer to the circuit board (PCB),
-meanwhile in Wire bond die is typically placed with metal layers on the upper side of the integrated circuit, further from the circuit board.
-
-.. figure:: https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Flip_chip_side-view.svg/640px-Flip_chip_side-view.svg.png
-
-    Flip Chip schematic representation. Note the balls, directly soldered to the pads of the die. Source: https://commons.wikimedia.org/wiki/File:Flip_chip_side-view.svg
-
-Main advantage of Flip Chip is the increased pad density.
-The big chips, like CPUs and GPUs, useFlip Chip because they have multiple thousands of pads.
-
-Downside is the need to have a separate mask for layer called ``AP``. Tapeouts on OpenMPW of Google/Efabless uses Flip Chip and AP layer is fixed.
-
-.. figure:: https://github.com/efabless/caravel/raw/main/docs/source/_static/caravel.png
-    :scale: 50 %
-
-    Caravel's AP layer. Note the connections to bottom metal layers and pad drivers on the edges
-    You can also notice the connection between the pads and the pad drivers using AP layer. Source: https://caravel-harness.readthedocs.io/en/latest/supplementary-figures.html
-
-Even though the location of the pads on the caravel user project is on the sides,
-Flip Chip provides the benefit of improved pads density and smaller packages.
-
-.. todo:: comparison between BGA and LQFP
