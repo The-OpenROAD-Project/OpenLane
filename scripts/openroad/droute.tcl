@@ -34,8 +34,9 @@ if { [info exists ::env(DRT_MAX_LAYER)] } {
     set max_layer $::env(DRT_MAX_LAYER)
 }
 
+read_guides $::env(CURRENT_GUIDE)
+
 detailed_route\
-    -guide $::env(CURRENT_GUIDE)\
     -bottom_routing_layer $min_layer\
     -top_routing_layer $max_layer\
     -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\

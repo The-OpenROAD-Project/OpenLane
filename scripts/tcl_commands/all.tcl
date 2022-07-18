@@ -1043,7 +1043,7 @@ proc run_or_antenna_check {args} {
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
         --output $antenna_violators_rpt\
-        $antenna_checker_rpt
+        $log
 
     set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
 

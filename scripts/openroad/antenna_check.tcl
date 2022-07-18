@@ -23,4 +23,4 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 # start checking antennas and generate a detail report
-check_antennas -report_file $::env(_tmp_antenna_checker_rpt)
+check_antennas -verbose
