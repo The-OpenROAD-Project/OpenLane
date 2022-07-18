@@ -90,6 +90,10 @@ all: get-openlane pdk
 openlane: venv/created
 	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
 
+.PHONY: openlane-and-push
+openlane-and-push: venv/created
+	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) BUILD_IF_CANT_PULL=1 BUILD_IF_CANT_PULL_THEN_PUSH=1 $(MAKE) -C docker openlane
+
 pull-openlane:
 	@docker pull "$(OPENLANE_IMAGE_NAME)"
 
