@@ -219,11 +219,11 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 }
 
 if { [info exists ::env(SYNTH_PARAMETERS) ] } {
-	foreach define $::env(SYNTH_PARAMETERS) {
-                set param_and_value [split $define "="]
-                lassign $param_and_value param value
-		chparam -set $param $value $vtop
-	}
+    foreach define $::env(SYNTH_PARAMETERS) {
+        set param_and_value [split $define "="]
+        lassign $param_and_value param value
+        chparam -set $param $value $vtop
+    }
 }
 
 select -module $vtop
@@ -310,12 +310,14 @@ if { [info exists ::env(SYNTH_LATCH_MAP)] && [file exists $::env(SYNTH_LATCH_MAP
 dfflibmap -liberty $dfflib
 tee -o "$::env(synth_report_prefix)_dff.stat" stat
 
-proc run_strategy {output script ext} {
+proc run_strategy {output script strategy_name} {
     upvar clock_period clock_period
     upvar sdc_file sdc
     upvar sclib lib
 
-    log "\[INFO\]: USING STRATEGY $ext"
+    log "\[INFO\]: USING STRATEGY $strategy_name"
+
+    set strategy_escaped [string map {" " _} $strategy_name]
 
     design -load checkpoint
 
@@ -333,8 +335,8 @@ proc run_strategy {output script ext} {
     opt_clean -purge
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
-    tee -o "$::env(synth_report_prefix).$ext.chk.rpt" check
-    tee -o "$::env(synth_report_prefix).$ext.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
+    tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
+    tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
     design -reset
 }
@@ -343,7 +345,7 @@ design -save checkpoint
 # Explore/Finalize
 if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
     for { set index 0 }  { $index < [llength $delay_scripts] }  { incr index } {
-        set name "DELAY$index"
+        set name "DELAY $index"
         run_strategy\
             "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
             [lindex $delay_scripts $index]\
@@ -351,7 +353,7 @@ if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
     }
 
     for { set index 0 }  { $index < [llength $area_scripts] }  { incr index } {
-        set name "AREA$index"
+        set name "AREA $index"
         run_strategy\
             "$::env(synthesis_results)/$::env(DESIGN_NAME).$name.v"\
             [lindex $area_scripts $index]\
