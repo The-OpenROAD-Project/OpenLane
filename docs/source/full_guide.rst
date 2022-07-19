@@ -66,12 +66,8 @@ The PDK is specific to the technology and contains any combination of these file
 
 * Primitives
   
-  * SPICE models. SPICE models were provided by skywater-pdk, however `Open_PDKs modified the SPICE files <http://opencircuitdesign.com/open_pdks/>`_ for compatability with NGSPICE.
-  * Symbols. Original skywater-pdk did not contain any symbols, however symbols for XSCHEM are included in Open_PDKs installation. Also they are available as separate XSCHEM library here.
-
-
-.. todo:: add the link to XSCHEM library
-
+  * SPICE models. 
+  * Symbols. 
 
 * Verification decks for:
   
@@ -99,6 +95,37 @@ Documentation
 Documentation is the starting point for any technology.
 Engineers read the documentation and experiment with different features. Documentation may have many pointers
 For example, Documentation for `sky130 can be found here <https://skywater-pdk.readthedocs.io/en/main/>`_, meanwhile the `Design Rule Manual is scattered here <https://skywater-pdk.readthedocs.io/en/main/rules/periphery.html#x>`_
+
+Primitives
+^^^^^^^^^^^^^^^
+Primitive library usually contains SPICE models for the transistors
+and optionally the symbol representation for one or more schematic tool.
+SPICE models were provided by skywater-pdk,
+however `Open_PDKs modified the SPICE files <http://opencircuitdesign.com/open_pdks/>`_ for compatability with NGSPICE.
+
+Original skywater-pdk did not contain any symbols, but thanks to the efforts of 
+symbols for XSCHEM are included in Open_PDKs installation.
+Also they are available as separate XSCHEM library here.
+
+.. todo:: add the link to XSCHEM library
+
+Verification decks
+^^^^^^^^^^^^^^^
+As part of PDK foundries provide ready to use verification decks for different tools.
+Open_PDKs for sky130 provides following decks:
+ * DRC for Magic VLSI and KLayout.
+ * LVS/PEX extraction for Magic VLSI
+ * Ruleset for netgen
+
+.. todo:: Add short description.
+.. todo:: Add links to each tool
+
+Tech files
+^^^^^^^^^^^^^^^
+
+Standard Cell Libraries (SCLs)
+^^^^^^^^^^^^^^^
+
 
 
 Die Manufacturing
@@ -191,8 +218,20 @@ They need to cover every parameter from specification.
 
 .. todo:: Add an example testbench schematic
 
+Netlist
+^^^^^^^^^^^^^^^
+Netlist contains the transistors, their parameters and connections,
+but it's usually either in Verilog netlist format, DEF netlist or spice netlist format.
+Text representation is harder to read from user standpoint, but it's simple to parse for the automatic tools.
+
+.. todo:: Add example netlist
+
 Simulation
 ^^^^^^^^^^^^^^^
+SPICE simulation is one of the most common tools used by designers.
+It allows to simulate the behaviour of the circuit and characteristics of the circuit.
+
+.. todo:: Add a simulation example
 
 Layout
 ^^^^^^^^^^^^^^^
