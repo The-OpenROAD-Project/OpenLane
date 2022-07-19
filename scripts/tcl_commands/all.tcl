@@ -428,13 +428,9 @@ proc prep {args} {
     puts_info "Using configuration in '$config_file_rel'..."
     source_config -run_path $run_path $::env(DESIGN_CONFIG)
 
-    puts_info $::env(STD_CELL_LIBRARY)
-
     if { [info exists arg_values(-override_env)] } {
         load_overrides $arg_values(-override_env)
     }
-
-    puts_info $::env(STD_CELL_LIBRARY)
 
     # Diagnostics
     if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
