@@ -17,36 +17,6 @@ proc global_routing_or {args} {
     handle_deprecated_command global_routing
 }
 
-proc translate_min_max_layer_variables {args} {
-    if { [info exists ::env(GLB_RT_MINLAYER) ] } {
-        set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_MAXLAYER) ] } {
-        set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_CLOCK_MINLAYER) ] } {
-        set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_CLOCK_MAXLAYER) ] } {
-        set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
-    }
-}
-
 proc groute_antenna_extract {args} {
     set options {
         {-from_log required}
@@ -62,7 +32,6 @@ proc groute_antenna_extract {args} {
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
 
-    translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         puts_info "Starting FastRoute Antenna Repair Iterations..."
@@ -79,7 +48,7 @@ proc global_routing_fastroute {args} {
 
         set prevAntennaVal [groute_antenna_extract -from_log [index_file $::env(routing_logs)/global.log]]
 
-        while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
+        while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/global_$iter.def]
             set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global_$iter.guide]
             set saveLOG [index_file $::env(routing_logs)/global_$iter.log]
@@ -151,7 +120,6 @@ proc detailed_routing_tritonroute {args} {
     set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
     set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
 
-    translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
@@ -351,15 +319,15 @@ proc apply_route_obs {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py add_def_obstructions\
         --output [file rootname $::env(CURRENT_DEF)].obs.def \
         --input-lef $::env(MERGED_LEF) \
-        --obstructions $::env(GLB_RT_OBS) \
+        --obstructions $::env(GRT_OBS) \
         $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/obs.log
 
-    puts_info "Obstructions added over $::env(GLB_RT_OBS)."
+    puts_info "Obstructions added over $::env(GRT_OBS)."
     set_def [file rootname $::env(CURRENT_DEF)].obs.def
 }
 
 proc add_route_obs {args} {
-    if {[info exists ::env(GLB_RT_OBS)]} {
+    if {[info exists ::env(GRT_OBS)]} {
         apply_route_obs
     }
 }

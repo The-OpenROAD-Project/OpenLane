@@ -50,10 +50,10 @@ The script can be used in two ways
     
     - Basic Regression Script:
     
-        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GLB_RT_ADJUSTMENT and FP_CORE_UTIL will be tried.
+        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GRT_ADJUSTMENT and FP_CORE_UTIL will be tried.
 
         ```
-        GLB_RT_ADJUSTMENT=(0.1,0.15)
+        GRT_ADJUSTMENT=(0.1,0.15)
         FP_CORE_UTIL=(40,50)
         PL_TARGET_DENSITY=(0.4)
         SYNTH_STRATEGY=(1,3)

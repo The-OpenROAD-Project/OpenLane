@@ -172,7 +172,7 @@ Here, you have four options to choose from and they are controlled by setting `D
 
 2. A fake diode is inserted for each PIN and connected to it, then after an antenna check is run and the fake diodes are replaced with real ones if the pin is violated.
 
-3. Rely on OpenROAD:FastRoute antenna avoidance flow to insert the diodes during global routing by using the Antenna Rule Checker and fixing violations. You can execute this iteratively by setting `GLB_RT_MAX_DIODE_INS_ITERS`, it is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
+3. Rely on OpenROAD:FastRoute antenna avoidance flow to insert the diodes during global routing by using the Antenna Rule Checker and fixing violations. You can execute this iteratively by setting `GRT_MAX_DIODE_INS_ITERS`, it is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
 
 4. A smarter version of strategy 1 that attempts to reduce the number of inserted diodes and places a diode at each design pin.
 

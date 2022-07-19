@@ -13,7 +13,7 @@
 # limitations under the License.
 
 foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
+	read_liberty $lib
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
@@ -23,13 +23,13 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 }
 
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
+	puts stderr $errmsg
+	exit 1
 }
 
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
+	puts stderr $errmsg
+	exit 1
 }
 
 set ::block [[[::ord::get_db] getChip] getBlock]
@@ -73,7 +73,7 @@ if { $::env(PL_TIME_DRIVEN) } {
 
 if { $::env(PL_ROUTABILITY_DRIVEN) } {
 	source $::env(SCRIPTS_DIR)/openroad/set_routing_layers.tcl
-	set_macro_extension $::env(GLB_RT_MACRO_EXTENSION)
+	set_macro_extension $::env(GRT_MACRO_EXTENSION)
 	source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 	lappend arg_list -routability_driven
 }
@@ -85,7 +85,7 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 set_placement_padding -global -right $::env(CELL_PAD)
 
 if { $::env(CELL_PAD_EXCLUDE) != "" } {
-    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+	set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 }
 
 global_placement {*}$arg_list
@@ -97,12 +97,12 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		read_sdc -echo $::env(CURRENT_SDC)
 		unset_propagated_clock [all_clocks]
 		# set rc values
-		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 		estimate_parasitics -placement
 
-        set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
+		set ::env(RUN_STANDALONE) 0
+		source $::env(SCRIPTS_DIR)/openroad/sta.tcl
 	}
 } else {
-    puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
+	puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
 }
