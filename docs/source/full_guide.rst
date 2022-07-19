@@ -127,9 +127,9 @@ Verification decks
 ^^^^^^^^^^^^^^^
 As part of PDK foundries provide ready to use verification decks for different tools.
 Open_PDKs for sky130 provides following decks:
- * DRC for Magic VLSI and KLayout.
- * LVS/PEX extraction for Magic VLSI
- * Ruleset for netgen
+* DRC for Magic VLSI and KLayout.
+* LVS/PEX extraction for Magic VLSI
+* Ruleset for netgen
 
 .. todo:: Add short description.
 .. todo:: Add links to each tool and the tech files
@@ -149,16 +149,15 @@ Tech files
 Tech files are a special files designed for specific software. 
 One of the common file formats is the Tech LEF, however other variants of tech files are available too.
 Tech LEF typically contains one or more of the following information:
- * Metal
 
-    * Metal spacing
-    * Width
-    * RC Parasitics
-    * Antenna related infromation
-    * Electromigration related information
-  
-  * Sites for the specific standard cell libraries
-  * mapping between GDS and LEF formats, mapping between layers.
+* Metal
+   * Metal spacing
+   * Width
+   * RC Parasitics
+   * Antenna related infromation
+   * Electromigration related information
+* Sites for the specific standard cell libraries
+* mapping between GDS and LEF formats, mapping between layers.
 
 .. todo:: Add a screenshot of actual tech file
 
@@ -168,21 +167,42 @@ Standard Cell Libraries (SCLs)
 Standard Cell Library contains a set of cells that can be used to build practically any digital circuit.
 
 It contains following files and information:
- * Documentation
- * Integration guide for one or more tool
- * SCL configuration files for one or more tool
- * Abstract representation: the cells containing only layers required for placement and routing. Typically in LEF format.
- * Timing Library containing the timing information, typically in .LIB format
- * Layout of the cells.
- * SPICE netlist.
 
-.. todo:: Tech LEF combined with Standard Cell Library related information
-.. todo:: Add pictures and description for documentation
+* Documentation
+* Integration guide for one or more tool
+* SCL configuration files for one or more tool
+* Abstract representation: the cells containing only layers required for placement and routing. Typically in LEF format.
+* Timing Library containing the timing information, typically in .LIB format
+* Layout of the cells.
+* SPICE netlist.
+
+Documentation contains everything the developer needs to know about the SCL.
+This information includes anything related to the cells:
+
+* the naming convention
+* functionality
+* working conditions
+* integration guide for different tools
+* implementation details,
+* number of cells of each type
+* target density
+* cell site height/width
+* cell grid
+* planned NMOS and PMOS heights
+* NMOS and PMOS types used
+
+For example you can find `documentation for SCLs provided by Skywater for sky130 here <https://skywater-pdk.readthedocs.io/en/main/contents/libraries/foundry-provided.html>`_.
+
+A snipet from the High-Density SCL for sky130:
+
+.. figure:: ../_static/analog_flow/sky130_fd_sc_hd_docs.png
+
 .. todo:: SCL config
 .. todo:: LEF abstract
 .. todo:: Timing information
 .. todo:: Layout of the cells
 .. todo:: Spice netlist
+.. todo:: Tech LEF combined with Standard Cell Library related information
 
 Die Manufacturing
 --------------------------------------------------------------------------------
@@ -445,10 +465,15 @@ Pressing Home button brings you to the list of libraries.
 Left bar is used to select the library or it shows the current directory.
 In the screenshot you can see three libraries: XSCHEM standard library, our workspace library and sky130A xschem library.
 
-From sky130A xschem library open the sky130_fd_pr folder. The name stands for: sky130 foundry primitives. From there choose nfet_01v8.
-Be careful. This is the most common mistake, you need to create the nfet_01v8, not any other cell.
+From sky130A xschem library open the ``sky130_fd_pr`` folder. The name stands for: sky130 foundry primitive cells.
+From there pick ``nfet_01v8``.
+Be careful. This is the most common mistake, you need to create the ``nfet_01v8``, not any other transistor.
+Then click on the workspace to actually create the instance.
 
-.. todo:: Add picture of the NFET
+.. figure:: ../_static/analog_flow/nfet_01v8.png
+
+Repeat the 
+
 .. todo:: Add the PMOS cell step
 
 .. todo:: Add XSCHEM drawing the NAND half
@@ -459,3 +484,5 @@ Be careful. This is the most common mistake, you need to create the nfet_01v8, n
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
+.. todo:: Add removing everything but the power rails and NWELL/PSDM/NSDM
+.. todo:: Add drawing new shapes.

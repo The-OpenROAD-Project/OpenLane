@@ -26,6 +26,7 @@ Step 1. Installation of required packages
 
 For OpenLane you need a couple of tools installed:
 
+   * Linux or macOS
    * Docker 19.03.12+
    * Git 2.35+
    * Python 3.6+  
@@ -198,7 +199,7 @@ In order to check installation, you can use following commands:
 
 .. image:: ../_static/installation/version_check.png
 
-Step 5. Downloading and validating OpenLane installation
+Step 5. Building and validating OpenLane installation
 --------------------------------------------------------------------------------
 
 In order to download and validate OpenLane installation run the following commands,
@@ -208,9 +209,13 @@ explanation of each step is provided below:
 
    git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
    cd OpenLane/
-   make
+   make # Building sky130 PDK
    make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 
+First step downloads shallow (small) copy of the OpenLane `cd`s into it.
+Second step actually installs sky130 PDK,
+but for proprietary PDKs you need to follow the steps in the integration guide of that specific PDK.
+Last step runs ``spm`` design using the sky130 PDK.
 
 .. image:: ../_static/installation/git_clone_openlane.png
 

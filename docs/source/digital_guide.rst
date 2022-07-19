@@ -1,6 +1,8 @@
 
-Digital Design Flow
+Digital Design Flow Theory
 --------------------------------------------------------------------------------
+
+
 
 Digital Design Flow Practice
 --------------------------------------------------------------------------------
@@ -74,32 +76,17 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 In your designs it might be beneficial to have macro level and chip level.
 This separation allows you to reuse already generated macro blocks multiple times.
 
-For example, the multi core processor.
-If you just run OpenLane with multiple cores and only chip level,
-all of the cores will be placed and routed together, resulting in significant runtime.
-
-.. todo:: add visualization of this concept
-
 In contrast, by running OpenLane first on single core module
 then reusing the generated GDS means that the timing might not be as good,
 but the runtime will be much faster.
 The runtime is much faster since you are running one placement and route for only one core and then reusing it in the top level.
 
-In your designs it might be beneficial to have macro level and chip level.
-This separation allows you to reuse already generated macro blocks multiple times.
-
 For example, the multi core processor.
 If you just run OpenLane with multiple cores and only chip level,
 all of the cores will be placed and routed together, resulting in significant runtime.
 
-.. todo:: add visualization of this concept
+.. figure:: ../_static/digital_flow/runtime_visualization.png
 
-In contrast, by running OpenLane first on single core module
-then reusing the generated GDS means that the timing might not be as good,
-but the runtime will be much faster,
-since you are running one placement and route for only one core.
-
-The benefit of doing RTL-to-GDS first for macro
 
 
 Add following lines:
