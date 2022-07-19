@@ -1,3 +1,13 @@
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+.. todo:: Add 5 todos
+
+
 Full Guide
 ================================================================================
 
@@ -96,6 +106,8 @@ Documentation is the starting point for any technology.
 Engineers read the documentation and experiment with different features. Documentation may have many pointers
 For example, Documentation for `sky130 can be found here <https://skywater-pdk.readthedocs.io/en/main/>`_, meanwhile the `Design Rule Manual is scattered here <https://skywater-pdk.readthedocs.io/en/main/rules/periphery.html#x>`_
 
+.. todo:: Add a picture visualizing
+
 Primitives
 ^^^^^^^^^^^^^^^
 Primitive library usually contains SPICE models for the transistors
@@ -109,6 +121,8 @@ Also they are available as separate XSCHEM library here.
 
 .. todo:: add the link to XSCHEM library
 
+.. todo:: Add a picture visualizing
+
 Verification decks
 ^^^^^^^^^^^^^^^
 As part of PDK foundries provide ready to use verification decks for different tools.
@@ -118,7 +132,16 @@ Open_PDKs for sky130 provides following decks:
  * Ruleset for netgen
 
 .. todo:: Add short description.
-.. todo:: Add links to each tool
+.. todo:: Add links to each tool and the tech files
+
+The sky130 has additional checks called "precheck".
+This prechecks is the way that the foundry verifies your files to match their requirements.
+Everything from sanity checks to DRC is checked by the foundry to make sure that you are sending valid GDS.
+
+If you send them a GDS with DRC or GDS that violates some of the requirements,
+then precheck will error out.
+
+.. todo:: Add a screenshot from the Efabless website with passed or failed prechecks.
 
 Tech files
 ^^^^^^^^^^^^^^^
@@ -142,7 +165,24 @@ Tech LEF typically contains one or more of the following information:
 Standard Cell Libraries (SCLs)
 ^^^^^^^^^^^^^^^
 
+Standard Cell Library contains a set of cells that can be used to build practically any digital circuit.
 
+It contains following files and information:
+ * Documentation
+ * Integration guide for one or more tool
+ * SCL configuration files for one or more tool
+ * Abstract representation: the cells containing only layers required for placement and routing. Typically in LEF format.
+ * Timing Library containing the timing information, typically in .LIB format
+ * Layout of the cells.
+ * SPICE netlist.
+
+.. todo:: Tech LEF combined with Standard Cell Library related information
+.. todo:: Add pictures and description for documentation
+.. todo:: SCL config
+.. todo:: LEF abstract
+.. todo:: Timing information
+.. todo:: Layout of the cells
+.. todo:: Spice netlist
 
 Die Manufacturing
 --------------------------------------------------------------------------------
@@ -188,8 +228,6 @@ Each subcomponents is distributed as task to the team members or sub-teams.
 Subcomponents specification allows to define the responsibility between teams and avoids a lot of confusion.
 
 Let's make an example specification for our project, so we will see what we are dealing with.
-
-.. todo:: Fill out the table
 
 .. list-table:: Title
    :widths: 50 50
@@ -333,14 +371,12 @@ OpenLane PDK vs Tech PDK vs Foundary PDK
 
 
 MOS transistors and switch level representation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 The NMOS and PMOS transistors consists of the conducting gate, an insulating layer of silicon oxide, drain, source and bulk.
 
-.. figure:: https://skywater-pdk.readthedocs.io/en/main/_images/cross-section-nfet_01v8.svg
+.. figure:: ../_static/analog_flow/nmos_crosssection.png
 
     Cross section of an NFET.
-
-.. todo:: edit the cross section of the NFET.
 
 The gate voltage acts as control input.
 The value of the gate controls the current between drain and source.
@@ -401,186 +437,25 @@ Click on the ``Tools -> Insert Symbol`` to create new componets.
 
 .. image::  ../_static/analog_flow/tools_insert.png
 
+In the opened window there three sections: Selection of the library, selection of the cell in the library and control bar at the bottom:
 
-Digital Design Flow Practice
---------------------------------------------------------------------------------
+.. image::  ../_static/analog_flow/choose_symbol_window.png
 
-Step 1. Create the memory macro design
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Pressing Home button brings you to the list of libraries.
+Left bar is used to select the library or it shows the current directory.
+In the screenshot you can see three libraries: XSCHEM standard library, our workspace library and sky130A xschem library.
 
-Let's create the design. The following command will create a directory ``design/mem_1r1w/`` and one file ``config.tcl`` that will be mostly empty.
+From sky130A xschem library open the sky130_fd_pr folder. The name stands for: sky130 foundry primitives. From there choose nfet_01v8.
+Be careful. This is the most common mistake, you need to create the nfet_01v8, not any other cell.
 
-.. code-block:: console
+.. todo:: Add picture of the NFET
+.. todo:: Add the PMOS cell step
 
-    ./flow.tcl -design mem_1r1w -init_design_config
+.. todo:: Add XSCHEM drawing the NAND half
+.. todo:: Add XSCHEM building the Testbench half
+.. todo:: Add XSCHEM netlisting half
+.. todo:: Add XSCHEM simulation half
+.. todo:: Add XSCHEM making sure the saved files reference right symbols half
 
-
-One of the common mistakes people make is copying existing designs,
-like ``designs/inverter`` and then they face issues with their configuration.
-Always create new designs using ``-init_design_config``.
-It will ensure that your configuration is the absolute minimum.
-
-Example of the common issues people face:
-They copy ``inverter`` design, rename it. Then run the flow and the router crashes with ``error 10``.
-This is caused by enabled "basic placement",
-which works only for designs with a couple of dozen standard cells, not hundreds.
-So when you change the basic inverter with a design containing many cells
-router will not be able to route your design, therefore crashing with cryptic message.
-
-Step 2. Create the RTL files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Then we need to create/copy the RTL files. The recommended location for files is ``design/mem_1r1w/src/``. Let's put a simple counter in there.
-
-Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
-
-.. code-block:: verilog
-
-    module mem_1r1w (clk, read_addr, read, read_data, write_addr, write, write_data);
-        parameter DEPTH_LOG2 = 4;
-        localparam ELEMENTS = 2**DEPTH_LOG2;
-        parameter WIDTH = 32;
-
-        input wire clk;
-
-        input wire [DEPTH_LOG2-1:0] read_addr;
-        input wire read;
-        output reg [WIDTH-1:0] read_data;
-
-
-        input wire [DEPTH_LOG2-1:0] write_addr;
-        input wire write;
-        input wire  [WIDTH-1:0] write_data;
-
-    reg [WIDTH-1:0] storage [ELEMENTS-1:0];
-
-    always @(posedge clk) begin
-        if(write) begin
-            storage[write_addr] <= write_data;
-        end
-        if(read)
-            read_data <= storage[read_addr];
-    end
-
-    endmodule
-
-
-
-.. note::
-    Originally we used a very small macro block as an example,
-    however there is known issue: Small macro blocks do not fit proper power grid,
-    therefore you need to avoid making small macro blocks. Alternatively, set the ``FP_SIZING`` to ``absolute`` and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
-
-In your designs it might be beneficial to have macro level and chip level.
-This separation allows you to reuse already generated macro blocks multiple times.
-
-For example, the multi core processor.
-If you just run OpenLane with multiple cores and only chip level,
-all of the cores will be placed and routed together, resulting in significant runtime.
-
-.. todo:: add visualization of this concept
-
-In contrast, by running OpenLane first on single core module
-then reusing the generated GDS means that the timing might not be as good,
-but the runtime will be much faster.
-The runtime is much faster since you are running one placement and route for only one core and then reusing it in the top level.
-
-In your designs it might be beneficial to have macro level and chip level.
-This separation allows you to reuse already generated macro blocks multiple times.
-
-For example, the multi core processor.
-If you just run OpenLane with multiple cores and only chip level,
-all of the cores will be placed and routed together, resulting in significant runtime.
-
-.. todo:: add visualization of this concept
-
-In contrast, by running OpenLane first on single core module
-then reusing the generated GDS means that the timing might not be as good,
-but the runtime will be much faster,
-since you are running one placement and route for only one core.
-
-The benefit of doing RTL-to-GDS first for macro
-
-
-Add following lines:
-
-.. code-block:: tcl
-
-    set ::env(DESIGN_IS_CORE) 0
-    set ::env(FP_PDN_CORE_RING) 0
-    set ::env(RT_MAX_LAYER) "met4"
-
-
-.. todo:: explain why
-
-Step 3. Run the flow on the macro block
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: console
-
-    ./flow.tcl -design mem_1r1w -tag full_guide -overwrite
-
-Step 4. Analyzing the flow generated files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Step 5. Create blackboxes
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Step 6. Integrate the macros
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/bb/*.v]
-set ::env(EXTRA_LEFS) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef
-set ::env(EXTRA_GDS_FILES) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds
-
-
-Step 7. Run the flow
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Troubleshooting Figure out why it does not fit
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-[ERROR]: during executing openroad script /openlane/scripts/openroad/replace.tcl
-[ERROR]: Exit code: 1
-[ERROR]: full log: designs/regfile_2r1w/runs/full_guide/logs/placement/9-global.log
-[ERROR]: Last 10 lines:
-[INFO GPL-0015] CoreAreaUxUy: 489440 495040
-[INFO GPL-0016] CoreArea: 234294707200
-[INFO GPL-0017] NonPlaceInstsArea: 124707104000
-[INFO GPL-0018] PlaceInstsArea: 117229672450
-[INFO GPL-0019] Util(%): 106.97
-[INFO GPL-0020] StdInstsArea: 454185600
-[INFO GPL-0021] MacroInstsArea: 116775486850
-[ERROR GPL-0301] Utilization exceeds 100%.
-Error: replace.tcl, 91 GPL-0301
-child process exited abnormally
-
-Solution: set ::env(FP_ASPECT_RATIO) 2
-
-
-Troubleshooting:
-
-
-[ERROR]: during executing openroad script /openlane/scripts/openroad/floorplan.tcl
-[ERROR]: Exit code: 1
-[ERROR]: full log: designs/regfile_2r1w/runs/full_guide/logs/floorplan/3-initial_fp.log
-[ERROR]: Last 10 lines:
-set_clock_uncertainty $::env(SYNTH_CLOCK_UNCERTAINITY) [get_clocks $::env(CLOCK_PORT)]
-puts "\[INFO\]: Setting clock transition to: $::env(SYNTH_CLOCK_TRANSITION)"
-[INFO]: Setting clock transition to: 0.15
-set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks $::env(CLOCK_PORT)]
-puts "\[INFO\]: Setting timing derate to: [expr {$::env(SYNTH_TIMING_DERATE) * 10}] %"
-[INFO]: Setting timing derate to: 0.5 %
-set_timing_derate -early [expr {1-$::env(SYNTH_TIMING_DERATE)}]
-set_timing_derate -late [expr {1+$::env(SYNTH_TIMING_DERATE)}]
-Error: floorplan.tcl, 93 can't use empty string as operand of "-"
-child process exited abnormally
-
-Solution: Set DIE_AREA to correct value, see https://github.com/The-OpenROAD-Project/OpenLane/issues/1189
-
-
-Exploring your designs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
+.. todo:: Add opening the KLayout quarter
+.. todo:: Add copying the cell
