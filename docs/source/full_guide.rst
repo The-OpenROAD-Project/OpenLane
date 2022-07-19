@@ -146,6 +146,28 @@ Subcomponents specification allows to define the responsibility between teams an
 
 Let's make an example specification for our project, so we will see what we are dealing with.
 
+.. todo:: Fill out the table
+
+.. list-table:: Title
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - Name
+     - Value
+     - Description
+   * - Technology
+     - sky130
+     - 
+   * - Function
+     - NAND with 2 inputs
+     - 
+   * - Drive stregth
+     - 1
+     - Inverter equivalent
+   * - Placement site
+     - Same as sky130 HD
+     - 
+
 Schematics
 ^^^^^^^^^^^^^^^
 
@@ -158,6 +180,18 @@ Each circuit is hidden in the form of symbols.
 This allows engineers to abstract away from the internal structure of each of the subcomponents.
 
 Testbenches
+^^^^^^^^^^^^^^^
+
+Testbenches are similar to schematics,
+but schematics are typically representations of the actual circuit that will be produced by foundry.
+Meanwhile testbenches are used to produce power measurements, transition measurements, test functionality and other parameters.
+
+Testbenches play a key role in ensuring that designed circuit does what it is supposed to do.
+They need to cover every parameter from specification.
+
+.. todo:: Add an example testbench schematic
+
+Simulation
 ^^^^^^^^^^^^^^^
 
 Layout
