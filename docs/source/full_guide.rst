@@ -123,6 +123,22 @@ Open_PDKs for sky130 provides following decks:
 Tech files
 ^^^^^^^^^^^^^^^
 
+Tech files are a special files designed for specific software. 
+One of the common file formats is the Tech LEF, however other variants of tech files are available too.
+Tech LEF typically contains one or more of the following information:
+ * Metal
+
+    * Metal spacing
+    * Width
+    * RC Parasitics
+    * Antenna related infromation
+    * Electromigration related information
+  
+  * Sites for the specific standard cell libraries
+  * mapping between GDS and LEF formats, mapping between layers.
+
+.. todo:: Add a screenshot of actual tech file
+
 Standard Cell Libraries (SCLs)
 ^^^^^^^^^^^^^^^
 
@@ -176,24 +192,33 @@ Let's make an example specification for our project, so we will see what we are 
 .. todo:: Fill out the table
 
 .. list-table:: Title
-   :widths: 25 25 50
+   :widths: 50 50
    :header-rows: 1
 
-   * - Name
-     - Value
-     - Description
+   * - Feature
+     - Limit
    * - Technology
-     - sky130
-     - 
+     - sky130B
    * - Function
      - NAND with 2 inputs
-     - 
    * - Drive stregth
      - 1
-     - Inverter equivalent
-   * - Placement site
+   * - Rise and fall time maximum
+     - 1ns
+   * - Maximal delay for rising and falling edges
+     - 1ns
+   * - Placement site and Standard Cell compatability
      - Same as sky130 HD
-     - 
+   * - Temperature range
+     - 0 Celcius to 85 Celcius
+   * - Voltage range
+     - 1.65V to 1.95V. Typical: 1.8 
+   * - Test cases
+     - SS, FF, TT
+   * - Power consumption
+     - Less than 5mW
+
+Don't worry if something is not clear yet. We will disect each of the requirements one-by-one.
 
 Schematics
 ^^^^^^^^^^^^^^^
@@ -377,7 +402,7 @@ Click on the ``Tools -> Insert Symbol`` to create new componets.
 .. image::  ../_static/analog_flow/tools_insert.png
 
 
-Digital Design Flow
+Digital Design Flow Practice
 --------------------------------------------------------------------------------
 
 Step 1. Create the memory macro design
