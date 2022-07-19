@@ -7,7 +7,7 @@ Introduction
 
 This document includes tutorials for running an entire OpenROAD-based
 flow from RTL to GDSII.This tutorials includes GUI visualization, EDA
-tools,Design Explorations, and Different Design Experiments.
+tools, Design Explorations, and Different Design Experiments.
 Additionally, a brief description of each step in the flow is provided,
 facilitating the user’s comprehension and ease of usage.
 
@@ -33,7 +33,7 @@ View the design configuration file of picorv32a:
 
   ./designs/picorv32a/config.tcl
 
-View the design configuration file `here <https://github.com/nimra471/OpenLane/tree/master/designs/picorv32a/config.tcl>`_.
+View the design `configuration file <https://github.com/nimra471/OpenLane/tree/master/designs/picorv32a/config.tcl>`_.
 
 .. important::
 
