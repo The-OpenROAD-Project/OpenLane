@@ -38,10 +38,11 @@ The above commands can also be written in a file and passed to ``flow.tcl``:
     ./flow.tcl -interactive -file <file_name>
 
 
-**Important**
+.. important::
+    
+    1. Run the ``prep`` command before running the any other command, in order to have necessary files and configuration loaded.
+    2. Run the above commands in the same flow sequence and no step should be skipped.
 
-1. Run the ``prep`` command before running the any other command, in order to have necessary files and configuration loaded.
-2. Run the above commands in the same flow sequence and no step should be skipped.
 
 
 
