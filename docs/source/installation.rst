@@ -3,7 +3,7 @@ Installation
 ============
 
 Prerequisites
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============
     * GNU Make
 
     * Python 3.6+ with pip and venv
@@ -13,7 +13,7 @@ Prerequisites
     * Docker 19.03.12+
 
 Installation of Required Packages in Ubuntu
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-------------------------------------------------
 
 .. code-block:: shell
 
@@ -22,7 +22,7 @@ Installation of Required Packages in Ubuntu
 
 
 Installation of Docker
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+---------------------------
 Install docker follows the instruction provided in the below link.
 
 * `Docker installation instruction <https://docs.docker.com/engine/install/ubuntu/>`_
@@ -30,7 +30,7 @@ Install docker follows the instruction provided in the below link.
 After installing Docker restart your machine.
 
 Checking Docker Installation
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-------------------------------------
 
 After running ``sudo docker run hello-world`` the output is :
 
@@ -58,7 +58,7 @@ After running ``sudo docker run hello-world`` the output is :
    https://docs.docker.com/get-started/
 
 Troubleshooting
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+----------------------
 if you get docker permission denied error when running docker image:
 
 .. code-block:: shell
@@ -84,7 +84,7 @@ After running the above command restart your machine and follow the above steps
     
 
 Installation of Required Packages in macOS
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+-------------------------------------------------
 First get `Homebrew <https://brew.sh/>`_ then install the required packages:
 
 .. code-block:: shell
@@ -96,7 +96,7 @@ First get `Homebrew <https://brew.sh/>`_ then install the required packages:
 
 
 Containerless/local Installation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+================================
 
 
 .. important::
@@ -107,7 +107,7 @@ Please click `local installation <local_installs.html>`_
 
 
 Setting up OpenLane
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+===================
 first clone the repository:
 
 .. code-block:: shell
@@ -129,7 +129,7 @@ Set up Sky130-PDK and OpenLane by running:
 The final layout will generated at ``.design/spm/result/final/spm.gds``.
 
 PDK location
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============
 
 By Default [PDK_ROOT] ``$pwd/pdks``. If it need to installed it in a different directory set the following variable before running ``make pdk``:
 
@@ -138,7 +138,7 @@ By Default [PDK_ROOT] ``$pwd/pdks``. If it need to installed it in a different d
     export PDK_ROOT=<absolute path to where skyWater-pdk, open-pdk and sky130A reside>
 
 Updating OpenLane
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+===================
 if you clone the repository locally, don't need to reclone it 
 
 .. code-block:: shell

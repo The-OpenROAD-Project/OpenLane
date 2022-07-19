@@ -1,17 +1,18 @@
+=============
 Flow Tutorial
 =============
 
 Introduction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+============
 
 This document includes tutorials for running an entire OpenROAD-based
-flow from RTL to GDSII.This tutorials includes GUI visualisation , EDA
+flow from RTL to GDSII.This tutorials includes GUI visualization, EDA
 tools,Design Explorations, and Different Design Experiments.
 Additionally, a brief description of each step in the flow is provided,
 facilitating the user’s comprehension and ease of usage.
 
 Platform Configuration
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+----------------------
 
 View the platform configuration file setup for default variable for sky130hd.
 
@@ -23,7 +24,7 @@ View the platform configuration file setup for default variable for sky130hd.
 The libraries cell information can found `here <https://antmicro-skywater-pdk-docs.readthedocs.io/en/test-submodules-in-rtd/contents/libraries.html>`_.
 
 Design Configuration
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------
 
 
 View the design configuration file of picorv32a:
@@ -42,7 +43,7 @@ View the design configuration file `here <https://github.com/nimra471/OpenLane/t
 
 
 Design Input Verilog
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------
 
 The input Verilog files are located at this path:
 
@@ -52,13 +53,12 @@ The input Verilog files are located at this path:
 
 
 Running The Automatic RTL-to-GDS Flow
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=======================================
 
 This section describe the complete RTL-to-GDS flow of the design. In this tutorial, user will learn both automated and interactive way to run the flow.
 
 Design Goals
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
+-----------------
 **Area**
 
 .. code-block:: shell
@@ -73,7 +73,7 @@ Design Goals
 
 
 Synthesis
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------
 
 After running the design, the generated synthesis netlist located at the path:
 
@@ -126,7 +126,7 @@ All the timing, power and area report are located at the path:
 Explore different Synthesis Strategies for timing and area optimization using variable ``set ::env(SYNTH_STRATEGY) DELAY 0``.
 
 Floor planning
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+------------------------
 
 .. image:: ../_static/floorplan.png
 
