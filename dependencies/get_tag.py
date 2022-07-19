@@ -38,7 +38,7 @@ def get_tag() -> str:
             )
 
         branch_name_data: subprocess.CompletedProcess = subprocess.run(
-            ["git", "branch", "--show-current"],
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -49,7 +49,7 @@ def get_tag() -> str:
             )
 
         branch_name = branch_name_data.stdout.decode("utf8").strip()
-        if branch_name != "":
+        if branch_name not in ["", "HEAD"]:
             if branch_name not in ["main", "master"]:
                 return f"{branch_name}-dev"
 

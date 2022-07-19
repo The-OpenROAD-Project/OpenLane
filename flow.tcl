@@ -156,7 +156,7 @@ proc run_post_run_hooks {} {
 
 proc run_non_interactive_mode {args} {
     set options {
-        {-design required}
+        {-design optional}
         {-from optional}
         {-to optional}
         {-save_path optional}
@@ -164,6 +164,7 @@ proc run_non_interactive_mode {args} {
     }
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
@@ -172,13 +173,7 @@ proc run_non_interactive_mode {args} {
         return
     }
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env(${key}) $value
-        }
+        load_overrides $arg_values(-override_env)
     }
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]

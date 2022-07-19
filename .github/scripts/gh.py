@@ -105,7 +105,7 @@ if os.getenv("GITHUB_ACTIONS") != "true":
         )[:-1]
 
     repo_url = git_command("remote", "get-url", "origin")
-    branch = git_command("branch", "--show-current")
+    branch = git_command("branch", "rev-parse", "--abbrev-ref", "HEAD")
 
     os.environ["REPO_URL"] = repo_url
     os.environ["BRANCH_NAME"] = branch

@@ -29,25 +29,6 @@ CI_ARCHITECTURES = {"amd64", "arm64v8"}
 SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
 
 
-def current_docker_platform() -> str:
-    import platform
-
-    arch = platform.machine()
-
-    if arch in ["x86_64", "amd64"]:
-        return "amd64"
-    elif arch in ["aarch64", "arm64"]:
-        return "arm64v8"
-    elif arch in ["ppc64le"]:
-        return "ppc64le"
-    else:
-        print(
-            f"Unsupported architecture '{platform.machine()}' Falling back to x86-64 for Docker.",
-            file=sys.stderr,
-        )
-        return "amd64"
-
-
 def test_manifest_exists(repository, tag) -> str:
     url = f"https://index.docker.io/v1/repositories/{repository}/tags/{tag}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
@@ -358,14 +339,6 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
 
 cli.add_command(fetch_submodules_from_tarballs)
-
-
-@click.command("current-docker-platform")
-def current_docker_platform_cmd():
-    print(current_docker_platform(), end="")
-
-
-cli.add_command(current_docker_platform_cmd)
 
 if __name__ == "__main__":
     cli()

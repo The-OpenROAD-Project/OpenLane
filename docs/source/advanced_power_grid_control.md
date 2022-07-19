@@ -1,12 +1,15 @@
-# Power Grid (pdn)
+**THIS PAGE IS STILL UNDER DEVELOPMENT.**
+**THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
 
-In this document we will discuss the advanced controls for power grid, and how to utilize the already existing [common_pdn.tcl](https://github.com/RTimothyEdwards/open_pdks/blob/master/sky130/openlane/common_pdn.tcl) for the skywater libraries to automatically power a complex design without the need to write a custom `pdn.tcl` script or learning pdngen syntax.
+# Power Grid/Power Distribution Network
+
+In this document we will discuss the advanced controls for power grid, and how to utilize the default PDN script to automatically power a complex design without the need to write a custom `pdn.tcl` script or learning `pdngen` tool syntax.
 
 The power decision flow in this document will go top to bottom, meaning that we will start at the chip level and then go down to the internal macros.
 
-An example utilizing the controls and logic provided in this documentation is the [Caravel Project, version mpw-one-b](https://github.com/efabless/caravel/tree/mpw-one-b).
+An example utilizing the controls and logic provided in this documentation is [caravel](https://github.com/efabless/caravel).
 
-> **Note**: When we say "your configurations" in this documentation we are refering to the `config.tcl` for that specific block at that specific section.
+> **Note**: When we say "your configurations" in this documentation we are refering to the `config.json` or `config.tcl` for that specific block.
 
 ## Chip Level:
 
@@ -23,6 +26,24 @@ Let's clarify here, before delving into details, that with each hierarchy level 
 
 The first decision to make at the core level is the core ring. So first, you need to know how many power domains do you need to use, and so how many core rings do you require. This can be easily set by the following configurations:
 
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "DESIGN_IS_CORE": true,
+    "FP_PDN_CORE_RING": true,
+    "VDD_NETS": "vccd1 vccd2 vdda1 cdda2",
+    "GND_NETS": "vssd1 vssd2 vssa1 vssa2",
+    "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS"
+
+```
+
+
+</td>
+<td>
+
 ```tcl
 set ::env(DESIGN_IS_CORE) 1
 set ::env(FP_PDN_CORE_RING) 1
@@ -30,6 +51,10 @@ set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
 set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 set ::env(SYNTH_USE_PG_PINS_DEFINES) "USE_POWER_PINS"
 ```
+
+</td>
+</tr>
+</table>
 
 Here we're requiring 4 power domains. For each `VDD_NETS` there is a corresponding `GND_NETS`. Those net names must also exist in the RTL and must be connected to each hard macro inside your core explicitly in the RTL, and those must be guarded with the value given to `SYNTH_USE_PG_PINS_DEFINES`. If the internal modules are going to be flattened, then there is no need to reflect this connection in the RTL for those modules that will be flattened with the core module. For the example above, Here is the required RTL reflection:
 
@@ -64,6 +89,24 @@ Note that net and pin names must be matching.
 
 By simply adding these you should now have 8 core rings, 4 for power and 4 for ground. To control the spacing and the power grid for these by changing the following:
 
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "FP_PDN_CORE_RING_VWIDTH": 3,
+    "FP_PDN_CORE_RING_HWIDTH": "expr::$FP_PDN_CORE_RING_VWIDTH",
+    "FP_PDN_CORE_RING_VOFFSET": 14,
+    "FP_PDN_CORE_RING_HOFFSET" "expr::$FP_PDN_CORE_RING_VOFFSET",
+    "FP_PDN_CORE_RING_VSPACING": 1.7,
+    "FP_PDN_CORE_RING_HSPACING": "expr::$FP_PDN_CORE_RING_VSPACING"
+```
+
+
+</td>
+<td>
+
 ```tcl
 set ::env(FP_PDN_CORE_RING_VWIDTH) 3 # The vertical sides width of the core rings
 set ::env(FP_PDN_CORE_RING_HWIDTH) $::env(FP_PDN_CORE_RING_VWIDTH) # The horizontal sides width of the core rings
@@ -73,14 +116,58 @@ set ::env(FP_PDN_CORE_RING_VSPACING) 1.7 # The vertical spacing between the core
 set ::env(FP_PDN_CORE_RING_HSPACING) $::env(FP_PDN_CORE_RING_VSPACING) # The horizontal spacing between the core ring straps
 ```
 
+</td>
+</tr>
+</table>
+
+
+
 The next values should be added as-is to control the starting point for looping over the core rings and recalculating the new offset for each core ring:
+
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "FP_PDN_VSPACING": "expr::5*$FP_PDN_CORE_RING_VWIDTH",
+    "FP_PDN_HSPACING": "expr::5*$FP_PDN_CORE_RING_HWIDTH",
+```
+
+
+</td>
+<td>
 
 ```tcl
 set ::env(FP_PDN_VSPACING) [expr 5*$::env(FP_PDN_CORE_RING_VWIDTH)]
 set ::env(FP_PDN_HSPACING) [expr 5*$::env(FP_PDN_CORE_RING_HWIDTH)]
 ```
 
+</td>
+</tr>
+</table>
+
+
 The next step is to control the internal power grid by changing the following variables:
+
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "FP_PDN_VWIDTH": 3,
+    "FP_PDN_HWIDTH": 3,
+    "FP_PDN_VOFFSET": 0,
+    "FP_PDN_HOFFSET": "expr::$FP_PDN_VOFFSET",
+    "FP_PDN_VPITCH": 180,
+    "FP_PDN_HPITCH": "expr::$FP_PDN_VPITCH"
+
+```
+
+
+</td>
+<td>
 
 ```tcl
 set ::env(FP_PDN_VWIDTH) 3 # The width of the vertical straps
@@ -91,6 +178,10 @@ set ::env(FP_PDN_VPITCH) 180 # The pitch between the vertical straps
 set ::env(FP_PDN_HPITCH) $::env(FP_PDN_VPITCH) # The pitch between the horizontal straps
 ```
 
+</td>
+</tr>
+</table>
+
 All values above are given in microns.
 
 At this stage you have automated the power grid generation for the Core Module.
@@ -100,7 +191,22 @@ At this stage you have automated the power grid generation for the Core Module.
 
 For the skywater libraries the hierarchy typically can go one level down at most otherwise you will only have two routing layers, which is usually not recommended. Therefore, although it's supported, your macros will typically have no nested macros inside them.
 
-To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal 5 by setting the maximum routing layer to met4. This is done by setting the following configs:
+To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal layer 5 by setting the maximum routing layer to metal layer 4. This is done by setting the following configs:
+
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "DESIGN_IS_CORE": false,
+    "FP_PDN_CORE_RING": false,
+    "RT_MAX_LAYER": "met4"
+```
+
+
+</td>
+<td>
 
 ```tcl
 set ::env(DESIGN_IS_CORE) 0
@@ -108,12 +214,34 @@ set ::env(FP_PDN_CORE_RING) 0
 set ::env(RT_MAX_LAYER) "met4"
 ```
 
-Then, you should use the same `VDD_NETS` and `GND_NETS` set in the core level by adding these two lines to your `config.tcl`:
+</td>
+</tr>
+</table>
+
+Then, you should use the same `VDD_NETS` and `GND_NETS` set in the core level by adding these two lines to your configuration file:
+
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "VDD_NETS": "vccd1 vccd2 vdda1 cdda2",
+    "GND_NETS": "vssd1 vssd2 vssa1 vssa2"
+```
+
+
+</td>
+<td>
 
 ```tcl
-set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
-set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
+    set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
+    set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 ```
+</td>
+</tr>
+</table>
+
 
 This should also reflected in the module declaration in that macro's RTL in the same manner as follows:
 
@@ -130,7 +258,7 @@ This should also reflected in the module declaration in that macro's RTL in the 
 `endif
 ```
 
-These should match the names used in your core level. You don't need to use all the nets, the first two nets are used by default to power the digital cells. So you may want to only include a subset of these connections, this should be reflected in the configuartions as well as the RTL.
+These should match the names used in your core level. You don't need to use all the nets, the first two nets are used by default to power the digital cells. So you may want to only include a subset of these connections, this should be reflected in the configuration files as well as the RTL.
 
 - The height of each macro must be greater than or equal to the value of `$::env(FP_PDN_HPITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
 

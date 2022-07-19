@@ -35,7 +35,7 @@ At a minimum:
 
 - GNU Make
 - Python 3.6+ with pip and virtualenv
-- Git 2.35+
+- Git 2.22+
 - Docker 19.03.12+
 
 ## On Ubuntu, that's...
@@ -83,32 +83,14 @@ If you already have the repo locally, then there is no need to re-clone it. You 
     make test # This is to test that the flow and the pdk were properly updated
 ```
 
-## Pulling or Building the OpenLane Docker Container
-
-**DISCLAIMER: This sub-section is to give you an understanding of what happens under the hood in the Makefile. You don't need to run the instructions here, if you already ran `make pull-openlane`.**
-
-For curious users: For more details about the docker container and its process, the [following instructions][1] walk you through the process of using docker containers to build the needed tools then integrate them into OpenLane flow. **You Don't Need To Re-Build It.**
+## Building the PDK Manually
+If you need other libraries, however, you will have to build the PDK manually.
 
 ## Building the PDK Manually
-You don't have to build the PDK yourself anymore. But, if you insist, or require SCLs that are not installed by default, you can try the follow
+The pre-built version of the PDK automatically installed as part of the previous steps includes a limited set of standard cell libraries that are appropriate for most users.
 
-```bash
-    <configuration variables: see notes below>
-    make build-pdk-conda
-```
-* The default pdk installation directory is $PWD/pdks. If you want to install the PDK at a different location, you'll need add this configuration variable:
-    * `export PDK_ROOT=<absolute path to where skywater-pdk and open_pdks will reside>`
-        * Be sure to add this to your shell's profile for future use.
-* The default SCL to be installed is `sky130_fd_sc_hd`.
-    * To change that, you can add this configuration variable: `export STD_CELL_LIBRARY=<Library name, i.e. sky130_fd_sc_ls>`, where the library name is one of:
-        - sky130_fd_sc_hd
-        - sky130_fd_sc_hs
-        - sky130_fd_sc_ms
-        - sky130_fd_sc_ls
-        - sky130_fd_sc_hdll
-    * You can install all Sky130 SCLs by invoking `FULL_PDK=1 make build-pdk-conda`.
-    * You can install the PDK manually, outside of the Makefile, by following the instructions provided [here][30].
-    * Refer to [this][24] for more details on OpenLane-compatible PDK structures.
+If you need other libraries, however, you will have to build the PDK manually. See [this document](./docs/source/building_the_pdk.md) for more information.
+
 
 # Running OpenLane
 You need to start the Docker container with proper paths mounted. There are two ways to do this.
@@ -139,7 +121,7 @@ The following is roughly what happens under the hood when you run `make mount` +
 
 **Note: this will mount the OpenLane directory and the PDK_ROOT directory inside the container.**
 
-You can use the following example to check the overall setup:
+You can use the following example as a smoke test:
 
 ```bash
 ./flow.tcl -design spm
@@ -155,17 +137,17 @@ The following are arguments that can be passed to `flow.tcl`
 
 | Argument | Description |
 | - | - |
-| `-design <folder path>`  <br>(Required) | Specifies the design folder. A design folder should contain a config.tcl defining the design parameters.  <br>If the folder is not found, ./designs directory is searched |
+| `-design <folder path>`  <br>(Optional) | Specifies the design folder. A design folder should contain a `config.json` or `config.tcl` file defining the design parameters. <br> If the folder is not found, ./designs directory is searched, and if this parameter is omitted, the current working directory is treated as the design. |
 | `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
 | `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
-| `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `/spm/config2.tcl`  <br>Use run `./flow.tcl -design /spm -config_file /spm/config2.tcl`  <br>By default `config.tcl` is used. |
+| `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `./designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design ./designs/spm -config_file ./designs/spm/config2.tcl`  <br>By default `config.tcl` is used, and if not found, `config.json` is used instead. |
 | `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `KEY1=VALUE1,KEY2=VALUE2` |
-| `-config_tag <name>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design spm -config_tag config2`  <br>By default `config` is used. |
-| `-tag <name>`  <br>(Optional) | Specifies a `name` for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  <br>Can Specify the configuration file name in case of using `-init_design_config` |
+| `-tag <name>`  <br>(Optional) | Specifies a "name" for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  |
 | `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
 | `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
-| `-init_design_config`  <br>(Optional) | Creates a tcl configuration file for a design. `-tag <name>` can be added to rename the config file to `<name>.tcl` |
-| `-overwrite`  <br>(Optional) | Flag to overwirte an existing run with the same tag |
+| `-init_design_config`  <br>(Optional) | Creates a configuration file for a design. The config file is by default `openlane/config.json`, but can be overriden using the value from `-config_file`.  |
+| `-add_to_designs` <br>(Optional) | Adds the design to the OpenLane folder instead of creating an `openlane` folder. This is the default behavior on earlier versions of OpenLane. |
+| `-overwrite`  <br>(Optional) | Flag to overwrite an existing run with the same tag |
 | `-interactive`  <br>(Optional) | Flag to run openlane flow in interactive mode |
 | `-file <file_path>`  <br>(Optional) | Passes a script of interactive commands in interactive mode |
 | `-synth_explore`  <br>(Boolean) | If enabled, synthesis exploration will be run (only synthesis exploration), which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under &lt;run_path/results/synthesis&gt; and a summary report under reports that compares the 4 outputs. |
@@ -243,8 +225,8 @@ OpenLane integrated several key open source tools over the execution stages:
 All output run data is placed by default under ./designs/design_name/runs. Each flow cycle will output a timestamp-marked folder containing the following file structure:
 
 ```
-designs/<design_name>
-├── config.tcl
+<design_name>
+├── config.json/config.tcl
 ├── runs
 │   ├── <tag>
 │   │   ├── config.tcl
@@ -311,7 +293,7 @@ As explained [here](#adding-a-design) that each design has multiple configuratio
 
 OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s).
 
-Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files `config.tcl.` :
+Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following run: spm using its default configuration files:
 ```
 python3 run_designs.py --tag test --threads 3 spm xtea md5 aes256 
 ```

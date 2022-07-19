@@ -15,6 +15,7 @@
 # Floorplan defaults
 set ::env(FP_SIZING) relative
 set ::env(FP_CORE_UTIL) 50
+# PL_TARGET_DENSITY default value set in all.tcl because of the order of sourcing.
 set ::env(FP_CORE_MARGIN) 0
 set ::env(FP_ASPECT_RATIO) 1
 
