@@ -486,9 +486,17 @@ proc prep {args} {
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
     handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
-    handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
     handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
+
+    handle_deprecated_config GLB_RT_ALLOW_CONGESTION GRT_ALLOW_CONGESTION;
+    handle_deprecated_config GLB_RT_OVERFLOW_ITERS GRT_OVERFLOW_ITERS;
+    handle_deprecated_config GLB_RT_ANT_ITERS GRT_ANT_ITERS;
+    handle_deprecated_config GLB_RT_ESTIMATE_PARASITICS GRT_ESTIMATE_PARASITICS;
+    handle_deprecated_config GLB_RT_MAX_DIODE_INS_ITERS GRT_MAX_DIODE_INS_ITERS;
+    handle_deprecated_config GLB_RT_OBS GRT_OBS;
+    handle_deprecated_config GLB_RT_ADJUSTMENT GRT_ADJUSTMENT;
+    handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION;
 
 
     if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {

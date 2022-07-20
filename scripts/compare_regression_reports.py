@@ -74,7 +74,7 @@ def cli(
         "FP_PDN_VPITCH",
         "FP_PDN_HPITCH",
         "PL_TARGET_DENSITY",
-        "GLB_RT_ADJUSTMENT",
+        "GRT_ADJUSTMENT",
         "STD_CELL_LIBRARY",
         "CELL_PAD",
         "DIODE_INSERTION_STRATEGY",

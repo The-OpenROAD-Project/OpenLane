@@ -17,9 +17,9 @@ foreach lib $::env(LIB_RESIZER_OPT) {
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
 if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
@@ -44,16 +44,16 @@ source $::env(SCRIPTS_DIR)/openroad/set_routing_layers.tcl
 source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
 
 set arg_list [list]
-lappend arg_list -congestion_iterations $::env(GLB_RT_OVERFLOW_ITERS)
+lappend arg_list -congestion_iterations $::env(GRT_OVERFLOW_ITERS)
 lappend arg_list -verbose
-if { $::env(GLB_RT_ALLOW_CONGESTION) == 1 } {
+if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
     lappend arg_list -allow_congestion
 }
 puts $arg_list
 global_route {*}$arg_list
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 
 # estimate wire rc parasitics
 estimate_parasitics -global_routing
@@ -93,4 +93,4 @@ write_sdc $::env(SAVE_SDC)
 # Run post timing optimizations STA
 estimate_parasitics -global_routing
 set ::env(RUN_STANDALONE) 0
-source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
+source $::env(SCRIPTS_DIR)/openroad/sta.tcl
