@@ -116,3 +116,5 @@ suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warn
 def setup(app):
     app.emit("create_index_softlink", "README.md", True)
     app.emit("toc_from_markdown", "README.md", ".autotoc.rst", True)
+
+numpydoc_show_class_members = False
