@@ -431,7 +431,12 @@ The voltage where the electrons number is equal to the holes is called Vthreshol
 
 Analog design flow
 --------------------------------------------------------------------------------
+Intro
+^^^^^^^^^^^^^^^
+.. todo:: Add introduction
 
+Installing tools
+^^^^^^^^^^^^^^^
 Let's install ``hpretl/iic-osic-tools`` which contains XSCHEM, NGSPICE, Netgen. KLayout will be ran from OpenLane docker image.
 
 .. code-block:: shell
@@ -456,12 +461,14 @@ It will open the xschem window:
 
 .. image:: ../_static/analog_flow/xschem_window.png
 
+Schematic
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Let's make a simple schematic for a NAND. For this let's use ``File -> New Schematic``
+In this step start building the simple schematic for a NAND. For this purpose use ``File -> New Schematic``
 
 .. image:: ../_static/analog_flow/new_schematic.png
 
-Next, let's actually draw our NAND unit. Let's create transistors.
+Next, draw the NAND unit. For this purpose, create transistors.
 Click on the ``Tools -> Insert Symbol`` to create new componets.
 
 .. image::  ../_static/analog_flow/tools_insert.png
@@ -481,9 +488,28 @@ Then click on the workspace to actually create the instance.
 
 .. figure:: ../_static/analog_flow/nfet_01v8.png
 
-Repeat the 
+Repeat the same step to create another ``nfet_01v8`` and two ``pfet_01v8``.
+Or use click to select the transistor, then use Ctrl + C and Ctrl + V to copy the instance.
 
-.. todo:: Add the PMOS cell step
+.. figure:: ../_static/analog_flow/4_transistors_schematic.png
+
+How do we know what transistors to use?
+According to `sky130_fd_sc_hd documentation provided here <https://skywater-pdk.readthedocs.io/en/main/contents/libraries/foundry-provided.html>`_
+it is clear that the library we are targeting uses this transistors.
+
+Transistor choice in the library is always deliberate:
+For example:
+* High Vthreshold transistors will use less power, but will be slower and bigger => sky130_fd_sc_lp
+* Low Vthreshold transistors will be faster, but more power consuming and will take more area => sky130_fd_sc_hs
+* High Density grid will provide better area utilization at the cost of speed => sky130_fd_sc_hd
+* Low leakage library will have reduced static leakage, at the cost of area and power  => sky130_fd_sc_hdll
+
+If we want, we can use different type of transistors at a certain cost.
+Since the layers to implement these transistors might have stricter spacing requirements,
+the cells with different type of transistor than rest of the library will utilize bigger area.
+
+The process of integrated circuit design is always about picking and choosing the tradeoffs.
+One of the most common ones are: Cost, Power and Speed.
 
 .. todo:: Add XSCHEM drawing the NAND half
 .. todo:: Add XSCHEM building the Testbench half
