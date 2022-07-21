@@ -76,7 +76,6 @@ def cli(
         "PL_TARGET_DENSITY",
         "GRT_ADJUSTMENT",
         "STD_CELL_LIBRARY",
-        "CELL_PAD",
         "DIODE_INSERTION_STRATEGY",
     ]
 

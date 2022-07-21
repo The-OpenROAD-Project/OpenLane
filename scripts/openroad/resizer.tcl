@@ -71,12 +71,10 @@ if { $::env(PL_RESIZER_REPAIR_TIE_FANOUT) == 1} {
 
 report_floating_nets -verbose
 
-set_placement_padding -global -right $::env(CELL_PAD)
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
 
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
-}
 detailed_placement
+
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }

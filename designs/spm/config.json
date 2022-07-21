@@ -9,30 +9,22 @@
     "FP_PDN_HOFFSET": 7,
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "pdk::sky130A": {
+        "FP_CORE_UTIL": 45,
         "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": 10,
-            "SYNTH_MAX_FANOUT": 5,
-            "FP_CORE_UTIL": 45
+            "CLOCK_PERIOD": 10
         },
         "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": 10,
-            "SYNTH_MAX_FANOUT": 5,
-            "FP_CORE_UTIL": 49
+            "CLOCK_PERIOD": 10
         },
         "scl::sky130_fd_sc_hs": {
-            "CLOCK_PERIOD": 10,
-            "SYNTH_MAX_FANOUT": 5,
-            "FP_CORE_UTIL": 49
+            "CLOCK_PERIOD": 8
         },
         "scl::sky130_fd_sc_ls": {
             "CLOCK_PERIOD": 10,
-            "SYNTH_MAX_FANOUT": 5,
-            "FP_CORE_UTIL": 49
+            "SYNTH_MAX_FANOUT": 5
         },
         "scl::sky130_fd_sc_ms": {
-            "CLOCK_PERIOD": 10,
-            "SYNTH_MAX_FANOUT": 5,
-            "FP_CORE_UTIL": 49
+            "CLOCK_PERIOD": 10
         }
     }
 }

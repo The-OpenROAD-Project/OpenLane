@@ -209,7 +209,8 @@ proc run_resizer_design {args} {
 proc remove_buffers {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Removing buffers..."
+    puts_info "Removing Buffers (If Applicable)..."
+
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.remove_buffers.def
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\

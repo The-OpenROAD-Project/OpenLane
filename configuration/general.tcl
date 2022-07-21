@@ -54,7 +54,7 @@ set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 set ::env(KLAYOUT_XOR_GDS) 1
 set ::env(KLAYOUT_XOR_XML) 1
 
-set ::env(RUN_ROUTING_DETAILED) 1
+set ::env(RUN_DRT) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10.0"
 set ::env(RUN_KLAYOUT) 1

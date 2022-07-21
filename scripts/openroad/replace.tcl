@@ -82,15 +82,10 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
-# lappend arg_list -pad_right $::env(CELL_PAD)
-# lappend arg_list -pad_left $::env(CELL_PAD)
+set cell_pad_side [expr $::env(GPL_CELL_PADDING) / 2]
 
-set_placement_padding -global -right $::env(CELL_PAD)
-
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-	set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
-}
-
+lappend arg_list -pad_right $cell_pad_side
+lappend arg_list -pad_left $cell_pad_side
 
 global_placement {*}$arg_list
 

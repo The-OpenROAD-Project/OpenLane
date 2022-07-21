@@ -117,44 +117,50 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
-    set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
-
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
-        -o $::env(routing_reports)/detailed.klayout.xml \
-        --design-name $::env(DESIGN_NAME) \
-        $::env(routing_reports)/detailed.drc
-
-    quit_on_tr_drc
+    handle_deprecated_command detailed_routing
 }
 
 proc detailed_routing_drcu {args} {
-    handle_deprecated_command detailed_routing_tritonroute
+    handle_deprecated_command detailed_routing
 }
 
 proc detailed_routing {args} {
+    if { !$::env(RUN_DRT) } {
+        return
+    }
+
+    if { $::env(DETAILED_ROUTER) == "drcu" } {
+        puts_warn "DR-CU is no longer supported. OpenROAD's detailed router will be used instead."
+        set ::env(DETAILED_ROUTER) "tritonroute"
+    }
+
     increment_index
     TIMER::timer_start
-    puts_info "Running Detailed Routing..."
+
+    set drt_log [index_file $::env(routing_logs)/drt.log]
+    set drt_log_relative [relpath . $drt_log]
+
+    puts_info "Running Detailed Routing (logging to '$drt_log_relative')..."
 
     set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
 
-    set tool "openroad"
-    if {$::env(RUN_ROUTING_DETAILED)} {
-        if { $::env(DETAILED_ROUTER) == "drcu" } {
-            puts_warn "DR-CU is no longer supported. OpenROAD tritonroute will be used instead."
-            set ::env(DETAILED_ROUTER) "tritonroute"
-        }
-        detailed_routing_tritonroute
+    set ::env(_tmp_drt_file_prefix) $::env(routing_tmpfiles)/drt
+    set ::env(_tmp_drt_rpt_prefix) $::env(routing_reports)/drt
 
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/detailed.log]
-    }
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log $drt_log
+
+    unset ::env(_tmp_drt_file_prefix)
+    unset ::env(_tmp_drt_rpt_prefix)
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+        -o $::env(routing_reports)/drt.klayout.xml \
+        --design-name $::env(DESIGN_NAME) \
+        $::env(routing_reports)/drt.drc
+
+    quit_on_tr_drc
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - $tool"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
     set_def $::env(SAVE_DEF)
 }
 
@@ -173,10 +179,7 @@ proc ins_fill_cells {args} {
         set_def $::env(SAVE_DEF)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/fill.log]
     }
-
 }
 
 proc power_routing {args} {

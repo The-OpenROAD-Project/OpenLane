@@ -220,8 +220,8 @@ proc check_macro_placer_num_solns {args} {
 }
 
 proc quit_on_tr_drc {args} {
-    if { [info exists ::env(QUIT_ON_TR_DRC)] && $::env(QUIT_ON_TR_DRC) } {
-        set checker [count_matches violation $::env(routing_reports)/detailed.drc]
+    if { $::env(QUIT_ON_TR_DRC) } {
+        set checker [count_matches violation $::env(routing_reports)/drt.drc]
 
         if { $checker != 0 } {
             puts_err "There are violations in the design after detailed routing."

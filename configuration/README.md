@@ -146,7 +146,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MACRO_HALO` | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `PL_MACRO_CHANNEL` | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros |
-| `DONT_BUFFER_PORTS` | Semicolon;delimited list of nets from which to remove buffers after placement (but before resizing). <br> (Default: None) |
+| `DONT_BUFFER_PORTS` | Semicolon;delimited list of nets from which to remove buffers after placement (but before resizing). <br> (Default: Empty) |
+| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Default: `0`) |
 
 ### CTS
 
@@ -247,7 +248,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_MISMATCHES` | Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
 | `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
 | `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `RUN_ROUTING_DETAILED` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
