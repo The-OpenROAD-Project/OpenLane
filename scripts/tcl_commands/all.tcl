@@ -464,7 +464,7 @@ proc prep {args} {
 
     ## Hack: Update CELL_PAD in OpenLane for now while we wait for Open_PDKs to be usable
     if { [info exists ::env(CELL_PAD)] } {
-        puts_verbose "[HACK] Updating PDK cell padding values..."
+        puts_verbose "\[HACK\] Updating PDK cell padding values..."
         set ::env(GPL_CELL_PADDING) {0}
         set ::env(DPL_CELL_PADDING) $::env(CELL_PAD)
         unset ::env(CELL_PAD)
