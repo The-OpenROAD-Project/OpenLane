@@ -25,7 +25,7 @@ OpenLane is an automated RTL to GDSII flow based on several components including
    docs/source/pdk_structure
    docs/source/using_or_issue
    AUTHORS
-   .github/workflow-documentation.md
+   
    docker/README.md
    docs/source/issue_regression_tests
 
