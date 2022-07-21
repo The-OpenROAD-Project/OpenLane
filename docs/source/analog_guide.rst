@@ -4,7 +4,7 @@
 .. todo:: Add 5 todos
 .. todo:: Add 5 todos
 
-Full Guide
+Analog Cells and integration with OpenLane
 ================================================================================
 
 The end goal for OpenLane flow is to generate an `integrated circuit <https://en.wikipedia.org/wiki/Integrated_circuit>`_
@@ -127,6 +127,7 @@ Verification decks
 ^^^^^^^^^^^^^^^
 As part of PDK foundries provide ready to use verification decks for different tools.
 Open_PDKs for sky130 provides following decks:
+
 * DRC for Magic VLSI and KLayout.
 * LVS/PEX extraction for Magic VLSI
 * Ruleset for netgen
@@ -499,6 +500,7 @@ it is clear that the library we are targeting uses this transistors.
 
 Transistor choice in the library is always deliberate:
 For example:
+
 * High Vthreshold transistors will use less power, but will be slower and bigger => sky130_fd_sc_lp
 * Low Vthreshold transistors will be faster, but more power consuming and will take more area => sky130_fd_sc_hs
 * High Density grid will provide better area utilization at the cost of speed => sky130_fd_sc_hd
