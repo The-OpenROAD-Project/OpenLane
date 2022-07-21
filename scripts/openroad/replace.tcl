@@ -22,7 +22,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 	}
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
 	puts stderr $errmsg
 	exit 1
 }
@@ -82,11 +82,15 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
+# lappend arg_list -pad_right $::env(CELL_PAD)
+# lappend arg_list -pad_left $::env(CELL_PAD)
+
 set_placement_padding -global -right $::env(CELL_PAD)
 
 if { $::env(CELL_PAD_EXCLUDE) != "" } {
 	set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
 }
+
 
 global_placement {*}$arg_list
 

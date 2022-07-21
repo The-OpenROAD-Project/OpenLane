@@ -52,7 +52,7 @@ proc random_global_placement {args} {
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
         --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF_UNPADDED) \
+        --input-lef $::env(MERGED_LEF) \
         $::env(CURRENT_DEF) \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
 
@@ -172,11 +172,9 @@ proc run_placement {args} {
         set ::env(PL_TARGET_DENSITY) $old_pl_target_density
     }
 
-    run_resizer_design
+    remove_buffers
 
-    if { [info exists ::env(DONT_BUFFER_PORTS) ]} {
-        remove_buffers
-    }
+    run_resizer_design
 
     detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
 
@@ -219,9 +217,10 @@ proc remove_buffers {args} {
         --input-lef  $::env(MERGED_LEF)\
         --ports $::env(DONT_BUFFER_PORTS)\
         $::env(CURRENT_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/remove_buffers.log]
 
-    set_def $::env(SAVE_DEF)TIMER::timer_stop
+    set_def $::env(SAVE_DEF)
+    TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers - openlane"
 }
 

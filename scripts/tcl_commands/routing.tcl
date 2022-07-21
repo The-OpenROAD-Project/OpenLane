@@ -343,7 +343,7 @@ proc run_spef_extraction {args} {
     parse_key_args "run_spef_extraction" args arg_values $options
 
     set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
-    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF_UNPADDED)
+    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
 
     set ::env(RCX_LIB) $arg_values(-rcx_lib)
@@ -391,8 +391,6 @@ proc run_routing {args} {
             ins_diode_cells_4
         }
     }
-
-    use_original_lefs
 
     add_route_obs
 

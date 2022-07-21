@@ -89,6 +89,8 @@ proc prep_lefs {args} {
     set_if_unset arg_values(-env_var) MERGED_LEF
     set_if_unset arg_values(-corner) nom
 
+    set merged_lef_path $::env(TMP_DIR)/merged.$arg_values(-corner).lef
+
     if { ![file exists $arg_values(-tech_lef)] } {
         if { $arg_values(-env_var) == "MERGED_LEF" } {
             puts_err "Nominal process corner '$arg_values(-tech_lef)' not found."
@@ -114,36 +116,32 @@ proc prep_lefs {args} {
         puts_verbose "Merging LEF Files..."
     }
 
-    set mlu $::env(TMP_DIR)/merged.unpadded.$arg_values(-corner).lef
-
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-        -o $mlu\
+        -o $merged_lef_path\
         -i $arg_values(-tech_lef) $arg_values(-cell_lef)\
         |& tee $::env(TERMINAL_OUTPUT)
 
-    set mlu_relative [relpath . $mlu]
-    puts_verbose "Created merged LEF without pads at '$mlu_relative'..."
+    set mlp_relative [relpath . $merged_lef_path]
+    puts_verbose "Created merged LEF without pads at '$mlp_relative'..."
 
     # Merged Extra Lefs (if they exist)
     if { [info exist ::env(EXTRA_LEFS)] } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $mlu\
-            -i $mlu {*}$::env(EXTRA_LEFS)\
+            -o $merged_lef_path\
+            -i $merged_lef_path {*}$::env(EXTRA_LEFS)\
             |& tee $::env(TERMINAL_OUTPUT)
-        puts_verbose "Added extra lefs to '$mlu_relative'..."
+        puts_verbose "Added extra lefs to '$mlp_relative'..."
     }
 
     # Merge optimization TLEF/CLEF (if exists)
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $mlu\
-            -i $mlu $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
-        puts_verbose "Added optimization library tech lef and cell lefs to '$mlu_relative'..."
+            -o $merged_lef_path\
+            -i $merged_lef_path $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
+        puts_verbose "Added optimization library tech lef and cell lefs to '$mlp_relative'..."
     }
 
     # Merge pads (if GPIO_PADS_LEF exists)
-    set ml $::env(TMP_DIR)/merged.$arg_values(-corner).lef
-    set ml_relative [relpath . $ml]
     if { $::env(USE_GPIO_PADS) } {
         if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
             set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
@@ -151,21 +149,12 @@ proc prep_lefs {args} {
 
         puts_verbose "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $ml\
-            -i $mlu {*}$::env(GPIO_PADS_LEF)
-        puts_verbose "Created '$ml_relative' with gpio pads."
-    } else {
-        file copy -force $mlu $ml
-        puts_verbose "Created '$ml_relative' unaltered."
+            -o $merged_lef_path\
+            -i $merged_lef_path {*}$::env(GPIO_PADS_LEF)
+        puts_verbose "Created '$mlp_relative' with gpio pads."
     }
 
-    set ::env($arg_values(-env_var)_UNPADDED) $mlu
-    set ::env($arg_values(-env_var)) $ml
-
-    if { ![info exists flags_map(-no_widen)] } {
-        widen_site_width
-        use_widened_lefs
-    }
+    set ::env($arg_values(-env_var)) $merged_lef_path
 }
 
 proc gen_exclude_list {args} {
@@ -894,7 +883,7 @@ proc heal_antenna_violators {args} {
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
             replace_fake\
             --output $::env(routing_results)/$::env(DESIGN_NAME).def\
-            --input-lef $::env(MERGED_LEF_UNPADDED)\
+            --input-lef $::env(MERGED_LEF)\
             --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
             --fake-diode $::env(FAKEDIODE_CELL)\
             --true-diode $::env(DIODE_CELL)\
@@ -904,51 +893,6 @@ proc heal_antenna_violators {args} {
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
     }
 }
-
-proc widen_site_width {args} {
-    set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
-    set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)
-
-    if { $::env(WIDEN_SITE) == 1 && $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-        set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(MERGED_LEF_UNPADDED)
-        set ::env(MERGED_LEF_WIDENED) $::env(MERGED_LEF)
-    } else {
-        puts_info "Widening Site Width..."
-        set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
-        set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
-
-        set widen_args [list]
-        lappend widen_args --widen-value $::env(WIDEN_SITE)
-        if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-            lappend widen_args --factor
-        }
-
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/lefutil.py widen_site\
-            {*}$widen_args\
-            --output $::env(MERGED_LEF_UNPADDED_WIDENED)\
-            $::env(MERGED_LEF_UNPADDED)
-
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/lefutil.py widen_site\
-            {*}$widen_args\
-            --output $::env(MERGED_LEF_WIDENED)\
-            $::env(MERGED_LEF)
-    }
-}
-
-proc use_widened_lefs {args} {
-    if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
-        set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
-        set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
-    }
-}
-
-proc use_original_lefs {args} {
-    if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
-        set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
-        set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
-    }
-}
-
 
 proc label_macro_pins {args} {
     TIMER::timer_start

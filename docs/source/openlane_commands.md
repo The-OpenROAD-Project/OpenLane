@@ -20,7 +20,7 @@ Most of the following commands' implementation exists in this [file][0]
 | `set_netlist <netlist>`   | | Sets the current netlist used by the flow to `<netlist>` |
 |    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist. <br> Optional flag.       |
 | `set_def <def>`   | | Sets the current def file used by the flow to `<def>` |
-| `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generated a merged.lef and a merged_unpadded.lef. Both to be used by different stages of the flow.|
+| `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generating a merged.lef.|
 | `trim_lib`   | | prepares a liberty file (i.e. `LIB_SYNTH`) by trimming the `NO_SYNTH_CELL_LIST` and `DRC_EXCLUDE_CELL_LIST` from another input liberty file (i.e. `$::env(LIB_SYNTH_COMPLETE)`). |
 |    | `[-output <lib_file>]` | The lib file to output the trimmed liberty into. <br> Default: `$::env(LIB_SYNTH)` <br> Optional flag. |
 |    | `[-input <lib_file>]` | The input liberty file to trim the cells from. <br> Default: `$::env(LIB_SYNTH_COMPLETE)` <br> Optional flag. |
@@ -52,9 +52,6 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `[-spice_path <path>]` |  Changes the save path for the spice files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
 |    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `<run_path>/results/final`.<br> Optional flag.|
 |    | `-tag <run_tag>` |  **Removed:** Specifies the `<run_tag>` from which the views were generated.|
-| `widen_site_width`   | | generates two new lef files (merged_wider.lef and merged_unpadded_wider.lef) with a widened site width based on the values of `WIDEN_SITE_IS_FACTOR` and `WIDEN_SITE`, more about those in the [configurations/readme.md][13].|
-| `use_widened_lefs`   | | Switches to using the lef files with the widened site width in the flow.|
-| `use_original_lefs`   | | Switches to using the normal lef files in the flow.|
 | `label_macro_pins `   | | Labels the pins of a given macro def according to the netlist for lvs.|
 |    | `-lef <lef_file>` |  LEF file needed to have a proper view of the netlist AND the input DEF.|
 |    | `-netlist_def <def_file>` |  DEF view of the design that has the connectivity information.|

@@ -197,7 +197,7 @@ proc place_contextualized_io {args} {
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
         --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF_UNPADDED) \
+        --input-lef $::env(MERGED_LEF) \
         --top-def $::env(placement_tmpfiles)/top_level.def \
         --top-lef $::env(placement_tmpfiles)/top_level.lef \
         $prev_def |& tee [index_file $::env(floorplan_logs)/io.contextualize.log]

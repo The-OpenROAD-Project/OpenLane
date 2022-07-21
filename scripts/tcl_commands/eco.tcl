@@ -72,7 +72,7 @@ proc eco_gen_buffer {args} {
         "insert_buffer" \
         -s $::env(ECO_SKIP_PIN) \
         {*}$sta_args \
-        -l $::env(MERGED_LEF_UNPADDED) \
+        -l $::env(MERGED_LEF) \
         -o $::env(routing_results)/eco_fix.tcl \
         $::env(CURRENT_DEF)
 }
