@@ -200,7 +200,7 @@ In order to check installation, you can use following commands:
 .. image:: ../_static/installation/version_check.png
 
 Step 5. Download OpenLane
---------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download OpenLane from GitHub:
 
 .. code-block:: console
@@ -213,7 +213,7 @@ Download OpenLane from GitHub:
 
 
 Step 6. Download the Docker Image and install sky130PDK
---------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download the Docker image of OpenLane and install sky130 PDK:
 
 .. code-block:: console
@@ -223,7 +223,7 @@ Download the Docker image of OpenLane and install sky130 PDK:
 If you are planning to use other PDK, then you need to follow the PDK installation guide for that specific PDK.
 
 Step 7. Validating the installation
---------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Test the installed PDK and OpenLane:
 
@@ -234,7 +234,7 @@ Test the installed PDK and OpenLane:
 .. image:: ../_static/installation/successful_make_test.png
 
 Step 8. Optional: Viewing the test design outputs
---------------------------------------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
 
