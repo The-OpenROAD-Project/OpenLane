@@ -21,8 +21,6 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
-from recommonmark.parser import CommonMarkParser
-
 sys.path.insert(0, os.path.abspath("docs/_ext"))
 
 # -- Project information -----------------------------------------------------
@@ -41,16 +39,9 @@ extensions = [
     "markdown_code_links",  # CUSTOM
     "markdown_cross_doc_section_links",  # CUSTOM
     "sphinx.ext.autosectionlabel",
-    "sphinx_markdown_tables",
     "image_links",  # CUSTOM
-    "recommonmark"
+    "myst_parser",
 ]
-
-# Expand source suffixes
-
-source_parsers = {
-    ".md": CommonMarkParser,
-}
 
 source_suffix = {
     ".rst": "restructuredtext",
