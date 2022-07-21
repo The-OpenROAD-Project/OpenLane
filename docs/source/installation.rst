@@ -258,7 +258,7 @@ Open the final layout using KLayout. This will open the window of KLayout in edi
 Updating OpenLane
 --------------------------------------------------------------------------------
 
-To update the OpenLane, run following commands:
+Run following commands update the OpenLane:
 
 .. code-block:: console
 
@@ -269,4 +269,4 @@ To update the OpenLane, run following commands:
 
 It is very similar to installation, one difference is
 that we pull the changes instead of creating a new workspace.
-Git pull will not remove your files inside workspace by default.
+Git pull by default will not remove your files inside workspace.
