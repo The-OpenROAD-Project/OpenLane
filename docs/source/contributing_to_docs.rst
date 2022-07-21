@@ -39,22 +39,18 @@ Pictures, figures, tables significantly improve the quality of documentation and
 Building documentation locally
 --------------------------------------------------------------------------------
 
-.. note:: ``venv`` for sphinx documentation is not the same ``venv`` used for development of OpenLane. Avoid mixing them.
-
-In order to contribute to documentation, it is useful to take a look at a preview, before pushing your changes. For this purpose, you can install the sphinx and build the documentation.
+Assuming you have OpenLane installed it will create ``venv``. Install requirements for documentation building inside ``venv``.
 
 .. code-block:: console
 
-    # assuming you are inside OpenLane folder and the parent direcoty of OpenLane can be used to store the venv directory.
-    
-    # create venv enviornment
-    python -m venv ../venv
+    cd OpenLane/
+    # assuming you are inside OpenLane folder
 
     # activate venv
-    source ../venv/bin/activate
+    source venv/bin/activate
 
     # Install required modules
-    python -m pip install -r docs/requirements.txt 
+    make -C docs/ install
 
 
 You can check the installation and see that sphinx was installed.
@@ -63,28 +59,32 @@ You can check the installation and see that sphinx was installed.
   :width: 800
   :alt: docs contribution tools installation successful
 
+.. todo:: Update screenshot
+
 After installation, every time you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
 .. code-block:: console
 
+    cd OpenLane/
     # assuming you are inside OpenLane folder
-
-    # activate venv
-    source ../venv/bin/activate
-
-    # Run sphinx
-    sphinx-build . ../sphinx_output
+    make -C docs/ html
 
 .. image:: ../_static/docs_contribution/sphinx_build.png
   :width: 800
   :alt: docs contribution tools installation successful
+
+.. todo:: Update the screenshots
 
 View the generated html files using Firefox or other browser. To open this document in browser:
 
 .. code-block:: console
 
     # Assuming same folder as OpenLane
-    firefox ../sphinx_output/docs/source/contributing_to_docs.html
+    cd OpenLane/
+
+    firefox docs/_build/html/docs/source/reference.html
+
+.. todo:: Update the path, since we are using different build directory
 
 Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_. More information `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_.
 
@@ -98,6 +98,8 @@ while the screenshots for the installation guide are located in ``docs/_static/i
 Directory ``docs/source/`` contains all of the page's content.
 You can add pages by creating the corresponding file in that folder.
 Then you need to add your page to the Table of Contents in ``index.rst``.
+Or if you want it to be in category, then modify the Table of Contents of said category.
+If you want to create new category than take a look at the source code of existing category.
 
 Writing Style and Consistency
 --------------------------------------------------------------------------------

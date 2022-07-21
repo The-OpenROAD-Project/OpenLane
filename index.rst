@@ -9,5 +9,6 @@ OpenLane is an automated RTL to GDSII flow based on several components including
    docs/source/getting_started
    docs/source/usage
    docs/source/for_developers
+   docs/source/reference
    AUTHORS
 
