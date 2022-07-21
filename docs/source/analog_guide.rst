@@ -247,7 +247,7 @@ Components are usually divided into subcomponents.
 Each subcomponents is distributed as task to the team members or sub-teams.
 Subcomponents specification allows to define the responsibility between teams and avoids a lot of confusion.
 
-Let's make an example specification for our project, so we will see what we are dealing with.
+Here is an example specification for this guide.
 
 .. list-table:: Title
    :widths: 50 50

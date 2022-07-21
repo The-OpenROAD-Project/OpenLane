@@ -5,8 +5,6 @@ OpenLane is an automated RTL to GDSII flow based on several components including
 
 .. toctree::
    :glob:
-   
-
    docs/source/installation
    docs/source/quickstart
    docs/source/configuration

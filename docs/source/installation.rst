@@ -238,6 +238,8 @@ This should produce a clean run for the ``spm``. The final layout can be found h
       -l $PDK_ROOT/sky130A/libs.tech/klayout/sky130A.lyp \
       ./designs/spm/runs/openlane_test/results/final/gds/spm.gds
 
+   # Leave the Docker
+   exit
 This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
 
 .. image:: ../_static/installation/spm.png

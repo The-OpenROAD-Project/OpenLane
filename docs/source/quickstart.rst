@@ -1,6 +1,9 @@
 Quick start
 =======================
 
+.. todo:: Overview better
+.. todo:: config.json not config.tcl
+
 Overview
 ------------------------------------
 OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
@@ -14,7 +17,7 @@ The tool encapsulates the underlying tools to allow users to configure them all 
 
 The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
 
-Entering OpenLane environment
+Starting OpenLane
 ------------------------------------------------------------------------
 .. note::
     If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
@@ -27,10 +30,22 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
     make mount
 
 
+TODO: Use one of the designs
+------------------------------------------------------------------------
+
+.. todo:: Fix this
+
+In order to run the flow you need to execute following command:
+
+.. code-block:: console
+
+    ./flow.tcl -design <design_name>
+
+
 Creating new designs
 ------------------------------------------------------------------------
 
-.. warning:: This guide assumes that you are running inside Docker image. If you are not running inside docker that run ``make mount`` before following steps below you are on your own
+.. warning:: This guide assumes that you are running inside Docker image. Dockerless installation is not supported.
 
 First, start OpenLane Docker image using following command:
 
