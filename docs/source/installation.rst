@@ -40,7 +40,7 @@ After installing all of the above, proceed to :ref:`step2`.
 Installation of required packages under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-You need at least Ubuntu 20.04 and above. All of the required packages are included in the Docker image, so the installation list is slim.
+Only Ubuntu 20.04 and above are supported. All of the required packages are included in the Docker image, so the installation list is slim.
 
 .. code-block:: bash
 
@@ -49,7 +49,7 @@ You need at least Ubuntu 20.04 and above. All of the required packages are inclu
 
 Installation of Docker under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Second you need to install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
+Next install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
 .. warning::
     The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
@@ -105,7 +105,7 @@ Requirements in Containerless/Local Installations
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 .. warning::
-   OpenLane encourages you to avoid using Containerless/Local installation method. As the version of the packages can affect the performance and reproducibility. Most of the documentation assumes that you are using Docker based flow, but if you choose to use containerless installation, then you are on your own.
+  Avoid using Containerless/Local installation method. The versions of the packages can affect the performance and reproducibility. It is assumed that you are using Docker based flow. Containerless installations are not supported.
 
 Please see `local installation <local_installs.html>`_
 
@@ -199,34 +199,45 @@ In order to check installation, you can use following commands:
 
 .. image:: ../_static/installation/version_check.png
 
-Step 5. Building and validating OpenLane installation
+Step 5. Download OpenLane
 --------------------------------------------------------------------------------
-
-In order to download and validate OpenLane installation run the following commands,
-explanation of each step is provided below:
+Download OpenLane from GitHub:
 
 .. code-block:: console
 
    git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
    cd OpenLane/
-   make # Building sky130 PDK
-   make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 
-First step downloads shallow (small) copy of the OpenLane `cd`s into it.
-Second step actually installs sky130 PDK,
-but for proprietary PDKs you need to follow the steps in the integration guide of that specific PDK.
-Last step runs ``spm`` design using the sky130 PDK.
 
 .. image:: ../_static/installation/git_clone_openlane.png
 
 
-This installs the latest, stable version of OpenLane. Then ``make test`` ensures that PDK and flow are installed correctly. THe command runs the flow on a small design called ``spm``.
+Step 6. Download the Docker Image and install sky130PDK
+--------------------------------------------------------------------------------
+Download the Docker image of OpenLane and install sky130 PDK:
 
+.. code-block:: console
+
+   make # Building sky130 PDK
+
+If you are planning to use other PDK, then you need to follow the PDK installation guide for that specific PDK.
+
+Step 7. Validating the installation
+--------------------------------------------------------------------------------
+
+Test the installed PDK and OpenLane:
+
+.. code-block:: console
+
+   make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 
 .. image:: ../_static/installation/successful_make_test.png
 
+Step 8. Optional: Viewing the test design outputs
+--------------------------------------------------------------------------------
 
-This should produce a clean run for the ``spm``. The final layout can be found here: ``designs/spm/runs/openlane_test/results/final/gds/spm.gds``.
+Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
+
 
 .. code-block:: console
 
@@ -240,7 +251,6 @@ This should produce a clean run for the ``spm``. The final layout can be found h
 
    # Leave the Docker
    exit
-This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
 
 .. image:: ../_static/installation/spm.png
 
