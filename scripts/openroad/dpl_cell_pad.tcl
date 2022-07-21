@@ -1,8 +1,4 @@
-set cell_pad_value $::env(CELL_PAD)
-
-if { [info exists ::(DPL_CELL_PAD)] } {
-    set cell_pad_value $::env(DPL_CELL_PAD)
-}
+set cell_pad_value $::env(DPL_CELL_PADDING)
 
 set cell_pad_side [expr $cell_pad_value / 2]
 

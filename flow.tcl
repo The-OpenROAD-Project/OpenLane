@@ -369,9 +369,9 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPENLANE_VERSION)]} {
-    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
-        if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
-            set ::env(OPENLANE_VERSION) "N/A"
+    if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
+        if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
+            set ::env(OPENLANE_VERSION) "UNKNOWN"
         }
     }
 }

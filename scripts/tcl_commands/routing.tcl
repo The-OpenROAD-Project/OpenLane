@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,14 +117,6 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    handle_deprecated_command detailed_routing
-}
-
-proc detailed_routing_drcu {args} {
-    handle_deprecated_command detailed_routing
-}
-
-proc detailed_routing {args} {
     if { !$::env(RUN_DRT) } {
         return
     }
@@ -137,7 +129,7 @@ proc detailed_routing {args} {
     increment_index
     TIMER::timer_start
 
-    set drt_log [index_file $::env(routing_logs)/drt.log]
+    set drt_log [index_file $::env(routing_logs)/detailed.log]
     set drt_log_relative [relpath . $drt_log]
 
     puts_info "Running Detailed Routing (logging to '$drt_log_relative')..."
@@ -162,6 +154,14 @@ proc detailed_routing {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
     set_def $::env(SAVE_DEF)
+}
+
+proc detailed_routing_drcu {args} {
+    handle_deprecated_command detailed_routing_tritonroute
+}
+
+proc detailed_routing {args} {
+    detailed_routing_tritonroute {*}$args
 }
 
 proc ins_fill_cells_or {args} {

@@ -1,6 +1,5 @@
 # How to Contribute
-We'd love to accept your patches and contributions to this project. There are
-just a few small guidelines you need to follow.
+We'd love to accept your patches and contributions to this project. There are just a few small guidelines you need to follow.
 
 # Branching
 For various reasons, it's recommended to call working branches, even in your forks, something else other than `master` or `main`, as those two branch names do have some special behavior associated with them. 

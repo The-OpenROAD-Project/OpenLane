@@ -80,11 +80,11 @@ repair_clock_nets -max_wire_length $::env(CTS_CLK_MAX_WIRE_LENGTH)
 
 estimate_parasitics -placement
 write_def $::env(SAVE_DEF)
-
-set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)"
-set_placement_padding -masters $buffers -left $::env(CELL_PAD)
 puts "\[INFO\]: Legalizing..."
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
+
 detailed_placement
+
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }

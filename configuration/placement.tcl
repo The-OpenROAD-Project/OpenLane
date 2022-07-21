@@ -40,4 +40,3 @@ set ::env(PL_MAX_DISPLACEMENT_Y) 100
 set ::env(PL_MACRO_HALO) {0 0}
 set ::env(PL_MACRO_CHANNEL) {0 0}
 set ::env(DONT_BUFFER_PORTS) {}
-set ::env(GPL_CELL_PADDING) {0}

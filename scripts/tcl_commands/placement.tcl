@@ -24,7 +24,8 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/replace.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -75,7 +76,7 @@ proc detailed_placement_or {args} {
     set ::env(SAVE_DEF) $arg_values(-def)
     set log [index_file $arg_values(-log)]
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/opendp.tcl -indexed_log $log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
     set_def $::env(SAVE_DEF)
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {

@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ if { ! $free_insts_flag } {
 
 set arg_list [list]
 
-lappend arg_list -verbose_level 1
 lappend arg_list -density $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
