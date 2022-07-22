@@ -120,4 +120,4 @@ The script can be used in two ways
 ## Command line arguments
 `python3 ./run_designs.py --help`
 
-[21]: ./columns_defintions.md
+[21]: ./datapoint_definitions.md

@@ -21,13 +21,12 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
-from recommonmark.parser import CommonMarkParser
 
 sys.path.insert(0, os.path.abspath("docs/_ext"))
 
 # -- Project information -----------------------------------------------------
 project = "OpenLane"
-copyright = "2020-2021 Efabless Corporation"
+copyright = "2020-2022 Efabless Corporation"
 author = "Efabless Corporation"
 
 
@@ -41,17 +40,12 @@ extensions = [
     "markdown_code_links",  # CUSTOM
     "markdown_cross_doc_section_links",  # CUSTOM
     "sphinx.ext.autosectionlabel",
-    "sphinx_markdown_tables",
     "image_links",  # CUSTOM
     "toc_from_markdown",  # CUSTOM
-    "recommonmark",
+    "myst_parser",
 ]
 
 # Expand source suffixes
-
-source_parsers = {
-    ".md": CommonMarkParser,
-}
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -60,7 +54,7 @@ source_suffix = {
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+# templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -69,6 +63,9 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     "scripts/tcl_commands/README.md",
+    "venv",
+    "pdks",
+    ".github",
     # Files included in other rst files.
 ]
 
@@ -92,10 +89,9 @@ html_theme_options = {}
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["docs/_static"]
 
-html_sidebars = {}
-
 todo_include_todos = True
 numfig = True
+
 markdown_code_links_githubrepo = "https://github.com/The-OpenROAD-Project/OpenLane"
 markdown_code_links_githubbranch = "blob/master"
 markdown_code_links_codefileextensions = [
@@ -111,6 +107,8 @@ markdown_code_links_codefileextensions = [
 autosectionlabel_prefix_document = True
 
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
+
+myst_heading_anchors = 3
 
 
 def setup(app):

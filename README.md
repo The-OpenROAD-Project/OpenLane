@@ -7,12 +7,10 @@ You can find the latest release of OpenLane [here](https://github.com/The-OpenRO
 
 This documentation is also available at [ReadTheDocs](https://openlane.readthedocs.io/).
 
-# Table of contents
+# Table Of Contents
 - [Prerequisites](#prerequisites)
 - [Setting up OpenLane](#setting-up-openlane)
-    - [Installation Notes](#installation-notes)
     - [Updating OpenLane](#updating-openlane)
-    - [Pulling or Building the OpenLane Docker Container](#pulling-or-building-the-openlane-docker-container)
 - [Running OpenLane](#running-openlane)
     - [Command line arguments](#command-line-arguments)
     - [Adding a design](#adding-a-design)
@@ -89,7 +87,7 @@ If you need other libraries, however, you will have to build the PDK manually.
 ## Building the PDK Manually
 The pre-built version of the PDK automatically installed as part of the previous steps includes a limited set of standard cell libraries that are appropriate for most users.
 
-If you need other libraries, however, you will have to build the PDK manually. See [this document](./docs/source/building_the_pdk.md) for more information.
+If you need other libraries, however, you will have to build the PDK manually. See [this document][30] for more information.
 
 
 # Running OpenLane
@@ -267,7 +265,7 @@ To delete all generated runs under all designs:
         ```
         $PDK_ROOT/$PDK/$STD_CELL_LIBRARY/config.tcl
         ```
-    - More on configuring a new PDK in this [section](#setting-up-OpenLane)
+    - More on configuring a new PDK in this [section](#setting-up-openlane)
 
 - Flow specific variables are related to the flow and are initialized with default values in:
 
@@ -379,7 +377,7 @@ To check the original author list of OpenLane, check [this][33].
 [27]: https://github.com/HanyMoussa/SPEF_EXTRACTOR
 [28]: https://github.com/scale-lab/OpenPhySyn
 [29]: ./docs/source/hardening_macros.md
-[30]: ./docs/source/manual_pdk_installation.md
+[30]: ./docs/source/building_the_pdk.md
 [31]: https://github.com/d-m-bailey/cvc
 [32]: ./CONTRIBUTING.md
 [33]: ./AUTHORS.md

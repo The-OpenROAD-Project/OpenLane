@@ -220,7 +220,7 @@ If you want to create further tweaks in the flow that the abundant configuration
 [5]: ./../../designs/README.md
 [6]: ./../../regression_results/README.md
 [7]: https://github.com/efabless/openlane/blob/master/designs/spm/pin_order.cfg
-[8]: ./PDK_STRUCTURE.md
+[8]: ./pdk_structure.md
 [9]: ./advanced_power_grid_control.md
-[10]: ./../../regression_results/columns_defintions.md
+[10]: ./../../regression_results/datapoint_definitions.md
 [11]: ./../../scripts/base.sdc
