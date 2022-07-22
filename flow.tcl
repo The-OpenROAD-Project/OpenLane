@@ -376,7 +376,16 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPEN
     }
 }
 
+if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
+    if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
+        unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
+    }
+}
+
 puts "OpenLane $::env(OPENLANE_VERSION)"
+if { [info exists ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)] } {
+    puts "(with mounted scripts from $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION))"
+}
 puts "All rights reserved. (c) 2020-2022 Efabless Corporation and contributors."
 puts "Available under the Apache License, version 2.0. See the LICENSE file for more details."
 puts ""

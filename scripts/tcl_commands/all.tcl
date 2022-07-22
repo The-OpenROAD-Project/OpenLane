@@ -993,14 +993,9 @@ proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
 
     set log [index_file $::env(signoff_logs)/antenna.log]
-
-    set antenna_checker_rpt [index_file $::env(signoff_reports)/antenna.rpt]
-    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
-
-    set ::env(_tmp_antenna_checker_rpt) $antenna_checker_rpt
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
-    unset ::env(_tmp_antenna_checker_rpt)
 
+    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
         --output $antenna_violators_rpt\
         $log
