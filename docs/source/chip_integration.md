@@ -48,8 +48,6 @@ You can follow the same instructions provided [here][8] for the rest of the hard
 
 [Here][0] you can find a list of all the available OpenLane configuration variables.
 
-Check this [section](#power-routing) for more details on power routing setup.
-
 ## Hardening The Full Chip
 
 The full chip requires an [interactive script][2] to harden. You could take this [full chip][5] as an example.
