@@ -55,7 +55,6 @@ if { ! $free_insts_flag } {
 
 set arg_list [list]
 
-lappend arg_list -verbose_level 1
 lappend arg_list -density $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
