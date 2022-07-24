@@ -1,27 +1,20 @@
 
 Installation
 ================================================================================
-OpenLane uses Docker images that contain binaries, libraries and packages ready-to-use.
+OpenLane uses Docker images that contain binaries,
+libraries and packages ready-to-use.
 All of the flow tools are encapsulated inside the container image
 
-Many open-source projects in the space are struggling with reproducibility.
-It is practically **impossible to create perfectly same environment**
-across many Operating Systems and distributions.
-The reasonable suggestion would be to use virtual machines,
-however virtual machines are heavy, hard to build and take up a lot of space.
+Open source projects typically have to address the challenge of variable user environments,
+operating systems, virtual machines, cloud based distribution etc.
+Docker containers alleviate this problem; they are easy to install and encapsulate a large amount of underlying complexity.
 
-Docker containers make things much easier and lightweight.
-They run on top of your existing kernel
-but libraries and binaries are isolated from the rest of the system.
-
-For this specific reason, it was decided to use containers and `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_ was selected as container engine.
-It saves you the struggle of installation,
-since the **prebuilt binaries are included in an isolated environment** inside the container.
+OpenLane uses `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_. It was selected as container engine to simplify the installation process by including pre-built binaries and PDK within the container.
 
 Installation steps
 --------------------------------------------------------------------------------
 
-Step 1. Installation of required packages
+Step 1. Installation of Required Packages
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For OpenLane you need a couple of tools installed:
@@ -47,7 +40,7 @@ Only Ubuntu 20.04 and above are supported. All of the required packages are incl
    sudo apt install -y build-essential python3 python3-venv python3-pip make git
 
 
-Installation of Docker under Ubuntu
+Docker Installation under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Next install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
@@ -150,7 +143,7 @@ You **must restart your operating system** for the group permissions to apply.
    groupadd: group 'docker' already exists
 
 
-Step 3. Checking the docker installation
+Step 3. Checking the Docker Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 After that you can run Docker Hello World without root. To test it use following command:
@@ -186,7 +179,7 @@ You will get a little happy message of Hello world, once again, but this time wi
    https://docs.docker.com/get-started/
 
 
-Troubleshooting of Step 3.
+Troubleshooting Step 3.
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you get Docker permission error when running any Docker images:
@@ -200,7 +193,7 @@ If you get Docker permission error when running any Docker images:
 
 Then you skipped a step or two. You forgot to follow :ref:`step2` or `restart your Operating System`.
 
-Step 4. Checking the requirements
+Step 4. Checking Installation Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to check installation, you can use following commands:
@@ -299,7 +292,7 @@ Download the Docker image of OpenLane and install sky130 PDK:
 
 If you are planning to use other PDK, then you need to follow the PDK installation guide for that specific PDK.
 
-Step 7. Validating the installation
+Step 7. Validating the Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Test the installed PDK and OpenLane:
@@ -314,7 +307,7 @@ Sucessful test looks like this:
 
    Basic test passed
 
-Step 8. Optional: Viewing the test design outputs
+Step 8. Optional: Viewing Test Design Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
