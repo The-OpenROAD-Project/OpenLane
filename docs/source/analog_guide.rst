@@ -30,12 +30,13 @@ but there is active work to support `fictional technologies like ASAP7 <https://
 The coolest part about sky130 is `Google funded Multi Project Wafer in partnership with Efabless <https://efabless.com/open_shuttle_program>`_.
 Using OpenMPW you can produce your integrated circuit for free (some limitations apply).
 
-This guide covers everything that you need to know in order to be able to create a final integrated circuit layout files, 
-which if done correctly can be produced by the foundry. As part of this tutorial we will make a simple bottom-to-top design utilizing as many features of OpenLane as we can.
+This guide covers everything that you need to know in order to be able to create a final integrated circuit layout files. 
+The output of OpenLane can be produced by the foundry.
+As part of this tutorial we will make a simple bottom-to-top design utilizing as many features of OpenLane.
 
-In this example we are going to create a simple memory macro, generate the layout files for it,
+This example covers creation of simple memory macro. This guide uses generated layout files for it,
 then use the generated memory to make a top level chip register file.
-While the guide covers only digital blocks, the digital macro blocks can be replaced by analog macros.
+While the guide covers only digital subcomponents, the flow is similar for analog subcomponents.
 Use `this guide to create the required files <custom_macros.html>`_.
 
 Structure of integrated circuits
@@ -58,7 +59,9 @@ The metalic interconnect layer connects the separate components.
 Dies are produced by foundries. Many foundries exist and each one of the foundries support specific technology.
 For example company Skywater Technology owns the technology sky130 and the foundries for this technology.
 But for foundry to be able to produce your chip, it has to follow a strict ruleset.
-Usually this information is provided as part of `Process design kit <https://en.wikipedia.org/wiki/Process_design_kit>`_.
+Usually this information is provided as part of :ref:`pdk`.
+
+
 
 .. todo:: Add a picture of the die
 .. todo:: replace PDK link with link to the local PDK section

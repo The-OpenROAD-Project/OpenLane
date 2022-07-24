@@ -82,9 +82,30 @@ Next install Docker. Follow `instructions provided in documentation of the Docke
    # Check for installation
    sudo docker run hello-world
 
-After installation you will get Hello World of Docker:
 
-.. image:: ../_static/installation/docker_installation_hello_world.png
+Successful installation of Docker looks like this:
+
+.. code-block:: console
+
+   After installation you will get Hello World of Docker:
+
+   Hello from Docker!
+   This message shows that your installation appears to be working correctly.
+
+   To generate this message, Docker took the following steps:
+   1. The Docker client contacted the Docker daemon.
+   2. The Docker daemon pulled the "hello-world" image from the Docker Hub. (amd64)
+   3. The Docker daemon created a new container from that image which runs the executable that produces the output you are currently reading.
+   4. The Docker daemon streamed that output to the Docker client, which sent it to your terminal.
+
+   To try something more ambitious, you can run an Ubuntu container with:
+   $ docker run -it ubuntu bash
+
+   Share images, automate workflows, and more with a free Docker ID:
+   https://hub.docker.com/
+
+   For more examples and ideas, visit:
+   https://docs.docker.com/get-started/
 
 Proceed to :ref:`step2`
 
@@ -100,14 +121,6 @@ First install `Homebrew <https://brew.sh/>`_ then run script below to install th
    brew install --cask docker
 
 Proceed to :ref:`step2`
-
-Requirements in Containerless/Local Installations
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-.. warning::
-  Avoid using Containerless/Local installation method. The versions of the packages can affect the performance and reproducibility. It is assumed that you are using Docker based flow. Containerless installations are not supported.
-
-Please see `local installation <local_installs.html>`_
 
 .. _step2:
 Step 2. Making Docker available without root
@@ -130,7 +143,11 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
 
 You **must restart your operating system** for the group permissions to apply.
 
-.. image:: ../_static/installation/docker_permission.png
+.. code-block:: console
+
+   sudo groupadd docker
+   sudo usermod -aG docker $USER
+   groupadd: group 'docker' already exists
 
 
 Step 3. Checking the docker installation
@@ -197,7 +214,57 @@ In order to check installation, you can use following commands:
    make --version
    python -m venv -h
 
-.. image:: ../_static/installation/version_check.png
+Successful outputs looks like this:
+
+.. code-block:: console
+
+   git --version
+   docker --version
+   python3 --version
+   python3 -m pip --version
+   make --version
+   python -m venv -h
+   git version 2.36.1
+   Docker version 20.10.16, build aa7e414fdc
+   Python 3.10.5
+   pip 21.0 from /usr/lib/python3.10/site-packages/pip (python 3.10)
+   GNU Make 4.3
+   Built for x86_64-pc-linux-gnu
+   Copyright (C) 1988-2020 Free Software Foundation, Inc.
+   License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+   This is free software: you are free to change and redistribute it.
+   There is NO WARRANTY, to the extent permitted by law.
+   usage: venv [-h] [--system-site-packages] [--symlinks | --copies] [--clear]
+               [--upgrade] [--without-pip] [--prompt PROMPT] [--upgrade-deps]
+               ENV_DIR [ENV_DIR ...]
+
+   Creates virtual Python environments in one or more target directories.
+
+   positional arguments:
+   ENV_DIR               A directory to create the environment in.
+
+   options:
+   -h, --help            show this help message and exit
+   --system-site-packages
+                           Give the virtual environment access to the system
+                           site-packages dir.
+   --symlinks            Try to use symlinks rather than copies, when symlinks
+                           are not the default for the platform.
+   --copies              Try to use copies rather than symlinks, even when
+                           symlinks are the default for the platform.
+   --clear               Delete the contents of the environment directory if it
+                           already exists, before environment creation.
+   --upgrade             Upgrade the environment directory to use this version
+                           of Python, assuming Python has been upgraded in-place.
+   --without-pip         Skips installing or upgrading pip in the virtual
+                           environment (pip is bootstrapped by default)
+   --prompt PROMPT       Provides an alternative prompt prefix for this
+                           environment.
+   --upgrade-deps        Upgrade core dependencies: pip setuptools to the
+                           latest version in PyPI
+
+   Once an environment has been created, you may wish to activate it, e.g. by
+   sourcing an activate script in its bin directory.
 
 Step 5. Download OpenLane
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -208,9 +275,19 @@ Download OpenLane from GitHub:
    git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
    cd OpenLane/
 
+Successful download will look like this:
 
-.. image:: ../_static/installation/git_clone_openlane.png
+.. code-block:: console
 
+   git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
+   cd OpenLane/
+   Cloning into 'OpenLane'...
+   remote: Enumerating objects: 471, done.
+   remote: Counting objects: 100% (471/471), done.
+   remote: Compressing objects: 100% (393/393), done.
+   remote: Total 471 (delta 66), reused 279 (delta 35), pack-reused 0
+   Receiving objects: 100% (471/471), 2.78 MiB | 4.91 MiB/s, done.
+   Resolving deltas: 100% (66/66), done.
 
 Step 6. Download the Docker Image and install sky130PDK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
