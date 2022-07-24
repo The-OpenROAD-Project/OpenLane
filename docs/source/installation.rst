@@ -223,7 +223,7 @@ Successful outputs looks like this:
    python3 --version
    python3 -m pip --version
    make --version
-   python -m venv -h
+   python3 -m venv -h
    git version 2.36.1
    Docker version 20.10.16, build aa7e414fdc
    Python 3.10.5
@@ -289,7 +289,7 @@ Successful download will look like this:
    Receiving objects: 100% (471/471), 2.78 MiB | 4.91 MiB/s, done.
    Resolving deltas: 100% (66/66), done.
 
-Step 6. Download the Docker Image and install sky130PDK
+Step 6. Download the Docker Image and install sky130 PDK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download the Docker image of OpenLane and install sky130 PDK:
 
