@@ -308,7 +308,11 @@ Test the installed PDK and OpenLane:
 
    make test # This a ~5 minute test that verifies that the flow and the pdk were properly installed
 
-.. image:: ../_static/installation/successful_make_test.png
+Sucessful test looks like this:
+
+.. code-block:: console
+
+   Basic test passed
 
 Step 8. Optional: Viewing the test design outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
