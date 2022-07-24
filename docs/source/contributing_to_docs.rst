@@ -45,9 +45,7 @@ Assuming you have OpenLane installed it will create ``venv``. Install requiremen
 
     cd OpenLane/
     # assuming you are inside OpenLane folder
-
-    # activate venv
-    source venv/bin/activate
+    # assuming you have bash installed at /bin/bash
 
     # Install required modules
     make -C docs/ install
@@ -75,16 +73,14 @@ After installation, every time you want to build the documentation proceed to en
 
 .. todo:: Update the screenshots
 
-View the generated html files using Firefox or other browser. To open this document in browser:
+View the generated html files using Firefox or other browser. Open this document in browser:
 
 .. code-block:: console
 
     # Assuming same folder as OpenLane
     cd OpenLane/
 
-    firefox docs/_build/html/docs/source/reference.html
-
-.. todo:: Update the path, since we are using different build directory
+    firefox docs/_build/html/docs/source/contributing_to_docs.html
 
 Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_. More information `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_.
 
