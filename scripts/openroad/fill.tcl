@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }

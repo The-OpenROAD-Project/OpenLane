@@ -97,8 +97,9 @@ This section defines the necessary variables to configure a standard cell librar
 | `PL_LIB` | Points to the lib view used in time driven placement.  |
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
-| `CELL_PAD` | Defines the number of sites to pad the cells lef views with. |
-| `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding. |
+| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Example: `0`) |
+| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells lef views with during detailed placement . The number will be integer divided by 2 and placed on both sides. <br> (Example: `4`) |
+| `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
 | `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_16`) |
 | `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_4`) |

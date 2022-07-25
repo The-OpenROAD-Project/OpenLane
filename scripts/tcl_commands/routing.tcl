@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -117,17 +117,43 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
-    set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
+    if { !$::env(RUN_DRT) } {
+        return
+    }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
+    if { $::env(DETAILED_ROUTER) == "drcu" } {
+        puts_warn "DR-CU is no longer supported. OpenROAD's detailed router will be used instead."
+        set ::env(DETAILED_ROUTER) "tritonroute"
+    }
+
+    increment_index
+    TIMER::timer_start
+
+    set drt_log [index_file $::env(routing_logs)/detailed.log]
+    set drt_log_relative [relpath . $drt_log]
+
+    puts_info "Running Detailed Routing (logging to '$drt_log_relative')..."
+
+    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
+
+    set ::env(_tmp_drt_file_prefix) $::env(routing_tmpfiles)/drt
+    set ::env(_tmp_drt_rpt_prefix) $::env(routing_reports)/drt
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log $drt_log
+
+    unset ::env(_tmp_drt_file_prefix)
+    unset ::env(_tmp_drt_rpt_prefix)
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
-        -o $::env(routing_reports)/detailed.klayout.xml \
+        -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
-        $::env(routing_reports)/detailed.drc
+        $::env(routing_reports)/drt.drc
 
     quit_on_tr_drc
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
+    set_def $::env(SAVE_DEF)
 }
 
 proc detailed_routing_drcu {args} {
@@ -135,27 +161,7 @@ proc detailed_routing_drcu {args} {
 }
 
 proc detailed_routing {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Running Detailed Routing..."
-
-    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
-
-    set tool "openroad"
-    if {$::env(RUN_ROUTING_DETAILED)} {
-        if { $::env(DETAILED_ROUTER) == "drcu" } {
-            puts_warn "DR-CU is no longer supported. OpenROAD tritonroute will be used instead."
-            set ::env(DETAILED_ROUTER) "tritonroute"
-        }
-        detailed_routing_tritonroute
-
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/detailed.log]
-    }
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - $tool"
-    set_def $::env(SAVE_DEF)
+    detailed_routing_tritonroute {*}$args
 }
 
 proc ins_fill_cells_or {args} {
@@ -173,10 +179,7 @@ proc ins_fill_cells {args} {
         set_def $::env(SAVE_DEF)
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/fill.log]
     }
-
 }
 
 proc power_routing {args} {
@@ -343,7 +346,7 @@ proc run_spef_extraction {args} {
     parse_key_args "run_spef_extraction" args arg_values $options
 
     set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
-    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF_UNPADDED)
+    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
 
     set ::env(RCX_LIB) $arg_values(-rcx_lib)
@@ -391,8 +394,6 @@ proc run_routing {args} {
             ins_diode_cells_4
         }
     }
-
-    use_original_lefs
 
     add_route_obs
 

@@ -10,7 +10,7 @@
     "BASE_SDC_FILE": "dir::base.sdc",
     "PL_TARGET_DENSITY": 0.35,
     "PL_BASIC_PLACEMENT": 1,
-    "CELL_PAD": 0,
+    "DPL_CELL_PADDING": 0,
     "CLOCK_PERIOD": 100,
     "CLOCK_PORT": "clk1 clk2",
     "CLOCK_TREE_SYNTH": false,

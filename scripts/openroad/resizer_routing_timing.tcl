@@ -22,7 +22,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
     }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -73,8 +73,7 @@ if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1 } {
 }
 repair_timing {*}$arg_list
 
-# set_placement_padding -global -right $::env(CELL_PAD)
-# set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
 
 detailed_placement
 

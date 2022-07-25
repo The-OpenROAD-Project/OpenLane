@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
 	}
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
 	puts stderr $errmsg
 	exit 1
 }
@@ -55,7 +55,6 @@ if { ! $free_insts_flag } {
 
 set arg_list [list]
 
-lappend arg_list -verbose_level 1
 lappend arg_list -density $::env(PL_TARGET_DENSITY)
 
 if { $::env(PL_BASIC_PLACEMENT) } {
@@ -82,11 +81,10 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
-set_placement_padding -global -right $::env(CELL_PAD)
+set cell_pad_side [expr $::env(GPL_CELL_PADDING) / 2]
 
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-	set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
-}
+lappend arg_list -pad_right $cell_pad_side
+lappend arg_list -pad_left $cell_pad_side
 
 global_placement {*}$arg_list
 

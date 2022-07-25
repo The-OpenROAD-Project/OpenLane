@@ -54,7 +54,7 @@ set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 set ::env(KLAYOUT_XOR_GDS) 1
 set ::env(KLAYOUT_XOR_XML) 1
 
-set ::env(RUN_ROUTING_DETAILED) 1
+set ::env(RUN_DRT) 1
 set ::env(RUN_SIMPLE_CTS) 0
 set ::env(CLOCK_PERIOD) "10.0"
 set ::env(RUN_KLAYOUT) 1
@@ -66,9 +66,6 @@ set ::env(USE_ARC_ANTENNA_CHECK) 1
 
 set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
-
-set ::env(WIDEN_SITE) 1
-set ::env(WIDEN_SITE_IS_FACTOR) 1
 
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_CVC) 1

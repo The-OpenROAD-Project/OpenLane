@@ -24,7 +24,8 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/replace.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
@@ -52,7 +53,7 @@ proc random_global_placement {args} {
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
         --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF_UNPADDED) \
+        --input-lef $::env(MERGED_LEF) \
         $::env(CURRENT_DEF) \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
 
@@ -75,7 +76,7 @@ proc detailed_placement_or {args} {
     set ::env(SAVE_DEF) $arg_values(-def)
     set log [index_file $arg_values(-log)]
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/opendp.tcl -indexed_log $log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
     set_def $::env(SAVE_DEF)
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
@@ -174,9 +175,7 @@ proc run_placement {args} {
 
     run_resizer_design
 
-    if { [info exists ::env(DONT_BUFFER_PORTS) ]} {
-        remove_buffers
-    }
+    remove_buffers_from_ports
 
     detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
 
@@ -208,21 +207,29 @@ proc run_resizer_design {args} {
     }
 }
 
-proc remove_buffers {args} {
+proc remove_buffers_from_ports {args} {
+    # This is a workaround for some situations where the resizer would buffer
+    # analog ports.
     increment_index
     TIMER::timer_start
-    puts_info "Removing buffers..."
+    puts_info "Removing Buffers from Ports (If Applicable)..."
+
     set fbasename [file rootname $::env(CURRENT_DEF)]
-    set ::env(SAVE_DEF) ${fbasename}.remove_buffers.def
+    set ::env(SAVE_DEF) ${fbasename}.buffers_removed.def
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
         --output $::env(SAVE_DEF)\
-        --input-lef  $::env(MERGED_LEF)\
+        --input-lef $::env(MERGED_LEF)\
         --ports $::env(DONT_BUFFER_PORTS)\
         $::env(CURRENT_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/remove_buffers_from_ports.log]
 
-    set_def $::env(SAVE_DEF)TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers - openlane"
+    set_def $::env(SAVE_DEF)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from ports - openlane"
+}
+
+proc remove_buffers {args} {
+    handle_deprecated_command remove_buffers_from_port
 }
 
 package provide openlane 0.9

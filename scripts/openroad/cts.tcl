@@ -17,12 +17,12 @@ foreach lib $::env(LIB_CTS) {
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -37,7 +37,7 @@ read_sdc -echo $::env(CURRENT_SDC)
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 estimate_parasitics -placement
 
 # Clone clock tree inverters next to register loads
@@ -59,7 +59,7 @@ lappend arg_list -buf_list $::env(CTS_CLK_BUFFER_LIST)
 lappend arg_list -root_buf $::env(CTS_ROOT_BUFFER)
 lappend arg_list -sink_clustering_size $::env(CTS_SINK_CLUSTERING_SIZE)
 lappend arg_list -sink_clustering_max_diameter $::env(CTS_SINK_CLUSTERING_MAX_DIAMETER)
-lappend arg_list -sink_clustering_enable 
+lappend arg_list -sink_clustering_enable
 
 if { $::env(CTS_DISTANCE_BETWEEN_BUFFERS) != 0 } {
     lappend arg_list -distance_between_buffers $::env(CTS_DISTANCE_BETWEEN_BUFFERS)
@@ -80,11 +80,11 @@ repair_clock_nets -max_wire_length $::env(CTS_CLK_MAX_WIRE_LENGTH)
 
 estimate_parasitics -placement
 write_def $::env(SAVE_DEF)
-
-set buffers "$::env(CTS_ROOT_BUFFER) $::env(CTS_CLK_BUFFER_LIST)" 
-set_placement_padding -masters $buffers -left $::env(CELL_PAD)
 puts "\[INFO\]: Legalizing..."
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
+
 detailed_placement
+
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
@@ -102,10 +102,10 @@ report_cts
 puts "cts_report_end"
 
 if {[info exists ::env(CLOCK_PORT)]} {
-	if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
+    if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
         set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
-	}
+        source $::env(SCRIPTS_DIR)/openroad/sta.tcl
+    }
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
 }

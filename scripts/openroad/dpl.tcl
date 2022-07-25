@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -22,11 +22,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-set_placement_padding -global -right $::env(CELL_PAD)
-
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
-}
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
 
 detailed_placement\
     -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]

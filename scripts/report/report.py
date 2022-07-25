@@ -459,7 +459,7 @@ class Report(object):
                 vias = int(match)
 
         # TritonRoute DRC Extraction
-        tr_drc = Artifact(rp, "reports", "routing", "detailed.drc")
+        tr_drc = Artifact(rp, "reports", "routing", "drt.drc")
         tr_drc_content = tr_drc.get_content()
 
         other_violations = tr_violations

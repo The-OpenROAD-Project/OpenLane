@@ -147,7 +147,7 @@ However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then 
 
 ### Detailed Placement:
 
-The only value to consider here is the `CELL_PAD` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is. However, typically for the skywater libraries the value should be 4~6.
+The only value to consider here is the `DPL_CELL_PADDING` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is. However, typically for the skywater libraries the value should be 4~6.
 
 You can read more about that [here][0].
 

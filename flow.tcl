@@ -369,14 +369,23 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPENLANE_VERSION)]} {
-    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
-        if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
-            set ::env(OPENLANE_VERSION) "N/A"
+    if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
+        if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
+            set ::env(OPENLANE_VERSION) "UNKNOWN"
         }
     }
 }
 
+if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
+    if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
+        unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
+    }
+}
+
 puts "OpenLane $::env(OPENLANE_VERSION)"
+if { [info exists ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)] } {
+    puts "(with mounted scripts from $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION))"
+}
 puts "All rights reserved. (c) 2020-2022 Efabless Corporation and contributors."
 puts "Available under the Apache License, version 2.0. See the LICENSE file for more details."
 puts ""
