@@ -59,12 +59,11 @@ The metalic interconnect layer connects the separate components.
 Dies are produced by foundries. Many foundries exist and each one of the foundries support specific technology.
 For example company Skywater Technology owns the technology sky130 and the foundries for this technology.
 But for foundry to be able to produce your chip, it has to follow a strict ruleset.
-Usually this information is provided as part of :ref:`pdk`.
+Usually this information is provided as part of PDK.
 
+.. figure:: https://upload.wikimedia.org/wikipedia/commons/4/4e/Diopsis.jpg
 
-
-.. todo:: Add a picture of the die
-.. todo:: replace PDK link with link to the local PDK section
+  Die of the intregrated circuit. Source: https://commons.wikimedia.org/wiki/File:Diopsis.jpg
 
 
 Process design kit
