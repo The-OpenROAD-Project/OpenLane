@@ -1,5 +1,3 @@
-source $::env(SCRIPTS_DIR)/utils/utils.tcl
-
 # Power nets
 if { [info exists ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS)] } {
     if { $::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) == 1 } {
@@ -31,8 +29,8 @@ if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 &&
         set ground_pin [lindex $pdn_hook 4]
 
         if { $power_pin == "" || $ground_pin == "" } {
-            puts_err "FP_PDN_MACRO_HOOKS missing power and ground pin names"
-            return -code error
+            puts "FP_PDN_MACRO_HOOKS missing power and ground pin names"
+            exit -1
         }
 
         add_global_connection \
