@@ -510,6 +510,8 @@ Or use click to select the transistor, then use Ctrl + C and Ctrl + V to copy th
 
 .. figure:: ../_static/analog_flow/4_transistors_schematic.png
 
+Transistor selection
+"""""""""""""""""""""""""""""""""""""""
 How do we know what transistors to use?
 According to `sky130_fd_sc_hd documentation provided here <https://skywater-pdk.readthedocs.io/en/main/contents/libraries/foundry-provided.html>`_
 it is clear that the library we are targeting uses this transistors.
@@ -529,6 +531,18 @@ the cells with different type of transistor than rest of the library will utiliz
 The process of integrated circuit design is always about picking and choosing the tradeoffs.
 One of the most common ones are: Cost, Power and Speed.
 
+Ports
+"""""""""""""""""""""""""""""""""""""""
+
+
+
+Connections
+"""""""""""""""""""""""""""""""""""""""
+
+Next step is the connections.
+Point to the terminals of the transistors then press W to start drawing the wire under the mouse.
+After, click on the next terminal of the second transistor.
+
 .. todo:: Add XSCHEM drawing the NAND half
 .. todo:: Add XSCHEM building the Testbench half
 .. todo:: Add XSCHEM netlisting half
@@ -539,5 +553,6 @@ One of the most common ones are: Cost, Power and Speed.
 .. todo:: Add copying the cell
 .. todo:: Add removing everything but the power rails and NWELL/PSDM/NSDM
 .. todo:: Add drawing new shapes.
+.. todo:: Add the final result
 
 .. todo:: Common question about sky130A vs sky130B
