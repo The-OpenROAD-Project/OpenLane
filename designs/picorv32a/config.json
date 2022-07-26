@@ -1,5 +1,5 @@
 {
-    "DESIGN_NAME": "picorv32a",
+    "DESIGN_NAME": "picorv32",
     "VERILOG_FILES": "dir::src/picorv32a.v",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
