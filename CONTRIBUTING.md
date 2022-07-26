@@ -13,6 +13,17 @@ Try to write all major code in Python. Writing some Tcl is usually a necessity b
 
 Please do not write new shell scripts.
 
+## Yosys, OpenROAD and Magic Scripts
+There are some special guidelines for scripts in `scripts/yosys`, `scripts/openroad`, and `scripts/magic`:
+
+* The scripts for each tool are a self-contained ecosystem: do not `source` scripts from outside their directories.
+    * You may duplicate functionality if you deem it necessary.
+* Do not reference the following environment variables anywhere in this folder to avoid causing recursion when generating issue reproducibles:
+    * $PWD
+    * $RUN_DIR
+    * $DESIGN_DIR
+
+
 # Submissions
 Make your changes and then submit them as a pull requests to the `master` branch.
 
