@@ -8,22 +8,78 @@ Floorplan: taps/DCAPs/endcaps/fillers/sites
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. todo:: Write this section
 
+Sites
+""""""
+Floorplanning stage defines the locations that can be used to place stanard cells.
+This locations are called sites.
+Sites also define the minimal grid and therefore have impact of the chip area and standard cell structure.
 
-The connection between the VPWR and PMOS bulk is done using so called taps. There is two variants of tap connections:
+.. todo:: Picture of the SITE in sky130
+
+
+TAPs
+""""""
+In the SCLs the connection between the VPWR and PMOS bulk is done using so called taps.
+There is two variants of tap connections:
 
 * Taps are integrated into the cell
 * Taps are separate cells and are insterted by the OpenLane
 
 In OpenLane variable FP_WELLTAP_CELL controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
-If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted
+If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted.
 
-.. todo:: Add picture regarding taps
+For example, sky130_fd_sc_hvl uses integrated tap connections, meanwhile sky130_fd_sc_hd uses separate tap cells.
 
+.. figure:: ../_static/analog_flow/tap_cell.png
 
-.. todo:: Cover DCAPs, pros, cons
-.. todo:: Cover endcaps
-.. todo:: cover fillers (+DCAP difference)
-.. todo:: cover sites
+    sky130_fd_sc_hd tap cell.
+
+.. todo:: Add pictures regarding taps
+
+Taps in separate cells are most commonly used. This choice is caused by this methods pros:
+
+* Area of the single cell is lower, since the tap-to-contact distance can be utilized to fit more VIAs to the diffusions. Therefore, the cells have lower the parasitic resistance of the cell.
+* The bulk can be connected to different voltage to **lower** Vthreshold for **faster delays**.
+* The bulk can be connected to different voltage to **increase** Vthreshold for **reduced power consumption**.
+
+Fillers and DCAPs
+""""""""""""""""""""""""""""""
+Chip area is not always densely placed with cells.
+This is because it's really hard to do routing if the density reaches high values like 100%.
+Fillers and DCAPs usually contain the metal power rails and other layers that are required to ensure the substrate connection.
+Regardless if the site contains a cell or not, it should have the power rails and substrate connection, therefore the free sites will be filled with "Fillers".
+
+.. figure:: ../_static/analog_flow/fill_4.png
+
+In integrated circuits the power rails have finite resistance.
+Due to this resistance when significant current passes through the power rail voltage drop is created.
+Voltage on the standard cell library decreases causing slower delays on the cells.
+On mature technologies like sky130 IR drop is not a significant issue,
+however for bleeding edge technologies IR drop becomes critical.
+
+.. figure:: ../_static/analog_flow/ir_drop.png
+
+For this reason DCAP cells are used.
+These cells are MOS capacitors (a) that accumulate energy when the circuit is idle
+and release it when significant current is required (d).
+Therefore, current spikes will be reduced and the IR drop will be lower.
+
+Both voltage drop on power and ground bounce have similar effects on the standard cell and from the cells viewpoint are the same.
+The voltage from the cells viewpoint is called compression voltage.
+
+Interesting fact: Original DCAP cells of the sky130 did not pass the density maximum check on layer li1 if the chip is filled with them.
+To workaround this custom version of the cell has been made by Efabless.
+
+Boundry cells "ENDCAPs"
+""""""""""""""""""""""""""""""
+.. todo:: Fill this section
+
+Spare cells
+""""""""""""""""""""""""""""""
+.. todo:: SPARE cells
+
+.. todo:: Cover Antenna and TIE cells
+
 
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

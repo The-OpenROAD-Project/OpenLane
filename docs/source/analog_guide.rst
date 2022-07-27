@@ -343,6 +343,12 @@ ESD
 """""""""""""""
 .. todo:: ESD
 
+Antenna
+"""""""""""""""
+.. todo:: Cover Antenna and TIE cells
+
+Tie cells
+"""""""""""""""
 EM
 """""""""""""""
 .. todo:: EM
@@ -553,13 +559,19 @@ Name the ports. Follow the same pattern as the sky130_fd_sc_hd:
 .. figure:: ../_static/analog_flow/nand2_spice.png
 
 Therefore:
-   Inputs for Data: A, B
-   Outputs for Data: Y
+   Inputs for Data: A, B  
 
-   I/O Power: VPWR
-   I/O Ground: VGND
-   I/O PMOS bulk: VPB
-   I/O NMOS bulk: VNB
+   Outputs for Data: Y  
+
+
+   I/O Power: VPWR  
+
+   I/O Ground: VGND  
+
+   I/O PMOS bulk: VPB  
+
+   I/O NMOS bulk: VNB  
+
 
 ``Right click -> edit attributes`` on them to edit the label. Or you can select using ``left click`` and then press ``Q``.
 
@@ -573,7 +585,14 @@ Connections
 
 Next step is the connections.
 Point to the terminals of the transistors then press W to start drawing the wire under the mouse.
-After, click on the next terminal of the second transistor.
+After, click on the next terminal of the second transistor. Repeat for all of the connections.
+Use ``devices/lab_pin.sym`` to assign nets to the connections.
+
+.. figure:: ../_static/analog_flow/my_nand_connections.png
+
+Testbench
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 .. todo:: Add XSCHEM drawing the NAND half
 .. todo:: Add XSCHEM building the Testbench half
