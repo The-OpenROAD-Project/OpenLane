@@ -414,7 +414,9 @@ Missconception: OpenLane PDK vs Tech PDK vs Foundary PDK
 --------------------------------------------------------------------------------
 .. todo:: Explain
 
-
+sky130A vs sky130B
+--------------------------------------------------------------------------------
+.. todo:: Explain
 
 MOS transistors and switch level representation
 --------------------------------------------------------------------------------
@@ -510,7 +512,7 @@ Or use click to select the transistor, then use Ctrl + C and Ctrl + V to copy th
 
 .. figure:: ../_static/analog_flow/4_transistors_schematic.png
 
-Transistor selection
+Transistor types
 """""""""""""""""""""""""""""""""""""""
 How do we know what transistors to use?
 According to `sky130_fd_sc_hd documentation provided here <https://skywater-pdk.readthedocs.io/en/main/contents/libraries/foundry-provided.html>`_
@@ -534,7 +536,47 @@ One of the most common ones are: Cost, Power and Speed.
 Ports
 """""""""""""""""""""""""""""""""""""""
 
+Create four Input/Output pins ``Tools -> Insert symbol -> xschem_devices -> iopin.sym``.
 
+.. figure:: ../_static/analog_flow/my_nand_iopin.png
+
+Repeat the same to create two input ports ``Tools -> Insert symbol -> xschem_devices -> ipin.sym``.
+
+.. figure:: ../_static/analog_flow/my_nand_ipin.png
+
+Create the output port: ``Tools -> Insert symbol -> xschem_devices -> opin.sym``.
+
+.. figure:: ../_static/analog_flow/my_nand_opin.png
+
+Right click on them to edit the label. Follow the same ppattern as the sky130_fd_sc_hd. 
+
+.. figure:: ../_static/analog_flow/nand2_spice.png
+
+
+Therefore:
+   Inputs for Data: A, B
+   Outputs for Data: Y
+
+   I/O Power: VPWR
+   I/O Ground: VGND
+   I/O PMOS bulk: VPB
+   I/O NMOS bulk: VNB
+
+Logical question arises: Why are the VPWR and VPB separate pins if they are typically connected to the same power?
+
+Integrated taps vs external taps
+"""""""""""""""""""""""""""""""""""""""
+.. todo:: Write this section
+
+The connection between the VPWR and PMOS bulk is done using so called taps. There is two variants of tap connections:
+
+* Taps are integrated into the cell
+* Taps are separate cells and are insterted by the OpenLane
+
+In OpenLane variable FP_WELLTAP_CELL controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
+If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted
+
+ .. todo:: Cover the tap cells; End caps; Fillers
 
 Connections
 """""""""""""""""""""""""""""""""""""""
