@@ -548,10 +548,9 @@ Create the output port: ``Tools -> Insert symbol -> xschem_devices -> opin.sym``
 
 .. figure:: ../_static/analog_flow/my_nand_opin.png
 
-Right click on them to edit the label. Follow the same ppattern as the sky130_fd_sc_hd. 
+Name the ports. Follow the same pattern as the sky130_fd_sc_hd:
 
 .. figure:: ../_static/analog_flow/nand2_spice.png
-
 
 Therefore:
    Inputs for Data: A, B
@@ -562,21 +561,12 @@ Therefore:
    I/O PMOS bulk: VPB
    I/O NMOS bulk: VNB
 
+``Right click -> edit attributes`` on them to edit the label. Or you can select using ``left click`` and then press ``Q``.
+
+.. figure:: ../_static/analog_flow/my_nand_ports.png
+
 Logical question arises: Why are the VPWR and VPB separate pins if they are typically connected to the same power?
-
-Integrated taps vs external taps
-"""""""""""""""""""""""""""""""""""""""
-.. todo:: Write this section
-
-The connection between the VPWR and PMOS bulk is done using so called taps. There is two variants of tap connections:
-
-* Taps are integrated into the cell
-* Taps are separate cells and are insterted by the OpenLane
-
-In OpenLane variable FP_WELLTAP_CELL controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
-If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted
-
- .. todo:: Cover the tap cells; End caps; Fillers
+See :ref:`floorplan_taps_dcaps_fillers_sites` for answers.
 
 Connections
 """""""""""""""""""""""""""""""""""""""

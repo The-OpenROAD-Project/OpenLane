@@ -3,6 +3,27 @@ Digital Design Flow
 --------------------------------------------------------------------------------
 
 
+.. _floorplan_taps_dcaps_fillers_sites:
+Floorplan: taps/DCAPs/endcaps/fillers/sites
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. todo:: Write this section
+
+
+The connection between the VPWR and PMOS bulk is done using so called taps. There is two variants of tap connections:
+
+* Taps are integrated into the cell
+* Taps are separate cells and are insterted by the OpenLane
+
+In OpenLane variable FP_WELLTAP_CELL controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
+If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted
+
+.. todo:: Add picture regarding taps
+
+
+.. todo:: Cover DCAPs, pros, cons
+.. todo:: Cover endcaps
+.. todo:: cover fillers (+DCAP difference)
+.. todo:: cover sites
 
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
