@@ -149,7 +149,9 @@ If you send them a GDS with DRC or GDS that violates some of the requirements,
 then precheck will error out.
 Precheck also includes density checks and post-integration verification.
 
-.. todo:: Add a screenshot from the Efabless website with passed or failed prechecks.
+.. figure:: ../_static/analog_flow/efabless_precheck.png
+
+  Efabless precheck pass from mpw5 submissions
 
 Tech files
 ^^^^^^^^^^^^^^^
@@ -167,7 +169,9 @@ Tech LEF typically contains one or more of the following information:
 * Sites for the specific standard cell libraries
 * mapping between GDS and LEF formats, mapping between layers.
 
-.. todo:: Add a screenshot of actual tech file
+.. figure:: ../_static/analog_flow/tech_lef_met1.png
+
+  Screenshot met1 rules from ``$PDK_ROOT/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef``
 
 Standard Cell Libraries (SCLs)
 ^^^^^^^^^^^^^^^
@@ -406,6 +410,8 @@ Netgen generates the LVS report containing instance-by-instance and pin-by-pin c
 PEX
 ^^^^^^^^^^^^^^^
 .. todo:: PEX
+
+
 
 Tech LEF
 ^^^^^^^^^^^^^^^
