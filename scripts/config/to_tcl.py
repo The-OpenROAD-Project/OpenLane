@@ -19,6 +19,7 @@ import sys
 import json
 import glob
 import click
+import fnmatch
 from enum import Enum
 from io import TextIOWrapper
 from typing import Any, Dict, List, Tuple, Union
@@ -262,12 +263,12 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
         if isinstance(value, dict):
             withhold = True
             if key.startswith(PDK_PREFIX):
-                pdk = key[len(PDK_PREFIX) :]
-                if pdk == state.vars[PDK_VAR]:
+                pdk_match = key[len(PDK_PREFIX) :]
+                if fnmatch.fnmatch(state.vars[PDK_VAR], pdk_match):
                     process_config_dict_recursive(value, state)
             elif key.startswith(SCL_PREFIX):
-                scl = key[len(SCL_PREFIX) :]
-                if scl == state.vars[SCL_VAR]:
+                scl_match = key[len(SCL_PREFIX) :]
+                if fnmatch.fnmatch(state.vars[SCL_VAR], scl_match):
                     process_config_dict_recursive(value, state)
             else:
                 raise InvalidConfig(

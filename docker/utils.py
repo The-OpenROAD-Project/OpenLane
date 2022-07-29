@@ -340,5 +340,24 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
 cli.add_command(fetch_submodules_from_tarballs)
 
+
+@click.command()
+@click.option("-i", "--ignoring", type=str, multiple=True)
+@click.argument("sources", nargs=-1)
+@click.argument("destination", nargs=1)
+def copy_tree(ignoring, sources, destination):
+    patterns = shutil.ignore_patterns(*ignoring)
+    for source in list(sources):
+        if os.path.isfile(source):
+            shutil.copy(source, destination)
+        elif os.path.isdir(source):
+            shutil.copytree(source, destination, ignore=patterns)
+        else:
+            raise FileNotFoundError(source)
+
+
+cli.add_command(copy_tree)
+
+
 if __name__ == "__main__":
     cli()

@@ -19,6 +19,11 @@ proc run_lef_cvc {args} {
         return
     }
 
+    if { ![info exists ::env(CVC_SCRIPTS_DIR)] } {
+        puts_warn "This PDK does not support cvc, skipping..."
+        return
+    }
+
     if { [info exists ::env(EXTRA_LEFS)] } {
         puts_info "Your design contains macros, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
         return
@@ -26,13 +31,6 @@ proc run_lef_cvc {args} {
 
     if { $::env(VDD_PIN) != $::env(VDD_NETS) || $::env(GND_PIN) != $::env(GND_NETS)} {
         puts_info "Your design uses the advanced power settings, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
-        return
-    }
-
-    set ::env(CVC_SCRIPTS_DIR) $::env(SCRIPTS_DIR)/cvc/$::env(PDK)
-
-    if { ![file exist $::env(CVC_SCRIPTS_DIR)/cvcrc.$::env(PDK)] } {
-        puts_warn "This PDK does not support cvc, skipping..."
         return
     }
 
@@ -69,7 +67,7 @@ proc run_lef_cvc {args} {
         > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).cdl
 
     # The main event
-    try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc.$::env(PDK) \
+    try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/erc_screen.log]
 
     TIMER::timer_stop

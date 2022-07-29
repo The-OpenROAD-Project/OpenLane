@@ -4,7 +4,7 @@
     "CLOCK_PORT": "clk_48",
     "CLOCK_NET": "clk_48",
     "FP_CORE_UTIL": 40,
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "SYNTH_MAX_FANOUT": 6,
         "CLOCK_PERIOD": 12.55,
         "scl::sky130_fd_sc_hd": {
