@@ -5,7 +5,7 @@
     "CLOCK_NET": "clk",
     "DIODE_INSERTION_STRATEGY": 4,
     "GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT": 60,
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "SYNTH_MAX_FANOUT": 6,
         "FP_CORE_UTIL": 25,
         "CLOCK_PERIOD": 21.28,

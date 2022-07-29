@@ -23,7 +23,7 @@
             "RIGHT_MARGIN_MULT": 20
         }
     },
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "scl::sky130_fd_sc_hd": {
             "CLOCK_PERIOD": 10,
             "FP_SIZING": "absolute",

@@ -5,7 +5,7 @@
     "CLOCK_NET": "clk",
     "FP_CORE_UTIL": 35,
     "CLOCK_PERIOD": 17,
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "SYNTH_MAX_FANOUT": 6
     }
 }

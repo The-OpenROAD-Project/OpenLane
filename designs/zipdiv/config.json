@@ -3,7 +3,7 @@
     "VERILOG_FILES": "dir::src/zipdiv.v",
     "CLOCK_PORT": "i_clk",
     "CLOCK_NET": "i_clk",
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "CLOCK_PERIOD": 20,
         "SYNTH_MAX_FANOUT": 6,
         "FP_CORE_UTIL": 40,

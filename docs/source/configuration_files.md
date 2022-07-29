@@ -80,6 +80,8 @@ The JSON configuration files support conditional execution based on PDK or stand
 
 The value for this key would be a `dict` that is only evaluated if the PDK or SCL matches those in the key, i.e., for `pdk::sky130A` as shown above, this particular `dict` will be evaluated and its values used if and only if the PDK is set to `sky130A`, meanwhile with say, `asap7`, it will not be evaluated.
 
+The match is evaluated using [`fnmatch`](https://docs.python.org/3.6/library/fnmatch.html), giving it limited wildcard support: meaning that `pdk::sky130*` would match both `sky130A` and `sky130B`.
+
 Note that ***the order of declarations matter here***: as seen in the following example, despite a more specific value for a PDK existing, the unconditionally declared value later in the code would end up overwriting it:
 
 ```json

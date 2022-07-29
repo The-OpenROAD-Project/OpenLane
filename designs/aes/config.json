@@ -4,7 +4,7 @@
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
     "FP_CORE_UTIL": 15,
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "scl::sky130_fd_sc_hd": {
             "SYNTH_MAX_FANOUT": 8,
             "PL_TARGET_DENSITY": 0.25,

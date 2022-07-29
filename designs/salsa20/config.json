@@ -4,7 +4,7 @@
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
     "GLB_RESIZER_TIMING_OPTIMIZATIONS": true,
-    "pdk::sky130A": {
+    "pdk::sky130*": {
         "FP_CORE_UTIL": 20,
         "SYNTH_MAX_FANOUT": 6,
         "CLOCK_PERIOD": 36.73,
