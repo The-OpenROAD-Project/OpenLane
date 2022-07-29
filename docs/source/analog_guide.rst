@@ -4,11 +4,16 @@ Analog design flow Practice
 --------------------------------------------------------------------------------
 Intro
 ^^^^^^^^^^^^^^^
-.. todo:: Add introduction
+This guide covers design process of analog components for sky130.
+While this guide is different for most technlogies and tools it gives enough practical experience.
+
+As part of this guide NAND cell will be designed. It is recommended to read theoretical chapter located here first.
+
+.. todo:: Add link to theoretical
 
 Installing tools
 ^^^^^^^^^^^^^^^
-Let's install ``hpretl/iic-osic-tools`` which contains XSCHEM, NGSPICE, Netgen. KLayout will be ran from OpenLane docker image.
+Let's install ``hpretl/iic-osic-tools`` Docker image which contains XSCHEM, NGSPICE, Netgen, KLayout.
 
 .. code-block:: shell
 
@@ -136,9 +141,57 @@ Use ``devices/lab_pin.sym`` to assign nets to the connections.
 
 .. figure:: ../_static/analog_flow/my_nand_connections.png
 
+Save the schematic as ``my_nand.sch``.
+
+.. todo:: Upload and link the schematic
+
+Symbol
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Click on ``Symbol -> Make symbol from schematic``. This will create ``my_nand.sym`` in the same folder as the schematic.
+Default save location is ``~/eda/designs`` which is mounted in Docker image as ``/foss/designs``.
+
+
+Click on ``File -> Open`` and select the ``my_nand.sym`` to see the generated symbol.
+
+.. figure:: ../_static/analog_flow/my_nand.sym.png
+
+.. todo:: Upload and link the symbol
+
 Testbench
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Make testbench to verify the functionality of the cell and collect information about characteristics of the component.
+
+Create new schematic using ``File -> New schematic``.
+
+Components
+"""""""""""""""""""""""""""""""""""""""
+
+Then create instance of ``/foss/eda/my_nand.sym``.
+
+Create voltage source ``devices/vsource.sym`` for powering the ``my_nand`` instance. 
+
+Create two voltage sources ``devices/vsource.sym`` for simulating the inputs of the nand cell.
+
+Create capacitor ``devices/capa.sym`` to simulate the effect of gates connected at the output of the cell.
+
+Create ground instance ``devices/gnd.sym``.
+
+.. figure:: ../_static/analog_flow/my_nand_tb_components.png
+
+Connections
+"""""""""""""""""""""""""""""""""""""""
+
+
+.. todo:: Upload and link the testbench
+
+Measurements
+"""""""""""""""""""""""""""""""""""""""
+.. todo:: Add measurements
+
+Troubleshooting
+"""""""""""""""""""""""""""""""""""""""
+.. todo:: Add troubleshooting PDK issues
+
 
 
 .. todo:: Add XSCHEM drawing the NAND half
