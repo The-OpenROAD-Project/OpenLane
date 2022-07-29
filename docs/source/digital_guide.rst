@@ -1,7 +1,8 @@
 
 Digital Design Flow
 --------------------------------------------------------------------------------
-
+This example covers creation of simple memory macro. This guide uses generated layout files for it,
+then use the generated memory to make a top level chip register file.
 
 .. _floorplan_taps_dcaps_fillers_sites:
 Floorplan: taps/DCAPs/endcaps/fillers/sites
@@ -80,6 +81,7 @@ Spare cells
 
 .. todo:: Cover Antenna and TIE cells
 
+.. todo:: Cover common mistake with the macro names in macro hooks and macro.cfg
 
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
