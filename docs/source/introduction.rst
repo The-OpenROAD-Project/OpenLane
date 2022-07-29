@@ -34,7 +34,7 @@ This guide covers everything that you need to know in order to be able to create
 As part of this tutorial we will make a simple bottom-to-top design utilizing as many features of OpenLane.
 
 .. todo:: Rework below information:
-    
+
 While the guide covers only digital subcomponents, the flow is similar for analog subcomponents.
 Use `this guide to create the required files <custom_macros.html>`_.
 
@@ -335,6 +335,9 @@ It allows to simulate the behaviour of the circuit and characteristics of the ci
 
 .. todo:: Add a simulation example
 
+.. todo:: Add coverage of corners
+.. todo:: Add coverage of mismatch
+
 Layout
 ^^^^^^^^^^^^^^^
 .. todo:: Layout
@@ -502,3 +505,11 @@ The voltage where the electrons number is equal to the holes is called Vthreshol
 .. todo:: Add picture visualizing this
 
 .. todo:: Add PMOS explainaion
+
+Corner cases, temperature, voltage, 
+--------------------------------------------------------------------------------
+.. todo:: Explain
+
+process variation, Monte Carlo simulation and mismatch
+--------------------------------------------------------------------------------
+.. todo:: Explain

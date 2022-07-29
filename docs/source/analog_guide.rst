@@ -1,8 +1,6 @@
-
-
-Analog design flow Practice
+Analog component design practice
 --------------------------------------------------------------------------------
-Intro
+Introduction
 ^^^^^^^^^^^^^^^
 This guide covers design process of analog components for sky130.
 While this guide is different for most technlogies and tools it gives enough practical experience.
@@ -166,23 +164,50 @@ Create new schematic using ``File -> New schematic``.
 Components
 """""""""""""""""""""""""""""""""""""""
 
-Then create instance of ``/foss/eda/my_nand.sym``.
+First, create instance of ``/foss/eda/my_nand.sym``.
 
-Create voltage source ``devices/vsource.sym`` for powering the ``my_nand`` instance. 
+Second, create voltage source ``devices/vsource.sym`` for powering the ``my_nand`` instance. 
 
-Create two voltage sources ``devices/vsource.sym`` for simulating the inputs of the nand cell.
+Third, create two voltage sources ``devices/vsource.sym`` for simulating the inputs of the nand cell.
 
-Create capacitor ``devices/capa.sym`` to simulate the effect of gates connected at the output of the cell.
+Then, create capacitor ``devices/capa.sym`` to simulate the effect of gates connected at the output of the cell.
 
-Create ground instance ``devices/gnd.sym``.
+Finally, create ground instance ``devices/gnd.sym``.
 
 .. figure:: ../_static/analog_flow/my_nand_tb_components.png
 
 Connections
 """""""""""""""""""""""""""""""""""""""
+Connect everything as shown in the figure.
+
+.. figure:: ../_static/analog_flow/my_nand_tb_connections.png
+
+
+Configuring the components
+"""""""""""""""""""""""""""""""""""""""
+Configure the components.
+Right click on the capacitor and select ``edit attributes``. Set capacitor value to ``16f`` (FemtoFarad).
+
+.. figure:: ../_static/analog_flow/my_nand_cap_load.png
+
+Set name and value of the voltage source
+
+
+.. todo:: Corners
+.. todo:: Temperatures
+.. todo:: params
+.. todo:: VDD
+.. todo:: VA
+.. todo:: VB
+
+
+From sky130A xschem library open the ``sky130_fd_pr`` folder then pick ``corner.sym``.
+It will add a ``.lib`` line that points to the sky130 library. If you do not include this component you will get an error about transistor models missing:
+.. todo:: Add picture of transistors missing.
 
 
 .. todo:: Upload and link the testbench
+
 
 Measurements
 """""""""""""""""""""""""""""""""""""""
@@ -191,10 +216,8 @@ Measurements
 Troubleshooting
 """""""""""""""""""""""""""""""""""""""
 .. todo:: Add troubleshooting PDK issues
+.. todo:: Add troubleshooting Symbol path issues
 
-
-
-.. todo:: Add XSCHEM drawing the NAND half
 .. todo:: Add XSCHEM building the Testbench half
 .. todo:: Add XSCHEM netlisting half
 .. todo:: Add XSCHEM simulation half

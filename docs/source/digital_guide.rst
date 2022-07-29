@@ -83,6 +83,8 @@ Spare cells
 
 .. todo:: Cover common mistake with the macro names in macro hooks and macro.cfg
 
+.. todo:: Add link to corner/temperature/etc
+
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
