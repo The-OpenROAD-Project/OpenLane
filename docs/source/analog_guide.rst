@@ -156,23 +156,6 @@ Precheck also includes density checks and post-integration verification.
 Tech files
 ^^^^^^^^^^^^^^^
 
-Tech files are a special files designed for specific software. 
-One of the common file formats is the Tech LEF, however other variants of tech files are available too.
-Tech LEF typically contains one or more of the following information:
-
-* Metal
-   * Metal spacing
-   * Width
-   * RC Parasitics
-   * Antenna related infromation
-   * Electromigration related information
-* Sites for the specific standard cell libraries
-* mapping between GDS and LEF formats, mapping between layers.
-
-.. figure:: ../_static/analog_flow/tech_lef_met1.png
-
-  Screenshot met1 rules from ``$PDK_ROOT/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef``
-
 Standard Cell Libraries (SCLs)
 ^^^^^^^^^^^^^^^
 
@@ -187,6 +170,9 @@ It contains following files and information:
 * Timing Library containing the timing information, typically in .LIB format
 * Layout of the cells.
 * SPICE netlist.
+
+SCLs documentation
+""""""""""""""""""""""""""""""
 
 Documentation contains everything the developer needs to know about the SCL.
 This information includes anything related to the cells:
@@ -209,12 +195,37 @@ A snipet from the High-Density SCL for sky130:
 
 .. figure:: ../_static/analog_flow/sky130_fd_sc_hd_docs.png
 
-.. todo:: SCL config
+SCL config files
+""""""""""""""""""""""""""""""
+Standard cell library needs configuration files, like ``dont_use`` lists and many more.
+The configuration of OpenLane for sky130 is located in ``pdks/sky130B/libs.tech/openlane/sky130_fd_sc_hd/``.
+Here is some of the files:
+
+.. code-block::
+
+  OpenLane variables configuration:
+    ├── config.tcl
+  Mapping files for yosys:
+    ├── csa_map.v
+    ├── fa_map.v
+    ├── latch_map.v
+    ├── mux2_map.v
+    ├── mux4_map.v
+    ├── rca_map.v
+    ├── tribuff_map.v
+  Dont use/dont synth lists:
+    ├── no_synth.cells
+    ├── drc_exclude.cells - dont use cell list
+  Tracks related information:
+    └── tracks.info
+
+
+
 .. todo:: LEF abstract
 .. todo:: Timing information
 .. todo:: Layout of the cells
 .. todo:: Spice netlist
-.. todo:: Tech LEF combined with Standard Cell Library related information
+.. todo:: Add link to Tech LEF section
 
 Die Manufacturing
 --------------------------------------------------------------------------------
@@ -329,6 +340,16 @@ Layout
 
 Signoff checks
 ^^^^^^^^^^^^^^^
+Signoff is the last step in the analog design flow.
+In these step you already have the layout and schematics but you need to verify some of the properties of the component.
+
+* Design Rule Check (DRC), to make sure it is ready for manufacturing
+* Layout versus schematic comparison, to make sure that schematic matches the layout (LVS)
+* Parasitics EXtraction and simulation makes sure that component will match the specification even with parasitics
+* Antenna check. Makes sures that the component will not break at the manufacturing due to accumulated charge on metals because of polishing
+* IR drop checks
+* EM checks
+
 .. todo:: Signoff
 
 DRC
@@ -341,7 +362,10 @@ LVS
 
 PEX and Simulation
 """""""""""""""
-.. todo:: PEX
+Parasitics extraction and simulation with parasatics are really important.
+Parasitics have impact on the components characteristics, like delay, transition time and many more.
+Simulations without parastics are not representative of the real post tapeout behaviour of the integrated circuit.
+Furthermore, parasitics have significant impact on the 
 
 ESD
 """""""""""""""
@@ -369,7 +393,22 @@ Log review
 
 Tech Files
 --------------------------------------------------------------------------------
-.. todo:: tech files
+Tech files are a special files designed for specific software. 
+One of the common file formats is the Tech LEF, however other variants of tech files are available too.
+Tech LEF typically contains one or more of the following information:
+
+* Metal
+   * Metal spacing
+   * Width
+   * RC Parasitics
+   * Antenna related infromation
+   * Electromigration related information
+* Sites for the specific standard cell libraries
+* mapping between GDS and LEF formats, mapping between layers.
+
+.. figure:: ../_static/analog_flow/tech_lef_met1.png
+
+  Screenshot met1 rules from ``$PDK_ROOT/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef``
 
 DRC
 ^^^^^^^^^^^^^^^
@@ -428,7 +467,10 @@ Missconception: OpenLane PDK vs Tech PDK vs Foundary PDK
 
 sky130A vs sky130B
 --------------------------------------------------------------------------------
-.. todo:: Explain
+
+Sky130B is extension of the sky130A that supports `ReRAM <https://sky130-fd-pr-reram.readthedocs.io/en/latest/user_guide.html>`_. For this purpose the layer between ``met2`` and ``met1`` were changed.
+Sky130B has more parasitics compared to sky130A. Currently all of the OpenMPW tapeouts use sky130B.
+Do not use sky130A, unless you know what you are doing.
 
 MOS transistors and switch level representation
 --------------------------------------------------------------------------------
@@ -460,7 +502,7 @@ The voltage where the electrons number is equal to the holes is called Vthreshol
 .. todo:: Add PMOS explainaion
 
 
-Analog design flow
+Analog design flow Practice
 --------------------------------------------------------------------------------
 Intro
 ^^^^^^^^^^^^^^^
@@ -598,6 +640,7 @@ Use ``devices/lab_pin.sym`` to assign nets to the connections.
 
 Testbench
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Make testbench to verify the functionality of the cell and collect information about characteristics of the component.
 
 
 .. todo:: Add XSCHEM drawing the NAND half
