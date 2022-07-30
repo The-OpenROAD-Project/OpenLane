@@ -9,7 +9,7 @@ As part of this guide NAND cell will be designed. It is recommended to read theo
 
 .. todo:: Add link to theoretical
 
-Installing tools
+Step 1. Installing tools
 ^^^^^^^^^^^^^^^
 Let's install ``hpretl/iic-osic-tools`` Docker image which contains XSCHEM, NGSPICE, Netgen, KLayout.
 
@@ -35,7 +35,7 @@ It will open the xschem window:
 
 .. image:: ../_static/analog_flow/xschem_window.png
 
-Schematic
+Step 2. Schematic
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In this step start building the simple schematic for a NAND. For this purpose use ``File -> New Schematic``
@@ -143,7 +143,7 @@ Save the schematic as ``my_nand.sch``.
 
 .. todo:: Upload and link the schematic
 
-Symbol
+Step 3. Symbol
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Click on ``Symbol -> Make symbol from schematic``. This will create ``my_nand.sym`` in the same folder as the schematic.
 Default save location is ``~/eda/designs`` which is mounted in Docker image as ``/foss/designs``.
@@ -155,7 +155,7 @@ Click on ``File -> Open`` and select the ``my_nand.sym`` to see the generated sy
 
 .. todo:: Upload and link the symbol
 
-Testbench
+Step 4. Testbench
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Make testbench to verify the functionality of the cell and collect information about characteristics of the component.
 
@@ -176,6 +176,7 @@ Finally, create ground instance ``devices/gnd.sym``.
 
 .. figure:: ../_static/analog_flow/my_nand_tb_components.png
 
+
 Connections
 """""""""""""""""""""""""""""""""""""""
 Connect everything as shown in the figure.
@@ -183,27 +184,70 @@ Connect everything as shown in the figure.
 .. figure:: ../_static/analog_flow/my_nand_tb_connections.png
 
 
-Configuring the components
+Configure the components and the simulation
 """""""""""""""""""""""""""""""""""""""
 Configure the components.
 Right click on the capacitor and select ``edit attributes``. Set capacitor value to ``16f`` (FemtoFarad).
 
 .. figure:: ../_static/analog_flow/my_nand_cap_load.png
 
-Set name and value of the voltage source
+Create parameters that contain VPWR voltage value. For this purpose create instance of ``devices/code_shown.sym`` and fill  ``value`` field with following:
+
+.. code-block::
+
+  .param vpwr_value=1.65
+
+It will look like this:
+
+.. figure:: ../_static/analog_flow/vpwr_value.png
+
+Set name and value of the voltage source for powering the circuit. Name should be ``Vpwr`` and the value should be ``vpwr_value``:
+
+.. figure:: ../_static/analog_flow/vpwr_vsource.png
+
+Next, configure the input voltage values. Documentation regarding the syntax can be found in the `NGSPICE documentation <https://ngspice.sourceforge.io/docs.html>`_.
+
+Here is the list of PULSE parameters: PULSE ( V1 V2 TD TR TF PW PER PHASE ).
+
+.. figure:: ../_static/analog_flow/PULSE.png
+
+  Taken from NGSPICE documentation. Read the docs, this is provided as a reference for the reader.
+
+Visualization of the pulse.
+
+.. figure:: ../_static/analog_flow/nand_input_waveview_1.png
+
+  Visualization of the pulse: PULSE(0 1.65 5ns 1ns 1ns 4ns 10ns)
 
 
-.. todo:: Corners
-.. todo:: Temperatures
-.. todo:: params
-.. todo:: VDD
-.. todo:: VA
-.. todo:: VB
+
+.. todo:: A picture of the input voltages
+.. todo:: Explain the logic of the values of PULSE
+
+.. todo:: Let's include the 
 
 
-From sky130A xschem library open the ``sky130_fd_pr`` folder then pick ``corner.sym``.
+.. todo:: Create the instance of sky130 xschem library ``corner.sym`` and choose ``ss`` corner.
+
+From sky130A xschem library open the ``sky130_fd_pr`` folder then pick ``corner.sym``. Then change ``corner`` attribute to ``ss``.
+.. todo:: Add picture of corner attribute
+
 It will add a ``.lib`` line that points to the sky130 library. If you do not include this component you will get an error about transistor models missing:
+
 .. todo:: Add picture of transistors missing.
+
+
+
+.. todo:: Create labels
+
+.. todo:: Add the simulation mode
+.. todo:: Temperature
+.. todo:: Justification for voltage
+
+.. todo:: Netlist, simulate
+
+.. todo:: Open the "waves" Look at plots
+
 
 
 .. todo:: Upload and link the testbench
@@ -212,6 +256,8 @@ It will add a ``.lib`` line that points to the sky130 library. If you do not inc
 Measurements
 """""""""""""""""""""""""""""""""""""""
 .. todo:: Add measurements
+
+
 
 Troubleshooting
 """""""""""""""""""""""""""""""""""""""
