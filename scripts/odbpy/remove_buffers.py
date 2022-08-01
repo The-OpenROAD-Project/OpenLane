@@ -11,10 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import odb
 import click
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 
 def get_master_cells(net):
@@ -55,9 +54,8 @@ def get_nets(master_instance):
     help="Semicolon;delimited net(s) to remove buffers from",
 )
 @click_odb
-def remove_buffers(output, ports, input_lef, input_def):
+def remove_buffers(reader, ports):
     ports = ports.split(";")
-    reader = OdbReader(input_lef, input_def)
 
     design_nets = reader.block.getNets()
     dont_buffer_nets = [net for net in design_nets if net.getConstName() in ports]
@@ -97,8 +95,6 @@ def remove_buffers(output, ports, input_lef, input_def):
             _, output_nets_2 = get_nets(input_net_master_cell)
             output_net_it = output_nets_2[0].getITerms()[0]
             output_net_it.connect(net)
-
-    odb.write_def(reader.block, output)
 
 
 if __name__ == "__main__":

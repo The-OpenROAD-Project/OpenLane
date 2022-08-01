@@ -13,19 +13,17 @@
 # limitations under the License.
 import odb
 import click
+import inspect
 
 
 class OdbReader(object):
     def __init__(self, lef_in, def_in):
         self.db = odb.dbDatabase.create()
-        if isinstance(lef_in, list) or isinstance(lef_in, tuple):
-            self.lef = []
-            for lef in lef_in:
-                self.lef.append(odb.read_lef(self.db, lef))
-            self.sites = [lef.getSites() for lef in self.lef]
-        else:
-            self.lef = odb.read_lef(self.db, lef_in)
-            self.sites = self.lef.getSites()
+        self.lef = []
+        if not (isinstance(lef_in, list) or isinstance(lef_in, tuple)):
+            lef_in = [lef_in]
+        for lef in lef_in:
+            self.lef.append(odb.read_lef(self.db, lef))
         self.tech = self.db.getTech()
 
         if def_in is not None:
@@ -36,16 +34,40 @@ class OdbReader(object):
             self.dbunits = self.block.getDefUnits()
             self.instances = self.block.getInsts()
 
+    def add_lef(self, new_lef):
+        self.lef.append(odb.read_lef(self.db, new_lef))
+
 
 def click_odb(function):
-    function = click.option(
+    def wrapper(input_lef, input_def, output, **kwargs):
+        reader = OdbReader(input_lef, input_def)
+
+        signature = inspect.signature(function)
+        parameter_keys = signature.parameters.keys()
+
+        kwargs = kwargs.copy()
+        kwargs["reader"] = reader
+
+        if "input_def" in parameter_keys:
+            kwargs["input_def"] = input_def
+        if "input_lef" in parameter_keys:
+            kwargs["input_lef"] = input_lef
+        if "output" in parameter_keys:
+            kwargs["output"] = output
+
+        function(**kwargs)
+
+        odb.write_def(reader.block, output)
+
+    wrapper = click.option(
         "-o", "--output", default="./out.def", help="Output DEF file"
-    )(function)
-    function = click.option(
+    )(wrapper)
+    wrapper = click.option(
         "-l",
         "--input-lef",
         required=True,
         help="LEF file needed to have a proper view of the DEF files",
-    )(function)
-    function = click.argument("input_def")(function)
-    return function
+    )(wrapper)
+    wrapper = click.argument("input_def")(wrapper)
+
+    return wrapper

@@ -49,13 +49,12 @@ def cli():
 @click.option("-q", "--ignore-missing-pins", default=False, is_flag=True)
 @click_odb
 def write_powered_def(
-    output,
+    reader,
+    input_lef,
     power_port,
     ground_port,
     powered_netlist,
     ignore_missing_pins,
-    input_lef,
-    input_def,
 ):
     """
     Every cell having a pin labeled as a power pin (e.g., USE POWER) will be
@@ -77,8 +76,6 @@ def write_powered_def(
             if port.getName() == port_name:
                 return port
         return None
-
-    reader = OdbReader(input_lef, input_def)
 
     print(f"Top-level design name: {reader.name}")
 
@@ -280,9 +277,6 @@ def write_powered_def(
                 original_iterm.connect(original_port.getNet())
                 print("Modified connections between", port.getName(), "and", inst_name)
 
-    print(reader.block, output)
-    odb.write_def(reader.block, output)
-
 
 cli.add_command(write_powered_def)
 
@@ -317,12 +311,11 @@ cli.add_command(write_powered_def)
 @click_odb
 def power_route(
     output,
-    input_lef,
+    reader,
     core_vdd_pin,
     core_gnd_pin,
     vdd_pad_pin_map,
     gnd_pad_pin_map,
-    input_def,
 ):
     """
     Takes a pre-routed top-level layout, produces a DEF file with VDD and GND special nets\
@@ -366,8 +359,6 @@ def power_route(
     SPECIAL_NETS[GND_NET_NAME]["map"] = gnd_pad_pin_map
 
     ##################
-
-    reader = OdbReader(input_lef, input_def)
 
     via_rules = reader.tech.getViaGenerateRules()
     print("Found", len(via_rules), "VIA GENERATE rules")
@@ -1164,8 +1155,6 @@ def power_route(
         sys.exit(1)
 
     # OUTPUT
-    odb.write_def(reader.block, output)
-
     odb.write_lef(odb.dbLib_getLib(reader.db, 1), f"{output}.lef")
 
 

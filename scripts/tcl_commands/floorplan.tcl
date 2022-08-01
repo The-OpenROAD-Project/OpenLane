@@ -264,13 +264,14 @@ proc apply_def_template {args} {
     if { [info exists ::env(FP_DEF_TEMPLATE)] } {
         set log [index_file $::env(floorplan_logs)/apply_def_template.log]
         set def [index_file $::env(floorplan_tmpfiles)/apply_def_template.def]
-        puts_info "Applying DEF template. See log: $log"
+
+        puts_info "Applying DEF template..."
         try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
             --output $::env(CURRENT_DEF)\
-            --log $log\
             --def-template $::env(FP_DEF_TEMPLATE)\
             --input-lef $::env(MERGED_LEF) \
-            $::env(CURRENT_DEF)
+            $::env(CURRENT_DEF)\
+            |& tee $log $::env(TERMINAL_OUTPUT)
     }
 
 }
