@@ -506,6 +506,9 @@ The voltage where the electrons number is equal to the holes is called Vthreshol
 
 .. todo:: Add PMOS explainaion
 
+.. todo:: Cover W/L and mult values
+.. todo:: Cover why the L is minimal for digital
+
 Corner cases, temperature, voltage, 
 --------------------------------------------------------------------------------
 .. todo:: Explain

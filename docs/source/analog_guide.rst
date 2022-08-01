@@ -139,9 +139,23 @@ Use ``devices/lab_pin.sym`` to assign nets to the connections.
 
 .. figure:: ../_static/analog_flow/my_nand_connections.png
 
+Finally, configure the transistors width (parameter ``w=``) and length (parameter ``l=``). More ``width`` means more current when transistor is on.
+The sky130_fd_sc_hd defines the maximum width value per transistor: 0.65um for NMOS and 1um for PMOS.
+However, by connecting multiple transistors in parallel the current can be increased similar to increasing the width.
+These values are not picked randomly. More on this can be found here.
+
+.. todo:: Add link to more information
+
+For NMOS use 0.65um and for PMOS use 1um, like this:
+
+.. figure:: ../_static/analog_flow/nmos_width.png
+.. figure:: ../_static/analog_flow/pmos_width.png
+
 Save the schematic as ``my_nand.sch``.
 
 .. todo:: Upload and link the schematic
+
+
 
 Step 3. Symbol
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -205,6 +219,40 @@ Set name and value of the voltage source for powering the circuit. Name should b
 
 .. figure:: ../_static/analog_flow/vpwr_vsource.png
 
+From sky130A xschem library open the ``sky130_fd_pr`` folder then pick ``corner.sym``. Then change ``corner`` attribute to ``ss``.
+It will add a ``.lib`` line that points to the sky130 library. 
+
+.. figure:: ../_static/analog_flow/corner_ss.png
+
+If you do not include this component you will get an error about transistor models missing:
+
+.. figure:: ../_static/analog_flow/model_not_found_error.png
+
+Create new instance of ``devices/code_shown.sym`` from xschem library and fill following value:
+
+
+.. code-block::
+
+  .temp 125
+
+
+  .control
+  tran 0.1n 60n
+  write
+  .endc
+
+
+``.temp`` will tell the simulator about the simulation mode.
+``.control`` will tell the simulator to run transition simulation with ``0.1n`` (0.1 nanoseconds) step
+until reaching ``60n`` (or 60 nanoseconds). It will look like this:
+
+.. figure:: ../_static/analog_flow/temp_tran.png
+
+This guide covers only the case for one corner-voltage-temperature.
+However, the simulations need to be done for a couple of cases. More information can be found here.
+
+.. todo:: Add link about more information
+
 Next, configure the input voltage values. Documentation regarding the syntax can be found in the `NGSPICE documentation <https://ngspice.sourceforge.io/docs.html>`_.
 
 Here is the list of PULSE parameters: PULSE ( V1 V2 TD TR TF PW PER PHASE ).
@@ -220,31 +268,18 @@ Visualization of the pulse.
   Visualization of the pulse: PULSE(0 1.65 5ns 1ns 1ns 4ns 10ns)
 
 
+Create labels using symbol ``devices/lab_wire.sym``. This is useful to be able to identify the nets in the waveview.
 
-.. todo:: A picture of the input voltages
-.. todo:: Explain the logic of the values of PULSE
+.. figure:: ../_static/analog_flow/lab_wire.png
 
-.. todo:: Let's include the 
+Select ``use simulation dir under current schematic dir`` from the ``Simulation`` drop down and make simulations outputs go to ``/foss/eda/simulations`` instead of temporary folder.
+Then click ``set netlist dir`` and select ``/foss/eda`` so the generated netlist will be available outside the Docker instance.
 
+.. figure:: ../_static/analog_flow/simulation_netlist_dir.png
 
-.. todo:: Create the instance of sky130 xschem library ``corner.sym`` and choose ``ss`` corner.
+Press netlist, simulate. You will get following window:
 
-From sky130A xschem library open the ``sky130_fd_pr`` folder then pick ``corner.sym``. Then change ``corner`` attribute to ``ss``.
-.. todo:: Add picture of corner attribute
-
-It will add a ``.lib`` line that points to the sky130 library. If you do not include this component you will get an error about transistor models missing:
-
-.. todo:: Add picture of transistors missing.
-
-
-
-.. todo:: Create labels
-
-.. todo:: Add the simulation mode
-.. todo:: Temperature
-.. todo:: Justification for voltage
-
-.. todo:: Netlist, simulate
+.. figure:: ../_static/analog_flow/successful_simulation.png
 
 .. todo:: Open the "waves" Look at plots
 
