@@ -1008,21 +1008,6 @@ proc write_verilog {filename args} {
     }
 }
 
-proc set_layer_tracks {args} {
-    puts_info "Setting Layer Tracks..."
-    set options {
-        {-defFile required}
-        {-layer required}
-        {-valuesFile required}
-        {-originalFile required}
-    }
-    set flags {}
-    parse_key_args "set_layer_tracks" args arg_values $options flags_map $flags
-
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/set_layer_tracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
-
-}
-
 proc run_or_antenna_check {args} {
     TIMER::timer_start
     increment_index

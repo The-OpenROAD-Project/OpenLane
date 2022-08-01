@@ -72,7 +72,7 @@ proc read {args} {
         exit 1
     }
 
-    if { [info exists ::env(CURRENT_DEF) && [file exists $::env(CURRENT_DEF)]] } {
+    if { $::env(CURRENT_DEF) == 0 } {
         if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
             puts stderr $errmsg
             exit 1

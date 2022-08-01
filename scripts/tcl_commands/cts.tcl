@@ -15,38 +15,6 @@
 global script_path
 set script_path [ file dirname [ file normalize [ info script ] ] ]
 
-proc simple_cts {args} {
-    puts_info "Running Simple CTS..."
-    set options {
-        {-verilog required}
-        {-fanout required}
-        {-clk_net required}
-        {-root_clk_buf required}
-        {-clk_buf required}
-        {-clk_buf_input required}
-        {-clk_buf_output required}
-        {-cell_clk_port required}
-        {-output required}
-    }
-    parse_key_args "simple_cts" args values $options
-    global script_path
-    set tmp $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).v
-    file copy -force $values(-verilog) $tmp
-    set script $script_path/../simple_cts.py
-    #set values(-clk_net) [string map {\\ \\\\} $values(-clk_net)]
-    try_catch $::env(OPENROAD_BIN) -python $script \
-        --fanout $values(-fanout) \
-        --clk-net $values(-clk_net) \
-        --root-clkbuf $values(-root_clk_buf) \
-        --clkbuf $values(-clk_buf) \
-        --clkbuf-input-pin $values(-clk_buf_input) \
-        --clkbuf-output-pin $values(-clk_buf_output) \
-        --clk-port $values(-cell_clk_port) \
-        --output $values(-output) \
-        $tmp
-}
-
-
 proc run_cts {args} {
     if { ! [info exists ::env(CLOCK_PORT)] && ! [info exists ::env(CLOCK_NET)] } {
         puts_info "::env(CLOCK_PORT) is not set"
@@ -54,7 +22,7 @@ proc run_cts {args} {
         set ::env(CLOCK_TREE_SYNTH) 0
     }
 
-    if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
+    if {$::env(CLOCK_TREE_SYNTH) } {
         set ::env(CURRENT_STAGE) cts
         increment_index
         TIMER::timer_start
@@ -88,8 +56,6 @@ proc run_cts {args} {
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts"
 
         scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
-    } elseif { $::env(RUN_SIMPLE_CTS) } {
-        exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
     }
 }
 

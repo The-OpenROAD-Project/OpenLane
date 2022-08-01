@@ -38,10 +38,6 @@
 # modifying the source PDK.  This is in opposition to the open_pdks
 # approach which modifies the vendor PDK to fit.
 
-# This is a transitional tool.  Eventually OpenLane scripts will use
-# the mapping file to directly access the files without needing the
-# link farm.  This will free OL from any dependency on PDK organization.
-
 import argparse
 import glob
 import json

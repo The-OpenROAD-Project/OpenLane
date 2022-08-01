@@ -70,11 +70,6 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-fixed <val>` |  if `<val>` is 1, then the macro is set as FIXED, else it's set as PLACED in the def file.|
 |    | `[-dbunit <val>]` | `<val>` reflects the value of the data base unit. <br> Defaults to 1000. <br> Optional flag.|
 |    | `-layerNames <list_of_layer_names>` |  the list of layer names on which to place the obstruction. |
-| `set_layer_tracks  ` | | sets the tracks on a layer to specific value.|
-|    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
-|    | `-layer <layer_name>` | layer to change.|
-|    | `-valuesFile <file>` |  tmp file to read the new track values from.|
-|    | `-originalFile <file>` |  tmp file to store the original value.|
 | `extract_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
@@ -82,6 +77,11 @@ Most of the following commands' implementation exists in this [file][0]
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna.rpt`|
 | `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
+| `set_layer_tracks  ` | | **Removed:** sets the tracks on a layer to specific value.|
+|    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
+|    | `-layer <layer_name>` | layer to change.|
+|    | `-valuesFile <file>` |  tmp file to read the new track values from.|
+|    | `-originalFile <file>` |  tmp file to store the original value.|
 
 ## Checker Commands
 
@@ -187,16 +187,6 @@ Most of the following commands' implementation exists in this [file][2]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `simple_cts` | | Runs clock tree synthesis using the simple cts application. The resulting file is under `/<run_path>/results/cts/` . <br> Not Advised to use. Legacy Command.|
-|    | `-verilog <file>` | The input verilog file. |
-|    | `-fanout <val>` | The maximum fanout value.       |
-|    | `-clk_net <name>` | Clock net name.       |
-|    | `-root_clk_buf <name>` | Root clk buffer name.       |
-|    | `-clk_buf <list>` | List of the other clock buffers.       |
-|    | `-clk_buf_input <pin_name>` | Clock buffer input pin name.  |
-|    | `-clk_buf_output <pin_name>` | Clock buffer output pin name.    |
-|    | `-cell_clk_port <name>` | Clock buffer port name.    |
-|    | `-output <output_file>` | Output file path.    |
 | `run_cts` | | Runs clock tree synthesis using the openroad app on the processed design. The resulting file is under `/<run_path>/results/cts/`. It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/cts` and runs yosys logic verification if enabled. |
 | `run_resizer_timing` | | Runs resizer timing optimizations which repairs setup and hold violations.  |
 
