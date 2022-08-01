@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,44 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-define_corners ss tt ff
-
-foreach lib $::env(LIB_SLOWEST) {
-    read_liberty -corner ss $lib
-}
-foreach lib $::env(LIB_TYPICAL) {
-    read_liberty -corner tt $lib
-}
-foreach lib $::env(LIB_FASTEST) {
-    read_liberty -corner ff $lib
-}
-
-foreach corner {ss tt ff} {
-    if { [info exists ::env(EXTRA_LIBS) ] } {
-        foreach lib $::env(EXTRA_LIBS) {
-            read_liberty -corner $corner $lib
-        }
-    }
-}
-
-if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if { $::env(CURRENT_DEF) != 0 } {
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-} else {
-    if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-    link_design $::env(DESIGN_NAME)
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read -multi_corner -override_lef "$::env(STA_LEF)"
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 

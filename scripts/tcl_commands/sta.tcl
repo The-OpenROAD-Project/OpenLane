@@ -74,7 +74,6 @@ proc run_parasitics_sta {args} {
     set_if_unset arg_values(-spef_out_prefix) [file rootname $::env(CURRENT_DEF)]
 
     set ::env(SPEF_PREFIX) $arg_values(-spef_out_prefix)
-    set ::env(SAVE_SDF) $arg_values(-sdf_out)
 
     puts_info "Running parasitics-based static timing analysis..."
 
@@ -95,12 +94,15 @@ proc run_parasitics_sta {args} {
                 -process_corner $process_corner
 
             set ::env(CURRENT_SPEF) $::env(SAVE_SPEF)
+            unset ::env(SAVE_SPEF)
 
             set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.$process_corner.log
 
             if { $process_corner == "nom" } {
                 # First, we need this for the reports:
                 set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.log
+
+                set ::env(SAVE_SDF) $arg_values(-sdf_out)
 
                 # We also need to run a single-corner STA at the tt timing corner
                 run_sta\
@@ -110,6 +112,7 @@ proc run_parasitics_sta {args} {
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
 
                 set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+                unset ::env(SAVE_SDF)
             }
 
             run_sta\

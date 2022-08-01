@@ -32,11 +32,8 @@ proc run_yosys {args} {
 
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
-    if { [info exists arg_values(-output)] } {
-        set ::env(SAVE_NETLIST) $arg_values(-output)
-    } else {
-        set ::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).v
-    }
+    set_if_unset arg_values(-output) $::env(synthesis_results)/$::env(DESIGN_NAME).v
+
     if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
         set ::env(SYNTH_READ_BLACKBOX_LIB) 1
     }
@@ -59,26 +56,26 @@ proc run_yosys {args} {
         lappend ::env(LIB_SYNTH_NO_PG) $lib_path
     }
 
+    set ::env(SAVE_NETLIST) $arg_values(-output)
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SYNTH_SCRIPT) \
         -l [index_file $::env(synthesis_logs)/synthesis.log] \
         |& tee $::env(TERMINAL_OUTPUT)
 
+
     if { ! [info exists flags_map(-no_set_netlist)] } {
-        set_netlist $::env(SAVE_NETLIST)
-    }
+        set_netlist -lec $::env(SAVE_NETLIST)
 
-    if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-    }
+        # The following is a naive workaround to the defparam issue.. it should be handled with
+        # an issue to the OpenROAD verilog parser.
+        if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
+            puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
+        } else {
+            try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
+        }
 
-    # The following is a naive workaround to the defparam issue.. it should be handled with
-    # an issue to the OpenROAD verilog parser.
-    if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-        puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
-    } else {
-        try_catch sed -i {/defparam/d} $::env(SAVE_NETLIST)
     }
+    unset ::env(SAVE_NETLIST)
 }
 
 proc run_synth_exploration {args} {
@@ -177,21 +174,23 @@ proc yosys_rewrite_verilog {filename} {
         return
     }
     if { !$::env(YOSYS_REWRITE_VERILOG) } {
-        puts_verbose "Skipping Verilog rewrite."
+        puts_verbose "Skipping Verilog rewrite..."
         return
     }
-
-    assert_files_exist $filename
-
-    set ::env(SAVE_NETLIST) $filename
 
     increment_index
     TIMER::timer_start
     puts_info "Rewriting $filename to $::env(SAVE_NETLIST) using Yosys..."
 
+    assert_files_exist $filename
+
+    set ::env(SAVE_NETLIST) $filename
+
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
         -l [index_file $::env(synthesis_logs)/rewrite_verilog.log]
+
+    unset ::env(SAVE_NETLIST)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"

@@ -28,16 +28,16 @@ proc save_state {args} {
     }
 }
 
-proc set_netlist {netlist args} {
+proc set_netlist {args} {
     set options {}
 
     set flags {
         -lec
     }
-    set args_copy $args
 
     parse_key_args "set_netlist" args arg_values $options flags_map $flags
 
+    set netlist [lindex $args 0]
     set netlist_relative [relpath . $netlist]
 
     puts_verbose "Changing netlist to '$netlist_relative'..."
@@ -51,7 +51,7 @@ proc set_netlist {netlist args} {
     set replace [string map {/ \\/} $::env(PREV_NETLIST)]
     try_catch sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
-    if { [info exists flags_map(-lec)] && [file exists $::env(PREV_NETLIST)] } {
+    if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
         logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
     }
 }
@@ -62,6 +62,14 @@ proc set_def {def} {
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
+proc set_sdc {sdc} {
+    set sdc_relative [relpath . $sdc]
+    puts_verbose "Changing timing constraints to '$sdc_relative'..."
+    set ::env(CURRENT_SDC) $sdc
+    set replace [string map {/ \\/} $sdc]
+    exec sed -i -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
 proc set_guide {guide} {
@@ -203,12 +211,9 @@ proc gen_exclude_list {args} {
         set ::env(DONT_USE_CELLS) [join $y " "]
         puts_verbose "Created ::env(DONT_USE_CELLS): {$::env(DONT_USE_CELLS)}"
     }
-
-
 }
 
 proc trim_lib {args} {
-    puts_verbose "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
@@ -217,8 +222,11 @@ proc trim_lib {args} {
         -drc_exclude_only
     }
     parse_key_args "trim_lib" args arg_values $options flags_map $flags
+
     set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
+
+    puts_verbose "Trimming liberty files \{$arg_values(-input)\} into $arg_values(-output)..."
 
     if { [info exists flags_map(-drc_exclude_only)] } {
         gen_exclude_list -lib $arg_values(-output) -drc_exclude_only
@@ -236,6 +244,25 @@ proc trim_lib {args} {
         --cell-file $arg_values(-output).exclude.list\
         --output $arg_values(-output)\
         {*}$arg_values(-input)
+}
+
+proc merge_lib {args} {
+    set options {
+        {-inputs required}
+        {-output required}
+        {-name optional}
+    }
+
+    set flags {}
+
+    parse_key_args "merge_lib" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) "$::env(PDK)_merged"
+
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/mergeLib.py\
+        --output $arg_values(-output)\
+        --name $arg_values(-name)\
+        {*}$arg_values(-inputs)
 }
 
 proc source_config {args} {
@@ -289,18 +316,16 @@ proc source_config {args} {
     source $config_in_path
 }
 
-proc load_overrides {overrides} {
-    set env_overrides [split $overrides ',']
-    foreach override $env_overrides {
-        set kva [split $override '=']
-        set key [lindex $kva 0]
-        set value [lindex $kva 1]
-        set ::env(${key}) $value
+proc set_verbose {level} {
+    global global_verbose_level
+    set global_verbose_level $level
+    set ::env(TERMINAL_OUTPUT) "/dev/null"
+    if { $global_verbose_level >= 2 } {
+        set ::env(TERMINAL_OUTPUT) ">&@stdout"
     }
 }
 
 proc prep {args} {
-
     set ::env(timer_start) [clock seconds]
     TIMER::timer_start
     set options {
@@ -361,13 +386,7 @@ proc prep {args} {
     }
 
     set_if_unset arg_values(-verbose) "0"
-    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
-
-
-    set ::env(TERMINAL_OUTPUT) "/dev/null"
-    if { $::env(OPENLANE_VERBOSE) >= 2 } {
-        set ::env(TERMINAL_OUTPUT) ">&@stdout"
-    }
+    set_verbose $arg_values(-verbose)
 
     set ::env(START_TIME) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
 
@@ -602,16 +621,18 @@ proc prep {args} {
         }
 
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
-        # merge synthesis libraries
         set ::env(LIB_SYNTH_MERGED) $::env(synthesis_tmpfiles)/merged.lib
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/mergeLib.py\
-            --output $::env(LIB_SYNTH_MERGED)\
-            --name $::env(PDK)_merged\
-            {*}$::env(LIB_SYNTH_COMPLETE)
+
+        merge_lib\
+            -output $::env(LIB_SYNTH_MERGED)\
+            -name $::env(PDK)_merged\
+            -inputs {*}$::env(LIB_SYNTH_COMPLETE)
 
         # trim synthesis library
         set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
-        trim_lib -input $::env(LIB_SYNTH_MERGED)
+        trim_lib\
+            -output $::env(LIB_SYNTH)\
+            -input $::env(LIB_SYNTH_MERGED)
 
         # trim resizer library
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
@@ -631,6 +652,15 @@ proc prep {args} {
                     lappend ::env(LIB_RESIZER_OPT) $lib_resizer
                 }
             }
+        }
+
+        # trim the lib for CTS to only exclude cells with drc errors
+        if { ! [info exists ::env(LIB_CTS) ] } {
+            set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
+            trim_lib\
+                -output $::env(LIB_CTS)\
+                -input $::env(LIB_SYNTH_COMPLETE)\
+                -drc_exclude_only
         }
 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
@@ -684,6 +714,11 @@ proc prep {args} {
     set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
 
+    if { ! [info exists ::env(CURRENT_INDEX)] } {
+        set ::env(CURRENT_INDEX) 0
+        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+    }
+
     if { ! [info exists ::env(CURRENT_DEF)] } {
         set ::env(CURRENT_DEF) 0
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
@@ -694,14 +729,14 @@ proc prep {args} {
         set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
     }
 
-    if { ! [info exists ::env(CURRENT_INDEX)] } {
-        set ::env(CURRENT_INDEX) 0
-        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
-    }
-
     if { ! [info exists ::env(CURRENT_NETLIST)] } {
         set ::env(CURRENT_NETLIST) 0
         set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
+    }
+
+    if { ! [info exists ::env(CURRENT_ODB)] } {
+        set ::env(CURRENT_ODB) 0
+        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
     }
 
     if { ! [info exists ::env(PREV_NETLIST)] } {
@@ -940,7 +975,6 @@ proc write_verilog {filename args} {
     increment_index
     TIMER::timer_start
     puts_info "Writing Verilog..."
-    set ::env(SAVE_NETLIST) $filename
 
     set options {
         {-def optional}
@@ -954,9 +988,19 @@ proc write_verilog {filename args} {
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-log) /dev/null
 
-    set ::env(INPUT_DEF) $arg_values(-def)
+    set current_def_backup $::env(CURRENT_DEF)
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl -indexed_log [index_file $arg_values(-log)]
+    set ::env(CURRENT_DEF) $arg_values(-def)
+    if { [info exists ::env(LEC_ENABLE)] && $::env(LEC_ENABLE) } {
+        set ::env(SAVE_NETLIST) $filename.without_power_pins.v
+    }
+    set ::env(SAVE_POWERED_NETLIST) $filename
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl -indexed_log [index_file $arg_values(-log)]
+    unset ::env(SAVE_POWERED_NETLIST)
+    if { [info exists ::env(LEC_ENABLE)] && $::env(LEC_ENABLE) } {
+        unset ::env(SAVE_NETLIST)
+    }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
     if { [info exists flags_map(-canonical)] } {
@@ -1049,6 +1093,16 @@ proc save_final_views {args} {
     # Aaand fire!
     save_views {*}$arg_list
 
+}
+
+proc load_overrides {overrides} {
+    set env_overrides [split $overrides ',']
+    foreach override $env_overrides {
+        set kva [split $override '=']
+        set key [lindex $kva 0]
+        set value [lindex $kva 1]
+        set ::env(${key}) $value
+    }
 }
 
 package provide openlane 0.9

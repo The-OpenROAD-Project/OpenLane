@@ -40,12 +40,12 @@ proc insert_buffer {args} {
         set ::env(INSERT_BUFFER_NO_PLACE) "1"
     }
 
-    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).def]
 
     set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
-
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).def]
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]
-
+    set_def $::env(SAVE_DEF)
+    unset ::env(SAVE_DEF)
     unset ::env(INSERT_BUFFER_COMMAND)
 
     if { ![info exists flags_map(-place)] } {
@@ -53,8 +53,6 @@ proc insert_buffer {args} {
     }
 
     incr ::env(INSERT_BUFFER_COUNTER)
-
-    set_def $::env(SAVE_DEF)
 }
 
 proc eco_gen_buffer {args} {
@@ -110,8 +108,11 @@ proc run_apply_step {args} {
         -exit $::env(SCRIPTS_DIR)/openroad/eco.tcl \
         |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/eco.log
 
-    set_netlist $::env(SAVE_NETLIST)
+    set_netlist -lec $::env(SAVE_NETLIST)
     set_def $::env(SAVE_DEF)
+
+    unset ::env(SAVE_NETLIST)
+    unset ::env(SAVE_DEF)
 }
 
 proc run_eco_flow {args} {

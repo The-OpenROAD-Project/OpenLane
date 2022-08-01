@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,25 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
 # load the grid definitions
 if {[catch {source $::env(PDN_CFG)} errmsg]} {
@@ -52,8 +35,8 @@ if { $::env(FP_PDN_CHECK_NODES) } {
 
 if { $::env(FP_PDN_IRDROP) } {
     # set rc values
-    source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
+    source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
     analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
 }
 
-write_def $::env(SAVE_DEF)
+write

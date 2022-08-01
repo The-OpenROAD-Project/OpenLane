@@ -79,6 +79,7 @@ proc write_powered_verilog {args} {
         |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
 
     write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log [index_file $arg_values(-log)] -canonical
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write powered verilog - openlane"
 }
@@ -94,17 +95,14 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     if { $::env(LVS_INSERT_POWER_PINS) } {
         set powered_netlist_name [index_file $::env(signoff_tmpfiles)/powered_netlist.v]
         set powered_def_name [index_file $::env(signoff_tmpfiles)/powered_def.def]
+
         write_powered_verilog\
             -output_verilog $powered_netlist_name\
             -output_def $powered_def_name\
             -log $::env(signoff_logs)/write_verilog.log\
             -def_log $::env(signoff_logs)/write_powered_def.log
 
-        set_netlist $powered_netlist_name
-
-        if { $::env(LEC_ENABLE) } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
+        set_netlist -lec $powered_netlist_name
     }
 
     increment_index
@@ -160,7 +158,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     puts_verbose "$layout against $schematic"
 
     try_catch netgen -batch source $lvs_file_path \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/$extract_type.log]
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/lvs.$extract_type.log]
 
     set count_lvs_log [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
 
