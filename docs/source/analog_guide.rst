@@ -243,8 +243,8 @@ Create new instance of ``devices/code_shown.sym`` from xschem library and fill f
 
 
 ``.temp`` will tell the simulator about the simulation mode.
-``.control`` will tell the simulator to run transition simulation with ``0.1n`` (0.1 nanoseconds) step
-until reaching ``60n`` (or 60 nanoseconds). It will look like this:
+Content in between ``.control`` and ``.endc`` will tell the simulator to run ``tran``sition simulation with ``0.1n`` (0.1 nanoseconds) step
+until reaching ``60n`` (or 60 nanoseconds). Then to write the output raw file. It will look like this:
 
 .. figure:: ../_static/analog_flow/temp_tran.png
 
@@ -277,21 +277,38 @@ Then click ``set netlist dir`` and select ``/foss/eda`` so the generated netlist
 
 .. figure:: ../_static/analog_flow/simulation_netlist_dir.png
 
-Press netlist, simulate. You will get following window:
+
+Simulation and waveforms
+"""""""""""""""""""""""""""""""""""""""
+
+Press ``netlist`` and then ``simulate`` on the top right of the xschem window. You will get following window:
 
 .. figure:: ../_static/analog_flow/successful_simulation.png
 
-.. todo:: Open the "waves" Look at plots
+After simulation is done click on ``waves`` button on top right. This will open a window of GAW.
 
+.. figure:: ../_static/analog_flow/gaw.png
 
+Then use ``File -> Open...`` and select the ``rawspice.raw``. It will open a pop-up menu with all of the waveforms.
 
-.. todo:: Upload and link the testbench
+.. figure:: ../_static/analog_flow/gaw_rawspice.raw.png
 
+Drag and drop waveviews named ``v(a)``, ``v(b)``, ``v(y)`` from the pop-up menu
+into the black areas where typically the waveforms are located.
+
+.. figure:: ../_static/analog_flow/nand2_gaw.png
+
+If you drag it to incorrect location you will get message similar to below:
+
+.. figure:: ../_static/analog_flow/gaw_droped_to_wrong_place_error.png
 
 Measurements
 """""""""""""""""""""""""""""""""""""""
 .. todo:: Add measurements
 
+
+
+.. todo:: Upload and link the testbench
 
 
 Troubleshooting
