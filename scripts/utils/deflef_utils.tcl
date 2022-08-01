@@ -92,9 +92,10 @@ proc merge_components {args} {
     set flags {}
     parse_key_args "merge_components" args arg_values $options flags_map $flags
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py merge_components\
-        --input-lef $::env(MERGED_LEF)\
         --output $arg_values(-output)\
-        $arg_values(-input1) $arg_values(-input2)
+        --input-lef $::env(MERGED_LEF)\
+        $arg_values(-input1)\
+        --with-components-from $arg_values(-input2)
 }
 
 

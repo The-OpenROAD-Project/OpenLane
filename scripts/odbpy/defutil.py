@@ -65,84 +65,31 @@ def mark_component_fixed(cell_name, output, input_lef, input_def):
 cli.add_command(mark_component_fixed)
 
 
-def merge_item_section(
-    item: str, def_one_str: str, def_two_str: str, replace_two: bool = False
-) -> str:
-    import re
-
-    section_start_rx = re.compile(rf"{item}\s+(\d+)\s*;\s*")
-    section_end_rx = re.compile(rf"END\s+{item}")
-
-    def_one_lines = def_one_str.splitlines()
-    def_two_lines = def_two_str.splitlines()
-
-    collecting = False
-    def_two_out_lines = []
-    def_two_count = 0
-    for line in def_two_lines:
-        start_match = section_start_rx.search(line)
-        end_match = section_end_rx.search(line)
-        if end_match is not None:
-            collecting = False
-            break
-        if collecting:
-            def_two_out_lines.append(line)
-        if start_match is not None:
-            def_two_count = int(start_match[1])
-            collecting = True
-
-    # assert(len(def_two_out_lines) == def_two_count) # sanity check
-    final_out_lines = []
-
-    def_one_count = 0
-    for line in def_one_lines:
-        start_match = section_start_rx.search(line)
-        end_match = section_end_rx.search(line)
-        if start_match is not None:
-            def_one_count = int(start_match[1])
-            final_count = def_one_count
-            if not replace_two:
-                final_count += def_two_count
-            final_out_lines.append(f"{item} {final_count} ;")
-        elif end_match is not None:
-            if not replace_two:
-                final_out_lines += def_two_out_lines
-            final_out_lines.append(f"END {item}")
-        else:
-            final_out_lines.append(line)
-
-    return "\n".join(final_out_lines)
-
-
 @click.command("merge_components")
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("def_one")
-@click.argument("def_two")
-def merge_components(output, input_lef, def_one, def_two):
-    # TODO: Rewrite in OpenDB if possible
-    def_one_str = open(def_one).read()
-    def_two_str = open(def_two).read()
+@click.option(
+    "-w",
+    "--with-components-from",
+    "donor_def",
+    required=True,
+    help="A donor def file from which to extract components.",
+)
+@click_odb
+def merge_components(output, input_lef, donor_def, input_def):
+    """
+    Adds all components in a donor DEF file that do not exist in the (recipient) INPUT_DEF.
 
-    with open(output, "w") as f:
-        f.write(merge_item_section("COMPONENTS", def_one_str, def_two_str))
+    Existing components with the same name will *not* be overwritten.
+    """
+    donor = OdbReader(input_lef, donor_def)
+    recipient = OdbReader(input_lef, input_def)
+
+    for instance in donor.instances:
+        odb.dbInst_create(recipient.block, instance.getMaster(), instance.getName())
+
+    assert odb.write_def(recipient.block, output) == 1
 
 
 cli.add_command(merge_components)
-
-
-@click.command("merge_pins")
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("def_one")
-@click.argument("def_two")
-def merge_pins(output, input_lef, def_one, def_two):
-    # TODO: Rewrite in OpenDB if possible
-    def_one_str = open(def_one).read()
-    def_two_str = open(def_two).read()
-
-    with open(output, "w") as f:
-        f.write(merge_item_section("PINS", def_one_str, def_two_str))
 
 
 @click.command("move_diearea")
@@ -649,7 +596,7 @@ def add_def_obstructions(output, obstructions, input_lef, input_def):
         print("Creating an obstruction on", layer, "at", *bbox, "(DBU)")
         odb.dbObstruction_create(reader.block, reader.tech.findLayer(layer), *bbox)
 
-    odb.write_def(reader.block, output)
+    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(add_def_obstructions)

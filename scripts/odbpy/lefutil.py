@@ -49,7 +49,6 @@ cli.add_command(get_metal_layers)
 @click.option("--output", "-o", default="./out.lef", help="Output file.")
 @click.argument("lef")
 def zeroize_origin(output, lef):
-    # TODO: Redo using OpenDB (if possible)
     RECT_REGEX = re.compile(
         r"^\s*RECT\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+;$"
     )

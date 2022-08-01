@@ -377,7 +377,7 @@ def place(
     print("Inserted", len(di.inserted), "diodes.")
 
     # Write result
-    odb.write_def(reader.block, output)
+    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(place)

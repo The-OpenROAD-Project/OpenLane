@@ -34,6 +34,7 @@ class OdbReader(object):
             self.name = self.block.getName()
             self.rows = self.block.getRows()
             self.dbunits = self.block.getDefUnits()
+            self.instances = self.block.getInsts()
 
 
 def click_odb(function):
