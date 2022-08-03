@@ -2,10 +2,18 @@ Analog component design practice
 --------------------------------------------------------------------------------
 Introduction
 ^^^^^^^^^^^^^^^
-This guide covers design process of analog components for sky130.
-While this guide is different for most technlogies and tools it gives enough practical experience.
 
-As part of this guide NAND cell will be designed. It is recommended to read theoretical chapter located here first.
+.. warning:: This guide is created to teach the entry level knowledge about the custom macro blocks and standard cell library.
+  Layouts, schematics and other outputs of the guide are not production ready.
+  It makes a lot of assumptions, does not account for many effects and is not in any shape or form suitable for production.
+
+
+This guide covers design process of analog components for sky130.
+While this guide is different for most technlogies and tools it gives plenty of practical experience.
+
+As part of this guide NAND cell will be designed.
+The NAND cell covered in this guide is not intended to be used in real life applications.
+It is recommended to read theoretical chapter located here first.
 
 .. todo:: Add link to theoretical
 
@@ -243,7 +251,7 @@ Create new instance of ``devices/code_shown.sym`` from xschem library and fill f
 
 
 ``.temp`` will tell the simulator about the simulation mode.
-Content in between ``.control`` and ``.endc`` will tell the simulator to run ``tran``sition simulation with ``0.1n`` (0.1 nanoseconds) step
+Content in between ``.control`` and ``.endc`` will tell the simulator to run ``tran`` sition simulation with ``0.1n`` (0.1 nanoseconds) step
 until reaching ``60n`` (or 60 nanoseconds). Then to write the output raw file. It will look like this:
 
 .. figure:: ../_static/analog_flow/temp_tran.png
@@ -304,6 +312,34 @@ If you drag it to incorrect location you will get message similar to below:
 
 Measurements
 """""""""""""""""""""""""""""""""""""""
+When collecting characteristics it is common to automate measurements of different parameters.
+For this purpose SPICE proposes ``.measure`` command.
+More information about this command can be found in `NGSPICE documentation <https://ngspice.sourceforge.io/docs.html>`_.
+
+Create a new instance of ``devices/code_shown.sym``. Then add following code in the value field:
+
+
+.. code-block::
+
+  .meas tran rise_time TRIG v(y) VAL=vpwr_value*0.1 RISE=LAST TARG v(y) VAL=vpwr_value*0.9 RISE=last
+
+The measurement above measures the time between trigger (trig) and second trigger (targ).
+Trigger is set for condition when ``v(y) == vpwr_value*0.1`` on the first rising edge
+and the second trigger is set to ``v(y) == vpwr_value*0.9`` on the first rising edge.
+
+.. todo:: Add picture visualizing this
+
+Characterization needs to account for different transition cases depending on input transitions.
+This is caused by the fact that some transistors are connected in parallel.
+Transistors in parallel can conduct at the same time.
+As a result, the resistance is much lower compared to the case when only one transistor conducts.
+Therefore when measuring the transition time the resulting transition can be much faster.
+Characterization process needs to take into the account this property. This falls outside the scope of this guide.
+
+.. figure:: ../_static/analog_flow/parallel_transistors.png
+
+
+
 .. todo:: Add measurements
 
 
@@ -316,10 +352,7 @@ Troubleshooting
 .. todo:: Add troubleshooting PDK issues
 .. todo:: Add troubleshooting Symbol path issues
 
-.. todo:: Add XSCHEM building the Testbench half
-.. todo:: Add XSCHEM netlisting half
-.. todo:: Add XSCHEM simulation half
-.. todo:: Add XSCHEM making sure the saved files reference right symbols half
+
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
