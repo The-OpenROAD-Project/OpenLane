@@ -327,7 +327,13 @@ The measurement above measures the time between trigger (trig) and second trigge
 Trigger is set for condition when ``v(y) == vpwr_value*0.1`` on the first rising edge
 and the second trigger is set to ``v(y) == vpwr_value*0.9`` on the first rising edge.
 
-.. todo:: Add picture visualizing this
+The ``rise_time`` is about ``450ps`` as can be seen in the measurement results:
+
+.. figure:: ../_static/analog_flow/measure_rise_ngspice.png
+
+For visualization purposes only, verify the measurements according to the waveview:
+
+.. figure:: ../_static/analog_flow/measure_rise.png
 
 Characterization needs to account for different transition cases depending on input transitions.
 This is caused by the fact that some transistors are connected in parallel.
@@ -338,14 +344,7 @@ Characterization process needs to take into the account this property. This fall
 
 .. figure:: ../_static/analog_flow/parallel_transistors.png
 
-
-
-.. todo:: Add measurements
-
-
-
-.. todo:: Upload and link the testbench
-
+The schematic, symbol and testbench can be found in ``docs/_static/analog_flow_files``
 
 Troubleshooting
 """""""""""""""""""""""""""""""""""""""
@@ -361,3 +360,20 @@ Troubleshooting
 .. todo:: Add the final result
 
 .. todo:: Common question about sky130A vs sky130B
+
+
+.. todo:: PEX
+
+load <cellname>
+flatten my_flat_cell
+load my_flat_cell
+extract do local
+extract all
+ext2sim labels on
+ext2sim
+extresist tolerance 10
+extresist
+ext2spice lvs
+ext2spice cthresh 0
+ext2spice extresist on
+ext2spice
