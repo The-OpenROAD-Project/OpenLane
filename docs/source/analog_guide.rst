@@ -205,6 +205,7 @@ Connect everything as shown in the figure.
 
 .. figure:: ../_static/analog_flow/my_nand_tb_connections.png
 
+Press netlist to generate the netlist of the component.
 
 Configure the components and the simulation
 """""""""""""""""""""""""""""""""""""""
@@ -335,6 +336,8 @@ For visualization purposes only, verify the measurements according to the wavevi
 
 .. figure:: ../_static/analog_flow/measure_rise.png
 
+Press netlist one last time to generate the netlist that will be used in next section.
+
 Characterization needs to account for different transition cases depending on input transitions.
 This is caused by the fact that some transistors are connected in parallel.
 Transistors in parallel can conduct at the same time.
@@ -351,6 +354,44 @@ Troubleshooting
 .. todo:: Add troubleshooting PDK issues
 .. todo:: Add troubleshooting Symbol path issues
 
+
+Step 5. Layout
+^^^^^^^^^^^^^^^
+
+Open the KLayout using following command:
+
+.. code-block::
+
+  # Stil running inside hpretl/iic-osic-tools Docker Image
+  # Move to the directory that will contain our layout
+  cd /foss/designs
+
+  # Copy the library GDS to use as reference
+  cp $PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/gds/sky130_fd_sc_hd.gds my_nand.gds
+
+  # Open the layout with KLayout
+  klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/sky130A.lyt -l $PDK_ROOT/sky130A/libs.tech/klayout/sky130A.lyp my_nand.gds
+
+If you got SEGFAULT error, then you accidently ran the KLayout from Ubuntu repositories.
+If you don't have sky130A or sky130B at the technologies button, then you made a mistake in the command.
+
+If you did everything correctly then following window will be visible:
+
+.. figure:: ../_static/analog_flow/klayout_window.png
+
+Open the nor2_1 cell to analyze the cell. For this purpose, right click on ``sky130_fd_sc_hd__nor2_1`` and click on ``Show As New Top``.
+
+.. figure:: ../_static/analog_flow/nor2_show_as_new_top.png
+
+Understanding layout layers
+"""""""""""""""""""""""""""""""""""""""
+This part of the guide helps to understand the layers and understand the structure of standard cell.
+
+
+
+Then remove the cells that will not be part of our library.
+The only reason it is recommended to copy existing cell,
+because some of the layers need to have exact locations and distance from the end of the cell.
 
 
 .. todo:: Add opening the KLayout quarter
