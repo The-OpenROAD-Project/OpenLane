@@ -32,28 +32,30 @@ proc groute_antenna_extract {args} {
 proc global_routing_fastroute {args} {
     set log [index_file $::env(routing_logs)/global.log]
 
+    set initial_def [index_file $::env(routing_tmpfiles)/global.def]
+    set initial_guide [index_file $::env(routing_tmpfiles)/global.guide]
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
         -indexed_log $log\
-        -save "def=[index_file $::env(routing_tmpfiles)/global.def],guide=[index_file $::env(routing_tmpfiles)/global.guide]"\
+        -save "def=$initial_def,guide=$initial_guide"\
         -no_update_current
 
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
         set iter 1
 
-        set minimum_def $::env(CURRENT_DEF)
-        set minimum_guide $::env(CURRENT_GUIDE)
+        set minimum_def $initial_def
+        set minimum_guide $initial_guide
         set minimum_antennae [groute_antenna_extract -from_log $log]
 
         while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $minimum_antennae > 0} {
             set log [index_file $::env(routing_logs)/global_$iter.log]
-            set replaceWith "INSDIODE$iter"
-            puts_info "Starting antenna repair iteration $iter with $prevAntennaVal violations..."
+            puts_info "Starting antenna repair iteration $iter with $minimum_antennae violations..."
 
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_instance_prefixes\
                 --output $::env(CURRENT_DEF)\
                 --original-prefix "ANTENNA"\
-                --new-prefix $replaceWith\
+                --new-prefix "INSDIODE$iter"\
                 --input-lef $::env(MERGED_LEF)\
                 $::env(CURRENT_DEF)
 
@@ -65,12 +67,12 @@ proc global_routing_fastroute {args} {
             set antennae [groute_antenna_extract -from_log $log]
 
             if { $antennae >= $minimum_antennae } {
-                puts_info "\[Iteration $iter\] Failed to reduce antenna violations ($minimum_antennae -> $antenna), stopping iterations..."
+                puts_info "\[Iteration $iter\] Failed to reduce antenna violations ($minimum_antennae -> $antennae), stopping iterations..."
                 set ::env(SAVE_DEF) $minimum_def
                 set ::env(SAVE_GUIDE) $minimum_guide
                 break
             } else {
-                puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennae -> $antenna)"
+                puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennae -> $antennae)"
                 set minimum_def $::env(SAVE_DEF) 
                 set minimum_guide $::env(SAVE_GUIDE) 
                 set minimum_antennae [groute_antenna_extract -from_log [groute_antenna_extract -from_log $log]]
