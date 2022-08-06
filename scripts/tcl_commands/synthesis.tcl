@@ -66,14 +66,9 @@ proc run_yosys {args} {
     if { ! [info exists flags_map(-no_set_netlist)] } {
         set_netlist -lec $::env(SAVE_NETLIST)
 
-        # The following is a naive workaround to the defparam issue.. it should be handled with
-        # an issue to the OpenROAD verilog parser.
-        if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-            puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
-        } else {
-            try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
-        }
-
+        # The following is a naive workaround to OpenROAD not accepting defparams.
+        # It *should* be handled with a fix to the OpenROAD Verilog parser.
+        try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
     unset ::env(SAVE_NETLIST)
 }

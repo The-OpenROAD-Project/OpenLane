@@ -40,17 +40,13 @@ proc init_floorplan {args} {
     increment_index
     puts_info "Running Initial Floorplanning..."
     TIMER::timer_start
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
-    set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
 
     set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/initial_fp]
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log] -netlist_in
-
-    set_def $::env(SAVE_DEF)
-    set_sdc $::env(SAVE_SDC)
-    unset ::env(SAVE_DEF)
-    unset ::env(SAVE_SDC)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log]\
+        -netlist_in \
+        -save "def=[index_file $::env(floorplan_tmpfiles)/initial_fp.def],sdc=[index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]"
 
     check_floorplan_missing_lef
     check_floorplan_missing_pins
@@ -173,10 +169,9 @@ proc place_io {args} {
     puts_info "Running IO Placement..."
     TIMER::timer_start
 
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log [index_file $::env(floorplan_logs)/io.log]
-    set_def $::env(SAVE_DEF)
-    unset ::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/io.log]\
+        -save "def=[index_file $::env(floorplan_tmpfiles)/io.def]"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
@@ -216,12 +211,13 @@ proc place_contextualized_io {args} {
 
     set ::env(FP_IO_MODE) 0; # set matching mode
     set ::env(CONTEXTUAL_IO_FLAG) 1
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log [index_file $::env(floorplan_logs)/io.log]
-    unset ::env(SAVE_DEF)
-
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/io.log] \
+        -save "def=[index_file $::env(floorplan_tmpfiles)/io.def]" \
+        -no_update_current
     set ::env(FP_IO_MODE) $old_mode
     move_pins -from $::env(SAVE_DEF) -to $prev_def
+    unset ::env(SAVE_DEF)
     set_def $prev_def
 
     TIMER::timer_stop
@@ -236,11 +232,9 @@ proc tap_decap_or {args} {
             puts_info "Running Tap/Decap Insertion..."
             TIMER::timer_start
 
-            set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME).def
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl -indexed_log [index_file $::env(floorplan_logs)/tap.log]
-            set_def $::env(SAVE_DEF)
-            unset ::env(SAVE_DEF)
-
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
+                -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
+                -save "def=$::env(floorplan_results)/$::env(DESIGN_NAME).def"
             TIMER::timer_stop
             exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
         } else {

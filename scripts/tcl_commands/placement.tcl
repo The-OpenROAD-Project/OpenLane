@@ -23,18 +23,9 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
-
-    # sometimes replace fails with a ZERO exit code; the following is a workaround
-    # until the cause is found and fixed
-    if { ! [file exists $::env(SAVE_DEF)] } {
-        puts_err "Global placement has failed to produce a DEF file."
-        flow_fail
-    }
-
-    set_def $::env(SAVE_DEF)
-    unset ::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
+        -indexed_log [index_file $::env(placement_logs)/global.log]\
+        -save "def=[index_file $::env(placement_tmpfiles)/global.def]"
 
     check_replace_divergence
 
@@ -77,10 +68,9 @@ proc detailed_placement_or {args} {
     puts_info "Running Detailed Placement..."
     set log [index_file $arg_values(-log)]
 
-    set ::env(SAVE_DEF) $arg_values(-def)
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
-    set_def $::env(SAVE_DEF)
-    unset ::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl\
+        -indexed_log $log\
+        -save "def=$arg_values(-def)"
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
         puts "Error: Check $log"
@@ -143,10 +133,9 @@ proc basic_macro_placement {args} {
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
 
-    set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log [index_file $::env(placement_logs)/basic_mp.log]
-    set_def $::env(SAVE_DEF)
-    unset ::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl\
+        -indexed_log [index_file $::env(placement_logs)/basic_mp.log]\
+        -save "def=${fbasename}.macro_placement.def"
 
     check_macro_placer_num_solns
 
@@ -191,13 +180,9 @@ proc run_resizer_design {args} {
         TIMER::timer_start
         puts_info "Running Placement Resizer Design Optimizations..."
 
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log [index_file $::env(placement_logs)/resizer.log]
-        set_def $::env(SAVE_DEF)
-        set_sdc $::env(SAVE_SDC)
-        unset ::env(SAVE_DEF)
-        unset ::env(SAVE_SDC)
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl\
+            -indexed_log [index_file $::env(placement_logs)/resizer.log]\
+            -save "def=[index_file $::env(placement_tmpfiles)/resizer.def],sdc=[index_file $::env(placement_tmpfiles)/resizer.sdc]"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
@@ -205,7 +190,6 @@ proc run_resizer_design {args} {
         # Update Netlist
         set save_nl $::env(placement_results)/$::env(DESIGN_NAME).resized.v
         write_verilog $save_nl -log $::env(placement_logs)/write_verilog.log
-        set_netlist -lec $save_nl
     } else {
         puts_info "Skipping Placement Resizer Design Optimizations."
     }

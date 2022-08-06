@@ -36,21 +36,18 @@ proc run_cts {args} {
         }
 
         set report_tag_holder $::env(cts_reports)
-        set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt ]
+        set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt]
 
-        set ::env(SAVE_DEF) $::env(cts_results)/$::env(DESIGN_NAME).def
-        set ::env(SAVE_SDC) $::env(cts_results)/$::env(DESIGN_NAME).sdc
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log $cts_log
-        set_def $::env(SAVE_DEF)
-        set_sdc $::env(SAVE_SDC)
-        unset ::env(SAVE_DEF)
-        unset ::env(SAVE_SDC)
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl\
+            -indexed_log $cts_log\
+            -save "def=$::env(cts_results)/$::env(DESIGN_NAME).def,sdc=$::env(cts_results)/$::env(DESIGN_NAME).sdc"
 
         check_cts_clock_nets
 
         set ::env(cts_reports) $report_tag_holder
-        write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v -log $::env(cts_logs)/write_verilog.log
-        set_netlist -lec $::env(cts_results)/$::env(DESIGN_NAME).v
+
+        write_verilog $::env(cts_results)/$::env(DESIGN_NAME).v\
+            -log $::env(cts_logs)/write_verilog.log
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts"
@@ -65,19 +62,14 @@ proc run_resizer_timing {args} {
         TIMER::timer_start
         puts_info "Running Placement Resizer Timing Optimizations..."
 
-        set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
-        set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log [index_file $::env(cts_logs)/resizer.log]
-        set_def $::env(SAVE_DEF)
-        set_sdc $::env(SAVE_SDC)
-        unset ::env(SAVE_DEF)
-        unset ::env(SAVE_SDC)
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl\
+            -indexed_log [index_file $::env(cts_logs)/resizer.log]\
+            -save "def=[index_file $::env(cts_tmpfiles)/resizer_timing.def],sdc=[index_file $::env(cts_tmpfiles)/resizer_timing.sdc]"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
 
         write_verilog $::env(cts_results)/$::env(DESIGN_NAME).resized.v -log $::env(cts_logs)/write_verilog.log
-        set_netlist -lec $::env(cts_results)/$::env(DESIGN_NAME).resized.v
 
     } else {
         puts_info "Skipping Placement Resizer Timing Optimizations."

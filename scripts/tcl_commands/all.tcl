@@ -734,6 +734,11 @@ proc prep {args} {
         set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
     }
 
+    if { ! [info exists ::env(CURRENT_POWERED_NETLIST)] } {
+        set ::env(CURRENT_POWERED_NETLIST) 0
+        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CFG_FILE) 1
+    }
+
     if { ! [info exists ::env(CURRENT_ODB)] } {
         set ::env(CURRENT_ODB) 0
         set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
@@ -981,7 +986,7 @@ proc write_verilog {filename args} {
         {-log optional}
     }
     set flags {
-        -canonical
+        -powered
     }
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
@@ -989,23 +994,21 @@ proc write_verilog {filename args} {
     set_if_unset arg_values(-log) /dev/null
 
     set current_def_backup $::env(CURRENT_DEF)
-
     set ::env(CURRENT_DEF) $arg_values(-def)
-    if { [info exists ::env(LEC_ENABLE)] && $::env(LEC_ENABLE) } {
-        set ::env(SAVE_NETLIST) $filename.without_power_pins.v
+
+    set save_arg "netlist=$filename"
+    if { [info exists flags_map(-powered)] } {
+        set save_arg "powered_netlist=$filename"
     }
-    set ::env(SAVE_POWERED_NETLIST) $filename
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl -indexed_log [index_file $arg_values(-log)]
-    unset ::env(SAVE_POWERED_NETLIST)
-    if { [info exists ::env(LEC_ENABLE)] && $::env(LEC_ENABLE) } {
-        unset ::env(SAVE_NETLIST)
-    }
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
+        -indexed_log [index_file $arg_values(-log)]\
+        -save $save_arg
+
+    set $::env(CURRENT_DEF) $current_def_backup
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
-    if { [info exists flags_map(-canonical)] } {
-        yosys_rewrite_verilog $filename
-    }
 }
 
 proc run_or_antenna_check {args} {
@@ -1014,7 +1017,9 @@ proc run_or_antenna_check {args} {
     puts_info "Running OpenROAD Antenna Rule Checker..."
 
     set log [index_file $::env(signoff_logs)/antenna.log]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl\
+        -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\

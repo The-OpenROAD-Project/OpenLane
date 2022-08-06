@@ -84,17 +84,13 @@ proc run_parasitics_sta {args} {
         nom MERGED_LEF RCX_RULES
     } {
         if { [info exists ::env($lef)] } {
-            set ::env(SAVE_SPEF) "$::env(SPEF_PREFIX).$process_corner.spef"
-
             run_spef_extraction\
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
                 -rcx_rules $::env($ruleset)\
                 -rcx_lef $::env($lef)\
-                -process_corner $process_corner
-
-            set ::env(CURRENT_SPEF) $::env(SAVE_SPEF)
-            unset ::env(SAVE_SPEF)
+                -process_corner $process_corner \
+                -save "$::env(SPEF_PREFIX).$process_corner.spef"
 
             set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.$process_corner.log
 

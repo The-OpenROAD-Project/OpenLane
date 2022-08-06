@@ -173,28 +173,67 @@ proc relpath {args} {
 }
 
 proc run_tcl_script {args} {
-    # Note that this proc is not responsible for indexing its own logs.
+    
+
+    # -tool: openroad/magic
+    # -indexed_log: a log that is already pre-indexed
+    # -save: any of def, spef, sdf, sdc, odb, netlist, powered_netlist.
+    #     OpenROAD only. Format: -save def=a,odb=b. Will set the environment
+    #     variable SAVE_DEF/SAVE_SPEF/etc while running the scripts,
+    #     then update CURRENT_DEF/CURRENT_SPEF/etc after the script finishes
+    #     running.
+    #     If -no_update_current is set, the SAVE_ variables will not be unset
+    #     and the CURRENT_ variables will be left as-is.
     set options {
         {-tool required}
         {-indexed_log optional}
+        {-save optional}
     }
 
-    # -gui only supported for OpenROAD
-    set flags {-netlist_in -gui}
+    # -netlist_in: Specify that the input is CURRENT_NETLIST and not the layout.
+    # -gui: Launch the GUI (OpenROAD Only)
+    # -no_update_current: See '-save'
+    set flags {-netlist_in -gui -no_update_current}
 
     parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
+    set_if_unset arg_values(-save) ""
 
     set create_reproducible 0
     set script [lindex $args 0]
     set tool $arg_values(-tool)
+
+    set save_list [list]
+
+    set saved_values [split $arg_values(-save) ","]
+    foreach value $saved_values {
+        set kv [split $value "="]
+        set element [lindex $kv 0]
+        set value [lindex $kv 1]
+
+        set extension $element
+        if { $element == "netlist" } {
+            set extension ".nl.v"
+        } elseif { $element == "powered_netlist" } {
+            set extension ".pnl.v"
+        }
+        if { $value == "" } {
+            set value [index_file $arg_values(-save_dir)/result.$extension]
+        }
+
+        lappend save_list $element $value
+    }
 
     if { $tool == "openroad" } {
         if { [info exists flag_map(-gui)] } {
             set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
         } else {
             set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        }
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+            set ::env(SAVE_${cap}) $value
         }
     } elseif { $arg_values(-tool) == "magic" } {
         set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
@@ -264,6 +303,26 @@ proc run_tcl_script {args} {
         } else {
             puts_info "Reproducible packaged at '$reproducible_dir_relative'."
             exit 0
+        }
+    }
+
+    if { ![info exist flag_map(-no_update_current)]} {
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+
+            set save_env SAVE_$cap
+            set current_env CURRENT_$cap
+
+            if { $element == "def" } {
+                set_def $::env(SAVE_DEF)
+            } elseif { $element == "sdc" } {
+                set_sdc $::env(SAVE_SDC)
+            } elseif { $element == "netlist" } {
+                set_netlist -lec $::env(SAVE_NETLIST)
+            } else {
+                set ::env(${current_env}) $::env(${save_env})
+            }
+            unset ::env(${save_env})
         }
     }
 }

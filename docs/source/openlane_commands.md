@@ -58,8 +58,11 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-pad_pin_name <pad_pin_name>` |  Name of the pin of the pad as it appears in the netlist def. |
 |    | `[-output <output_def>]` |  Output labeled def file. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
 |    | `[-extra_args <extra_args>]` | Gives extra control on the rest of the flags of the labeling script. For more information on the other args that the script supports, run: `openroad -python $OPENLANE_ROOT/scripts/odbpy/label_macro_pins.py -h`. <br> Optional flag.|
-| `write_verilog <filename>` | | Generates a verilog netlist from a given def file. Stores the resulting netlist in `<filename>`.|
-| `add_macro_obs` | |Creates and obstruction in def and lef files.|
+| `write_verilog <filename>` | | Generates a verilog netlist from a given def file. Stores the resulting netlist in `<filename>` and updates `CURRENT_NETLIST`. |
+|    | `[-def <def_file>]` | The def file to write a verilog netlist from. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
+|    | `[-log <log_file>]` | A file to which the output of OpenROAD is logged. <br> Defaults to `/dev/null`. <br> Optional flag.|
+|    | `[-powered]` | Add power and ground pins, and save to `CURRENT_POWERED_NETLIST` instead. <br> Optional flag. |  
+| `add_macro_obs` | | Creates obstructions in def and lef files.|
 |    | `-defFile <def_file>` |  DEF view of the design to write the obstruction into.|
 |    | `-lefFile <lef_file>` |  LEF file of the design to write the obstruction into.|
 |    | ` -obstruction <obstruction_name> ` |  Name of obstruction.|
@@ -119,7 +122,8 @@ Most of the following commands' implementation exists in this [file][9]
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
 |    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
 |    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
-| `verilog_to_verilogPower` | | Adds the power pins and connections to a verilog file. |
+| `get_yosys_bin` | | **Deprecated:** Returns the used binary for yosys. |
+| `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
 |    | `-output <verilog_netlist_file>` | The output verilog file. |
 |    | `-lef <lef_file>` | The LEF view with the power pins information. |
@@ -133,8 +137,6 @@ Most of the following commands' implementation exists in this [file][9]
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-powered_netlist <verilog_netlist_file>]` | The verilog netlist parsed from yosys that contains the internal power connections in case the design has internal macros file. <br> Defaults to `/<run_path>/tmp/synthesis/synthesis.pg_define.v` if `::env(SYNTH_USE_PG_PINS_DEFINES)` is defined, and to empty string otherwise. |
-| `get_yosys_bin` | | **Deprecated** Returns the used binary for yosys. |
-
 
 ## Floorplan Commands
 
