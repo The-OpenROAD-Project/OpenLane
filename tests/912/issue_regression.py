@@ -16,14 +16,15 @@ import sys
 
 with open(sys.argv[1] + "/openlane.log") as f:
     content = f.read()
+    print(content)
     if (
         content.find(
-            "Pin coordinate 9861 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid"
+            "Pin manufacturing_grid_missaligned_pin's coordinate 9861 does not lie on the manufacturing grid."
         )
         is not -1
     ) and (
         content.find(
-            "Pin coordinate 10141 for pin manufacturing_grid_missaligned_pin does not match the manufacturing grid"
+            "Pin manufacturing_grid_missaligned_pin's coordinate 10141 does not lie on the manufacturing grid."
         )
         is not -1
     ):
