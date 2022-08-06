@@ -379,20 +379,49 @@ If you did everything correctly then following window will be visible:
 
 .. figure:: ../_static/analog_flow/klayout_window.png
 
-Open the nor2_1 cell to analyze the cell. For this purpose, right click on ``sky130_fd_sc_hd__nor2_1`` and click on ``Show As New Top``.
+Open the inv_1 cell to analyze the cell. For this purpose, right click on ``sky130_fd_sc_hd__inv_1`` and click on ``Show As New Top``.
 
-.. figure:: ../_static/analog_flow/nor2_show_as_new_top.png
+.. figure:: ../_static/analog_flow/klayout_show_as_new_top.png
+
+.. todo:: Replace nor2_1 with inv_1
 
 Understanding layout layers
 """""""""""""""""""""""""""""""""""""""
 This part of the guide helps to understand the layers and understand the structure of standard cell.
 
+Right click on the layer in right section called layers and select ``Hide All``.
+
+
+1. The integrated circuit starts with the silicon wafer A).
+2. Silicone oxide is formed on top of the wafer B)
+3. Then photoresist is placed on top of the wafer C).
+
+.. figure:: ../_static/analog_flow/manufacturing/nwell_photoresist.png
+
+The mask that correspond to the the layer ``NWELL.drawing`` is used to project light on the photoresist.
+The mask for our cell looks like the below picture. Two layers are visible. ``NWELL.drawing`` and ``OUTLINE`` for visualization of relative location.
+
+.. figure:: ../_static/analog_flow/manufacturing/inv_1_nwell.png
+
+The photoresist is then removed using light in locations where nwell needs to be placed.
+Light goes through the mask and in locations where nwell is needed the mask is transparent.
+
+.. figure:: ../_static/analog_flow/manufacturing/nwell_photoresist_removed.png
+
+
+
+
+
+
+
+For the purpose of simplicity the deep nwell section is not covered here. It is known to confuse people.
 
 
 Then remove the cells that will not be part of our library.
 The only reason it is recommended to copy existing cell,
 because some of the layers need to have exact locations and distance from the end of the cell.
 
+source: https://www.elprocus.com/the-fabrication-process-of-cmos-transistor/
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
