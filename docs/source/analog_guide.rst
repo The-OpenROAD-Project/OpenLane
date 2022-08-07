@@ -482,7 +482,40 @@ References:
 Understanding layout layers and mask relationship
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-.. todo:: Cover the non mask layers
+There is additional ``.drawing`` layers like ``hvtp.drawing`` which is used to convert ``pfet_01v8`` transistors to ``pfet_01v8_hvt``.
+As mentioned above the PMOS in sky130_fd_sc_hd needs to be the hvt variant, therefore ``hvtp`` layer needs to be placed on top of the PMOS.
+
+.. figure:: ../_static/analog_flow/manufacturing/hvtp.png
+
+There is additional layers that have no meaning in the manufacturing.
+However, tools use this layers to find different characteristics of the component, like pin locations, pin names and more.
+
+While ``.drawing`` layers carry meaning for the manufacturing there are additonal layers ``.pin`` and ``.label``.
+``.label`` is text only layer that can be used to name pins of the components, while ``.pin`` specifies exact locations of the pins.
+
+.. figure:: ../_static/analog_flow/manufacturing/nwell_pin.png
+  :scale: 50%
+
+  (Clickable) ``nwell.pin`` and ``nwell.label`` used to create the net and port of the component named ``VBP``
+
+.. figure:: ../_static/analog_flow/manufacturing/psub_pin.png
+  :scale: 50%
+
+  (Clickable) ``pwell.pin`` and ``pwell.label`` used to create the net and port of the component named ``VBN``.
+  Again, as stated above. Everything that is not ``nwell.drawing`` is ``pwell`` (also referred as ``psub``)
+
+
+.. figure:: ../_static/analog_flow/manufacturing/licon_pin.png
+  :scale: 50%
+
+  (Clickable) ``li1.pin`` and ``li1.label`` used to create the nets and ports of the component named ``A`` and ``Y``
+
+.. figure:: ../_static/analog_flow/manufacturing/met1_pin.png
+  :scale: 50%
+
+  (Clickable) ``met1.pin`` and ``met1.label`` used to create the nets and ports of the component named ``VPWR`` and ``VGND``
+
+
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
