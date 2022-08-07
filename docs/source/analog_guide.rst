@@ -393,44 +393,79 @@ Right click on the layer in right section called layers and select ``Hide All``.
 
 .. figure:: ../_static/analog_flow/manufacturing/manufacturing_1.png
 
-Step 1. The integrated circuit starts with the silicon wafer
+Step 1. The integrated circuit starts with the silicon wafer.
 
-Step 2. Silicone oxide is formed on top of the wafer
+Step 2. Silicone oxide is formed on top of the wafer.
 
-Step 3. Then photoresist is placed on top of the wafer
+Step 3. Then photoresist is placed on top of the wafer.
 
-Step 4. Mask corresponding to inversion of layer ``NWELL.drawing`` is used to project light on the photoresist
+Step 4. Mask corresponding to inversion of layer ``nwell.drawing`` is used to project light on the photoresist.
 
-The mask for our cell looks like the below picture. Two layers are visible. ``NWELL.drawing`` and ``OUTLINE`` for visualization of relative location.
+The mask for our cell looks like the below picture. Two layers are visible. ``nwell.drawing`` and ``OUTLINE`` for visualization of relative location.
 
 .. figure:: ../_static/analog_flow/manufacturing/inv_1_nwell.png
 
-Step 5. Photoresist that UV rays are projected on is removed
+Step 5. Photoresist that UV rays are projected on is removed.
 
-Step 6. Etching solution of hydrofluoric acid is applired to remove the SiO2 oxide
+Step 6. Etching solution of hydrofluoric acid is applired to remove the SiO2 oxide.
 
-Step 7. Photoresist is removed
+Step 7. Photoresist is removed.
 
 Step 8. The n-type impurities of group 15 element like Arsenic are diffused into the substrate through the exposed window thus forming an N-well.
 
-Step 9. SiO2 is removed
+Step 9. SiO2 is removed.
 
 .. figure:: ../_static/analog_flow/manufacturing/manufacturing_2.png
 
-Step 10. Thin gate oxide is formed and polysilicone is placed using metal deposition.
+Step 10. Thin gate oxide is formed and polysilicon is placed using metal deposition.
 
-Step 11. Polysilicon and oxide is removed using maks of the ``poly.drawing`` layer.
-
+Step 11. Polysilicon and oxide is removed using masks of the ``poly.drawing`` layer.
 
 .. figure:: ../_static/analog_flow/manufacturing/inv_1_poly.png
+  :scale: 50%
 
 
+Step 12. New oxide protection layer is formed.
 
+.. figure:: ../_static/analog_flow/manufacturing/manufacturing_2.png
 
+Step 13. Oxide layer is removed in locations that match logical AND of ``ndsm.drawing`` and ``diff.drawing``.
 
+.. figure:: ../_static/analog_flow/manufacturing/inv_1_nsdm_diff.png
+  :scale: 50%
 
+Step 14. Diffusion is used to form n+ diffusions.
 
+Step 15. Oxide is removed.
 
+Step 16. Steps 12-15 are repeated for layers ``psdm.drawing`` and ``diff.drawing``.
+
+.. figure:: ../_static/analog_flow/manufacturing/inv_1_psdm_diff.png
+  :scale: 50%
+
+Step 17. New Oxide layer is formed.
+
+.. figure:: ../_static/analog_flow/manufacturing/manufacturing_3.png
+
+Step 18. Oxide is removed in locations that match ``licon1.drawing``.
+A layer of metal that is used to connect the diffusions and gates to metal layer on top.
+In this case ``li1.drawing``.
+
+Step 19. ``licon1`` is created using chemical disposition.
+
+Step 20. Excess metal is removed.
+
+.. figure:: ../_static/analog_flow/manufacturing/manufacturing_3.png
+
+Step 21. Another layer of oxide is formed.
+
+Step 22. Oxide is removed in locations that matched ``li1.drawing``.
+
+Step 23. Metal is added.
+
+Steps 17 to 23 are repeated to form ``mcon`` and ``met1``, ``via1`` and ``met2``, so on until ``via4`` and ``met5``.
+Additionally a via layer for connecting to top level pads and pads themselves.
+However, the sky130 OpenMPW tapeouts from MPW1 to MPW7 do not allow custom bumps, therefore they are not covered in this guide.
 
 For the purpose of simplicity the deep nwell section is not covered here. It is known to confuse people.
 
