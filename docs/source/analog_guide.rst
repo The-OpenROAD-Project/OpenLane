@@ -391,22 +391,40 @@ This part of the guide helps to understand the layers and understand the structu
 
 Right click on the layer in right section called layers and select ``Hide All``.
 
+.. figure:: ../_static/analog_flow/manufacturing/manufacturing_1.png
 
-1. The integrated circuit starts with the silicon wafer A).
-2. Silicone oxide is formed on top of the wafer B)
-3. Then photoresist is placed on top of the wafer C).
+Step 1. The integrated circuit starts with the silicon wafer
 
-.. figure:: ../_static/analog_flow/manufacturing/nwell_photoresist.png
+Step 2. Silicone oxide is formed on top of the wafer
 
-The mask that correspond to the the layer ``NWELL.drawing`` is used to project light on the photoresist.
+Step 3. Then photoresist is placed on top of the wafer
+
+Step 4. Mask corresponding to inversion of layer ``NWELL.drawing`` is used to project light on the photoresist
+
 The mask for our cell looks like the below picture. Two layers are visible. ``NWELL.drawing`` and ``OUTLINE`` for visualization of relative location.
 
 .. figure:: ../_static/analog_flow/manufacturing/inv_1_nwell.png
 
-The photoresist is then removed using light in locations where nwell needs to be placed.
-Light goes through the mask and in locations where nwell is needed the mask is transparent.
+Step 5. Photoresist that UV rays are projected on is removed
 
-.. figure:: ../_static/analog_flow/manufacturing/nwell_photoresist_removed.png
+Step 6. Etching solution of hydrofluoric acid is applired to remove the SiO2 oxide
+
+Step 7. Photoresist is removed
+
+Step 8. The n-type impurities of group 15 element like Arsenic are diffused into the substrate through the exposed window thus forming an N-well.
+
+Step 9. SiO2 is removed
+
+.. figure:: ../_static/analog_flow/manufacturing/manufacturing_2.png
+
+Step 10. Thin gate oxide is formed and polysilicone is placed using metal deposition.
+
+Step 11. Polysilicon and oxide is removed using maks of the ``poly.drawing`` layer.
+
+
+.. figure:: ../_static/analog_flow/manufacturing/inv_1_poly.png
+
+
 
 
 
