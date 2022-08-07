@@ -383,8 +383,6 @@ Open the inv_1 cell to analyze the cell. For this purpose, right click on ``sky1
 
 .. figure:: ../_static/analog_flow/klayout_show_as_new_top.png
 
-.. todo:: Replace nor2_1 with inv_1
-
 Understanding layout layers and mask relationship
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 This part of the guide helps to understand the layers and understand the structure of standard cell.
@@ -515,6 +513,21 @@ While ``.drawing`` layers carry meaning for the manufacturing there are additona
 
   (Clickable) ``met1.pin`` and ``met1.label`` used to create the nets and ports of the component named ``VPWR`` and ``VGND``
 
+Magic VLSI and other tools will know to name the ports in the spice netlist accroding to the names specified in ``.label`` layers when doing device extraction in LVS and PEX.
+If you do not specify them, then the SPICE ports will have different names.
+Generated abstracts will be missing pins, therefore all of the automatic tools will missbehave.
+LVS will not pass, PEX will not simulate properly, OpenLane router will not know where to connect to the cell, etc.
+
+Creating base cell from existing one
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Create the base cell. Take any cell with 3 sited width. For this guide ``sky130_fd_sc_hd__nor2_1`` was chosen.
+
+Left click on ``sky130_fd_sc_hd__nor2_1`` and then use `Ctrl + C` and `Ctrl + V` to create a duplicate. Right click on newly created cell and click on ``Show As New Top``.
+
+.. figure:: ../_static/analog_flow/layout/duplicate_open.png
+
+Right click on the new cell and then click on ``Rename cell``. Rename the new cell to ``sky130_fd_sc_hd__my_nand``.
+
 
 
 .. todo:: Add opening the KLayout quarter
@@ -523,7 +536,7 @@ While ``.drawing`` layers carry meaning for the manufacturing there are additona
 .. todo:: Add drawing new shapes.
 .. todo:: Add the final result
 
-.. todo:: Common question about sky130A vs sky130B
+
 
 
 .. todo:: PEX
