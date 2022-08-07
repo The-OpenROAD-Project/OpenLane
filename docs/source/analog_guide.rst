@@ -385,8 +385,8 @@ Open the inv_1 cell to analyze the cell. For this purpose, right click on ``sky1
 
 .. todo:: Replace nor2_1 with inv_1
 
-Understanding layout layers
-"""""""""""""""""""""""""""""""""""""""
+Understanding layout layers and mask relationship
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 This part of the guide helps to understand the layers and understand the structure of standard cell.
 
 Right click on the layer in right section called layers and select ``Hide All``.
@@ -474,7 +474,15 @@ Then remove the cells that will not be part of our library.
 The only reason it is recommended to copy existing cell,
 because some of the layers need to have exact locations and distance from the end of the cell.
 
-source: https://www.elprocus.com/the-fabrication-process-of-cmos-transistor/
+References:
+
+* `The Fabrication Process of CMOS Transistor from elprocus <https://www.elprocus.com/the-fabrication-process-of-cmos-transistor/>`_
+
+
+Understanding layout layers and mask relationship
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+.. todo:: Cover the non mask layers
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
