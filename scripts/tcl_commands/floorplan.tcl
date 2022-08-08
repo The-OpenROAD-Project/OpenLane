@@ -67,18 +67,29 @@ proc init_floorplan {args} {
     puts_verbose "Core area width: $core_width"
     puts_verbose "Core area height: $core_height"
 
+    set min_width [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}]
+    set min_height [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]
+
     if { $::env(FP_PDN_AUTO_ADJUST) } {
-        if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
-            $core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
-                puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
+        if { $core_width <= $min_width || $core_height <= $min_height } {
 
-            set ::env(FP_PDN_VOFFSET) [expr {$core_width/8.0}]
-            set ::env(FP_PDN_HOFFSET) [expr {$core_height/8.0}]
+            set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            set ::env(FP_PDN_VPITCH) [expr {$core_width/4.0}]
-            set ::env(FP_PDN_HPITCH) [expr {$core_height/4.0}]
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+                --output $intermediate\
+                --input-lef $::env(MERGED_LEF)\
+                [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
+
+            set adjusted_values [cat $intermediate]
+
+            set ::env(FP_PDN_VOFFSET) [lindex $adjusted_values 0]
+            set ::env(FP_PDN_HOFFSET) [lindex $adjusted_values 1]
+
+            set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
+            set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
+
+            puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
         }
-
     }
 
     puts_verbose "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
@@ -161,7 +172,7 @@ proc place_io_ol {args} {
         --length $arg_values(-length)\
         {*}$flags_map(-unmatched_error)\
         {*}$arg_values(-extra_args)\
-        $arg_values(-def) |& tee $log $::env(TERMINAL_OUTPUT)
+        $arg_values(-def) |& tee  $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
 
