@@ -528,7 +528,48 @@ Left click on ``sky130_fd_sc_hd__nor2_1`` and then use `Ctrl + C` and `Ctrl + V`
 
 Right click on the new cell and then click on ``Rename cell``. Rename the new cell to ``sky130_fd_sc_hd__my_nand``.
 
+Open ``Edit -> Ruler And Annotation Setup``:
 
+.. figure:: ../_static/analog_flow/layout/ruler_1.png
+  :scale: 50%
+
+Turn on ``Snap To Grid`` and ``Orthoganal``:
+
+.. figure:: ../_static/analog_flow/layout/ruler_2.png
+  :scale: 50%
+
+Close the window, press ``View -> Grid`` and select  ``0.005 um``.
+Take a look at layers ``diff.drawing`` and ``OUTLINE``.
+According to the
+`sky130 design rules documentation <https://skywater-pdk.readthedocs.io/en/main/rules/periphery.html#difftap>`_
+the distance between two diffs must be bigger than 0.27 um.
+Notice how the distance in the cell is exactly half the distance of the rule ``(difftap.3)``?
+This is because the standard cells are placed right next to each other.
+If each cell follows this half a distance rule for all of the layers then it's unlikely to have any DRCs.
+
+.. figure:: ../_static/analog_flow/layout/diff_distance.png
+  :scale: 50%
+
+Another thing to note is how there is not metal connection between two transistors in the copied ``nor2`` cell.
+The drain and source of the PMOS is shared.
+There is no need to separate the transistors if they have common drain-source.
+This rule allows to connect many transistors in series.
+
+The same technique is used in the bottom NMOS transistors, where they share the connection to the output (marked red). Meanwhile the connection to the ground is not shared (marked blue).
+
+.. figure:: ../_static/analog_flow/layout/nmos_diff_share.png
+  :scale: 50%
+
+
+Finally note how the cell fitted as many ``licon1`` as possible between metal and the diffusion.
+These multiple connection points maximize the yield, since they reduce failure points.
+
+For example, if one licon1 is improperly manufactured due to fault the integrated circuit will keep working but with slightly worse characteristics.
+
+Secondly, multiple connection points reduce the resistance.
+
+Another thing to notice here is that the li1 that carries the power does not have connection to the ``nwell.drawing``.
+This is because in ``sky130_fd_sc_hd`` connections to bulk are done in tap cells. More information can be found in :ref:`floorplan_taps_dcaps_fillers_sites`.
 
 .. todo:: Add opening the KLayout quarter
 .. todo:: Add copying the cell
