@@ -980,11 +980,11 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
-    TIMER::timer_start
     increment_index
-    puts_info "Running OpenROAD Antenna Rule Checker..."
-
+    TIMER::timer_start
     set log [index_file $::env(signoff_logs)/antenna.log]
+    puts_info "Running OpenROAD Antenna Rule Checker (log: [relpath . $log])..."
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]

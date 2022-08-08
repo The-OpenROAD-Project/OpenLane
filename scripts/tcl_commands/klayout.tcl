@@ -13,11 +13,12 @@
 # limitations under the License.
 
 proc run_klayout {args} {
-	TIMER::timer_start
 	set ::env(CURRENT_STAGE) signoff
 	if {[ info exists ::env(KLAYOUT_TECH)] } {
 		increment_index
-		puts_info "Streaming out GDS-II with Klayout..."
+		set log [index_file $::env(signoff_logs)/gdsii-klayout.log]
+		TIMER::timer_start
+		puts_info "Streaming out GDS-II with Klayout (log: [relpath . $log])..."
 		set gds_files_in ""
 		if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 			set gds_files_in $::env(EXTRA_GDS_FILES)
@@ -39,7 +40,7 @@ proc run_klayout {args} {
 			-rd "config_file="\
 			-rd "seal_gds="\
 			-rd lef_file=$::env(MERGED_LEF)\
-			|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/gdsii-klayout.log]
+			|& tee $::env(TERMINAL_OUTPUT) $log
 
 
 		if {[info exists ::env(KLAYOUT_PROPERTIES)]} {
@@ -69,9 +70,6 @@ proc run_klayout {args} {
 
 proc scrot_klayout {args} {
 	if {$::env(TAKE_LAYOUT_SCROT)} {
-		increment_index
-		TIMER::timer_start
-		puts_info "Taking a Screenshot of the Layout Using Klayout..."
 		if {[ info exists ::env(KLAYOUT_TECH)] } {
 			set options {
 				{-log required}
@@ -81,7 +79,11 @@ proc scrot_klayout {args} {
 			if {[info exists ::env(CURRENT_GDS)]} {
 				set_if_unset arg_values(-layout) $::env(CURRENT_GDS)
 			}
+			increment_index
+			TIMER::timer_start
 			set log [index_file $arg_values(-log)]
+			puts_info "Creating a screenshot using Klayout (log: [relpath . $log])..."
+
 			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) $log
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
@@ -97,10 +99,7 @@ proc scrot_klayout {args} {
 }
 
 proc run_klayout_drc {args} {
-	TIMER::timer_start
 	if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] && [file exists $::env(KLAYOUT_DRC_TECH_SCRIPT)]} {
-		increment_index
-		puts_info "Running DRC on the layout using Klayout..."
 		set options {
 			{-gds optional}
 			{-stage optional}
@@ -110,7 +109,13 @@ proc run_klayout_drc {args} {
 			set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
 		}
 		set_if_unset arg_values(-stage) magic
-		try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/$arg_values(-stage).drc.log]
+
+		increment_index
+		TIMER::timer_start
+		set log [index_file $::env(signoff_logs)/$arg_values(-stage).drc.log]
+		puts_info "Running DRC on the layout using Klayout (log: [relpath . $log])..."
+
+		try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $log
 		file copy -force $arg_values(-gds).lydrc [index_file $::env(signoff_reports)/$arg_values(-stage).lydrc]
 		puts_info "Klayout DRC Complete"
 		TIMER::timer_stop
@@ -125,10 +130,6 @@ proc run_klayout_drc {args} {
 }
 
 proc run_klayout_gds_xor {args} {
-	increment_index
-	index_file $::env(signoff_logs)/xor.log
-	TIMER::timer_start
-	puts_info "Running XOR on the layouts using Klayout..."
 	set options {
 		{-layout1 optional}
 		{-layout2 optional}
@@ -142,11 +143,17 @@ proc run_klayout_gds_xor {args} {
 	set_if_unset arg_values(-output_gds) $::env(signoff_reports)/$::env(DESIGN_NAME).xor.gds
 	if { [file exists $arg_values(-layout1)]} {
 		if { [file exists $arg_values(-layout2)] } {
+
+			increment_index
+			TIMER::timer_start
+			set log [index_file $::env(signoff_logs)/xor.log]
+			puts_info "Running XOR on the layouts using Klayout (log: [relpath . $log])..."
+
 			if { $::env(KLAYOUT_XOR_GDS) } {
 				try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
 					$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
 					$arg_values(-output_gds) \
-					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/xor.log]
+					|& tee $::env(TERMINAL_OUTPUT) $log
 				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
 					-l [index_file $::env(signoff_logs)/xor.log] \
 					-o [index_file $::env(signoff_reports)/xor.rpt]
