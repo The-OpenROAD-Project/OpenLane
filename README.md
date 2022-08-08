@@ -127,8 +127,6 @@ You can use the following example as a smoke test:
 
 To run OpenLane on multiple designs at the same time, check this [section](#regression-and-design-configurations-exploration).
 
-Having trouble running the flow? check [FAQs](https://github.com/The-OpenROAD-Project/OpenLane/wiki)
-
 ## Command line arguments
 
 The following are arguments that can be passed to `flow.tcl`
