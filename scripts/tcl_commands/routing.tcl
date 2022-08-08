@@ -229,7 +229,6 @@ proc gen_pdn {args} {
     puts_info "Generating PDN (log: [relpath . $log])..."
 
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
-    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
     if { ! [info exists ::env(VDD_NET)] } {
         set ::env(VDD_NET) $::env(VDD_PIN)

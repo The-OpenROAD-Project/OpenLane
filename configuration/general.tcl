@@ -29,11 +29,19 @@ if { ![info exists ::env(TEST_MISMATCHES)] } {
     set ::env(TEST_MISMATCHES) {all}
 }
 
-# Flow control defaults
-set ::env(RUN_LVS) 1
+# General Defaults
+set ::env(CLOCK_PERIOD) "10.0"
 
-set ::env(LEC_ENABLE) 0
-set ::env(YOSYS_REWRITE_VERILOG) 0
+# Flow Controls
+set ::env(RUN_SIMPLE_CTS) 0
+
+set ::env(FILL_INSERTION) 1
+set ::env(TAP_DECAP_INSERTION) 1
+
+set ::env(RUN_DRT) 1
+set ::env(USE_ARC_ANTENNA_CHECK) 1
+set ::env(RUN_SPEF_EXTRACTION) 1
+set ::env(RUN_IRDROP_REPORT) 0
 
 set ::env(PRIMARY_SIGNOFF_TOOL) magic
 
@@ -51,24 +59,19 @@ set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 
+set ::env(RUN_KLAYOUT) 1
+set ::env(RUN_KLAYOUT_DRC) 0
 set ::env(KLAYOUT_XOR_GDS) 1
 set ::env(KLAYOUT_XOR_XML) 1
-
-set ::env(RUN_DRT) 1
-set ::env(RUN_SIMPLE_CTS) 0
-set ::env(CLOCK_PERIOD) "10.0"
-set ::env(RUN_KLAYOUT) 1
 set ::env(TAKE_LAYOUT_SCROT) 0
-set ::env(RUN_KLAYOUT_DRC) 0
 set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 set ::env(RUN_KLAYOUT_XOR) 1
-set ::env(USE_ARC_ANTENNA_CHECK) 1
 
-set ::env(FILL_INSERTION) 1
-set ::env(TAP_DECAP_INSERTION) 1
-
-set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_CVC) 1
+set ::env(RUN_LVS) 1
+
+set ::env(YOSYS_REWRITE_VERILOG) 0
+set ::env(LEC_ENABLE) 0
 
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
 

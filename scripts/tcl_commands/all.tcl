@@ -1006,6 +1006,22 @@ proc run_antenna_check {args} {
     }
 }
 
+proc run_irdrop_report {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(signoff_logs)/irdrop.log]
+    puts_info "Creating IR Drop Report (log: [relpath . $log])..."
+
+    set rpt [index_file $::env(signoff_reports)/irdrop.rpt]
+
+    set ::env(_tmp_save_rpt) $rpt
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/irdrop.tcl -indexed_log $log
+    unset ::env(_tmp_save_rpt)
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ir drop report - openroad"
+}
+
 proc or_gui {args} {
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
 }
