@@ -40,7 +40,7 @@ proc run_cts {args} {
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl\
             -indexed_log $cts_log\
-            -save "def=$::env(cts_results)/$::env(DESIGN_NAME).def,sdc=$::env(cts_results)/$::env(DESIGN_NAME).sdc"
+            -save "to=$::env(cts_results),noindex,def,sdc,odb"
 
         check_cts_clock_nets
 
@@ -64,7 +64,7 @@ proc run_resizer_timing {args} {
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl\
             -indexed_log [index_file $::env(cts_logs)/resizer.log]\
-            -save "def=[index_file $::env(cts_tmpfiles)/resizer_timing.def],sdc=[index_file $::env(cts_tmpfiles)/resizer_timing.sdc]"
+            -save "to=$::env(cts_tmpfiles),def,sdc,odb"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"

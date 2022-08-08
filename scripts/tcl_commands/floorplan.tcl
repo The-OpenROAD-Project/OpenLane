@@ -46,7 +46,7 @@ proc init_floorplan {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log]\
         -netlist_in \
-        -save "def=[index_file $::env(floorplan_tmpfiles)/initial_fp.def],sdc=[index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]"
+        -save "to=$::env(floorplan_tmpfiles),name=initial_fp,def,sdc,odb"
 
     check_floorplan_missing_lef
     check_floorplan_missing_pins
@@ -171,7 +171,7 @@ proc place_io {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/io.log]\
-        -save "def=[index_file $::env(floorplan_tmpfiles)/io.def]"
+        -save "to=$::env(floorplan_tmpfiles),name=io,def,odb"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
@@ -213,7 +213,7 @@ proc place_contextualized_io {args} {
     set ::env(CONTEXTUAL_IO_FLAG) 1
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/io.log] \
-        -save "def=[index_file $::env(floorplan_tmpfiles)/io.def]" \
+        -save "to=$::env(floorplan_tmpfiles),name=io,def,odb" \
         -no_update_current
     set ::env(FP_IO_MODE) $old_mode
     move_pins -from $::env(SAVE_DEF) -to $prev_def
@@ -234,7 +234,8 @@ proc tap_decap_or {args} {
 
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
                 -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
-                -save "def=$::env(floorplan_results)/$::env(DESIGN_NAME).def"
+                -save "to=$::env(floorplan_results),noindex,def,odb"
+
             TIMER::timer_stop
             exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
         } else {
@@ -267,6 +268,33 @@ proc apply_def_template {args} {
             --def-template $::env(FP_DEF_TEMPLATE)
     }
 
+}
+
+
+
+proc gen_pdn {args} {
+    increment_index
+    TIMER::timer_start
+    puts_info "Generating PDN..."
+
+    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
+
+    if { ! [info exists ::env(VDD_NET)] } {
+        set ::env(VDD_NET) $::env(VDD_PIN)
+    }
+
+    if { ! [info exists ::env(GND_NET)] } {
+        set ::env(GND_NET) $::env(GND_PIN)
+    }
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
+        -indexed_log [index_file $::env(floorplan_logs)/pdn.log] \
+        -save "to=$::env(floorplan_tmpfiles),name=pdn,def,odb"
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
+
+    quit_on_unconnected_pdn_nodes
 }
 
 proc run_power_grid_generation {args} {

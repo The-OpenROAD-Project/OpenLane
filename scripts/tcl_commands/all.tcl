@@ -61,6 +61,14 @@ proc set_def {def} {
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
+proc set_odb {odb} {
+    set odb_relative [relpath . $odb]
+    puts_verbose "Changing database to '$odb_relative'..."
+    set ::env(CURRENT_ODB) $odb
+    set replace [string map {/ \\/} $odb]
+    exec sed -i -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
 proc set_sdc {sdc} {
     set sdc_relative [relpath . $sdc]
     puts_verbose "Changing timing constraints to '$sdc_relative'..."
@@ -986,9 +994,9 @@ proc write_verilog {filename args} {
     set current_def_backup $::env(CURRENT_DEF)
     set ::env(CURRENT_DEF) $arg_values(-def)
 
-    set save_arg "netlist=$filename"
+    set save_arg "netlist=$filename,odb=/dev/null"
     if { [info exists flags_map(-powered)] } {
-        set save_arg "powered_netlist=$filename"
+        set save_arg "powered_netlist=$filename,odb=/dev/null"
     }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\

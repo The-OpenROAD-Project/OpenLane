@@ -25,7 +25,7 @@ proc global_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
         -indexed_log [index_file $::env(placement_logs)/global.log]\
-        -save "def=[index_file $::env(placement_tmpfiles)/global.def]"
+        -save "to=$::env(placement_tmpfiles),name=global,def,odb"
 
     check_replace_divergence
 
@@ -56,11 +56,16 @@ proc random_global_placement {args} {
 
 proc detailed_placement_or {args} {
     set options {
-        {-log required}
-        {-def required}
+        {-log optional}
+        {-outdir optional}
+        {-name optional}
     }
     set flags {}
     parse_key_args "detailed_placement_or" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) $::env(DESIGN_NAME)
+    set_if_unset arg_values(-log) $::env(placement_logs)/detailed.log
+    set_if_unset arg_values(-outdir) $::env(routing_results)
 
     increment_index
     TIMER::timer_start
@@ -69,7 +74,7 @@ proc detailed_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl\
         -indexed_log $log\
-        -save "def=$arg_values(-def)"
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),def,odb"
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
         puts "Error: Check $log"
@@ -82,7 +87,7 @@ proc detailed_placement_or {args} {
 }
 
 proc detailed_placement {args} {
-    detailed_placement_or args
+    detailed_placement_or ${*}args
 }
 
 proc add_macro_placement {args} {
@@ -134,7 +139,7 @@ proc basic_macro_placement {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl\
         -indexed_log [index_file $::env(placement_logs)/basic_mp.log]\
-        -save "def=${fbasename}.macro_placement.def"
+        -save "to=$::env(placement_tmpfiles),name=macros_placed,def,odb"
 
     check_macro_placer_num_solns
 
@@ -168,7 +173,7 @@ proc run_placement {args} {
 
     remove_buffers_from_ports
 
-    detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
+    detailed_placement_or
 
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(placement_logs)/screenshot.log
 }
@@ -181,7 +186,7 @@ proc run_resizer_design {args} {
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl\
             -indexed_log [index_file $::env(placement_logs)/resizer.log]\
-            -save "def=[index_file $::env(placement_tmpfiles)/resizer.def],sdc=[index_file $::env(placement_tmpfiles)/resizer.sdc]"
+            -save "to=$::env(placement_tmpfiles),name=resizer,def,odb,sdc"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"

@@ -44,7 +44,7 @@ proc insert_buffer {args} {
     set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl\
         -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]\
-        -save "def=[index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).def]"
+        -save "to=$::env(routing_tmpfiles),def,odb"
     unset ::env(INSERT_BUFFER_COMMAND)
 
     if { ![info exists flags_map(-place)] } {
@@ -94,7 +94,6 @@ proc eco_output_check {args} {
 }
 
 proc run_apply_step {args} {
-
     puts_info "\[ECO: $::env(ECO_ITER)\] Applying fixes..."
 
     set ::env(ECO_FIX_FILE) $::env(routing_results)/eco_fix.tcl
@@ -102,8 +101,8 @@ proc run_apply_step {args} {
     # This runs the tcl script to apply the fixes. Buffers are placed over the top of
     # the cells being fixed, and then detailed placement is called to fix it up.
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/eco.tcl \
-        -indexed_log [index_file $::env(routing_logs)/eco.log]
-        -save "netlist=$::env(routing_results)/eco_fix.v,def=$::env(routing_results)/eco_fix.def"
+        -indexed_log [index_file $::env(routing_logs)/eco.log] \
+        -save "to=$::env(routing_results),name=eco,noindex,netlist,def,odb"
 }
 
 proc run_eco_flow {args} {

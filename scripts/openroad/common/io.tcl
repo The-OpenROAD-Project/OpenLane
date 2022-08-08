@@ -21,7 +21,7 @@ proc read {args} {
     #   * SDC
 
     sta::parse_key_args "read" args \
-        keys {-override_libs -override_lef -override_nl}\
+        keys {-override_libs -override_lef}\
         flags {-multi_corner}
 
     if { [info exists flags(-multi_corner)] } {
@@ -101,9 +101,9 @@ proc write {args} {
         keys {}\
         flags {}
 
-    if { [info exists ::env(SAVE_DB)] } {
-        puts "Writing OpenROAD database to $::env(SAVE_DB)..."
-        write_db $::env(SAVE_DB)
+    if { [info exists ::env(SAVE_ODB)] } {
+        puts "Writing OpenROAD database to $::env(SAVE_ODB)..."
+        write_db $::env(SAVE_ODB)
     } else {
         puts "\[WARNING\] Did not save OpenROAD database!"
     }

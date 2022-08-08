@@ -428,13 +428,25 @@ proc manipulate_layout {args} {
 proc run_tcl_script {args} {
     # -tool: openroad/magic
     # -indexed_log: a log that is already pre-indexed
-    # -save: any of def, spef, sdf, sdc, odb, netlist, powered_netlist.
-    #     OpenROAD only. Format: -save def=a,odb=b. Will set the environment
-    #     variable SAVE_DEF/SAVE_SPEF/etc while running the scripts,
-    #     then update CURRENT_DEF/CURRENT_SPEF/etc after the script finishes
-    #     running.
-    #     If -no_update_current is set, the SAVE_ variables will not be unset
-    #     and the CURRENT_ variables will be left as-is.
+    # -save:
+    #     OpenROAD only. A list of commands to handle saving views.
+    #     The commands are comma delimited, and can either be in the format
+    #     command or command=value. Here is a list of commands:
+    #          * def/sdc/netlist/powered_netlist/sdf/spef/odb=: Saves a view to
+    #            the qualified path.
+    #          * def/sdc/netlist/powered_netlist/sdf/spef/odb: Saves a view to a
+    #            default path with a default name.
+    #          * to=: Replace the default save directory for unqualified views,
+    #            which is $::env(TMP_DIR) by default. Must be set before
+    #            any unqualified views.
+    #          * name=: Replace the default name for unqualified views,
+    #            which is $::env(DESIGN_NAME) by default. Must be set before
+    #            any unqualified views.
+    #          * index=: Turns running [index_file] for unqualified views on
+    #            or off. Must be set before any unqualified views.
+    #          * index: alias for index=1
+    #          * noindex: alias for index=0
+    #
     set options {
         {-tool required}
         {-indexed_log optional}
@@ -456,24 +468,65 @@ proc run_tcl_script {args} {
     set tool $arg_values(-tool)
 
     set save_list [list]
+    set save_dir "$::env(TMP_DIR)"
+    set index 1
+    set name $::env(DESIGN_NAME)
 
     set saved_values [split $arg_values(-save) ","]
-    foreach value $saved_values {
+
+    # C-style for loop because Tcl foreach cannot handle the list being
+    # dynamically modified
+    set anything_saved 0
+    set odb_saved 0
+    for {set i 0} {$i < [llength $saved_values]} {incr i} {
+        set value [lindex $saved_values $i]
         set kv [split $value "="]
         set element [lindex $kv 0]
         set value [lindex $kv 1]
 
-        set extension $element
-        if { $element == "netlist" } {
-            set extension ".nl.v"
-        } elseif { $element == "powered_netlist" } {
-            set extension ".pnl.v"
-        }
-        if { $value == "" } {
-            set value [index_file $arg_values(-save_dir)/result.$extension]
-        }
+        if { $element == "to" } {
+            set save_dir $value
+        } elseif { $element == "name" } {
+            set name $value
+        } elseif { $element == "index" } {
+            if { $value == "0" || $value == "1" } {
+                set index $value
+            } elseif { $value == "" } {
+                set index "1"
+            } else {
+                puts_err "Invalid value $value for \"index\" command."
+                flow_fail
+            }
+        } elseif { $element == "noindex" } {
+            set index 0
+        } else {
+            set anything_saved 1
+            set extension $element
 
-        lappend save_list $element $value
+            if { $element == "netlist" } {
+                set extension ".nl.v"
+            } elseif { $element == "powered_netlist" } {
+                set extension ".pnl.v"
+            } elseif { $element == "odb" } {
+                set odb_saved 1
+            }
+
+            if { $value != "/dev/null" } {
+                if { $value == "" } {
+                    set value "$save_dir/$name.$extension"
+                    if { $index } {
+                        set value [index_file $value]
+                    }
+                }
+
+                lappend save_list $element $value
+            }
+        }
+    }
+
+    if { $anything_saved && !$odb_saved } {
+        puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
+        flow_fail
     }
 
     if { $tool == "openroad" } {
@@ -566,6 +619,8 @@ proc run_tcl_script {args} {
 
             if { $element == "def" } {
                 set_def $::env(SAVE_DEF)
+            } elseif { $element == "odb" } {
+                set_odb $::env(SAVE_ODB)
             } elseif { $element == "sdc" } {
                 set_sdc $::env(SAVE_SDC)
             } elseif { $element == "netlist" } {
