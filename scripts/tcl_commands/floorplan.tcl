@@ -143,9 +143,10 @@ proc place_io_ol {args} {
     }
     set_if_unset arg_values(-extra_args) ""
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/io_place.py\
-        --output $arg_values(-output_def)\
-        --input-lef $arg_values(-lef)\
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/io_place.py\
+        -log [index_file $::env(floorplan_logs)/place_io_ol.log]\
+        -output $arg_values(-output_def)\
+        -input $arg_values(-def)\
         --config $arg_values(-cfg)\
         --hor-layer $arg_values(-horizontal_layer)\
         --ver-layer $arg_values(-vertical_layer)\
@@ -155,8 +156,7 @@ proc place_io_ol {args} {
         --ver-extension $arg_values(-vertical_ext)\
         --length $arg_values(-length)\
         {*}$flags_map(-unmatched_error)\
-        {*}$arg_values(-extra_args)\
-        $arg_values(-def) |& tee [index_file $::env(floorplan_logs)/place_io_ol.log] $::env(TERMINAL_OUTPUT)
+        {*}$arg_values(-extra_args)
 
     set_def $arg_values(-output_def)
 
@@ -194,24 +194,24 @@ proc place_contextualized_io {args} {
     file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
     set prev_def $::env(CURRENT_DEF)
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
-        --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF) \
-        --top-def $::env(placement_tmpfiles)/top_level.def \
-        --top-lef $::env(placement_tmpfiles)/top_level.lef \
-        $prev_def |& tee [index_file $::env(floorplan_logs)/io.contextualize.log]
-    set_def $::env(SAVE_DEF)
-    unset ::env(SAVE_DEF)
 
-    puts_info "Custom floorplan created."
+    set save_def [index_file $::env(floorplan_tmpfiles)/io.context.def]
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
+        -log [index_file $::env(floorplan_logs)/io.contextualize.log] \
+        -output $save_def \
+        -input $prev_def \
+        --top-def $::env(placement_tmpfiles)/top_level.def\
+        --top-lef $::env(placement_tmpfiles)/top_level.lef
 
+    set_def $save_def
+
+    puts_verbose "Custom floorplan created at $save_def."
 
     set old_mode $::env(FP_IO_MODE)
 
     set ::env(FP_IO_MODE) 0; # set matching mode
     set ::env(CONTEXTUAL_IO_FLAG) 1
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/io.log] \
         -save "def=[index_file $::env(floorplan_tmpfiles)/io.def]" \
         -no_update_current
@@ -260,12 +260,11 @@ proc apply_def_template {args} {
         set def [index_file $::env(floorplan_tmpfiles)/apply_def_template.def]
 
         puts_info "Applying DEF template..."
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
-            --output $::env(CURRENT_DEF)\
-            --def-template $::env(FP_DEF_TEMPLATE)\
-            --input-lef $::env(MERGED_LEF) \
-            $::env(CURRENT_DEF)\
-            |& tee $log $::env(TERMINAL_OUTPUT)
+        manipulate_layout $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
+            -log $log\
+            -output $::env(CURRENT_DEF)\
+            -input $::env(MERGED_LEF)\
+            --def-template $::env(FP_DEF_TEMPLATE)
     }
 
 }

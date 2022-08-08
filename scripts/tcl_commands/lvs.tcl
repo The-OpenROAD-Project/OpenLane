@@ -69,14 +69,14 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+        -log [index_file $arg_values(-def_log)] \
+        -output $arg_values(-output_def) \
+        -input $arg_values(-def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
         --ground-port $arg_values(-ground) \
-        --powered-netlist $arg_values(-powered_netlist) \
-        --output $arg_values(-output_def) \
-        $arg_values(-def) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
+        --powered-netlist $arg_values(-powered_netlist)
 
     write_verilog\
         $arg_values(-output_verilog)\

@@ -37,18 +37,17 @@ proc global_placement {args} {
     global_placement_or args
 }
 
-
 proc random_global_placement {args} {
     increment_index
     TIMER::timer_start
     puts_info "Performing Random Global Placement..."
 
     set save_def [index_file $::env(placement_tmpfiles)/global.def]
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
-        --output $save_def \
-        --input-lef $::env(MERGED_LEF) \
-        $::env(CURRENT_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/random_place.py\
+        -log [index_file $::env(placement_logs)/global.log] \
+        -output $save_def \
+        -input $::env(CURRENT_DEF)
+
     set_def $save_def
 
     TIMER::timer_stop
@@ -119,7 +118,7 @@ proc manual_macro_placement {args} {
         lappend arg_list --fixed
     }
 
-    try_catch openroad -python\
+    try_catch $::env(OPENROAD_BIN) -python\
         $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
         tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
 
@@ -204,12 +203,11 @@ proc remove_buffers_from_ports {args} {
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set save_def ${fbasename}.buffers_removed.def
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
-        --output $save_def\
-        --input-lef $::env(MERGED_LEF)\
-        --ports $::env(DONT_BUFFER_PORTS)\
-        $::env(CURRENT_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/remove_buffers_from_ports.log]
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
+        -log [index_file $::env(placement_logs)/remove_buffers_from_ports.log]\
+        -output $save_def\
+        -input $::env(CURRENT_DEF)\
+        --ports $::env(DONT_BUFFER_PORTS)
     set_def $save_def
 
     TIMER::timer_stop

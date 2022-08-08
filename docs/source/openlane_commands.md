@@ -202,7 +202,7 @@ Most of the following commands' implementation exists in this [file][8]
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
 | `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
 | `ins_diode_cells_4` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs only if `DIODE_INSERTION_STRATEGY` is set to `2`|
+| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs on `CURRENT_DEF` and only if `DIODE_INSERTION_STRATEGY` is set to `2`.|
 
 
 ## PDN Generation Commands
@@ -315,8 +315,6 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `move_pins` | | Moves the PINS section from one DEF file to another. |
 |    | `-from <def_file>` | The input DEF file. |
 |    | `-to <def_file>` | The target DEF file. |
-| `zeroize_origin_lef` | | Zeroizes the origin of all views in a LEF file. |
-|    | `-file <lef_file>` | The input LEF file. |
 | `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
 | `kill_display_buffer` | | Kills the fake display buffer. |
 | `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
@@ -332,6 +330,8 @@ Most of the following commands' implementation exists in these files: [deflef][1
 |    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `flow completed`. |
 | `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `flow failed`, and finally prints `Flow Failed` to the terminal. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
+| `zeroize_origin_lef` | | **Removed:** Zeroizes the origin of all views in a LEF file. |
+|    | `-file <lef_file>` | The input LEF file. |
 
 
 [0]: ./../../scripts/tcl_commands/all.tcl

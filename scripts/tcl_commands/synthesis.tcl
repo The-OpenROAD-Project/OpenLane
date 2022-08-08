@@ -88,7 +88,7 @@ proc run_synth_exploration {args} {
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 
     puts_info "Generating exploration report..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
+    try_catch python3 $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
         --output $exploration_report\
         [index_file $::env(synthesis_logs)/synthesis.log]
 

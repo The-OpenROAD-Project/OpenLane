@@ -97,21 +97,21 @@ proc run_magic_drc {args} {
         $::env(SCRIPTS_DIR)/magic/drc.tcl
 
     puts_info "Converting Magic DRC Violations to Magic Readable Format..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
 
     puts_info "Converting Magic DRC Violations to Klayout XML Database..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
         -o $::env(drc_prefix).klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(drc_prefix).tr
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
         -o $::env(drc_prefix).rdb \
         $::env(drc_prefix).rpt
 

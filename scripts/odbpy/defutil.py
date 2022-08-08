@@ -440,7 +440,7 @@ def replace_instance_prefixes(original_prefix, new_prefix, reader):
 cli.add_command(replace_instance_prefixes)
 
 
-@click.command("add_def_obstructions")
+@click.command("add_obstructions")
 @click.option(
     "-O",
     "--obstructions",
@@ -448,7 +448,7 @@ cli.add_command(replace_instance_prefixes)
     help="Format: layer llx lly urx ury, (microns)",
 )
 @click_odb
-def add_def_obstructions(obstructions, reader):
+def add_obstructions(obstructions, reader):
     RE_NUMBER = r"[\-]?[0-9]+(\.[0-9]+)?"
     RE_OBS = (
         r"(?P<layer>\S+)\s+"
@@ -486,7 +486,7 @@ def add_def_obstructions(obstructions, reader):
         odb.dbObstruction_create(reader.block, reader.tech.findLayer(layer), *bbox)
 
 
-cli.add_command(add_def_obstructions)
+cli.add_command(add_obstructions)
 
 if __name__ == "__main__":
     cli()
