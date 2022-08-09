@@ -22,5 +22,16 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+    read_liberty $lib
+}
+
+if { [info exists ::env(EXTRA_LIBS) ] } {
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
+}
+
 source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
+
 analyze_power_grid -net $::env(VDD_NET) -outfile $::env(_tmp_save_rpt)

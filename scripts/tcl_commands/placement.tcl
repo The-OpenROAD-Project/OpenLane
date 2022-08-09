@@ -58,7 +58,7 @@ proc random_global_placement {args} {
         --output $::env(SAVE_DEF) \
         --input-lef $::env(MERGED_LEF) \
         $::env(CURRENT_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT)
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "random global placement - openlane"
@@ -134,7 +134,7 @@ proc manual_macro_placement {args} {
 
     try_catch openroad -python\
         $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
-        tee $::env(TERMINAL_OUTPUT)
+        tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $output_def
 }

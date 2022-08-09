@@ -41,7 +41,7 @@ set ::env(TAP_DECAP_INSERTION) 1
 set ::env(RUN_DRT) 1
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
-set ::env(RUN_IRDROP_REPORT) 0
+set ::env(RUN_IRDROP_REPORT) 1
 
 set ::env(PRIMARY_SIGNOFF_TOOL) magic
 

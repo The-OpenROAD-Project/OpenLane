@@ -172,7 +172,7 @@ proc place_io_ol {args} {
         --length $arg_values(-length)\
         {*}$flags_map(-unmatched_error)\
         {*}$arg_values(-extra_args)\
-        $arg_values(-def) |& tee  $::env(TERMINAL_OUTPUT)
+        $arg_values(-def) |& tee $log $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
 
