@@ -15,7 +15,9 @@
 proc global_placement_or {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Global Placement..."
+    set log [index_file $::env(placement_logs)/global.log]
+    puts_info "Running Global Placement (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     # random initial placement
@@ -24,7 +26,7 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log $log
 
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
@@ -48,14 +50,15 @@ proc global_placement {args} {
 proc random_global_placement {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Performing Random Global Placement..."
+    set log [index_file $::env(placement_logs)/global.log]
+    puts_info "Performing Random Global Placement (log: [relpath . $log])..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
         --output $::env(SAVE_DEF) \
         --input-lef $::env(MERGED_LEF) \
         $::env(CURRENT_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "random global placement - openlane"
@@ -72,9 +75,10 @@ proc detailed_placement_or {args} {
 
     increment_index
     TIMER::timer_start
-    puts_info "Running Detailed Placement..."
-    set ::env(SAVE_DEF) $arg_values(-def)
     set log [index_file $arg_values(-log)]
+    puts_info "Running Detailed Placement (log: [relpath . $log])..."
+
+    set ::env(SAVE_DEF) $arg_values(-def)
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
     set_def $::env(SAVE_DEF)
@@ -104,14 +108,15 @@ proc add_macro_placement {args} {
 }
 
 proc manual_macro_placement {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Performing Manual Macro Placement..."
-
     set options {}
     set flags {-f}
     parse_key_args "manual_macro_placement" args arg_values $options flags_map $flags
 
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(placement_logs)/macro_placement.log]
+    puts_info "Performing Manual Macro Placement (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set output_def ${fbasename}.macro_placement.def
@@ -129,7 +134,7 @@ proc manual_macro_placement {args} {
 
     try_catch openroad -python\
         $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
-        tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
+        tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $output_def
 }
@@ -137,12 +142,13 @@ proc manual_macro_placement {args} {
 proc basic_macro_placement {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running basic macro placement..."
+    set log [index_file $::env(placement_logs)/basic_mp.log]
+    puts_info "Running basic macro placement (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log [index_file $::env(placement_logs)/basic_mp.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log $log
 
     check_macro_placer_num_solns
 
@@ -186,10 +192,12 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Placement Resizer Design Optimizations..."
+        set log [index_file $::env(placement_logs)/resizer.log]
+        puts_info "Running Placement Resizer Design Optimizations (log: [relpath . $log])..."
+
         set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
         set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log [index_file $::env(placement_logs)/resizer.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log $log
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
@@ -212,7 +220,8 @@ proc remove_buffers_from_ports {args} {
     # analog ports.
     increment_index
     TIMER::timer_start
-    puts_info "Removing Buffers from Ports (If Applicable)..."
+    set log [index_file $::env(placement_logs)/remove_buffers_from_ports.log]
+    puts_info "Removing Buffers from Ports (If Applicable) (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.buffers_removed.def
@@ -221,7 +230,7 @@ proc remove_buffers_from_ports {args} {
         --input-lef $::env(MERGED_LEF)\
         --ports $::env(DONT_BUFFER_PORTS)\
         $::env(CURRENT_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/remove_buffers_from_ports.log]
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $::env(SAVE_DEF)
     TIMER::timer_stop

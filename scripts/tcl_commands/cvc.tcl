@@ -42,7 +42,8 @@ proc run_lef_cvc {args} {
 
     increment_index
     TIMER::timer_start
-    puts_info "Running CVC..."
+    set log [index_file $::env(signoff_logs)/erc_screen.log]
+    puts_info "Running CVC (log: [relpath . $log])..."
 
     # merge cdl views of the optimization library and the base library if they are different
     if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
@@ -68,7 +69,7 @@ proc run_lef_cvc {args} {
 
     # The main event
     try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/erc_screen.log]
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop
 

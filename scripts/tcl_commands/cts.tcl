@@ -58,10 +58,8 @@ proc run_cts {args} {
 		set ::env(CURRENT_STAGE) cts
 		increment_index
 		TIMER::timer_start
-
-		set cts_log [index_file $::env(cts_logs)/cts.log]
-		set cts_log_rel [relpath . $cts_log]
-		puts_info "Running Clock Tree Synthesis (logging to '$cts_log_rel')..."
+		set log [index_file $::env(cts_logs)/cts.log]
+		puts_info "Running Clock Tree Synthesis (log: [relpath . $log])..."
 
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
@@ -77,7 +75,7 @@ proc run_cts {args} {
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
 
-		run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log $cts_log
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log $log
 
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
@@ -101,10 +99,12 @@ proc run_resizer_timing {args} {
 	if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
 		increment_index
 		TIMER::timer_start
-		puts_info "Running Placement Resizer Timing Optimizations..."
+		set log [index_file $::env(cts_logs)/resizer.log]
+		puts_info "Running Placement Resizer Timing Optimizations (log: [relpath . $log])..."
+
 		set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
 		set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
-		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log [index_file $::env(cts_logs)/resizer.log]
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log $log
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

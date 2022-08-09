@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -80,6 +80,12 @@ proc run_diode_insertion_2_5_step {args} {
         heal_antenna_violators; # modifies the routed DEF
     }
 
+}
+
+proc run_irdrop_report_step {args} {
+    if { $::env(RUN_IRDROP_REPORT) } {
+        run_irdrop_report
+    }
 }
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
@@ -190,6 +196,7 @@ proc run_non_interactive_mode {args} {
         "parasitics_sta" "run_parasitics_sta_step" \
         "eco" "run_eco_step" \
         "diode_insertion" "run_diode_insertion_2_5_step" \
+        "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \
         "gds_klayout" "run_klayout_step" \
         "lvs" "run_lvs_step $LVS_ENABLED " \

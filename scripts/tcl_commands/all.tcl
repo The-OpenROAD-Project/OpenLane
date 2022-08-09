@@ -980,11 +980,11 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
-    TIMER::timer_start
     increment_index
-    puts_info "Running OpenROAD Antenna Rule Checker..."
-
+    TIMER::timer_start
     set log [index_file $::env(signoff_logs)/antenna.log]
+    puts_info "Running OpenROAD Antenna Rule Checker (log: [relpath . $log])..."
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
@@ -1004,6 +1004,22 @@ proc run_antenna_check {args} {
     } else {
         run_magic_antenna_check
     }
+}
+
+proc run_irdrop_report {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(signoff_logs)/irdrop.log]
+    puts_info "Creating IR Drop Report (log: [relpath . $log])..."
+
+    set rpt [index_file $::env(signoff_reports)/irdrop.rpt]
+
+    set ::env(_tmp_save_rpt) $rpt
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/irdrop.tcl -indexed_log $log
+    unset ::env(_tmp_save_rpt)
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ir drop report - openroad"
 }
 
 proc or_gui {args} {

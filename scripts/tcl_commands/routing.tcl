@@ -97,6 +97,7 @@ proc global_routing {args} {
     increment_index
     TIMER::timer_start
     puts_info "Running Global Routing..."
+
     set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global.guide]
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/global.def]
 
@@ -128,18 +129,15 @@ proc detailed_routing_tritonroute {args} {
 
     increment_index
     TIMER::timer_start
-
-    set drt_log [index_file $::env(routing_logs)/detailed.log]
-    set drt_log_relative [relpath . $drt_log]
-
-    puts_info "Running Detailed Routing (logging to '$drt_log_relative')..."
+    set log [index_file $::env(routing_logs)/detailed.log]
+    puts_info "Running Detailed Routing (log: [relpath . $log])..."
 
     set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
 
     set ::env(_tmp_drt_file_prefix) $::env(routing_tmpfiles)/drt
     set ::env(_tmp_drt_rpt_prefix) $::env(routing_reports)/drt
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log $drt_log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log $log
 
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
@@ -169,23 +167,27 @@ proc ins_fill_cells_or {args} {
 }
 
 proc ins_fill_cells {args} {
-    increment_index
-
-    if {$::env(FILL_INSERTION)} {
-        TIMER::timer_start
-        puts_info "Running Fill Insertion..."
-        set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log [index_file $::env(routing_logs)/fill.log]
-        set_def $::env(SAVE_DEF)
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
+    if {!$::env(FILL_INSERTION)} {
+        return
     }
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/fill.log]
+    puts_info "Running Fill Insertion (log: [relpath . $log])..."
+
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log $log
+    set_def $::env(SAVE_DEF)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
 }
 
 proc power_routing {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Routing top-level power nets..."
+    set log [index_file $::env(routing_logs)/power_routing.log]
+    puts_info "Routing top-level power nets (log: [relpath . $log])..."
 
     set options {
         {-lef optional}
@@ -213,7 +215,7 @@ proc power_routing {args} {
         --output $arg_values(-output_def)\
         {*}$arg_values(-extra_args)\
         $arg_values(-def)\
-        |& tee [index_file $::env(routing_logs)/power_routing.log] $::env(TERMINAL_OUTPUT)
+        |& tee $log $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
     TIMER::timer_stop
@@ -223,10 +225,10 @@ proc power_routing {args} {
 proc gen_pdn {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Generating PDN..."
+    set log [index_file $::env(floorplan_logs)/pdn.log]
+    puts_info "Generating PDN (log: [relpath . $log])..."
 
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
-    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
     if { ! [info exists ::env(VDD_NET)] } {
         set ::env(VDD_NET) $::env(VDD_PIN)
@@ -236,9 +238,7 @@ proc gen_pdn {args} {
         set ::env(GND_NET) $::env(GND_PIN)
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
-        |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
-
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl -indexed_log $log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
@@ -252,10 +252,12 @@ proc gen_pdn {args} {
 proc ins_diode_cells_1 {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Diode Insertion..."
+    set log [index_file $::env(routing_logs)/diodes.log]
+    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log [index_file $::env(routing_logs)/diodes.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log $log
 
     set_def $::env(SAVE_DEF)
 
@@ -272,7 +274,9 @@ proc ins_diode_cells_1 {args} {
 proc ins_diode_cells_4 {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Diode Insertion..."
+    set log [index_file $::env(routing_logs)/diodes.log]
+    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
     # Select diode cell
@@ -295,7 +299,7 @@ proc ins_diode_cells_4 {args} {
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
         --fake-diode-cell $::antenna_cell_name\
-        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
+        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $::env(SAVE_DEF)
 
@@ -356,15 +360,15 @@ proc run_spef_extraction {args} {
     assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LEF)"
 
     increment_index
-    TIMER::timer_start
     set log [index_file $arg_values(-log)]
+    TIMER::timer_start
 
     set ec_postfix ""
     if { [info exists arg_values(-process_corner)]} {
         set ec_postfix " at the $arg_values(-process_corner) process corner"
     }
 
-    puts_info "Running SPEF Extraction$ec_postfix..."
+    puts_info "Running SPEF Extraction$ec_postfix (log: [relpath . $log])..."
 
     if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
         puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
@@ -451,10 +455,13 @@ proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Global Routing Resizer Timing Optimizations..."
+        set log [index_file $::env(routing_logs)/resizer.log]
+        puts_info "Running Global Routing Resizer Timing Optimizations (log: [relpath . $log])..."
+
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/resizer_timing.def]
         set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/resizer_timing.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log [index_file $::env(routing_logs)/resizer.log]
+
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log $log
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
