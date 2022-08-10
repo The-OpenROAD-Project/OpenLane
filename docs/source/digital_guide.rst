@@ -26,10 +26,10 @@ There is two variants of tap connections:
 * Taps are integrated into the cell
 * Taps are separate cells and are insterted by the OpenLane
 
-In OpenLane variable FP_WELLTAP_CELL controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
-If FP_WELLTAP_CEL parameter does not exist then no tap cells are created otherwise the cells are inserted.
+In OpenLane variable ``FP_WELLTAP_CELL`` controls the selection of tap cells and FP_TAPCELL_DIST controls distance.
+If ``FP_WELLTAP_CELL`` parameter does not exist then no tap cells are created otherwise the cells are inserted.
 
-For example, sky130_fd_sc_hvl uses integrated tap connections, meanwhile sky130_fd_sc_hd uses separate tap cells.
+For example, ``sky130_fd_sc_hvl`` uses integrated tap connections, meanwhile ``sky130_fd_sc_hd`` uses separate tap cells.
 
 .. figure:: ../_static/analog_flow/tap_cell.png
 
@@ -84,6 +84,8 @@ Spare cells
 .. todo:: Cover common mistake with the macro names in macro hooks and macro.cfg
 
 .. todo:: Add link to corner/temperature/etc
+
+.. todo:: Antennas
 
 Step 1. Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -178,6 +180,8 @@ Add following lines:
 
 .. todo:: explain why
 
+.. todo:: PDN
+
 Step 3. Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -248,4 +252,6 @@ Exploring your designs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
+.. todo:: LVS, DRC, etc, debugging
 
+.. todo:: Updated 

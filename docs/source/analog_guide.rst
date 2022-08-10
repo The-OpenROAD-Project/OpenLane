@@ -568,16 +568,54 @@ For example, if one licon1 is improperly manufactured due to fault the integrate
 
 Secondly, multiple connection points reduce the resistance.
 
-Another thing to notice here is that the li1 that carries the power does not have connection to the ``nwell.drawing``.
+Another thing to notice here is that the li1 that carries the power does not have connection to the ``nwell.drawing``. Same for the ``pwell`` and ``li1`` that connects to the ground.
 This is because in ``sky130_fd_sc_hd`` connections to bulk are done in tap cells. More information can be found in :ref:`floorplan_taps_dcaps_fillers_sites`.
 
-.. todo:: Add opening the KLayout quarter
-.. todo:: Add copying the cell
-.. todo:: Add removing everything but the power rails and NWELL/PSDM/NSDM
-.. todo:: Add drawing new shapes.
-.. todo:: Add the final result
 
 
+
+Resizing boxes
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+Theere is 2 PMOS transistors, therefore 2 gates. For this case the output net conneeeeeeeeeected ttttttttttto drain and source oUse tool ``Partial`` to change the size of the diffusion for PMOS.
+It needs to be 0.135 um away from the border of the cell.
+
+
+Deleting objects
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+.. todo:: Add drawing technique: Deleting objects
+
+
+Creatig boxes
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+.. todo:: Add drawing technique: Create new shape
+
+Create route
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+
+
+.. todo:: Add drawing technique: Rulers
+
+.. todo:: Add drawing technique: Partial
+
+.. todo:: Add drawing technique: Moving
+
+.. todo:: Add drawing technique: Labeling
+
+.. todo:: Add drawing diff
+
+.. todo:: Add drawing li1
+
+.. todo:: DRC
+
+.. todo:: DRC fixing example
+
+.. todo:: LVS
+
+.. todo:: LVS fixing
 
 
 .. todo:: PEX
