@@ -20,10 +20,12 @@ For more complex documentation it is recommended to follow this steps:
 2. Either create a new page in ``docs/source/``. Then you need to add your page to the Table of Contents in ``index.rst``
 3. ... or open existing one from the same folder.
 4. Then create the general structure of the documentation.
+  
 This steps ensures continuity with the rest of the documentation and allows the writer to better organize their thoughts.
 
 5. Use reStructuredText and existing plugins to write the documentation.
 6. Create as much visual documentation as possible. More is better.
+
 Pictures, figures, tables significantly improve the quality of documentation and make the documentation available for begginers.
 
 7. Add links to references, guide and pointers to other available documentation or books.
@@ -50,15 +52,6 @@ Assuming you have OpenLane installed it will create ``venv``. Install requiremen
     # Install required modules
     make -C docs/ install
 
-
-You can check the installation and see that sphinx was installed.
-
-.. image:: ../_static/docs_contribution/tools_installation.png
-  :width: 800
-  :alt: docs contribution tools installation successful
-
-.. todo:: Update screenshot
-
 After installation, every time you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
 .. code-block:: console
@@ -66,12 +59,6 @@ After installation, every time you want to build the documentation proceed to en
     cd OpenLane/
     # assuming you are inside OpenLane folder
     make -C docs/ html
-
-.. image:: ../_static/docs_contribution/sphinx_build.png
-  :width: 800
-  :alt: docs contribution tools installation successful
-
-.. todo:: Update the screenshots
 
 View the generated html files using Firefox or other browser. Open this document in browser:
 
