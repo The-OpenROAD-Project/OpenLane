@@ -55,10 +55,11 @@ proc run_cts {args} {
 	}
 
 	if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
-		increment_index
-		puts_info "Running Clock Tree Synthesis..."
 		set ::env(CURRENT_STAGE) cts
+		increment_index
 		TIMER::timer_start
+		set log [index_file $::env(cts_logs)/cts.log]
+		puts_info "Running Clock Tree Synthesis (log: [relpath . $log])..."
 
 		if { ! [info exists ::env(CLOCK_NET)] } {
 			set ::env(CLOCK_NET) $::env(CLOCK_PORT)
@@ -73,7 +74,9 @@ proc run_cts {args} {
 			set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
 			trim_lib -input $::env(LIB_SYNTH_COMPLETE) -output $::env(LIB_CTS) -drc_exclude_only
 		}
-		run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log [index_file $::env(cts_logs)/cts.log]
+
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl -indexed_log $log
+
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
 		TIMER::timer_stop
@@ -89,20 +92,19 @@ proc run_cts {args} {
 		scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
 	} elseif { $::env(RUN_SIMPLE_CTS) } {
 		exec echo "Simple CTS was run earlier." >> [index_file $::env(cts_logs)/cts.log]
-	} else {
-		exec echo "SKIPPED!" >> [index_file $::env(cts_logs)/cts.log]
 	}
-
 }
 
 proc run_resizer_timing {args} {
 	if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
 		increment_index
 		TIMER::timer_start
-		puts_info "Running Placement Resizer Timing Optimizations..."
+		set log [index_file $::env(cts_logs)/resizer.log]
+		puts_info "Running Placement Resizer Timing Optimizations (log: [relpath . $log])..."
+
 		set ::env(SAVE_DEF) [index_file $::env(cts_tmpfiles)/resizer_timing.def]
 		set ::env(SAVE_SDC) [index_file $::env(cts_tmpfiles)/resizer_timing.sdc]
-		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log [index_file $::env(cts_logs)/resizer.log]
+		run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl -indexed_log $log
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

@@ -1,5 +1,5 @@
-**DISCLAIMER: THIS PAGE IS STILL UNDER DEVELOPMENT.**
-**THE INFORMATION HERE MIGHT BE INCORRECT OR OUTDATED.**
+**THIS PAGE IS STILL UNDER DEVELOPMENT.**
+**THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
 
 # Chip Level Integration
 
@@ -15,7 +15,7 @@ The current methodology views the chip using the following hierarchy:
 - Chip IO
     - IO Pads
     - Power Pads
-    - Corener Pads
+    - Corner Pads
 
 The current methodology goes as follows:
 1. Hardening the hard macros.
@@ -24,7 +24,7 @@ The current methodology goes as follows:
 4. Hardening the full chip with the padframe.
 
 
-## Hardening The Macros
+## Hardening Macros
 
 This is discussed in more detail [here][8].
 
@@ -32,42 +32,33 @@ This is discussed in more detail [here][8].
 
 The chip core would usually have other macros inside it.
 
-You need to set the following environment variables in your `config.tcl` file for the chip core:
-- `::env(VERILOG_FILES)` To point at the used verilog files; those that were not previously hardened.
-- `::env(VERILOG_FILES_BLACKBOX)` To point at the blackboxes (the hardened macros).
-- `::env(EXTRA_LEFS)` To point at the LEF files of the hardened macros.
-- `::env(EXTRA_GDS_FILES)` To point at the GDS files of the hardened macros.
+You need to set the following environment variables in your configuration file for the chip core:
 
-Therefore, the verilog files shouldn't have any includes in any of your verilog files. But use `::env(VERILOG_FILES)` and `::env(VERILOG_FILES_BLACKBOX)` for that purpose.
-
-Add `set ::env(SYNTH_READ_BLACKBOX_LIB) 1`, if you have std cells hard coded in your RTL.
+| Key | Description |
+|-|-|
+| `VERILOG_FILES` | Space-delimited list of Verilog files*. |
+| `VERILOG_FILES_BLACKBOX` | Black-box, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design. |
+| `EXTRA_LEFS` | LEF files for pre-hardened macros you incorporate into your design. |
+| `EXTRA_GDS_FILES` | GDS files for pre-hardened macros you incorporate into your design. |
+| `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (json): Should be set to true if you're using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
+| `MACRO_PLACEMENT_CFG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
+> \* The ``` `include ``` directive is not supported.
 
 You can follow the same instructions provided [here][8] for the rest of the hardenning steps.
 
-In case you want to manually place the macros in specific locations, [this][9] should provide a good example on how to do it. This is done by creating a configuration file containing an endline separated list of `instance_name X_pos Y_pos Orientation` and pointing to it with this configuartion: `::env(MACRO_PLACEMENT_CFG)`.
-
-[Here][0] you can find a list of all the available OpenLane configuartions.
-
-Check this [section](#power-routing) for more details on power routing setup.
+[Here][0] you can find a list of all the available OpenLane configuration variables.
 
 ## Hardening The Full Chip
-
 
 The full chip requires an [interactive script][2] to harden. You could take this [full chip][5] as an example.
 
 First you need to harden the padframe as a separate macro, check [this flow][4] as an example on how to do so.
 
-You need to set the following environment variables in your `config.tcl` file for the chip:
-- `::env(VERILOG_FILES)` To point at the used verilog files; those that were not previously hardened. Ideally, this should be only one file.
-- `::env(VERILOG_FILES_BLACKBOX)` To point at the blackboxes (the hardened macros). Ideally, this should include all the other verilog files.
-- `::env(EXTRA_LEFS)` To point at the LEF files of the hardened core macro.
-- `::env(EXTRA_GDS_FILES)` To point at the GDS files of the hardened core macro.
+You need to set ***all environment variables mentioned in [Hardening the Core](#hardening-the-core)***, but also:
 
-Therefore, the verilog files shouldn't have any includes in any of your verilog files. But use `::env(VERILOG_FILES)` and `::env(VERILOG_FILES_BLACKBOX)` for that purpose.
-
-Add `set ::env(SYNTH_READ_BLACKBOX_LIB) 1`, if you have std cells hard coded in your RTL.
-
-Add `set ::env(SYNTH_FLAT_TOP) 1` to your `config.tcl`. To flatten the padframe, if it's presented in a `chip_io` module, otherwise you can harden it separately as indicated in [this flow][4].
+| Key | Description |
+|-|-|
+| `SYNTH_FLAT_TOP` | `1/0` (Tcl), `true/false` (json): Flattens the padframe if true (and presented in a chip_io module). Otherwise, you can harden it separately as indicated in [this flow][4].  |
 
 The following inputs are provided to produce the final GDSII:
 
@@ -106,10 +97,27 @@ This is discussed in detail [here][8].
 
 It should have an `stdcell` section that includes a `core_ring` on met4 and met5. It should use met5 and met4 for the straps, and met1 for the rails. Thus, make sure to add these to your config file:
 
-```tcl
-set ::env(DESIGN_IS_CORE) 1
-set ::env(FP_PDN_CORE_RING) 1
+<table>
+<tr><th>JSON</th><th>Tcl</th></tr>
+<tr>
+<td>
+    
+```json
+    "DESIGN_IS_CORE": true,
+    "FP_PDN_CORE_RING": true
 ```
+
+
+</td>
+<td>
+
+```tcl
+    set ::env(DESIGN_IS_CORE) 1
+    set ::env(FP_PDN_CORE_RING) 1
+```
+</td>
+</tr>
+</table>
 
 You can automate the power routing process in the core and macro level by reading [this documentation][10]. Otherwise, refer to [this][3] for more details about the syntax. In case you needed to create your own `pdn.tcl` then point to it using `PDN_CFG`.
 

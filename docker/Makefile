@@ -9,7 +9,7 @@ PYTHON_BIN ?= python3
 OS_NAME := centos-7
 OS_IMAGE := centos:centos7
 BASE_HASH := $(shell $(PYTHON_BIN) ../dependencies/hash_for.py $(OS_NAME))
-BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./utils.py current-docker-platform)
+BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./current_platform.py)
 
 export BUILD_BASE_TAG := build-base-$(BASE_HASH)-$(OS_NAME)-$(BUILD_ARCH)
 export RUN_BASE_TAG := run-base-$(BASE_HASH)-$(OS_NAME)-$(BUILD_ARCH)
@@ -82,7 +82,7 @@ $(TOOL_EXPORT_TARGETS): pull-% : FORCE
 	rm -rf ./tar/openlane
 	mkdir -p ./tar/openlane
 	for file in $(OPENLANE_SKELETON); do\
-		cp -r ../$$file ./tar/openlane/$$file ;\
+		$(PYTHON_BIN) ./utils.py copy-tree -i */runs/* ../$$file ./tar/openlane/$$file ;\
 	done
 
 .PHONY: merge openlane

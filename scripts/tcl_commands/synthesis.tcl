@@ -25,12 +25,15 @@ proc run_yosys {args} {
 
     set options {
         {-output optional}
+        {-log optional}
     }
     set flags {
         -no_set_netlist
     }
 
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-log) /dev/null
 
     if { [info exists arg_values(-output)] } {
         set ::env(SAVE_NETLIST) $arg_values(-output)
@@ -61,7 +64,7 @@ proc run_yosys {args} {
 
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SYNTH_SCRIPT) \
-        -l [index_file $::env(synthesis_logs)/synthesis.log] \
+        -l $arg_values(-log)\
         |& tee $::env(TERMINAL_OUTPUT)
 
     if { ! [info exists flags_map(-no_set_netlist)] } {
@@ -112,14 +115,16 @@ proc run_synth_exploration {args} {
 proc run_synthesis {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Synthesis..."
+    set log [index_file $::env(synthesis_logs)/synthesis.log]
+    puts_info "Running Synthesis (log: [relpath . $log])..."
+
     set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
     # in-place insertion
     if { [file exists $::env(synthesis_results)/$::env(DESIGN_NAME).v] } {
         puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists. Synthesis will be skipped."
         set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
     } else {
-        run_yosys
+        run_yosys -log $log
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
@@ -187,11 +192,12 @@ proc yosys_rewrite_verilog {filename} {
 
     increment_index
     TIMER::timer_start
-    puts_info "Rewriting $filename to $::env(SAVE_NETLIST) using Yosys..."
+    set log [index_file $::env(synthesis_logs)/rewrite_verilog.log]
+    puts_info "Rewriting $filename to $::env(SAVE_NETLIST) using Yosys (log: [relpath . $log])..."
 
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
-        -l [index_file $::env(synthesis_logs)/rewrite_verilog.log]
+        -l $log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"
@@ -223,10 +229,11 @@ proc logic_equiv_check {args} {
     }
     increment_index
     TIMER::timer_start
-    puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST)"
+    set log [index_file $::env(synthesis_logs).equiv.log]
+    puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST) (log: [relpath . $log])..."
 
 
-    if { [catch {exec $::env(SYNTH_BIN) -c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -l [index_file $::env(synthesis_logs).equiv.log] |& tee $::env(TERMINAL_OUTPUT)} ]} {
+    if { [catch {exec $::env(SYNTH_BIN) -c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -l $log |& tee $::env(TERMINAL_OUTPUT)} ]} {
         puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)."
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"

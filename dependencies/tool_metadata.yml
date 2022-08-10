@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 085131b090cb511d785baf52a10cf6df8a657d44
+  commit: f7df5e7c86fb47c5fd445c846afddc6fbabad6ae
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -58,7 +58,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 0b8b7ae255f8fbbbefa57d443949b84e73eed757
+  commit: e036ecfaca4bc0efe88a54085efcf0f562c48a6b
   build: ""
   in_install: false
 - name: git
@@ -68,16 +68,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/efabless/open_pdks
-  commit: 41c0908b47130d5675ff8484255b43f66463a7d6
+  commit: e8294524e5f67c533c5d0c3afa0bcc5b2a5fa066
   build: ""
   in_install: false
   pdk: true
-  dependencies:
-    - sky130
-    - magic
-- name: sky130
-  repo: https://github.com/google/skywater-pdk
-  commit: f70d8ca46961ff92719d8870a18a076370b85f6c
-  build: ""
-  in_install: false
-  in_container: false

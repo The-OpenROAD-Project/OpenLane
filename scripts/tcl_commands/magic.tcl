@@ -16,11 +16,12 @@ proc run_magic {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running Magic to generate various views..."
+    set ::env(CURRENT_STAGE) signoff
     # |----------------------------------------------------|
     # |----------------   6. TAPE-OUT ---------------------|
     # |----------------------------------------------------|
-    puts_info "Streaming out GDS-II with Magic..."
-    set ::env(CURRENT_STAGE) signoff
+    set log [index_file $::env(signoff_logs)/gdsii.log]
+    puts_info "Streaming out GDS-II with Magic (log: [relpath . $log])..."
     # the following MAGTYPE better be mag for clean GDS generation
     # use load -dereference to ignore it later if needed
 
@@ -29,7 +30,7 @@ proc run_magic {args} {
     set ::env(MAGIC_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).magic.gds
 
     run_magic_script\
-        -indexed_log [index_file $::env(signoff_logs)/gdsii.log]\
+        -indexed_log $log\
         $::env(SCRIPTS_DIR)/magic/mag_gds.tcl
 
     if { $::env(PRIMARY_SIGNOFF_TOOL) == "magic" } {
@@ -42,13 +43,13 @@ proc run_magic {args} {
     scrot_klayout -log $::env(cts_logs)/screenshot.log
 
     if { ($::env(MAGIC_GENERATE_LEF) && $::env(MAGIC_GENERATE_MAGLEF)) || $::env(MAGIC_INCLUDE_GDS_POINTERS) } {
+        set log [index_file $::env(signoff_logs)/gds_ptrs.log]
         puts_info "Generating MAGLEF views..."
 
         # Generate mag file that includes GDS pointers
         set ::env(MAGTYPE) mag
-        run_magic_script\
-            -indexed_log [index_file $::env(signoff_logs)/gds_ptrs.log]\
-            $::env(SCRIPTS_DIR)/magic/gds_pointers.tcl
+        run_magic_script $::env(SCRIPTS_DIR)/magic/gds_pointers.tcl\
+            -indexed_log $log
 
         # Only keep the properties section in the file
         try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
@@ -86,15 +87,15 @@ proc run_magic {args} {
 proc run_magic_drc {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Magic DRC..."
+    set log [index_file $::env(signoff_logs)/drc.log]
+    puts_info "Running Magic DRC (log: [relpath . $log])..."
 
     set ::env(drc_prefix) $::env(signoff_reports)/drc
     # Has to be maglef for DRC Checking
     set ::env(MAGTYPE) maglef
 
-    run_magic_script\
-        -indexed_log [index_file $::env(signoff_logs)/drc.log]\
-        $::env(SCRIPTS_DIR)/magic/drc.tcl
+    run_magic_script $::env(SCRIPTS_DIR)/magic/drc.tcl\
+        -indexed_log $log
 
     puts_info "Converting Magic DRC Violations to Magic Readable Format..."
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
@@ -111,7 +112,7 @@ proc run_magic_drc {args} {
         --design-name $::env(DESIGN_NAME) \
         $::env(drc_prefix).tr
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
         -o $::env(drc_prefix).rdb \
         $::env(drc_prefix).rpt
 
@@ -125,13 +126,16 @@ proc run_magic_drc {args} {
 proc run_magic_spice_export {args} {
     TIMER::timer_start
     increment_index
+    set log ""
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type "gds.spice"
-        puts_info "Running Magic Spice Export from GDS..."
+        set log [index_file $::env(signoff_logs)/$extract_type.log]
+        puts_info "Running Magic Spice Export from GDS (log: [relpath . $log])..."
         # GDS extracted file design.gds.spice, log file magic_gds.spice.log
     } else {
         set extract_type "spice"
-        puts_info "Running Magic Spice Export from LEF..."
+        set log [index_file $::env(signoff_logs)/$extract_type.log]
+        puts_info "Running Magic Spice Export from LEF (log: [relpath . $log])..."
         # LEF extracted file design.spice (copied to design.lef.spice), log file magic_spice.log
     }
 
@@ -144,9 +148,8 @@ proc run_magic_spice_export {args} {
     set ::env(_tmp_magic_feedback_file) $feedback_file
     set ::env(MAGTYPE) maglef
 
-    run_magic_script\
-        -indexed_log [index_file $::env(signoff_logs)/$extract_type.log]\
-        $::env(SCRIPTS_DIR)/magic/extract_spice.tcl
+    run_magic_script $::env(SCRIPTS_DIR)/magic/extract_spice.tcl\
+        -indexed_log $log
 
     unset ::env(_tmp_magic_extract_type)
     unset ::env(_tmp_magic_feedback_file)
@@ -162,14 +165,16 @@ proc run_magic_spice_export {args} {
 }
 
 proc export_magic_view {args} {
-    increment_index
-    TIMER::timer_start
     set options {
         {-def required}
         {-output required}
     }
     set flags {}
     parse_key_args "export_magic_view" args arg_values $options flags_map $flags
+
+    increment_index
+    TIMER::timer_start
+
     set script_dir $::env(signoff_tmpfiles)/magic_mag_save.tcl
 
     set stream [open $script_dir w]
@@ -193,27 +198,26 @@ proc export_magic_view {args} {
 proc run_magic_antenna_check {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Magic Antenna Checks..."
+    set log [index_file $::env(signoff_logs)/antenna.log]
+    puts_info "Running Magic Antenna Checks (log: [relpath . $log])..."
+
     set feedback_file [index_file $::env(signoff_reports)/antenna.feedback.txt]
 
     # the following MAGTYPE has to be mag; antennacheck needs to know
     # about the underlying devices, layers, etc.
     set ::env(MAGTYPE) mag
 
-    set antenna_log [index_file $::env(signoff_logs)/antenna.log]
-
     set ::env(_tmp_feedback_file) $feedback_file
 
-    run_magic_script\
-        -indexed_log $antenna_log\
-        $::env(SCRIPTS_DIR)/magic/antenna_check.tcl
+    run_magic_script $::env(SCRIPTS_DIR)/magic/antenna_check.tcl\
+        -indexed_log $log
 
     unset ::env(_tmp_feedback_file)
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
 
     # process the log
-    try_catch awk "/Cell:/ {print \$2}" $antenna_log > $antenna_violators_rpt
+    try_catch awk "/Cell:/ {print \$2}" $log > $antenna_violators_rpt
 
     set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
 

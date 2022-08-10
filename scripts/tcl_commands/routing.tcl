@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,36 +17,6 @@ proc global_routing_or {args} {
     handle_deprecated_command global_routing
 }
 
-proc translate_min_max_layer_variables {args} {
-    if { [info exists ::env(GLB_RT_MINLAYER) ] } {
-        set ::env(RT_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MINLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_MIN_LAYER) {$::env(RT_MIN_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_MAXLAYER) ] } {
-        set ::env(RT_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_MAXLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_MAX_LAYER) {$::env(RT_MAX_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_CLOCK_MINLAYER) ] } {
-        set ::env(RT_CLOCK_MIN_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MINLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_CLOCK_MINLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_CLOCK_MIN_LAYER) {$::env(RT_CLOCK_MIN_LAYER)}"
-    }
-
-    if { [info exists ::env(GLB_RT_CLOCK_MAXLAYER) ] } {
-        set ::env(RT_CLOCK_MAX_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(GLB_RT_CLOCK_MAXLAYER) - 1}]]
-        puts_warn "You're using GLB_RT_CLOCK_MAXLAYER in your configuration, which is a deprecated variable that will be removed in the future."
-        puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(RT_CLOCK_MAX_LAYER) {$::env(RT_CLOCK_MAX_LAYER)}"
-    }
-}
-
 proc groute_antenna_extract {args} {
     set options {
         {-from_log required}
@@ -62,7 +32,6 @@ proc groute_antenna_extract {args} {
 proc global_routing_fastroute {args} {
     set saveLOG [index_file $::env(routing_logs)/global.log]
 
-    translate_min_max_layer_variables
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl -indexed_log $saveLOG
     if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
         puts_info "Starting FastRoute Antenna Repair Iterations..."
@@ -79,7 +48,7 @@ proc global_routing_fastroute {args} {
 
         set prevAntennaVal [groute_antenna_extract -from_log [index_file $::env(routing_logs)/global.log]]
 
-        while {$iter <= $::env(GLB_RT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
+        while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $prevAntennaVal > 0} {
             set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/global_$iter.def]
             set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global_$iter.guide]
             set saveLOG [index_file $::env(routing_logs)/global_$iter.log]
@@ -128,6 +97,7 @@ proc global_routing {args} {
     increment_index
     TIMER::timer_start
     puts_info "Running Global Routing..."
+
     set ::env(SAVE_GUIDE) [index_file $::env(routing_tmpfiles)/global.guide]
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/global.def]
 
@@ -148,18 +118,40 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    set ::env(TRITONROUTE_FILE_PREFIX) $::env(routing_tmpfiles)/detailed
-    set ::env(TRITONROUTE_RPT_PREFIX) $::env(routing_reports)/detailed
+    if { !$::env(RUN_DRT) } {
+        return
+    }
 
-    translate_min_max_layer_variables
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log [index_file $::env(routing_logs)/detailed.log]
+    if { $::env(DETAILED_ROUTER) == "drcu" } {
+        puts_warn "DR-CU is no longer supported. OpenROAD's detailed router will be used instead."
+        set ::env(DETAILED_ROUTER) "tritonroute"
+    }
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/detailed.log]
+    puts_info "Running Detailed Routing (log: [relpath . $log])..."
+
+    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
+
+    set ::env(_tmp_drt_file_prefix) $::env(routing_tmpfiles)/drt
+    set ::env(_tmp_drt_rpt_prefix) $::env(routing_reports)/drt
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl -indexed_log $log
+
+    unset ::env(_tmp_drt_file_prefix)
+    unset ::env(_tmp_drt_rpt_prefix)
 
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
-        -o $::env(routing_reports)/detailed.klayout.xml \
+        -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
-        $::env(routing_reports)/detailed.drc
+        $::env(routing_reports)/drt.drc
 
     quit_on_tr_drc
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
+    set_def $::env(SAVE_DEF)
 }
 
 proc detailed_routing_drcu {args} {
@@ -167,27 +159,7 @@ proc detailed_routing_drcu {args} {
 }
 
 proc detailed_routing {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Running Detailed Routing..."
-
-    set ::env(SAVE_DEF) $::env(routing_results)/$::env(DESIGN_NAME).def
-
-    set tool "openroad"
-    if {$::env(RUN_ROUTING_DETAILED)} {
-        if { $::env(DETAILED_ROUTER) == "drcu" } {
-            puts_warn "DR-CU is no longer supported. OpenROAD tritonroute will be used instead."
-            set ::env(DETAILED_ROUTER) "tritonroute"
-        }
-        detailed_routing_tritonroute
-
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/detailed.log]
-    }
-
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - $tool"
-    set_def $::env(SAVE_DEF)
+    detailed_routing_tritonroute {*}$args
 }
 
 proc ins_fill_cells_or {args} {
@@ -195,26 +167,27 @@ proc ins_fill_cells_or {args} {
 }
 
 proc ins_fill_cells {args} {
-    increment_index
-
-    if {$::env(FILL_INSERTION)} {
-        TIMER::timer_start
-        puts_info "Running Fill Insertion..."
-        set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log [index_file $::env(routing_logs)/fill.log]
-        set_def $::env(SAVE_DEF)
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
-    } else {
-        exec echo "SKIPPED!" >> [index_file $::env(routing_logs)/fill.log]
+    if {!$::env(FILL_INSERTION)} {
+        return
     }
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/fill.log]
+    puts_info "Running Fill Insertion (log: [relpath . $log])..."
 
+    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/fill.def]
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl -indexed_log $log
+    set_def $::env(SAVE_DEF)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
 }
 
 proc power_routing {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Routing top-level power nets..."
+    set log [index_file $::env(routing_logs)/power_routing.log]
+    puts_info "Routing top-level power nets (log: [relpath . $log])..."
 
     set options {
         {-lef optional}
@@ -242,7 +215,7 @@ proc power_routing {args} {
         --output $arg_values(-output_def)\
         {*}$arg_values(-extra_args)\
         $arg_values(-def)\
-        |& tee [index_file $::env(routing_logs)/power_routing.log] $::env(TERMINAL_OUTPUT)
+        |& tee $log $::env(TERMINAL_OUTPUT)
 
     set_def $arg_values(-output_def)
     TIMER::timer_stop
@@ -252,10 +225,10 @@ proc power_routing {args} {
 proc gen_pdn {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Generating PDN..."
+    set log [index_file $::env(floorplan_logs)/pdn.log]
+    puts_info "Generating PDN (log: [relpath . $log])..."
 
     set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/pdn.def]
-    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
 
     if { ! [info exists ::env(VDD_NET)] } {
         set ::env(VDD_NET) $::env(VDD_PIN)
@@ -265,9 +238,7 @@ proc gen_pdn {args} {
         set ::env(GND_NET) $::env(GND_PIN)
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
-        |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
-
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl -indexed_log $log
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
@@ -281,10 +252,12 @@ proc gen_pdn {args} {
 proc ins_diode_cells_1 {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Diode Insertion..."
+    set log [index_file $::env(routing_logs)/diodes.log]
+    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log [index_file $::env(routing_logs)/diodes.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl -indexed_log $log
 
     set_def $::env(SAVE_DEF)
 
@@ -301,7 +274,9 @@ proc ins_diode_cells_1 {args} {
 proc ins_diode_cells_4 {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Diode Insertion..."
+    set log [index_file $::env(routing_logs)/diodes.log]
+    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/diodes.def]
 
     # Select diode cell
@@ -324,7 +299,7 @@ proc ins_diode_cells_4 {args} {
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
         --fake-diode-cell $::antenna_cell_name\
-        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(routing_logs)/diodes.log]
+        $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $::env(SAVE_DEF)
 
@@ -351,15 +326,15 @@ proc apply_route_obs {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py add_def_obstructions\
         --output [file rootname $::env(CURRENT_DEF)].obs.def \
         --input-lef $::env(MERGED_LEF) \
-        --obstructions $::env(GLB_RT_OBS) \
+        --obstructions $::env(GRT_OBS) \
         $::env(CURRENT_DEF) |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/obs.log
 
-    puts_info "Obstructions added over $::env(GLB_RT_OBS)."
+    puts_info "Obstructions added over $::env(GRT_OBS)."
     set_def [file rootname $::env(CURRENT_DEF)].obs.def
 }
 
 proc add_route_obs {args} {
-    if {[info exists ::env(GLB_RT_OBS)]} {
+    if {[info exists ::env(GRT_OBS)]} {
         apply_route_obs
     }
 }
@@ -375,7 +350,7 @@ proc run_spef_extraction {args} {
     parse_key_args "run_spef_extraction" args arg_values $options
 
     set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
-    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF_UNPADDED)
+    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
 
     set ::env(RCX_LIB) $arg_values(-rcx_lib)
@@ -385,15 +360,15 @@ proc run_spef_extraction {args} {
     assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LEF)"
 
     increment_index
-    TIMER::timer_start
     set log [index_file $arg_values(-log)]
+    TIMER::timer_start
 
     set ec_postfix ""
     if { [info exists arg_values(-process_corner)]} {
         set ec_postfix " at the $arg_values(-process_corner) process corner"
     }
 
-    puts_info "Running SPEF Extraction$ec_postfix..."
+    puts_info "Running SPEF Extraction$ec_postfix (log: [relpath . $log])..."
 
     if { $::env(SPEF_EXTRACTOR) == "def2spef" } {
         puts_warn "def2spef/spef_extractor has been removed. OpenROAD OpenRCX will be used instead."
@@ -423,8 +398,6 @@ proc run_routing {args} {
             ins_diode_cells_4
         }
     }
-
-    use_original_lefs
 
     add_route_obs
 
@@ -482,10 +455,13 @@ proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Global Routing Resizer Timing Optimizations..."
+        set log [index_file $::env(routing_logs)/resizer.log]
+        puts_info "Running Global Routing Resizer Timing Optimizations (log: [relpath . $log])..."
+
         set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/resizer_timing.def]
         set ::env(SAVE_SDC) [index_file $::env(routing_tmpfiles)/resizer_timing.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log [index_file $::env(routing_logs)/resizer.log]
+
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl -indexed_log $log
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 

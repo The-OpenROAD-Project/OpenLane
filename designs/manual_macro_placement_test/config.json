@@ -1,0 +1,22 @@
+{
+    "PDK": "sky130A",
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd",
+    "DESIGN_NAME": "manual_macro_placement_test",
+    "FP_CORE_UTIL": "35",
+    "FP_PDN_VOFFSET": 0,
+    "FP_PDN_VPITCH": 30,
+    "FP_PDN_CHECK_NODES": false,
+    "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
+    "BASE_SDC_FILE": "dir::base.sdc",
+    "PL_TARGET_DENSITY": 0.35,
+    "PL_BASIC_PLACEMENT": 1,
+    "DPL_CELL_PADDING": 0,
+    "CLOCK_PERIOD": 100,
+    "CLOCK_PORT": "clk1 clk2",
+    "CLOCK_TREE_SYNTH": false,
+    "DIODE_INSERTION_STRATEGY": 0,
+    "GLB_RESIZER_TIMING_OPTIMIZATIONS": false,
+    "VERILOG_FILES": "dir::src/*.v",
+    "EXTRA_LEFS": "dir::macros/lef/*.lef",
+    "EXTRA_GDS_FILES": "dir::macros/gds/*.gds"
+}

@@ -56,6 +56,7 @@ def get_nets(master_instance):
 )
 @click_odb
 def remove_buffers(output, ports, input_lef, input_def):
+    ports = ports.split(";")
     reader = OdbReader(input_lef, input_def)
 
     design_nets = reader.block.getNets()

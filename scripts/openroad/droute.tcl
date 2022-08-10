@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -34,13 +34,13 @@ if { [info exists ::env(DRT_MAX_LAYER)] } {
     set max_layer $::env(DRT_MAX_LAYER)
 }
 
+read_guides $::env(CURRENT_GUIDE)
+
 detailed_route\
-    -guide $::env(CURRENT_GUIDE)\
     -bottom_routing_layer $min_layer\
     -top_routing_layer $max_layer\
-    -output_guide $::env(TRITONROUTE_FILE_PREFIX).guide\
-    -output_maze $::env(TRITONROUTE_FILE_PREFIX)_maze.log\
-    -output_drc $::env(TRITONROUTE_RPT_PREFIX).drc\
+    -output_maze $::env(_tmp_drt_file_prefix)_maze.log\
+    -output_drc $::env(_tmp_drt_rpt_prefix).drc\
     -droute_end_iter $::env(DRT_OPT_ITERS)\
     -or_seed 42\
     -verbose 1

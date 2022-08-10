@@ -22,7 +22,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
     }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -36,6 +36,9 @@ set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
 set left_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(LEFT_MARGIN_MULT)]
 set right_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(RIGHT_MARGIN_MULT)]
+
+set arg_list [list]
+lappend arg_list -site $::env(PLACE_SITE)
 
 if {$::env(FP_SIZING) == "absolute"} {
     if { ! [info exists ::env(CORE_AREA)] } {
@@ -54,43 +57,54 @@ if {$::env(FP_SIZING) == "absolute"} {
         puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
     }
 
-    initialize_floorplan \
-        -die_area $::env(DIE_AREA) \
-        -core_area $::env(CORE_AREA) \
-        -site $::env(PLACE_SITE)
-
+    lappend arg_list -die_area $::env(DIE_AREA)
+    lappend arg_list -core_area $::env(CORE_AREA)
+    lappend arg_list -site $::env(PLACE_SITE)
 } else {
-    initialize_floorplan \
-        -utilization $::env(FP_CORE_UTIL) \
-        -aspect_ratio $::env(FP_ASPECT_RATIO) \
-        -core_space "$bottom_margin $top_margin $left_margin $right_margin" \
-        -site $::env(PLACE_SITE)
-
-    set ::chip [[::ord::get_db] getChip]
-    set ::tech [[::ord::get_db] getTech]
-    set ::block [$::chip getBlock]
-    puts "\[INFO] Extracting DIE_AREA and CORE_AREA from the floorplan"
-    set ::env(DIE_AREA) [list]
-    set ::env(CORE_AREA) [list]
-
-    set die_area [$::block getDieArea]
-    set core_area [$::block getCoreArea]
-
-    set die_area [list [$die_area xMin] [$die_area yMin] [$die_area xMax] [$die_area yMax]]
-    set core_area [list [$core_area xMin] [$core_area yMin] [$core_area xMax] [$core_area yMax]]
-
-    set dbu [$tech getDbUnitsPerMicron]
-
-    foreach coord $die_area {
-        lappend ::env(DIE_AREA) [expr {1.0 * $coord / $dbu}]
-    }
-    foreach coord $core_area {
-        lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
-    }
-
-    puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
-    puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
+    lappend arg_list -utilization $::env(FP_CORE_UTIL)
+    lappend arg_list -aspect_ratio $::env(FP_ASPECT_RATIO)
+    lappend arg_list -core_space "$bottom_margin $top_margin $left_margin $right_margin"
 }
+
+initialize_floorplan {*}$arg_list
+
+set tielo_cell [lindex $::env(SYNTH_TIELO_PORT) 0]
+set tielo_port [lindex $::env(SYNTH_TIELO_PORT) 1]
+set tiehi_cell [lindex $::env(SYNTH_TIEHI_PORT) 0]
+set tiehi_port [lindex $::env(SYNTH_TIEHI_PORT) 1]
+
+insert_tiecells "$tielo_cell/$tielo_port" -prefix "TIE_ZERO_"
+insert_tiecells "$tiehi_cell/$tiehi_port" -prefix "TIE_ONE_"
+
+set ::chip [[::ord::get_db] getChip]
+set ::tech [[::ord::get_db] getTech]
+set ::block [$::chip getBlock]
+
+puts "\[INFO] Extracting DIE_AREA and CORE_AREA from the floorplan"
+set ::env(DIE_AREA) [list]
+set ::env(CORE_AREA) [list]
+
+set die_area [$::block getDieArea]
+set core_area [$::block getCoreArea]
+
+set die_area [list [$die_area xMin] [$die_area yMin] [$die_area xMax] [$die_area yMax]]
+set core_area [list [$core_area xMin] [$core_area yMin] [$core_area xMax] [$core_area yMax]]
+
+set dbu [$tech getDbUnitsPerMicron]
+
+set ::env(DIE_AREA) {}
+set ::env(CORE_AREA) {}
+
+foreach coord $die_area {
+    lappend ::env(DIE_AREA) [expr {1.0 * $coord / $dbu}]
+}
+foreach coord $core_area {
+    lappend ::env(CORE_AREA) [expr {1.0 * $coord / $dbu}]
+}
+
+puts "\[INFO] Floorplanned on a die area of $::env(DIE_AREA) (microns). Saving to $::env(fp_report_prefix)_die_area.rpt."
+puts "\[INFO] Floorplanned on a core area of $::env(CORE_AREA) (microns). Saving to $::env(fp_report_prefix)_core_area.rpt."
+
 source $::env(TRACKS_INFO_FILE_PROCESSED)
 
 set die_area_file [open $::env(fp_report_prefix)_die_area.rpt w]

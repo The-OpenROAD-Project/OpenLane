@@ -227,7 +227,7 @@ def issue(
 
     script_counter = 0
 
-    def get_script():
+    def get_script_key():
         nonlocal script_counter
         value = f"PACKAGED_SCRIPT_{script_counter}"
         script_counter += 1
@@ -237,12 +237,14 @@ def issue(
     tcls = set()
     current = shift(tcls_to_process)
     while current is not None:
-        env_key = get_script()
+        env_key = get_script_key()
         env_keys_used.add(env_key)
         env[env_key] = current
 
         try:
             script = open(current).read()
+            if verbose:
+                print(f"Processing {current}...", file=sys.stderr)
 
             for key, value in env.items():
                 key_accessor = re.compile(
@@ -252,6 +254,7 @@ def issue(
                     use: List[str]
                     full, accessor, extra = use
                     env_keys_used.add(key)
+                    print(f"Found {accessor}…", file=sys.stderr)
 
                     value_substituted = full.replace(accessor, value)
 
@@ -309,7 +312,7 @@ def issue(
     for key in env_keys_used:
         value = env[key]
         if verbose:
-            print(f"{key}: {value}")
+            print(f"Processing {key}: {value}…", file=sys.stderr)
         if value == input_file:
             final_path = join(destination_folder, "in.def")
             from_path = value
@@ -347,7 +350,9 @@ def issue(
             if value != "/openlane/scripts":  # Too many files to copy otherwise
                 copy(from_path, final_path)
             final_env[key] = final_value
-        elif value.startswith("/"):
+        elif value.startswith("/") and not value.startswith(
+            "/dev"
+        ):  # /dev/null, /dev/stdout, /dev/stderr, etc should still work
             final_value = value[1:]
             final_path = join(destination_folder, final_value)
             copy(value, final_path)

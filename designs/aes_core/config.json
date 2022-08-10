@@ -1,0 +1,18 @@
+{
+    "DESIGN_NAME": "aes_core",
+    "VERILOG_FILES": "dir::src/aes.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_NET": "clk",
+    "DIODE_INSERTION_STRATEGY": 4,
+    "GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT": 60,
+    "pdk::sky130*": {
+        "SYNTH_MAX_FANOUT": 6,
+        "FP_CORE_UTIL": 25,
+        "CLOCK_PERIOD": 21.28,
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": 22,
+            "FP_CORE_UTIL": 25,
+            "PL_RESIZER_HOLD_SLACK_MARGIN": 0.25
+        }
+    }
+}

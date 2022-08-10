@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -23,4 +23,4 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
 }
 
 # start checking antennas and generate a detail report
-check_antennas -report_file $::env(_tmp_antenna_checker_rpt)
+check_antennas -verbose

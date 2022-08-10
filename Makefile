@@ -17,7 +17,7 @@ OPENLANE_DIR ?= $(shell pwd)
 
 DOCKER_OPTIONS = $(shell $(PYTHON_BIN) ./env.py docker-config)
 
-DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/utils.py current-docker-platform)
+DOCKER_ARCH ?= $(shell $(PYTHON_BIN) ./docker/current_platform.py)
 
 # Allow Configuring Memory Limits
 ifneq (,$(DOCKER_SWAP)) # Set to -1 for unlimited
@@ -57,13 +57,9 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
-PDK_OPTS = 
-EXTERNAL_PDK_INSTALLATION ?= 1
-ifeq ($(EXTERNAL_PDK_INSTALLATION), 1)
 export PDK_ROOT ?= ./pdks
 export PDK_ROOT := $(shell $(PYTHON_BIN) -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
-endif
 
 export PDK ?= sky130A
 export STD_CELL_LIBRARY ?= sky130_fd_sc_hd
@@ -90,6 +86,10 @@ all: get-openlane pdk
 openlane: venv/created
 	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
 
+.PHONY: openlane-and-push-tools
+openlane-and-push-tools: venv/created
+	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) BUILD_IF_CANT_PULL=1 BUILD_IF_CANT_PULL_THEN_PUSH=1 $(MAKE) -C docker openlane
+
 pull-openlane:
 	@docker pull "$(OPENLANE_IMAGE_NAME)"
 
@@ -115,6 +115,10 @@ survey:
 lint: venv/created
 	./venv/bin/black --check .
 	./venv/bin/flake8 .
+
+.PHONY: start-build-env
+start-build-env: venv/created
+	bash -c "bash --rcfile <(cat ~/.bashrc ./venv/bin/activate)"
 
 venv: venv/created
 venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 

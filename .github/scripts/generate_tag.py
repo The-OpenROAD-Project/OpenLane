@@ -25,7 +25,9 @@ print("Getting the latest tag…")
 
 latest_tag = None
 latest_tag_commit = None
-for tag in gh.openlane.tags:
+commits_with_tags = gh.openlane.tags
+tags = [tag for _, tag in commits_with_tags]
+for tag in commits_with_tags:
     commit, name = tag
     latest_tag = name
     latest_tag_commit = commit
@@ -41,7 +43,12 @@ if commit_count == 0:
 else:
     now = datetime.datetime.now()
 
-    new_tag = now.strftime("%Y.%m.%d_%H.%M.%S")
+    time = now.strftime("%Y.%m.%d")
+    new_tag = time
+    release_counter = 0
+    while new_tag in tags:
+        release_counter += 1
+        new_tag = f"{time}r{release_counter}"
 
     print("Naming new tag %s." % new_tag)
 

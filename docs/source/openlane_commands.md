@@ -20,7 +20,7 @@ Most of the following commands' implementation exists in this [file][0]
 | `set_netlist <netlist>`   | | Sets the current netlist used by the flow to `<netlist>` |
 |    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist. <br> Optional flag.       |
 | `set_def <def>`   | | Sets the current def file used by the flow to `<def>` |
-| `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generated a merged.lef and a merged_unpadded.lef. Both to be used by different stages of the flow.|
+| `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generating a merged.lef.|
 | `trim_lib`   | | prepares a liberty file (i.e. `LIB_SYNTH`) by trimming the `NO_SYNTH_CELL_LIST` and `DRC_EXCLUDE_CELL_LIST` from another input liberty file (i.e. `$::env(LIB_SYNTH_COMPLETE)`). |
 |    | `[-output <lib_file>]` | The lib file to output the trimmed liberty into. <br> Default: `$::env(LIB_SYNTH)` <br> Optional flag. |
 |    | `[-input <lib_file>]` | The input liberty file to trim the cells from. <br> Default: `$::env(LIB_SYNTH_COMPLETE)` <br> Optional flag. |
@@ -29,15 +29,15 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-lib <lib_file_path>` | The lib file that the list will be trimmed from. This will general a `<-lib>.exclude.list` |
 |    | `[-drc_exclude_only]` | If provided, it will only use `DRC_EXCLUDE_CELL_LIST` to create the exclude list. <br> Optional flag. |
 |    | `[-create_dont_use_list]` | If provided, it will create an environment variable with the file content. The variable will be named `DONT_USE_CELLS`. <br> Optional flag. |
-| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file.|
+| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file. |
+|    | `[-run_path <path>]` |  Specifies a <code>path</code> to save `config_in.tcl` in. By default the path will be `$::env(RUN_DIR)`. <br> Optional flag. |
 | `prep`  | | Prepares a run in openlane or loads a previously stopped run in order to proceed with it. It calls `trim_lib`, `prep_lefs`, `source_config`, and other procs to set all the needed environment variables.<br> It has similar flags to ./flow.tcl. |
-|    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a config.tcl definig the design parameters. <br> If the folder is not found, ./designs directory is searched.|
+|    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a `config.tcl` or `config.json` file defining the design parameters. <br> If the folder is not found, the ./designs directory is searched for said file. |
 |    | `[-overwrite]` |  Flag to overwirte an existing run with the same tag. <br> Optional flag. |
 |    | `[-run_path <path>]` |  Specifies a <code>path</code> to save the run in. By default the run is in <code>design_path/</code>, where the design path is the one passed to <code>-design</code> <br> Optional flag. |
 |    | `[-tag <tag>]` |  Specifies a <code>name</code> for a specific run. If the tag is not specified, a timestamp is generated for identification of that run. <br> Can Specify the configuration file name in case of using <code>-init_design_config</code>. <br> Optional flag. |
 |    | `[-init_design_config]` |  Creates a tcl configuration file for a design. <code>-tag &lt;name&gt;</code> can be added to rename the config file to <code>&lt;name&gt;.tcl</code>. <br> Optional flag.|
 |    | `[-src <verilog_source>]` |  Sets the verilog source code file(s) in case of using `-init_design_config`. The default is that the source code files are under <code>design_path/src/</code>, where the design path is the one passed to <code>-design</code>. <br> Optional flag. |
-|    | `[-config_tag <config_tag>]` |  Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>designs/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design spm -config_tag config2.tcl</code> <br> By default <code>config.tcl</code> is used. <br> Optional flag. |
 |    | `[-config_file <config_file>]` |  Specifies the design's configuration file for running the flow. <br> For example, to run the flow using <code>/spm/config2.tcl</code> <br> Use run <code>./flow.tcl -design /spm -config_file /spm/config2.tcl</code> <br> By default <code>config.tcl</code> is used. <br> Optional flag. |
 |    | `[-verbose <level>]` |  Sets a verbose output level. 0 disables verbose information and tool outputs. 1 enables verbose information but disables tool outputs. 2 and greater outputs everything. More verbose levels may be added over time, so if you want absolutely all output, set it to something like 99.|
 |    | `[-disable_output]` |  **Removed: Default Behavior** Disables outputing to the terminal. <br> Optional flag.|
@@ -52,9 +52,6 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `[-spice_path <path>]` |  Changes the save path for the spice files to `<path>`. <br> The default is the `<run_path>` under the `<design_path>` specified by the `<run_tag>` and the processed `design` <br> Optional flag.|
 |    | `[-save_path <path>]` |  Changes the save path for the save path for all the types of files to `<path>`. <br> The default is the `<run_path>/results/final`.<br> Optional flag.|
 |    | `-tag <run_tag>` |  **Removed:** Specifies the `<run_tag>` from which the views were generated.|
-| `widen_site_width`   | | generates two new lef files (merged_wider.lef and merged_unpadded_wider.lef) with a widened site width based on the values of `WIDEN_SITE_IS_FACTOR` and `WIDEN_SITE`, more about those in the [configurations/readme.md][13].|
-| `use_widened_lefs`   | | Switches to using the lef files with the widened site width in the flow.|
-| `use_original_lefs`   | | Switches to using the normal lef files in the flow.|
 | `label_macro_pins `   | | Labels the pins of a given macro def according to the netlist for lvs.|
 |    | `-lef <lef_file>` |  LEF file needed to have a proper view of the netlist AND the input DEF.|
 |    | `-netlist_def <def_file>` |  DEF view of the design that has the connectivity information.|
@@ -240,13 +237,13 @@ Most of the following commands' implementation exists in this [file][8]
 |---------------|------------------------|-----------------------------------------|
 | `global_routing` | | Runs global routing  on the processed design The resulting file is under `/<run_path>/tmp/routing/` . |
 | `global_routing_fastroute` | | Runs global routing  on the processed design using the openroad app's fastroute. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `detailed_routing` | | Runs detailed routing on the processed design using OpenROAD TritonRoute, or DRCU based onthe value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
-| `detailed_routing_tritonroute` | | Runs detailed routing on the processed design using OpenROAD TritonRoute based on the value of `DETAILED_ROUTER`. The resulting file is under `/<run_path>/results/routing/` . |
-| `apply_route_obs`| | Uses `GLB_RT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GLB_RT_OBS` in the configurations documentation for more details.|
-| `add_route_obs`| | Uses `GLB_RT_OBS` to call `apply_route_obs`, then calls `apply_route_obs` again to apply obstructions over the whole die area based on the value of `GLB_RT_MAXLAYER` up to the highest available metal layer.|
+| `detailed_routing` | | Runs detailed routing on the processed design. The resulting file is under `/<run_path>/results/routing/` . |
+| `detailed_routing_tritonroute` | | Runs detailed routing on the processed design using OpenROAD TritonRoute. The resulting file is under `/<run_path>/results/routing/` . 
+| `apply_route_obs`| | Uses `GRT_OBS` to insert obstruction for each macro in order to prevent routing for each specified layer on each macro. Check `GRT_OBS` in the configurations documentation for more details.|
+| `add_route_obs`| | Uses `GRT_OBS` to call `apply_route_obs`, then calls `apply_route_obs` again to apply obstructions over the whole die area based on the value of `GRT_MAXLAYER` up to the highest available metal layer.|
 | `run_routing` | | Runs diode insertion based on the strategy, then adds the routing obstructions, followed by `global_routing`, then `ins_fill_cells`, `detailed_routing`, and finally SPEF extraction on the processed design. The resulting file is under `/<run_path>/results/routing/`. It also generates a pre_route netlist using yosys and stores the results under `/<run_path>/results/synthesis`, and it runs yosys logic verification if enabled. |
 | `global_routing_cugr` | | **Removed: Aliases global_routing_fastroute**: Runs global routing  on the processed design using cugr. The resulting file is under `/<run_path>/tmp/routing/` . |
-| `detailed_routing_drcu` | | **Removed: Aliases detailed_routing_tritonroute** Runs detailed routing on the processed design using DRCU. The resulting file is under `/<run_path>/results/routing/` . |
+| `detailed_routing_drcu` | | **Removed: Aliases detailed_routing_tritonroute**: Runs detailed routing on the processed design using DRCU. The resulting file is under `/<run_path>/results/routing/` . |
 
 ## Magic Commands
 

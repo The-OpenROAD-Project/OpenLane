@@ -186,8 +186,8 @@ proc run_tcl_script {args} {
 
     set_if_unset arg_values(-indexed_log) /dev/null
 
+    set create_reproducible 0
     set script [lindex $args 0]
-
     set tool $arg_values(-tool)
 
     if { $tool == "openroad" } {
@@ -211,20 +211,31 @@ proc run_tcl_script {args} {
 
     set script_relative [relpath . $script]
 
-    puts_verbose "Executing $tool with Tcl script '$script_relative'..."
+    set exit_code 0
 
-    set exit_code [catch {exec {*}$args} error_msg]
+    if { [info exists ::env(CREATE_REPRODUCIBLE_FROM_SCRIPT)] && [string match *$::env(CREATE_REPRODUCIBLE_FROM_SCRIPT) $script] } {
+        puts_info "Script $script matches $::env(CREATE_REPRODUCIBLE_FROM_SCRIPT), creating reproducible..."
+        set create_reproducible 1
+    } else {
+        puts_verbose "Executing $tool with Tcl script '$script_relative'..."
 
-    if { $exit_code } {
-        set print_error_msg "during executing $tool script $script"
+        set exit_code [catch {exec {*}$args} error_msg]
 
-        puts_err "$print_error_msg"
-        puts_err "Exit code: $exit_code"
-        puts_err "full log: [relpath $::env(PWD) $arg_values(-indexed_log)]"
-        puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+        if { $exit_code } {
+            set print_error_msg "during executing $tool script $script"
+            set log_relpath [relpath $::env(PWD) $arg_values(-indexed_log)]
 
+            puts_err "$print_error_msg"
+            puts_err "Log: $log_relpath"
+            puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+
+            set create_reproducible 1
+            puts_err "Creating issue reproducible..."
+        }
+    }
+
+    if { $create_reproducible } {
         save_state
-        puts_info "Creating reproducible..."
 
         set reproducible_dir $::env(RUN_DIR)/issue_reproducible
         set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
@@ -242,13 +253,18 @@ proc run_tcl_script {args} {
             lappend or_issue_arg_list $::env(CURRENT_DEF)
         }
 
-        if {[catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
-            puts_info "Reproducible packaged: Please tarball and upload $reproducible_dir_relative if you're going to submit an issue."
-        } else {
+        if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
             puts_err "Failed to package reproducible."
+            flow_fail
         }
 
-        flow_fail
+        if { $exit_code } {
+            puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
+            flow_fail
+        } else {
+            puts_info "Reproducible packaged at '$reproducible_dir_relative'."
+            exit 0
+        }
     }
 }
 

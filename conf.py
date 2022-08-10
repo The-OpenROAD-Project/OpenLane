@@ -50,7 +50,7 @@ source_suffix = {
 
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+# templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -59,10 +59,9 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     "scripts/tcl_commands/README.md",
-    ".github/ISSUE_TEMPLATE/*",
-    "scripts/*",
-    "venv/*",
-    "pdks/*"
+    "venv",
+    "pdks",
+    ".github",
     # Files included in other rst files.
 ]
 
@@ -86,10 +85,9 @@ html_theme_options = {}
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["docs/_static"]
 
-html_sidebars = {}
-
 todo_include_todos = True
 numfig = True
+
 markdown_code_links_githubrepo = "https://github.com/The-OpenROAD-Project/OpenLane"
 markdown_code_links_githubbranch = "blob/master"
 markdown_code_links_codefileextensions = [
@@ -105,6 +103,8 @@ markdown_code_links_codefileextensions = [
 autosectionlabel_prefix_document = True
 
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
+
+myst_heading_anchors = 3
 
 
 root_doc = 'index'

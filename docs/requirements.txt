@@ -1,5 +1,5 @@
-furo
-docutils
-sphinx
-sphinx-autobuild
-myst-parser
+furo==2022.6.21
+docutils==0.17
+sphinx==4.5.0
+sphinx-autobuild==2021.3.14
+myst-parser==0.18.0

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
     }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -48,12 +48,6 @@ if {[catch {pdngen} errmsg]} {
 if { $::env(FP_PDN_CHECK_NODES) } {
     check_power_grid -net $::env(VDD_NET)
     check_power_grid -net $::env(GND_NET)
-}
-
-if { $::env(FP_PDN_IRDROP) } {
-    # set rc values
-    source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
-    analyze_power_grid -net $::env(VDD_NET) -outfile $::env(PGA_RPT_FILE)
 }
 
 write_def $::env(SAVE_DEF)

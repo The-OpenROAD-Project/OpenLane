@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -82,6 +82,12 @@ proc run_diode_insertion_2_5_step {args} {
 
 }
 
+proc run_irdrop_report_step {args} {
+    if { $::env(RUN_IRDROP_REPORT) } {
+        run_irdrop_report
+    }
+}
+
 proc run_lvs_step {{ lvs_enabled 1 }} {
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -156,7 +162,7 @@ proc run_post_run_hooks {} {
 
 proc run_non_interactive_mode {args} {
     set options {
-        {-design required}
+        {-design optional}
         {-from optional}
         {-to optional}
         {-save_path optional}
@@ -164,6 +170,7 @@ proc run_non_interactive_mode {args} {
     }
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
@@ -172,13 +179,7 @@ proc run_non_interactive_mode {args} {
         return
     }
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env(${key}) $value
-        }
+        load_overrides $arg_values(-override_env)
     }
 
     set LVS_ENABLED [expr ![info exists flags_map(-no_lvs)] ]
@@ -195,6 +196,7 @@ proc run_non_interactive_mode {args} {
         "parasitics_sta" "run_parasitics_sta_step" \
         "eco" "run_eco_step" \
         "diode_insertion" "run_diode_insertion_2_5_step" \
+        "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \
         "gds_klayout" "run_klayout_step" \
         "lvs" "run_lvs_step $LVS_ENABLED " \
@@ -374,14 +376,23 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
 if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPENLANE_VERSION)]} {
-    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
-        if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
-            set ::env(OPENLANE_VERSION) "N/A"
+    if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
+        if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
+            set ::env(OPENLANE_VERSION) "UNKNOWN"
         }
     }
 }
 
+if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
+    if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
+        unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
+    }
+}
+
 puts "OpenLane $::env(OPENLANE_VERSION)"
+if { [info exists ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)] } {
+    puts "(with mounted scripts from $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION))"
+}
 puts "All rights reserved. (c) 2020-2022 Efabless Corporation and contributors."
 puts "Available under the Apache License, version 2.0. See the LICENSE file for more details."
 puts ""

@@ -52,7 +52,7 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
     }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }

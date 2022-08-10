@@ -1,0 +1,12 @@
+{
+    "DESIGN_NAME": "PPU",
+    "VERILOG_FILES": "dir::src/PPU.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_NET": "clk",
+    "pdk::sky130*": {
+        "FP_CORE_UTIL": 20,
+        "SYNTH_MAX_FANOUT": 8,
+        "PL_TARGET_DENSITY": 0.25,
+        "CLOCK_PERIOD": 18.0
+    }
+}
