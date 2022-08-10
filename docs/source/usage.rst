@@ -4,9 +4,6 @@ Using OpenLane
    :glob:
 
    hardening_macros
-   chip_integration.md
-   introduction
-   digital_guide
-   analog_guide
+   chip_integration
    advanced_power_grid_control
    
