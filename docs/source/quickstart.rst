@@ -1,9 +1,5 @@
 Quick start
 =======================
-
-.. todo:: Overview better
-.. todo:: config.json not config.tcl
-
 Overview
 ------------------------------------
 OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
@@ -15,7 +11,8 @@ Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
 
 The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that flow uses. 
 
-The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
+The rest of the tutorial assumes `OpenLane installation <installation.html>`_ is done.
+This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
 
 Starting OpenLane
 ------------------------------------------------------------------------
@@ -30,16 +27,21 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
     make mount
 
 
-TODO: Use one of the designs
+Running the flow
 ------------------------------------------------------------------------
 
-.. todo:: Fix this
 
 In order to run the flow you need to execute following command:
 
 .. code-block:: console
 
     ./flow.tcl -design <design_name>
+
+For design named ``gcd`` the command looks like this:
+
+.. code-block:: console
+
+    ./flow.tcl -design gcd
 
 
 Creating new designs
@@ -70,9 +72,9 @@ This will create the following directory structure:
 .. code-block:: console
 
     designs/<design_name>
-    ├── config.tcl
+    ├── config.json
 
-``config.tcl`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
 The ``design_name`` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
 
@@ -81,7 +83,7 @@ It is recommended to place the design's verilog files in a ``src`` directory ins
 .. code-block:: console
 
     designs/<design_name>
-    ├── config.tcl
+    ├── config.json
     ├── src
     │   ├── design.v
 
@@ -97,11 +99,11 @@ This is typical structure of the design folder:
 .. code-block:: console
 
     .
-    ├── config.tcl
+    ├── config.json
     ├── runs
     │   └── RUN_2022.06.24_16.52.13
     │       ├── cmds.log
-    │       ├── config.tcl
+    │       ├── config.json
     │       ├── logs
     │       ├── openlane.log
     │       ├── OPENLANE_VERSION
@@ -114,7 +116,7 @@ This is typical structure of the design folder:
     └── src
         └── mem_1r1w.v
 
-Main files are ``config.tcl`` and ``src/`` folder that contains source code.
+Main files are ``config.json`` and ``src/`` folder that contains source code.
 
 You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
@@ -144,8 +146,3 @@ Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overw
     make mount
 
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.
-
-Advanced: Installing other Standard Cell Libraries
-------------------------------------------------------------------------------------------------------------
-
-Follow the `guide on this page <manual_pdk_installation.html>`_

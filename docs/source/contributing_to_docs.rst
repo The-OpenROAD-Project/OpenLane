@@ -38,6 +38,7 @@ Pictures, figures, tables significantly improve the quality of documentation and
 14. Once changes are approved they will be merged and then you can delete your branch or repository.
 
 .. _building_docs_locally:
+
 Building documentation locally
 --------------------------------------------------------------------------------
 

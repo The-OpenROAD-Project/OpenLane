@@ -21,6 +21,7 @@
 # -- Path setup --------------------------------------------------------------
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath("docs/_ext"))
 
 # -- Project information -----------------------------------------------------
@@ -107,4 +108,4 @@ suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warn
 myst_heading_anchors = 3
 
 
-root_doc = 'index'
+root_doc = "index"
