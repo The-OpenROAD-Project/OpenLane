@@ -13,7 +13,7 @@ It also provides a number of custom scripts for design exploration, optimization
 The flow performs a complete synthesis, floorplanning, placement and routing of your designs.
 Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
 
-The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.tcl``. This file contains assignments to the variables that flow uses. 
+The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that flow uses. 
 
 The rest of the tutorial assumes `OpenLane installation <installation.html>`_ has been complete.
 
