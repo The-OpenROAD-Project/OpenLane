@@ -146,7 +146,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MACRO_HALO` | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `PL_MACRO_CHANNEL` | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`um). |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros |
-| `DONT_BUFFER_PORTS` | Semicolon;delimited list of nets from which to remove buffers after placement (but before resizing). <br> (Default: Empty) |
+| `UNBUFFER_NETS` | Semicolon;delimited list of nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. <br> (Default: Empty) |
+| `DONT_BUFFER_PORTS` | **Deprecated: Use `UNBUFFER_NETS`.** Semicolon;delimited list of nets from which to remove buffers. <br> (Default: Empty) |
 
 ### CTS
 

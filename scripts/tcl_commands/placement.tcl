@@ -180,8 +180,7 @@ proc run_placement {args} {
     }
 
     run_resizer_design
-
-    remove_buffers_from_ports
+    remove_buffers_from_nets
 
     detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
 
@@ -215,12 +214,14 @@ proc run_resizer_design {args} {
     }
 }
 
-proc remove_buffers_from_ports {args} {
+proc remove_buffers_from_nets {args} {
     # This is a workaround for some situations where the resizer would buffer
     # analog ports.
+    #
+    # Though to be clear- it works on all nets.
     increment_index
     TIMER::timer_start
-    set log [index_file $::env(placement_logs)/remove_buffers_from_ports.log]
+    set log [index_file $::env(placement_logs)/remove_buffers.log]
     puts_info "Removing Buffers from Ports (If Applicable) (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
@@ -228,17 +229,21 @@ proc remove_buffers_from_ports {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
         --output $::env(SAVE_DEF)\
         --input-lef $::env(MERGED_LEF)\
-        --ports $::env(DONT_BUFFER_PORTS)\
+        --nets $::env(UNBUFFER_NETS)\
         $::env(CURRENT_DEF)\
         |& tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $::env(SAVE_DEF)
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from ports - openlane"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"
+}
+
+proc remove_buffers_from_ports {args} {
+    handle_deprecated_command remove_buffers_from_nets
 }
 
 proc remove_buffers {args} {
-    handle_deprecated_command remove_buffers_from_port
+    handle_deprecated_command remove_buffers_from_nets
 }
 
 package provide openlane 0.9

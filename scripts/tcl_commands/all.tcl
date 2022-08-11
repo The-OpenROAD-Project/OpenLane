@@ -479,6 +479,7 @@ proc prep {args} {
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
     handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
+    handle_deprecated_config DONT_BUFFER_PORTS UNBUFFER_NETS;
 
     handle_deprecated_config GLB_RT_ALLOW_CONGESTION GRT_ALLOW_CONGESTION;
     handle_deprecated_config GLB_RT_OVERFLOW_ITERS GRT_OVERFLOW_ITERS;
