@@ -119,7 +119,7 @@ For example you can find `documentation for SCLs provided by Skywater for sky130
 
 A snipet from the High-Density SCL for sky130:
 
-.. figure:: ../_static/analog_introduction/sky130_fd_sc_hd_docs.png
+.. figure:: ../_static/digital_flow/sky130_fd_sc_hd_docs.png
 
 SCL config files
 """"""""""""""""""""""""""""""
