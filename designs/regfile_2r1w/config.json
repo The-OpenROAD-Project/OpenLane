@@ -1,0 +1,10 @@
+{
+    "DESIGN_NAME": "regfile_2r1w",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "DESIGN_IS_CORE": true,
+    "EXTRA_LEFS":      "dir::lef/*.lef",
+    "EXTRA_GDS_FILES": "dir::gds/*.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+}

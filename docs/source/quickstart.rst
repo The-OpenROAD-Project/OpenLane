@@ -142,7 +142,7 @@ Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overw
 .. code-block:: console
 
     export PDK_ROOT=/opt/pdks
-    export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
+    export OPENLANE_IMAGE_NAME=efabless/openlane:6ab944bc23688cae6dc6fa32444891a1e57715c8
     make mount
 
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.

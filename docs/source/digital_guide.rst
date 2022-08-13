@@ -1,17 +1,19 @@
 
+.. todo:: Rename the steps
+
 Digital Design Flow
 --------------------------------------------------------------------------------
 This example covers creation of simple memory macro. This guide uses generated layout files for it,
 then use the generated memory to make a top level chip register file.
 
-Step 1. Create the memory macro design
+Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Let's create the design. The following command will create a directory ``design/mem_1r1w/`` and one file ``config.tcl`` that will be mostly empty.
+Let's create the design. The following command will create a directory ``design/mem_1r1w/`` and one file ``config.json`` that will be mostly empty.
 
 .. code-block:: console
 
-    ./flow.tcl -design mem_1r1w -init_design_config
+    ./flow.tcl -design mem_1r1w -init_design_config -add_to_designs
 
 
 One of the common mistakes people make is copying existing designs,
@@ -26,7 +28,7 @@ which works only for designs with a couple of dozen standard cells, not hundreds
 So when you change the basic inverter with a design containing many cells
 router will not be able to route your design, therefore crashing with cryptic message.
 
-Step 2. Create the RTL files
+Create the RTL files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Then we need to create/copy the RTL files. The recommended location for files is ``design/mem_1r1w/src/``. Let's put a simple counter in there.
@@ -68,38 +70,33 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 .. note::
     Originally we used a very small macro block as an example,
     however there is known issue: Small macro blocks do not fit proper power grid,
-    therefore you need to avoid making small macro blocks. Alternatively, set the ``FP_SIZING`` to ``absolute`` and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
+    therefore you need to avoid making small macro blocks. For this, set the ``FP_SIZING`` to ``absolute`` and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
 
-In your designs it might be beneficial to have macro level and chip level.
-This separation allows you to reuse already generated macro blocks multiple times.
+Configure mem_1r1w
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In contrast, by running OpenLane first on single core module
-then reusing the generated GDS means that the timing might not be as good,
-but the runtime will be much faster.
-The runtime is much faster since you are running one placement and route for only one core and then reusing it in the top level.
+Modify the ``config.json`` to include following:
 
-For example, the multi core processor.
-If you just run OpenLane with multiple cores and only chip level,
-all of the cores will be placed and routed together, resulting in significant runtime.
+.. code-block::json
 
-.. figure:: ../_static/digital_flow/runtime_visualization.png
+    "DESIGN_IS_CORE": false,
+    "FP_PDN_CORE_RING": false,
+    "RT_MAX_LAYER": "met4"
 
+ 
+``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
+``FP_PDN_CORE_RING`` is set to ``false`` to disable a ring around the macro block.
 
-Add following lines:
+``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
 
-.. code-block:: tcl
-
-    set ::env(DESIGN_IS_CORE) 0
-    set ::env(FP_PDN_CORE_RING) 0
-    set ::env(RT_MAX_LAYER) "met4"
-
+More information on `configuration can be found here <configuration>`_. 
 
 .. todo:: explain why
 
 .. todo:: PDN
 
-Step 3. Run the flow on the macro block
+Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: console
@@ -109,24 +106,46 @@ Step 3. Run the flow on the macro block
 Step 4. Analyzing the flow generated files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Step 5. Create blackboxes
+Step 5. Create chip level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Step 6. Integrate the macros
+./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
+
+Step X. Integrate the macros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Copy the macro blocks related stuff
 
 .. code-block:: console
 
-    set ::env(VERILOG_FILES_BLACKBOX) [glob $::env(DESIGN_DIR)/bb/*.v]
-    set ::env(EXTRA_LEFS) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef
-    set ::env(EXTRA_GDS_FILES) $::env(DESIGN_DIR)/../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds
+    mkdir designs/regfile_2r1w/lef/
+    cp designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef designs/regfile_2r1w/lef/
 
+    mkdir designs/regfile_2r1w/gds/
+    cp designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds designs/regfile_2r1w/gds/
 
-Step 7. Run the flow
+Then add links to the macro blocks in ``config.json``:
+
+.. code-block:: json
+
+    "EXTRA_LEFS":      "dir::lef/*.lef",
+    "EXTRA_GDS_FILES": "dir::gds/*.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+
+Step X. Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Troubleshooting Figure out why it does not fit
+Run the flow. It is expected for the flow to fail. In next step, explaination is provided.
+
+.. code-block:: console
+
+    ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
+
+
+Step X. First issue
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Flow is expected to fail.
 
 .. code-block:: console
 
@@ -145,7 +164,79 @@ Troubleshooting Figure out why it does not fit
     Error: replace.tcl, 91 GPL-0301
     child process exited abnormally
 
-Solution: set ::env(FP_ASPECT_RATIO) 2
+To debug this issue, open an OpenROAD GUI:
+
+.. code-block:: console
+
+    openroad -gui
+
+    read_lef $::env(PDK_ROOT)/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef
+    read_lef designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/tmp/merged.nom.lef
+
+    read_def designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/tmp/placement/5-global.macro_placement.def
+
+
+.. figure:: ../_static/digital_flow/broken_aspect_ratio.png
+
+Issue is noticed. As can be observed in the image, placement of the mem_1r1w instanced failed.
+It was unable to place the macro blocks inside the ``DIE_AREA``.
+While the area is enough, there is no combination of placement for this cells that fits.
+
+Change the ``FP_ASPECT_RATIO`` value to ``2``.
+This will make the flooplan a rectange instead of square and the rectangle will be double in height compared to width.
+
+``config.json`` should look like this:
+
+.. code-block:: json
+
+    {
+        "DESIGN_NAME": "regfile_2r1w",
+        "VERILOG_FILES": "dir::src/*.v",
+        "CLOCK_PORT": "clk",
+        "CLOCK_PERIOD": 10.0,
+        "DESIGN_IS_CORE": true,
+        "EXTRA_LEFS":      "dir::lef/*.lef",
+        "EXTRA_GDS_FILES": "dir::gds/*.gds",
+        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v",
+        "FP_ASPECT_RATIO": 2
+    }
+
+
+Step X. Run the flow again
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run the flow again. This time it should no longer fail.
+
+.. code-block:: console
+
+    ./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
+
+
+
+
+Step X. Analyzing the results
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Open OpenROAD GUI to view the results of the flow.
+
+.. code-block:: console
+
+    openroad -gui
+
+    read_lef $::env(PDK_ROOT)/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef
+    read_lef designs/regfile_2r1w/runs/full_guide/tmp/merged.nom.lef
+
+    read_def designs/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
+
+
+
+
+
+Viewing final GDS
+
+   klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
+      -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp \
+      ./designs/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
 
 
 Troubleshooting:
