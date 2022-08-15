@@ -100,7 +100,7 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
     if rx_str != "^$":
         # Save some compute time :)
 
-        rx = re.compile(rx)
+        rx = re.compile(rx_str)
 
         design_nets = reader.block.getNets()
         dont_buffer_nets = [net for net in design_nets if rx.match(net) is not None]
