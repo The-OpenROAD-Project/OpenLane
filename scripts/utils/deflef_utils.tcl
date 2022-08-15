@@ -163,18 +163,4 @@ proc remove_components {args} {
         $arg_values(-input)
 }
 
-proc remove_component {args} {
-    set options {
-        {-input required}
-        {-instance_name required}
-    }
-    set flags {}
-    parse_key_args "remove_component" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_components\
-        --input-lef $::env(MERGED_LEF)\
-        --instance-name $arg_values(-instance_name) --not-rx\
-        --output $arg_values(-input)\
-        $arg_values(-input)
-}
-
 package provide openlane_utils 0.9

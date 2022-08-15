@@ -229,7 +229,7 @@ proc remove_buffers_from_nets {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
         --output $::env(SAVE_DEF)\
         --input-lef $::env(MERGED_LEF)\
-        --nets $::env(UNBUFFER_NETS)\
+        --match $::env(UNBUFFER_NETS)\
         $::env(CURRENT_DEF)\
         |& tee $::env(TERMINAL_OUTPUT) $log
 

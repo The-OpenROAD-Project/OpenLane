@@ -14,6 +14,7 @@
 import odb
 
 import os
+import re
 from typing import List
 
 import click
@@ -87,80 +88,80 @@ def get_io(cell: odb.dbInst):
 
 @click.command()
 @click.option(
-    "-n",
-    "--nets",
+    "-m",
+    "--match",
+    "rx_str",
     required=True,
-    help="Semicolon;delimited net(s) to remove buffers from",
+    help="A regular expression matching all nets to remove.",
 )
 @click_odb
-def remove_buffers(output, nets, input_lef, input_def):
-    nets = nets.split(";")
+def remove_buffers(output, rx_str: str, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
+    if rx_str != "^$":
+        # Save some compute time :)
 
-    design_nets = reader.block.getNets()
-    dont_buffer_nets = [net for net in design_nets if net.getConstName() in nets]
+        rx = re.compile(rx)
 
-    for net in dont_buffer_nets:
-        net_name = net.getConstName()
-        print(f"* Attempting to unbuffer {net_name}...")
-        # get the cells driving the dont buffer net
-        drivers = get_drivers(net)
+        design_nets = reader.block.getNets()
+        dont_buffer_nets = [net for net in design_nets if rx.match(net) is not None]
 
-        if len(drivers) > 1:
-            print(f"Net {net_name} is driven by multiple cells.")
-            exit(os.EX_DATAERR)
-        elif len(drivers) == 0:
-            print(f"Net {net_name} is not driven by any cell..")
-            exit(os.EX_DATAERR)
+        for net in dont_buffer_nets:
+            net_name = net.getConstName()
+            print(f"* Attempting to unbuffer {net_name}...")
+            # get the cells driving the dont buffer net
+            drivers = get_drivers(net)
 
-        buffer = drivers[0]
-        buffer_name = drivers[0].getName()
-        master = buffer.getMaster()
-        master_name = master.getConstName()
+            if len(drivers) > 1:
+                print(f"Net {net_name} is driven by multiple cells.")
+                exit(os.EX_DATAERR)
+            elif len(drivers) == 0:
+                print(f"Net {net_name} is not driven by any cell..")
+                exit(os.EX_DATAERR)
 
-        if "buf" not in master_name:
-            print(
-                f"*  {net_name} isn't driven by a buffer cell. It is driven by {buffer_name} ({master_name}). Skipping..."
-            )
-            continue
+            buffer = drivers[0]
+            buffer_name = drivers[0].getName()
+            master = buffer.getMaster()
+            master_name = master.getConstName()
 
-        # get the net connected to the input pin of this buffer
-        inputs, outputs = get_io(buffer)
+            if "buf" not in master_name:
+                print(
+                    f"*  {net_name} isn't driven by a buffer cell. It is driven by {buffer_name} ({master_name}). Skipping..."
+                )
+                continue
 
-        if len(inputs) != 1:
-            print(
-                f"*  {master_name} has more than one output port. Doesn't appear to actually be a buffer. Skipping..."
-            )
-            continue
-        if len(outputs) != 1:
-            print(
-                f"{master_name} has more than one output port. Doesn't appear to actually be a buffer. Skipping..."
-            )
-            continue
+            # get the net connected to the input pin of this buffer
+            inputs, outputs = get_io(buffer)
 
-        _, input_net = inputs[0]
-        _, output_net = outputs[0]
+            if len(inputs) != 1:
+                print(
+                    f"*  {master_name} has more than one output port. Doesn't appear to actually be a buffer. Skipping..."
+                )
+                continue
+            if len(outputs) != 1:
+                print(
+                    f"{master_name} has more than one output port. Doesn't appear to actually be a buffer. Skipping..."
+                )
+                continue
 
-        assert (
-            output_net.getConstName() in nets
-        ), f"{buffer_name} doesn't appear to be driving any of the unbuffer nets."  # Is this possible???
+            _, input_net = inputs[0]
+            _, output_net = outputs[0]
 
-        print("  * Reconnecting IO...")
-        # We connect the driver's output to the output_net: there may not be a
-        # sink with ITerms in case of things like output ports for example.
-        buffer_input_driver = get_drivers(input_net)[0]
-        _, bid_outputs = get_io(buffer_input_driver)
-        (bid_iterm, _) = bid_outputs[0]
-        bid_iterm.connect(output_net)
-        print(f"  * Connected buffer output to {get_pin_name(bid_iterm)}.")
+            print("  * Reconnecting IO...")
+            # We connect the driver's output to the output_net: there may not be a
+            # sink with ITerms in case of things like output ports for example.
+            buffer_input_driver = get_drivers(input_net)[0]
+            _, bid_outputs = get_io(buffer_input_driver)
+            (bid_iterm, _) = bid_outputs[0]
+            bid_iterm.connect(output_net)
+            print(f"  * Connected buffer output to {get_pin_name(bid_iterm)}.")
 
-        print(f"  * Removing net {input_net.getName()}...")
-        odb.dbNet.destroy(input_net)
+            print(f"  * Removing net {input_net.getName()}...")
+            odb.dbNet.destroy(input_net)
 
-        print(f"  * Removing buffer {buffer_name} ({master_name})...")
-        odb.dbInst.destroy(buffer)
+            print(f"  * Removing buffer {buffer_name} ({master_name})...")
+            odb.dbInst.destroy(buffer)
 
-    print("  * Done.")
+        print("  * Done.")
     odb.write_def(reader.block, output)
 
 
