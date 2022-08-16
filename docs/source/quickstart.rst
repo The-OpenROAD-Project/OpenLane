@@ -74,7 +74,7 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.json
 
-``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.md>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
 The ``design_name`` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
 
@@ -118,7 +118,7 @@ This is typical structure of the design folder:
 
 Main files are ``config.json`` and ``src/`` folder that contains source code.
 
-You can find more information `regarding the ./flow.tcl in the documentation here <designs.md>`_. And here is the `reference documentation regarding the configuration valirables <configuration.md>`_.
+You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
 Running the flow
 ------------------------------------------------------------------------
