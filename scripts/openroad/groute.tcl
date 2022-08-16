@@ -55,7 +55,7 @@ puts $arg_list
 global_route {*}$arg_list
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
-    repair_antennas "$::env(DIODE_CELL)/$::env(DIODE_CELL_PIN)" -iterations $::env(GRT_ANT_ITERS)
+    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS)
     check_placement
 }
 
