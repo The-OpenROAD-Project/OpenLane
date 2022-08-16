@@ -59,7 +59,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> (Example: `20`) | |
 | `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> (Example: `20`) | |
 | `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> (Example: `met1`) ||
-| `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Example: `0.99,0,0,0,0,0`)
+| `GRT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Example: `0.99,0,0,0,0,0`)
 | `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Example: `met3`)|
 | `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Example: `met2`)|
 | `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Example: `met1`)|
