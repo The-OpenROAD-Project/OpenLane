@@ -1,13 +1,12 @@
 
 Installation
 ================================================================================
-OpenLane uses Docker images that contain binaries,
-libraries and packages ready-to-use.
-All of the flow tools are encapsulated inside the container image
+OpenLane uses Docker images that contain binaries, libraries and packages ready-to-use.
+All of the flow tools are encapsulated inside the container image.
 
-Open source projects typically have to address the challenge of variable user environments,
+Open source projects typically have to address the challenge of various user environments,
 operating systems, virtual machines, cloud based distribution etc.
-Docker containers alleviate this problem; they are easy to install and encapsulate a large amount of underlying complexity.
+Docker containers alleviate this problem. It is easy to install and encapsulate a large amount of underlying complexity.
 
 OpenLane uses `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_. It was selected as container engine to simplify the installation process by including pre-built binaries and PDK within the container.
 
@@ -19,13 +18,13 @@ Step 1. Installation of Required Packages
 
 For OpenLane you need a couple of tools installed:
 
-   * Linux or macOS
-   * Docker 19.03.12+
-   * Git 2.35+
-   * Python 3.6+  
-      * pip  
-      * venv
-   * GNU Make
+   - Linux or macOS
+   - Docker 19.03.12+
+   - Git 2.35+
+   - Python 3.6+  
+      - pip  
+      - venv
+   - GNU Make
 
 After installing all of the above, proceed to :ref:`step2`.
 
@@ -44,9 +43,10 @@ Docker Installation under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Next install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
-.. warning::
+.. code-block:: console
+!!WARNING!!
     The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
-
+.. code-block:: console
 
 .. code-block:: console
 
@@ -120,7 +120,11 @@ Proceed to :ref:`step3`
 Step 2. Making Docker available without root
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning:: The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
+
+.. code-block:: console
+!!WARNING!!
+   The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
+.. code-block:: console
 
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
 
@@ -284,7 +288,7 @@ Successful download will look like this:
    Receiving objects: 100% (471/471), 2.78 MiB | 4.91 MiB/s, done.
    Resolving deltas: 100% (66/66), done.
 
-Step 6. Download the Docker Image and install sky130 PDK
+Step 6. Download the Docker Image and Install sky130 PDK
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download the Docker image of OpenLane and install sky130 PDK:
 
@@ -334,7 +338,7 @@ Open the final layout using KLayout. This will open the window of KLayout in edi
 Updating OpenLane
 --------------------------------------------------------------------------------
 
-Run following commands update the OpenLane:
+Run following commands to update the OpenLane:
 
 .. code-block:: console
 
