@@ -275,9 +275,7 @@ proc source_config {args} {
     } elseif { $ext == ".json" } {
         set scl NULL
         set arg_list [list]
-        if { [info exists ::env(PDK)] } {
-            lappend arg_list --pdk $::env(PDK)
-        }
+        lappend arg_list --pdk $::env(PDK)
         if { [info exists ::env(STD_CELL_LIBRARY)] } {
             lappend arg_list --scl $::env(STD_CELL_LIBRARY)
         }
