@@ -271,7 +271,6 @@ proc source_config {args} {
     if { $ext == ".tcl" } {
         # for trusted end-users only
         exec cp $config_file $config_in_path
-        source $config_file
     } elseif { $ext == ".json" } {
         set scl NULL
         set arg_list [list]
@@ -291,7 +290,15 @@ proc source_config {args} {
         puts_err "$config_file error: unsupported extension '$ext'"
         return -code error
     }
-    source $config_in_path
+
+
+    if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+        set ::env(STD_CELL_LIBRARY) {}
+        source $config_in_path
+        unset ::env(STD_CELL_LIBRARY)
+    } else {
+        source $config_in_path
+    }
 }
 
 proc load_overrides {overrides} {
