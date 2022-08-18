@@ -168,6 +168,10 @@ jobs:
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
+      - name: Set PDK Variant
+        run: | 
+          echo "PDK=sky130A" >> $GITHUB_ENV
+
       - name: Get Pyyaml
         run: python3 -m pip install pyyaml
 

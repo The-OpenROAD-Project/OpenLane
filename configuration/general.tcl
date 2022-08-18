@@ -11,15 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# default pdk/scl
-if { ![info exists ::env(PDK)] } {
-    set ::env(PDK) "sky130A"
-}
-if { ![info exists ::env(STD_CELL_LIBRARY)] } {
-    set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
-}
-
 set ::env(USE_GPIO_PADS) 0
 
 if { ![info exists ::env(QUIT_ON_MISMATCHES)] } {

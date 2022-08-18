@@ -62,9 +62,14 @@ export PDK_ROOT := $(shell $(PYTHON_BIN) -c "import os; print(os.path.realpath('
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 
 export PDK ?= sky130A
-export STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 
-PDK_OPTS += -e PDK=$(PDK) -e STD_CELL_LIBRARY=$(STD_CELL_LIBRARY)
+
+PDK_OPTS += -e PDK=$(PDK)
+
+ifneq ($(STD_CELL_LIBRARY),)
+export STD_CELL_LIBRARY ?= sky130_fd_sc_hd
+PDK_OPTS += -e STD_CELL_LIBRARY=$(STD_CELL_LIBRARY)
+endif
 
 # ./designs is mounted over ./install so env.tcl is not found inside the Docker
 # container if the user had previously installed it.

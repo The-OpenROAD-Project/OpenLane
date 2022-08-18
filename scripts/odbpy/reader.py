@@ -21,10 +21,15 @@ class OdbReader(object):
         if isinstance(lef_in, list) or isinstance(lef_in, tuple):
             self.lef = []
             for lef in lef_in:
-                self.lef.append(odb.read_lef(self.db, lef))
+                lef_read_result = odb.read_lef(self.db, lef)
+                if lef_read_result is None:
+                    raise Exception(f"read_lef returned None for '{lef}'")
+                self.lef.append(lef_read_result)
             self.sites = [lef.getSites() for lef in self.lef]
         else:
             self.lef = odb.read_lef(self.db, lef_in)
+            if self.lef is None:
+                raise Exception(f"read_lef returned None for '{lef_in}'")
             self.sites = self.lef.getSites()
         self.tech = self.db.getTech()
 
