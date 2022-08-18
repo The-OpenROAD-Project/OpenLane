@@ -79,14 +79,19 @@ Modify the ``config.json`` to include following:
 
 .. code-block::json
 
-    "DESIGN_IS_CORE": false,
-    "FP_PDN_CORE_RING": false,
-    "RT_MAX_LAYER": "met4"
-
+    {
+        "DESIGN_NAME": "mem_1r1w",
+        "VERILOG_FILES": "dir::src/*.v",
+        "CLOCK_PORT": "clk",
+        "CLOCK_PERIOD": 10.0,
+        "DESIGN_IS_CORE": false,
+        "FP_PDN_CORE_RING": false,
+        "RT_MAX_LAYER": "met4"
+    }
  
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
-``FP_PDN_CORE_RING`` is set to ``false`` to disable a ring around the macro block.
+``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macro block.
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
 
@@ -103,36 +108,57 @@ Run the flow on the macro block
 
     ./flow.tcl -design mem_1r1w -tag full_guide -overwrite
 
-Step 4. Analyzing the flow generated files
+Analyzing the flow generated files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Step 5. Create chip level
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
-
-Step X. Integrate the macros
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Copy the macro blocks related stuff
+You can open interactive view using following commands:
 
 .. code-block:: console
 
-    mkdir designs/regfile_2r1w/lef/
-    cp designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef designs/regfile_2r1w/lef/
+    ./flow.tcl -design mem_1r1w -tag full_guide -interactive
+    package require  openlane
+    or_gui
 
-    mkdir designs/regfile_2r1w/gds/
-    cp designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds designs/regfile_2r1w/gds/
+.. figure:: ../_static/digital_flow/mem_1r1w_def.png
 
-Then add links to the macro blocks in ``config.json``:
+Create chip level
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
+
+.. code-block:: console
+
+    ./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
+
+Integrate the macros
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Verilog blackbox is used by the synthesis tool. Create the verilog blackbox:
+
+.. todo:: Add the verilog blackbox
+
+Then add ``VERILOG_FILES_BLACKBOX``, ``EXTRA_LEFS`` and ``EXTRA_GDS_FILES`` to the ``config.json`` in the ``regfile_2r1w``:
 
 .. code-block:: json
 
-    "EXTRA_LEFS":      "dir::lef/*.lef",
-    "EXTRA_GDS_FILES": "dir::gds/*.gds",
-    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+    {
+        "DESIGN_NAME": "regfile_2r1w",
+        "VERILOG_FILES": "dir::src/*.v",
+        "CLOCK_PORT": "clk",
+        "CLOCK_PERIOD": 10.0,
+        "DESIGN_IS_CORE": true,
+        
+        "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+        "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+    }
 
-Step X. Run the flow
+This will add the LEF abstract representation of the macro block. This abstraction file contains only layers required by tools.
+In contrast, GDS contains all of the layers and is used to generate the final GDS file.
+Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
+
+
+Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the flow. It is expected for the flow to fail. In next step, explaination is provided.
@@ -142,7 +168,7 @@ Run the flow. It is expected for the flow to fail. In next step, explaination is
     ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
 
 
-Step X. First issue
+First issue
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Flow is expected to fail.
@@ -168,19 +194,15 @@ To debug this issue, open an OpenROAD GUI:
 
 .. code-block:: console
 
-    openroad -gui
-
-    read_lef $::env(PDK_ROOT)/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef
-    read_lef designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/tmp/merged.nom.lef
-
-    read_def designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/tmp/placement/5-global.macro_placement.def
-
+    ./flow.tcl -design regfile_2r1w -interactive -tag full_guide_broken_aspect_ratio
+    package require  openlane
+    or_gui
 
 .. figure:: ../_static/digital_flow/broken_aspect_ratio.png
 
-Issue is noticed. As can be observed in the image, placement of the mem_1r1w instanced failed.
+As can be observed in the image, placement of the mem_1r1w instances failed.
 It was unable to place the macro blocks inside the ``DIE_AREA``.
-While the area is enough, there is no combination of placement for this cells that fits.
+While the area is enough, there is no combination of placement for this cells that fits. All of the possible placements of these cells overlap.
 
 Change the ``FP_ASPECT_RATIO`` value to ``2``.
 This will make the flooplan a rectange instead of square and the rectangle will be double in height compared to width.
@@ -202,7 +224,7 @@ This will make the flooplan a rectange instead of square and the rectangle will 
     }
 
 
-Step X. Run the flow again
+Run the flow again
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Run the flow again. This time it should no longer fail.
@@ -213,53 +235,142 @@ Run the flow again. This time it should no longer fail.
 
 
 
-
-Step X. Analyzing the results
+Analyzing the results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. note:: ``set_def`` currently overwrites the DEF file instead of temporary changing it.
+    This guide will be updated with another command that does not overwrite the DEF.
 
 Open OpenROAD GUI to view the results of the flow.
 
 .. code-block:: console
 
-    openroad -gui
+    ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
 
-    read_lef $::env(PDK_ROOT)/sky130B/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef
-    read_lef designs/regfile_2r1w/runs/full_guide/tmp/merged.nom.lef
+    # in interactive session:
+    package require openlane
+    set_def designs/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
+    or_gui
+    # Empty newline to force above line to execute
 
-    read_def designs/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
+.. figure:: ../_static/digital_flow/final_def.png
+
+    OpenROAD gui with loaded final DEF file
 
 
+If you want to load different DEF file use ``set_def`` command. For example:
+
+.. code-block:: console
+
+    ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
+    package require openlane
+    set_def designs/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
+    or_gui
+
+.. figure::   ../_static/digital_flow/floorplan_def_loaded.png
 
 
+Each run has following structure:
 
-Viewing final GDS
+.. code-block::
+
+    ├── logs OR reports OR results OR tmp
+    │   ├── cts
+    │   ├── eco
+    │   ├── floorplan
+    │   ├── placement
+    │   ├── routing
+    │   ├── signoff
+    │   └── synthesis
+    ├── runtime.yaml
+    └── warnings.log
+
+There is 4 directories ``logs`` ``reports`` ``results`` and ``tmp``.
+In each of these directories there is multiple directories. Directories are named according to the stage they belong to.
+
+Directory ``results`` contains the results (outputs) of each step. For example content of the ``results/cts``:
+
+.. code-block::
+
+    designs/regfile_2r1w/runs/full_guide/results/cts
+    ├── regfile_2r1w.def
+    ├── regfile_2r1w.resized.v
+    ├── regfile_2r1w.sdc
+    └── regfile_2r1w.v
+
+DEF files can be loaded usings steps provided above.
+
+Finally output of OpenLane can be found in ``designs/regfile_2r1w/runs/full_guide/results/final``:
+
+.. code-block::
+
+    designs/regfile_2r1w/runs/full_guide/results/final
+    ├── def
+    │   └── regfile_2r1w.def
+    ├── gds
+    │   └── regfile_2r1w.gds
+    ├── lef
+    │   └── regfile_2r1w.lef
+    ├── mag
+    │   └── regfile_2r1w.mag
+    ├── maglef
+    │   └── regfile_2r1w.mag
+    ├── sdc
+    │   └── regfile_2r1w.sdc
+    ├── sdf
+    │   └── regfile_2r1w.sdf
+    ├── spef
+    │   └── regfile_2r1w.spef
+    ├── spi
+    │   └── lvs
+    │       └── regfile_2r1w.spice
+    └── verilog
+        └── gl
+            └── regfile_2r1w.v
+
+Directory ``logs`` contains log files of each step. Steps are numerated. For example content of the ``logs/floorplan``: 
+
+.. code-block::
+
+    designs/regfile_2r1w/runs/full_guide/logs/floorplan
+    ├── 3-initial_fp.log
+    ├── 4-io.log
+    ├── 7-tap.log
+    └── 8-pdn.log
+
+Directory ``reports`` contains all of the reports from corresponding stage. For example content of the ``reports/synthesis``
+
+.. code-block::
+
+    designs/regfile_2r1w/runs/full_guide/reports/synthesis
+    ├── 1-synthesis.AREA_0.chk.rpt
+    ├── 1-synthesis.AREA_0.stat.rpt
+    ├── 1-synthesis_dff.stat
+    ├── 1-synthesis_pre.stat
+    ├── 2-syn_sta.area.rpt
+    ├── 2-syn_sta.clock_skew.rpt
+    ├── 2-syn_sta.max.rpt
+    ├── 2-syn_sta.min.rpt
+    ├── 2-syn_sta.power.rpt
+    ├── 2-syn_sta.rpt
+    ├── 2-syn_sta.slew.rpt
+    ├── 2-syn_sta.tns.rpt
+    ├── 2-syn_sta.wns.rpt
+    └── 2-syn_sta.worst_slack.rpt
+
+It is recommended to check the reports for power, timings, etc.
+This allows to get better understanding of the underlying flow.
+
+Open the final GDS.
+
+.. code-block:: console
 
    klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
       -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp \
       ./designs/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
 
 
-Troubleshooting:
-
-.. code-block:: console
-
-    [ERROR]: during executing openroad script /openlane/scripts/openroad/floorplan.tcl
-    [ERROR]: Exit code: 1
-    [ERROR]: full log: designs/regfile_2r1w/runs/full_guide/logs/floorplan/3-initial_fp.log
-    [ERROR]: Last 10 lines:
-    set_clock_uncertainty $::env(SYNTH_CLOCK_UNCERTAINITY) [get_clocks $::env(CLOCK_PORT)]
-    puts "\[INFO\]: Setting clock transition to: $::env(SYNTH_CLOCK_TRANSITION)"
-    [INFO]: Setting clock transition to: 0.15
-    set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks $::env(CLOCK_PORT)]
-    puts "\[INFO\]: Setting timing derate to: [expr {$::env(SYNTH_TIMING_DERATE) * 10}] %"
-    [INFO]: Setting timing derate to: 0.5 %
-    set_timing_derate -early [expr {1-$::env(SYNTH_TIMING_DERATE)}]
-    set_timing_derate -late [expr {1+$::env(SYNTH_TIMING_DERATE)}]
-    Error: floorplan.tcl, 93 can't use empty string as operand of "-"
-    child process exited abnormally
-
-Solution: Set DIE_AREA to correct value, see https://github.com/The-OpenROAD-Project/OpenLane/issues/1189
-
+.. figure:: ../_static/digital_flow/final_gds.png
 
 Exploring your designs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -268,3 +379,6 @@ Exploring your designs
 .. todo:: LVS, DRC, etc, debugging
 
 .. todo:: Updated 
+
+.. todo:: Exploring desings
+.. todo:: PDN
