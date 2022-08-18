@@ -492,18 +492,16 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
 
 @click.command("remove_components")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat instance name as a regular expression"
-)
-@click.option(
-    "-n",
-    "--instance-name",
-    default=".+",
-    help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)",
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_components(rx, instance_name, output, input_lef, input_def):
+def remove_components(rx_str, output, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
-    matcher = re.compile(instance_name if rx else f"^{re.escape(instance_name)}$")
+    matcher = re.compile(rx_str)
     instances = reader.block.getInsts()
     for instance in instances:
         name = instance.getName()
@@ -519,21 +517,22 @@ cli.add_command(remove_components)
 
 @click.command("remove_nets")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat net name as a regular expression"
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for nets to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click.option(
-    "-n",
-    "--net-name",
-    default=".+",
-    help="Net name to be removed (Default '.+', as a regular expression, removes everything.)",
-)
-@click.option(
-    "--empty-only", is_flag=True, default=False, help="Only remove empty nets."
+    "--empty-only",
+    is_flag=True,
+    default=False,
+    help="Adds a further condition to only remove empty nets (i.e. unconnected nets).",
 )
 @click_odb
-def remove_nets(rx, net_name, output, empty_only, input_lef, input_def):
+def remove_nets(rx_str, output, empty_only, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
-    matcher = re.compile(net_name if rx else f"^{re.escape(net_name)}$")
+    matcher = re.compile(rx_str)
     nets = reader.block.getNets()
     for net in nets:
         name = net.getName()
@@ -556,18 +555,16 @@ cli.add_command(remove_nets)
 
 @click.command("remove_pins")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat pin name as a regular expression"
-)
-@click.option(
-    "-n",
-    "--pin-name",
-    default=".+",
-    help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)",
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_pins(rx, pin_name, output, input_lef, input_def):
+def remove_pins(rx_str, output, input_lef, input_def):
     reader = OdbReader(input_lef, input_def)
-    matcher = re.compile(pin_name if rx else f"^{re.escape(pin_name)}$")
+    matcher = re.compile(rx_str)
     pins = reader.block.getBTerms()
     for pin in pins:
         name = pin.getName()
