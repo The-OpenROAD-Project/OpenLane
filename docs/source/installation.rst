@@ -43,10 +43,7 @@ Docker Installation under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 Next install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
-.. code-block:: console
-!!WARNING!!
-    The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
-.. code-block:: console
+.. warning:: The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
 
 .. code-block:: console
 
@@ -121,10 +118,8 @@ Step 2. Making Docker available without root
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-.. code-block:: console
-!!WARNING!!
-   The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
-.. code-block:: console
+.. warning:: The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
+
 
 This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
 

@@ -16,8 +16,7 @@ This guide covers running the flow on existing desings, adding new designs and q
 
 Starting OpenLane
 ------------------------------------------------------------------------
-**Note**
-    If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
+.. note:: If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
 
 OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
@@ -47,7 +46,7 @@ For design named ``gcd`` the command looks like this:
 Creating new designs
 ------------------------------------------------------------------------
 
-**!!warning!!** This guide assumes that you are running inside Docker image. Dockerless installation is not supported.
+.. warning:: This guide assumes that you are running inside Docker image. Dockerless installation is not supported.
 
 First, start OpenLane Docker image using following command:
 
