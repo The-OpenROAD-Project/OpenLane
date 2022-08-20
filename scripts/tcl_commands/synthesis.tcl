@@ -93,8 +93,9 @@ proc run_synth_exploration {args} {
     puts_info "Running Synthesis Exploration..."
 
     set ::env(SYNTH_EXPLORE) 1
+    set log [index_file $::env(synthesis_logs)/synthesis.log]
 
-    run_yosys
+    run_yosys -log $log
 
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 
