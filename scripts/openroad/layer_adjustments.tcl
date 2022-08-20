@@ -14,7 +14,7 @@
 
 set_global_routing_layer_adjustment * $::env(GRT_ADJUSTMENT)
 
-set array [split $::env(GLB_RT_LAYER_ADJUSTMENTS) ","]
+set array [split $::env(GRT_LAYER_ADJUSTMENTS) ","]
 
 set i 0
 foreach adjustment $array {
