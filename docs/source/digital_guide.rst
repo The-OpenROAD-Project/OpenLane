@@ -217,10 +217,11 @@ This will make the flooplan a rectange instead of square and the rectangle will 
         "CLOCK_PORT": "clk",
         "CLOCK_PERIOD": 10.0,
         "DESIGN_IS_CORE": true,
-        "EXTRA_LEFS":      "dir::lef/*.lef",
-        "EXTRA_GDS_FILES": "dir::gds/*.gds",
-        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v",
-        "FP_ASPECT_RATIO": 2
+        
+        "FP_ASPECT_RATIO": 2,
+        "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+        "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
     }
 
 
