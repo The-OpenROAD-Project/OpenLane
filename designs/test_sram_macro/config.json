@@ -1,0 +1,25 @@
+{
+    "DESIGN_NAME": "test_sram_macro",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "DESIGN_IS_CORE": true,
+
+    "FP_CORE_UTIL": 30,
+    "PL_TARGET_DENSITY": 0.35,
+
+    "FP_ASPECT_RATIO": 1.7,
+
+    "VDD_NETS": "vccd1",
+    "GND_NETS": "vssd1",
+
+    "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
+    
+    "FP_PDN_MACRO_HOOKS": "sram0 vccd1 vssd1 vccd1 vssd1, sram1 vccd1 vssd1 vccd1 vssd1",
+    
+    "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
+
+    "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
+    "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v"
+}
