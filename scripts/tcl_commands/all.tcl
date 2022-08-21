@@ -104,12 +104,15 @@ proc prep_lefs {args} {
     if { $arg_values(-corner) == "nom" } {
         puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)..."
 
-        try_catch openroad -python\
-            $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
-            -o $::env(TMP_DIR)/layers.list\
-            $arg_values(-tech_lef)
-
-        set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
+        if { [info exists ::env(METAL_LAYER_NAMES)] } {
+            set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
+        } else {
+            try_catch openroad -python\
+                $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
+                -o $::env(TMP_DIR)/layers.list\
+                $arg_values(-tech_lef)
+            set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
+        }
         set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
         puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)."
@@ -268,16 +271,17 @@ proc source_config {args} {
     if { $ext == ".tcl" } {
         # for trusted end-users only
         exec cp $config_file $config_in_path
-        source $config_file
     } elseif { $ext == ".json" } {
-        set cmd "python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json\
-            --pdk $::env(PDK) --scl $::env(STD_CELL_LIBRARY)\
-            --output $config_in_path\
-            --design-dir $::env(DESIGN_DIR)\
-            $config_file
-        "
+        set scl NULL
+        set arg_list [list]
+        lappend arg_list --pdk $::env(PDK)
+        if { [info exists ::env(STD_CELL_LIBRARY)] } {
+            lappend arg_list --scl $::env(STD_CELL_LIBRARY)
+        }
+        lappend arg_list --output $config_in_path
+        lappend arg_list --design-dir $::env(DESIGN_DIR)
 
-        if { [catch {exec {*}$cmd} errmsg] } {
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json $config_file {*}$arg_list} errmsg] } {
             puts_err $errmsg
             exit -1
         }
@@ -286,7 +290,15 @@ proc source_config {args} {
         puts_err "$config_file error: unsupported extension '$ext'"
         return -code error
     }
-    source $config_in_path
+
+
+    if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+        set ::env(STD_CELL_LIBRARY) {}
+        source $config_in_path
+        unset ::env(STD_CELL_LIBRARY)
+    } else {
+        source $config_in_path
+    }
 }
 
 proc load_overrides {overrides} {
@@ -438,6 +450,10 @@ proc prep {args} {
         set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
 
+    # Source PDK and SCL specific configurations
+    set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
+    source $pdk_config
+
     if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
         puts_err "STD_CELL_LIBRARY is not specified."
         return -code error
@@ -456,14 +472,11 @@ proc prep {args} {
         set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/pdn_cfg.tcl
     }
 
-    # Source PDK and SCL specific configurations
-    set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
-    source $pdk_config
     source $scl_config
 
     # Re-source/re-override to make sure it overrides any configurations from the previous two sources
-    source $run_path/config_in.tcl
+    source_config -run_path $run_path $::env(DESIGN_CONFIG)
     if { [info exists arg_values(-override_env)] } {
         load_overrides $arg_values(-override_env)
     }
@@ -488,6 +501,7 @@ proc prep {args} {
     handle_deprecated_config GLB_RT_OBS GRT_OBS;
     handle_deprecated_config GLB_RT_ADJUSTMENT GRT_ADJUSTMENT;
     handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION;
+    handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
 
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
 

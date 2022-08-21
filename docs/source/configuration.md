@@ -1,5 +1,9 @@
 # Variables information
 This page describes user-configurable variables and their default values.
+
+## Load Order
+The default configuration files in this folder are loaded in the order described in `load_order.txt`.
+
 ## Required variables
 
 |Variable|Description|
@@ -114,9 +118,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Placement
 
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
-| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) + 5.0) / 100.0`)|
+|Variable|Description|
+|-|-|
+| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) +5 ) / 100.0`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
 | `PL_LIB` | Specifies the library for time driven placement <br> (Default: `LIB_TYPICAL`)|
 | `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement or not (by running initial placement, increasing the minimum overflow to 0.9, and limiting the number of iterations to 20). 0 = false, 1 = true <br> (Default: `0`) |
@@ -211,10 +215,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (removed: `def2spef`). <br> (Default: `openrcx`) |
+| `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (**removed:** `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
-| `SPEF_WIRE_MODEL` | Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
-| `SPEF_EDGE_CAP_FACTOR` | Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
+| `SPEF_WIRE_MODEL` | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
+| `SPEF_EDGE_CAP_FACTOR` | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
 
 ### Magic
 |Variable|Description|

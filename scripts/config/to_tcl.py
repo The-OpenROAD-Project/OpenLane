@@ -268,7 +268,9 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                     process_config_dict_recursive(value, state)
             elif key.startswith(SCL_PREFIX):
                 scl_match = key[len(SCL_PREFIX) :]
-                if fnmatch.fnmatch(state.vars[SCL_VAR], scl_match):
+                if state.vars[SCL_VAR] is not None and fnmatch.fnmatch(
+                    state.vars[SCL_VAR], scl_match
+                ):
                     process_config_dict_recursive(value, state)
             else:
                 raise InvalidConfig(
@@ -302,6 +304,8 @@ def process_config_dict(config_in: dict, pdk: str, scl: str, design_dir: str):
 def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
     character_rx = re.compile(r"([{}])")
     for key, value in key_value_pairs.items():
+        if value is None:
+            continue
         if isinstance(value, str):
             value = character_rx.sub(r"\\\1", value)
         print(f"set ::env({key}) {{{value}}}", file=file_in)
@@ -318,7 +322,7 @@ def cli():
 @click.option(
     "-s",
     "--scl",
-    required=True,
+    default=None,
     help="The name of the standard cell library",
 )
 @click.option(
