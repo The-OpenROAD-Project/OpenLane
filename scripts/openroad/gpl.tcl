@@ -92,7 +92,7 @@ write_def $::env(SAVE_DEF)
 
 if {[info exists ::env(CLOCK_PORT)]} {
 	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
-		read_sdc -echo $::env(CURRENT_SDC)
+		read_sdc $::env(CURRENT_SDC)
 		unset_propagated_clock [all_clocks]
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
