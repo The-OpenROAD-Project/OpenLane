@@ -155,6 +155,10 @@ class Installer(object):
             )
         )
 
+        print(
+            "[ALERT] The local installer is deprecated and will be removed in a future version of OpenLane.\nIf you're still using it, please file an issue at https://github.com/The-OpenROAD-Project/OpenLane/issues."
+        )
+
         install_dir = realpath("./install")
 
         sh("mkdir", "-p", install_dir, root="retry")
@@ -400,7 +404,7 @@ class Installer(object):
             venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
             venv_builder.create("./venv")
 
-            pip_install_cmd = "python3 -m pip install --upgrade --no-cache-dir"
+            pip_install_cmd = "python3 -m pip install --upgrade"
 
             subprocess.run(
                 [
@@ -435,12 +439,12 @@ class Installer(object):
                         tool = pop()
                         continue
 
-                    if len(tool.dependencies):
-                        dependencies = set(tool.dependencies)
-                        if not dependencies.issubset(installed):
-                            tool_queue.append(tool)
-                            tool = pop()
-                            continue
+                    # if len(tool.dependencies):
+                    #     dependencies = set(tool.dependencies)
+                    #     if not dependencies.issubset(installed):
+                    #         tool_queue.append(tool)
+                    #         tool = pop()
+                    #         continue
 
                     installed_version = ""
                     version_path = f"versions/{tool.name}"
