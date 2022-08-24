@@ -97,9 +97,10 @@ Modify the ``config.json`` to include following:
 
 More information on `configuration can be found here <configuration>`_. 
 
-.. todo:: explain why
+.. figure:: ../_static/digital_flow/ring_around_macro.png
 
-.. todo:: PDN
+    A macro with a PDN ring around. ``"FP_PDN_CORE_RING": true``
+
 
 Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -224,6 +225,9 @@ This will make the flooplan a rectange instead of square and the rectangle will 
         "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
     }
 
+There is no need to change the default PDN configuration.
+It is going to create power straps on met5 and connect the macro
+that has power straps on met4 using vias.
 
 Run the flow again
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -329,40 +333,181 @@ Finally output of OpenLane can be found in ``designs/regfile_2r1w/runs/full_guid
         └── gl
             └── regfile_2r1w.v
 
-Directory ``logs`` contains log files of each step. Steps are numerated. For example content of the ``logs/floorplan``: 
+Directory ``logs`` contains log files of each step. Steps are numerated. For example content of the ``logs/``: 
 
 .. code-block::
 
-    designs/regfile_2r1w/runs/full_guide/logs/floorplan
-    ├── 3-initial_fp.log
-    ├── 4-io.log
-    ├── 7-tap.log
-    └── 8-pdn.log
+    designs/regfile_2r1w/runs/full_guide/logs
+    ├── cts
+    │   ├── 14-cts.log
+    │   ├── 15-write_verilog.log
+    │   ├── 16-resizer.log
+    │   └── 17-write_verilog.log
+    ├── eco
+    ├── floorplan
+    │   ├── 3-initial_fp.log
+    │   ├── 4-io.log
+    │   ├── 7-tap.log
+    │   └── 8-pdn.log
+    ├── placement
+    │   ├── 10-resizer.log
+    │   ├── 11-write_verilog.log
+    │   ├── 12-remove_buffers_from_ports.log
+    │   ├── 13-detailed.log
+    │   ├── 5-global.log
+    │   ├── 6-basic_mp.log
+    │   └── 9-global.log
+    ├── routing
+    │   ├── 18-resizer.log
+    │   ├── 19-write_verilog.log
+    │   ├── 20-diode_legalization.log
+    │   ├── 21-global.log
+    │   ├── 22-fill.log
+    │   ├── 23-write_verilog_global.log
+    │   ├── 24-detailed.log
+    │   └── 25-write_verilog_detailed.log
+    ├── signoff
+    │   ├── 26-parasitics_extraction.min.log
+    │   ├── 27-parasitics_multi_corner_sta.min.log
+    │   ├── 28-parasitics_extraction.max.log
+    │   ├── 29-parasitics_multi_corner_sta.max.log
+    │   ├── 30-parasitics_extraction.nom.log
+    │   ├── 31-parasitics_sta.log
+    │   ├── 32-parasitics_multi_corner_sta.log
+    │   ├── 33-irdrop.log
+    │   ├── 34-gdsii.log
+    │   ├── 34-gds_ptrs.log
+    │   ├── 34-lef.log
+    │   ├── 34-maglef.log
+    │   ├── 35-gdsii-klayout.log
+    │   ├── 36-xor.log
+    │   ├── 37-spice.log
+    │   ├── 38-write_powered_def.log
+    │   ├── 40-lef.log
+    │   ├── 40-regfile_2r1w.lef.json
+    │   ├── 40-regfile_2r1w.lef.log
+    │   ├── 40-regfile_2r1w.lvs.lef.log
+    │   ├── 41-drc.log
+    │   └── 42-antenna.log
+    └── synthesis
+        ├── 1-synthesis.log
+        └── 2-sta.log
 
 Directory ``reports`` contains all of the reports from corresponding stage. For example content of the ``reports/synthesis``
 
 .. code-block::
 
-    designs/regfile_2r1w/runs/full_guide/reports/synthesis
-    ├── 1-synthesis.AREA_0.chk.rpt
-    ├── 1-synthesis.AREA_0.stat.rpt
-    ├── 1-synthesis_dff.stat
-    ├── 1-synthesis_pre.stat
-    ├── 2-syn_sta.area.rpt
-    ├── 2-syn_sta.clock_skew.rpt
-    ├── 2-syn_sta.max.rpt
-    ├── 2-syn_sta.min.rpt
-    ├── 2-syn_sta.power.rpt
-    ├── 2-syn_sta.rpt
-    ├── 2-syn_sta.slew.rpt
-    ├── 2-syn_sta.tns.rpt
-    ├── 2-syn_sta.wns.rpt
-    └── 2-syn_sta.worst_slack.rpt
+    designs/regfile_2r1w/runs/full_guide/reports/
+    ├── cts
+    │   ├── 14-cts_sta.clock_skew.rpt
+    │   ├── 14-cts_sta.max.rpt
+    │   ├── 14-cts_sta.min.rpt
+    │   ├── 14-cts_sta.rpt
+    │   ├── 14-cts_sta.tns.rpt
+    │   ├── 14-cts_sta.wns.rpt
+    │   ├── 16-cts_rsz_sta.area.rpt
+    │   ├── 16-cts_rsz_sta.clock_skew.rpt
+    │   ├── 16-cts_rsz_sta.max.rpt
+    │   ├── 16-cts_rsz_sta.min.rpt
+    │   ├── 16-cts_rsz_sta.power.rpt
+    │   ├── 16-cts_rsz_sta.rpt
+    │   ├── 16-cts_rsz_sta.slew.rpt
+    │   ├── 16-cts_rsz_sta.tns.rpt
+    │   ├── 16-cts_rsz_sta.wns.rpt
+    │   └── 16-cts_rsz_sta.worst_slack.rpt
+    ├── eco
+    ├── floorplan
+    │   ├── 3-initial_fp_core_area.rpt
+    │   └── 3-initial_fp_die_area.rpt
+    ├── manufacturability.rpt
+    ├── metrics.csv
+    ├── placement
+    │   ├── 10-pl_rsz_sta.area.rpt
+    │   ├── 10-pl_rsz_sta.clock_skew.rpt
+    │   ├── 10-pl_rsz_sta.max.rpt
+    │   ├── 10-pl_rsz_sta.min.rpt
+    │   ├── 10-pl_rsz_sta.power.rpt
+    │   ├── 10-pl_rsz_sta.rpt
+    │   ├── 10-pl_rsz_sta.slew.rpt
+    │   ├── 10-pl_rsz_sta.tns.rpt
+    │   ├── 10-pl_rsz_sta.wns.rpt
+    │   ├── 10-pl_rsz_sta.worst_slack.rpt
+    │   ├── 9-gpl_sta.clock_skew.rpt
+    │   ├── 9-gpl_sta.max.rpt
+    │   ├── 9-gpl_sta.min.rpt
+    │   ├── 9-gpl_sta.rpt
+    │   ├── 9-gpl_sta.tns.rpt
+    │   └── 9-gpl_sta.wns.rpt
+    ├── routing
+    │   ├── 18-rt_rsz_sta.area.rpt
+    │   ├── 18-rt_rsz_sta.clock_skew.rpt
+    │   ├── 18-rt_rsz_sta.max.rpt
+    │   ├── 18-rt_rsz_sta.min.rpt
+    │   ├── 18-rt_rsz_sta.power.rpt
+    │   ├── 18-rt_rsz_sta.rpt
+    │   ├── 18-rt_rsz_sta.slew.rpt
+    │   ├── 18-rt_rsz_sta.tns.rpt
+    │   ├── 18-rt_rsz_sta.wns.rpt
+    │   ├── 18-rt_rsz_sta.worst_slack.rpt
+    │   ├── 21-grt_sta.clock_skew.rpt
+    │   ├── 21-grt_sta.max.rpt
+    │   ├── 21-grt_sta.min.rpt
+    │   ├── 21-grt_sta.rpt
+    │   ├── 21-grt_sta.tns.rpt
+    │   ├── 21-grt_sta.wns.rpt
+    │   ├── drt.drc
+    │   └── drt.klayout.xml
+    ├── signoff
+    │   ├── 31-rcx_sta.area.rpt
+    │   ├── 31-rcx_sta.clock_skew.rpt
+    │   ├── 31-rcx_sta.max.rpt
+    │   ├── 31-rcx_sta.min.rpt
+    │   ├── 31-rcx_sta.power.rpt
+    │   ├── 31-rcx_sta.rpt
+    │   ├── 31-rcx_sta.slew.rpt
+    │   ├── 31-rcx_sta.tns.rpt
+    │   ├── 31-rcx_sta.wns.rpt
+    │   ├── 31-rcx_sta.worst_slack.rpt
+    │   ├── 32-rcx_mca_sta.area.rpt
+    │   ├── 32-rcx_mca_sta.clock_skew.rpt
+    │   ├── 32-rcx_mca_sta.max.rpt
+    │   ├── 32-rcx_mca_sta.min.rpt
+    │   ├── 32-rcx_mca_sta.power.rpt
+    │   ├── 32-rcx_mca_sta.rpt
+    │   ├── 32-rcx_mca_sta.slew.rpt
+    │   ├── 32-rcx_mca_sta.tns.rpt
+    │   ├── 32-rcx_mca_sta.wns.rpt
+    │   ├── 32-rcx_mca_sta.worst_slack.rpt
+    │   ├── 33-irdrop.rpt
+    │   ├── 36-xor.rpt
+    │   ├── 42-antenna_violators.rpt
+    │   ├── drc.klayout.xml
+    │   ├── drc.rdb
+    │   ├── drc.rpt
+    │   ├── drc.tcl
+    │   ├── drc.tr
+    │   ├── regfile_2r1w.xor.gds
+    │   └── regfile_2r1w.xor.xml
+    └── synthesis
+        ├── 1-synthesis.AREA_0.chk.rpt
+        ├── 1-synthesis.AREA_0.stat.rpt
+        ├── 1-synthesis_dff.stat
+        ├── 1-synthesis_pre.stat
+        ├── 2-syn_sta.area.rpt
+        ├── 2-syn_sta.clock_skew.rpt
+        ├── 2-syn_sta.max.rpt
+        ├── 2-syn_sta.min.rpt
+        ├── 2-syn_sta.power.rpt
+        ├── 2-syn_sta.rpt
+        ├── 2-syn_sta.slew.rpt
+        ├── 2-syn_sta.tns.rpt
+        ├── 2-syn_sta.wns.rpt
+        └── 2-syn_sta.worst_slack.rpt
 
 It is recommended to check the reports for power, timings, etc.
 This allows to get better understanding of the underlying flow.
 
-Open the final GDS.
+Finally, open the final layout.
 
 .. code-block:: console
 
@@ -376,10 +521,94 @@ Open the final GDS.
 Exploring your designs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Take a look at some reports.
+Content of ``designs/mem_1r1w_00/runs/full_guide/reports/signoff/30-rcx_mca_sta.worst_slack.rpt``:
 
-.. todo:: LVS, DRC, etc, debugging
+.. code-block::
 
-.. todo:: Updated 
+    ===========================================================================
+    report_worst_slack -max (Setup)
+    ============================================================================
+    worst slack 4.66
 
-.. todo:: Exploring desings
-.. todo:: PDN
+    ===========================================================================
+    report_worst_slack -min (Hold)
+    ============================================================================
+    worst slack 0.03
+        
+Detailed setup (max) timing path reports. Content of ``designs/mem_1r1w/runs/full_guide/reports/signoff/30-rcx_mca_sta.max.rpt``:
+
+
+.. code-block::
+
+        ===========================================================================
+        report_checks -path_delay max (Setup)
+        ============================================================================
+
+        ======================= Slowest Corner ===================================
+
+        Startpoint: write_addr[1] (input port clocked by clk)
+        Endpoint: _3436_ (rising edge-triggered flip-flop clocked by clk)
+        Path Group: clk
+        Path Type: max
+        Corner: ss
+
+        Fanout     Cap    Slew   Delay    Time   Description
+        -----------------------------------------------------------------------------
+                                0.00    0.00   clock clk (rise edge)
+                                0.00    0.00   clock network delay (propagated)
+                                2.00    2.00 v input external delay
+                        0.02    0.01    2.01 v write_addr[1] (in)
+        1    0.00                           write_addr[1] (net)
+                        0.02    0.00    2.01 v input8/A (sky130_fd_sc_hd__dlymetal6s2s_1)
+                        0.18    0.37    2.38 v input8/X (sky130_fd_sc_hd__dlymetal6s2s_1)
+        4    0.02                           net8 (net)
+                        0.18    0.00    2.38 v _2019_/A (sky130_fd_sc_hd__or3b_2)
+                        0.23    1.29    3.67 v _2019_/X (sky130_fd_sc_hd__or3b_2)
+        2    0.01                           _0833_ (net)
+                        0.23    0.00    3.67 v _2020_/A (sky130_fd_sc_hd__inv_2)
+                        0.09    0.17    3.84 ^ _2020_/Y (sky130_fd_sc_hd__inv_2)
+        3    0.01                           _0834_ (net)
+                        0.09    0.00    3.84 ^ _2432_/C (sky130_fd_sc_hd__and3_2)
+                        0.24    0.56    4.39 ^ _2432_/X (sky130_fd_sc_hd__and3_2)
+        5    0.03                           _1054_ (net)
+                        0.24    0.00    4.39 ^ _2433_/A (sky130_fd_sc_hd__buf_4)
+                        0.26    0.44    4.84 ^ _2433_/X (sky130_fd_sc_hd__buf_4)
+        10    0.06                           _1055_ (net)
+                        0.26    0.01    4.85 ^ _2450_/S (sky130_fd_sc_hd__mux2_1)
+                        0.11    0.81    5.66 v _2450_/X (sky130_fd_sc_hd__mux2_1)
+        1    0.00                           _1064_ (net)
+                        0.11    0.00    5.66 v _2451_/A (sky130_fd_sc_hd__clkbuf_1)
+                        0.05    0.18    5.84 v _2451_/X (sky130_fd_sc_hd__clkbuf_1)
+        1    0.00                           _0424_ (net)
+                        0.05    0.00    5.84 v _3436_/D (sky130_fd_sc_hd__dfxtp_1)
+                                        5.84   data arrival time
+
+                                10.00   10.00   clock clk (rise edge)
+                                0.00   10.00   clock source latency
+                        0.18    0.12   10.12 ^ clk (in)
+        1    0.02                           clk (net)
+                        0.18    0.00   10.12 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.12    0.31   10.43 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        4    0.06                           clknet_0_clk (net)
+                        0.12    0.00   10.43 ^ clkbuf_2_3__f_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.18    0.33   10.76 ^ clkbuf_2_3__f_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        10    0.11                           clknet_2_3__leaf_clk (net)
+                        0.18    0.00   10.76 ^ clkbuf_leaf_17_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.08    0.27   11.03 ^ clkbuf_leaf_17_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        11    0.03                           clknet_leaf_17_clk (net)
+                        0.08    0.00   11.03 ^ _3436_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                                -0.25   10.78   clock uncertainty
+                                0.00   10.78   clock reconvergence pessimism
+                                -0.26   10.52   library setup time
+                                        10.52   data required time
+        -----------------------------------------------------------------------------
+                                        10.52   data required time
+                                        -5.84   data arrival time
+        -----------------------------------------------------------------------------
+                                        4.68   slack (MET)
+
+
+.. todo:: Add review of timings
+
+.. todo:: Add review of the PDN
