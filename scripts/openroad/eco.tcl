@@ -62,7 +62,7 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-read_sdc -echo $::env(CURRENT_SDC)
+read_sdc $::env(CURRENT_SDC)
 set_propagated_clock [all_clocks]
 
 run_eco
