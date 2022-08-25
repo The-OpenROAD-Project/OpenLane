@@ -3,9 +3,14 @@
     "VERILOG_FILES": "dir::src/PPU.v",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
-    "pdk::sky130*": {
-        "FP_CORE_UTIL": 20,
+    "pdk::gf180mcuC": {
+        "FP_CORE_UTIL": 40,
         "SYNTH_MAX_FANOUT": 8,
+        "CLOCK_PERIOD": 18.0
+    },
+    "pdk::sky130*": {
+        "SYNTH_MAX_FANOUT": 8,
+        "FP_CORE_UTIL": 20,
         "PL_TARGET_DENSITY": 0.25,
         "CLOCK_PERIOD": 18.0
     }

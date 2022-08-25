@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Efabless Corporation
+# Copyright 2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,26 +11,27 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
 
-# load the grid definitions
-if {[catch {source $::env(PDN_CFG)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
 
-# run PDNGEN
-if {[catch {pdngen} errmsg]} {
+if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
 
-# checks for unconnected nodes (e.g., isolated rails or stripes)
-if { $::env(FP_PDN_CHECK_NODES) } {
-    check_power_grid -net $::env(VDD_NET)
-    check_power_grid -net $::env(GND_NET)
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
+    read_liberty $lib
 }
 
-write
+if { [info exists ::env(EXTRA_LIBS) ] } {
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
+}
+
+source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
+
+analyze_power_grid -net $::env(VDD_NET) -outfile $::env(_tmp_save_rpt)

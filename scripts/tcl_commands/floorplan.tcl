@@ -38,8 +38,9 @@ proc set_core_dims {args} {
 
 proc init_floorplan {args} {
     increment_index
-    puts_info "Running Initial Floorplanning..."
     TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/initial_fp.log]
+    puts_info "Running Initial Floorplanning (log: [relpath . $log])..."
 
     set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/initial_fp]
 
@@ -47,6 +48,8 @@ proc init_floorplan {args} {
         -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log]\
         -netlist_in \
         -save "to=$::env(floorplan_tmpfiles),name=initial_fp,def,sdc,odb"
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log $log -netlist_in
 
     check_floorplan_missing_lef
     check_floorplan_missing_pins
@@ -66,18 +69,29 @@ proc init_floorplan {args} {
     puts_verbose "Core area width: $core_width"
     puts_verbose "Core area height: $core_height"
 
+    set min_width [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}]
+    set min_height [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]
+
     if { $::env(FP_PDN_AUTO_ADJUST) } {
-        if { $core_width <= [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}] ||\
-            $core_height <= [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]} {
-                puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
+        if { $core_width <= $min_width || $core_height <= $min_height } {
 
-            set ::env(FP_PDN_VOFFSET) [expr {$core_width/8.0}]
-            set ::env(FP_PDN_HOFFSET) [expr {$core_height/8.0}]
+            set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            set ::env(FP_PDN_VPITCH) [expr {$core_width/4.0}]
-            set ::env(FP_PDN_HPITCH) [expr {$core_height/4.0}]
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+                --output $intermediate\
+                --input-lef $::env(MERGED_LEF)\
+                [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
+
+            set adjusted_values [cat $intermediate]
+
+            set ::env(FP_PDN_VOFFSET) [lindex $adjusted_values 0]
+            set ::env(FP_PDN_HOFFSET) [lindex $adjusted_values 1]
+
+            set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
+            set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
+
+            puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
         }
-
     }
 
     puts_verbose "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
@@ -98,8 +112,10 @@ proc init_floorplan_or {args} {
 
 proc place_io_ol {args} {
     increment_index
-    puts_info "Running IO Placement..."
     TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/place_io.log]
+    puts_info "Running IO Placement (log: [relpath . $log])..."
+
     set options {
         {-lef optional}
         {-def optional}
@@ -166,8 +182,9 @@ proc place_io_ol {args} {
 
 proc place_io {args} {
     increment_index
-    puts_info "Running IO Placement..."
     TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/io.log]
+    puts_info "Running IO Placement..."
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/io.log]\
@@ -178,8 +195,6 @@ proc place_io {args} {
 }
 
 proc place_contextualized_io {args} {
-    increment_index
-    puts_info "Running Contextualized IO Placement..."
     set options {{-lef required} {-def required}}
     set flags {}
     parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
@@ -188,7 +203,11 @@ proc place_contextualized_io {args} {
         puts_err "Contextual IO placement: def/lef files don't exist, exiting"
         flow_fail
     }
+
+    increment_index
     TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/io.contextualize.log]
+    puts_info "Running Contextualized IO Placement (log: [relpath . $log])..."
 
     file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
     file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
@@ -229,13 +248,13 @@ proc tap_decap_or {args} {
     if { $::env(TAP_DECAP_INSERTION) } {
         if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
             increment_index
-            puts_info "Running Tap/Decap Insertion..."
             TIMER::timer_start
+            set log [index_file $::env(floorplan_logs)/tap.log]
+            puts_info "Running Tap/Decap Insertion (log: [relpath . $log])..."
 
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
                 -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
                 -save "to=$::env(floorplan_results),noindex,def,odb"
-
             TIMER::timer_stop
             exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
         } else {
@@ -275,9 +294,8 @@ proc apply_def_template {args} {
 proc gen_pdn {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Generating PDN..."
-
-    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles)/pdn.pga.rpt]
+    set log [index_file $::env(floorplan_logs)/pdn.log]
+    puts_info "Generating PDN (log: [relpath . $log])..."
 
     if { ! [info exists ::env(VDD_NET)] } {
         set ::env(VDD_NET) $::env(VDD_PIN)

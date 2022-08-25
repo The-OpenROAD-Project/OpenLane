@@ -22,14 +22,12 @@ proc run_cts {args} {
         set ::env(CLOCK_TREE_SYNTH) 0
     }
 
-    if {$::env(CLOCK_TREE_SYNTH) } {
+    if {$::env(CLOCK_TREE_SYNTH)} {
         set ::env(CURRENT_STAGE) cts
         increment_index
         TIMER::timer_start
-
-        set cts_log [index_file $::env(cts_logs)/cts.log]
-        set cts_log_rel [relpath . $cts_log]
-        puts_info "Running Clock Tree Synthesis (logging to '$cts_log_rel')..."
+        set log [index_file $::env(cts_logs)/cts.log]
+        puts_info "Running Clock Tree Synthesis (log: [relpath . $log])..."
 
         if { ! [info exists ::env(CLOCK_NET)] } {
             set ::env(CLOCK_NET) $::env(CLOCK_PORT)
@@ -39,7 +37,7 @@ proc run_cts {args} {
         set ::env(cts_reports) [ index_file $::env(cts_reports)/cts.rpt]
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/cts.tcl\
-            -indexed_log $cts_log\
+            -indexed_log $log\
             -save "to=$::env(cts_results),noindex,def,sdc,odb"
 
         check_cts_clock_nets
@@ -60,7 +58,8 @@ proc run_resizer_timing {args} {
     if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Placement Resizer Timing Optimizations..."
+        set log [index_file $::env(cts_logs)/resizer.log]
+        puts_info "Running Placement Resizer Timing Optimizations (log: [relpath . $log])..."
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl\
             -indexed_log [index_file $::env(cts_logs)/resizer.log]\

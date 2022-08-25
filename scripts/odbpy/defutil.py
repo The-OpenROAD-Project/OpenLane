@@ -345,13 +345,11 @@ cli.add_command(replace_pins_command)
 
 @click.command("remove_components")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat instance name as a regular expression"
-)
-@click.option(
-    "-n",
-    "--instance-name",
-    default=".+",
-    help="Instance name to be removed (Default '.+', as a regular expression, removes everything.)",
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
 def remove_components(rx, instance_name, reader):
@@ -369,16 +367,17 @@ cli.add_command(remove_components)
 
 @click.command("remove_nets")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat net name as a regular expression"
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for nets to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click.option(
-    "-n",
-    "--net-name",
-    default=".+",
-    help="Net name to be removed (Default '.+', as a regular expression, removes everything.)",
-)
-@click.option(
-    "--empty-only", is_flag=True, default=False, help="Only remove empty nets."
+    "--empty-only",
+    is_flag=True,
+    default=False,
+    help="Adds a further condition to only remove empty nets (i.e. unconnected nets).",
 )
 @click_odb
 def remove_nets(rx, net_name, empty_only, reader):
@@ -403,13 +402,11 @@ cli.add_command(remove_nets)
 
 @click.command("remove_pins")
 @click.option(
-    "--rx/--not-rx", default=True, help="Treat pin name as a regular expression"
-)
-@click.option(
-    "-n",
-    "--pin-name",
-    default=".+",
-    help="Pin name to be removed (Default '.+', as a regular expression, removes everything.)",
+    "-m",
+    "--match",
+    "rx_str",
+    default="^.+$",
+    help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
 def remove_pins(rx, pin_name, reader):
