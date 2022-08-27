@@ -91,7 +91,7 @@ def run_test_case(test_case):
     # -------------------------------
     try:
         logfile = open(logpath, "w")
-        print(f"Running test case: {test_case_name} (logging to {logpath})")
+        print(f"Running test case: {test_case_name} (log: {logpath})")
         interactive = []
         interactive_file = os.path.join(test_case, "interactive.tcl")
         if os.path.exists(interactive_file):

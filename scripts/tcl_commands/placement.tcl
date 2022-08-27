@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,9 @@
 proc global_placement_or {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running Global Placement..."
+    set log [index_file $::env(placement_logs)/global.log]
+    puts_info "Running Global Placement (log: [relpath . $log])..."
+
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     # random initial placement
@@ -24,12 +26,13 @@ proc global_placement_or {args} {
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/replace.tcl -indexed_log [index_file $::env(placement_logs)/global.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log $log
+
     # sometimes replace fails with a ZERO exit code; the following is a workaround
     # until the cause is found and fixed
     if { ! [file exists $::env(SAVE_DEF)] } {
-        puts_err "Failure in global placement"
-        return -code error
+        puts_err "Global placement has failed to produce a DEF file."
+        flow_fail
     }
 
     check_replace_divergence
@@ -47,15 +50,18 @@ proc global_placement {args} {
 proc random_global_placement {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Performing Random Global Placement..."
+    set log [index_file $::env(placement_logs)/global.log]
+    puts_info "Performing Random Global Placement (log: [relpath . $log])..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/random_place.py --lef $::env(MERGED_LEF_UNPADDED) \
-        --input-def $::env(CURRENT_DEF) --output-def $::env(SAVE_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/global.log]
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
+        --output $::env(SAVE_DEF) \
+        --input-lef $::env(MERGED_LEF) \
+        $::env(CURRENT_DEF) \
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - random_place.py"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "random global placement - openlane"
     set_def $::env(SAVE_DEF)
 }
 
@@ -69,11 +75,12 @@ proc detailed_placement_or {args} {
 
     increment_index
     TIMER::timer_start
-    puts_info "Running Detailed Placement..."
-    set ::env(SAVE_DEF) $arg_values(-def)
     set log [index_file $arg_values(-log)]
+    puts_info "Running Detailed Placement (log: [relpath . $log])..."
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/opendp.tcl -indexed_log $log
+    set ::env(SAVE_DEF) $arg_values(-def)
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
     set_def $::env(SAVE_DEF)
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
@@ -101,27 +108,47 @@ proc add_macro_placement {args} {
 }
 
 proc manual_macro_placement {args} {
+    set options {}
+    set flags {-f}
+    parse_key_args "manual_macro_placement" args arg_values $options flags_map $flags
+
+
     increment_index
-    puts_info "Performing Manual Macro Placement..."
-    set var "f"
+    TIMER::timer_start
+    set log [index_file $::env(placement_logs)/macro_placement.log]
+    puts_info "Performing Manual Macro Placement (log: [relpath . $log])..."
+
     set fbasename [file rootname $::env(CURRENT_DEF)]
-    if { [string compare [lindex $args 0] $var] == 0 } {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(placement_tmpfiles)/macro_placement.cfg -f |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
-    } else {
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/manual_macro_place.py -l $::env(MERGED_LEF) -id $::env(CURRENT_DEF) -o ${fbasename}.macro_placement.def -c $::env(placement_tmpfiles)/macro_placement.cfg |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
+    set output_def ${fbasename}.macro_placement.def
+
+    set arg_list [list]
+
+    lappend arg_list --output $output_def
+    lappend arg_list --input-lef $::env(MERGED_LEF)
+    lappend arg_list --config $::env(placement_tmpfiles)/macro_placement.cfg
+    lappend arg_list $::env(CURRENT_DEF)
+
+    if { [info exists flags_map(-f)] } {
+        lappend arg_list --fixed
     }
-    set_def ${fbasename}.macro_placement.def
+
+    try_catch openroad -python\
+        $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
+        tee $::env(TERMINAL_OUTPUT) $log
+
+    set_def $output_def
 }
 
 proc basic_macro_placement {args} {
     increment_index
     TIMER::timer_start
-    puts_info "Running basic macro placement..."
+    set log [index_file $::env(placement_logs)/basic_mp.log]
+    puts_info "Running basic macro placement (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log [index_file $::env(placement_logs)/basic_mp.log]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log $log
 
     check_macro_placer_num_solns
 
@@ -153,10 +180,7 @@ proc run_placement {args} {
     }
 
     run_resizer_design
-
-    if { [info exists ::env(DONT_BUFFER_PORTS) ]} {
-        remove_buffers
-    }
+    remove_buffers_from_nets
 
     detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
 
@@ -167,10 +191,12 @@ proc run_resizer_design {args} {
     if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        puts_info "Running Placement Resizer Design Optimizations..."
+        set log [index_file $::env(placement_logs)/resizer.log]
+        puts_info "Running Placement Resizer Design Optimizations (log: [relpath . $log])..."
+
         set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
         set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log [index_file $::env(placement_logs)/resizer.log]
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log $log
         set_def $::env(SAVE_DEF)
         set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
@@ -188,19 +214,36 @@ proc run_resizer_design {args} {
     }
 }
 
-proc remove_buffers {args} {
+proc remove_buffers_from_nets {args} {
+    # This is a workaround for some situations where the resizer would buffer
+    # analog ports.
+    #
+    # Though to be clear- it works on all nets.
     increment_index
-    puts_info "Removing buffers..."
+    TIMER::timer_start
+    set log [index_file $::env(placement_logs)/remove_buffers.log]
+    puts_info "Removing Buffers from Ports (If Applicable) (log: [relpath . $log])..."
+
     set fbasename [file rootname $::env(CURRENT_DEF)]
-    set ::env(SAVE_DEF) ${fbasename}.remove_buffers.def
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/dont_buffer.py\
-        --input_lef  $::env(MERGED_LEF)\
-        --input_def $::env(CURRENT_DEF)\
-        --dont_buffer $::env(DONT_BUFFER_PORTS)\
-        --output_def $::env(SAVE_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(LOG_DIR)/placement/remove_buffers.log]
+    set ::env(SAVE_DEF) ${fbasename}.buffers_removed.def
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
+        --output $::env(SAVE_DEF)\
+        --input-lef $::env(MERGED_LEF)\
+        --match $::env(UNBUFFER_NETS)\
+        $::env(CURRENT_DEF)\
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
     set_def $::env(SAVE_DEF)
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"
+}
+
+proc remove_buffers_from_ports {args} {
+    handle_deprecated_command remove_buffers_from_nets
+}
+
+proc remove_buffers {args} {
+    handle_deprecated_command remove_buffers_from_nets
 }
 
 package provide openlane 0.9

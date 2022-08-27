@@ -17,12 +17,12 @@ foreach lib $::env(LIB_RESIZER_OPT) {
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -32,11 +32,11 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-read_sdc -echo $::env(CURRENT_SDC)
+read_sdc $::env(CURRENT_SDC)
 unset_propagated_clock [all_clocks]
 
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl 
+source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
 
 # estimate wire rc parasitics
 estimate_parasitics -placement
@@ -55,11 +55,11 @@ if { [info exists ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS)] && $::env(PL_RESIZER_BU
 # Resize
 if { [info exists ::env(PL_RESIZER_MAX_WIRE_LENGTH)] && $::env(PL_RESIZER_MAX_WIRE_LENGTH) } {
     repair_design -max_wire_length $::env(PL_RESIZER_MAX_WIRE_LENGTH) \
-                  -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
-                  -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
+        -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
+        -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 } else {
     repair_design -slew_margin $::env(PL_RESIZER_MAX_SLEW_MARGIN) \
-                  -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
+        -cap_margin $::env(PL_RESIZER_MAX_CAP_MARGIN)
 }
 
 if { $::env(PL_RESIZER_REPAIR_TIE_FANOUT) == 1} {
@@ -71,12 +71,10 @@ if { $::env(PL_RESIZER_REPAIR_TIE_FANOUT) == 1} {
 
 report_floating_nets -verbose
 
-set_placement_padding -global -right $::env(CELL_PAD)
+source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
 
-if { $::env(CELL_PAD_EXCLUDE) != "" } {
-    set_placement_padding -masters $::env(CELL_PAD_EXCLUDE) -right 0 -left 0
-}
 detailed_placement
+
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
     optimize_mirroring
 }
@@ -92,4 +90,4 @@ write_sdc $::env(SAVE_SDC)
 # Run post design optimizations STA
 estimate_parasitics -placement
 set ::env(RUN_STANDALONE) 0
-source $::env(SCRIPTS_DIR)/openroad/sta.tcl 
+source $::env(SCRIPTS_DIR)/openroad/sta.tcl

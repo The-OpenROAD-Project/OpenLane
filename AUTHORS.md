@@ -3,26 +3,26 @@ of copyright. All binaries provided are also distributed by Efabless Corporation
 
 https://efabless.com
 
-# OpenLane Project Founders
+> Project founders are marked by an asterisk (*).
 
-- Tim Edwards <tim@efabless.com>
-- Kareem Farid <kareem.farid@efabless.com>
-- Ahmed Ghazy <ahmed.ghazy@efabless.com>
-- Amr Gouhar <aagouhar@efabless.com>
-- Mohamed Shalan, PhD. <mshalan@efabless.com>
+## Core Team
 
-# OpenLane Core Team
+- Tim Edwards<sup>*</sup> <tim@efabless.com>
+- Kareem Farid<sup>*</sup> <kareem.farid@efabless.com>
+- Mohamed Gaber <donn@efabless.com>
+- Mohamed Shalan, PhD.<sup>*</sup> <mshalan@efabless.com>
+
+## Core Team Alumni
 
 - Manar Abdelatty <manarabdelaty@efabless.com>
-- Tim Edwards <tim@efabless.com>
-- Kareem Farid <kareem.farid@efabless.com>
-- Mohamed Gaber <mohamed.gaber@efabless.com>
-- Mohamed Shalan, PhD. <mshalan@efabless.com>
+- Ahmed Ghazy<sup>*</sup> <ahmed.ghazy@efabless.com>
+- Amr Gouhar<sup>*</sup> <aagouhar@efabless.com>
 
-# All Contributors
+## All Contributors
+
 https://github.com/The-OpenROAD-Project/OpenLane/graphs/contributors
 
-# Special Thanks
+## Special Thanks
 
 - Tim Ansell <tansell@google.com>
 - Risto Bell <rb@efabless.com>

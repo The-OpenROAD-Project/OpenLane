@@ -1,6 +1,5 @@
 # Porting a PDK
-
-This readme describes how to port a PDK to openlane.
+This readme describes how to structure a PDK for use with OpenLane.
 
 ## Folder structure
 This is the expected folder structure for a PDK:
@@ -29,8 +28,7 @@ This is the expected folder structure for a PDK:
 
 
 ## PDK Variables
-
-This section defines the neccessary variables for PDK configuration file. Note that all defaults are for sky130A.
+This section defines the neccessary variables for PDK configuration file. Note that all examples given are for sky130A.
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
@@ -51,27 +49,27 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |
 | `FP_TAPCELL_DIST` | The distance between tapcell columns. Used in floorplanning in tapcell insertion. |
 | `DEFAULT_MAX_TRAN` | Defines the default maximum transition value, used in CTS & synthesis. |
-| `FP_PDN_RAIL_OFFSET` | Defines the rail offset for met1 used in PDN. <br> Default: `0`. |
-| `FP_PDN_VWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> Default: `1.6`. |
-| `FP_PDN_HWIDTH` | Defines the strap width for the horizontal layer used in PDN. <br> Default: `1.6`. |
-| `FP_PDN_CORE_RING_VWIDTH` | Defines the vertical width for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
-| `FP_PDN_CORE_RING_HWIDTH` | Defines the horizontal width for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
-| `FP_PDN_CORE_RING_VSPACING` | Defines the spacing for the vertical layer used to create the core ring in the PDN. <br> Default: `5`. |
-| `FP_PDN_CORE_RING_HSPACING` | Defines the spacing for the horizontal layer used to create the core ring in the PDN. <br> Default: `5`. |
-| `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> Default: `20`. |
-| `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> Default: `20`. |
-| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> Default: `met1`.|
-| `GLB_RT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Default: `0.99,0,0,0,0,0`)
-| `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Default: `met3`)|
-| `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `met2`)|
-| `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Default: `met1`)|
-| `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Default: `met5`)|
+| `FP_PDN_RAIL_OFFSET` | Defines the rail offset for met1 used in PDN. <br> (Example: `0`) | |
+| `FP_PDN_VWIDTH` | Defines the strap width for the vertical layer used in PDN. <br> (Example: `1.6`) | |
+| `FP_PDN_HWIDTH` | Defines the strap width for the horizontal layer used in PDN. <br> (Example: `1.6`) | |
+| `FP_PDN_CORE_RING_VWIDTH` | Defines the vertical width for the vertical layer used to create the core ring in the PDN. <br> (Example: `20`) | |
+| `FP_PDN_CORE_RING_HWIDTH` | Defines the horizontal width for the horizontal layer used to create the core ring in the PDN. <br> (Example: `20`) | |
+| `FP_PDN_CORE_RING_VSPACING` | Defines the spacing for the vertical layer used to create the core ring in the PDN. <br> (Example: `5`) | |
+| `FP_PDN_CORE_RING_HSPACING` | Defines the spacing for the horizontal layer used to create the core ring in the PDN. <br> (Example: `5`) | |
+| `FP_PDN_CORE_RING_VOFFSET` | Defines the offset for the vertical layer used to create the core ring in the PDN. <br> (Example: `20`) | |
+| `FP_PDN_CORE_RING_HOFFSET` | Defines the offset for the horizontal layer used to create the core ring in the PDN. <br> (Example: `20`) | |
+| `WIRE_RC_LAYER` | The metal layer used in estimate parastics `set_wire_rc`. <br> (Example: `met1`) ||
+| `GRT_LAYER_ADJUSTMENTS` | Layer-specific reductions in the routing capacity of the edges between the cells in the global routing graph, delimited by commas. Values range from 0 to 1. <br> (Example: `0.99,0,0,0,0,0`)
+| `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Example: `met3`)|
+| `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Example: `met2`)|
+| `RT_MIN_LAYER`  | The lowest metal layer to route on. <br>(Example: `met1`)|
+| `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Example: `met5`)|
 | `RCX_RULES_MIN` | OpenRCX rules at the minimum corner. (Optional) |
 | `RCX_RULES` | OpenRCX rules at the nominal corner. |
 | `RCX_RULES_MAX` | OpenRCX rules at the maximum corner. (Optional) |
 
 
-## Standard cell library-specific variables
+## SCL-specific variables
 
 This section defines the necessary variables to configure a standard cell library for use with OpenLane:
 
@@ -87,22 +85,26 @@ This section defines the necessary variables to configure a standard cell librar
 | `PLACE_SITE_HEIGHT` | Defines the main site height. Used during floorplanning to generate the rows. |
 | `FP_WELLTAP_CELL` | Defines the tapcell to be used in tapcell insertion. <br> If this is not defined then tapcell insertion will be skipped but the flow will resume normally |
 | `FP_ENDCAP_CELL` | Defines the decapcell. Inserted during floorplanning at the sides of the design. |
-| `SYNTH_DRIVING_CELL` | Defines the cell to drive the input ports. Used in synthesis |
-| `SYNTH_DRIVING_CELL_PIN` | Defines the driving cell output pin. Used in synthesis |
+| `SYNTH_DRIVING_CELL`  | The cell to drive the input ports, used in synthesis and static timing analysis. <br>(Example: `sky130_fd_sc_hd__inv_1`)|
+| `SYNTH_DRIVING_CELL_PIN`  | The name of the `SYNTH_DRIVING_CELL`'s output pin. <br>(Default: `Y`)|
+| `SYNTH_CLK_DRIVING_CELL`  | An alternative cell with which to drive clock inputs. Can be left empty, where the SDC script will use `SYNTH_DRIVING_CELL` for clock inputs as well. |
+| `SYNTH_CLK_DRIVING_CELL_PIN`  | The name of the SYNTH_CLK_DRIVING_CELL output pin. Can be left empty, where the SDC script will use `SYNTH_DRIVING_CELL_PIN`. |
 | `SYNTH_CAP_LOAD` | Defines the capacitive load on the output ports in femtofarads. Used in synthesis |
-| `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. Example: `sky130_fd_sc_hd__buf_2 A X`  |
-| `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. Example: `sky130_fd_sc_hd__conb_1 HI` |
-| `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. Example: `sky130_fd_sc_hd__conb_1 LO` |
+| `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. <br> (Example: `sky130_fd_sc_hd__buf_2 A X`  )|
+| `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 HI`)|
+| `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
 | `CELL_CLK_PORT` | Defines the name of clk port of the flip flops and other cells. Used in CTS. |
 | `PL_LIB` | Points to the lib view used in time driven placement.  |
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
-| `CELL_PAD` | Defines the number of sites to pad the cells lef views with. |
-| `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding. |
+| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Example: `0`) |
+| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells lef views with during detailed placement . The number will be integer divided by 2 and placed on both sides. <br> (Example: `4`) |
+| `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
-| `CLK_BUFFER` | Defines the clock buffer cell. Used in CTS. |
-| `CLK_BUFFER_INPUT` | Defines the clock buffer cell input port. Used in CTS. |
-| `CLK_BUFFER_OUTPUT` | Defines the clock buffer cell output port. Used in CTS. |
+| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_16`) |
+| `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_4`) |
+| `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Example: `A`) |
+| `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Example: `X`)|
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
 | `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |

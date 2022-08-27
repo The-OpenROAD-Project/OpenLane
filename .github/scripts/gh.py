@@ -105,7 +105,7 @@ if os.getenv("GITHUB_ACTIONS") != "true":
         )[:-1]
 
     repo_url = git_command("remote", "get-url", "origin")
-    branch = git_command("branch", "--show-current")
+    branch = git_command("rev-parse", "--abbrev-ref", "HEAD")
 
     os.environ["REPO_URL"] = repo_url
     os.environ["BRANCH_NAME"] = branch
@@ -138,7 +138,8 @@ gh = SimpleNamespace(
         "branch": os.getenv("BRANCH_NAME"),
         "image": os.getenv("OPENLANE_IMAGE_NAME"),
         "root": os.getenv("GITHUB_WORKSPACE"),
-        "pdk": os.getenv("PDK_ROOT"),
+        "pdk_root": os.getenv("PDK_ROOT"),
+        "pdk": os.getenv("PDK"),
         "tool": os.getenv("TOOL"),
         "event": SimpleNamespace(**{"name": os.getenv("GITHUB_EVENT_NAME")}),
         "export_env": export_env,

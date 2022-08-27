@@ -13,7 +13,6 @@
 # limitations under the License.
 
 # Placement defaults
-set ::env(PL_TARGET_DENSITY) 0.55
 set ::env(PL_ROUTABILITY_DRIVEN) 1
 set ::env(PL_TIME_DRIVEN) 1
 set ::env(PL_RANDOM_GLB_PLACEMENT) 0
@@ -40,3 +39,4 @@ set ::env(PL_MAX_DISPLACEMENT_X) 500
 set ::env(PL_MAX_DISPLACEMENT_Y) 100
 set ::env(PL_MACRO_HALO) {0 0}
 set ::env(PL_MACRO_CHANNEL) {0 0}
+set ::env(UNBUFFER_NETS) "^$"

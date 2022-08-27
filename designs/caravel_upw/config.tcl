@@ -16,7 +16,7 @@
 set ::env(PDK) "sky130A"
 set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
 
-set script_dir [file dirname [file normalize [info script]]]
+set script_dir $::env(DESIGN_DIR)
 
 # This makes sure that the core rings are outside the boundaries
 # of your block.
@@ -66,8 +66,6 @@ set ::env(FP_PDN_HPITCH) $::env(FP_PDN_VPITCH)
 set ::env(FP_PDN_VOFFSET) 5
 set ::env(FP_PDN_HOFFSET) $::env(FP_PDN_VOFFSET)
 
-set script_dir [file dirname [file normalize [info script]]]
-
 set ::env(DESIGN_NAME) user_project_wrapper
 #section end
 
@@ -87,24 +85,24 @@ set ::env(CLOCK_PERIOD) "10"
 ## Internal Macros
 ### Macro PDN Connections
 set ::env(FP_PDN_MACRO_HOOKS) "\
-    mprj1 vccd1 vssd1,\
-    mprj2 vccd2 vssd2"
+    mprj1 vccd1 vssd1 vccd1 vssd1,\
+    mprj2 vccd2 vssd2 vccd2 vssd2"
 
 ### Macro Placement
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
-    $script_dir/src/defines.v 
-    $script_dir/src/user_proj_example.v 
+    $script_dir/src/defines.v\
+    $script_dir/src/user_proj_example.v\
     $script_dir/src/user_proj_example2.v"
 
 set ::env(EXTRA_LEFS) "\
-    $script_dir/macros/user_proj_example.lef 
+    $script_dir/macros/user_proj_example.lef\
     $script_dir/macros/user_proj_example2.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-    $script_dir/macros/user_proj_example.gds 
+    $script_dir/macros/user_proj_example.gds\
     $script_dir/macros/user_proj_example2.gds"
 
 set ::env(RT_MAX_LAYER) {met4}

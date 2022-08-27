@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set ::env(DESIGN_IS_CORE) 1
+
 # Floorplan defaults
 set ::env(FP_SIZING) relative
 set ::env(FP_CORE_UTIL) 50
+# PL_TARGET_DENSITY default value set in all.tcl because of the order of sourcing.
 set ::env(FP_CORE_MARGIN) 0
 set ::env(FP_ASPECT_RATIO) 1
 
@@ -51,6 +54,4 @@ set ::env(FP_PDN_VERTICAL_HALO) $::env(FP_PDN_HORIZONTAL_HALO)
 set ::env(FP_TAP_HORIZONTAL_HALO) 10
 set ::env(FP_TAP_VERTICAL_HALO) $::env(FP_TAP_HORIZONTAL_HALO)
 set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) 1
-set ::env(FP_PDN_ENABLE_MACROS_GRID) 1 
-
-set ::env(DESIGN_IS_CORE) 1
+set ::env(FP_PDN_ENABLE_MACROS_GRID) 1

@@ -46,8 +46,9 @@ def cli(output, input_file):
 
     best_area = ""
     best_delay = ""
+    best_gates = ""
 
-    strat_rx = re.compile(r"USING STRATEGY ([A-Z]+\d+)")
+    strat_rx = re.compile(r"USING STRATEGY ([A-Z]+\s+\d+)")
     delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
     area_rx = re.compile(r"Area\s+\=\s+(\S+)")
     gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
@@ -80,7 +81,7 @@ def cli(output, input_file):
 
             if gates < minimum_gates:
                 minimum_gates = gates
-                bestGates = strategy_name
+                best_gates = strategy_name
 
             data.append((strategy_name, delay, area, gates))
 
@@ -118,7 +119,7 @@ def cli(output, input_file):
         </tr>
         <tr>
             <td>{best_area}</td>
-            <td>{bestGates}</td>
+            <td>{best_gates}</td>
             <td>{best_delay}</td>
         </tr>
         </table><br>

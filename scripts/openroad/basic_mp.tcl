@@ -16,12 +16,12 @@ foreach lib $::env(LIB_SYNTH) {
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {
-	foreach lib $::env(EXTRA_LIBS) {
-		read_liberty $lib
-	}
+    foreach lib $::env(EXTRA_LIBS) {
+        read_liberty $lib
+    }
 }
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -29,7 +29,7 @@ if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
 if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
-}  
+}
 
 macro_placement\
     -channel $::env(PL_MACRO_CHANNEL)\
