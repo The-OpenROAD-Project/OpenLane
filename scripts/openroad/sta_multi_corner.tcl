@@ -60,7 +60,7 @@ if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef -corner ff $::env(CURRENT_SPEF)
 }
 
-read_sdc -echo $::env(CURRENT_SDC)
+read_sdc $::env(CURRENT_SDC)
 if { $::env(STA_PRE_CTS) == 1 } {
     unset_propagated_clock [all_clocks]
 } else {

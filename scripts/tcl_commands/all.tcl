@@ -15,7 +15,6 @@
 package require json
 package require openlane_utils
 
-
 proc save_state {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
     puts_info "Saving runtime environment..."
@@ -90,6 +89,8 @@ proc prep_lefs {args} {
     set_if_unset arg_values(-env_var) MERGED_LEF
     set_if_unset arg_values(-corner) nom
 
+    set merged_lef_path $::env(TMP_DIR)/merged.$arg_values(-corner).lef
+
     if { ![file exists $arg_values(-tech_lef)] } {
         if { $arg_values(-env_var) == "MERGED_LEF" } {
             puts_err "Nominal process corner '$arg_values(-tech_lef)' not found."
@@ -101,45 +102,49 @@ proc prep_lefs {args} {
     puts_info "Preparing LEF files for the $arg_values(-corner) corner..."
 
     if { $arg_values(-corner) == "nom" } {
-        puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)"
+        puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)..."
 
-        set ::env(TECH_METAL_LAYERS)  [exec python3 $::env(SCRIPTS_DIR)/extract_metal_layers.py $arg_values(-tech_lef)]
+        if { [info exists ::env(METAL_LAYER_NAMES)] } {
+            set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
+        } else {
+            try_catch openroad -python\
+                $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
+                -o $::env(TMP_DIR)/layers.list\
+                $arg_values(-tech_lef)
+            set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
+        }
         set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
 
-        puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)"
+        puts_verbose "The available metal layers ($::env(MAX_METAL_LAYER)) are $::env(TECH_METAL_LAYERS)."
         puts_verbose "Merging LEF Files..."
     }
 
-    set mlu $::env(TMP_DIR)/merged.unpadded.$arg_values(-corner).lef
-
     try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-        -o $mlu\
+        -o $merged_lef_path\
         -i $arg_values(-tech_lef) $arg_values(-cell_lef)\
         |& tee $::env(TERMINAL_OUTPUT)
 
-    set mlu_relative [relpath . $mlu]
-    puts_verbose "Created merged LEF without pads at '$mlu_relative'..."
+    set mlp_relative [relpath . $merged_lef_path]
+    puts_verbose "Created merged LEF without pads at '$mlp_relative'..."
 
     # Merged Extra Lefs (if they exist)
     if { [info exist ::env(EXTRA_LEFS)] } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $mlu\
-            -i $mlu {*}$::env(EXTRA_LEFS)\
+            -o $merged_lef_path\
+            -i $merged_lef_path {*}$::env(EXTRA_LEFS)\
             |& tee $::env(TERMINAL_OUTPUT)
-        puts_verbose "Added extra lefs to '$mlu_relative'..."
+        puts_verbose "Added extra lefs to '$mlp_relative'..."
     }
 
     # Merge optimization TLEF/CLEF (if exists)
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $mlu\
-            -i $mlu $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
-        puts_verbose "Added optimization library tech lef and cell lefs to '$mlu_relative'..."
+            -o $merged_lef_path\
+            -i $merged_lef_path $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
+        puts_verbose "Added optimization library tech lef and cell lefs to '$mlp_relative'..."
     }
 
     # Merge pads (if GPIO_PADS_LEF exists)
-    set ml $::env(TMP_DIR)/merged.$arg_values(-corner).lef
-    set ml_relative [relpath . $ml]
     if { $::env(USE_GPIO_PADS) } {
         if { [info exists ::env(USE_GPIO_ROUTING_LEF)] && $::env(USE_GPIO_ROUTING_LEF)} {
             set ::env(GPIO_PADS_LEF) $::env(GPIO_PADS_LEF_CORE_SIDE)
@@ -147,21 +152,12 @@ proc prep_lefs {args} {
 
         puts_verbose "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
         try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
-            -o $ml\
-            -i $mlu {*}$::env(GPIO_PADS_LEF)
-        puts_verbose "Created '$ml_relative' with gpio pads."
-    } else {
-        file copy -force $mlu $ml
-        puts_verbose "Created '$ml_relative' unaltered."
+            -o $merged_lef_path\
+            -i $merged_lef_path {*}$::env(GPIO_PADS_LEF)
+        puts_verbose "Created '$mlp_relative' with gpio pads."
     }
 
-    set ::env($arg_values(-env_var)_UNPADDED) $mlu
-    set ::env($arg_values(-env_var)) $ml
-
-    if { ![info exists flags_map(-no_widen)] } {
-        widen_site_width
-        use_widened_lefs
-    }
+    set ::env($arg_values(-env_var)) $merged_lef_path
 }
 
 proc gen_exclude_list {args} {
@@ -190,6 +186,7 @@ proc gen_exclude_list {args} {
             fcopy $in $out
             close $in
         }
+        puts $out ""
         close $out
     }
 
@@ -207,6 +204,7 @@ proc gen_exclude_list {args} {
         set x [cat "$arg_values(-output)"]
         set y [split $x]
         set ::env(DONT_USE_CELLS) [join $y " "]
+        puts_verbose "Created ::env(DONT_USE_CELLS): {$::env(DONT_USE_CELLS)}"
     }
 
 
@@ -240,35 +238,77 @@ proc trim_lib {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
         --cell-file $arg_values(-output).exclude.list\
         --output $arg_values(-output)\
-        $arg_values(-input)
+        {*}$arg_values(-input)
 }
 
-proc source_config {config_file} {
-    puts_info "Sourcing Configurations from $config_file"
-    if { ![file exists $config_file] } {
-        puts_err "Configuration file $config_file not found"
-        return -code error
+proc source_config {args} {
+    set options {
+        {-run_path optional}
     }
-    if { [file extension $config_file] == ".tcl" } {
-        # for trusted end-users only
-        source $config_file
-    } elseif { [file extension $config_file] == ".json" } {
-        set config_content [cat $config_file]
+    set flags {}
+    parse_key_args "source_config" args arg_values $options flags_map $flags
 
-        if { [catch {json::json2dict "$config_content"} config_dict] } {
-            puts_err "Failed to parse JSON file $config_file"
+    if { ![info exists arg_values(-run_path)] } {
+        if { ![info exists ::env(RUN_DIR)] } {
+            puts_err "source_config needs either the -run_path option or ::env(RUN_DIR) set."
             return -code error
+        } else {
+            set_if_unset $arg_values(-run_path) $::env(RUN_DIR)
         }
-        dict for {config_key config_value} $config_dict {
-            # TODO after refactor: check if config_key is a valid configuration
-            set ::env($config_key) $config_value
-        }
-    } else {
-        puts_err "Configuration file $config_file with invalid extension"
+    }
+
+    set config_file [lindex $args 0]
+    set config_file_rel [relpath . $config_file]
+
+    if { ![file exists $config_file] } {
+        puts_err "$config_file_rel error: file not found"
         return -code error
     }
 
-    return -code ok
+    set ext [file extension $config_file]
+    set config_in_path $arg_values(-run_path)/config_in.tcl
+
+    if { $ext == ".tcl" } {
+        # for trusted end-users only
+        exec cp $config_file $config_in_path
+    } elseif { $ext == ".json" } {
+        set scl NULL
+        set arg_list [list]
+        lappend arg_list --pdk $::env(PDK)
+        if { [info exists ::env(STD_CELL_LIBRARY)] } {
+            lappend arg_list --scl $::env(STD_CELL_LIBRARY)
+        }
+        lappend arg_list --output $config_in_path
+        lappend arg_list --design-dir $::env(DESIGN_DIR)
+
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json $config_file {*}$arg_list} errmsg] } {
+            puts_err $errmsg
+            exit -1
+        }
+
+    } else {
+        puts_err "$config_file error: unsupported extension '$ext'"
+        return -code error
+    }
+
+
+    if { ![info exists ::env(STD_CELL_LIBRARY)] } {
+        set ::env(STD_CELL_LIBRARY) {}
+        source $config_in_path
+        unset ::env(STD_CELL_LIBRARY)
+    } else {
+        source $config_in_path
+    }
+}
+
+proc load_overrides {overrides} {
+    set env_overrides [split $overrides ',']
+    foreach override $env_overrides {
+        set kva [split $override '=']
+        set key [lindex $kva 0]
+        set value [lindex $kva 1]
+        set ::env(${key}) $value
+    }
 }
 
 proc prep {args} {
@@ -276,9 +316,8 @@ proc prep {args} {
     set ::env(timer_start) [clock seconds]
     TIMER::timer_start
     set options {
-        {-design required}
+        {-design optional}
         {-tag optional}
-        {-config_tag optional}
         {-config_file optional}
         {-run_path optional}
         {-src optional}
@@ -288,6 +327,7 @@ proc prep {args} {
 
     set flags {
         -init_design_config
+        -add_to_designs
         -overwrite
         -last_run
     }
@@ -297,17 +337,8 @@ proc prep {args} {
 
     # Storing the current state of environment variables
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-
-    if { [info exists arg_values(-config_tag)] } {
-        if { [info exists arg_values(-config_file)] } {
-            puts_err "Cannot specify both -config_tag and -config_file"
-            return -code error
-        }
-        set config_tag $arg_values(-config_tag)
-    } else {
-        set config_tag "config"
-    }
-    set src_files ""
+    set_if_unset arg_values(-src) ""
+    set_if_unset arg_values(-design) "."
 
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {
@@ -315,17 +346,29 @@ proc prep {args} {
     }
 
     if { [info exists flags_map(-init_design_config)] } {
-        set config_tag "config"
-        if { [info exists arg_values(-tag) ] } {
-            set config_tag $arg_values(-tag)
+        set filename "$::env(DESIGN_DIR)/config.json"
+
+        if { [info exists arg_values(-config_file)] } {
+            set filename $arg_values(-config_file)
         }
 
-        if { [info exists arg_values(-src) ] } {
-            set src_files $arg_values(-src)
-        }
+        set basename [file tail $filename]
 
-        init_design $arg_values(-design) $config_tag $src_files
-        puts_success "Done..."
+        set arg_list [list]
+
+        lappend arg_list --design-dir $::env(DESIGN_DIR)
+        lappend arg_list --config-file-name $basename
+        lappend arg_list --design-name $arg_values(-design)
+        if { [info exists flags_map(-add_to_designs)] } {
+            lappend arg_list --add-to-designs
+        }
+        lappend arg_list {*}$arg_values(-src)
+
+        set filename [exec python3 $::env(SCRIPTS_DIR)/config/init.py {*}$arg_list]
+
+        set filename_rel [relpath . $filename]
+
+        puts_success "$filename_rel created with the default configuration. Please update the values as you see fit."
         exit 0
     }
 
@@ -352,63 +395,64 @@ proc prep {args} {
     set_if_unset arg_values(-tag) "RUN_$::env(START_TIME)"
     set tag $arg_values(-tag)
 
-
-    set ::env(CONFIGS) [glob $::env(OPENLANE_ROOT)/configuration/*.tcl]
+    set ::env(CONFIGS) [cat $::env(OPENLANE_ROOT)/configuration/load_order.txt]
 
     if { [info exists arg_values(-config_file)] } {
         set ::env(DESIGN_CONFIG) $arg_values(-config_file)
     } else {
-        if { [file exists $::env(DESIGN_DIR)/$config_tag.tcl] } {
-            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.tcl
+        if { [file exists $::env(DESIGN_DIR)/config.tcl] } {
+            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/config.tcl
+        } elseif { [file exists $::env(DESIGN_DIR)/config.json] } {
+            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/config.json
         } else {
-            set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/$config_tag.json
+            puts_err "No design configuration (config.json/config.tcl) found in $::env(DESIGN_DIR)."
+            return -code error
         }
     }
-
-    if { ! [file exists $::env(DESIGN_CONFIG)] } {
-        puts_err "No design configuration found at $::env(DESIGN_CONFIG)"
-        return -code error
-    }
-
-    puts_info "Using design configuration at $::env(DESIGN_CONFIG)"
 
     foreach config $::env(CONFIGS) {
-        source $config
+        source $::env(OPENLANE_ROOT)/configuration/$config
     }
 
-    # needs to be sourced first since it can choose to determine the PDK and SCL
-    source_config $::env(DESIGN_CONFIG)
+    if { [info exists arg_values(-run_path)] } {
+        set run_path "[file normalize $arg_values(-run_path)]/$tag"
+    } else {
+        set run_path $::env(DESIGN_DIR)/runs/$tag
+    }
+
+    file mkdir $run_path
+
+    # Needs to be preliminarily sourced at this point, as the PDK
+    # and STD_CELL_LIBRARY values can be in this file.
+    set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
+
+    puts_info "Using configuration in '$config_file_rel'..."
+    source_config -run_path $run_path $::env(DESIGN_CONFIG)
 
     if { [info exists arg_values(-override_env)] } {
-        set env_overrides [split $arg_values(-override_env) ',']
-        foreach override $env_overrides {
-            set kva [split $override '=']
-            set key [lindex $kva 0]
-            set value [lindex $kva 1]
-            set ::env(${key}) $value
-        }
+        load_overrides $arg_values(-override_env)
     }
-
-
-    # DEPRECATED PDK_VARIANT
-    handle_deprecated_config PDK_VARIANT STD_CELL_LIBRARY
 
     # Diagnostics
     if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
         puts_err "PDK_ROOT is not specified. Please make sure you have it set."
         return -code error
     } else {
-        puts_info "PDKs root directory: $::env(PDK_ROOT)"
+        puts_info "PDK Root: $::env(PDK_ROOT)"
     }
 
     if { ! [info exists ::env(PDK)] } {
         puts_err "PDK is not specified."
         return -code error
     } else {
-        puts_info "PDK: $::env(PDK)"
-        puts_info "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
+        puts_info "Process Design Kit: $::env(PDK)"
+        puts_verbose "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
         set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
+
+    # Source PDK and SCL specific configurations
+    set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
+    source $pdk_config
 
     if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
         puts_err "STD_CELL_LIBRARY is not specified."
@@ -419,7 +463,7 @@ proc prep {args} {
 
     if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
         set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
-        puts_info "Optimization Standard Cell Library is set to: $::env(STD_CELL_LIBRARY_OPT)"
+        puts_verbose "Optimization SCL also set to $::env(STD_CELL_LIBRARY_OPT)."
     } else {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
@@ -428,33 +472,48 @@ proc prep {args} {
         set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/pdn_cfg.tcl
     }
 
-    # source PDK and SCL specific configurations
-    set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
-    source $pdk_config
-
-    # Value set by PDK for some reason
-    if { [info exists ::env(GLB_RT_L1_ADJUSTMENT) ] } {
-        unset ::env(GLB_RT_L1_ADJUSTMENT)
-    }
-
     source $scl_config
 
-    # needs to be resourced to make sure it overrides the above
-    source_config $::env(DESIGN_CONFIG)
+    # Re-source/re-override to make sure it overrides any configurations from the previous two sources
+    source_config -run_path $run_path $::env(DESIGN_CONFIG)
+    if { [info exists arg_values(-override_env)] } {
+        load_overrides $arg_values(-override_env)
+    }
+
+    set_if_unset arg_values(-verbose) "0"
+    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
-    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
-    handle_deprecated_config ROUTING_OPT_ITERS DRT_OPT_ITERS;
+
     handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
-    if { [info exists arg_values(-run_path)] } {
-        set run_path "[file normalize $arg_values(-run_path)]/$tag"
-    } else {
-        set run_path $::env(DESIGN_DIR)/runs/$tag
+    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
+
+    handle_deprecated_config GLB_RT_ALLOW_CONGESTION GRT_ALLOW_CONGESTION;
+    handle_deprecated_config GLB_RT_OVERFLOW_ITERS GRT_OVERFLOW_ITERS;
+    handle_deprecated_config GLB_RT_ANT_ITERS GRT_ANT_ITERS;
+    handle_deprecated_config GLB_RT_ESTIMATE_PARASITICS GRT_ESTIMATE_PARASITICS;
+    handle_deprecated_config GLB_RT_MAX_DIODE_INS_ITERS GRT_MAX_DIODE_INS_ITERS;
+    handle_deprecated_config GLB_RT_OBS GRT_OBS;
+    handle_deprecated_config GLB_RT_ADJUSTMENT GRT_ADJUSTMENT;
+    handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION;
+    handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
+
+    handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
+
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            exit -1
+        }
+
+        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 
 
@@ -463,49 +522,44 @@ proc prep {args} {
     # Prep directories and files
     ############################
     #
+
+    set skip_basic_prep 0
+
     set ::env(RUN_TAG)		"$tag"
     set ::env(RUN_DIR) 		"$run_path"
     set ::env(RESULTS_DIR) 	"$::env(RUN_DIR)/results"
     set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
-    set ::env(LOGS_DIR) 		"$::env(RUN_DIR)/logs"
+    set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
     set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
-    set ::env(GLB_CFG_FILE) 	"$::env(RUN_DIR)/config.tcl"
+    set ::env(GLB_CFG_FILE) "$::env(RUN_DIR)/config.tcl"
 
-    set skip_basic_prep 0
-
-    if { [file exists $::env(RUN_DIR)] } {
-        if { [info exists flags_map(-overwrite)] } {
-            puts_warn "Removing existing run at $::env(RUN_DIR)..."
-            after 1000
-            file delete -force $::env(RUN_DIR)
-        } elseif { ![info exists flags_map(-last_run)] } {
-            puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-            after 1000
-            set skip_basic_prep 1
-        }
-    }
-
-
-    # file mkdir *ensures* they exists (no problem if they already do)
-    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
-
-    puts_info "Current run directory is $::env(RUN_DIR)"
+    puts_info "Run Directory: $::env(RUN_DIR)"
 
     if { [file exists $::env(GLB_CFG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing $::env(GLB_CFG_FILE)"
-            file delete $::env(GLB_CFG_FILE)
+            puts_info "Removing existing $::env(RUN_DIR)..."
+            after 1000
+            file delete -force $::env(RUN_DIR)
         } else {
-            puts_info "Sourcing $::env(GLB_CFG_FILE)\nAny changes to the DESIGN config file will NOT be applied"
+            if { ![info exists flags_map(-last_run)] } {
+                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
+                after 1000
+            }
+            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
             if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
                 puts_info "Current DEF: $::env(CURRENT_DEF)."
                 puts_info "Use 'set_def file_name.def' if you'd like to change it."
             }
             after 1000
+            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
+                set skip_basic_prep 1
+            }
         }
     }
 
+    # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
+    file mkdir $::env(RESULTS_DIR) $::env(TMP_DIR) $::env(LOGS_DIR) $::env(REPORTS_DIR)
 
     set run_subfolder_structure [list \
         synthesis\
@@ -518,7 +572,6 @@ proc prep {args} {
     ]
 
     foreach subfolder $run_subfolder_structure {
-
         set ::env(${subfolder}_reports) $::env(REPORTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_reports)
 
@@ -530,6 +583,10 @@ proc prep {args} {
 
         set ::env(${subfolder}_results) $::env(RESULTS_DIR)/$subfolder
         file mkdir $::env(${subfolder}_results)
+    }
+
+    if { ![info exists ::env(PL_TARGET_DENSITY)] } {
+        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 5.0) / 100.0]
     }
 
     set util 	$::env(FP_CORE_UTIL)
@@ -609,6 +666,16 @@ proc prep {args} {
                 puts_warn "GPIO_PADS_VERILOG is not set; cannot read as a blackbox"
             }
         }
+
+
+        # Convert Tracks
+        if { $::env(TRACKS_INFO_FILE) != "" } {
+            set tracks_processed $::env(routing_tmpfiles)/config.tracks
+            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+            set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
+        }
+
+        set ::env(BASIC_PREP_COMPLETE) {1}
     }
 
     # Fill config file with special cases
@@ -663,28 +730,9 @@ proc prep {args} {
         try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
     }
 
-    # Convert Tracks
-    if { $::env(TRACKS_INFO_FILE) != "" } {
-        set tracks_processed $::env(routing_tmpfiles)/config.tracks
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
-        set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
-    }
-
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
-        puts_info "Looking for files defined in ::env(EXTRA_GDS_FILES) $::env(EXTRA_GDS_FILES) ..."
-        assert_files_exist $::env(EXTRA_GDS_FILES)
-    }
-
-
-    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
-            puts_err $::env(VCHECK_OUTPUT)
-            puts_err "Please update your environment. OpenLane will now quit."
-            flow_fail
-            return -code error
-        }
-        
-        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
+        puts_verbose "Verifying existence of files defined in ::env(EXTRA_GDS_FILES)..."
+        assert_files_exist "$::env(EXTRA_GDS_FILES)"
     }
 
     TIMER::timer_stop
@@ -750,7 +798,8 @@ proc save_views {args} {
     } else {
         set path $::env(RESULTS_DIR)/final
     }
-    puts_info "Saving final set of views in '$path'..."
+    set path_rel [relpath . $path]
+    puts_info "Saving current set of views in '$path_rel'..."
 
     if { [info exists arg_values(-lef_path)] } {
         set destination $path/lef
@@ -839,68 +888,29 @@ proc heal_antenna_violators {args} {
     # that need the real diode in place of the fake diode:
     # => fixes the routed def
     if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
+            puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
+            flow_fail
+        }
+
         increment_index
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
-        if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
-            #ARC specific
-            if { [info exists ::env(ANTENNA_CHECKER_LOG)] } {
-                try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py -i $::env(ANTENNA_CHECKER_LOG) -o [index_file $::env(routing_reports)/violators.txt]
-            } else {
-                puts_err "Ran heal_antenna_violators without running the antenna check first."
-                flow_fail
-            }
-        } else {
-            #Magic Specific
-            set report_file [open [index_file $::env(routing_reports)/antenna_violators.rpt] r]
-            set violators [split [string trim [read $report_file]]]
-            close $report_file
-            # may need to speed this up for extremely huge files using hash tables
-            exec echo $violators >> [index_file $::env(routing_reports)/violators.txt]
-        }
+
         #replace violating cells with real diodes
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/fake_diode_replace.py -v [index_file $::env(routing_reports)/violators.txt] -d $::env(routing_results)/$::env(DESIGN_NAME).def -f $::env(FAKEDIODE_CELL) -t $::env(DIODE_CELL)
+        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
+            replace_fake\
+            --output $::env(routing_results)/$::env(DESIGN_NAME).def\
+            --input-lef $::env(MERGED_LEF)\
+            --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
+            --fake-diode $::env(FAKEDIODE_CELL)\
+            --true-diode $::env(DIODE_CELL)\
+            $::env(routing_results)/$::env(DESIGN_NAME).def
+
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - custom"
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
     }
 }
-
-proc widen_site_width {args} {
-    set ::env(MERGED_LEF_UNPADDED_ORIGINAL) $::env(MERGED_LEF_UNPADDED)
-    set ::env(MERGED_LEF_ORIGINAL) $::env(MERGED_LEF)
-
-    if { $::env(WIDEN_SITE) == 1 && $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-        set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(MERGED_LEF_UNPADDED)
-        set ::env(MERGED_LEF_WIDENED) $::env(MERGED_LEF)
-    } else {
-        puts_info "Widenning Site Width..."
-        set ::env(MERGED_LEF_UNPADDED_WIDENED) $::env(TMP_DIR)/merged_unpadded_wider.lef
-        set ::env(MERGED_LEF_WIDENED) $::env(TMP_DIR)/merged_wider.lef
-        if { $::env(WIDEN_SITE_IS_FACTOR) == 1 } {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -f -o $::env(MERGED_LEF_WIDENED)
-
-        } else {
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF_UNPADDED) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_UNPADDED_WIDENED)
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/widen_site_lef.py -l $::env(MERGED_LEF) -w $::env(WIDEN_SITE) -o $::env(MERGED_LEF_WIDENED)
-        }
-    }
-}
-
-proc use_widened_lefs {args} {
-    if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
-        set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_WIDENED)
-        set ::env(MERGED_LEF) $::env(MERGED_LEF_WIDENED)
-    }
-}
-
-proc use_original_lefs {args} {
-    if { $::env(WIDEN_SITE) != 1 || $::env(WIDEN_SITE_IS_FACTOR) != 1 } {
-        set ::env(MERGED_LEF_UNPADDED) $::env(MERGED_LEF_UNPADDED_ORIGINAL)
-        set ::env(MERGED_LEF) $::env(MERGED_LEF_ORIGINAL)
-    }
-}
-
 
 proc label_macro_pins {args} {
     TIMER::timer_start
@@ -928,13 +938,13 @@ proc label_macro_pins {args} {
 
     set_if_unset arg_values(-pad_pin_name) ""
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/label_macro_pins.py\
-        --lef $arg_values(-lef)\
-        --input-def $::env(CURRENT_DEF)\
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
+        --input-lef $arg_values(-lef)\
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
-        -o $output_def\
-        {*}$extra_args |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        --output $output_def\
+        {*}$extra_args $::env(CURRENT_DEF)\
+        |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
@@ -984,18 +994,25 @@ proc set_layer_tracks {args} {
 }
 
 proc run_or_antenna_check {args} {
-    TIMER::timer_start
     increment_index
-    puts_info "Running OpenROAD Antenna Rule Checker..."
-    set antenna_log [index_file $::env(signoff_logs)/antenna.log]
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $antenna_log
-    set ::env(ANTENNA_CHECKER_LOG) $antenna_log
+    TIMER::timer_start
+    set log [index_file $::env(signoff_logs)/antenna.log]
+    puts_info "Running OpenROAD Antenna Rule Checker (log: [relpath . $log])..."
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
+
+    set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
+        --output $antenna_violators_rpt\
+        $log
+
+    set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "antenna check - openroad"
 }
 
 proc run_antenna_check {args} {
-    puts_info "Running Antenna Checks..."
     if { $::env(USE_ARC_ANTENNA_CHECK) == 1 } {
         run_or_antenna_check
     } else {
@@ -1003,8 +1020,65 @@ proc run_antenna_check {args} {
     }
 }
 
+proc run_irdrop_report {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(signoff_logs)/irdrop.log]
+    puts_info "Creating IR Drop Report (log: [relpath . $log])..."
+
+    set rpt [index_file $::env(signoff_reports)/irdrop.rpt]
+
+    set ::env(_tmp_save_rpt) $rpt
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/irdrop.tcl -indexed_log $log
+    unset ::env(_tmp_save_rpt)
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ir drop report - openroad"
+}
+
 proc or_gui {args} {
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
+}
+
+proc save_final_views {args} {
+    set options {
+        {-save_path optional}
+    }
+    set flags {}
+    parse_key_args "save_final_views" args arg_values $options flags_map $flags
+
+    set arg_list [list]
+
+    # If they don't exist, save_views will simply not copy them
+    lappend arg_list -lef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef
+    lappend arg_list -gds_path $::env(signoff_results)/$::env(DESIGN_NAME).gds
+    lappend arg_list -mag_path $::env(signoff_results)/$::env(DESIGN_NAME).mag
+    lappend arg_list -maglef_path $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
+    lappend arg_list -spice_path $::env(signoff_results)/$::env(DESIGN_NAME).spice
+
+    # Guaranteed to have default values
+    lappend arg_list -def_path $::env(CURRENT_DEF)
+    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+
+    # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_SPEF)] } {
+        lappend arg_list -spef_path $::env(CURRENT_SPEF)
+    }
+    if { [info exists ::env(CURRENT_SDF)] } {
+        lappend arg_list -sdf_path $::env(CURRENT_SDF)
+    }
+    if { [info exists ::env(CURRENT_SDC)] } {
+        lappend arg_list -sdc_path $::env(CURRENT_SDC)
+    }
+
+    # Add the path if it exists...
+    if { [info exists arg_values(-save_path) ] } {
+        lappend arg_list -save_path $arg_values(-save_path)
+    }
+
+    # Aaand fire!
+    save_views {*}$arg_list
+
 }
 
 package provide openlane 0.9

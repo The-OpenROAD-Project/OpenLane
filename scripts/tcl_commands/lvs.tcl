@@ -40,9 +40,6 @@ proc verilog_to_verilogPower {args} {
 
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Writing Powered Verilog..."
     set options {
         {-def optional}
         {-lef optional}
@@ -63,6 +60,10 @@ proc write_powered_verilog {args} {
     set_if_unset arg_values(-def_log) /dev/null
     set_if_unset arg_values(-log) /dev/null
 
+    increment_index
+    TIMER::timer_start
+    set log [index_file $arg_values(-log)]
+    puts_info "Writing Powered Verilog (log: [relpath . $log])..."
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
         set_if_unset arg_values(-powered_netlist) $::env(synthesis_tmpfiles)/pg_define.v
@@ -70,16 +71,16 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/write_powered_def.py \
-        -d $arg_values(-def) \
-        -l $arg_values(-lef) \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+        --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
         --ground-port $arg_values(-ground) \
         --powered-netlist $arg_values(-powered_netlist) \
-        -o $arg_values(-output_def) \
+        --output $arg_values(-output_def) \
+        $arg_values(-def) \
         |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log [index_file $arg_values(-log)] -canonical
+    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $log -canonical
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write powered verilog - openlane"
 }

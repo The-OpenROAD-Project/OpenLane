@@ -16,7 +16,7 @@
 # OPTIMIZED MODE: inserts a fake diode, to be replaced later with a real diode if necessary
 
 set input_def $::env(CURRENT_DEF)
-set input_lef $::env(MERGED_LEF_UNPADDED)
+set input_lef $::env(MERGED_LEF)
 set output_def $::env(SAVE_DEF)
 
 read_lef $input_lef
@@ -90,11 +90,11 @@ set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 puts "\[INFO\]: Legalizing..."
 detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
-    optimize_mirroring
+	optimize_mirroring
 }
 write_def $::env(SAVE_DEF)
 
 if { [catch {check_placement -verbose} errmsg] } {
-    puts stderr $errmsg
-    exit 1
+	puts stderr $errmsg
+	exit 1
 }

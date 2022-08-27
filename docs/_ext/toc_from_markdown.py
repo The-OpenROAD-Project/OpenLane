@@ -60,8 +60,9 @@ def extract_markdown_links(file):
             for m in re.finditer(linkexp2, block):
                 link = m.group(0).rpartition(":")[2].strip()
                 links.append(link)
-    except Exception:
+    except Exception as e:
         debug(f"[TOC] Warning: Failed to process {file}.")
+        debug(e)
 
     return links
 

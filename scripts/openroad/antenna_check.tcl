@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-if {[catch {read_lef $::env(MERGED_LEF_UNPADDED)} errmsg]} {
+if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
@@ -22,8 +22,5 @@ if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
     exit 1
 }
 
-# load layers' antenna rules into ARC
-#load_antenna_rules
-
 # start checking antennas and generate a detail report
-check_antennas -report_file $::env(signoff_reports)/antenna.rpt
+check_antennas -verbose

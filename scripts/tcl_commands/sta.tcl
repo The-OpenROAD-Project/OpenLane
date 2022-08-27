@@ -30,22 +30,22 @@ proc run_sta {args} {
     set ::env(STA_LEF) $arg_values(-lef)
     set ::env(RUN_STANDALONE) 1
 
-    increment_index
-    TIMER::timer_start
-
     set corner_prefix "Single-Corner"
     if { $multi_corner } {
         set corner_prefix "Multi-Corner"
     }
+
     set process_corner_postfix ""
     if { [info exists arg_values(-process_corner)]} {
         set process_corner_postfix " at the $arg_values(-process_corner) process corner"
     }
-    puts_info "Running $corner_prefix Static Timing Analysis$process_corner_postfix..."
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $arg_values(-log)]
+    puts_info "Running $corner_prefix Static Timing Analysis$process_corner_postfix (log: [relpath . $log])..."
 
     set ::env(STA_PRE_CTS) $pre_cts
-
-    set log [index_file $arg_values(-log)]
 
     if {[info exists ::env(CLOCK_PORT)]} {
         if { $multi_corner == 1 } {

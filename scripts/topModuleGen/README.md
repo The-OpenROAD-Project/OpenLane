@@ -2,8 +2,6 @@
 
 This program takes a chip core verilog file as well as a json description for the full chip with the desired IO pads connections, and auto generates the top level module of the chip including all the io pads and their connections, as well as automatically adding the power/corner pads.
 
-An example input should be available [here][1]
-
 ## Command Line Arguments
 
 The following are arguments that can be passed to `src/TopModuleGen.py`
@@ -70,8 +68,6 @@ The json description of the design goes as follows:
     "extra_verilog: <any extra verilog lines that the user would like to be put as is in the top module>
     }
 ```
-
-Use this [file][0] as a reference 
 
 ### Using Guards:
 You can use guards in the defines or includes sections by following this format for the object. For example, below we provide a description for a guard block inside the includes section:
@@ -186,7 +182,3 @@ The source (input/output) block could be described in any of the following ways:
 ### Supported Pad Types
 
 To show a list of supported pad types in a given PADs libraries json use the script `padHelper` under [./src](./src). Use the `-h` flag for the possible options.
-
-
-[0]: ./Examples/openram_tc/openram_tc_1kb.json
-[1]: ./Examples/openram_tc/

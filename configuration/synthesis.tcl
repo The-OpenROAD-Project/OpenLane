@@ -16,13 +16,13 @@
 set ::env(SYNTH_BIN) yosys
 set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/synth.tcl
 set ::env(SYNTH_NO_FLAT) 0
-set ::env(SYNTH_CLOCK_UNCERTAINITY) 0.25 
+set ::env(SYNTH_CLOCK_UNCERTAINITY) 0.25
 set ::env(SYNTH_CLOCK_TRANSITION) 0.15
 set ::env(SYNTH_TIMING_DERATE) 0.05
 set ::env(SYNTH_SHARE_RESOURCES) 1
 set ::env(SYNTH_BUFFERING) 1
 set ::env(SYNTH_SIZING) 0
-set ::env(SYNTH_MAX_FANOUT) 5
+set ::env(SYNTH_MAX_FANOUT) 10
 set ::env(SYNTH_STRATEGY) "AREA 0"
 set ::env(SYNTH_ADDER_TYPE) "YOSYS"
 set ::env(CLOCK_BUFFER_FANOUT) 16
@@ -32,4 +32,4 @@ set ::env(SYNTH_FLAT_TOP) 0
 set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
 
-set ::env(BASE_SDC_FILE) $::env(OPENLANE_ROOT)/scripts/base.sdc
+set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc

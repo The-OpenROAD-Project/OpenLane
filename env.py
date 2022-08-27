@@ -86,7 +86,7 @@ def issue_survey():
     final_report += textwrap.dedent(
         """\
         Kernel: %s v%s
-    """
+        """
         % (os_info.kernel, os_info.kernel_version)
     )
 
@@ -94,7 +94,7 @@ def issue_survey():
         final_report += textwrap.dedent(
             """\
             Distribution: %s %s
-        """
+            """
             % (os_info.distro, (os_info.distro_version or ""))
         )
 
@@ -109,7 +109,7 @@ def issue_survey():
     final_report += textwrap.dedent(
         """\
         Python: v%s (%s)
-    """
+        """
         % (python_version, python_message)
     )
 
@@ -126,7 +126,7 @@ def issue_survey():
         final_report += textwrap.dedent(
             """\
             Container Engine: %s v%s (%s)
-        """
+            """
             % (os_info.container_info.engine, container_version, container_message)
         )
     elif os.path.exists(
@@ -162,7 +162,7 @@ def issue_survey():
         final_report += textwrap.dedent(
             """\
             OpenLane Git Version: %s
-        """
+            """
             % get_tag()
         )
 
@@ -189,9 +189,9 @@ def issue_survey():
             venv_ok = False
 
         alert = (
-            "pip:venv: " + "INSTALLED"
+            "python-venv: " + "INSTALLED"
             if venv_ok
-            else "NOT FOUND: needed for containerless installs"
+            else "NOT FOUND: Please install python-venv using your operating system's package manager."
         )
         final_report += "%s\n" % alert
         print(alert, file=alerts)
@@ -203,7 +203,7 @@ def issue_survey():
             status = "OK"
             try:
                 mismatches = verify_versions(
-                    no_tools=True, report_file=f, pdk="sky130A"
+                    no_tools=True, report_file=f, pdk=os.getenv("PDK") or "sky130A"
                 )
                 if mismatches:
                     status = "MISMATCH"
@@ -228,6 +228,12 @@ def issue_survey():
             ).decode("utf8")
 
             final_report += "---\nGit Log (Last 3 Commits)\n\n" + git_log
+
+            remotes = subprocess.check_output(["git", "remote", "-v", "show"]).decode(
+                "utf8"
+            )
+
+            final_report += "---\nGit Remotes\n\n" + remotes
         except subprocess.CalledProcessError:
             pass
 

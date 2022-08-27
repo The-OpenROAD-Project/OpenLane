@@ -32,7 +32,6 @@ class Tool(object):
         default_branch=None,
         in_install=True,
         in_container=True,
-        dependencies=[],
         pdk=False,
     ):
         self.name = name
@@ -42,7 +41,6 @@ class Tool(object):
         self.default_branch = default_branch
         self.in_install = in_install
         self.in_container = in_container
-        self.dependencies = dependencies
         self.pdk = pdk
 
     def __repr__(self) -> str:
@@ -92,7 +90,6 @@ class Tool(object):
                 in_install=tool["in_install"]
                 if tool.get("in_install") is not None
                 else True,
-                dependencies=tool.get("dependencies") or [],
                 pdk=tool.get("pdk") or False,
             )
         return final_dict
@@ -142,20 +139,6 @@ def main():
         print(tool.get_docker_tag(for_os=args.docker_tag_for_os, arch=args.docker_arch))
     elif args.docker_args:
         arg_list = tool.docker_args
-
-        # 1. Dependents
-        dependents = []
-        for dependent in Tool.by_name.values():
-            if tool.name in dependent.dependencies:
-                dependents.append(dependent)
-        for dependent in dependents:
-            arg_list += dependent.docker_args
-
-        # 2. Dependencies
-        for dependency_name in tool.dependencies:
-            dependency = Tool.by_name[dependency_name]
-            arg_list += dependency.docker_args
-
         print(" ".join(arg_list), end="")
     elif args.field:
         field = tool.__dict__[args.field]
