@@ -1,6 +1,4 @@
 
-.. todo:: Rename the steps
-
 Digital Design Flow
 --------------------------------------------------------------------------------
 This example covers creation of simple memory macro and top wrapper for it
@@ -135,9 +133,31 @@ Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w`
 Integrate the macros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Verilog blackbox is used by the synthesis tool. Create the verilog blackbox:
+Verilog blackbox is used by the synthesis tool.
+It tells the synthesis tool the purpose and width of the Input and Output.
+Create the verilog blackbox:
 
-.. todo:: Add the verilog blackbox
+.. code-block:: verilog
+
+    (*blackbox*)
+
+    module mem_1r1w (clk, read_addr, read, read_data, write_addr, write, write_data);
+        parameter DEPTH_LOG2 = 4;
+        localparam ELEMENTS = 2**DEPTH_LOG2;
+        parameter WIDTH = 32;
+
+        input wire clk;
+
+        input wire [DEPTH_LOG2-1:0] read_addr;
+        input wire read;
+        output reg [WIDTH-1:0] read_data;
+
+
+        input wire [DEPTH_LOG2-1:0] write_addr;
+        input wire write;
+        input wire  [WIDTH-1:0] write_data;
+
+    endmodule
 
 Then add ``VERILOG_FILES_BLACKBOX``, ``EXTRA_LEFS`` and ``EXTRA_GDS_FILES`` to the ``config.json`` in the ``regfile_2r1w``:
 
