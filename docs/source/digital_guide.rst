@@ -159,6 +159,11 @@ In contrast, GDS contains all of the layers and is used to generate the final GD
 Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
 
 
+The PDN straps will be routed in opposite directions.
+In locations where the two routing cross each other,
+VIAs connecting the layers are added. When ``DESIGN_IS_CORE`` is set to ``true`` then higher layers (met5 in sky130) is used.
+If it is set to ``false`` then VIAs will be missing and you will get LVS issues.
+
 Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -609,6 +614,86 @@ Detailed setup (max) timing path reports. Content of ``designs/mem_1r1w/runs/ful
                                         4.68   slack (MET)
 
 
-.. todo:: Add review of timings
+Debugging LVS issues due to PDN issues
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. todo:: Add review of the PDN
+Copy the original ``regfile_2r1w`` as ``regfile_2r1w_design_not_core``. Change ``DESIGN_IS_CORE`` to ``false``.
+
+.. code-block::
+
+    ./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
+
+Following error is expected:
+
+.. code-block::
+
+    [STEP 39]
+    [INFO]: Running Magic Spice Export from LEF (log: designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/39-spice.log)...
+    [STEP 40]
+    [INFO]: Writing Powered Verilog (log: ../dev/null)...
+    [STEP 41]
+    [INFO]: Writing Verilog...
+    [STEP 42]
+    [INFO]: Running LEF LVS...
+    [ERROR]: There are LVS errors in the design: See 'designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log' for details.
+    [INFO]: Saving current set of views in 'designs/regfile_2r1w_design_not_core/runs/full_guide/results/final'...
+    [INFO]: Generating final set of reports...
+    [INFO]: Created manufacturability report at 'designs/regfile_2r1w_design_not_core/runs/full_guide/reports/manufacturability.rpt'.
+    [INFO]: Created metrics report at 'designs/regfile_2r1w_design_not_core/runs/full_guide/reports/metrics.csv'.
+    [INFO]: Saving runtime environment...
+    [ERROR]: Flow failed.
+
+        while executing
+    "flow_fail"
+        (procedure "quit_on_lvs_error" line 12)
+        invoked from within
+    "quit_on_lvs_error -log $count_lvs_log"
+        (procedure "run_lvs" line 79)
+        invoked from within
+    "run_lvs"
+        (procedure "run_lvs_step" line 10)
+        invoked from within
+    "[lindex $step_exe 0] [lindex $step_exe 1] "
+        (procedure "run_non_interactive_mode" line 52)
+        invoked from within
+    "run_non_interactive_mode {*}$argv"
+        invoked from within
+    "if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
+        if { [info exists arg_values(-file)] } {
+            run_file [file nor..."
+        (file "./flow.tcl" line 401)
+
+Check the log ``designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log``.
+
+.. code-block::
+
+    LVS reports:
+        net count difference = 4
+        device count difference = 0
+        unmatched nets = 11
+        unmatched devices = 22
+        unmatched pins = 0
+        property failures = 0
+
+    Total errors = 37
+
+The router will fail if it is unable to route the signals.
+Therefore the issue is in PDN stage.
+Use ``or_gui`` to help debug this issue.
+
+.. code-block::
+
+    ./flow.tcl -design regfile_2r1w_design_not_core -interactive -tag full_guide
+    package require openlane
+    set_def designs/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
+    or_gui
+
+
+.. figure:: ../_static/digital_flow/lvs_issue_comparison.png
+
+    Left picture is for working case. Right picture is the case with PDN issues
+
+As can be seen the PDN is missing the power straps in layer ``met5``.
+This is expected as it was disabled by setting ``DESIGN_IS_CORE`` to ``false`` above.
+Of course, reverting the change fixes this issue.
+
