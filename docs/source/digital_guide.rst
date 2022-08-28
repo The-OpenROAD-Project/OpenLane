@@ -619,6 +619,24 @@ Debugging LVS issues due to PDN issues
 
 Copy the original ``regfile_2r1w`` as ``regfile_2r1w_design_not_core``. Change ``DESIGN_IS_CORE`` to ``false``.
 
+
+.. code-block::
+
+    {
+        "DESIGN_NAME": "regfile_2r1w",
+        "VERILOG_FILES": "dir::src/*.v",
+        "CLOCK_PORT": "clk",
+        "CLOCK_PERIOD": 10.0,
+        "DESIGN_IS_CORE": false,
+
+        "FP_ASPECT_RATIO": 2,
+        "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+        "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+    }
+
+Then run the flow:
+
 .. code-block::
 
     ./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
@@ -693,7 +711,11 @@ Use ``or_gui`` to help debug this issue.
 
     Left picture is for working case. Right picture is the case with PDN issues
 
+
+The submacros are by default connected to ``VPWR/VGND`` power domain.
 As can be seen the PDN is missing the power straps in layer ``met5``.
+Therefore the layout, which does not have connections to the submacro, while the net is logically connected.
+
 This is expected as it was disabled by setting ``DESIGN_IS_CORE`` to ``false`` above.
 Of course, reverting the change fixes this issue.
 
