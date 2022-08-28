@@ -4,8 +4,8 @@
 Digital Design Flow
 --------------------------------------------------------------------------------
 This example covers creation of simple memory macro and top wrapper for it
-The guide uses generates the layout files for the submacro,
-then use the generated memory submacro to make a top level chip register file.
+The guide generates the layout files for the submacro,
+then uses the generated memory submacro to make a top level chip register file.
 
 Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
