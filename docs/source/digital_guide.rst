@@ -135,6 +135,9 @@ Integrate the macros
 
 Verilog blackbox is used by the synthesis tool.
 It tells the synthesis tool the purpose and width of the Input and Output.
+In the future versions this should be fixed by generating liberty files and loading it in the top level macro blocks.
+Meanwhile, the users should be careful when making sub components that have parameter, because this may cause missmatches between RTL and the final GDS.
+
 Create the verilog blackbox:
 
 .. code-block:: verilog
@@ -733,7 +736,7 @@ Use ``or_gui`` to help debug this issue.
     Left picture is for working case. Right picture is the case with PDN issues
 
 
-The submacros are by default connected to ``VPWR/VGND`` power domain.
+The submacros are by default logically connected to ``VPWR/VGND`` power domain.
 As can be seen the PDN is missing the power straps in layer ``met5``.
 Therefore the layout, which does not have connections to the submacro, while the net is logically connected.
 
