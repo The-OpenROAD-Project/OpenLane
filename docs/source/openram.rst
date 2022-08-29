@@ -287,6 +287,8 @@ JSON syntax error regarding the comma
 
 The last field of the object in JSON must not have any commas, otherwise you will have a syntax issue:
 
+.. code-block::
+
     [INFO]: Using configuration in 'designs/test_sram_macro/config.json'...
     [ERROR]: Traceback (most recent call last):
     File "/openlane/scripts/config/to_tcl.py", line 351, in <module>
@@ -331,7 +333,7 @@ Wrong way:
     }
 
 Running the flow
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Final ``config.json`` looks like this:
 
