@@ -11,13 +11,13 @@ Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
 
 The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that flow uses. 
 
-The rest of the tutorial assumes `OpenLane installation <installation.html>`_ is done.
+The rest of the tutorial assumes `OpenLane installation <installation>`_ is done.
 This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
 
 Starting OpenLane
 ------------------------------------------------------------------------
 .. note::
-    If you installed OpenLane following `local installation <local_installs.html>`_ steps, then you are on your own.
+    If you installed OpenLane following `local installation <local_installs>`_ steps, then you are on your own.
 
 OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
@@ -74,7 +74,7 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.json
 
-``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
 The ``design_name`` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
 
@@ -118,7 +118,7 @@ This is typical structure of the design folder:
 
 Main files are ``config.json`` and ``src/`` folder that contains source code.
 
-You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
+You can find more information `regarding the ./flow.tcl in the documentation here <designs>`_. And here is the `reference documentation regarding the configuration valirables <configuration>`_.
 
 Running the flow
 ------------------------------------------------------------------------

@@ -1,26 +1,84 @@
 OpenRAM macro usage guide in sky130
 --------------------------------------------------------------------------------
 
-.. todo:: Explain above
+Create a new design.
 
 .. code-block:: console
 
     ./flow.tcl -design test_sram_macro -init_design_config -add_to_designs
 
-.. todo:: Explain above
+Create blackbox declaration of ``sky130_sram_1kbyte_1rw1r_32x256_8``
+in file ``designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v``.
+Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v``.
 
-./flow.tcl -design test_sram_macro -tag full_guide -overwrite
+.. code-block:: verilog
 
-.. todo:: Explain above
+    // OpenRAM SRAM model
+    // Words: 256
+    // Word size: 32
+    // Write size: 8
 
-    "EXTRA_LEFS":      "dir::../pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
-    "EXTRA_GDS_FILES": "dir::../pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
-    "VERILOG_FILES_BLACKBOX": "../pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v"
+    (*blackbox*)
+    module sky130_sram_1kbyte_1rw1r_32x256_8(
+    `ifdef USE_POWER_PINS
+        vccd1,
+        vssd1,
+    `endif
+    // Port 0: RW
+        clk0,csb0,web0,wmask0,addr0,din0,dout0,
+    // Port 1: R
+        clk1,csb1,addr1,dout1
+    );
+
+    parameter NUM_WMASKS = 4 ;
+    parameter DATA_WIDTH = 32 ;
+    parameter ADDR_WIDTH = 8 ;
+    parameter RAM_DEPTH = 1 << ADDR_WIDTH;
+    // FIXME: This delay is arbitrary.
+    parameter DELAY = 3 ;
+    parameter VERBOSE = 1 ; //Set to 0 to only display warnings
+    parameter T_HOLD = 1 ; //Delay to hold dout value after posedge. Value is arbitrary
+
+    `ifdef USE_POWER_PINS
+        inout vccd1;
+        inout vssd1;
+    `endif
+    input  clk0; // clock
+    input   csb0; // active low chip select
+    input  web0; // active low write control
+    input [NUM_WMASKS-1:0]   wmask0; // write mask
+    input [ADDR_WIDTH-1:0]  addr0;
+    input [DATA_WIDTH-1:0]  din0;
+    output [DATA_WIDTH-1:0] dout0;
+    input  clk1; // clock
+    input   csb1; // active low chip select
+    input [ADDR_WIDTH-1:0]  addr1;
+    output [DATA_WIDTH-1:0] dout1;
+
+    endmodule
 
 
-.. todo:: Explain above
+Connect LEF files using ``EXTRA_LEFS``.
+In this case absolute path is used, if the PDK location is different then path needs to be changed.
+This files contains lightweight abstract representation of the cell.
+LEF contains only metal layers and layers that can connect between cells (met1, via2, nwell, pwell, etc).
 
-We set the following floorplan parameters:
+Connect GDS files with the subcomponent.
+The GDS from ``EXTRA_GDS_FILES`` that will be used to generate the final GDS file.
+For analog cells it is users responsibility to make sure that GDS matches LEF files.
+
+Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLACKBOX``.
+
+.. code-block:: json
+
+    "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
+    "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
+
+
+Set the following floorplan parameters:
+
+.. code-block:: json
 
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 750 1250",
@@ -28,26 +86,109 @@ We set the following floorplan parameters:
 
 ``FP_SIZING`` is set to ``absolute`` and it will tell the floorplan to use ``DIE_AREA`` as final macro block's size.
 The we set the ``DIE_AREA``. This value is carefully constructed.
-If it is set to high value then you are going to have routing/placement/timing issues.
-On the other hand 
+If it is set to big value then you are going to have routing/placement/timing issues.
+On the other hand setting the value too low will cause placement and routing congestion issues.
 
-.. todo:: Explain above
+To obtain perfect ``DIE_AREA`` the 50% utilization was used,
+then aspect ratio was manually adjusted to keep the utilization around 45% and the final density about 50%.
+
+Create the power/ground nets.
+First net in the list will be used for standard cell power connections.
+
+.. code-block:: json
 
     "VDD_NETS": "vccd1",
     "GND_NETS": "vssd1",
 
-.. todo:: Explain above
+If you need more power/ground nets add the nets to the list:
 
+.. code-block:: json
 
-"SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
+    "VDD_NETS": "vccd1 vccd2",
+    "GND_NETS": "vssd1 vssd2",
+
+Alternatively use ``SYNTH_USE_PG_PINS_DEFINES`` to allow automatic parsing of the power/ground nets.
+
+.. code-block:: json
+
+    "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
     
-.. todo:: Explain above w/ Example
 
+Add the PDN connections between sram cells and the power/ground nets.
+Syntax: ``<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>``.
+More information is available in `configuration variables documentation <configuration>`_.
+Each macro hook is separated using comma, for example:
 
-"FP_PDN_MACRO_HOOKS": "sram0 vccd1 vssd1 vccd1 vssd1, sram1 vccd1 vssd1 vccd1 vssd1",
+.. code-block:: json
 
-.. todo:: Explain above
-.. todo:: Explain how to get sram0/sram1 names
+    "FP_PDN_MACRO_HOOKS": "sram0 vccd1 vssd1 vccd1 vssd1, sram1 vccd1 vssd1 vccd1 vssd1",
+
+The instance names need to be fetched from synthesis netlist.
+For this purpose run the design until synthesis stage using following command:
+
+.. code-block:: console
+
+    ./flow.tcl -design test_sram_macro -tag synthesis_only -to synthesis -overwrite
+
+Open following file ``designs/test_sram_macro/runs/synthesis_only/results/synthesis/test_sram_macro.v``.
+
+.. code-block:: verilog
+
+    /* Generated by Yosys 0.12+45 (git sha1 UNKNOWN, gcc 8.3.1 -fPIC -Os) */
+
+    module test_sram_macro(rst_n, clk, cs, we, addr, write_allow, datain, dataout);
+    wire _000_;
+    wire _001_;
+    wire _002_;
+    ...
+    sky130_sram_1kbyte_1rw1r_32x256_8 sram0 (
+        ...
+    );
+    sky130_sram_1kbyte_1rw1r_32x256_8 sram1 (
+        ...
+    );
+    endmodule
+
+As can be seen there is two cells ``sky130_sram_1kbyte_1rw1r_32x256_8``.
+Directly copy the instance names: ``sram0``, ``sram1``, avoid guessing it.
+If the cell was referenced in submodule then it would have the prefix with the module name and escaped dot ``\.``.
+For example it would have looked like ``\somesubmodule.sram0``.
+
+.. code-block:: verilog
+
+    /* Generated by Yosys 0.12+45 (git sha1 UNKNOWN, gcc 8.3.1 -fPIC -Os) */
+
+    module test_sram_macro(rst_n, clk, cs, we, addr, write_allow, datain, dataout);
+    wire _000_;
+    wire _001_;
+    wire _002_;
+    ...
+    sky130_sram_1kbyte_1rw1r_32x256_8 \submodule.sram0  (
+        .addr0(addr),
+        .addr1({ _232_, _231_, _230_, _229_, _228_, _227_, _226_, _225_ }),
+        .clk0(clk),
+        .clk1(_233_),
+        .csb0(_000_),
+        .csb1(_223_),
+        .din0(datain[31:0]),
+        .dout0({ \submodule.dataout_int[31] , \submodule.dataout_int[30] , \submodule.dataout_int[29] , \submodule.dataout_int[28] , \submodule.dataout_int[27] , \submodule.dataout_int[26] , \submodule.dataout_int[25] , \submodule.dataout_int[24] , \submodule.dataout_int[23] , \submodule.dataout_int[22] , \submodule.dataout_int[21] , \submodule.dataout_int[20] , \submodule.dataout_int[19] , \submodule.dataout_int[18] , \submodule.dataout_int[17] , \submodule.dataout_int[16] , \submodule.dataout_int[15] , \submodule.dataout_int[14] , \submodule.dataout_int[13] , \submodule.dataout_int[12] , \submodule.dataout_int[11] , \submodule.dataout_int[10] , \submodule.dataout_int[9] , \submodule.dataout_int[8] , \submodule.dataout_int[7] , \submodule.dataout_int[6] , \submodule.dataout_int[5] , \submodule.dataout_int[4] , \submodule.dataout_int[3] , \submodule.dataout_int[2] , \submodule.dataout_int[1] , \submodule.dataout_int[0]  }),
+        .dout1({ \submodule.dout1[31] , \submodule.dout1[30] , \submodule.dout1[29] , \submodule.dout1[28] , \submodule.dout1[27] , \submodule.dout1[26] , \submodule.dout1[25] , \submodule.dout1[24] , \submodule.dout1[23] , \submodule.dout1[22] , \submodule.dout1[21] , \submodule.dout1[20] , \submodule.dout1[19] , \submodule.dout1[18] , \submodule.dout1[17] , \submodule.dout1[16] , \submodule.dout1[15] , \submodule.dout1[14] , \submodule.dout1[13] , \submodule.dout1[12] , \submodule.dout1[11] , \submodule.dout1[10] , \submodule.dout1[9] , \submodule.dout1[8] , \submodule.dout1[7] , \submodule.dout1[6] , \submodule.dout1[5] , \submodule.dout1[4] , \submodule.dout1[3] , \submodule.dout1[2] , \submodule.dout1[1] , \submodule.dout1[0]  }),
+        .web0(_001_),
+        .wmask0(write_allow[3:0])
+    );
+    sky130_sram_1kbyte_1rw1r_32x256_8 \submodule.sram1  (
+        .addr0(addr),
+        .addr1({ _241_, _240_, _239_, _238_, _237_, _236_, _235_, _234_ }),
+        .clk0(clk),
+        .clk1(_242_),
+        .csb0(_000_),
+        .csb1(_224_),
+        .din0(datain[63:32]),
+        .dout0({ \submodule.dataout_int[63] , \submodule.dataout_int[62] , \submodule.dataout_int[61] , \submodule.dataout_int[60] , \submodule.dataout_int[59] , \submodule.dataout_int[58] , \submodule.dataout_int[57] , \submodule.dataout_int[56] , \submodule.dataout_int[55] , \submodule.dataout_int[54] , \submodule.dataout_int[53] , \submodule.dataout_int[52] , \submodule.dataout_int[51] , \submodule.dataout_int[50] , \submodule.dataout_int[49] , \submodule.dataout_int[48] , \submodule.dataout_int[47] , \submodule.dataout_int[46] , \submodule.dataout_int[45] , \submodule.dataout_int[44] , \submodule.dataout_int[43] , \submodule.dataout_int[42] , \submodule.dataout_int[41] , \submodule.dataout_int[40] , \submodule.dataout_int[39] , \submodule.dataout_int[38] , \submodule.dataout_int[37] , \submodule.dataout_int[36] , \submodule.dataout_int[35] , \submodule.dataout_int[34] , \submodule.dataout_int[33] , \submodule.dataout_int[32]  }),
+        .dout1({ \submodule.dout1[63] , \submodule.dout1[62] , \submodule.dout1[61] , \submodule.dout1[60] , \submodule.dout1[59] , \submodule.dout1[58] , \submodule.dout1[57] , \submodule.dout1[56] , \submodule.dout1[55] , \submodule.dout1[54] , \submodule.dout1[53] , \submodule.dout1[52] , \submodule.dout1[51] , \submodule.dout1[50] , \submodule.dout1[49] , \submodule.dout1[48] , \submodule.dout1[47] , \submodule.dout1[46] , \submodule.dout1[45] , \submodule.dout1[44] , \submodule.dout1[43] , \submodule.dout1[42] , \submodule.dout1[41] , \submodule.dout1[40] , \submodule.dout1[39] , \submodule.dout1[38] , \submodule.dout1[37] , \submodule.dout1[36] , \submodule.dout1[35] , \submodule.dout1[34] , \submodule.dout1[33] , \submodule.dout1[32]  }),
+        .web0(_001_),
+        .wmask0(write_allow[7:4])
+    );
 
 
 "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
@@ -55,10 +196,6 @@ On the other hand
 .. todo:: Explain above
 .. todo:: Explain how to get sram0/sram1 names
 
-
-    "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
-    "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
-    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
 
 .. todo:: Explain above
 
@@ -76,6 +213,11 @@ On the other hand
 .. todo:: Explain above
 
 ./flow.tcl -design test_sram_macro -tag full_guide_use_deflef_drc -overwrite
+
+.. todo:: Explain above
+
+./flow.tcl -design test_sram_macro -tag full_guide -overwrite
+
 
 .. todo:: Explain why the placement might fail (Because not enough space/ because too much space)
 .. todo:: Explain the PDN connections

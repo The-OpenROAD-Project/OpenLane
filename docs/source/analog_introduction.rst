@@ -12,7 +12,7 @@ that can be produced by the foundry.
 OpenLane is one of the leading-edge Open-Source tools created exactly for this purpose.
 
 
-.. note:: This guide assumes that you already have the `OpenLane installed using this guide <installation.html>`_ and you already successfully `completed the quickstart here <quickstart.html>`_.
+.. note:: This guide assumes that you already have the `OpenLane installed using this guide <installation>`_ and you already successfully `completed the quickstart here <quickstart>`_.
 
 .. figure:: https://upload.wikimedia.org/wikipedia/commons/thumb/e/ee/EPROM_Microchip_SuperMacro.jpg/1024px-EPROM_Microchip_SuperMacro.jpg  
 
@@ -25,7 +25,7 @@ OpenLane is one of the leading-edge Open-Source tools created exactly for this p
 Multiple foundries exist and each of the foundries may have dozens of technologies supported.
 Currently, OpenLane supports only sky130,
 which was published by `Google in cooperation with Skywater <https://github.com/google/skywater-pdk>`_,
-but there is active work to support `fictional technologies like ASAP7 <https://asap.asu.edu/>`_ and other PDKs. There is a guide on `porting new PDKs to OpenLane located here <pdk_structure.html>`_ .
+but there is active work to support `fictional technologies like ASAP7 <https://asap.asu.edu/>`_ and other PDKs. There is a guide on `porting new PDKs to OpenLane located here <pdk_structure>`_ .
 
 The coolest part about sky130 is `Google funded Multi Project Wafer in partnership with Efabless <https://efabless.com/open_shuttle_program>`_.
 Using OpenMPW you can produce your integrated circuit for free (some limitations apply).
@@ -36,7 +36,7 @@ As part of this tutorial we will make a simple bottom-to-top design utilizing as
 .. todo:: Rework below information:
 
 While the guide covers only digital subcomponents, the flow is similar for analog subcomponents.
-Use `this guide to create the required files <custom_macros.html>`_.
+Use `this guide to create the required files <custom_macros>`_.
 
 .. todo:: Rework the analog guide/introduction interaction
 
@@ -404,7 +404,7 @@ Missconception: OpenLane PDK vs Tech PDK vs Foundary PDK
 sky130A vs sky130B
 --------------------------------------------------------------------------------
 
-Sky130B is extension of the sky130A that supports `ReRAM <https://sky130-fd-pr-reram.readthedocs.io/en/latest/user_guide.html>`_. For this purpose the layer between ``met2`` and ``met1`` were changed.
+Sky130B is extension of the sky130A that supports `ReRAM <https://sky130-fd-pr-reram.readthedocs.io/en/latest/user_guide>`_. For this purpose the layer between ``met2`` and ``met1`` were changed.
 Sky130B has more parasitics compared to sky130A. Currently all of the OpenMPW tapeouts use sky130B.
 Do not use sky130A, unless you know what you are doing.
 

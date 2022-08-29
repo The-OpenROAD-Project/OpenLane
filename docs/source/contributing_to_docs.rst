@@ -1,7 +1,7 @@
 Documentation Contributors guide
 ================================================================================
 
-.. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
+.. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING>`_
 
 Introduction
 --------------------------------------------------------------------------------
