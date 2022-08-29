@@ -1,7 +1,17 @@
-OpenRAM macro usage guide in sky130
+OpenRAM macro guide (sky130)
 --------------------------------------------------------------------------------
 
+Overview
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Using OpenRAM generated or other mixed signal or analog cells can be very confusing.
+This guide covers RTL-to-GDS flow using OpenRAM cells.
+This guides uses as many macro related features from OpenLane flow possible
+in order to guide users in their journey towards full chip integration.
+
 Create a new design.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create a new design using following command:
 
 .. code-block:: console
 
@@ -121,6 +131,7 @@ then aspect ratio and area was manually adjusted to keep the utilization around 
 
 `PL_TARGET_DENSITY` is set to 0.5 to reflect the target final density of 50%.
 
+.. todo:: Explain the DIE_AREA selection process
 
 Power/Ground nets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

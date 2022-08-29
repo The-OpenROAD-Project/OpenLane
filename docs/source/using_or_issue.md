@@ -6,13 +6,13 @@ It creates a folder with all the needed files that you can inspect, then zip or 
 ## Warning about proprietary files
 When working with a proprietary PDK, also inspect the folder and ensure no proprietary data resulting ends up in there. This is *critical*, if something leaks, this scripts' authors take no responsibility and you are very much on your own. We will try our best to output warnings for your own good if something looks like a part of a proprietary PDK, but the absence of this message does not necessarily indicate that your folder is free of confidential material. 
 
-# Usage
-## Failures
+## Usage
+### Failures
 If you're using OpenLane 2021.12.17 or later (OpenLane 2022.06.21 or later for Magic,) chances, `or_issue.py` will **automatically** be run for you if Magic or OpenROAD exit with a non-zero code. 
 
 You'll find a message in the log that says something along the lines of: `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue.` The path will be under the current run_path, i.e., ./designs/<design>/runs/<run_tag>/issue_reproducible. You can then tarball/zip and upload that file.
 
-## Odd Behavior
+### Odd Behavior
 If the Tcl-based script doesn't fail outright, but simply exhibits weird behavior, starting OpenLane 2022.07.20, you can have the flow simply stop execution and package a reproducible instead.
 
 If you know the name of the script causing the issue, you can set the environment variable `CREATE_REPRODUCIBLE_FROM_SCRIPT` to the name of the script. For example, to quit on Magic's DRC script, you can set the variable as follows:
@@ -24,7 +24,7 @@ export CREATE_REPRODUCIBLE_FROM_SCRIPT=magic/drc.tcl
 
 The flow will automatically quit right before executing any script matching `CREATE_REPRODUCIBLE_FROM_SCRIPT`. The last message printed will be something among the lines of `[INFO]: Reproducible packaged at '<PATH>'.`
 
-## Manually
+### Manually
 If neither option above works for you for some reason, there's always the hard way, and the hard way involves invoking the script manually.
 
 You'll have to extract three key elements from the **verbose** logs (i.e. ./flow.tcl must be run with `-verbose`):
