@@ -7,9 +7,15 @@ Create a new design.
 
     ./flow.tcl -design test_sram_macro -init_design_config -add_to_designs
 
+Create the Blackbox
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 Create blackbox declaration of ``sky130_sram_1kbyte_1rw1r_32x256_8``
 in file ``designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v``.
+
 Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v``.
+``(*blackbox*)`` attribute is specified, to let the synthesis tool know that this module is a blackbox.
+If the module is empty it is assumed to be blackbox anyway, but specifying the attribute makes it more clear.
 
 .. code-block:: verilog
 
@@ -57,8 +63,28 @@ Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/veril
 
     endmodule
 
+Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLACKBOX``.
+
+.. code-block:: json
+
+    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
+
+In the future ``liberty`` with proper power/ground pins support will be added,
+so the creation of blackbox is no longer required. See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`.
+
+It is also users responsibility to avoid name collisions between the blackbox macro blocks.
+If two blackbox modules with the same module name, but different set of parameters exist,
+then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
+
+Create the Verilog files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 .. todo:: Create the verilog file
+
+Connect the Layout pins
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 Connect LEF files using ``EXTRA_LEFS``.
 In this case absolute path is used, if the PDK location is different then path needs to be changed.
@@ -69,14 +95,13 @@ Connect GDS files with the subcomponent.
 The GDS from ``EXTRA_GDS_FILES`` that will be used to generate the final GDS file.
 For analog cells it is users responsibility to make sure that GDS matches LEF files.
 
-Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLACKBOX``.
-
 .. code-block:: json
 
     "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
     "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
-    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
-
+    
+Floorplanning
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Set the following floorplan parameters:
 
@@ -92,7 +117,13 @@ If it is set to big value then you are going to have routing/placement/timing is
 On the other hand setting the value too low will cause placement and routing congestion issues.
 
 To obtain perfect ``DIE_AREA`` the 50% utilization was used,
-then aspect ratio was manually adjusted to keep the utilization around 45% and the final density about 50%.
+then aspect ratio and area was manually adjusted to keep the utilization around 45% and the final density about 50%.
+
+`PL_TARGET_DENSITY` is set to 0.5 to reflect the target final density of 50%.
+
+
+Power/Ground nets
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create the power/ground nets.
 First net in the list will be used for standard cell power connections.
@@ -109,12 +140,20 @@ If you need more power/ground nets add the nets to the list:
     "VDD_NETS": "vccd1 vccd2",
     "GND_NETS": "vssd1 vssd2",
 
-Alternatively use ``SYNTH_USE_PG_PINS_DEFINES`` to allow automatic parsing of the power/ground nets.
+The sky130 caravel template has 4 power domains.
+If this variable does not have the power domains properly declared then you will have issues with the PDN in caravel template.
+
+Use ``SYNTH_USE_PG_PINS_DEFINES`` to allow automatic parsing of the power/ground nets.
 
 .. code-block:: json
 
     "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
     
+This will run synthesis without USE_POWER_PINS to generate the final verilog
+and then another synthesis with USE_POWER_PINS defined to generate the powered verilog netlist.
+
+Power/Ground PDN connections
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the PDN connections between sram cells and the power/ground nets.
 Syntax: ``<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>``.
@@ -173,12 +212,12 @@ however the automatic placement does not account the I/O placement when selectin
 
 It is causing the SRAM component to be placed on the edge of the macro.
 As a result the I/O power usage is going to be increased,
-because there is a long net that goes over subcomponent.
+because there is a long net that goes over the subcomponents.
 
 Instead choose the locations of these cells manually.
 The size of the cells can be taken from the LEF file ``pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef``.
 While it is not required to know the size of the cell,
-it is useful to make sure that the subcomponents do not overlap.
+it is useful for the purpose of to making sure that the subcomponents do not overlap.
 
 For example:
 
@@ -208,23 +247,131 @@ Then modify the ``config.json`` to reference this file.
 
     "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
 
+Resolving issues
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Memory footprint
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+While running the flow it may use significant amount of memory.
+You can temporary disable KLayout XOR check to reduce the memory footprint, while experimenting.
+But for the final GDS submission make sure that XOR check is enabled.
+
+.. code-block:: json
+
+    "RUN_KLAYOUT_XOR": false,
+
+DRCs inside SRAM macros
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+The sky130 uses optical proximity to reduce the size of the SRAM transistors.
+The SRAM blocks in sky130 generated by OpenRAM use different DRC ruleset to accomodate for this size reduction.
+Therefore when running the Magic VLSI it is expected to have many DRC violations.
+
+The ``MAGIC_DRC_USE_GDS`` can be set to false, forcing the Magic VLSI to run DRC on DEF/LEF instead of GDS.
+However, you will still get DRCs.
+
+.. code-block:: json
+
+    "MAGIC_DRC_USE_GDS": false
+
+For this example we can just disable the DRC check.
+However, this is very dangerous and needs to be approved by the foundry.
+
+.. code-block:: json
+
+    "RUN_MAGIC_DRC": false
+
+JSON syntax error regarding the comma
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+The last field of the object in JSON must not have any commas, otherwise you will have a syntax issue:
+
+    [INFO]: Using configuration in 'designs/test_sram_macro/config.json'...
+    [ERROR]: Traceback (most recent call last):
+    File "/openlane/scripts/config/to_tcl.py", line 351, in <module>
+        cli()
+    File "/usr/local/lib/python3.6/site-packages/click/core.py", line 1128, in __call__
+        return self.main(*args, **kwargs)
+    File "/usr/local/lib/python3.6/site-packages/click/core.py", line 1053, in main
+        rv = self.invoke(ctx)
+    File "/usr/local/lib/python3.6/site-packages/click/core.py", line 1659, in invoke
+        return _process_result(sub_ctx.command.invoke(sub_ctx))
+    File "/usr/local/lib/python3.6/site-packages/click/core.py", line 1395, in invoke
+        return ctx.invoke(self.callback, **ctx.params)
+    File "/usr/local/lib/python3.6/site-packages/click/core.py", line 754, in invoke
+        return __callback(*args, **kwargs)
+    File "/openlane/scripts/config/to_tcl.py", line 337, in config_json_to_tcl
+        config_dict = json.loads(config_json_str)
+    File "/usr/lib64/python3.6/json/__init__.py", line 354, in loads
+        return _default_decoder.decode(s)
+    File "/usr/lib64/python3.6/json/decoder.py", line 339, in decode
+        obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+    File "/usr/lib64/python3.6/json/decoder.py", line 355, in raw_decode
+        obj, end = self.scan_once(s, idx)
+    json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 27 column 1 (char 901)
+
+
+Right way:
+
+.. code-block::
+
+    {
+        ...
+        "RUN_MAGIC_DRC": false
+    }
+
+Wrong way:
+
+.. code-block::
+
+    {
+        ...
+        "RUN_MAGIC_DRC": false,
+    }
+
+Running the flow
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+Final ``config.json`` looks like this:
+
+.. code-block::
+
+    {
+        "DESIGN_NAME": "test_sram_macro",
+        "VERILOG_FILES": "dir::src/*.v",
+        "CLOCK_PORT": "clk",
+        "CLOCK_PERIOD": 10.0,
+        "DESIGN_IS_CORE": true,
+
+        "FP_SIZING": "absolute",
+        "DIE_AREA": "0 0 750 1250",
+        "PL_TARGET_DENSITY": 0.5,
+
+        "VDD_NETS": "vccd1",
+        "GND_NETS": "vssd1",
+
+        "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
+        
+        "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
+        
+        "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
+
+        "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
+        "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
+        "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
+
+        "RUN_KLAYOUT_XOR": false,
+        "RUN_MAGIC_DRC": false
+    }
+
+
+
 .. todo:: Add pictures of the macro placement in floorplan
 
 
 .. todo:: Add pictures of final result
 
-.. todo:: Explain above
-
-"MAGIC_DRC_USE_GDS": false
-
-.. todo:: Explain above
-
-
-
-
-
-    "RUN_KLAYOUT_XOR": false,
-    "RUN_MAGIC_DRC": false
 
 .. todo:: Explain above
 
