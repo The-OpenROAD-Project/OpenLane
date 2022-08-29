@@ -14,7 +14,7 @@
 
     "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
     
-    "FP_PDN_MACRO_HOOKS": "sram0 vccd1 vssd1 vccd1 vssd1, sram1 vccd1 vssd1 vccd1 vssd1",
+    "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
     
     "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
 

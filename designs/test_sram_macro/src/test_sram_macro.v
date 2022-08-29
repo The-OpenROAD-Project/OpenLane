@@ -1,9 +1,6 @@
 
-module test_sram_macro(
-    `ifdef USE_POWER_PINS
-        inout vccd1,
-        inout vssd1,
-    `endif
+
+module test_sram_macro_unwrapped(
     input rst_n,
     input clk,
     input cs,
@@ -73,5 +70,25 @@ sky130_sram_1kbyte_1rw1r_32x256_8 sram1(
     .dout1(dout1[63:32])
 );
 
+
+endmodule
+
+
+module test_sram_macro(
+    `ifdef USE_POWER_PINS
+        inout vccd1,
+        inout vssd1,
+    `endif
+    input rst_n,
+    input clk,
+    input cs,
+    input we,
+    input [7:0] addr,
+    input [7:0] write_allow,
+    input [63:0] datain,
+    output [63:0] dataout
+);
+
+test_sram_macro_unwrapped submodule (.*);
 
 endmodule
