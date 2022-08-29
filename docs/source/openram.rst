@@ -163,6 +163,16 @@ Use ``SYNTH_USE_PG_PINS_DEFINES`` to allow automatic parsing of the power/ground
 This will run synthesis without USE_POWER_PINS to generate the final verilog
 and then another synthesis with USE_POWER_PINS defined to generate the powered verilog netlist.
 
+If you unconditionally define the USE_POWER_PINS then powered netlist is generated properly,
+but the synthesis netlist is generated with signal port vccd1,
+which should not exist because it is power/ground connection in non powered netlist.
+
+Example of an error you can get:
+
+.. code-block::
+
+    [ERROR DRT-0302] Unsupported multiple pins on bterm vccd1
+
 Power/Ground PDN connections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
