@@ -1,9 +1,12 @@
 
-Digital Design Flow
+Hierarchical flow
 --------------------------------------------------------------------------------
 This example covers creation of simple memory macro and top wrapper for it
 The guide generates the layout files for the submacro,
 then uses the generated memory submacro to make a top level chip register file.
+
+.. todo:: Use more word of hierarchical
+.. todo:: Spell check
 
 Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -90,6 +93,8 @@ Modify the ``config.json`` to include following:
  
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
+.. todo:: Define what IS_CORE and is not core is. match the documentation
+
 ``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macro block.
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
@@ -100,9 +105,12 @@ More information on `configuration can be found here <configuration>`_.
 
     A macro with a PDN ring around. ``"FP_PDN_CORE_RING": true``
 
+.. todo:: Replace with comparison
 
 Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. todo:: Add proper description
 
 .. code-block:: console
 
@@ -124,6 +132,8 @@ You can open interactive view using following commands:
 Create chip level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. todo:: better description of this section
+
 Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
 
 .. code-block:: console
@@ -137,6 +147,8 @@ Verilog blackbox is used by the synthesis tool.
 It tells the synthesis tool the purpose and width of the Input and Output.
 In the future versions this should be fixed by generating liberty files and loading it in the top level macro blocks.
 Meanwhile, the users should be careful when making sub components that have parameter, because this may cause missmatches between RTL and the final GDS.
+
+.. todo:: Mention this as a warning
 
 Create the verilog blackbox:
 
@@ -237,6 +249,8 @@ While the area is enough, there is no combination of placement for this cells th
 
 Change the ``FP_ASPECT_RATIO`` value to ``2``.
 This will make the flooplan a rectange instead of square and the rectangle will be double in height compared to width.
+
+.. todo:: Reference the hardening macro relevant section and maybe openram section for the DIE_AREA example
 
 ``config.json`` should look like this:
 
