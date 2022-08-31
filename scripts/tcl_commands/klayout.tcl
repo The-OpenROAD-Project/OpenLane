@@ -13,7 +13,6 @@
 # limitations under the License.
 
 proc run_klayout {args} {
-	set ::env(CURRENT_STAGE) signoff
 	if {[ info exists ::env(KLAYOUT_TECH)] } {
 		increment_index
 		set log [index_file $::env(signoff_logs)/gdsii-klayout.log]

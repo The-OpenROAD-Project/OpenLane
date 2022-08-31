@@ -301,6 +301,13 @@ def process_config_dict(config_in: dict, pdk: str, scl: str, design_dir: str):
     return state.vars
 
 
+def extract_pdk_vars(config_in: dict):
+    return {
+        key: config_in.get(key)
+        for key in ["PDK", "STD_CELL_LIBRARY", "STD_CELL_LIBRARY_OPT"]
+    }
+
+
 def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
     character_rx = re.compile(r"([{}])")
     for key, value in key_value_pairs.items():
@@ -318,12 +325,19 @@ def cli():
 
 @click.command("from-json")
 @click.option("-o", "--output", default="/dev/stdout", help="File to output the Tcl to")
-@click.option("-p", "--pdk", required=True, help="The name of the PDK")
+@click.option("-p", "--pdk", required=None, help="The name of the PDK")
 @click.option(
     "-s",
     "--scl",
     default=None,
     help="The name of the standard cell library",
+)
+@click.option(
+    "-x",
+    "--extract-process-info",
+    is_flag=True,
+    default=None,
+    help="Extract PDK, SCL and optimization SCL only.",
 )
 @click.option(
     "-d",
@@ -332,11 +346,22 @@ def cli():
     help="The name of the standard cell library",
 )
 @click.argument("config_json")
-def config_json_to_tcl(output, pdk, scl, design_dir, config_json):
+def config_json_to_tcl(output, pdk, scl, extract_process_info, design_dir, config_json):
     config_json_str = open(config_json).read()
     config_dict = json.loads(config_json_str)
+
     try:
-        resolved = process_config_dict(config_dict, pdk, scl, design_dir)
+
+        if extract_process_info:
+            resolved = extract_pdk_vars(config_dict)
+        else:
+            if pdk is None or scl is None:
+                print(
+                    "--pdk and --scl arguments must both be provided.", file=sys.stderr
+                )
+                exit(os.EX_USAGE)
+
+            resolved = process_config_dict(config_dict, pdk, scl, design_dir)
         with open(output, "w") as f:
             write_key_value_pairs(f, resolved)
     except InvalidConfig as e:
