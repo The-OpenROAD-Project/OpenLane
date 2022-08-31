@@ -22,7 +22,7 @@ if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 			lef read $lef_file
 		}
 	}
-	def read $::env(CURRENT_DEF)
+	def read $::env(CURRENT_DEF) -noblockage
 }
 
 set drc_rpt_path $::env(drc_prefix).rpt
