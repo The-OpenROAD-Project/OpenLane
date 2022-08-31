@@ -270,7 +270,14 @@ proc source_config {args} {
 
     if { $ext == ".tcl" } {
         # for trusted end-users only
-        exec cp $config_file $config_in_path
+        if { [info exist flags_map(-process_info_only)] } {
+            if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py extract-process-info --output $config_in_path $config_file} errmsg] } {
+                puts_err $errmsg
+                exit -1
+            }
+        } else {
+            exec cp $config_file $config_in_path
+        }
     } elseif { $ext == ".json" } {
         set scl NULL
         set arg_list [list]
@@ -283,7 +290,7 @@ proc source_config {args} {
         lappend arg_list --output $config_in_path
         lappend arg_list --design-dir $::env(DESIGN_DIR)
 
-        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json $config_file {*}$arg_list} errmsg] } {
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py from-json $config_file {*}$arg_list} errmsg] } {
             puts_err $errmsg
             exit -1
         }
