@@ -1,12 +1,20 @@
 
-Hierarchical flow
---------------------------------------------------------------------------------
-This example covers creation of simple memory macro and top wrapper for it
-The guide generates the layout files for the submacro,
-then uses the generated memory submacro to make a top level chip register file.
+Hierarchical design flow
+================================================================================
+This guide covers creation of simple hierarchical chip level macro.
+Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip level macros.
 
 .. todo:: Use more word of hierarchical
 .. todo:: Spell check
+
+Hardening the mem_1r1w macro block
+--------------------------------------------------------------------------------
+
+In these section the process of hardening the macro block mem_1r1w is covered.
+As these macro block will be used in the top level hierarchy some configurations need to be made.
+
+Keep in mind that these designs are not ready for production
+and are just used as to showcase the capabilities of OpenLane.
 
 Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -129,7 +137,13 @@ You can open interactive view using following commands:
 
 .. figure:: ../_static/digital_flow/mem_1r1w_def.png
 
-Create chip level
+Chip level integration
+--------------------------------------------------------------------------------
+
+In these section the integration of previously hardened macro block is covered.
+Currently OpenLane does not support cross hierarchy timing analysis, so this is rather
+
+Create chip level RTL
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. todo:: better description of this section
