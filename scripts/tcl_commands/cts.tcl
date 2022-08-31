@@ -55,7 +55,6 @@ proc run_cts {args} {
 	}
 
 	if {$::env(CLOCK_TREE_SYNTH) && !$::env(RUN_SIMPLE_CTS)} {
-		set ::env(CURRENT_STAGE) cts
 		increment_index
 		TIMER::timer_start
 		set log [index_file $::env(cts_logs)/cts.log]

@@ -1,39 +1,67 @@
 ---
 name: Bug Report
-about: If OpenLane is not behaving as expected, please report here.
+about: If OpenLane is not behaving as expected, please file a report here.
 title: ''
 labels: ''
 assignees: ''
 
 ---
 
-<!-- NOTE: This template is NOT a suggestion. Issues not using this template will be marked invalid. -->
+<!--
+    This issue template is REQUIRED for all bug reports. It helps us more
+    quickly track, narrow down, and address bugs. 
 
-### Description
-A clear and concise description of what the bug is.
+    Bug reports not adhering to this template will be likely marked invalid and
+    closed as there is very little we can do without the requisite information.
 
-### Environment
+    Thank you for understanding!
+-->
+
+## Description
+<!-- What went wrong? Be clear and concise. -->
+
+## Expected behavior
+<!-- What did you *want* to happen? -->
+
+## Environment
+<!--
+    This part is incredibly important:
+
+    Please run the following shell command in the OpenLane root folder:
+
+        python3 ./env.py issue-survey
+
+    Then copy and paste the ENTIRE output between the triple-backticks below. (```)
+
+    If the command does not succeed, you are using an out-of-date version of
+    OpenLane, and it is recommended that you update.
+-->
+
 ```
-Please run the following set of commands in the OpenLane folder:
-
-make survey || python3 ./env.py issue-survey
-
-And copy and paste the ENTIRE output between the triple-backticks. Please do not gzip and upload the output.
-
-If neither command succeeds, you are using an out of date version of OpenLane and should probably update. 
+YOUR SURVEY HERE
 ```
 
-### Reproduction Material
-* Upload a tarball containing the relevant design.
-* List the commands used to run the design.
+## Reproduction Material
+<!--
+    You have two options here:
 
-If you see a message like `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue` in your logs, please also tarball and include that path. This will greatly speed up the fixing process.
+    A. If you see a message like `Reproducible packaged: Please tarball and
+       upload <PATH> if you're going to submit an issue` in your logs,
+       please also tarball and include that path. The reproducible tarball is
+       absolutely required for OpenROAD bugs.
 
-### Expected behavior
-A clear and concise description of what you expected to happen.
+    B. If you don't...
+        * Upload a tarball containing the relevant design.
+        * List the commands used to run the design.
+-->
 
-### Logs
+## Logs
+<!--
+    Feel free to add any relevant logs to this section.
+    
+    Please do ensure they're inside the triple-backticks. (```)
+-->
 ```
-Add any relevant logs here. Please do ensure they're enclosed by the triple-backticks.
+YOUR LOGS HERE
 ```
 

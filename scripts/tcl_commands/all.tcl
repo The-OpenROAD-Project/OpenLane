@@ -245,7 +245,7 @@ proc source_config {args} {
     set options {
         {-run_path optional}
     }
-    set flags {}
+    set flags {-process_info_only}
     parse_key_args "source_config" args arg_values $options flags_map $flags
 
     if { ![info exists arg_values(-run_path)] } {
@@ -270,18 +270,27 @@ proc source_config {args} {
 
     if { $ext == ".tcl" } {
         # for trusted end-users only
-        exec cp $config_file $config_in_path
+        if { [info exist flags_map(-process_info_only)] } {
+            if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py extract-process-info --output $config_in_path $config_file} errmsg] } {
+                puts_err $errmsg
+                exit -1
+            }
+        } else {
+            exec cp $config_file $config_in_path
+        }
     } elseif { $ext == ".json" } {
         set scl NULL
         set arg_list [list]
-        lappend arg_list --pdk $::env(PDK)
-        if { [info exists ::env(STD_CELL_LIBRARY)] } {
+        if { [info exist flags_map(-process_info_only)] } {
+            lappend arg_list --extract-process-info
+        } else {
+            lappend arg_list --pdk $::env(PDK)
             lappend arg_list --scl $::env(STD_CELL_LIBRARY)
         }
         lappend arg_list --output $config_in_path
         lappend arg_list --design-dir $::env(DESIGN_DIR)
 
-        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/to_tcl.py from-json $config_file {*}$arg_list} errmsg] } {
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py from-json $config_file {*}$arg_list} errmsg] } {
             puts_err $errmsg
             exit -1
         }
@@ -292,27 +301,33 @@ proc source_config {args} {
     }
 
 
-    if { ![info exists ::env(STD_CELL_LIBRARY)] } {
-        set ::env(STD_CELL_LIBRARY) {}
-        source $config_in_path
-        unset ::env(STD_CELL_LIBRARY)
-    } else {
-        source $config_in_path
-    }
+    source $config_in_path
 }
 
-proc load_overrides {overrides} {
+proc load_overrides {args} {
+    set options {}
+    set flags {-process_info_only}
+    parse_key_args "load_overrides" args arg_values $options flags_map $flags
+
+    set overrides [lindex $args 0]
+
+    set process_info_allowlist [list]
+    lappend process_info_allowlist PDK
+    lappend process_info_allowlist STD_CELL_LIBRARY
+    lappend process_info_allowlist STD_CELL_LIBRARY_OPT
+
     set env_overrides [split $overrides ',']
     foreach override $env_overrides {
         set kva [split $override '=']
         set key [lindex $kva 0]
         set value [lindex $kva 1]
-        set ::env(${key}) $value
+        if { [info exists flags_map(-process_info_only)] || [lsearch -exact $process_info_allowlist $key] != -1} {
+            set ::env(${key}) $value
+        }
     }
 }
 
 proc prep {args} {
-
     set ::env(timer_start) [clock seconds]
     TIMER::timer_start
     set options {
@@ -335,15 +350,31 @@ proc prep {args} {
     set args_copy $args
     parse_key_args "prep" args arg_values $options flags_map $flags
 
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            exit -1
+        }
+
+        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
+    }
+
+    # Check Design Directory
+    set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
+    if { ![file exists $::env(DESIGN_DIR)] } {
+        set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)]
+        if { ![file exists $::env(DESIGN_DIR)] } {
+            puts_err "Design $arg_values(-design) not found."
+            exit -1
+        }
+    }
+
     # Storing the current state of environment variables
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
     set_if_unset arg_values(-src) ""
     set_if_unset arg_values(-design) "."
-
-    set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
-    if { ![file exists $::env(DESIGN_DIR)] } {
-        set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)]
-    }
 
     if { [info exists flags_map(-init_design_config)] } {
         set filename "$::env(DESIGN_DIR)/config.json"
@@ -372,15 +403,15 @@ proc prep {args} {
         exit 0
     }
 
+    # Output
     set_if_unset arg_values(-verbose) "0"
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
-
-
     set ::env(TERMINAL_OUTPUT) "/dev/null"
     if { $::env(OPENLANE_VERBOSE) >= 2 } {
         set ::env(TERMINAL_OUTPUT) ">&@stdout"
     }
 
+    # Extract or Create Run Tag and Run Directory
     set ::env(START_TIME) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
 
     if { [info exists flags_map(-last_run)] } {
@@ -397,6 +428,16 @@ proc prep {args} {
 
     set ::env(CONFIGS) [cat $::env(OPENLANE_ROOT)/configuration/load_order.txt]
 
+    if { [info exists arg_values(-run_path)] } {
+        set run_path "[file normalize $arg_values(-run_path)]/$tag"
+    } else {
+        set run_path $::env(DESIGN_DIR)/runs/$tag
+    }
+
+    file mkdir $run_path
+
+    # Configuration
+    ## 0. Global Configurations
     if { [info exists arg_values(-config_file)] } {
         set ::env(DESIGN_CONFIG) $arg_values(-config_file)
     } else {
@@ -414,53 +455,46 @@ proc prep {args} {
         source $::env(OPENLANE_ROOT)/configuration/$config
     }
 
-    if { [info exists arg_values(-run_path)] } {
-        set run_path "[file normalize $arg_values(-run_path)]/$tag"
-    } else {
-        set run_path $::env(DESIGN_DIR)/runs/$tag
-    }
-
-    file mkdir $run_path
-
-    # Needs to be preliminarily sourced at this point, as the PDK
-    # and STD_CELL_LIBRARY values can be in this file.
+    ## 1. Configuration File (Process Info Only)
     set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
 
     puts_info "Using configuration in '$config_file_rel'..."
-    source_config -run_path $run_path $::env(DESIGN_CONFIG)
+    source_config -process_info_only -run_path $run_path $::env(DESIGN_CONFIG)
 
+    ## 2. Overrides (Process Info Only)
     if { [info exists arg_values(-override_env)] } {
-        load_overrides $arg_values(-override_env)
+        load_overrides -process_info_only $arg_values(-override_env)
     }
 
-    # Diagnostics
     if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
         puts_err "PDK_ROOT is not specified. Please make sure you have it set."
-        return -code error
+        exit -1
     } else {
         puts_info "PDK Root: $::env(PDK_ROOT)"
     }
 
     if { ! [info exists ::env(PDK)] } {
         puts_err "PDK is not specified."
-        return -code error
+        exit -1
     } else {
         puts_info "Process Design Kit: $::env(PDK)"
         puts_verbose "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
         set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
     }
 
-    # Source PDK and SCL specific configurations
+    ## 3. PDK-Specific Config
+    if { [info exists ::env(STD_CELL_LIBRARY)] } {
+        set scl_path "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)"
+        if { ![file exists $scl_path] } {
+            puts_err "Standard Cell Library '$::env(STD_CELL_LIBRARY)' not found in PDK."
+            exit -1
+        }
+    }
     set pdk_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/config.tcl
     source $pdk_config
 
-    if { ! [info exists ::env(STD_CELL_LIBRARY)] } {
-        puts_err "STD_CELL_LIBRARY is not specified."
-        return -code error
-    } else {
-        puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
-    }
-
+    ## 4. SCL-Specific Config
+    puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
     if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
         set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
         puts_verbose "Optimization SCL also set to $::env(STD_CELL_LIBRARY_OPT)."
@@ -475,8 +509,10 @@ proc prep {args} {
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
     source $scl_config
 
-    # Re-source/re-override to make sure it overrides any configurations from the previous two sources
+    ## 5. Design-Specific Config
     source_config -run_path $run_path $::env(DESIGN_CONFIG)
+
+    ## 6. Overrides
     if { [info exists arg_values(-override_env)] } {
         load_overrides $arg_values(-override_env)
     }
@@ -504,18 +540,6 @@ proc prep {args} {
     handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
 
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
-
-
-    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
-            puts_err $::env(VCHECK_OUTPUT)
-            puts_err "Please update your environment. OpenLane will now quit."
-            exit -1
-        }
-
-        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
-    }
-
 
     #
     ############################
