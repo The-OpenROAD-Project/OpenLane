@@ -11,21 +11,40 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+proc read_netlist {args} {
+    puts "Reading netlist..."
 
-proc read {args} {
-    # This script will attempt to read all existing inputs, namely:
-    #   * Lib (Single or Multicorner)
-    #   * LEF
-    #   * DEF (if it exists)
-    #   * Verilog (if no def)
-    #   * SDC
+    if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
+        puts stderr $errmsg
+        exit 1
+    }
 
-    sta::parse_key_args "read" args \
-        keys {-override_libs -override_lef}\
-        flags {-multi_corner}
+    link_design $::env(DESIGN_NAME)
 
-    if { [info exists flags(-multi_corner)] } {
-        define_corners ss tt ff
+    if { [info exists ::env(CURRENT_SDC)] } {
+        if {[catch {read_sdc -echo $::env(CURRENT_SDC)}]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    }
+
+}
+
+proc read_libs {args} {
+    sta::parse_key_args "read_libs" args \
+        keys {-override}\
+        flags {}
+
+    if { [info exists keys(-override)] } {
+        read_liberty $keys(-override)
+
+        if { [info exists ::env(EXTRA_LIBS) ] } {
+            foreach lib $::env(EXTRA_LIBS) {
+                read_liberty $lib
+            }
+        }
+    } else {
+        define_corners tt ss ff; # tt unintuitively first because that makes it the "default"
 
         foreach lib $::env(LIB_SLOWEST) {
             read_liberty -corner ss $lib
@@ -45,52 +64,26 @@ proc read {args} {
             }
         }
 
-    } else {
-        set used_libs $::env(LIB_SYNTH_COMPLETE)
-        if { [info exists keys(-override_libs)] } {
-            set used_libs $keys(-override_libs)
-        }
-
-        foreach lib $used_libs {
-            read_liberty $lib
-        }
-
-        if { [info exists ::env(EXTRA_LIBS)] } {
-            foreach lib $::env(EXTRA_LIBS) {
-                read_liberty $lib
-            }
-        }
     }
+}
 
-    set used_lef $::env(MERGED_LEF)
-    if { [info exists keys(-override_lef)] } {
-        set used_lef $keys(-override_lef)
-    }
+proc read {args} {
+    sta::parse_key_args "read" args \
+        keys {-override_libs}\
+        flags {}
 
-    if {[catch {read_lef $used_lef} errmsg]} {
+    if {[catch {read_db $::env(CURRENT_ODB)} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
 
-    if { $::env(CURRENT_DEF) == 0 } {
-        if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
-            puts stderr $errmsg
-            exit 1
-        }
-        link_design $::env(DESIGN_NAME)
-    } else {
-        if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-            puts stderr $errmsg
-            exit 1
-        }
+    set read_libs_args [list]
+
+    if { [info exists keys(-override_libs)]} {
+        lappend read_libs_args -override $keys(-override_libs)
     }
 
-    if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc -echo $::env(CURRENT_SDC)}]} {
-            puts stderr $errmsg
-            exit 1
-        }
-    }
+    read_libs {*}$args
 }
 
 proc write {args} {

@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read_libs -override "$::env(LIB_SYNTH_COMPLETE)"
+read_lef $::env(MERGED_LEF)
+read_netlist
 
 unset_propagated_clock [all_clocks]
 

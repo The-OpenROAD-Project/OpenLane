@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -multi_corner -override_lef "$::env(STA_LEF)"
+read
+read_lef "$::env(STA_LEF)"
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
@@ -143,7 +144,7 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "clock_skew_end"
 }
 
-# this sometimes segfaults on corner cases
+# This segfaults sometimes.
 if { $::env(STA_REPORT_POWER) == 1 } {
     puts "power_report"
     puts "\n==========================================================================="

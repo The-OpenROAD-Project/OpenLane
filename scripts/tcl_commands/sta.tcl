@@ -92,30 +92,19 @@ proc run_parasitics_sta {args} {
                 -process_corner $process_corner \
                 -save "$::env(SPEF_PREFIX).$process_corner.spef"
 
-            set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.$process_corner.log
+            set log_name $::env(signoff_logs)/parasitics_mca_sta.$process_corner.log
 
-            if { $process_corner == "nom" } {
-                # First, we need this for the reports:
-                set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.log
-
-                set ::env(SAVE_SDF) $arg_values(-sdf_out)
-
-                # We also need to run a single-corner STA at the tt timing corner
-                run_sta\
-                    -log $::env(signoff_logs)/parasitics_sta.log\
-                    -process_corner $process_corner
-
-                set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
-
-                set ::env(CURRENT_SDF) $::env(SAVE_SDF)
-                unset ::env(SAVE_SDF)
-            }
-
+            set ::env(SAVE_SDF) $arg_values(-sdf_out)
             run_sta\
                 -lef $::env($lef)\
                 -log $log_name\
                 -process_corner $process_corner\
                 -multi_corner
+
+            set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
+
+            set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+            unset ::env(SAVE_SDF)
         }
     }
 }

@@ -71,19 +71,20 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
-        -log [index_file $arg_values(-def_log)] \
-        -output $arg_values(-output_def) \
-        -input $arg_values(-def) \
+    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+        --output $arg_values(-output_def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
         --ground-port $arg_values(-ground) \
-        --powered-netlist $arg_values(-powered_netlist)
+        --powered-netlist $arg_values(-powered_netlist) \
+        $arg_values(-def)\
+        |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
 
     write_verilog\
-        $arg_values(-output_verilog)\
+        $arg_values(-output_verilog).unpowered.nl.v\
+        -powered_to $arg_values(-output_verilog)\
         -def $arg_values(-output_def)\
-        -log [index_file $arg_values(-log)]\
+        -log $arg_values(-log)\
         -powered
 
     TIMER::timer_stop
@@ -98,6 +99,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     # GDS LVS uses STD_CELL_LIBRARY spice and
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
     # Write Netlist
+    puts "Starting LVS"
     if { $::env(LVS_INSERT_POWER_PINS) } {
         set powered_netlist_name [index_file $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).pnl.v]
         set powered_def_name [index_file $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).p.def]
@@ -105,8 +107,8 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         write_powered_verilog\
             -output_verilog $powered_netlist_name\
             -output_def $powered_def_name\
-            -log $::env(signoff_logs)/write_verilog.log\
-            -def_log $::env(signoff_logs)/write_powered_def.log
+            -log $::env(signoff_logs)/write_powered_nl.log\
+            -def_log $::env(signoff_logs)/write_powered_df.log
     }
 
     increment_index

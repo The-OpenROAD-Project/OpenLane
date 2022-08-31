@@ -40,7 +40,6 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     check_placement
 }
 
-
 write
 
 if {[info exists ::env(CLOCK_PORT)]} {

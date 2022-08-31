@@ -45,11 +45,14 @@ proc random_global_placement {args} {
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
     set save_def [index_file $::env(placement_tmpfiles)/global.def]
+    set save_odb [index_file $::env(placement_tmpfiles)/global.odb]
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/random_place.py\
-        -log [index_file $::env(placement_logs)/global.log] \
-        -output $save_def \
-        -input $::env(CURRENT_DEF)
+        -indexed_log [index_file $::env(placement_logs)/global.log]\
+        -output_def $save_def\
+        -output $save_odb\
+        -input $::env(CURRENT_ODB)
 
+    set_odb $save_odb
     set_def $save_def
 
     TIMER::timer_stop
@@ -67,7 +70,7 @@ proc detailed_placement_or {args} {
 
     set_if_unset arg_values(-name) $::env(DESIGN_NAME)
     set_if_unset arg_values(-log) $::env(placement_logs)/detailed.log
-    set_if_unset arg_values(-outdir) $::env(routing_results)
+    set_if_unset arg_values(-outdir) $::env(placement_results)
 
     increment_index
     TIMER::timer_start
@@ -76,7 +79,7 @@ proc detailed_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl\
         -indexed_log $log\
-        -save "to=$arg_values(-outdir),name=$arg_values(-name),def,odb"
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),noindex,def,odb"
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
         puts "Error: Check $log"
@@ -182,7 +185,7 @@ proc run_placement {args} {
 }
 
 proc run_resizer_design {args} {
-    if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
+    if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1 } {
         increment_index
         TIMER::timer_start
         set log [index_file $::env(placement_logs)/resizer.log]
@@ -190,14 +193,10 @@ proc run_resizer_design {args} {
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl\
             -indexed_log [index_file $::env(placement_logs)/resizer.log]\
-            -save "to=$::env(placement_tmpfiles),name=resizer,def,odb,sdc"
+            -save "to=$::env(placement_tmpfiles),name=resizer,def,odb,sdc,netlist,powered_netlist"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
-
-        # Update Netlist
-        set save_nl $::env(placement_results)/$::env(DESIGN_NAME).resized.v
-        write_verilog $save_nl -log $::env(placement_logs)/write_verilog.log
     } else {
         puts_info "Skipping Placement Resizer Design Optimizations."
     }
@@ -211,17 +210,21 @@ proc remove_buffers_from_nets {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(placement_logs)/remove_buffers.log]
-    puts_info "Removing Buffers from Ports (If Applicable) (log: [relpath . $log])..."
+    puts_info "Removing Buffers from Nets (If Applicable) (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
     set save_def ${fbasename}.buffers_removed.def
+    set save_odb ${fbasename}.buffers_removed.odb
+
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
-        -log [index_file $::env(placement_logs)/remove_buffers_from_ports.log]\
-        -output $save_def\
-        -input $::env(CURRENT_DEF)\
+        -indexed_log $log\
+        -output $save_odb\
+        -output_def $save_def\
+        -input $::env(CURRENT_ODB)\
         --match $::env(UNBUFFER_NETS)
 
     set_def $save_def
+    set_odb $save_odb
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"

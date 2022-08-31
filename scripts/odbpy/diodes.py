@@ -390,7 +390,7 @@ cli.add_command(place)
 def replace_fake(fake_diode, true_diode, violations_file, reader):
     violations = open(violations_file).read().strip().split()
 
-    diode = [sc for sc in reader.lef[0].getMasters() if sc.getName() == true_diode]
+    diode = [sc for sc in reader.block.getMasters() if sc.getName() == true_diode]
 
     antenna_rx = re.compile(r"ANTENNA_(\s+)_.*")
 

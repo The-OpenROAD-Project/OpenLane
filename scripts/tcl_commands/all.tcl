@@ -940,10 +940,10 @@ proc heal_antenna_violators {args} {
         puts_info "Healing Antenna Violators..."
 
         manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py replace_fake\
+            -output_def $::env(CURRENT_DEF)\
             --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
             --fake-diode $::env(FAKEDIODE_CELL)\
             --true-diode $::env(DIODE_CELL)
-
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
@@ -963,23 +963,16 @@ proc label_macro_pins {args} {
     set flags {}
     parse_key_args "label_macro_pins" args arg_values $options flags_map $flags
 
-    set output_def $::env(CURRENT_DEF)
-    set extra_args ""
 
-    if {[info exists arg_values(-output)]} {
-        set output_def $arg_values(-output)
-    }
-
-    if {[info exists arg_values(-extra_args)]} {
-        set extra_args $arg_values(-extra_args)
-    }
-
+    set_if_unset arg_values(-output) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-extra_args) ""
     set_if_unset arg_values(-pad_pin_name) ""
 
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
-        -log [index_file $::env(signoff_logs)/label_macro_pins.log]\
-        -output $output_def\
-        -input $::env(CURRENT_DEF) \
+        -indexed_log [index_file $::env(signoff_logs)/label_macro_pins.log]\
+        -output_def $arg_values(-output)\
+        -output $arg_values(-output).odb\
+        -input $::env(CURRENT_ODB) \
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
         {*}$extra_args
@@ -989,7 +982,7 @@ proc label_macro_pins {args} {
 }
 
 
-proc write_verilog {filename args} {
+proc write_verilog {args} {
     increment_index
     TIMER::timer_start
     puts_info "Writing Verilog..."
@@ -997,21 +990,23 @@ proc write_verilog {filename args} {
     set options {
         {-def optional}
         {-log optional}
+        {-powered_to optional}
     }
-    set flags {
-        -powered
-    }
+    set flags {}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-log) /dev/null
 
+    set filename [lindex $args 0]
+
+    set save_arg "odb=/dev/null,netlist=$filename"
+
     set current_def_backup $::env(CURRENT_DEF)
     set ::env(CURRENT_DEF) $arg_values(-def)
 
-    set save_arg "netlist=$filename,odb=/dev/null"
-    if { [info exists flags_map(-powered)] } {
-        set save_arg "powered_netlist=$filename,odb=/dev/null"
+    if { [info exists arg_values(-powered_to)] } {
+        set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\

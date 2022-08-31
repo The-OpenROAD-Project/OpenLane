@@ -27,6 +27,7 @@ if {[catch {pdngen} errmsg]} {
     exit 1
 }
 
+# https://github.com/The-OpenROAD-Project/OpenROAD/issues/2126
 # checks for unconnected nodes (e.g., isolated rails or stripes)
 if { $::env(FP_PDN_CHECK_NODES) } {
     check_power_grid -net $::env(VDD_NET)

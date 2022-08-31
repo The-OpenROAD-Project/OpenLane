@@ -117,8 +117,7 @@ proc place_io_ol {args} {
     puts_info "Running IO Placement (log: [relpath . $log])..."
 
     set options {
-        {-lef optional}
-        {-def optional}
+        {-odb optional}
         {-cfg optional}
         {-horizontal_layer optional}
         {-vertical_layer optional}
@@ -129,14 +128,16 @@ proc place_io_ol {args} {
         {-vertical_ext optional}
         {-length optional}
         {-output_def optional}
+        {-output_odb optional}
         {-extra_args optional}
     }
     set flags {-unmatched_error optional}
 
     parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
-    set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-    set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
+    set_if_unset arg_values(-output_odb) [index_file $::env(floorplan_tmpfiles)/io.odb]
 
     set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
@@ -150,7 +151,6 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
     set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-    set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
 
     if { $::env(FP_IO_UNMATCHED_ERROR) } {
         set_if_unset flags_map(-unmatched_error) "--unmatched-error"
@@ -160,9 +160,10 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-extra_args) ""
 
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/io_place.py\
-        -log [index_file $::env(floorplan_logs)/place_io_ol.log]\
-        -output $arg_values(-output_def)\
-        -input $arg_values(-def)\
+        -indexed_log [index_file $::env(floorplan_logs)/place_io.log]\
+        -output_def $arg_values(-output_def)\
+        -output $arg_values(-output_odb)\
+        -input $arg_values(-odb)\
         --config $arg_values(-cfg)\
         --hor-layer $arg_values(-horizontal_layer)\
         --ver-layer $arg_values(-vertical_layer)\
@@ -175,6 +176,7 @@ proc place_io_ol {args} {
         {*}$arg_values(-extra_args)
 
     set_def $arg_values(-output_def)
+    set_odb $arg_values(-output_odb)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "io_place - openlane"
@@ -212,28 +214,32 @@ proc place_contextualized_io {args} {
     file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
     file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
-    set prev_def $::env(CURRENT_DEF)
-
+    set prev_db $::env(CURRENT_ODB)
+    set save_db [index_file $::env(floorplan_tmpfiles)/io.context.odb]
     set save_def [index_file $::env(floorplan_tmpfiles)/io.context.def]
+
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
-        -log [index_file $::env(floorplan_logs)/io.contextualize.log] \
-        -output $save_def \
-        -input $prev_def \
+        -indexed_log [index_file $::env(floorplan_logs)/contextualize_io.log] \
+        -output_def $save_def \
+        -output_db $save_db \
+        -input $prev_db \
         --top-def $::env(placement_tmpfiles)/top_level.def\
         --top-lef $::env(placement_tmpfiles)/top_level.lef
 
-    set_def $save_def
+    set_odb $save_db
 
-    puts_verbose "Custom floorplan created at $save_def."
+    puts_verbose "Custom floorplan created at '[relpath . $save_db]'."
 
     set old_mode $::env(FP_IO_MODE)
 
     set ::env(FP_IO_MODE) 0; # set matching mode
     set ::env(CONTEXTUAL_IO_FLAG) 1
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/io.log] \
         -save "to=$::env(floorplan_tmpfiles),name=io,def,odb" \
         -no_update_current
+
     set ::env(FP_IO_MODE) $old_mode
     move_pins -from $::env(SAVE_DEF) -to $prev_def
     unset ::env(SAVE_DEF)
@@ -267,11 +273,13 @@ proc tap_decap_or {args} {
 
 proc chip_floorplan {args} {
     puts_info "Running Chip Floorplanning..."
+
     # intial fp
     init_floorplan
-    # remove pins section and others
-    remove_pins -input $::env(CURRENT_DEF)
-    remove_empty_nets -input $::env(CURRENT_DEF)
+
+    # clear some sections
+    remove_pins
+    remove_empty_nets
 }
 
 proc apply_def_template {args} {
@@ -281,9 +289,8 @@ proc apply_def_template {args} {
 
         puts_info "Applying DEF template..."
         manipulate_layout $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
-            -log $log\
-            -output $::env(CURRENT_DEF)\
-            -input $::env(MERGED_LEF)\
+            -indexed_log $log\
+            -output_def $::env(CURRENT_DEF)\
             --def-template $::env(FP_DEF_TEMPLATE)
     }
 

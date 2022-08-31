@@ -130,9 +130,9 @@ Most of the following commands' implementation exists in this [file][9]
 |    | `-power <power_pin>` | The name of the power pin. |
 |    | `-ground <ground_pin>` | The name of the ground pin. |
 | `write_powered_verilog` | | writes a verilog file that contains the power pins and connections from a DEF file. It stores the result in `/<run_path>/results/lvs` |
-|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to the `CURRENT_DEF` of the processed design. |
-|    | `[-output_def <def_file>]` | The output DEF file. <br> Defaults to `/<run_path>/tmp/routing/<design_name>.powered.def` |
-|    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. <br> Defaults to `/<run_path>/results/lvs/<design_name>.powered.v` |
+|    | `[-odb <odb_file>]` | The input ODB file. <br> Defaults to the `CURRENT_ODB` of the processed design. |
+|    | `[-output_def <def_file>]` | The output DEF file. Required. |
+|    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. Required. |
 |    | `[-lef <lef_file>]` | The LEF view with the power pins information. <br> Defaults to the `MERGED_LEF` |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
@@ -213,11 +213,11 @@ Most of the following commands' implementation exists in this [file][8]
 |---------------|------------------------|-----------------------------------------|
 | `gen_pdn` | | Runs basic power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `power_routing` | | Performs power routing on a chip level design. More details in [Chip Integration][15]. |
-|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF`. |
-|    | `[-lef <lef_file>]` | The input LEF file. <br> Defaults to `MERGED_LEF`. |
+|    | `[-odb <odb_file>]` | The input ODB file. <br> Defaults to `CURRENT_ODB`. |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-output_def <output_def_file>]` | The output DEF file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.def` |
+|    | `[-output_odb <output_odb_file>]` | The output ODB file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.odb` |
 | `run_power_grid_generation` | | Runs power grid generation with the advanced control options, `VDD_NETS`, `GND_NETS`, etc... This proc is capable of generating multiple power grid. Check [this documentation][16] for more details about controlling this command.
 
 ## Routing Commands
@@ -296,10 +296,14 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
 |    | `[-output_file <output_file>]` | The ouput final summary csv report file path. <br> Defaults to being generated under `<run_path>/reports/metrics.csv`. |
 |    | `[-man_report <man_report>]` | The ouput manufacturability report file path. <br> Defaults to being generated under `<run_path>/reports/manufacturability.rpt`. |
-| `remove_pins` | | Removes the pins' section from a given DEF file. |
-|    | `-input <def_file>` | The input DEF file. |
-| `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
-|    | `-input <def_file>` | The input DEF file. |
+| `remove_pins` | | Removes pins from a given database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+| `remove_nets` | | Removes nets from a given database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+|    | `-rx <regular expression>` | A regular expression to match to delete a certain net. Must match whole name of the net. <br> Defaults to `.+` (matches everything.) |
+|    | `-empty`
 | `resize_die` | | Resizes the DIEAREA in a given DEF file to the given size. |
 |    | `-def <def_file>` | The input DEF file. |
 |    | `-area <list>` | The new coordinates of the DIEARA listed as (llx, lly, urx, ury). |
@@ -308,13 +312,14 @@ Most of the following commands' implementation exists in these files: [deflef][1
 |    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF` of the currently processed design. <br> Optional Flag. |
 | `add_lefs` | | Merges the given `<-src>` LEF files to the existing processed LEF files. |
 |    | `-src <lef_files>` | The input LEF files. |
-| `merge_components` | | Merges the components section of two DEF files. |
-|    | `-input1 <def_file>` | The first DEF file. |
-|    | `-input2 <def_file>` | The second DEF file. |
-|    | `-output <def_file>` | The output DEF file. |
-| `move_pins` | | Moves the PINS section from one DEF file to another. |
-|    | `-from <def_file>` | The input DEF file. |
-|    | `-to <def_file>` | The target DEF file. |
+| `merge_components` | | Appends the components of a `def` file into the current database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-donor <def_file>` | The DEF file to merge components from. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+| `relocate_pins` | | **Previously: `replace_pins`**: Moves pins that are common between a template DEF file and a database to the location specified in the template DEF. |
+|    | `-input <odb_file>` | The ODB file to relocate the common pins of. <br> Defaults to `CURRENT_ODB`. |
+|    | `-template <def_file>` | The DEF file to relocate pins to. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
 | `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
 | `kill_display_buffer` | | Kills the fake display buffer. |
 | `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
@@ -330,6 +335,8 @@ Most of the following commands' implementation exists in these files: [deflef][1
 |    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `flow completed`. |
 | `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `flow failed`, and finally prints `Flow Failed` to the terminal. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
+| `remove_empty_nets` | | **Deprecated: use `remove_nets -empty`** the empty nets from a given ODB file. |
+|    | `-input <odb_file>` | The input ODB file. |
 | `zeroize_origin_lef` | | **Removed:** Zeroizes the origin of all views in a LEF file. |
 |    | `-file <lef_file>` | The input LEF file. |
 

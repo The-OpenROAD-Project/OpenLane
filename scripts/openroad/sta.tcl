@@ -13,7 +13,13 @@
 # limitations under the License.
 if { $::env(RUN_STANDALONE) == 1 } {
     source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-    read -override_lef "$::env(STA_LEF)"
+    if { $::env(CURRENT_ODB) != "0" } {
+        read
+    } else {
+        read_libs
+        read_lef "$::env(STA_LEF)"
+        read_netlist
+    }
 
     if { $::env(STA_PRE_CTS) == 1 } {
         unset_propagated_clock [all_clocks]
@@ -25,21 +31,21 @@ if { $::env(RUN_STANDALONE) == 1 } {
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
 if { [info exists ::env(CURRENT_SPEF)] } {
-    read_spef $::env(CURRENT_SPEF)
+    read_spef -corner tt $::env(CURRENT_SPEF)
 }
 
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
+report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
 puts "min_report_end"
 
 puts "max_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
+report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5 -corner tt
 puts "max_report_end"
 
 
@@ -47,19 +53,19 @@ puts "check_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
 puts "============================================================================"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded
+report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
 puts "============================================================================"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded
+report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
 puts "check_report_end"
 
 puts "check_slew"
 puts "\n==========================================================================="
 puts " report_check_types -max_slew -max_cap -max_fanout -violators"
 puts "============================================================================"
-report_check_types -max_slew -max_capacitance -max_fanout -violators
+report_check_types -max_slew -max_capacitance -max_fanout -violators -corner tt
 
 
 puts "\n==========================================================================="
@@ -102,16 +108,19 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "\n==========================================================================="
     puts " report_clock_skew"
     puts "============================================================================"
-    report_clock_skew
+    report_clock_skew -corner tt
     puts "clock_skew_end"
 }
 
-puts "power_report"
-puts "\n==========================================================================="
-puts " report_power"
-puts "============================================================================"
-report_power
-puts "power_report_end"
+# This segfaults sometimes.
+if { $::env(STA_REPORT_POWER) == 1 } {
+    puts "power_report"
+    puts "\n==========================================================================="
+    puts " report_power"
+    puts "============================================================================"
+    report_power -corner tt
+    puts "power_report_end"
+}
 
 puts "area_report"
 puts "\n==========================================================================="

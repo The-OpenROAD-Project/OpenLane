@@ -14,12 +14,13 @@
 # limitations under the License.
 import odb
 
+import os
 import re
+import sys
+
 import click
 
 from reader import OdbReader, click_odb
-
-import sys  # For stderr
 
 
 @click.group()
@@ -123,16 +124,9 @@ def check_pin_grid(manufacturing_grid, dbu_per_microns, pin_name, pin_coordinate
         return True
 
 
-# Note: If you decide to change any parameters, also change replace_pins_command's
-def replace_pins(db, input_lef, template_def):
-
+def relocate_pins(db, input_lef, template_def):
     # --------------------------------
-    # 1. Copy the one def to second
-    # --------------------------------
-    print("[defutil.py:replace_pins] Creating output DEF based on first DEF")
-
-    # --------------------------------
-    # 2. Find list of all bterms in first def
+    # 1. Find list of all bterms in existing database
     # --------------------------------
     source_db = db
     source_bterms = source_db.getChip().getBlock().getBTerms()
@@ -155,27 +149,20 @@ def replace_pins(db, input_lef, template_def):
         # --------------------------------
         # 3. Check no bterms should be marked as power, because it is assumed that caller already removed them
         # --------------------------------
-        if (source_bterm.getSigType() == "POWER") or (
-            source_bterm.getSigType() == "GROUND"
-        ):
+        sigtype = source_bterm.getSigType()
+        if sigtype in ["POWER", "GROUND"]:
             print(
-                "Bterm",
-                source_name,
-                "is declared as",
-                source_bterm.getSigType(),
-                "ignoring it",
+                f"[WARNING] Bterm {source_name} is declared as a '{sigtype}' pin. It will be ignored.",
             )
             continue
         all_bterm_names.add(source_name)
 
     print(
-        "[defutil.py:replace_pins] Found",
-        len(all_bterm_names),
-        "block terminals in first def",
+        f"Found {len(all_bterm_names)} block terminals in existing database...",
     )
 
     # --------------------------------
-    # 4. Read the template def
+    # 2. Read the donor def
     # --------------------------------
     template_db = odb.dbDatabase.create()
     odb.read_lef(template_db, input_lef)
@@ -190,8 +177,9 @@ def replace_pins(db, input_lef, template_def):
         source_db.getTech().getDbUnitsPerMicron()
         == template_db.getTech().getDbUnitsPerMicron()
     )
+
     # --------------------------------
-    # 5. Create a dict with net -> pin location. Check for only one pin location to exist, overwise return an error
+    # 3. Create a dict with net -> pin location. Check for only one pin location to exist, overwise return an error
     # --------------------------------
     template_bterm_locations = dict()
 
@@ -217,15 +205,13 @@ def replace_pins(db, input_lef, template_def):
                     )
                 )
 
-    print(
-        f"[defutil.py:replace_pins] Found {len(template_bterm_locations)} template_bterms."
-    )
+    print(f"Found {len(template_bterm_locations)} template_bterms:")
 
-    for template_bterm_name in template_bterm_locations:
-        print(template_bterm_name, ": ", template_bterm_locations[template_bterm_name])
+    for name in template_bterm_locations.keys():
+        print(f"  * {name}: {template_bterm_locations[name]}")
 
     # --------------------------------
-    # 6. Modify the pins in out def, according to dict
+    # 4. Modify the pins in out def, according to dict
     # --------------------------------
     output_db = db
     output_tech = output_db.getTech()
@@ -250,15 +236,7 @@ def replace_pins(db, input_lef, template_def):
                 output_new_bpin = odb.dbBPin.create(output_bterm)
 
                 print(
-                    "For:",
-                    name,
-                    "Wrote on layer:",
-                    layer.getName(),
-                    "coordinates: ",
-                    template_bterm_location_tuple[1],
-                    template_bterm_location_tuple[2],
-                    template_bterm_location_tuple[3],
-                    template_bterm_location_tuple[4],
+                    f"Wrote pin {name} at layer {layer.getName()} at {template_bterm_location_tuple[1:]}..."
                 )
                 grid_errors = (
                     check_pin_grid(
@@ -307,40 +285,41 @@ def replace_pins(db, input_lef, template_def):
                 output_new_bpin.setPlacementStatus("PLACED")
         else:
             print(
-                "[defutil.py:replace_pins] Not found",
-                name,
-                "in template def, but found in output def. Leaving as-is",
+                f"{name} not found in donor def, but found in output def. Leaving as-is.",
             )
 
     if grid_errors:
-        sys.exit("[ERROR]: Grid errors happened. Check log for grid errors.")
+        print(
+            f"[ERROR]: Some pins were grid-misaligned. Please check the log.",
+            file=sys.stderr,
+        )
+        exit(os.EX_DATAERR)
 
 
-@click.command("replace_pins")
+@click.command("relocate_pins")
+@click.option(
+    "-t",
+    "--template-def",
+    required=True,
+    help="Template DEF to use the locations of pins from.",
+)
 @click_odb
-@click.argument("template_def")
-def replace_pins_command(reader, input_lef, template_def):
+def relocate_pins_command(reader, input_lef, template_def):
     """
-        Copies source_def to output, then if same pin exists in template def and first def then, it's written to output def
+    Moves pins that are common between a template_def and the database to the
+    location specified in the template_def.
 
-    Example to run:
-
-        openroad -python scripts/defutil.py replace_pins -o output.def\
-            --log defutil.log\
-            --input-lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef\
-                designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
-
-    Note: Assumes that all pins are on metal layers and via pins dont exist.
-    Note: It assumes that all pins are rectangles, not polygons.
-    Note: This tool assumes no power pins exist in template def.
-    Note: It should leave pins in source_def as-is if no pin in template def is found.
-    Note: It assumes only one port with the same name exist.
-    Note: It assumes that pin names matches the net names in template DEF.
+    Assumptions:
+        * The template def lacks power pins.
+        * All pins are on metal layers (none on vias.)
+        * All pins are rectangular.
+        * All pins have unique names.
+        * All pin names match the net names in the template DEF.
     """
-    replace_pins(reader.db, input_lef, template_def)
+    relocate_pins(reader.db, input_lef, template_def)
 
 
-cli.add_command(replace_pins_command)
+cli.add_command(relocate_pins_command)
 
 
 @click.command("remove_components")

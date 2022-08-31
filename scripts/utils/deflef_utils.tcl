@@ -12,17 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc remove_empty_nets {args} {
-    set options {
-        {-input required}
-    }
-    set flags {}
-
-    parse_key_args "remove_empty_nets" args arg_values $options flags_map $flags
-    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets \
-        -input $arg_values(-input)
-}
-
 proc resize_die {args} {
     set options {
         {-def required}
@@ -82,51 +71,94 @@ proc add_lefs {args} {
 
 proc merge_components {args} {
     set options {
-        {-input1 required}
-        {-input2 required}
-        {-output required}
+        {-input optional}
+        {-donor required}
+        {-output optional}
     }
     set flags {}
+
     parse_key_args "merge_components" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py merge_components \
         -output $arg_values(-output) \
-        -input $arg_values(-input1) \
-        --with-components-from $arg_values(-input2)
+        -input $arg_values(-input) \
+        --with-components-from $arg_values(-donor)
 }
 
 
 proc move_pins {args} {
     # To be precise, this REPLACES pins in to with the ones in from.
+    handle_deprecated_command relocate_pins;
+}
+
+proc relocate_pins {args} {
     set options {
-        {-from required}
-        {-to required}
+        {-input optional}
+        {-template required}
+        {-output optional}
     }
     set flags {}
-    parse_key_args "move_pins" args arg_values $options flags_map $flags
-    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_pins\
-        -input $arg_values(-from)\
-        -output $arg_values(-to)
+
+    parse_key_args "relocate_pins" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py relocate_pins\
+        -output $arg_values(-output)\
+        -input $arg_values(-input)\
+        --template-def $arg_values(-template)
 }
 
 proc remove_pins {args} {
     set options {
-        {-input required}
+        {-input optional}
+        {-output optional}
     }
     set flags {}
     parse_key_args "remove_pins" args arg_values $options flags_map $flags
-    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_pins\
-        -input $arg_values(-input)
-}
 
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_pins\
+        -input $arg_values(-input)\
+        -output $arg_values(-output)
+}
 
 proc remove_nets {args} {
     set options {
-        {-input required}
+        {-input optional}
+        {-output optional}
+        {-rx optional}
     }
-    set flags {}
+    set flags {-empty}
     parse_key_args "remove_nets" args arg_values $options flags_map $flags
-    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets \
-        -input $arg_values(-input)
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    set arg_list [list]
+    lappend arg_list -input $arg_values(-input)
+    lappend arg_list -output $arg_values(-output)
+
+    if { [info exists arg_values(-rx)] } {
+        lappend arg_list --rx $arg_values(-rx)
+    }
+
+    if { [info exists flags_map(-empty)] } {
+        lappend --empty-only
+    }
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets\
+        {*}$arg_list
+}
+
+proc remove_empty_nets {args} {
+    handle_deprecated_command remove_nets -empty
 }
 
 proc remove_components {args} {

@@ -36,13 +36,18 @@ proc find_all {ext} {
     return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
 }
 
-proc handle_deprecated_command {new} {
+proc handle_deprecated_command {args} {
+    set new [lindex $args 0]
+    set insert_args [lrange $args 1 end]
+
     set invocation [info level -1]
     set caller [lindex $invocation 0]
-    set args [lrange $invocation 1 end]
+    set caller_args [lrange $invocation 1 end]
 
-    puts_warn "$caller is now deprecated; use $new instead."
-    eval {$new {*}$args}
+    set final_args [list {*}$insert_args {*}$caller_args]
+
+    puts_warn "The command $caller is now deprecated; use $new $insert_args instead."
+    eval {$new {*}$final_args}
 }
 
 proc set_if_unset {var default_value} {
@@ -404,25 +409,28 @@ proc cat {args} {
 proc manipulate_layout {args} {
     # Requires at least one non-flag/option arg, which is the path to the script.
     set options {
-        {-log optional}
+        {-indexed_log optional}
         {-input optional}
         {-output optional}
+        {-output_def optional}
     }
 
     set flags {}
 
     parse_key_args "manipulate_layout" args arg_values $options flag_map $flags
 
-    set_if_unset arg_values(-log) /dev/null
-    set_if_unset arg_values(-input) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-indexed_log) /dev/null
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
     set_if_unset arg_values(-output) $arg_values(-input)
+    set_if_unset arg_values(-output_def) /dev/null
 
     try_catch $::env(OPENROAD_BIN) -python \
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
+        --output-def $arg_values(-output_def) \
         --output $arg_values(-output) \
         $arg_values(-input) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-log)]
+        |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
 }
 
 proc run_tcl_script {args} {
@@ -453,7 +461,8 @@ proc run_tcl_script {args} {
         {-save optional}
     }
 
-    # -netlist_in: Specify that the input is CURRENT_NETLIST and not the layout.
+    # -netlist_in: Specify that the input is CURRENT_NETLIST and not the ODB file.
+    # -def_in: Specify that the input is CURRENT_DEF and not the ODB file.
     # -gui: Launch the GUI (OpenROAD Only)
     # -no_update_current: See '-save'
     set flags {-netlist_in -gui -no_update_current}
@@ -504,9 +513,9 @@ proc run_tcl_script {args} {
             set extension $element
 
             if { $element == "netlist" } {
-                set extension ".nl.v"
+                set extension "nl.v"
             } elseif { $element == "powered_netlist" } {
-                set extension ".pnl.v"
+                set extension "pnl.v"
             } elseif { $element == "odb" } {
                 set odb_saved 1
             }
@@ -591,9 +600,11 @@ proc run_tcl_script {args} {
         lappend or_issue_arg_list --run-path $::env(RUN_DIR)
 
         if { [info exists flag_map(-netlist_in)] } {
-            lappend or_issue_arg_list --netlist $::env(CURRENT_NETLIST)
+            lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
+        } elseif { $tool != "openroad" || [info exists flag_map(-def_in)]} {
+            lappend or_issue_arg_list --input-type "def" $::env(CURRENT_DEF)
         } else {
-            lappend or_issue_arg_list $::env(CURRENT_DEF)
+            lappend or_issue_arg_list --input-type "odb" $::env(CURRENT_ODB)
         }
 
         if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
