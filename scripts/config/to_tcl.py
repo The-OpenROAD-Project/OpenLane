@@ -325,7 +325,7 @@ def cli():
 
 @click.command("from-json")
 @click.option("-o", "--output", default="/dev/stdout", help="File to output the Tcl to")
-@click.option("-p", "--pdk", required=None, help="The name of the PDK")
+@click.option("-p", "--pdk", default=None, help="The name of the PDK")
 @click.option(
     "-s",
     "--scl",
