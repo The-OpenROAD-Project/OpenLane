@@ -18,7 +18,6 @@
 import re
 import os
 import csv
-import sys
 import glob
 import click
 import shutil

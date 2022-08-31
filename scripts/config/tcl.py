@@ -18,7 +18,6 @@ import os
 import sys
 import json
 import glob
-import click
 import fnmatch
 from enum import Enum
 from io import TextIOWrapper
