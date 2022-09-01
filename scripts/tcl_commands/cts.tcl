@@ -79,7 +79,7 @@ proc run_cts {args} {
 		check_cts_clock_nets
 		set ::env(cts_reports) $report_tag_holder
 		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts"
+		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts - openroad"
 
 		set_def $::env(SAVE_DEF)
 		set ::env(CURRENT_SDC) $::env(SAVE_SDC)
