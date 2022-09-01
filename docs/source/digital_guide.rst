@@ -21,7 +21,7 @@ Create the memory macro design
 
 Let's create the design. The following command will create a directory ``design/mem_1r1w/`` and one file ``config.json`` that will be mostly empty.
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design mem_1r1w -init_design_config -add_to_designs
 
@@ -120,7 +120,7 @@ Run the flow on the macro block
 
 .. todo:: Add proper description
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design mem_1r1w -tag full_guide -overwrite
 
@@ -129,7 +129,7 @@ Analyzing the flow generated files
 
 You can open interactive view using following commands:
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design mem_1r1w -tag full_guide -interactive
     package require  openlane
@@ -150,7 +150,7 @@ Create chip level RTL
 
 Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
 
@@ -220,7 +220,7 @@ Run the flow
 
 Run the flow. It is expected for the flow to fail. In next step, explaination is provided.
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
 
@@ -230,7 +230,7 @@ First issue
 
 Flow is expected to fail.
 
-.. code-block:: console
+.. code-block::
 
     [ERROR]: during executing openroad script /openlane/scripts/openroad/replace.tcl
     [ERROR]: Exit code: 1
@@ -249,7 +249,7 @@ Flow is expected to fail.
 
 To debug this issue, open an OpenROAD GUI:
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -interactive -tag full_guide_broken_aspect_ratio
     package require  openlane
@@ -292,7 +292,7 @@ Run the flow again
 
 Run the flow again. This time it should no longer fail.
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
 
@@ -306,7 +306,7 @@ Analyzing the results
 
 Open OpenROAD GUI to view the results of the flow.
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
 
@@ -323,7 +323,7 @@ Open OpenROAD GUI to view the results of the flow.
 
 If you want to load different DEF file use ``set_def`` command. For example:
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
     package require openlane
@@ -567,7 +567,7 @@ This allows to get better understanding of the underlying flow.
 
 Finally, open the final layout.
 
-.. code-block:: console
+.. code-block::
 
    klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
       -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp \

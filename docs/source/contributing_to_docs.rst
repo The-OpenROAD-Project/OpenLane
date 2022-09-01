@@ -44,7 +44,7 @@ Building documentation locally
 
 Assuming you have OpenLane installed it will create ``venv``. Install requirements for documentation building inside ``venv``.
 
-.. code-block:: console
+.. code-block::
 
     cd OpenLane/
     # assuming you are inside OpenLane folder
@@ -55,7 +55,7 @@ Assuming you have OpenLane installed it will create ``venv``. Install requiremen
 
 After installation, every time you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
-.. code-block:: console
+.. code-block::
 
     cd OpenLane/
     # assuming you are inside OpenLane folder
@@ -63,7 +63,7 @@ After installation, every time you want to build the documentation proceed to en
 
 View the generated html files using Firefox or other browser. Open this document in browser:
 
-.. code-block:: console
+.. code-block::
 
     # Assuming same folder as OpenLane
     cd OpenLane/
@@ -123,7 +123,7 @@ Making screenshots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The screenshots in documentation should use following prompt:
 
-.. code-block:: console
+.. code-block::
 
     export PS1="\W> "
 
@@ -177,7 +177,7 @@ Pip module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you did not source ``../venv/bin/activate`` when running ``sphinx-build`` then you will get error similar to the one below.
 
-.. code-block:: console
+.. code-block::
 
     Running Sphinx v5.0.1
 
@@ -198,7 +198,7 @@ Sphinx build complains about title underline being too short
 
 When running ``sphinx-build`` you may get following warning:
 
-.. code-block:: console
+.. code-block::
 
     /home/armleo/Desktop/OpenLaneGSOC/docs/source/installation.rst:3: WARNING: Title underline too short.
 

@@ -4,7 +4,7 @@ Updating OpenLane
 
 Run following commands to update the OpenLane:
 
-.. code-block:: console
+.. code-block::
 
    cd OpenLane/
    git pull --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git master

@@ -11,7 +11,7 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
     This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the installation of the Docker. DO NOT SKIP!
 
 
-.. code-block:: console
+.. code-block::
 
    sudo groupadd docker
    sudo usermod -aG docker $USER
@@ -19,7 +19,7 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
 
 You **must restart your operating system** for the group permissions to apply.
 
-.. code-block:: console
+.. code-block::
 
    sudo groupadd docker
    sudo usermod -aG docker $USER

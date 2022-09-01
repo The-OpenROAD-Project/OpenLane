@@ -39,7 +39,7 @@ Troubleshooting docker installation issues
 
 If you get Docker permission error when running any Docker images:
 
-.. code-block:: console
+.. code-block::
 
    OpenLane> docker run hello-world
    docker: Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create": dial unix /var/run/docker.sock: connect: permission denied.
@@ -53,7 +53,7 @@ Checking Installation Requirements
 
 In order to check installation, you can use following commands:
 
-.. code-block:: console
+.. code-block::
 
    git --version
    docker --version
@@ -64,7 +64,7 @@ In order to check installation, you can use following commands:
 
 Successful outputs looks like this:
 
-.. code-block:: console
+.. code-block::
 
    git --version
    docker --version
@@ -95,7 +95,7 @@ Download and Install OpenLane
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download OpenLane from GitHub:
 
-.. code-block:: console
+.. code-block::
 
    git clone --depth 1 https://github.com/The-OpenROAD-Project/OpenLane.git
    cd OpenLane/
@@ -108,7 +108,7 @@ If you are planning to use other PDK, then you need to follow the PDK installati
 
 Sucessful test will output following line:
 
-.. code-block:: console
+.. code-block::
 
    Basic test passed
 
@@ -118,7 +118,7 @@ Optional: Viewing Test Design Outputs
 Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
 
 
-.. code-block:: console
+.. code-block::
 
    # Enter a Docker session:
    make mount
@@ -133,4 +133,13 @@ Open the final layout using KLayout. This will open the window of KLayout in edi
 
 .. image:: ../_static/installation/spm.png
 
-.. todo:: Add reference to quickstart
+.. seealso::
+   `Quickstart guide <quickstart>`_
+
+   `Ubuntu installation <installation_ubuntu>`_
+
+   `Linux installation <installation_linux>`_
+
+   `macOS installation <installation_macos>`_
+
+   `Windows installation <installation_win>`_

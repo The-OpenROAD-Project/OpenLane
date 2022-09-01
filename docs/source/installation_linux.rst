@@ -30,17 +30,18 @@ For OpenLane you need a couple of tools installed:
 
 Docker Installation
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-First install Docker.
-.. todo:: Add link to docker documentation
+First `install Docker following steps provided here <https://docs.docker.com/engine/install/>`_.
+
+Test if installation was successful:
+
+.. code-block::
 
    sudo docker run hello-world
 
 
 Successful installation of Docker looks like this:
 
-.. code-block:: console
-
-   After installation you will get Hello World of Docker:
+.. code-block::
 
    Hello from Docker!
    This message shows that your installation appears to be working correctly.

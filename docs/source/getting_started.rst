@@ -6,7 +6,7 @@ Getting Started
 
    installation_ubuntu
    installation_macos
-   installation_win11_win10
+   installation_win
    installation_linux
-   updating_linux
+   updating
    quickstart

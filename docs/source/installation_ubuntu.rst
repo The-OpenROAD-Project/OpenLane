@@ -24,7 +24,7 @@ Follow `instructions provided in documentation of the Docker  here <https://docs
     The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
 
 
-.. code-block:: console
+.. code-block::
 
    # Remove old installations
    sudo apt-get remove docker docker-engine docker.io containerd runc
@@ -54,9 +54,7 @@ Follow `instructions provided in documentation of the Docker  here <https://docs
 
 Successful installation of Docker looks like this:
 
-.. code-block:: console
-
-   After installation you will get Hello World of Docker:
+.. code-block::
 
    Hello from Docker!
    This message shows that your installation appears to be working correctly.
@@ -77,5 +75,4 @@ Successful installation of Docker looks like this:
    https://docs.docker.com/get-started/
 
 .. include:: docker_rootless.rst
-
 .. include:: installation_common_section.rst

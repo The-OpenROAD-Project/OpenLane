@@ -13,7 +13,7 @@ Create a new design.
 
 Create a new design using following command:
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design test_sram_macro -init_design_config -add_to_designs
 
@@ -188,7 +188,7 @@ Each macro hook is separated using comma, for example:
 The instance names need to be fetched from synthesis netlist.
 For this purpose run the design until synthesis stage using following command:
 
-.. code-block:: console
+.. code-block::
 
     ./flow.tcl -design test_sram_macro -tag synthesis_only -to synthesis -overwrite
 
