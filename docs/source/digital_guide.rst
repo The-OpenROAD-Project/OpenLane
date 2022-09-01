@@ -45,36 +45,8 @@ Then we need to create/copy the RTL files. The recommended location for files is
 
 Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 
-.. code-block:: verilog
-
-    module mem_1r1w (clk, read_addr, read, read_data, write_addr, write, write_data);
-        parameter DEPTH_LOG2 = 4;
-        localparam ELEMENTS = 2**DEPTH_LOG2;
-        parameter WIDTH = 32;
-
-        input wire clk;
-
-        input wire [DEPTH_LOG2-1:0] read_addr;
-        input wire read;
-        output reg [WIDTH-1:0] read_data;
-
-
-        input wire [DEPTH_LOG2-1:0] write_addr;
-        input wire write;
-        input wire  [WIDTH-1:0] write_data;
-
-    reg [WIDTH-1:0] storage [ELEMENTS-1:0];
-
-    always @(posedge clk) begin
-        if(write) begin
-            storage[write_addr] <= write_data;
-        end
-        if(read)
-            read_data <= storage[read_addr];
-    end
-
-    endmodule
-
+.. literalinclude:: ../../design/mem_1r1w/src/mem_1r1w.v
+    :language: verilog
 
 
 .. note::
@@ -87,18 +59,9 @@ Configure mem_1r1w
 
 Modify the ``config.json`` to include following:
 
-.. code-block::json
+.. literalinclude:: ../../design/mem_1r1w/config.json
+    :language: json
 
-    {
-        "DESIGN_NAME": "mem_1r1w",
-        "VERILOG_FILES": "dir::src/*.v",
-        "CLOCK_PORT": "clk",
-        "CLOCK_PERIOD": 10.0,
-        "DESIGN_IS_CORE": false,
-        "FP_PDN_CORE_RING": false,
-        "RT_MAX_LAYER": "met4"
-    }
- 
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
 .. todo:: Define what IS_CORE and is not core is. match the documentation
@@ -166,27 +129,8 @@ Meanwhile, the users should be careful when making sub components that have para
 
 Create the verilog blackbox:
 
-.. code-block:: verilog
-
-    (*blackbox*)
-
-    module mem_1r1w (clk, read_addr, read, read_data, write_addr, write, write_data);
-        parameter DEPTH_LOG2 = 4;
-        localparam ELEMENTS = 2**DEPTH_LOG2;
-        parameter WIDTH = 32;
-
-        input wire clk;
-
-        input wire [DEPTH_LOG2-1:0] read_addr;
-        input wire read;
-        output reg [WIDTH-1:0] read_data;
-
-
-        input wire [DEPTH_LOG2-1:0] write_addr;
-        input wire write;
-        input wire  [WIDTH-1:0] write_data;
-
-    endmodule
+.. literalinclude:: ../../designs/regfile_2r1w/bb/mem_1r1w.bb.v
+    :language: verilog
 
 Then add ``VERILOG_FILES_BLACKBOX``, ``EXTRA_LEFS`` and ``EXTRA_GDS_FILES`` to the ``config.json`` in the ``regfile_2r1w``:
 
@@ -268,20 +212,9 @@ This will make the flooplan a rectange instead of square and the rectangle will 
 
 ``config.json`` should look like this:
 
-.. code-block:: json
 
-    {
-        "DESIGN_NAME": "regfile_2r1w",
-        "VERILOG_FILES": "dir::src/*.v",
-        "CLOCK_PORT": "clk",
-        "CLOCK_PERIOD": 10.0,
-        "DESIGN_IS_CORE": true,
-        
-        "FP_ASPECT_RATIO": 2,
-        "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-        "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-        "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
-    }
+.. literalinclude:: ../../designs/regfile_2r1w/config.json
+    :language: json
 
 There is no need to change the default PDN configuration.
 It is going to create power straps on met5 and connect the macro
