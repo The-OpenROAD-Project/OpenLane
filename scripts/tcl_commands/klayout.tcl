@@ -168,6 +168,8 @@ proc run_klayout_gds_xor {args} {
 					-l [index_file $::env(signoff_logs)/xor.log] \
 					-o [index_file $::env(signoff_reports)/xor.rpt]
 			}
+			TIMER::timer_stop
+			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "xor - klayout"
 		} else {
 			set layout2_rel [relpath . $arg_values(-layout2)]
 			puts_warn "'$layout2_rel' wasn't found. Skipping GDS XOR."
@@ -176,8 +178,6 @@ proc run_klayout_gds_xor {args} {
 		set layout1_rel [relpath . $arg_values(-layout1)]
 		puts_warn "'$layout1_rel' wasn't found. Skipping GDS XOR."
 	}
-	TIMER::timer_stop
-	exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "xor - klayout"
 }
 
 proc open_in_klayout {args} {
