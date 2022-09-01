@@ -1,5 +1,5 @@
 Checking the Docker Installation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 
 After that you can run Docker Hello World without root. To test it use following command:
 
@@ -35,7 +35,7 @@ You will get a little happy message of Hello world, once again, but this time wi
 
 
 Troubleshooting docker installation issues
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------------------------------------------------------------------
 
 If you get Docker permission error when running any Docker images:
 
@@ -49,7 +49,7 @@ If you get Docker permission error when running any Docker images:
 Then you skipped a step or two. Likely, you forgot to follow steps to make Docker available without root or you need to *restart your Operating System*.
 
 Checking Installation Requirements
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 
 In order to check installation, you can use following commands:
 
@@ -92,7 +92,7 @@ Successful outputs looks like this:
    sourcing an activate script in its bin directory.
 
 Download and Install OpenLane
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 Download OpenLane from GitHub:
 
 .. code-block::
@@ -113,7 +113,7 @@ Sucessful test will output following line:
    Basic test passed
 
 Optional: Viewing Test Design Outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 
 Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
 

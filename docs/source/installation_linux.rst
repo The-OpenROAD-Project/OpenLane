@@ -15,7 +15,7 @@ Installation steps
 --------------------------------------------------------------------------------
 
 Installation of Required Packages
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------------------------------------------
 
 For OpenLane you need a couple of tools installed:
 
@@ -29,7 +29,7 @@ For OpenLane you need a couple of tools installed:
    * GNU Make
 
 Docker Installation
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------------------------------------------------------------------
 First `install Docker following steps provided here <https://docs.docker.com/engine/install/>`_.
 
 Test if installation was successful:

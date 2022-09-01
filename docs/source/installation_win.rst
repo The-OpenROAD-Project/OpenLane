@@ -6,7 +6,7 @@ Installation on Windows 10/11 using WSL
 3. Install Ubuntu using wsl ``wsl --install -d Ubuntu``
 4. Press Start and select Ubuntu and follow steps below
 
-.. figure:: ..\_static\installation\wsl.png
+.. figure:: ../_static/installation/wsl.png
 
 .. include:: wsl_ubuntu_packages.rst
 .. include:: installation_common_section.rst

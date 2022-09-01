@@ -1,5 +1,5 @@
 Installation of required packages
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------------------------------------------------------------------
 
 Update packages database and upgrade the packages to avoid version missmatches then install required packages.
 

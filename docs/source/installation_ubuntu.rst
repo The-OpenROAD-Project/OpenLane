@@ -16,7 +16,7 @@ Only Ubuntu 20.04 and above are supported.
 .. include:: wsl_ubuntu_packages.rst
 
 Docker Installation
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+--------------------------------------------------------------------------------
 Next install Docker.
 Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
 
