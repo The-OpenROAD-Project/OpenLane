@@ -62,11 +62,11 @@ jobs:
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}
         uses: peter-evans/create-pull-request@v4
-        author: ${{ secrets.BOT_AUTHOR_LINE }}
-        committer: ${{ secrets.BOT_AUTHOR_LINE }}
         with:
           token: ${{ secrets.MY_TOKEN }}
           title: "[BOT] Update PDK"
+          author: ${{ secrets.BOT_AUTHOR_LINE }}
+          committer: ${{ secrets.BOT_AUTHOR_LINE }}
           body: |
             This is an automated PR.
 
