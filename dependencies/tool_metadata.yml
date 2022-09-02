@@ -18,7 +18,7 @@
     make install
 - name: netgen
   repo: https://github.com/rtimothyedwards/netgen
-  commit: bfb01e032f668c09ff43e889f35d611ef0e4a317
+  commit: 2056b37c95e11ea802f8b06c8948e874a298808a
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -54,21 +54,21 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 428d0fe8c941faece4eceebc54170cc04d916c03
-  build: ""
+  build: ''
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: 4174c3ad802d2ac1d04d387d2c4b883903f6647e
-  build: ""
+  build: ''
   in_install: false
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ""
+  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/efabless/open_pdks
   commit: 44a43c23c81b45b8e774ae7a84899a5a778b6b0b
-  build: ""
+  build: ''
   in_install: false
   pdk: true
