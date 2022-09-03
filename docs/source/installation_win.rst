@@ -27,8 +27,8 @@ If you get following output, then you need to start the `Docker Desktop on Windo
     PS C:\Users\user> wsl --list --verbose
     NAME                   STATE           VERSION
     * Ubuntu                 Running         2
-    docker-desktop         Running         2
-    docker-desktop-data    Running         2
+    docker-desktop         Stopped         2
+    docker-desktop-data    Stopped         2
 
 Or if you get this error:
 
