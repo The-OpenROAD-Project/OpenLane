@@ -86,7 +86,7 @@ so the creation of blackbox is no longer required. See `issue 1273 <https://gith
 
 It is also users responsibility to avoid name collisions between the blackbox macro blocks.
 If two blackbox modules with the same module name, but different set of parameters exist,
-then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291`_.
+then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
 
 Create the Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
