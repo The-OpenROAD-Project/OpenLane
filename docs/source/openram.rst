@@ -27,6 +27,8 @@ Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/veril
 ``(*blackbox*)`` attribute is specified, to let the synthesis tool know that this module is a blackbox.
 If the module is empty it is assumed to be blackbox anyway, but specifying the attribute makes it more clear.
 
+.. todo:: Replace with include
+
 .. code-block:: verilog
 
     // OpenRAM SRAM model
@@ -80,16 +82,16 @@ Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLA
     "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
 
 In the future ``liberty`` with proper power/ground pins support will be added,
-so the creation of blackbox is no longer required. See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`.
+so the creation of blackbox is no longer required. See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`_.
 
 It is also users responsibility to avoid name collisions between the blackbox macro blocks.
 If two blackbox modules with the same module name, but different set of parameters exist,
-then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
+then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291`_.
 
 Create the Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
+.. todo:: Add link to verilog literal
 .. todo:: Create the verilog file
 
 Connect the Layout pins
