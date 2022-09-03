@@ -30,7 +30,7 @@ If you get following output, then you need to start the `Docker Desktop on Windo
     docker-desktop         Stopped         2
     docker-desktop-data    Stopped         2
 
-Or if you get this error:
+Or if you get this error, similarly you need to start the `Docker Desktop on Windows`.
 
 .. code-block::
 
