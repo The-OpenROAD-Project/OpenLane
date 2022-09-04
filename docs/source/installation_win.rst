@@ -7,8 +7,15 @@ It is the recommended installation method under Windows. Other variants like
 
 1. Follow `official Microsoft documentation for WSL located here <https://docs.microsoft.com/en-us/windows/wsl/install>`_ to install the WSL 2. Make sure your OS version supports WSL 2.
 2. Follow `official steps to Install Docker Desktop on Windows located here <https://docs.docker.com/desktop/install/windows-install/>`_.
+
+.. todo:: Instructions for enabling docker at boot
+.. todo:: there is a need to mention in the guide "open powershell and do ..."
+.. todo:: "Troubleshooting docker installation issues" is not needed in windows. THis needs to be fixed.
+.. todo:: Make troubleshooting docker installation issues at the end
+
 3. Install Ubuntu using wsl ``wsl --install -d Ubuntu``
 4. Check the verison of WSL using following command: ``wsl --list --verbose``
+
 
 It should produce following output:
 

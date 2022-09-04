@@ -134,7 +134,7 @@ then aspect ratio and area was manually adjusted to keep the utilization around 
 `PL_TARGET_DENSITY` is set to 0.5 to reflect the target final density of 50%.
 
 .. todo:: Explain the DIE_AREA selection process
-
+ 
 Power/Ground nets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -229,6 +229,12 @@ Then the ``FP_PDN_MACRO_HOOKS`` will look like this (note that there is no backs
 
     "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
 
+.. todo:: Elaborate
+.. todo:: Elaborate on power connections and why it can just be not connected.
+
+Macro cell placement
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 The cells need to be placed inside the ``DIE_AREA``,
 however the automatic placement does not account the I/O placement when selecting sram placement.
@@ -269,6 +275,10 @@ Then modify the ``config.json`` to reference this file.
 .. code-block:: json
 
     "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
+
+.. todo:: Screenshot the floorplan
+
+.. todo:: Run the flow till floorplan
 
 Resolving issues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -390,7 +400,13 @@ Final ``config.json`` looks like this:
         "RUN_MAGIC_DRC": false
     }
 
+.. todo:: Replace with literal
 
+Finally, harden the macro block by running the following command:
+
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag full_guide -overwrite
 
 .. todo:: Add pictures of the macro placement in floorplan
 
@@ -404,7 +420,7 @@ Final ``config.json`` looks like this:
 
 .. todo:: Explain above
 
-./flow.tcl -design test_sram_macro -tag full_guide -overwrite
+
 
 
 .. todo:: Explain why the placement might fail (Because not enough space/ because too much space)
