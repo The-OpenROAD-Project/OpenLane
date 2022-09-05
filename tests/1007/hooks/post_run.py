@@ -15,19 +15,11 @@
 import os
 import odb
 
-
-class OdbReader(object):
-    def __init__(self, lef_in, def_in):
-        self.db = odb.dbDatabase.create()
-        self.lef = odb.read_lef(self.db, lef_in)
-        self.df = odb.read_def(self.db, def_in)
-        self.block = self.db.getChip().getBlock()
-        self.insts = self.block.getInsts()
-
-
-reader = OdbReader(os.getenv("MERGED_LEF"), os.getenv("CURRENT_DEF"))
+db = odb.dbDatabase.create()
+odb.read_db(db, os.getenv("CURRENT_ODB"))
+instances = db.getChip().getBlock().getInsts()
 buffers = [
-    instance for instance in reader.insts if instance.getName() == "inserted_buffer"
+    instance for instance in instances if instance.getName() == "inserted_buffer"
 ]
 assert len(buffers) == 1
 buffer = buffers[0]
