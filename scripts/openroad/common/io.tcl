@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
+
 proc read_netlist {args} {
     puts "Reading netlist..."
 
@@ -93,6 +96,11 @@ proc write {args} {
     sta::parse_key_args "write" args \
         keys {}\
         flags {}
+
+    if { [info exists ::env(VDD_NET)] } {
+        puts "Setting global connections for newly added cells..."
+        set_global_connections
+    }
 
     if { [info exists ::env(SAVE_ODB)] } {
         puts "Writing OpenROAD database to $::env(SAVE_ODB)..."

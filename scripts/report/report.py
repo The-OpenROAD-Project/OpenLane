@@ -543,11 +543,11 @@ class Report(object):
                         f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}"
                     )
             else:
-                debug(f"Can't find {sta_report_filename}")
+                debug(f"Can't find {kind}/{step}/{sta_report_filename}")
             return value
 
         wns = sta_report_extraction("syn_sta.wns.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="routing")
+        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="signoff")
         opt_wns = sta_report_extraction("rt_rsz_sta.wns.rpt", "wns", step="routing")
         pl_wns = sta_report_extraction(
             "global.log", "wns", kind="logs", step="placement"
@@ -555,7 +555,7 @@ class Report(object):
         fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
 
         tns = sta_report_extraction("syn_sta.tns.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="routing")
+        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="signoff")
         opt_tns = sta_report_extraction("rt_rsz_sta.tns.rpt", "tns", step="routing")
         pl_tns = sta_report_extraction(
             "global.log", "tns", kind="logs", step="placement"

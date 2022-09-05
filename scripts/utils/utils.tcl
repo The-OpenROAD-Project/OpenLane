@@ -478,6 +478,7 @@ proc run_tcl_script {args} {
 
     set save_list [list]
     set save_dir "$::env(TMP_DIR)"
+    set metrics_path ""
     set index 1
     set name $::env(DESIGN_NAME)
 
@@ -516,6 +517,8 @@ proc run_tcl_script {args} {
                 set extension "nl.v"
             } elseif { $element == "powered_netlist" } {
                 set extension "pnl.v"
+            } elseif { $element == "metrics" } {
+                set extension ".json"
             } elseif { $element == "odb" } {
                 set odb_saved 1
             }
@@ -528,7 +531,11 @@ proc run_tcl_script {args} {
                     }
                 }
 
-                lappend save_list $element $value
+                if { $element == "metrics" } {
+                    set metrics_path $value
+                } else {
+                    lappend save_list $element $value
+                }
             }
         }
     }
@@ -539,11 +546,18 @@ proc run_tcl_script {args} {
     }
 
     if { $tool == "openroad" } {
+        set args [list]
+        lappend args $::env(OPENROAD_BIN)
         if { [info exists flag_map(-gui)] } {
-            set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+            lappend args -gui
         } else {
-            set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+            lappend args -exit
         }
+        if { $metrics_path != "" } {
+            lappend args -metrics $metrics_path
+        }
+        lappend args $script
+        lappend args |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
         foreach {element value} $save_list {
             set cap [string toupper $element]
             set ::env(SAVE_${cap}) $value
