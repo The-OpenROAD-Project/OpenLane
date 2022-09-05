@@ -13,19 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
-read_lef "$::env(STA_LEF)"
+
+read -multi_corner_libs
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-# read spef files if they are generated prior to this point
+# Read parasitics if they are generated prior to this point
 if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef -corner ss $::env(CURRENT_SPEF)
     read_spef -corner tt $::env(CURRENT_SPEF)
     read_spef -corner ff $::env(CURRENT_SPEF)
 }
 
-read_sdc $::env(CURRENT_SDC)
 if { $::env(STA_PRE_CTS) == 1 } {
     unset_propagated_clock [all_clocks]
 } else {
@@ -144,20 +143,17 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "clock_skew_end"
 }
 
-# This segfaults sometimes.
-if { $::env(STA_REPORT_POWER) == 1 } {
-    puts "power_report"
-    puts "\n==========================================================================="
-    puts " report_power"
-    puts "============================================================================"
-    puts "\n\n======================= Slowest Corner =================================\n"
-    report_power -corner ss
-    puts "\n======================= Typical Corner ===================================\n"
-    report_power -corner tt
-    puts "\n\n======================= Fastest Corner =================================\n"
-    report_power -corner ff
-    puts "power_report_end"
-}
+puts "power_report"
+puts "\n==========================================================================="
+puts " report_power"
+puts "============================================================================"
+puts "\n\n======================= Slowest Corner =================================\n"
+report_power -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_power -corner tt
+puts "\n\n======================= Fastest Corner =================================\n"
+report_power -corner ff
+puts "power_report_end"
 
 
 puts "area_report"

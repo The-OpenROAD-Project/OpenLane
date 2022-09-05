@@ -51,7 +51,7 @@ proc global_routing_fastroute {args} {
         set minimum_antennae [groute_antenna_extract -from_log $log]
 
         while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $minimum_antennae > 0} {
-            set log [index_file $::env(routing_logs)/antenna_$iter_diodes.log]
+            set log [index_file $::env(routing_logs)/antenna_diodes_$iter.log]
             puts_info "Starting antenna repair iteration $iter with $minimum_antennae violations..."
 
             manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_instance_prefixes\
@@ -318,21 +318,14 @@ proc run_spef_extraction {args} {
         {-save required}
         {-log required}
         {-rcx_lib optional}
-        {-rcx_lef optional}
         {-rcx_rules optional}
         {-process_corner optional}
     }
     parse_key_args "run_spef_extraction" args arg_values $options
 
     set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
-    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
 
-    set ::env(RCX_LIB) $arg_values(-rcx_lib)
-    set ::env(RCX_LEF) $arg_values(-rcx_lef)
-    set ::env(RCX_RULESET) $arg_values(-rcx_rules)
-
-    assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LEF)"
 
     increment_index
     set log [index_file $arg_values(-log)]
@@ -350,9 +343,15 @@ proc run_spef_extraction {args} {
         set ::env(SPEF_EXTRACTOR) "openrcx"
     }
 
+
+    set ::env(RCX_LIB) $arg_values(-rcx_lib)
+    set ::env(RCX_RULESET) $arg_values(-rcx_rules)
+    assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LIB)"
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl\
         -indexed_log $log\
         -save "odb=/dev/null,spef=$arg_values(-save)"
+    unset ::env(RCX_LIB)
+    unset ::env(RCX_RULESET)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - openroad"

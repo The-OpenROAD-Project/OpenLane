@@ -25,7 +25,7 @@ proc read_netlist {args} {
     link_design $::env(DESIGN_NAME)
 
     if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc -echo $::env(CURRENT_SDC)}]} {
+        if {[catch {read_sdc $::env(CURRENT_SDC)}]} {
             puts stderr $errmsg
             exit 1
         }
@@ -36,18 +36,16 @@ proc read_netlist {args} {
 proc read_libs {args} {
     sta::parse_key_args "read_libs" args \
         keys {-override}\
-        flags {}
+        flags {-multi_corner}
+
+    set libs $::env(LIB_SYNTH_COMPLETE)
 
     if { [info exists keys(-override)] } {
-        read_liberty $keys(-override)
+        set libs $::env(LIB_SYNTH_COMPLETE)
+    }
 
-        if { [info exists ::env(EXTRA_LIBS) ] } {
-            foreach lib $::env(EXTRA_LIBS) {
-                read_liberty $lib
-            }
-        }
-    } else {
-        define_corners tt ss ff; # tt unintuitively first because that makes it the "default"
+    if { [info exists flags(-multi_corner)] } {
+        define_corners ss tt ff; # tt unintuitively first because that makes it the "default"
 
         foreach lib $::env(LIB_SLOWEST) {
             read_liberty -corner ss $lib
@@ -66,6 +64,14 @@ proc read_libs {args} {
                 }
             }
         }
+    } else {
+        read_liberty $libs
+
+        if { [info exists ::env(EXTRA_LIBS) ] } {
+            foreach lib $::env(EXTRA_LIBS) {
+                read_liberty $lib
+            }
+        }
 
     }
 }
@@ -73,7 +79,7 @@ proc read_libs {args} {
 proc read {args} {
     sta::parse_key_args "read" args \
         keys {-override_libs}\
-        flags {}
+        flags {-multi_corner_libs}
 
     if {[catch {read_db $::env(CURRENT_ODB)} errmsg]} {
         puts stderr $errmsg
@@ -86,7 +92,18 @@ proc read {args} {
         lappend read_libs_args -override $keys(-override_libs)
     }
 
-    read_libs {*}$args
+    if { [info exists flags(-multi_corner_libs)] } {
+        lappend read_libs_args -multi_corner
+    }
+
+    read_libs {*}$read_libs_args
+
+    if { [info exists ::env(CURRENT_SDC)] } {
+        if {[catch {read_sdc $::env(CURRENT_SDC)}]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    }
 }
 
 proc write {args} {

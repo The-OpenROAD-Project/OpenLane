@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -override_libs "$::env(LIB_SYNTH)"
+read
 
 tapcell\
     -distance $::env(FP_TAPCELL_DIST)\

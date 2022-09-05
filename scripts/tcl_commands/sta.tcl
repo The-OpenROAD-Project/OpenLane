@@ -15,7 +15,6 @@
 proc run_sta {args} {
     set options {
         {-log required}
-        {-lef optional}
         {-process_corner optional}
     }
     set flags {
@@ -26,8 +25,6 @@ proc run_sta {args} {
     set multi_corner [info exists flags_map(-multi_corner)]
     set pre_cts [info exists flags_map(-pre_cts)]
 
-    set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-    set ::env(STA_LEF) $arg_values(-lef)
     set ::env(RUN_STANDALONE) 1
 
     set corner_prefix "Single-Corner"
@@ -88,23 +85,28 @@ proc run_parasitics_sta {args} {
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
                 -rcx_rules $::env($ruleset)\
-                -rcx_lef $::env($lef)\
                 -process_corner $process_corner \
                 -save "$::env(SPEF_PREFIX).$process_corner.spef"
 
-            set log_name $::env(signoff_logs)/parasitics_mca_sta.$process_corner.log
+            set log_name $::env(signoff_logs)/rcx_mcsta.$process_corner.log
 
-            set ::env(SAVE_SDF) $arg_values(-sdf_out)
             run_sta\
-                -lef $::env($lef)\
                 -log $log_name\
                 -process_corner $process_corner\
                 -multi_corner
 
-            set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
 
-            set ::env(CURRENT_SDF) $::env(SAVE_SDF)
-            unset ::env(SAVE_SDF)
+            if { $process_corner == "nom" } {
+                set ::env(SAVE_SDF) $arg_values(-sdf_out)
+                run_sta\
+                    -log $::env(signoff_logs)/rcx_sta.log\
+                    -process_corner $process_corner
+
+                set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
+
+                set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+                unset ::env(SAVE_SDF)
+            }
         }
     }
 }

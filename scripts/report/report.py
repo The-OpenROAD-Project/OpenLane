@@ -257,7 +257,7 @@ class Report(object):
             ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
             ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
             ("rt_rsz", Artifact(rp, "logs", "routing", "resizer.log")),
-            ("rcx", Artifact(rp, "logs", "signoff", "parasitics_mca_sta.nom.log")),
+            ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)
