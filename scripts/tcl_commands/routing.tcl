@@ -60,7 +60,7 @@ proc global_routing_fastroute {args} {
                 --original-prefix "ANTENNA"\
                 --new-prefix "INSDIODE$iter"
 
-            set log [index_file $::env(routing_logs)/antenna_$iter_route.log]
+            set log [index_file $::env(routing_logs)/antenna_route_$iter.log]
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
                 -indexed_log $log\
                 -save "to=$::env(routing_tmpfiles),name=global_$iter,def,guide,odb"\

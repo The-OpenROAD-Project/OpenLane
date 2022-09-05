@@ -19,7 +19,7 @@ from typing import List
 
 import click
 
-from reader import click_odb, OdbReader
+from reader import click_odb
 
 
 def get_pin_name(pin: odb.dbITerm):

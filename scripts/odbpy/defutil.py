@@ -290,7 +290,7 @@ def relocate_pins(db, input_lef, template_def):
 
     if grid_errors:
         print(
-            f"[ERROR]: Some pins were grid-misaligned. Please check the log.",
+            "[ERROR]: Some pins were grid-misaligned. Please check the log.",
             file=sys.stderr,
         )
         exit(os.EX_DATAERR)
