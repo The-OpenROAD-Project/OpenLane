@@ -338,6 +338,7 @@ proc prep {args} {
         {-src optional}
         {-override_env optional}
         {-verbose optional}
+        {-test_mismatches optional}
     }
 
     set flags {
@@ -345,14 +346,16 @@ proc prep {args} {
         -add_to_designs
         -overwrite
         -last_run
+        -ignore_mismatches
     }
 
     set args_copy $args
     parse_key_args "prep" args arg_values $options flags_map $flags
 
+    set_if_unset arg_values(-test_mismatches) "all"
 
-    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py $arg_values(-test_mismatches)} ::env(VCHECK_OUTPUT)] {
+        if { ![info exists flags_map(-ignore_mismatches)]} {
             puts_err $::env(VCHECK_OUTPUT)
             puts_err "Please update your environment. OpenLane will now quit."
             exit -1
