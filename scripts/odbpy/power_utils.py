@@ -215,7 +215,7 @@ def write_powered_def(
         exit
         """
 
-        subprocess.check_call(["openroad"], input=openroad_script.encode("utf8"))
+        subprocess.run(["openroad"], check=True, input=openroad_script.encode("utf8"))
 
         power = OdbReader(input_lef, tmp_def_file)
 
@@ -228,7 +228,9 @@ def write_powered_def(
             port for port in power.block.getBTerms() if port.getName() in pg_port_names
         ]
 
-        for port, iterms in [(port, port.getNet().getIterms()) for port in pg_ports]:
+        for port in pg_ports:
+            net = port.getNet()
+            iterms = net.getITerms()
             inst_name = iterm.getInst().getName()
             pin_name = iterm.getMTerm().getName()
             port_name = port.getName()
@@ -252,7 +254,7 @@ def write_powered_def(
                 exit(os.EX_DATAERR)
 
             original_iterm.connect(original_port.getNet())
-            print(f"Connected {port_name} to {inst_name/pin_name}.")
+            print(f"Connected {port_name} to {inst_name}/{pin_name}.")
 
     odb.write_def(reader.block, output)
 

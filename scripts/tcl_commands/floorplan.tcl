@@ -219,9 +219,9 @@ proc place_contextualized_io {args} {
     set save_def [index_file $::env(floorplan_tmpfiles)/io.context.def]
 
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
-        -indexed_log [index_file $::env(floorplan_logs)/contextualize_io.log] \
+        -indexed_log $log \
         -output_def $save_def \
-        -output_db $save_db \
+        -output $save_db \
         -input $prev_db \
         --top-def $::env(placement_tmpfiles)/top_level.def\
         --top-lef $::env(placement_tmpfiles)/top_level.lef

@@ -72,8 +72,6 @@ proc run_parasitics_sta {args} {
 
     set ::env(SPEF_PREFIX) $arg_values(-spef_out_prefix)
 
-    puts_info "Running parasitics-based static timing analysis..."
-
     # Nom last so CURRENT_SPEF is the nom current SPEF after the loop is done
     foreach {process_corner lef ruleset} {
         min MERGED_LEF_MIN RCX_RULES_MIN

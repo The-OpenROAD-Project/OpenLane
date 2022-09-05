@@ -115,25 +115,27 @@ proc manual_macro_placement {args} {
     set log [index_file $::env(placement_logs)/macro_placement.log]
     puts_info "Performing Manual Macro Placement (log: [relpath . $log])..."
 
-    set fbasename [file rootname $::env(CURRENT_DEF)]
-    set output_def ${fbasename}.macro_placement.def
+    set fbasename [file rootname $::env(CURRENT_ODB)]
+
+    set prev_db $::env(CURRENT_ODB)
+    set save_def ${fbasename}.macro_placement.def
+    set save_db ${fbasename}.macro_placement.odb
 
     set arg_list [list]
-
-    lappend arg_list --output $output_def
-    lappend arg_list --input-lef $::env(MERGED_LEF)
     lappend arg_list --config $::env(placement_tmpfiles)/macro_placement.cfg
-    lappend arg_list $::env(CURRENT_DEF)
-
     if { [info exists flags_map(-f)] } {
         lappend arg_list --fixed
     }
 
-    try_catch $::env(OPENROAD_BIN) -python\
-        $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
-        tee $::env(TERMINAL_OUTPUT) $log
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py\
+        -indexed_log $log \
+        -output_def $save_def \
+        -output $save_db \
+        -input $prev_db \
+        {*}$arg_list
 
-    set_def $output_def
+    set_odb $save_db
+    set_def $save_def
 }
 
 proc basic_macro_placement {args} {
