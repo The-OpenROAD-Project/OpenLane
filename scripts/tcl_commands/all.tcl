@@ -351,16 +351,6 @@ proc prep {args} {
     parse_key_args "prep" args arg_values $options flags_map $flags
 
 
-    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
-        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
-            puts_err $::env(VCHECK_OUTPUT)
-            puts_err "Please update your environment. OpenLane will now quit."
-            exit -1
-        }
-
-        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
-    }
-
     # Check Design Directory
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {
@@ -453,6 +443,16 @@ proc prep {args} {
 
     foreach config $::env(CONFIGS) {
         source $::env(OPENLANE_ROOT)/configuration/$config
+    }
+
+    if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py} ::env(VCHECK_OUTPUT)] {
+        if { $::env(QUIT_ON_MISMATCHES) == "1" } {
+            puts_err $::env(VCHECK_OUTPUT)
+            puts_err "Please update your environment. OpenLane will now quit."
+            exit -1
+        }
+
+        puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 
     ## 1. Configuration File (Process Info Only)
