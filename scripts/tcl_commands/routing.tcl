@@ -364,7 +364,6 @@ proc run_routing {args} {
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
-    set ::env(CURRENT_STAGE) routing
 
     run_resizer_timing_routing
     remove_buffers_from_nets

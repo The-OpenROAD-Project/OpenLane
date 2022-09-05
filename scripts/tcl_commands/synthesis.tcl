@@ -21,8 +21,6 @@ proc convert_pg_pins {lib_in lib_out} {
 }
 
 proc run_yosys {args} {
-    set ::env(CURRENT_STAGE) synthesis
-
     set options {
         {-output optional}
         {-log optional}

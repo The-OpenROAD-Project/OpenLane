@@ -18,14 +18,19 @@ import os
 import sys
 import json
 import glob
-import click
 import fnmatch
 from enum import Enum
 from io import TextIOWrapper
 from typing import Any, Dict, List, Tuple, Union
 
+import click
+
 PDK_VAR = "PDK"
 SCL_VAR = "STD_CELL_LIBRARY"
+PROCESS_INFO_ALLOWLIST = [PDK_VAR, SCL_VAR, "STD_CELL_LIBRARY_OPT"]
+
+
+Scalar = Union[str, int, float, bool, None]
 
 
 class InvalidConfig(Exception):
@@ -233,9 +238,6 @@ def process_string(value: str, state: State) -> str:
     return value
 
 
-Scalar = Union[str, int, float, bool, None]
-
-
 def process_scalar(key: str, value: Scalar, state: State) -> Scalar:
     if isinstance(value, str):
         value = process_string(value, state)
@@ -301,6 +303,45 @@ def process_config_dict(config_in: dict, pdk: str, scl: str, design_dir: str):
     return state.vars
 
 
+def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, str]:
+    rx = r"\s*set\s*::env\((.+?)\)\s*(.+)"
+    env = input_env.copy()
+    string_data = ""
+    try:
+        string_data = open(config_path).read()
+    except FileNotFoundError:
+        print(
+            f"[ERR] File {config_path} not found.",
+            file=sys.stderr,
+        )
+        exit(os.EX_NOINPUT)
+
+    # Process \ at ends of lines, remove semicolons
+    entries = string_data.split("\n")
+    i = 0
+    while i < len(entries):
+        if not entries[i].endswith("\\"):
+            if entries[i].endswith(";"):
+                entries[i] = entries[i][:-1]
+            i += 1
+            continue
+        entries[i] = entries[i][:-1] + entries[i + 1]
+        del entries[i + 1]
+
+    for entry in entries:
+        match = re.match(rx, entry)
+        if match is None:
+            continue
+        name = match[1]
+        value = match[2]
+        # remove double quotes/{}
+        value = value.strip('"')
+        value = value.strip("{}")
+        env[name] = value
+
+    return env
+
+
 def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
     character_rx = re.compile(r"([{}])")
     for key, value in key_value_pairs.items():
@@ -311,19 +352,53 @@ def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str
         print(f"set ::env({key}) {{{value}}}", file=file_in)
 
 
+def extract_process_vars(config_in: Dict[str, str]) -> Dict[str, str]:
+    return {key: config_in.get(key) for key in PROCESS_INFO_ALLOWLIST}
+
+
 @click.group()
 def cli():
     pass
 
 
-@click.command("from-json")
+@click.command()
+@click.argument("input")
+def read_tcl(input):
+    import json
+
+    print(json.dumps(read_tcl_env(input)))
+
+
+cli.add_command(read_tcl)
+
+
+@click.command()
+@click.option("-o", "--output", required=True, help="Output Tcl File")
+@click.argument("input")
+def extract_process_info(output, input):
+    process_info = extract_process_vars(read_tcl_env(input))
+    with open(output, "w") as f:
+        write_key_value_pairs(f, process_info)
+
+
+cli.add_command(extract_process_info)
+
+
+@click.command()
 @click.option("-o", "--output", default="/dev/stdout", help="File to output the Tcl to")
-@click.option("-p", "--pdk", required=True, help="The name of the PDK")
+@click.option("-p", "--pdk", default=None, help="The name of the PDK")
 @click.option(
     "-s",
     "--scl",
     default=None,
     help="The name of the standard cell library",
+)
+@click.option(
+    "-x",
+    "--extract-process-info",
+    is_flag=True,
+    default=None,
+    help="Extract PDK, SCL and optimization SCL only.",
 )
 @click.option(
     "-d",
@@ -332,11 +407,21 @@ def cli():
     help="The name of the standard cell library",
 )
 @click.argument("config_json")
-def config_json_to_tcl(output, pdk, scl, design_dir, config_json):
+def from_json(output, pdk, scl, extract_process_info, design_dir, config_json):
     config_json_str = open(config_json).read()
     config_dict = json.loads(config_json_str)
+
     try:
-        resolved = process_config_dict(config_dict, pdk, scl, design_dir)
+        if extract_process_info:
+            resolved = extract_process_vars(config_dict)
+        else:
+            if pdk is None or scl is None:
+                print(
+                    "--pdk and --scl arguments must both be provided.", file=sys.stderr
+                )
+                exit(os.EX_USAGE)
+
+            resolved = process_config_dict(config_dict, pdk, scl, design_dir)
         with open(output, "w") as f:
             write_key_value_pairs(f, resolved)
     except InvalidConfig as e:
@@ -345,7 +430,7 @@ def config_json_to_tcl(output, pdk, scl, design_dir, config_json):
         exit(os.EX_DATAERR)
 
 
-cli.add_command(config_json_to_tcl)
+cli.add_command(from_json)
 
 if __name__ == "__main__":
     cli()

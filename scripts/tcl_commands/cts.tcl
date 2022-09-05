@@ -23,7 +23,6 @@ proc run_cts {args} {
     }
 
     if {$::env(CLOCK_TREE_SYNTH)} {
-        set ::env(CURRENT_STAGE) cts
         increment_index
         TIMER::timer_start
         set log [index_file $::env(cts_logs)/cts.log]
@@ -43,9 +42,8 @@ proc run_cts {args} {
         check_cts_clock_nets
 
         set ::env(cts_reports) $report_tag_holder
-
         TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts"
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts - openroad"
 
         scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
     }
