@@ -41,11 +41,8 @@ extensions = [
     "markdown_cross_doc_section_links",  # CUSTOM
     "sphinx.ext.autosectionlabel",
     "image_links",  # CUSTOM
-    "toc_from_markdown",  # CUSTOM
     "myst_parser",
 ]
-
-# Expand source suffixes
 
 source_suffix = {
     ".rst": "restructuredtext",
@@ -111,6 +108,4 @@ suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warn
 myst_heading_anchors = 3
 
 
-def setup(app):
-    app.emit("create_index_softlink", "README.md", True)
-    app.emit("toc_from_markdown", "README.md", ".autotoc.rst", True)
+root_doc = "index"

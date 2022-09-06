@@ -16,10 +16,12 @@
 # Minimal makefile for Sphinx documentation
 #
 
+export SHELL=/bin/bash
+
 # You can set these variables from the command line, and also
 # from the environment for the first two.
 SPHINXOPTS    ?=
-SPHINXBUILD   ?= sphinx-build
+SPHINXBUILD   ?= source ../venv/bin/activate && sphinx-build
 SOURCEDIR     = ..
 BUILDDIR      = _build
 
@@ -27,7 +29,10 @@ BUILDDIR      = _build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile
+.PHONY: help Makefile install
+
+install:
+	source ../venv/bin/activate && python -m pip install -r requirements.txt 
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).

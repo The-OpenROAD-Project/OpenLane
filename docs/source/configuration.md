@@ -287,4 +287,4 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_LVS_ERROR` | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 
-[0]: ./../designs/spm/pin_order.cfg
+[0]: ./../../../designs/spm/pin_order.cfg
