@@ -68,7 +68,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/efabless/open_pdks
-  commit: 6d1673c46e5c420f08c0af3c8f9f759d2ab8bb40
+  commit: fa87f8f4bbcc7255b6f0c0fb506960f531ae2392
   build: ''
   in_install: false
   pdk: true
