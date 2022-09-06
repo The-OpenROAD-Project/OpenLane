@@ -16,7 +16,6 @@ proc run_magic {args} {
     TIMER::timer_start
     increment_index
     puts_info "Running Magic to generate various views..."
-    set ::env(CURRENT_STAGE) signoff
     # |----------------------------------------------------|
     # |----------------   6. TAPE-OUT ---------------------|
     # |----------------------------------------------------|

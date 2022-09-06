@@ -41,7 +41,7 @@ if { $::env(RUN_STANDALONE) == 1 } {
         link_design $::env(DESIGN_NAME)
     }
 
-    read_sdc -echo $::env(CURRENT_SDC)
+    read_sdc $::env(CURRENT_SDC)
     if { $::env(STA_PRE_CTS) == 1 } {
         unset_propagated_clock [all_clocks]
     } else {

@@ -13,8 +13,8 @@
 # limitations under the License.
 
 import os
-import subprocess
 import sys
+import subprocess
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 

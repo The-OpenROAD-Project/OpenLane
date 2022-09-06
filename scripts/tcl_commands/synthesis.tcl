@@ -21,8 +21,6 @@ proc convert_pg_pins {lib_in lib_out} {
 }
 
 proc run_yosys {args} {
-    set ::env(CURRENT_STAGE) synthesis
-
     set options {
         {-output optional}
         {-log optional}
@@ -93,8 +91,9 @@ proc run_synth_exploration {args} {
     puts_info "Running Synthesis Exploration..."
 
     set ::env(SYNTH_EXPLORE) 1
+    set log [index_file $::env(synthesis_logs)/synthesis.log]
 
-    run_yosys
+    run_yosys -log $log
 
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 

@@ -161,7 +161,6 @@ proc run_placement {args} {
     # |----------------------------------------------------|
     # |----------------   3. PLACEMENT   ------------------|
     # |----------------------------------------------------|
-    set ::env(CURRENT_STAGE) placement
 
     if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
         set old_pl_target_density $::env(PL_TARGET_DENSITY)

@@ -22,13 +22,16 @@ import os
 import re
 import sys
 import glob
-import click
 import shutil
 import pathlib
 import textwrap
 from typing import List
 from collections import deque
 from os.path import join, abspath, dirname, basename, isdir, relpath
+
+import click
+
+from config.tcl import read_tcl_env
 
 openlane_path = abspath(dirname(dirname(__file__)))
 
@@ -146,51 +149,10 @@ def issue(
     run_name = basename(run_path)
 
     # Phase 1: Read All Environment Variables
-    # pdk_config = join(args.pdk_root, "sky130A", "libs.tech", "openlane", "config.tcl")
     print("Parsing config file(s)…", file=sys.stderr)
     run_config = join(run_path, "config.tcl")
 
-    env = {}
-
-    def read_env(config_path: str, from_path: str, input_env={}) -> dict:
-        rx = r"\s*set\s*::env\((.+?)\)\s*(.+)"
-        env = input_env.copy()
-        string_data = ""
-        try:
-            string_data = open(config_path).read()
-        except FileNotFoundError:
-            print(
-                f"[ERR] File {config_path} not found. The path {from_path} may have been specified incorrectly.",
-                file=sys.stderr,
-            )
-            exit(os.EX_NOINPUT)
-
-        # Process \ at ends of lines, remove semicolons
-        entries = string_data.split("\n")
-        i = 0
-        while i < len(entries):
-            if not entries[i].endswith("\\"):
-                if entries[i].endswith(";"):
-                    entries[i] = entries[i][:-1]
-                i += 1
-                continue
-            entries[i] = entries[i][:-1] + entries[i + 1]
-            del entries[i + 1]
-
-        for entry in entries:
-            match = re.match(rx, entry)
-            if match is None:
-                continue
-            name = match[1]
-            value = match[2]
-            # remove double quotes/{}
-            value = value.strip('"')
-            value = value.strip("{}")
-            env[name] = value
-
-        return env
-
-    env = read_env(run_config, "Run Path")  # , read_env(pdk_config, "PDK Root"))
+    env = read_tcl_env(run_config)
 
     # Cannot be reliably read from config.tcl
     input_key = "CURRENT_DEF"

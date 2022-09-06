@@ -30,7 +30,7 @@ SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
 
 
 def test_manifest_exists(repository, tag) -> str:
-    url = f"https://index.docker.io/v1/repositories/{repository}/tags/{tag}"
+    url = f"https://registry.hub.docker.com/v2/repositories/{repository}/tags/{tag}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     status = None
     try:
