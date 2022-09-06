@@ -52,7 +52,6 @@ set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 set ::env(RUN_KLAYOUT_XOR) 1
 
 set ::env(RUN_CVC) 1
-set ::env(RUN_LVS) 1
 
 set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(LEC_ENABLE) 0
