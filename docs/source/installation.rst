@@ -1,14 +1,12 @@
 
 Installation
 ================================================================================
-OpenLane uses Docker images that contain binaries, libraries and packages ready-to-use.
+OpenLane uses `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_ images that contain binaries, libraries and packages all ready-to-use.
 All of the flow tools are encapsulated inside the container image.
 
 Open source projects typically have to address the challenge of various user environments,
-operating systems, virtual machines, cloud based distribution etc.
-Docker containers alleviate this problem. It is easy to install and encapsulate a large amount of underlying complexity.
-
-OpenLane uses `Docker <https://en.wikipedia.org/wiki/Docker_(software)>`_. It was selected as container engine to simplify the installation process by including pre-built binaries and PDK within the container.
+operating systems, virtual machines, cloud-based distribution etc.
+Docker images alleviate this problem.
 
 Installation steps
 --------------------------------------------------------------------------------
@@ -18,7 +16,7 @@ Step 1. Installation of Required Packages
 
 For OpenLane you need a couple of tools installed:
 
-   - Linux or macOS
+   - Linux (or the `Windows Subsystem for Linux <https://docs.microsoft.com/en-us/windows/wsl/install>`_) or macOS
    - Docker 19.03.12+
    - Git 2.35+
    - Python 3.6+  
@@ -29,21 +27,18 @@ For OpenLane you need a couple of tools installed:
 After installing all of the above, proceed to :ref:`step2`.
 
 
-Installation of required packages under Ubuntu
+Installing Dependencies under Ubuntu
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-Only Ubuntu 20.04 and above are supported. All of the required packages are included in the Docker image, so the installation list is slim.
+Only Ubuntu 20.04 and above are supported. Most complex utilities are included in the Docker image, so the installation list is quite slim:
 
 .. code-block:: bash
 
-   sudo apt install -y build-essential python3 python3-venv python3-pip make git
+   sudo apt install -y build-essential python3 python3-venv python3-pip git
 
+Next, you'll need install Docker. Follow the as steps provided below may be out of date.
 
-Docker Installation under Ubuntu
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-Next install Docker. Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
-
-.. warning:: The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation
+.. warning:: The following steps may become out of date. You may want to follow the official Docker documentation `here <https://docs.docker.com/engine/install/ubuntu/>`_.
 
 .. code-block:: console
 
@@ -73,7 +68,7 @@ Next install Docker. Follow `instructions provided in documentation of the Docke
    sudo docker run hello-world
 
 
-Successful installation of Docker looks like this:
+A successful installation of Docker would print out something like this:
 
 .. code-block:: console
 
@@ -110,22 +105,19 @@ First install `Homebrew <https://brew.sh/>`_ then run script below to install th
    brew install python make
    brew install --cask docker
 
-Proceed to :ref:`step3`
+When Docker is done installing, you'll need to launch the newly installed "Docker Desktop" app from Launchpad and follow instructions in the terminal.
 
 .. _step2:
 
 Step 2. Making Docker available without root
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. warning:: The following steps may become out of date. You may want to follow the official Docker documentation `here <https://docs.docker.com/engine/install/linux-postinstall/>`_.
 
-.. warning:: The steps below might be simply outdated, it is recommended to follow the link to the official Docker documentation
-
-
-This is a **mandatory step**, without this all of OpenLane scripts will fail. Follow `instructions here <https://docs.docker.com/engine/install/linux-postinstall/>`_ or you can use a script below, but keep in mind that by the point you are reading this it might be outdated.
-
+If you're using the Windows Subsystem for Linux or macOS you may skip this step, but if you're running native Linux, this is a **mandatory step** without which all OpenLane scripts would fail.
 
 .. important::
-    This is mandatory step. Without this most of OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because it needs to be done after the installation of the Docker. DO NOT SKIP!
+    This is a MANDATORY step. Without this, most OpenLane scripts will be confused and error out with permission issues. This step caused a lot of confusion because a lot of users tend to assume just installing Docker is file. IF YOU ARE USING LINUX, DO NOT SKIP!
 
 
 .. code-block:: console
@@ -136,25 +128,25 @@ This is a **mandatory step**, without this all of OpenLane scripts will fail. Fo
 
 You **must restart your operating system** for the group permissions to apply.
 
+You can verify that the group has been added as follows:
+
 .. code-block:: console
 
-   sudo groupadd docker
-   sudo usermod -aG docker $USER
-   groupadd: group 'docker' already exists
+   id | grep -c docker
+
+If you see an output of ``1``, you've added yourself to the ``docker`` group successfully.
 
 .. _step3:
 
 Step 3. Checking the Docker Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-After that you can run Docker Hello World without root. To test it use following command:
+If every thing has been set up correctly, you can run the Docker ``hello-world`` image without root. To test, it use following command:
 
 .. code-block:: shell
-
-   # After reboot
    docker run hello-world
 
-You will get a little happy message of Hello world, once again, but this time without root.
+You will get a happy little "Hello, world!" message, once again, but this time without root.
 
 .. code-block::
 
@@ -197,7 +189,7 @@ Then you skipped a step or two. You forgot to follow :ref:`step2` or `restart yo
 Step 4. Checking Installation Requirements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to check installation, you can use following commands:
+In order to check your installation, you can run the following commands:
 
 .. code-block:: console
 
@@ -208,26 +200,26 @@ In order to check installation, you can use following commands:
    make --version
    python -m venv -h
 
-Successful outputs looks like this:
+Successful outputs look something like this:
 
 .. code-block:: console
 
-   git --version
-   docker --version
-   python3 --version
-   python3 -m pip --version
-   make --version
-   python3 -m venv -h
+   $ git --version
    git version 2.36.1
+   $ docker --version
    Docker version 20.10.16, build aa7e414fdc
+   $ python3 --version
    Python 3.10.5
+   $ python3 -m pip --version
    pip 21.0 from /usr/lib/python3.10/site-packages/pip (python 3.10)
+   $ make --version
    GNU Make 4.3
-   Built for x86_64-pc-linux-gnu
    Copyright (C) 1988-2020 Free Software Foundation, Inc.
    License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
    This is free software: you are free to change and redistribute it.
    There is NO WARRANTY, to the extent permitted by law.
+   $ python3 -m venv -h
+   Built for x86_64-pc-linux-gnu
    usage: venv [-h] [--system-site-packages] [--symlinks | --copies] [--clear]
                [--upgrade] [--without-pip] [--prompt PROMPT] [--upgrade-deps]
                ENV_DIR [ENV_DIR ...]
@@ -289,11 +281,11 @@ Download the Docker image of OpenLane and install sky130 PDK:
 
 .. code-block:: console
 
-   make # Building sky130 PDK
+   make
 
 If you are planning to use other PDK, then you need to follow the PDK installation guide for that specific PDK.
 
-Step 7. Validating the Installation
+Step 7. Validating your OpenLane Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Test the installed PDK and OpenLane:
@@ -311,7 +303,7 @@ Sucessful test looks like this:
 Step 8. Optional: Viewing Test Design Outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Open the final layout using KLayout. This will open the window of KLayout in editing mode ``-e`` with sky130 technology.
+On Linux, you can open the final layout of the test design using KLayout. This will open the window of KLayout in editing mode ``-e`` with the sky130A process.
 
 
 .. code-block:: console
@@ -344,4 +336,4 @@ Run following commands to update the OpenLane:
 
 It is very similar to installation, one difference is
 that we pull the changes instead of creating a new workspace.
-Git pull by default will not remove your files inside workspace.
+Git pull, by default, will not remove any files in your workspace.
