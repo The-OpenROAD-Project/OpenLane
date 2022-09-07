@@ -2,7 +2,7 @@ Quick start
 =======================
 Overview
 ------------------------------------
-OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
+OpenLane is an automated RTL-to-GDSII flow that uses open source tools like OpenROAD,
 Yosys, Magic, Netgen, CVC and KLayout.
 It also provides a number of custom scripts for design exploration, optimization and ECO.
 
