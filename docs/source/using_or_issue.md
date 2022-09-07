@@ -3,7 +3,7 @@ This script creates a reproducible, self-contained package of files to demonstra
 
 It creates a folder with all the needed files that you can inspect, then zip or tarball and pass on to https://github.com/RTimothyEdwards/magic or https://github.com/The-OpenROAD-Project/OpenROAD.
 
-# Warning about proprietary files
+## Warning about proprietary files
 When working with a proprietary PDK, also inspect the folder and ensure no proprietary data resulting ends up in there. This is *critical*, if something leaks, this scripts' authors take no responsibility and you are very much on your own. We will try our best to output warnings for your own good if something looks like a part of a proprietary PDK, but the absence of this message does not necessarily indicate that your folder is free of confidential material. 
 
 # Usage

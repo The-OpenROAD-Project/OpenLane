@@ -216,6 +216,8 @@ def issue(
         return value
 
     env_keys_used = set()
+    if tool == "magic":
+        env_keys_used.add("MAGIC_MAGICRC")
     tcls = set()
     current = shift(tcls_to_process)
     while current is not None:
@@ -361,7 +363,7 @@ def issue(
         if tool == "openroad":
             run_cmd = "$TOOL_BIN -exit $PACKAGED_SCRIPT_0"
         elif tool == "magic":
-            run_cmd = "$TOOL_BIN -dnull -noconsole < $PACKAGED_SCRIPT_0"
+            run_cmd = "$TOOL_BIN -dnull -noconsole -rcfile $MAGIC_MAGICRC < $PACKAGED_SCRIPT_0"
         f.write(
             textwrap.dedent(
                 f"""\

@@ -231,7 +231,7 @@ if __name__ == "__main__":
     try:
         no_tools = False
         no_pdks = False
-        mismatches = os.getenv("TEST_MISMATCHES") or "all"
+        mismatches = sys.argv[1]
         if mismatches == "none":
             no_tools = True
             no_pdks = True

@@ -1,7 +1,7 @@
 **THIS PAGE IS STILL UNDER DEVELOPMENT.**
 **THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
 
-# Chip Integration
+# Chip Level Integration
 
 Using openlane, you can produce a GDSII from a chip RTL.
 
@@ -131,7 +131,7 @@ When you use the `power_routing` command in the chip interactive script, the pow
 
 [This][1] has a description for all OpenLane commands.
 
-[0]: ./../../configuration/README.md
+[0]: ./configuration.md
 [1]: ./openlane_commands.md
 [2]: ./advanced_readme.md
 [3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
@@ -140,6 +140,6 @@ When you use the `power_routing` command in the chip interactive script, the pow
 [6]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/padframe.cfg
 [7]: ./../../scripts/topModuleGen/README.md
 [8]: ./hardening_macros.md
-[9]: https://github.com/efabless/openlane/tree/master/designs/manual_macro_placement_test
+[9]: https://github.com/The-OpenROAD-Project/openlane/tree/master/designs/manual_macro_placement_test
 [10]: ./advanced_power_grid_control.md
 [11]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.lvs.tcl
