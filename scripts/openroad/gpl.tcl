@@ -17,21 +17,20 @@ read
 set ::block [[[::ord::get_db] getChip] getBlock]
 set ::insts [$::block getInsts]
 
-set free_insts_flag 0
+set placement_needed 0
 
 foreach inst $::insts {
-	set placement_status [$inst getPlacementStatus]
-	if { $placement_status != "FIRM" } {
-		set free_insts_flag 1
+	if { ![$inst isFixed] } {
+		set placement_needed 1
 		break
 	}
 }
 
-if { ! $free_insts_flag } {
-	puts "\[WARN] All instances are FIXED"
-	puts "\[WARN] No need to use replace"
+if { !$placement_needed } {
+	puts "\[WARN] All instances are FIXED/FIRM."
+	puts "\[WARN] No need to perform global placement."
 	puts "\[WARN] Skipping..."
-	file copy -force $::env(CURRENT_DEF) $::env(SAVE_DEF)
+	write
 	exit 0
 }
 
