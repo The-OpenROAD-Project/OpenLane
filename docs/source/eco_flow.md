@@ -3,6 +3,8 @@ The ECO flow starts from checking the report generated in the route step. A pyth
 
 ![image](../_static/eco_flow.png)
 
+> Note: The ECO flow is in very early alpha and is only compatible with the `sky130_fd_sc_hd` standard cell library in sky130 PDK variants.
+
 ## Flow to Insert Buffer
 1. Run the OL flow 
 2. Hold violations will be present in the log files 

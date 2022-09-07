@@ -543,6 +543,7 @@ proc prep {args} {
     handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
 
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
+    handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY;
 
     #
     ############################

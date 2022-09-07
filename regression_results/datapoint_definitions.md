@@ -71,7 +71,7 @@
 | `Total_Physical_Cells`   | The sum of endcaps, tapcells, and diodes in the final design.        |
 | `suggested_clock_frequency`   | The suggested clock frequency to be used with the design. Calculated based on the value of `spef_wns`, and reported in `MHz`.       |
 | `suggested_clock_period`   | The suggested clock period to be used with the design. Calculated based on the value of `spef_wns`, and reported in `ns`.        |
-| `CoreArea_um^2`   | The area of the core, in um^2. Extracted from the initial floorplan. |
+| `CoreArea_um^2`   | The area of the core, in μm<sup>2</sup>. Extracted from the initial floorplan. |
 | `power_slowest_internal_uW`   | Total internal (within cell) power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
 | `power_slowest_switching_uW`   | Total switching power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |
 | `power_slowest_leakage_uW`   | Total leakage power use at the slowest corner, in uW. Extracted from the post-parasitics multi-corner power usage report. |

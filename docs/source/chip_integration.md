@@ -1,12 +1,7 @@
-**THIS PAGE IS STILL UNDER DEVELOPMENT.**
-**THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
-
 # Chip Level Integration
+Using OpenLane, you can produce a GDSII from a chip RTL.
 
-Using openlane, you can produce a GDSII from a chip RTL.
-
-
-## The current Methodology
+## The Current Methodology
 
 The current methodology views the chip using the following hierarchy:
 - Chip Core
@@ -39,6 +34,7 @@ You need to set the following environment variables in your configuration file f
 | `VERILOG_FILES` | Space-delimited list of Verilog files*. |
 | `VERILOG_FILES_BLACKBOX` | Black-box, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design. |
 | `EXTRA_LEFS` | LEF files for pre-hardened macros you incorporate into your design. |
+| `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used to improve timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | GDS files for pre-hardened macros you incorporate into your design. |
 | `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (json): Should be set to true if you're using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
 | `MACRO_PLACEMENT_CFG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
@@ -134,12 +130,12 @@ When you use the `power_routing` command in the chip interactive script, the pow
 [0]: ./configuration.md
 [1]: ./openlane_commands.md
 [2]: ./advanced_readme.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
-[4]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/interactive.tcl
-[5]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.tcl
-[6]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/chip_io/padframe.cfg
+[3]: https://openroad.readthedocs.io/en/latest/main/src/pdn/README.html
+[4]: https://github.com/efabless/caravel/blob/9949306c42ded3cad03e1f4566d7cd1f8215b0bb/openlane/chip_io/interactive.tcl
+[5]: https://github.com/efabless/caravel/blob/9949306c42ded3cad03e1f4566d7cd1f8215b0bb/openlane/caravel/interactive.tcl
+[6]: https://github.com/efabless/caravel/blob/9949306c42ded3cad03e1f4566d7cd1f8215b0bb/openlane/chip_io/padframe.cfg
 [7]: ./../../scripts/topModuleGen/README.md
 [8]: ./hardening_macros.md
 [9]: https://github.com/The-OpenROAD-Project/openlane/tree/master/designs/manual_macro_placement_test
 [10]: ./advanced_power_grid_control.md
-[11]: https://github.com/efabless/caravel/blob/mpw-one-b/openlane/caravel/interactive.lvs.tcl
+[11]: https://github.com/efabless/caravel/blob/9949306c42ded3cad03e1f4566d7cd1f8215b0bb/openlane/caravel/interactive.lvs.tcl

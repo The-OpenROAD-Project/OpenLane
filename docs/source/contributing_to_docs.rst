@@ -105,7 +105,6 @@ In order to improve the readability of the documentation, please use and capital
     OpenRoad → OpenROAD
     Mac OS X → macOS
     MAGIC → Magic
-    open source → open-source
     Skywater130 → sky130
     Klayout → KLayout
     Pip -> pip or PIP 
@@ -119,6 +118,9 @@ In order to improve the readability of the documentation, please use and capital
     pad cell → padcell
     key value pair → key-value pair
     micrometre → micron (or, micrometer)
+
+.. note:: Also, when documenting micrometer-based variables, use the actual unicode character "μ", not "u", to avoid potential confusion. 
+
 
 Taking screenshots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
