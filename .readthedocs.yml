@@ -11,4 +11,5 @@ build:
     python: "3.10"
   commands:
     - pip3 install -r ./docs/requirements.txt
-    - cd docs && sphinx-build -M html "source" "_build"
+    - cd docs && python3 -m sphinx.cmd.build -M html "source" "_build"
+    - mv docs/_build _readthedocs
