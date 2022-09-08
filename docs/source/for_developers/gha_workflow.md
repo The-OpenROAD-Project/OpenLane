@@ -1,4 +1,6 @@
-# For developers: CI/CD
+# Continuous Integration
+OpenLane's CI runs on GitHub Actions.
+
 There are two primary flows: the pull request flow and the deployment flow.
 
 The deployment flow occurs on a daily basis. The PR flow happens whenever someone creates a new Pull Request. PRs can be created by contributors or by an automated tool updater that runs on a schedule.

@@ -254,25 +254,25 @@ Most of the following commands' implementation exists in this [file][6]
 |    | `-output <output_file>` | The output mag file path. |
 | `run_magic_antenna_check` | | Runs spice extractions on the processed design and performs antenna checks. The resulting file is under `/<run_path>/results/magic/` and `/<run_path>/reports/magic/` . |
 
-## Klayout Commands
+## KLayout Commands
 
 Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
-| `scrot_klayout` | | Export a PNG view of a given GDS-II or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
+| `run_klayout` | | Streams the back-up final GDSII, generates a PNG screenshot, then runs KLayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `scrot_klayout` | | Export a PNG view of a given GDSII or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
 |    | `[-log <log_file>]` | Output log file. |
 |    | `[-layout <layout_file>]` | The input GDS or DEF file, the default is `::env(CURRENT_GDS)`. |
-| `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
+| `run_klayout_drc` | | Runs KLayout DRC on a given GDSII file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
 |    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` implies that the drc was run on the default GDS which is produced by magic. |
-| `run_klayout_gds_xor` | | Runs Klayout XOR on 2 GDS-IIs. This is controlled by `RUN_KLAYOUT_XOR` and `KLAYOUT_XOR_GDS` and `KLAYOUT_XOR_XML`. |
-|    | `[-layout1 <gds_file>]` | The input GDS file, the default is the magic generated GDS-II under `<run_path>/results/magic/<design_name>.gds`. |
-|    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDS-II under `<run_path>/results/klayout/<design_name>.gds`. |
+| `run_klayout_gds_xor` | | Runs KLayout XOR on 2 GDSIIs. This is controlled by `RUN_KLAYOUT_XOR` and `KLAYOUT_XOR_GDS` and `KLAYOUT_XOR_XML`. |
+|    | `[-layout1 <gds_file>]` | The input GDS file, the default is the magic generated GDSII under `<run_path>/results/magic/<design_name>.gds`. |
+|    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDSII under `<run_path>/results/klayout/<design_name>.gds`. |
 |    | `[-output_gds <gds_file>]` | The output GDS file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.gds`. |
 |    | `[-output_xml <xml_file>]` | The output XML file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.xml`. |
-| `open_in_klayout` | | Opens a design in the Klayout GUI with MERGED_LEF for the cell/macro definitions. Useful as it works around Klayout's LEF import peculiarities. |
+| `open_in_klayout` | | Opens a design in the KLayout GUI with MERGED_LEF for the cell/macro definitions. Useful as it works around KLayout's LEF import peculiarities. |
 |    | `[-layout <def_file>]` | The input DEF file, the default is `::env(CURRENT_DEF)`. |
 
 ## LVS Commands

@@ -173,7 +173,7 @@ You will get a happy little "Hello, world!" message, once again, but this time w
    https://docs.docker.com/get-started/
 
 
-Troubleshooting Step 3.
+Troubleshooting Step 3
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you get Docker permission error when running any Docker images:

@@ -86,11 +86,12 @@ If you want to create new category than take a look at the source code of existi
 Writing Style and Consistency
 --------------------------------------------------------------------------------
 
-* New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get a glimpse of its syntax.
+* New documentation should be written in [MyST Markdown](https://myst-parser.readthedocs.io/en/latest/), a flavor of Markdown with some RST extensions.
 * Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of Docker``.
-* Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
+* Avoid contractions: Substitute ``don't`` and ``can't`` for ``do not`` and ``cannot``
 * The first command of the page should have `cd` in it to specify where you are running and all following commands assume the continuation of the session and don't need the cd command.
-* In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
+* Avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
+  * To that end, only use ``#`` once at the beginning of the document.
 
 Terms Consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,8 +105,8 @@ In order to improve the readability of the documentation, please use and capital
     Mac OS X → macOS
     MAGIC → Magic
     Skywater130 → sky130
-    Klayout → KLayout
-    Pip -> pip or PIP 
+    KLayout → KLayout
+    Pip -> pip 
 
 * For technical terms, use the following terms preferred by OpenROAD documentation for consistency:
 
@@ -117,8 +118,7 @@ In order to improve the readability of the documentation, please use and capital
     key value pair → key-value pair
     micrometre → micron (or, micrometer)
 
-.. note:: Also, when documenting micrometer-based variables, use the actual unicode character "μ", not "u", to avoid potential confusion. 
-
+.. note:: Also, when documenting micrometer-based variables, use the actual unicode character "μ", not "u", to avoid potential confusion. It's Alt+230 on Windows, Alt+M on macOS and on Linux, press the Compose Key then type ``mu``.
 
 Taking screenshots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

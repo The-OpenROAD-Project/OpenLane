@@ -6,7 +6,7 @@ Also, it can be used for testing the flow by running the flow against several de
 ```
 python3 run_designs.py --tag test --threads 3 spm xtea des aes256 
 ```
-## Default Test Set Results:
+## Default Test Set Results
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 

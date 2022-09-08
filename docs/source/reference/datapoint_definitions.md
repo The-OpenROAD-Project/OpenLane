@@ -27,7 +27,7 @@
 | `antenna_violations`   | The total number of antenna violations in the design. Extracted from Magic antenna check or OpenROAD ARC.        |
 | `lvs_total_errors`   | The total number of mismatches and differences between the final layout and the netlist of the design. Extracted from Netgen LVS report.        |
 | `cvc_total_errors`   | The total number of electric errors detected by CVC. Extracted from CVC report.        |
-| `klayout_violations`   | The total number of klayout drc violations in the design. Extracted from klayout drc report ran on the magic generated GDS-II.        |
+| `klayout_violations`   | The total number of klayout drc violations in the design. Extracted from klayout drc report ran on the magic generated GDSII.        |
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |

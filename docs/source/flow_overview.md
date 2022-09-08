@@ -27,10 +27,10 @@ OpenLane flow consists of several stages. By default all flow steps are run in s
     3. `OpenRCX` - Performs SPEF extraction
 6. **Tapeout**
     1. `Magic` - Streams out the final GDSII layout file from the routed def
-    2. `Klayout` - Streams out the final GDSII layout file from the routed def as a back-up
+    2. `KLayout` - Streams out the final GDSII layout file from the routed def as a back-up
 7. **Signoff**
     1. `Magic` - Performs DRC Checks & Antenna Checks
-    2. `Klayout` - Performs DRC Checks
+    2. `KLayout` - Performs DRC Checks
     3. `Netgen` - Performs LVS Checks
     4. `CVC` - Performs Circuit Validity Checks
 
@@ -43,8 +43,8 @@ OpenLane integrated several key open source tools over the execution stages:
 - Fill Insertion: [OpenDP/filler_placement][10]
 - Routing: [FastRoute][12] or [CU-GR][36] (formerly) and [TritonRoute][13] (Detailed) or [DR-CU][36]
 - SPEF Extraction: [OpenRCX][37] or [SPEF-Extractor][27] (formerly)
-- GDSII Streaming out: [Magic][14] and [Klayout][35]
-- DRC Checks: [Magic][14] and [Klayout][35]
+- GDSII Streaming out: [Magic][14] and [KLayout][35]
+- DRC Checks: [Magic][14] and [KLayout][35]
 - LVS check: [Netgen][22]
 - Antenna Checks: [Magic][14]
 - Circuit Validity Checker: [CVC][31]

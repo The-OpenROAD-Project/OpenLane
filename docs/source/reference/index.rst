@@ -1,4 +1,4 @@
-Reference Documentation
+Reference Manual
 --------------------------------------------------------------------------------
 .. toctree::
    :glob:

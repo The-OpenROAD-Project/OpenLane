@@ -5,7 +5,7 @@ In this document we will go through the hardening steps and discuss in some deta
 
 > **NOTE:** For all the configurations mentioned in this documentation and any other openlane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
 
-## Base Requirements:
+## Base Requirements
 
 You should start by setting the basic configuration file for your design. Check [this][5] for how to add your new design.
 
@@ -124,7 +124,7 @@ You can read more about those configurations [here][0].
 
 Placement is done in three steps: Global Placement, Optimizations, and Detailed Placement.
 
-### Global Placement:
+### Global Placement
 
 For Global Placement, the most important value would be `PL_TARGET_DENSITY` which should be easy to set.
 
@@ -134,17 +134,17 @@ For Global Placement, the most important value would be `PL_TARGET_DENSITY` whic
 
 Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here][0].
 
-### Optimizations:
+### Optimizations
 
 For this step we rely on Resizer and OpenPhySyn.
 
-#### Resizer optimizations:
+#### Resizer optimizations
 
 The only optimization we use from resizer is the wire length optimization which is used to reduce the antenna violations. This is disabled by default since the diode insertion strategies should cover that purpose.
 
 However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then determine the maximum wire length by setting this value `MAX_WIRE_LENGTH`.
 
-### Detailed Placement:
+### Detailed Placement
 
 The only value to consider here is the `DPL_CELL_PADDING` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is. However, typically for the skywater libraries the value should be 4~6.
 
@@ -193,11 +193,11 @@ The configurations here were selected based on a large design test set and the c
 
 Finally, the flow ends with physical verification. This begins by streaming out the GDS followed by running DRC, LVS, and Antenna checks on the design. Then, it produces a final summary report in csv format to summarize all the reports.
 
-You can control whether the magic DRC should be done on GDS-II or on LEF/DEF abstract views. We recommend using GDS-II on macros while using LEF/DEF on the chip level. This should speed up the run process and still give results as accurate as possible. This is controlled by `MAGIC_DRC_USE_GDS`.
+You can control whether the magic DRC should be done on GDSII or on LEF/DEF abstract views. We recommend using GDSII on macros while using LEF/DEF on the chip level. This should speed up the run process and still give results as accurate as possible. This is controlled by `MAGIC_DRC_USE_GDS`.
 
 You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `USE_ARC_ANTENNA_CHECK`. The magic antenna checker was more reliable at the time of writing this documentation but it comes with a huge runtime trade-off and the accuracy gain is not significant enough to accept that tradeoff; thus, the default is OpenROAD's ARC.
 
-You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDS-II then it's going to be down to the device/transistor level, otherwise using the LEF/DEF views then it's going to be down to the cell/block level. This is controlloed by `MAGIC_EXT_USE_GDS`.
+You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDSII then it's going to be down to the device/transistor level, otherwise using the LEF/DEF views then it's going to be down to the cell/block level. This is controlloed by `MAGIC_EXT_USE_GDS`.
 
 You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
 
@@ -205,7 +205,7 @@ A final summary report is produced by default as `<run-path>/reports/metrics.csv
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.
 
-The final GDS-II file can be found under `<run-path>/results/final/gds`.
+The final GDSII file can be found under `<run-path>/results/final/gds`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
