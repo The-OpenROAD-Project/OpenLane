@@ -1,4 +1,4 @@
-# Datapoint Definitions
+# Report Data Definitions
 ***NOTE:** The value `-1`, if not meaningful, indicates that the report/log from which the information is extracted wasn't found (the stage responsible for it was skipped or failed).
 
 ## Default Printed Information Variables
@@ -100,4 +100,4 @@
 
 ## Optional variables
 
-These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](../docs/source/configuration.md) for the full list of configurations.
+These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](./configuration.md) for the full list of configurations.

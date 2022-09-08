@@ -1,4 +1,4 @@
-# Variables information
+# Configuration Variables
 This page describes user-configurable variables and their default values.
 
 ## Load Order

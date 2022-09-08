@@ -1,15 +1,10 @@
-# OpenLane Interactive Mode Commands
+# Tcl Commands
 
-This page describes the list of commands available in openlane, their functionality, and their expected inputs and outputs.
+This page describes the list of commands available in OpenLane, their functionality, and their expected inputs and outputs.
 
 **NOTE:** You must run the `prep` command before running any of the other commands, in order to have the necessary files and configurations loaded.
 
-The Following list is available in the interactive mode: `./flow.tcl -interactive` and under:
-```
-% package require openlane 0.9
-```
-Which runs automatically when you enter the interactive mode.
-
+The following commands are available in the interactive mode: `./flow.tcl -interactive`, or in Tclsh using `% package require openlane 0.9`.
 
 ## General Commands
 
@@ -343,22 +338,22 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
 
 
-[0]: ./../../scripts/tcl_commands/all.tcl
-[1]: ./../../scripts/tcl_commands/checkers.tcl
-[2]: ./../../scripts/tcl_commands/cts.tcl
-[3]: ./../../scripts/tcl_commands/floorplan.tcl
-[4]: ./../../scripts/tcl_commands/init_design.tcl
-[5]: ./../../scripts/tcl_commands/lvs.tcl
-[6]: ./../../scripts/tcl_commands/magic.tcl
-[7]: ./../../scripts/tcl_commands/placement.tcl
-[8]: ./../../scripts/tcl_commands/routing.tcl
-[9]: ./../../scripts/tcl_commands/synthesis.tcl
-[10]: ./../../scripts/utils/deflef_utils.tcl
-[11]: ./../../scripts/utils/fake_display_buffer.tcl
-[12]: ./../../scripts/utils/utils.tcl
-[13]: ./../../docs/source/configuration.md
+[0]: ./../../../scripts/tcl_commands/all.tcl
+[1]: ./../../../scripts/tcl_commands/checkers.tcl
+[2]: ./../../../scripts/tcl_commands/cts.tcl
+[3]: ./../../../scripts/tcl_commands/floorplan.tcl
+[4]: ./../../../scripts/tcl_commands/init_design.tcl
+[5]: ./../../../scripts/tcl_commands/lvs.tcl
+[6]: ./../../../scripts/tcl_commands/magic.tcl
+[7]: ./../../../scripts/tcl_commands/placement.tcl
+[8]: ./../../../scripts/tcl_commands/routing.tcl
+[9]: ./../../../scripts/tcl_commands/synthesis.tcl
+[10]: ./../../../scripts/utils/deflef_utils.tcl
+[11]: ./../../../scripts/utils/fake_display_buffer.tcl
+[12]: ./../../../scripts/utils/utils.tcl
+[13]: ./configuration.md
 [14]: https://github.com/The-OpenROAD-Project/openlane/blob/master/designs/spm/pin_order.cfg
-[15]: ./chip_integration.md
-[16]: ./advanced_power_grid_control.md
-[17]: ./../../scripts/tcl_commands/klayout.tcl
-[18]: ./../../scripts/tcl_commands/cvc.tcl
+[15]: ../usage/chip_integration.md
+[16]: ../usage/advanced_power_grid_control.md
+[17]: ./../../../scripts/tcl_commands/klayout.tcl
+[18]: ./../../../scripts/tcl_commands/cvc.tcl

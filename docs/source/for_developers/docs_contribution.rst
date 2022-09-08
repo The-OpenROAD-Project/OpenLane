@@ -1,7 +1,7 @@
-Documentation Contributors guide
+Contributing Docs
 ================================================================================
 
-.. note:: This page is for documentation contributors. For prospecting OpenLane contributors, please see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
+.. note:: This page is for documentation contributors. For prospecting code contributors, please see `Code Contributions <../../CONTRIBUTING.html>`_
 
 Introduction
 --------------------------------------------------------------------------------
@@ -11,9 +11,7 @@ while staying readable, up-to-date and clean.
 This page covers installation of required tools
 and outlines simple principles to be followed when writing documentation.
 
-.. note:: To simply fix typos, you do not need to install anything.
-Pull requests can be created from the relevant ReadTheDocs page,
-using GitHub's editor.
+.. note:: To simply fix typos, you do not need to install anything. Pull requests can be created from the relevant ReadTheDocs page, using GitHub's editor.
 
 For more complex documentation, it is recommended to follow these steps:
 
@@ -31,8 +29,8 @@ For more complex documentation, it is recommended to follow these steps:
 7. Rebuild documentation and repeat.
 8. Once satisfied, commit the changes to your repository using git.
 9. Create a pull request to the main repository, so the maintainers can review your changes.
-13. Maintainers may request some tweaks (or do the tweaks themselves.) Execute them and then push the changes again.
-14. Once changes are approved they will be merged and then you can delete your branch or repository.
+10. Maintainers may request some tweaks (or do the tweaks themselves.) Execute them and then push the changes again.
+11. Once changes are approved they will be merged and then you can delete your branch or repository.
 
 .. _building_docs_locally:
 
@@ -97,7 +95,7 @@ Writing Style and Consistency
 Terms Consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to improve the readability of the documentation, please use and capitalize trademarks properly. Some examples you can see below:
+In order to improve the readability of the documentation, please use and capitalize names and trademarks properly. Some examples you can see below:
 
 .. code-block::
 
@@ -166,15 +164,15 @@ Your ``code-block`` s do not look like they are supposed to
 
 How it looks:
 
-.. image:: ../_static/docs_contribution/code_block_issue.png
+.. image:: ../../_static/docs_contribution/code_block_issue.png
 
 How it is supposed to look:
 
-.. image:: ../_static/docs_contribution/code_block_supposed_look.png
+.. image:: ../../_static/docs_contribution/code_block_supposed_look.png
 
 This is because ``code-blocks`` need to have empty lines around code sections, like shown in the picture below:
 
-.. image:: ../_static/docs_contribution/code_block_spaces_around_the_code.png
+.. image:: ../../_static/docs_contribution/code_block_spaces_around_the_code.png
 
 ``pip`` module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

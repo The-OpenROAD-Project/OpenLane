@@ -1,4 +1,4 @@
-Quick start
+Quick-Start Guide
 =======================
 Overview
 ------------------------------------
@@ -109,7 +109,7 @@ The main files are a configuration file and a ``src/`` folder that contains sour
 You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
 Advanced: Using custom PDK locations and OpenLane Docker images
------------------------------------------------------------
+---------------------------------------------------------------
 .. warning::
     If you accidently use the wrong version of a PDK or the OpenLane Docker image,  then you may have *significant issues* down the line. If you don't know what you're doing, this section is not for you.
 

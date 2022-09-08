@@ -1,11 +1,13 @@
-Reference documentation
+Reference Documentation
 --------------------------------------------------------------------------------
 .. toctree::
    :glob:
 
+   cli
+   configuration_files
    configuration
-   designs
-   eco_flow
    openlane_commands
-   advanced_readme
-   manual_pdk_installation
+   eco_flow
+   interactive_mode
+   datapoint_definitions
+

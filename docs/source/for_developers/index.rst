@@ -1,14 +1,14 @@
-Contributing to OpenLane
+Developer's Guide
 ################################################################################
 
 .. toctree::
    :glob:
 
-   ../../CONTRIBUTING
-   contributing_to_docs
+   code_contribution
+   docs_contribution
    pdk_structure
    using_or_issue
-   ../../.github/workflow-documentation.md
-   ../../docker/README.md
+   gha_workflow.md
+   docker.md
    issue_regression_tests
 

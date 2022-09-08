@@ -22,7 +22,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("docs/_ext"))
+sys.path.insert(0, os.path.abspath("../_ext"))
 
 # -- Project information -----------------------------------------------------
 project = "OpenLane"
@@ -61,6 +61,7 @@ exclude_patterns = [
     "Thumbs.db",
     "scripts/tcl_commands/README.md",
     "venv",
+    "install",
     "pdks",
     ".github",
     # Files included in other rst files.
@@ -84,7 +85,7 @@ html_theme_options = {}
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["docs/_static"]
+html_static_path = ["../_static"]
 
 todo_include_todos = True
 numfig = True
@@ -106,6 +107,11 @@ autosectionlabel_prefix_document = True
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
 
 myst_heading_anchors = 3
+
+
+myst_enable_extensions = [
+    "colon_fence",
+]
 
 
 root_doc = "index"

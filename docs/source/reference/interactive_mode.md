@@ -1,4 +1,4 @@
-## Interactive Mode
+# Interactive Mode
 You may run the flow interactively by using the `-interactive` option:
 
 ```
@@ -12,7 +12,7 @@ A tcl shell will be opened where the openlane package is automatically sourced:
 
 Then, you should be able to run the following main commands:
 
-0. Any tcl command.
+0. Any **valid** Tcl code.
 1. `prep -design <design> -tag <tag> -config <config> -init_design_config -overwrite` similar to the command line arguments, design is required and the rest is optional
 2. `run_synthesis`
 3. `run_floorplan`
