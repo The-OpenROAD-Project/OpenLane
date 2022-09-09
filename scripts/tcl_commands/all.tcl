@@ -170,7 +170,6 @@ proc gen_exclude_list {args} {
     }
     set flags {
         -drc_exclude_only
-        -create_dont_use_list
     }
     parse_key_args "gen_exclude_list" args arg_values $options flags_map $flags
 
@@ -190,16 +189,21 @@ proc gen_exclude_list {args} {
         close $out
     }
 
-    # If you're not told to only use the drc exclude list, and if the no_synth.cells exists, merge the two lists
+    # If you're not told to only use the drc exclude list, merge the two lists
     if { (![info exists flags_map(-drc_exclude_only)]) && [file exists $arg_values(-synth_exclude_list)] } {
-        set out [open $arg_values(-output) a]
-        set in [open $arg_values(-synth_exclude_list)]
-        fcopy $in $out
-        close $in
-        close $out
+        foreach list_file $arg_values(-synth_exclude_list) {
+            set out  [open $arg_values(-output) a]
+            if { [file exists $list_file] } {
+                set in [open $list_file]
+                fcopy $in $out
+                close $in
+            }
+            puts $out ""
+            close $out
+        }
     }
 
-    if { [file exists $arg_values(-output)] && [info exists flags_map(-create_dont_use_list)] } {
+    if { [file exists $arg_values(-output)] } {
         puts_verbose "Creating ::env(DONT_USE_CELLS)..."
         set x [cat "$arg_values(-output)"]
         set y [split $x]
@@ -223,10 +227,15 @@ proc trim_lib {args} {
     set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
+    set no_synth_list "$::env(NO_SYNTH_CELL_LIST)"
+    if { [info exists $::env(NO_SYNTH_CELL_LIST)] } {
+        set no_synth_list "$no_synth_list $::env(NO_SYNTH_CELL_LIST_OPT)"
+    }
+
     if { [info exists flags_map(-drc_exclude_only)] } {
         gen_exclude_list -lib $arg_values(-output) -drc_exclude_only
     } else {
-        gen_exclude_list -lib $arg_values(-output)
+        gen_exclude_list -lib $arg_values(-output) -synth_exclude_list $no_synth_list
     }
 
     # Trim the liberty with the generated list, if it exists.
@@ -353,6 +362,9 @@ proc prep {args} {
     parse_key_args "prep" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-test_mismatches) "all"
+    set_if_unset arg_values(-src) ""
+    set_if_unset arg_values(-design) "."
+    set_if_unset arg_values(-verbose) 0
 
     if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py $arg_values(-test_mismatches)} ::env(VCHECK_OUTPUT)] {
         if { ![info exists flags_map(-ignore_mismatches)]} {
@@ -364,21 +376,13 @@ proc prep {args} {
         puts_warn "OpenLane may not function properly: $::env(VCHECK_OUTPUT)"
     }
 
-    # Check Design Directory
+    # Normalize Design Directory
     set ::env(DESIGN_DIR) [file normalize $arg_values(-design)]
     if { ![file exists $::env(DESIGN_DIR)] } {
         set ::env(DESIGN_DIR) [file normalize $::env(OPENLANE_ROOT)/designs/$arg_values(-design)]
-        if { ![file exists $::env(DESIGN_DIR)] } {
-            puts_err "Design $arg_values(-design) not found."
-            exit -1
-        }
     }
 
-    # Storing the current state of environment variables
-    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-    set_if_unset arg_values(-src) ""
-    set_if_unset arg_values(-design) "."
-
+    # Create the design (if applicable)
     if { [info exists flags_map(-init_design_config)] } {
         set filename "$::env(DESIGN_DIR)/config.json"
 
@@ -406,8 +410,16 @@ proc prep {args} {
         exit 0
     }
 
+    # Check Design Directory
+    if { ![file exists $::env(DESIGN_DIR)] } {
+        puts_err "Design $arg_values(-design) not found."
+        exit -1
+    }
+
+    # Storing the current state of environment variables
+    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
+
     # Output
-    set_if_unset arg_values(-verbose) "0"
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
     set ::env(TERMINAL_OUTPUT) "/dev/null"
     if { $::env(OPENLANE_VERBOSE) >= 2 } {
@@ -512,6 +524,23 @@ proc prep {args} {
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
     source $scl_config
 
+    ### 4a. Optimization SCL Config (If Applicable)
+    set opt_scl_used [expr {$::env(STD_CELL_LIBRARY)} ne {$::env(STD_CELL_LIBRARY_OPT)}]
+    if { $opt_scl_used } {
+        set opt_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY_OPT)/config.tcl
+        set opt_config_out $run_path/config_opt.tcl
+
+        exec python3 $::env(SCRIPTS_DIR)/config/extract_opt_variables.py\
+            --output $opt_config_out\
+            --pdk-root $::env(PDK_ROOT)\
+            --pdk $::env(PDK)\
+            --opt-scl $::env(STD_CELL_LIBRARY_OPT)\
+            $pdk_config\
+            $opt_config
+
+        source $opt_config_out
+    }
+
     ## 5. Design-Specific Config
     source_config -run_path $run_path $::env(DESIGN_CONFIG)
 
@@ -520,7 +549,6 @@ proc prep {args} {
         load_overrides $arg_values(-override_env)
     }
 
-    set_if_unset arg_values(-verbose) "0"
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
@@ -681,7 +709,14 @@ proc prep {args} {
             } else {
                 set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST)"
             }
-            gen_exclude_list -lib resizer_opt -drc_exclude_list $drc_exclude_list -output $::env(synthesis_tmpfiles)/resizer_opt.exclude.list -drc_exclude_only -create_dont_use_list
+
+            puts_verbose $drc_exclude_list
+
+            gen_exclude_list \
+                -lib resizer_opt \
+                -drc_exclude_list $drc_exclude_list \
+                -drc_exclude_only \
+                -output $::env(synthesis_tmpfiles)/resizer_opt.exclude.list
         }
 
         if { $::env(USE_GPIO_PADS) } {
