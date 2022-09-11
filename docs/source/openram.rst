@@ -68,6 +68,23 @@ It is users responsibility to make sure that GDS matches LEF files.
     "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
     "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
     
+
+If you ran the design without this configuration you will get following error:
+
+.. code-block::
+
+    [INFO]: Running Initial Floorplanning (log: designs/test_sram_macro/runs/full_guide_nomacros/logs/floorplan/3-initial_fp.log)...
+    [ERROR]: Floorplanning failed
+    [ERROR]: module sky130_sram_1kbyte_1rw1r_32x256_8 not found in /openlane/designs/test_sram_macro/runs/full_guide_nomacros/tmp/merged.nom.lef
+    [ERROR]: Check whether EXTRA_LEFS is set appropriately
+    [INFO]: Saving current set of views in 'designs/test_sram_macro/runs/full_guide_nomacros/results/final'...
+    [INFO]: Generating final set of reports...
+    [INFO]: Created manufacturability report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/manufacturability.rpt'.
+    [INFO]: Created metrics report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/metrics.csv'.
+    [INFO]: Saving runtime environment...
+    [ERROR]: Flow failed.
+
+
 Power/Ground nets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -162,10 +179,38 @@ Then the ``FP_PDN_MACRO_HOOKS`` will look like this (note that there is no backs
 
     "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
 
+``FP_PDN_MACRO_HOOKS`` forces connection between these pins and power/ground nets.
+If these configuration is missing then power/ground will be missing between netlist and PDN, therefore creating an LVS issue.
 
 
-.. todo:: Elaborate on power connections and why it can just be not connected.
+Try removing the parameter and running:
 
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag full_guide_pdn_macrohooks -overwrite
+
+As can be observed, this generates an LVS error, because in the RTL code the power pins are attached,
+meanwhile in the layout there is no connection between the PDN and the SRAM cell power rings.
+
+.. code-block::
+
+    [INFO]: Running LEF LVS...
+    [ERROR]: There are LVS errors in the design: See 'designs/test_sram_macro/runs/full_guide_pdn_macrohooks/logs/signoff/40-test_sram_macro.lvs.lef.log' for details.
+
+Open an interactive session:
+
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag full_guide_pdn_macrohooks -interactive
+    package require openlane
+    set_def designs/test_sram_macro/runs/full_guide_pdn_macrohooks/results/final/def/test_sram_macro.def
+    or_gui
+
+    # empty new line to force the command to run
+
+Notice that the PDN straps are not connected to SRAM's ring:
+
+.. figure:: ../_static/openram/pdn_macro_hooks_missing.png
 
 Floorplanning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -272,7 +317,7 @@ To view the floorplan stage output, run the following command:
 
 .. code-block::
 
-    ./flow.tcl -design test_sram_macro -tag floorplan -interactive
+    ./flow.tcl -design test_sram_macro -tag floorplan_v2 -interactive
     package require openlane
     set_def designs/test_sram_macro/runs/floorplan_v2/results/floorplan/test_sram_macro.def
     or_gui
@@ -382,9 +427,19 @@ Finally, harden the macro block by running the following command:
 
     ./flow.tcl -design test_sram_macro -tag full_guide -overwrite
 
+To view the floorplan stage output, run the following command:
 
-.. todo:: Add pictures of final result
+.. code-block::
 
+    ./flow.tcl -design test_sram_macro -tag full_guide -interactive
+    package require openlane
+    set_def designs/test_sram_macro/runs/full_guide/results/final/def/test_sram_macro.def
+    or_gui
 
-.. todo:: Explain the PDN connections
-.. todo:: Explain the power pins/nets connections
+    # empty new line to force the command to run
+
+It will look like this:
+
+.. figure:: ../_static/openram/final.png
+
+Reports can be found in ``designs/test_sram_macro/runs/full_guide/reports``.
