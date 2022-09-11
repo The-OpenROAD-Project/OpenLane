@@ -24,56 +24,11 @@ Create blackbox declaration of ``sky130_sram_1kbyte_1rw1r_32x256_8``
 in file ``designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v``.
 
 Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v``.
-``(*blackbox*)`` attribute is specified, to let the synthesis tool know that this module is a blackbox.
+Then add ``(*blackbox*)`` attribute. This is specified, to let the synthesis tool know that this module is a blackbox.
 If the module is empty it is assumed to be blackbox anyway, but specifying the attribute makes it more clear.
 
-.. todo:: Replace with include
-
-.. code-block:: verilog
-
-    // OpenRAM SRAM model
-    // Words: 256
-    // Word size: 32
-    // Write size: 8
-
-    (*blackbox*)
-    module sky130_sram_1kbyte_1rw1r_32x256_8(
-    `ifdef USE_POWER_PINS
-        vccd1,
-        vssd1,
-    `endif
-    // Port 0: RW
-        clk0,csb0,web0,wmask0,addr0,din0,dout0,
-    // Port 1: R
-        clk1,csb1,addr1,dout1
-    );
-
-    parameter NUM_WMASKS = 4 ;
-    parameter DATA_WIDTH = 32 ;
-    parameter ADDR_WIDTH = 8 ;
-    parameter RAM_DEPTH = 1 << ADDR_WIDTH;
-    // FIXME: This delay is arbitrary.
-    parameter DELAY = 3 ;
-    parameter VERBOSE = 1 ; //Set to 0 to only display warnings
-    parameter T_HOLD = 1 ; //Delay to hold dout value after posedge. Value is arbitrary
-
-    `ifdef USE_POWER_PINS
-        inout vccd1;
-        inout vssd1;
-    `endif
-    input  clk0; // clock
-    input   csb0; // active low chip select
-    input  web0; // active low write control
-    input [NUM_WMASKS-1:0]   wmask0; // write mask
-    input [ADDR_WIDTH-1:0]  addr0;
-    input [DATA_WIDTH-1:0]  din0;
-    output [DATA_WIDTH-1:0] dout0;
-    input  clk1; // clock
-    input   csb1; // active low chip select
-    input [ADDR_WIDTH-1:0]  addr1;
-    output [DATA_WIDTH-1:0] dout1;
-
-    endmodule
+.. literalinclude:: ../../designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v
+    :language: verilog
 
 Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLACKBOX``.
 
@@ -91,12 +46,13 @@ then it is possible to get RTL behavor missmatch without any warning. See `issue
 Create the Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. todo:: Add link to verilog literal
-.. todo:: Create the verilog file
+Create or add Verilog files. In this case create file ``designs/test_sram_macro/src/test_sram_macro.v`` with following content:
 
-Connect the Layout pins
+.. literalinclude:: ../../designs/test_sram_macro/src/test_sram_macro.v
+    :language: verilog
+
+Connect the layout files and abstracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
 Connect LEF files using ``EXTRA_LEFS``.
 In this case absolute path is used, if the PDK location is different then path needs to be changed.
@@ -105,36 +61,13 @@ LEF contains only metal layers and layers that can connect between cells (met1, 
 
 Connect GDS files with the subcomponent.
 The GDS from ``EXTRA_GDS_FILES`` that will be used to generate the final GDS file.
-For analog cells it is users responsibility to make sure that GDS matches LEF files.
+It is users responsibility to make sure that GDS matches LEF files.
 
 .. code-block:: json
 
     "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
     "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
     
-Floorplanning
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Set the following floorplan parameters:
-
-.. code-block:: json
-
-    "FP_SIZING": "absolute",
-    "DIE_AREA": "0 0 750 1250",
-    "PL_TARGET_DENSITY": 0.5,
-
-``FP_SIZING`` is set to ``absolute`` and it will tell the floorplan to use ``DIE_AREA`` as final macro block's size.
-The we set the ``DIE_AREA``. This value is carefully constructed.
-If it is set to big value then you are going to have routing/placement/timing issues.
-On the other hand setting the value too low will cause placement and routing congestion issues.
-
-To obtain perfect ``DIE_AREA`` the 50% utilization was used,
-then aspect ratio and area was manually adjusted to keep the utilization around 45% and the final density about 50%.
-
-`PL_TARGET_DENSITY` is set to 0.5 to reflect the target final density of 50%.
-
-.. todo:: Explain the DIE_AREA selection process
- 
 Power/Ground nets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -229,12 +162,67 @@ Then the ``FP_PDN_MACRO_HOOKS`` will look like this (note that there is no backs
 
     "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
 
-.. todo:: Elaborate
+
+
 .. todo:: Elaborate on power connections and why it can just be not connected.
+
+
+Floorplanning
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run the flow until floorplanning stage:
+
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag floorplan -overwrite -to floorplan
+
+
+You will get following output:
+
+.. code-block::
+
+    [STEP 3]
+    [INFO]: Running Initial Floorplanning (log: designs/test_sram_macro/runs/floorplan/logs/floorplan/3-initial_fp.log)...
+    [INFO]: Extracting core dimensions...
+    [INFO]: Set CORE_WIDTH to 877.22, CORE_HEIGHT to 875.84.
+
+To view the floorplan stage output, run the following command:
+
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag floorplan -interactive
+    package require openlane
+    set_def designs/test_sram_macro/runs/floorplan/results/floorplan/test_sram_macro.def
+    or_gui
+
+    # empty new line to force the command to run
+
+It will look like this:
+
+.. figure:: ../_static/openram/basic_fp.png
+
+Looking at the floorplan, it would be better if the macros were centered, so the buffers can be placed near I/O.
+In order to achieve this, keep the area almost the same,
+but resize the DIE_AREA to a rectangle that allows 100um all around each macro for standard cells.
+In the next step the location of macro blocks will be selected.
+
+Set the following floorplan parameters:
+
+.. code-block:: json
+
+    "FP_SIZING": "absolute",
+    "DIE_AREA": "0 0 750 1250",
+    "PL_TARGET_DENSITY": 0.5,
+
+``FP_SIZING`` is set to ``absolute`` and it will tell the floorplan to use ``DIE_AREA`` as final macro block's size.
+The we set the ``DIE_AREA``. This value is carefully constructed.
+If it is set to big value then you are going to have routing/placement/timing issues.
+On the other hand setting the value too low will cause placement and routing congestion issues.
+
+``PL_TARGET_DENSITY`` is set to 0.5 to reflect the target final density of 50%.
 
 Macro cell placement
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 
 The cells need to be placed inside the ``DIE_AREA``,
 however the automatic placement does not account the I/O placement when selecting sram placement.
@@ -276,9 +264,24 @@ Then modify the ``config.json`` to reference this file.
 
     "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
 
-.. todo:: Screenshot the floorplan
+.. code-block::
 
-.. todo:: Run the flow till floorplan
+    ./flow.tcl -design test_sram_macro -tag floorplan_v2 -overwrite -to floorplan
+
+To view the floorplan stage output, run the following command:
+
+.. code-block::
+
+    ./flow.tcl -design test_sram_macro -tag floorplan -interactive
+    package require openlane
+    set_def designs/test_sram_macro/runs/floorplan_v2/results/floorplan/test_sram_macro.def
+    or_gui
+
+    # empty new line to force the command to run
+
+It will look like this:
+
+.. figure:: ../_static/openram/floorplan_v2.png
 
 Resolving issues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -308,7 +311,7 @@ However, you will still get DRCs.
 
     "MAGIC_DRC_USE_GDS": false
 
-For this example we can just disable the DRC check.
+Instead, for this example we can just disable the DRC check.
 However, this is very dangerous and needs to be approved by the foundry.
 
 .. code-block:: json
@@ -370,37 +373,8 @@ Running the flow
 
 Final ``config.json`` looks like this:
 
-.. code-block::
-
-    {
-        "DESIGN_NAME": "test_sram_macro",
-        "VERILOG_FILES": "dir::src/*.v",
-        "CLOCK_PORT": "clk",
-        "CLOCK_PERIOD": 10.0,
-        "DESIGN_IS_CORE": true,
-
-        "FP_SIZING": "absolute",
-        "DIE_AREA": "0 0 750 1250",
-        "PL_TARGET_DENSITY": 0.5,
-
-        "VDD_NETS": "vccd1",
-        "GND_NETS": "vssd1",
-
-        "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
-        
-        "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
-        
-        "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
-
-        "EXTRA_LEFS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef",
-        "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
-        "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
-
-        "RUN_KLAYOUT_XOR": false,
-        "RUN_MAGIC_DRC": false
-    }
-
-.. todo:: Replace with literal
+.. literalinclude:: ../../designs/test_sram_macro/config.json
+    :language: json
 
 Finally, harden the macro block by running the following command:
 
@@ -408,21 +382,9 @@ Finally, harden the macro block by running the following command:
 
     ./flow.tcl -design test_sram_macro -tag full_guide -overwrite
 
-.. todo:: Add pictures of the macro placement in floorplan
-
 
 .. todo:: Add pictures of final result
 
 
-.. todo:: Explain above
-
-./flow.tcl -design test_sram_macro -tag full_guide_use_deflef_drc -overwrite
-
-.. todo:: Explain above
-
-
-
-
-.. todo:: Explain why the placement might fail (Because not enough space/ because too much space)
 .. todo:: Explain the PDN connections
 .. todo:: Explain the power pins/nets connections
