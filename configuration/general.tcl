@@ -13,13 +13,6 @@
 # limitations under the License.
 set ::env(USE_GPIO_PADS) 0
 
-if { ![info exists ::env(QUIT_ON_MISMATCHES)] } {
-    set ::env(QUIT_ON_MISMATCHES) {1}
-}
-if { ![info exists ::env(TEST_MISMATCHES)] } {
-    set ::env(TEST_MISMATCHES) {all}
-}
-
 # General Defaults
 set ::env(CLOCK_PERIOD) "10.0"
 

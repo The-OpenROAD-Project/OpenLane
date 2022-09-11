@@ -1,7 +1,7 @@
 Documentation Contributors guide
 ================================================================================
 
-.. note:: This page is for documentation contributors. For developers see `CONTRIBUTING.md <../../CONTRIBUTING>`_
+.. note:: This page is for documentation contributors. For prospecting OpenLane contributors, please see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
 
 Introduction
 --------------------------------------------------------------------------------
@@ -9,32 +9,29 @@ Documentation plays an important role in OpenLane.
 Good documentation should cover as much information as possible,
 while staying readable, up-to-date and clean.
 This page covers installation of required tools
-and outlines simple principles that are used when current documentation was created.
+and outlines simple principles to be followed when writing documentation.
 
-In order to fix typos, you do not need to install anything.
-Pull requests can be created from ReadTheDocs page, using GitHub's editor.
+.. note:: To simply fix typos, you do not need to install anything.
+Pull requests can be created from the relevant ReadTheDocs page,
+using GitHub's editor.
 
-For more complex documentation it is recommended to follow this steps:
+For more complex documentation, it is recommended to follow these steps:
 
 1. Read this guide
 2. Either create a new page in ``docs/source/``. Then you need to add your page to the Table of Contents in ``index.rst``
-3. ... or open existing one from the same folder.
-4. Then create the general structure of the documentation.
-  
-This steps ensures continuity with the rest of the documentation and allows the writer to better organize their thoughts.
-
-5. Use reStructuredText and existing plugins to write the documentation.
-6. Create as much visual documentation as possible. More is better.
-
-Pictures, figures, tables significantly improve the quality of documentation and make the documentation available for begginers.
-
-7. Add links to references, guide and pointers to other available documentation or books.
-8. Use :ref:`building_docs_locally` to preview and visualize the documentation.
-9. Copy the text from preview into an editor that highlights the mistakes and fix them.
-10. Rebuild documentation and repeat.
-11. Once satisfied commit the changes to your repository using git.
-12. Create a Pull-request to the main repository, so the maintainers can review your changes.
-13. Maintainers will request some tweaking, do it and then push the changes again.
+3. ... or open an existing one in the same folder.
+4. Follow these guidelines:
+    * Begin with the general structure of the documentation. This step ensures continuity with the rest of the documentation and allows the writer to better organize their thoughts.
+    * Use reStructuredText and existing plugins to write the documentation.
+    * Create as much visual documentation as possible. More is better.
+    * Pictures, figures, tables significantly improve the quality of documentation and make the documentation available for beginners.
+    * Add links to references, guide and pointers to other available documentation or books.
+5. Use :ref:`building_docs_locally` to preview and visualize the documentation.
+6. Copy the text from preview into an editor that highlights the mistakes and fix them.
+7. Rebuild documentation and repeat.
+8. Once satisfied, commit the changes to your repository using git.
+9. Create a pull request to the main repository, so the maintainers can review your changes.
+13. Maintainers may request some tweaks (or do the tweaks themselves.) Execute them and then push the changes again.
 14. Once changes are approved they will be merged and then you can delete your branch or repository.
 
 .. _building_docs_locally:
@@ -42,41 +39,44 @@ Pictures, figures, tables significantly improve the quality of documentation and
 Building documentation locally
 --------------------------------------------------------------------------------
 
-Assuming you have OpenLane installed it will create ``venv``. Install requirements for documentation building inside ``venv``.
+Assuming you have OpenLane installed, a Python virtual environment will be created in ``<OPENLANE_ROOT>/venv``. You can the  
 
-.. code-block::
+.. code-block:: console
 
-    cd OpenLane/
-    # assuming you are inside OpenLane folder
-    # assuming you have bash installed at /bin/bash
+    # Assuming you are inside the OpenLane folder
+    ## If you didn't 'make openlane' already…
+    make venv 
 
     # Install required modules
     make -C docs/ install
 
 After installation, every time you want to build the documentation proceed to enter the venv and run ``sphinx-build`` following commands: 
 
-.. code-block::
+.. code-block:: console
 
     cd OpenLane/
     # assuming you are inside OpenLane folder
     make -C docs/ html
 
-View the generated html files using Firefox or other browser. Open this document in browser:
+View the generated html files using your favorite web browser. Open this document in browser:
 
-.. code-block::
+.. code-block:: console
 
     # Assuming same folder as OpenLane
     cd OpenLane/
 
-    firefox docs/_build/html/docs/source/contributing_to_docs.html
+    # macOS
+    open docs/_build/html/docs/source/contributing_to_docs.html
 
-Documentation `regarding reStructuredText can be found here <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_. 
+    # Most GNU/Linux Distributions
+    xdg-open docs/_build/html/docs/source/contributing_to_docs.html
+
+Documentation `regarding reStructuredText can be found here: <https://sublime-and-sphinx-guide.readthedocs.io/en/latest/index.html>`_. 
 
 Documentation organization
 --------------------------------------------------------------------------------
 All of the documentation is concetrated in ``docs/``.
-Static files are stored in ``docs/_static`` in respective directory.
-For example, screenshots for this guide are located in ``docs/_static/docs_contrbution``,
+Static files for a certain document are stored in ``docs/_static`` in its respective directory: for example, screenshots for this guide are located in ``docs/_static/docs_contrbution``,
 while the screenshots for the installation guide are located in ``docs/_static/installation``.
 
 Directory ``docs/source/`` contains all of the page's content.
@@ -88,8 +88,8 @@ If you want to create new category than take a look at the source code of existi
 Writing Style and Consistency
 --------------------------------------------------------------------------------
 
-* New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get glimpse of its syntax.
-* Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of the Docker``.
+* New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get a glimpse of its syntax.
+* Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of Docker``.
 * Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
 * The first command of the page should have `cd` in it to specify where you are running and all following commands assume the continuation of the session and don't need the cd command.
 * In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
@@ -97,7 +97,7 @@ Writing Style and Consistency
 Terms Consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to improve the readability of the documentation it is recommended to use the names of the projects properly. Some examples you can see below:
+In order to improve the readability of the documentation, please use and capitalize trademarks properly. Some examples you can see below:
 
 .. code-block::
 
@@ -105,11 +105,11 @@ In order to improve the readability of the documentation it is recommended to us
     OpenRoad → OpenROAD
     Mac OS X → macOS
     MAGIC → Magic
-    open source → open-source
     Skywater130 → sky130
     Klayout → KLayout
+    Pip -> pip or PIP 
 
-* For technical terms use OpenROAD documentation preferences:
+* For technical terms, use the following terms preferred by OpenROAD documentation for consistency:
 
 .. code-block::
 
@@ -119,20 +119,23 @@ In order to improve the readability of the documentation it is recommended to us
     key value pair → key-value pair
     micrometre → micron (or, micrometer)
 
-Making screenshots
+.. note:: Also, when documenting micrometer-based variables, use the actual unicode character "μ", not "u", to avoid potential confusion. 
+
+
+Taking screenshots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The screenshots in documentation should use following prompt:
 
-.. code-block::
+.. code-block:: console
 
     export PS1="\W> "
 
 You can add it to your ``.bashrc`` or just run it before you run the command.
 
+.. note:: Please note that taking screenshots for terminal output is not recommended. You may want to use a ``code-block`` object.
 
-Confusing Header structure of RST
+RST Headers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 Use headers to make structure of the documentation better. For underline and overlines use 80 symbols. Here are the header priorities. Top is the highest priority.
 
 .. code-block::
@@ -144,7 +147,7 @@ Use headers to make structure of the documentation better. For underline and ove
     ^
     "
 
-What's overline?
+Wait, what's an overline?
 
 .. code-block::
 
@@ -173,11 +176,11 @@ This is because ``code-blocks`` need to have empty lines around code sections, l
 
 .. image:: ../_static/docs_contribution/code_block_spaces_around_the_code.png
 
-Pip module related errors
+``pip`` module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you did not source ``../venv/bin/activate`` when running ``sphinx-build`` then you will get error similar to the one below.
+If you're running ``sphinx-build`` manually and did not source ``../venv/bin/activate`` before running ``sphinx-build`` then you may run into an error similar to the one below.
 
-.. code-block::
+.. code-block:: console
 
     Running Sphinx v5.0.1
 
@@ -198,11 +201,11 @@ Sphinx build complains about title underline being too short
 
 When running ``sphinx-build`` you may get following warning:
 
-.. code-block::
+.. code-block:: console
 
     /home/armleo/Desktop/OpenLaneGSOC/docs/source/installation.rst:3: WARNING: Title underline too short.
 
     Installation of OpenLane
     ########
 
-Try to use 80 symbol long header underlines. This makes replacing them easier and keeps the documentation code consistent.
+Try to use 80 symbol long header underlines. This makes replacing them easier and keeps the documentation consistent.

@@ -30,46 +30,35 @@ OpenLane uses Docker to create reproducible environment for your projects. You d
 Running the flow
 ------------------------------------------------------------------------
 
+The entry point for OpenLane is the ``./flow.tcl`` script.
 
-In order to run the flow you need to execute following command:
+This script is used to run the flow, start interactive sessions,
+select the configuration and create OpenLane design files.
 
-.. code-block::
+In order to run the flow, you need to execute the following command:
+
+.. code-block:: console
 
     ./flow.tcl -design <design_name>
 
-For design named ``gcd`` the command looks like this:
+For a design named ``gcd``, the invocation would look something like this:
 
-.. code-block::
+.. code-block:: console
 
     ./flow.tcl -design gcd
 
 
 Creating new designs
 ------------------------------------------------------------------------
+The following command creates a new configuration file for your design:
 
-.. warning:: This guide assumes that you are running inside Docker image. Dockerless installation is not supported.
+.. code-block:: console
 
-First, start OpenLane Docker image using following command:
-
-.. code-block::
-
-    cd OpenLane/
-    make mount
-
-
-The ``./flow.tcl`` is the entry point for OpenLane.
-This script is used to run the flow, run the interactive sessions,
-select the configuration and create OpenLane design files.
-
-To add a new design, the following command creates a configuration file for your design:
-
-.. code-block::
-
-    ./flow.tcl -design <design_name> -init_design_config
+    ./flow.tcl -design <design_name> -init_design_config -add_to_designs
 
 This will create the following directory structure:
 
-.. code-block::
+.. code-block:: console
 
     designs/<design_name>
     ├── config.json
@@ -87,16 +76,16 @@ It is recommended to place the design's verilog files in a ``src`` directory ins
     ├── src
     │   ├── design.v
 
-However, you can point to the source files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
+However, you can also point to the source files while initializing the design and they will be pointed to automatically in the configuration file and will also be automatically copied to the src directory creating the same structure shown above.
 
-.. code-block::
+.. code-block:: console
 
     ./flow.tcl -design <design_name> -init_design_config -src <list_verilog_files>
 
 
-This is typical structure of the design folder:
+This is a typical structure for a design folder:
 
-.. code-block::
+.. code-block:: console
 
     .
     ├── config.json
@@ -116,33 +105,26 @@ This is typical structure of the design folder:
     └── src
         └── mem_1r1w.v
 
-Main files are ``config.json`` and ``src/`` folder that contains source code.
+The main files are a configuration file and a ``src/`` folder that contains source code, as well as a ``runs`` folder that creates designs.
 
-You can find more information `regarding the ./flow.tcl in the documentation here <designs>`_. And here is the `reference documentation regarding the configuration valirables <configuration>`_.
+You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
-Running the flow
-------------------------------------------------------------------------
-
-In order to run the flow you need to execute following commands:
-
-.. code-block::
-
-    ./flow.tcl -design <design_name>
-
-This will run the flow for design ``<design_name>``.
-
-Advanced: Using custom PDK locations and Docker images
+Advanced: Using custom PDK locations and OpenLane Docker images
 -----------------------------------------------------------
 .. warning::
-    If you accidently used wrong version of PDK or OpenLane docker image then you might have *significant issues* down the line. *Avoid overwriting PDK on your own or using different OpenLane images*, if you don't know what are you doing then do not set any of those variable.
+    If you accidently use the wrong version of a PDK or the OpenLane Docker image,  then you may have *significant issues* down the line. If you don't know what you're doing, this section is not for you.
 
-While this is not recommended, if you need to overwrite the location of PDK, then set the environment variable ``PDK_ROOT`` before running ``make mount``.
-Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to overwrite the Docker image that will be used but by default it's dynamically obtained using your current git version. Both ``PDK_ROOT`` and ``OPENLANE_IMAGE_NAME`` can be set independently. Example for setting both variables:
+While this is not recommended, if you need to override the location of PDK, then set the environment variable ``PDK_ROOT`` before running ``make mount``.
 
-.. code-block::
+Another environment variable is ``OPENLANE_IMAGE_NAME``. It can be used to override the Docker image that will be used but by default it's dynamically obtained using your current git version. Both ``PDK_ROOT`` and ``OPENLANE_IMAGE_NAME`` can be set independently. 
 
-    export PDK_ROOT=/opt/pdks
-    export OPENLANE_IMAGE_NAME=efabless/openlane:6ab944bc23688cae6dc6fa32444891a1e57715c8
+Here is an example for setting both variables:
+
+.. code-block:: console
+
+    export PDK_ROOT=$HOME/pdks
+    export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
     make mount
 
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.
+

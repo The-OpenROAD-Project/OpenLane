@@ -155,6 +155,10 @@ class Installer(object):
             )
         )
 
+        print(
+            "[ALERT] The local installer is no longer actively supported.\nSee https://github.com/The-OpenROAD-Project/OpenLane/issues/1300 for more info."
+        )
+
         install_dir = realpath("./install")
 
         sh("mkdir", "-p", install_dir, root="retry")
@@ -400,7 +404,7 @@ class Installer(object):
             venv_builder = venv.EnvBuilder(clear=True, with_pip=True)
             venv_builder.create("./venv")
 
-            pip_install_cmd = "python3 -m pip install --upgrade --no-cache-dir"
+            pip_install_cmd = "python3 -m pip install --upgrade"
 
             subprocess.run(
                 [
@@ -411,11 +415,14 @@ class Installer(object):
                     {pip_install_cmd} -r ../dependencies/python/precompile_time.txt
                     {pip_install_cmd} -r ../dependencies/python/compile_time.txt
                     {pip_install_cmd} -r ../dependencies/python/run_time.txt
+                    pip3 install --upgrade volare
+                    mkdir -p ./pdks
+                    volare enable --pdk-root ./pdks {tools['open_pdks'].commit}
                     """,
                 ]
             )
 
-            print("Installing dependencies...")
+            print("Building dependencies...")
             with chdir("build"):
                 for folder in ["repos", "versions"]:
                     sh("mkdir", "-p", folder)
@@ -435,12 +442,12 @@ class Installer(object):
                         tool = pop()
                         continue
 
-                    if len(tool.dependencies):
-                        dependencies = set(tool.dependencies)
-                        if not dependencies.issubset(installed):
-                            tool_queue.append(tool)
-                            tool = pop()
-                            continue
+                    # if len(tool.dependencies):
+                    #     dependencies = set(tool.dependencies)
+                    #     if not dependencies.issubset(installed):
+                    #         tool_queue.append(tool)
+                    #         tool = pop()
+                    #         continue
 
                     installed_version = ""
                     version_path = f"versions/{tool.name}"
@@ -462,8 +469,8 @@ class Installer(object):
 
                             with chdir(tool.name):
                                 sh("git", "fetch")
-                                sh("git", "submodule", "update", "--init")
                                 sh("git", "checkout", tool.commit)
+                                sh("git", "submodule", "update", "--init")
                                 subprocess.run(
                                     [
                                         "bash",
@@ -472,7 +479,7 @@ class Installer(object):
                                         set -e
                                         source {install_dir}/venv/bin/activate
                                         {tool.build_script}
-                                    """,
+                                        """,
                                     ],
                                     env=run_env,
                                     check=True,
@@ -489,13 +496,16 @@ class Installer(object):
                 f.write(
                     textwrap.dedent(
                         f"""\
-                set OL_INSTALL_DIR [file dirname [file normalize [info script]]]
+                        set OL_INSTALL_DIR [file dirname [file normalize [info script]]]
 
-                set ::env(OPENLANE_LOCAL_INSTALL) 1
-                set ::env(OL_INSTALL_DIR) "$OL_INSTALL_DIR"
-                set ::env(PATH) "{":".join(path_elements)}:$::env(PATH)"
-                set ::env(VIRTUAL_ENV) "$OL_INSTALL_DIR/venv"
-                """
+                        set ::env(OPENLANE_LOCAL_INSTALL) 1
+                        set ::env(OL_INSTALL_DIR) "$OL_INSTALL_DIR"
+                        set ::env(PATH) "{":".join(path_elements)}:$::env(PATH)"
+                        set ::env(VIRTUAL_ENV) "$OL_INSTALL_DIR/venv"
+                        if {{ ![info exists ::env(PDK_ROOT) ]}} {{
+                            set ::env(PDK_ROOT) "$OL_INSTALL_DIR/pdks"
+                        }}
+                        """
                     )
                 )
 

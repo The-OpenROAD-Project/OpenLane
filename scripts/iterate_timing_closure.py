@@ -18,7 +18,6 @@
 import re
 import os
 import csv
-import sys
 import glob
 import click
 import shutil
@@ -52,42 +51,6 @@ def openlane(*args_tuple, tag="ol_run"):
 
     if status.returncode != 0:
         raise Exception(f"{args} failed with exit code {status.returncode}")
-
-
-def read_env(config_path: str) -> dict:
-    rx = r"\s*set\s*::env\((.+?)\)\s*(.+)"
-    env = {}
-    string_data = ""
-    try:
-        string_data = open(config_path).read()
-    except FileNotFoundError:
-        print(f"❌ File {config_path} not found.", file=sys.stderr)
-        exit(os.EX_NOINPUT)
-
-    # Process \ at ends of lines, remove semicolons
-    entries = string_data.split("\n")
-    i = 0
-    while i < len(entries):
-        if not entries[i].endswith("\\"):
-            if entries[i].endswith(";"):
-                entries[i] = entries[i][:-1]
-            i += 1
-            continue
-        entries[i] = entries[i][:-1] + entries[i + 1]
-        del entries[i + 1]
-
-    for entry in entries:
-        match = re.match(rx, entry)
-        if match is None:
-            continue
-        name = match[1]
-        value = match[2]
-        # remove double quotes/{}
-        value = value.strip('"')
-        value = value.strip("{}")
-        env[name] = value
-
-    return env
 
 
 def get_run_dir(design: str, run_tag: str) -> str:

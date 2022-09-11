@@ -151,6 +151,9 @@ The following are arguments that can be passed to `flow.tcl`
 | `-drc`  <br>(Boolean) | If enabled, only DRC will be run on the design. in which case the user must also pass: -design DESIGN\_DIR -gds DESIGN\_GDS -report OUTPUT\_REPORT\_PATH -magicrc MAGICRC. |
 | `-save`  <br>(Optional) |  A flag to save a runs results like .mag and .lef in the design's folder. |
 | `-save_path <path>`  <br>(Optional) | Specifies a different path to save the design's result. This option is to be used with the `-save` flag. |
+| `-verbose <level>` <br>(Optional) | Specifies a level of verbosity. 0, the default, only outputs high-level messages. 1 also outputs some of the inner workings of the flow scripts. 2 or higher forwards outputs from _all_ tools to your terminal. |
+| `-test_mismatches <class>` <br>(Optional) | Test for mismatches between the OpenLane tool versions and the current environment. `all`, the default, tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
+| `-ignore_mismatches` | If specified, halts the flow on detected environment mismatches. |
 
 ## Adding a design
 

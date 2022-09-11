@@ -1,5 +1,4 @@
-**THIS PAGE IS STILL UNDER DEVELOPMENT.**
-**THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
+> Note: Information in this document may be out of date. It's always a good idea to take a look at the canonical documentation for OpenROAD's pdngen utility: https://openroad.readthedocs.io/en/latest/main/src/pdn/README.html
 
 # Power Grid/Power Distribution Network
 
