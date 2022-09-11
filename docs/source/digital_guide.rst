@@ -45,7 +45,7 @@ Then we need to create/copy the RTL files. The recommended location for files is
 
 Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 
-.. literalinclude:: ../../design/mem_1r1w/src/mem_1r1w.v
+.. literalinclude:: ../../designs/mem_1r1w/src/mem_1r1w.v
     :language: verilog
 
 
@@ -59,7 +59,7 @@ Configure mem_1r1w
 
 Modify the ``config.json`` to include following:
 
-.. literalinclude:: ../../design/mem_1r1w/config.json
+.. literalinclude:: ../../designs/mem_1r1w/config.json
     :language: json
 
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.

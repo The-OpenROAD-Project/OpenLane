@@ -144,6 +144,7 @@ Step 3. Checking the Docker Installation
 If every thing has been set up correctly, you can run the Docker ``hello-world`` image without root. To test, it use following command:
 
 .. code-block:: shell
+   
    docker run hello-world
 
 You will get a happy little "Hello, world!" message, once again, but this time without root.
