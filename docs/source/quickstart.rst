@@ -7,21 +7,20 @@ Yosys, Magic, Netgen, CVC and KLayout.
 It also provides a number of custom scripts for design exploration, optimization and ECO.
 
 The flow performs a complete synthesis, floorplanning, placement and routing of your designs.
-Currently it supports sky130 PDK but adding custom PDKs is fairly simple.
+Currently, it supports both A and B variants of the sky130 PDK, but there are instructions on porting more PDKs.
 
-The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that flow uses. 
+The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that the flow uses. 
 
-The rest of the tutorial assumes `OpenLane installation <installation>`_ is done.
+The rest of the tutorial assumes `OpenLane installation <installation.rst>`_ is done.
 This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
 
-Starting OpenLane
+Starting the OpenLane Environment
 ------------------------------------------------------------------------
-.. note::
-    If you installed OpenLane following `local installation <local_installs>`_ steps, these instructions will not entirely apply. We no longer actively support local installation.
+.. note:: If you installed OpenLane following `local installation <local_installs.html>`_ steps, these instructions will not entirely apply. We no longer actively support local installation.
 
-OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
+OpenLane uses Docker to create a reproducible environment for your projects. You don't need any extra steps to run the Docker image, as the Makefile already takes care of it. Just run the following commands to enter the OpenLane environment:
 
-.. code-block::
+.. code-block:: console
 
     cd OpenLane/
     make mount
@@ -63,13 +62,13 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.json
 
-``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
-The ``design_name`` could be replaced by the ``design_directory``, which will allow you to run any design on your machine.
+The ``design_name`` could be replaced by the ``design_directory``, which will allow you to run designs from any folder in your machine.
 
 It is recommended to place the design's Verilog files in a ``src`` directory inside the design's folder as following:
 
-.. code-block::
+.. code-block:: console
 
     designs/<design_name>
     ├── config.json
@@ -127,4 +126,3 @@ Here is an example for setting both variables:
     make mount
 
 Keep in mind, that if tool is unable to recognize the git commit, you might want to update the git, not set ``OPENLANE_IMAGE_NAME`` variable.
-
