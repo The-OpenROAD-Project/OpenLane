@@ -17,7 +17,7 @@ This guide covers running the flow on existing desings, adding new designs and q
 Starting OpenLane
 ------------------------------------------------------------------------
 .. note::
-    If you installed OpenLane following `local installation <local_installs>`_ steps, then you are on your own.
+    If you installed OpenLane following `local installation <local_installs>`_ steps, these instructions will not entirely apply. We no longer actively support local installation.
 
 OpenLane uses Docker to create reproducible environment for your projects. You don't need any extra steps to run the Docker image, as Makefile already takes care of it. Just run following command to enter OpenLane environment:
 
@@ -65,9 +65,9 @@ This will create the following directory structure:
 
 ``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
-The ``design_name`` could be  replaced by the ``design_directory``, which will allow you to run any design on your machine.
+The ``design_name`` could be replaced by the ``design_directory``, which will allow you to run any design on your machine.
 
-It is recommended to place the design's verilog files in a ``src`` directory inside the design's folder as following:
+It is recommended to place the design's Verilog files in a ``src`` directory inside the design's folder as following:
 
 .. code-block::
 
