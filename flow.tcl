@@ -190,6 +190,7 @@ proc run_non_interactive_mode {args} {
 
     set steps [dict create \
         "synthesis" "run_synthesis" \
+        "dft" "run_dft" \
         "floorplan" "run_floorplan" \
         "placement" "run_placement_step" \
         "cts" "run_cts_step" \

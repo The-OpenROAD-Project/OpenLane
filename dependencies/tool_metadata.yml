@@ -72,3 +72,16 @@
   build: ''
   in_install: false
   pdk: true
+- name: iverilog
+  repo: https://github.com/steveicarus/iverilog
+  commit: af2b952769b7358a094a336fe2d7c7104b871d9f
+  build: |
+    make clean
+    sh autoconf.sh
+    ./configure --prefix=$PREFIX
+    make -j$(proc)
+    make install
+- name: Fault
+  repo: https://github.com/AUCOHL/Fault
+  commit: 080f4be01d236af438566ce0b28089531f21a997
+  build: ""

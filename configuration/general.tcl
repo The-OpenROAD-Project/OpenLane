@@ -19,6 +19,8 @@ set ::env(CLOCK_PERIOD) "10.0"
 # Flow Controls
 set ::env(RUN_SIMPLE_CTS) 0
 
+set ::env(DFT_ENABLE) 0
+
 set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
 
