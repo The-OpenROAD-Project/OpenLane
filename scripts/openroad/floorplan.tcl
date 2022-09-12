@@ -27,6 +27,10 @@ set arg_list [list]
 lappend arg_list -site $::env(PLACE_SITE)
 
 if {$::env(FP_SIZING) == "absolute"} {
+    if { [llength $::env(DIE_AREA)] != 4 } {
+        puts stderr "Invalid die area string '$::env(DIE_AREA)'."
+        exit -1
+    }
     if { ! [info exists ::env(CORE_AREA)] } {
         set die_ll_x [lindex $::env(DIE_AREA) 0]
         set die_ll_y [lindex $::env(DIE_AREA) 1]
@@ -40,6 +44,10 @@ if {$::env(FP_SIZING) == "absolute"} {
 
         set ::env(CORE_AREA) [list $core_ll_x $core_ll_y $core_ur_x $core_ur_y]
     } else {
+        if { [llength $::env(CORE_AREA)] != 4 } {
+            puts stderr "Invalid core area string '$::env(CORE_AREA)'."
+            exit -1
+        }
         puts "\[INFO] Using the set CORE_AREA; ignoring core margin parameters"
     }
 
