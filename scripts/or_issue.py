@@ -218,7 +218,8 @@ def issue(
                     use: List[str]
                     full, accessor, extra = use
                     env_keys_used.add(key)
-                    print(f"Found {accessor}…", file=sys.stderr)
+                    if verbose:
+                        print(f"Found {accessor}…", file=sys.stderr)
 
                     value_substituted = full.replace(accessor, value)
 
