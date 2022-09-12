@@ -1,5 +1,3 @@
-# This file is unused. Building Klayout simply takes too damn long.
-
 # Copyright 2020-2021 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");

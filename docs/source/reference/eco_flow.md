@@ -1,7 +1,7 @@
 # The ECO Flow (Alpha)
 The ECO flow starts from checking the report generated in the route step. A python script is used to check the report, insert buffers, and do the resize. Inside the ECO loop, the python script, cts and route step are called sequentially.  The reports are generated each time, and the loop stops until no hold time violations are found. See overview diagram below:
 
-![image](../_static/eco_flow.png)
+![image](../../_static/eco_flow.png)
 
 > Note: The ECO flow is in very early alpha and is only compatible with the `sky130_fd_sc_hd` standard cell library in sky130 PDK variants.
 
@@ -30,7 +30,7 @@ For the 1st iteration, the design has 131 hold violations with a -1.48 worst cas
 The following table shows the timing results of the ECO flow for each ECO iteration:
 
 
-![image](../_static/eco_results.png)
+![image](../../_static/eco_results.png)
 
 
 ## How to enable the ECO flow

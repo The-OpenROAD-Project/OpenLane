@@ -1,4 +1,4 @@
-# Building the PDK
+# Custom-Building PDKs
 The pre-built version of the sky130 PDK variants included with OpenLane includes the following standard cell libraries:
 * sky130_fd_io
 * sky130_fd_pr

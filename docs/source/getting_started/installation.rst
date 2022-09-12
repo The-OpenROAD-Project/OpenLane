@@ -144,6 +144,7 @@ Step 3. Checking the Docker Installation
 If every thing has been set up correctly, you can run the Docker ``hello-world`` image without root. To test, it use following command:
 
 .. code-block:: shell
+
    docker run hello-world
 
 You will get a happy little "Hello, world!" message, once again, but this time without root.
@@ -172,7 +173,7 @@ You will get a happy little "Hello, world!" message, once again, but this time w
    https://docs.docker.com/get-started/
 
 
-Troubleshooting Step 3.
+Troubleshooting Step 3
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 If you get Docker permission error when running any Docker images:
@@ -319,7 +320,7 @@ On Linux, you can open the final layout of the test design using KLayout. This w
    # Leave the Docker
    exit
 
-.. image:: ../_static/installation/spm.png
+.. image:: ../../_static/installation/spm.png
 
 
 Updating OpenLane

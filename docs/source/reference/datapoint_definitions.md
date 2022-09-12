@@ -1,4 +1,4 @@
-# Datapoint Definitions
+# Report Data Definitions
 ***NOTE:** The value `-1`, if not meaningful, indicates that the report/log from which the information is extracted wasn't found (the stage responsible for it was skipped or failed).
 
 ## Default Printed Information Variables
@@ -27,7 +27,7 @@
 | `antenna_violations`   | The total number of antenna violations in the design. Extracted from Magic antenna check or OpenROAD ARC.        |
 | `lvs_total_errors`   | The total number of mismatches and differences between the final layout and the netlist of the design. Extracted from Netgen LVS report.        |
 | `cvc_total_errors`   | The total number of electric errors detected by CVC. Extracted from CVC report.        |
-| `klayout_violations`   | The total number of klayout drc violations in the design. Extracted from klayout drc report ran on the magic generated GDS-II.        |
+| `klayout_violations`   | The total number of klayout drc violations in the design. Extracted from klayout drc report ran on the magic generated GDSII.        |
 | `wire_length`   | The total wire length in the design. Extracted from tritonRoute logs.        |
 | `vias`   | The number of vias in the final design. Extracted from tritonRoute logs.        |
 | `wns`   | Worst Negative Slack. Reported after Synthesis. Extracted from OpenSTA.        |
@@ -100,4 +100,4 @@
 
 ## Optional variables
 
-These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](../docs/source/configuration.md) for the full list of configurations.
+These variables are optional that can be specified in the configuration parameters file. Please refere to this [file](./configuration.md) for the full list of configurations.

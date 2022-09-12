@@ -40,7 +40,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `TECH_LEF` | Points to the path of the tech lef used for nominal corner extraction. |
 | `TECH_LEF_MAX` | Points to the path of the tech lef used for maximum corner extraction. (Optional) |
 | `CELLS_LEF` | A list of paths to the cells lef views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/lef/*.lef"]` |
-| `GDS_FILES` | A list of paths to the cells GDS-II views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/gds/*.gds"]` |
+| `GDS_FILES` | A list of paths to the cells GDSII views. Recommended to use wild card to catch all the files as follows: `[glob "$::env(PDK_ROOT)/sky130A/libs.ref/$::env(STD_CELL_LIBRARY)/gds/*.gds"]` |
 | `MAGIC_TECH_FILE` | Points to the magic tech file which mainly has drc rules. |
 | `KLAYOUT_TECH` | Points to the klayout tech file (.lyt). |
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |

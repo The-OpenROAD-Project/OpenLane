@@ -36,7 +36,7 @@ import subprocess
 @click.argument("input_def")
 def open_design(input_lef, pdk_root, pdk, input_def):
     """
-    Opens a design in Klayout.
+    Opens a design in KLayout.
     """
     dir = os.path.dirname(__file__)
     klayout_script_path = os.path.join(dir, "open_design.py")

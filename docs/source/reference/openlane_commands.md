@@ -1,15 +1,10 @@
-# OpenLane Interactive Mode Commands
+# Tcl Commands
 
-This page describes the list of commands available in openlane, their functionality, and their expected inputs and outputs.
+This page describes the list of commands available in OpenLane, their functionality, and their expected inputs and outputs.
 
 **NOTE:** You must run the `prep` command before running any of the other commands, in order to have the necessary files and configurations loaded.
 
-The Following list is available in the interactive mode: `./flow.tcl -interactive` and under:
-```
-% package require openlane 0.9
-```
-Which runs automatically when you enter the interactive mode.
-
+The following commands are available in the interactive mode: `./flow.tcl -interactive`, or in Tclsh using `% package require openlane 0.9`.
 
 ## General Commands
 
@@ -259,25 +254,25 @@ Most of the following commands' implementation exists in this [file][6]
 |    | `-output <output_file>` | The output mag file path. |
 | `run_magic_antenna_check` | | Runs spice extractions on the processed design and performs antenna checks. The resulting file is under `/<run_path>/results/magic/` and `/<run_path>/reports/magic/` . |
 
-## Klayout Commands
+## KLayout Commands
 
 Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDS-II, generates a PNG screenshot, then runs Klayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
-| `scrot_klayout` | | Export a PNG view of a given GDS-II or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
+| `run_klayout` | | Streams the back-up final GDSII, generates a PNG screenshot, then runs KLayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `scrot_klayout` | | Export a PNG view of a given GDSII or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
 |    | `[-log <log_file>]` | Output log file. |
 |    | `[-layout <layout_file>]` | The input GDS or DEF file, the default is `::env(CURRENT_GDS)`. |
-| `run_klayout_drc` | | Runs Klayout DRC on a given GDS-II file. This is controlled by `RUN_KLAYOUT_DRC`. |
+| `run_klayout_drc` | | Runs KLayout DRC on a given GDSII file. This is controlled by `RUN_KLAYOUT_DRC`. |
 |    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
 |    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` implies that the drc was run on the default GDS which is produced by magic. |
-| `run_klayout_gds_xor` | | Runs Klayout XOR on 2 GDS-IIs. This is controlled by `RUN_KLAYOUT_XOR` and `KLAYOUT_XOR_GDS` and `KLAYOUT_XOR_XML`. |
-|    | `[-layout1 <gds_file>]` | The input GDS file, the default is the magic generated GDS-II under `<run_path>/results/magic/<design_name>.gds`. |
-|    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDS-II under `<run_path>/results/klayout/<design_name>.gds`. |
+| `run_klayout_gds_xor` | | Runs KLayout XOR on 2 GDSIIs. This is controlled by `RUN_KLAYOUT_XOR` and `KLAYOUT_XOR_GDS` and `KLAYOUT_XOR_XML`. |
+|    | `[-layout1 <gds_file>]` | The input GDS file, the default is the magic generated GDSII under `<run_path>/results/magic/<design_name>.gds`. |
+|    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDSII under `<run_path>/results/klayout/<design_name>.gds`. |
 |    | `[-output_gds <gds_file>]` | The output GDS file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.gds`. |
 |    | `[-output_xml <xml_file>]` | The output XML file with the xor result, the default under `<run_path>/results/klayout/<design_name>.xor.xml`. |
-| `open_in_klayout` | | Opens a design in the Klayout GUI with MERGED_LEF for the cell/macro definitions. Useful as it works around Klayout's LEF import peculiarities. |
+| `open_in_klayout` | | Opens a design in the KLayout GUI with MERGED_LEF for the cell/macro definitions. Useful as it works around KLayout's LEF import peculiarities. |
 |    | `[-layout <def_file>]` | The input DEF file, the default is `::env(CURRENT_DEF)`. |
 
 ## LVS Commands
@@ -343,22 +338,22 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
 
 
-[0]: ./../../scripts/tcl_commands/all.tcl
-[1]: ./../../scripts/tcl_commands/checkers.tcl
-[2]: ./../../scripts/tcl_commands/cts.tcl
-[3]: ./../../scripts/tcl_commands/floorplan.tcl
-[4]: ./../../scripts/tcl_commands/init_design.tcl
-[5]: ./../../scripts/tcl_commands/lvs.tcl
-[6]: ./../../scripts/tcl_commands/magic.tcl
-[7]: ./../../scripts/tcl_commands/placement.tcl
-[8]: ./../../scripts/tcl_commands/routing.tcl
-[9]: ./../../scripts/tcl_commands/synthesis.tcl
-[10]: ./../../scripts/utils/deflef_utils.tcl
-[11]: ./../../scripts/utils/fake_display_buffer.tcl
-[12]: ./../../scripts/utils/utils.tcl
-[13]: ./../../docs/source/configuration.md
+[0]: ./../../../scripts/tcl_commands/all.tcl
+[1]: ./../../../scripts/tcl_commands/checkers.tcl
+[2]: ./../../../scripts/tcl_commands/cts.tcl
+[3]: ./../../../scripts/tcl_commands/floorplan.tcl
+[4]: ./../../../scripts/tcl_commands/init_design.tcl
+[5]: ./../../../scripts/tcl_commands/lvs.tcl
+[6]: ./../../../scripts/tcl_commands/magic.tcl
+[7]: ./../../../scripts/tcl_commands/placement.tcl
+[8]: ./../../../scripts/tcl_commands/routing.tcl
+[9]: ./../../../scripts/tcl_commands/synthesis.tcl
+[10]: ./../../../scripts/utils/deflef_utils.tcl
+[11]: ./../../../scripts/utils/fake_display_buffer.tcl
+[12]: ./../../../scripts/utils/utils.tcl
+[13]: ./configuration.md
 [14]: https://github.com/The-OpenROAD-Project/openlane/blob/master/designs/spm/pin_order.cfg
-[15]: ./chip_integration.md
-[16]: ./advanced_power_grid_control.md
-[17]: ./../../scripts/tcl_commands/klayout.tcl
-[18]: ./../../scripts/tcl_commands/cvc.tcl
+[15]: ../usage/chip_integration.md
+[16]: ../usage/advanced_power_grid_control.md
+[17]: ./../../../scripts/tcl_commands/klayout.tcl
+[18]: ./../../../scripts/tcl_commands/cvc.tcl
