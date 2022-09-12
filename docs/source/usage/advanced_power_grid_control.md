@@ -1,5 +1,4 @@
-**THIS PAGE IS STILL UNDER DEVELOPMENT.**
-**THE INFORMATION HERE MIGHT BE PARTIALLY INCORRECT OR OUTDATED.**
+> Note: Information in this document may be out of date. It's always a good idea to take a look at the canonical documentation for OpenROAD's pdngen utility: https://openroad.readthedocs.io/en/latest/main/src/pdn/README.html
 
 # Power Grid/Power Distribution Network
 
@@ -11,7 +10,7 @@ An example utilizing the controls and logic provided in this documentation is [c
 
 > **Note**: When we say "your configurations" in this documentation we are refering to the `config.json` or `config.tcl` for that specific block.
 
-## Chip Level:
+## Chip Level
 
 According to the current methodology of [OpenLane Chip Integration][0], the process goes as follows:
 1. Hardening the hard/internal macros.
@@ -20,7 +19,7 @@ According to the current methodology of [OpenLane Chip Integration][0], the proc
 
 Therefore at the top level typically you only have the core block. All you need to do in that step is to verify that the power pads are in the middle of each padframe side, and then add this line to your interactive script: `power_routing` After legalization and before signal routing. However, this only supports a single power domain. Otherwise, you need to manually connect the power pads to the core ring of your core module.
 
-## Core Level:
+## Core Level
 
 Let's clarify here, before delving into details, that with each hierarchy level you lose one routing metal layer. For example, in the skywater pdk the metal stack has 5 layers, thus for the core level you can use all layers up to met5; however, if you have another macro inside your core, that macro can only use up to met4, and so forth.
 

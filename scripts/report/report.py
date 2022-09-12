@@ -496,7 +496,7 @@ class Report(object):
                 # Not really sure why we do this
                 magic_violations = (magic_violations_raw + 3) // 4
 
-        # Klayout DRC Violations
+        # KLayout DRC Violations
         klayout_drc = Artifact(rp, "reports", "signoff", "magic.lydrc", True)
         klayout_drc_content = klayout_drc.get_content()
 

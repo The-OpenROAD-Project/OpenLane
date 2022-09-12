@@ -1,4 +1,4 @@
-# Configuration Files
+# Design Configuration Files
 Each OpenLane-compatible design must come with a configuration file. These configuration files can be written in one of two grammars: JSON or Tcl.
 
 Tcl offers more flexibility at the detriment of security, while JSON is more straightforward at the cost of flexbility. While Tcl allows you to do all manners of computation on your variables, JSON has a limited expression engine that will be detailed later in this document. Nevertheless, for security (and future-proofing), we recommend you use the JSON format.
@@ -177,7 +177,7 @@ if { [file exists $filename] == 1} {
 This implies that if the `{PDK}_{STD_CELL_LIBRARY}_config.tcl` doesn't exist for a specific technology combination the flow would resume normally with only the global config.tcl.
 
 This structure allows for storing the best configurations for a given design on all different PDKs and their STD_CELL_LIBRARYs. The best configuration for a given design differ from one PDK and STD_CELL_LIBRARY to another.
-For this reason, upon installing a new PDK/STD_CELL_LIBRARY or a new design, an exploration should be run on different configuration parameters to reach the best configuration. The script that enables this is documented [here][1]. 
+For this reason, upon installing a new PDK/STD_CELL_LIBRARY or a new design, an exploration should be run on different configuration parameters to reach the best configuration. The script that enables this is documented [here][exploration_script]. 
 After running the exploration, you will find in the logs two .csv newly generated files: `{tag}_{timestamp}.csv` and `{tag}_{timestamp}_best.csv`. The configuration name reported in the _best.csv file contains the best added configurations to the current run of the given design using the specified PDK/STD_CELL_LIBRARY.
 
 Two scripts were created for this purpose:
@@ -207,11 +207,10 @@ To run the script to update configurations for a (PDK,STD_CELL_LIBRARY) pair aft
 
 You can invoke `python3 ./scripts/config/update.py` for a full list of options.
 
-Check [this][1] for more details on the log files.
+Check [this][exploration_script] for more details on the log files.
 
 > **Note 1:** `update.py` skips designs that fail during the exploration, which means their `flow_status` is not `flow_completed`.
 >
 > **Note 2:** The `update.py` script only copies new configuration to the file. The new configurations are marked with a preceeding `# Regression` comment that is automatically written before them by the exploration script. However, the `replicate.py` script copies the whole file.
 
-[1]: ../../regression_results/README.md
-[2]: ../../configuration/README.md
+[exploration_script]: ../usage/exploration_script.md

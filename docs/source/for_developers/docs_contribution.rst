@@ -1,7 +1,7 @@
-Documentation Contributors guide
+Contributing Docs
 ================================================================================
 
-.. note:: This page is for documentation contributors. For prospecting OpenLane contributors, please see `CONTRIBUTING.md <../../CONTRIBUTING.html>`_
+.. note:: This page is for documentation contributors. For prospecting code contributors, please see `Code Contributions <../../CONTRIBUTING.html>`_
 
 Introduction
 --------------------------------------------------------------------------------
@@ -11,9 +11,7 @@ while staying readable, up-to-date and clean.
 This page covers installation of required tools
 and outlines simple principles to be followed when writing documentation.
 
-.. note:: To simply fix typos, you do not need to install anything.
-Pull requests can be created from the relevant ReadTheDocs page,
-using GitHub's editor.
+.. note:: To simply fix typos, you do not need to install anything. Pull requests can be created from the relevant ReadTheDocs page, using GitHub's editor.
 
 For more complex documentation, it is recommended to follow these steps:
 
@@ -31,8 +29,8 @@ For more complex documentation, it is recommended to follow these steps:
 7. Rebuild documentation and repeat.
 8. Once satisfied, commit the changes to your repository using git.
 9. Create a pull request to the main repository, so the maintainers can review your changes.
-13. Maintainers may request some tweaks (or do the tweaks themselves.) Execute them and then push the changes again.
-14. Once changes are approved they will be merged and then you can delete your branch or repository.
+10. Maintainers may request some tweaks (or do the tweaks themselves.) Execute them and then push the changes again.
+11. Once changes are approved they will be merged and then you can delete your branch or repository.
 
 .. _building_docs_locally:
 
@@ -88,16 +86,17 @@ If you want to create new category than take a look at the source code of existi
 Writing Style and Consistency
 --------------------------------------------------------------------------------
 
-* New documentation should be written in reStructuredText not Markdown. Take a look at existing RST documentation to get a glimpse of its syntax.
+* New documentation should be written in [MyST Markdown](https://myst-parser.readthedocs.io/en/latest/), a flavor of Markdown with some RST extensions.
 * Use ``of`` instead of ``'``, for example: ``Docker's Installation`` → ``after the installation of Docker``.
-* Instead of ``don't`` and ``can't`` use full forms: ``do not`` and ``cannot``
+* Avoid contractions: Substitute ``don't`` and ``can't`` for ``do not`` and ``cannot``
 * The first command of the page should have `cd` in it to specify where you are running and all following commands assume the continuation of the session and don't need the cd command.
-* In Markdown avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
+* Avoid using same header type both for the title of the document and its content. It looks awful in the table of content.
+  * To that end, only use ``#`` once at the beginning of the document.
 
 Terms Consistency
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In order to improve the readability of the documentation, please use and capitalize trademarks properly. Some examples you can see below:
+In order to improve the readability of the documentation, please use and capitalize names and trademarks properly. Some examples you can see below:
 
 .. code-block::
 
@@ -105,10 +104,9 @@ In order to improve the readability of the documentation, please use and capital
     OpenRoad → OpenROAD
     Mac OS X → macOS
     MAGIC → Magic
-    open source → open-source
     Skywater130 → sky130
     Klayout → KLayout
-    Pip -> pip or PIP 
+    Pip -> pip 
 
 * For technical terms, use the following terms preferred by OpenROAD documentation for consistency:
 
@@ -119,6 +117,8 @@ In order to improve the readability of the documentation, please use and capital
     pad cell → padcell
     key value pair → key-value pair
     micrometre → micron (or, micrometer)
+
+.. note:: Also, when documenting micrometer-based variables, use the actual unicode character "μ", not "u", to avoid potential confusion. It's Alt+230 on Windows, Alt+M on macOS and on Linux, press the Compose Key then type ``mu``.
 
 Taking screenshots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -164,15 +164,15 @@ Your ``code-block`` s do not look like they are supposed to
 
 How it looks:
 
-.. image:: ../_static/docs_contribution/code_block_issue.png
+.. image:: ../../_static/docs_contribution/code_block_issue.png
 
 How it is supposed to look:
 
-.. image:: ../_static/docs_contribution/code_block_supposed_look.png
+.. image:: ../../_static/docs_contribution/code_block_supposed_look.png
 
 This is because ``code-blocks`` need to have empty lines around code sections, like shown in the picture below:
 
-.. image:: ../_static/docs_contribution/code_block_spaces_around_the_code.png
+.. image:: ../../_static/docs_contribution/code_block_spaces_around_the_code.png
 
 ``pip`` module related errors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

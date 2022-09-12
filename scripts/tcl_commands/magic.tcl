@@ -20,7 +20,7 @@ proc run_magic {args} {
     # |----------------   6. TAPE-OUT ---------------------|
     # |----------------------------------------------------|
     set log [index_file $::env(signoff_logs)/gdsii.log]
-    puts_info "Streaming out GDS-II with Magic (log: [relpath . $log])..."
+    puts_info "Streaming out GDSII with Magic (log: [relpath . $log])..."
     # the following MAGTYPE better be mag for clean GDS generation
     # use load -dereference to ignore it later if needed
 
@@ -101,7 +101,7 @@ proc run_magic_drc {args} {
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
 
-    puts_info "Converting Magic DRC Violations to Klayout XML Database..."
+    puts_info "Converting Magic DRC Violations to KLayout XML Database..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt

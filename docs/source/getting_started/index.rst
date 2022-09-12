@@ -6,4 +6,5 @@ Getting Started
 
 
    installation
+   installation_local
    quickstart

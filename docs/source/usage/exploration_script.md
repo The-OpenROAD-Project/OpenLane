@@ -1,8 +1,4 @@
 # Regression & Exploration
-
-
-
-
 ## Overview
 OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). For examples, check the [Usage](#usage) section. 
 
@@ -10,7 +6,7 @@ Also, it can be used for testing the flow by running the flow against several de
 ```
 python3 run_designs.py --tag test --threads 3 spm xtea des aes256 
 ```
-## Default Test Set Results:
+## Default Test Set Results
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
@@ -24,7 +20,7 @@ You can view the results of the run against some designs (more [here](#usage)) a
 
 ## Usage
 
-- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [columns_defintions.md][21] for more details on the reported configuration parameters.
+- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [columns_defintions.md](../reference/datapoint_definitions.md) for more details on the reported configuration parameters.
 
 The script can be used in two ways
 
@@ -34,7 +30,7 @@ The script can be used in two ways
     python3 run_designs.py --threads 4 spm xtea PPU APU
     ```
 
-    You can run the default test set consisting of all designs under [./designs](../designs/) through running the following command along with any of the flags:
+    You can run the default test set consisting of all designs under [designs](../../../designs/) through running the following command along with any of the flags:
     
     ```bash
     python3 run_design.py --defaultTestSet
@@ -119,5 +115,3 @@ The script can be used in two ways
 
 ## Command line arguments
 `python3 ./run_designs.py --help`
-
-[21]: ./datapoint_definitions.md

@@ -1,17 +1,10 @@
-Quick start
+Quick-Start Guide
 =======================
 Overview
 ------------------------------------
-OpenLane is an automated RTL-to-GDSII flow that uses open-source tools like OpenROAD,
-Yosys, Magic, Netgen, CVC and KLayout.
-It also provides a number of custom scripts for design exploration, optimization and ECO.
 
-The flow performs a complete synthesis, floorplanning, placement and routing of your designs.
-Currently, it supports both A and B variants of the sky130 PDK, but there are instructions on porting more PDKs.
+.. note:: This page assumes `OpenLane installation <installation.rst>`_ is done. If you have not yet installed OpenLane, please visit the link and follow the instructions there.
 
-The tool encapsulates the underlying tools to allow users to configure them all in one place: ``config.json/tcl``. This file contains assignments to the variables that the flow uses. 
-
-The rest of the tutorial assumes `OpenLane installation <installation.rst>`_ is done.
 This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
 
 Starting the OpenLane Environment
@@ -109,7 +102,7 @@ The main files are a configuration file and a ``src/`` folder that contains sour
 You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
 
 Advanced: Using custom PDK locations and OpenLane Docker images
------------------------------------------------------------
+---------------------------------------------------------------
 .. warning::
     If you accidently use the wrong version of a PDK or the OpenLane Docker image,  then you may have *significant issues* down the line. If you don't know what you're doing, this section is not for you.
 
