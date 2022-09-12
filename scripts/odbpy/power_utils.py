@@ -107,7 +107,7 @@ def write_powered_def(
         print(f"Ground port {ground_port} not found in design.", file=sys.stderr)
         nets_not_found = True
     if nets_not_found:
-        exit(0)
+        exit(os.EX_DATAERR)
 
     print(f"Found default power net '{vdd_net.getName()}'")
     print(f"Found default ground net '{gnd_net.getName()}'")

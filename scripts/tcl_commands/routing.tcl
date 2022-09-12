@@ -317,14 +317,18 @@ proc run_spef_extraction {args} {
     set options {
         {-save required}
         {-log required}
+        {-rcx_def optional}
         {-rcx_lib optional}
+        {-rcx_lef optional}
         {-rcx_rules optional}
         {-process_corner optional}
     }
     parse_key_args "run_spef_extraction" args arg_values $options
 
     set_if_unset arg_values(-rcx_lib) $::env(LIB_SYNTH_COMPLETE)
+    set_if_unset arg_values(-rcx_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-rcx_rules) $::env(RCX_RULES)
+    set_if_unset arg_values(-rcx_def) $::env(CURRENT_DEF)
 
 
     increment_index
@@ -344,6 +348,8 @@ proc run_spef_extraction {args} {
     }
 
 
+    set ::env(RCX_DEF) $arg_values(-rcx_def)
+    set ::env(RCX_LEF) $arg_values(-rcx_lef)
     set ::env(RCX_LIB) $arg_values(-rcx_lib)
     set ::env(RCX_RULESET) $arg_values(-rcx_rules)
     assert_files_exist "$::env(RCX_RULESET) $::env(RCX_LIB)"
@@ -352,6 +358,8 @@ proc run_spef_extraction {args} {
         -save "odb=/dev/null,spef=$arg_values(-save)"
     unset ::env(RCX_LIB)
     unset ::env(RCX_RULESET)
+    unset ::env(RCX_LEF)
+    unset ::env(RCX_DEF)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - openroad"

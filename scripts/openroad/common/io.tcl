@@ -41,11 +41,14 @@ proc read_libs {args} {
     set libs $::env(LIB_SYNTH_COMPLETE)
 
     if { [info exists keys(-override)] } {
-        set libs $::env(LIB_SYNTH_COMPLETE)
+        set libs $keys(-override)
     }
 
     if { [info exists flags(-multi_corner)] } {
-        define_corners ss tt ff; # tt unintuitively first because that makes it the "default"
+        # Note that the one defined first is the "default": meaning you
+        # shouldn't use -multi_corner for scripts that do not explicitly
+        # specify the corners for STA calls.
+        define_corners ss tt ff;
 
         foreach lib $::env(LIB_SLOWEST) {
             read_liberty -corner ss $lib
@@ -158,6 +161,6 @@ proc write {args} {
 
     if { [info exists ::env(SAVE_SDF)] } {
         puts "Writing SDF to $::env(SAVE_SDF)..."
-        write_sdf $::env(SAVE_SDF)
+        write_sdf -include_typ -divider . $::env(SAVE_SDF)
     }
 }
