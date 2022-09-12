@@ -30,7 +30,10 @@ proc groute_antenna_extract {args} {
 }
 
 proc global_routing_fastroute {args} {
+    increment_index
+    TIMER::timer_start
     set log [index_file $::env(routing_logs)/global.log]
+    puts_info "Running Global Routing (log: [relpath . $log])..."
 
     set initial_def [index_file $::env(routing_tmpfiles)/global.def]
     set initial_guide [index_file $::env(routing_tmpfiles)/global.guide]
@@ -72,6 +75,7 @@ proc global_routing_fastroute {args} {
                 puts_info "\[Iteration $iter\] Failed to reduce antenna violations ($minimum_antennae -> $antennae), stopping iterations..."
                 set ::env(SAVE_DEF) $minimum_def
                 set ::env(SAVE_GUIDE) $minimum_guide
+                set ::env(SAVE_ODB) $minimum_odb
                 break
             } else {
                 puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennae -> $antennae)"
@@ -80,6 +84,7 @@ proc global_routing_fastroute {args} {
                 set minimum_odb $::env(SAVE_ODB)
                 set minimum_antennae [groute_antenna_extract -from_log [groute_antenna_extract -from_log $log]]
             }
+            incr iter
         }
     }
 
@@ -89,6 +94,15 @@ proc global_routing_fastroute {args} {
     unset ::env(SAVE_DEF)
     unset ::env(SAVE_GUIDE)
     unset ::env(SAVE_ODB)
+
+    write_verilog\
+        $::env(routing_tmpfiles)/global.nl.v\
+        -powered_to $::env(routing_tmpfiles)/global.pnl.v\
+        -indexed_log [index_file $::env(routing_logs)/global_write_netlist.log]
+
+    TIMER::timer_stop
+
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - openroad"
 }
 
 proc global_routing_cugr {args} {
@@ -96,21 +110,11 @@ proc global_routing_cugr {args} {
 }
 
 proc global_routing {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Running Global Routing..."
-
-    set tool "openroad"
     if { $::env(GLOBAL_ROUTER) == "cugr" } {
         puts_warn "CU-GR is no longer supported. OpenROAD fastroute will be used instead."
-        set ::env(GLOBAL_ROUTER) "fastroute"
     }
 
     global_routing_fastroute
-
-    TIMER::timer_stop
-
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - $tool"
 }
 
 proc detailed_routing_tritonroute {args} {
@@ -170,7 +174,7 @@ proc ins_fill_cells {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/fill.tcl\
         -indexed_log [index_file $::env(routing_logs)/fill.log]\
-        -save "to=$::env(routing_tmpfiles),name=fill,def,odb"
+        -save "to=$::env(routing_tmpfiles),name=fill,def,odb,netlist,powered_netlist"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "fill insertion - openroad"
@@ -227,9 +231,6 @@ proc ins_diode_cells_1 {args} {
         -indexed_log [index_file $::env(routing_logs)/diodes.log]\
         -save "to=$::env(routing_tmpfiles),name=diodes,def,odb,netlist,powered_netlist"
 
-    write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v -log $::env(routing_logs)/write_verilog.with_diodes.log
-    set_netlist $::env(routing_results)/$::env(DESIGN_NAME)_diodes.v
-
     TIMER::timer_stop
 
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
@@ -276,11 +277,6 @@ proc ins_diode_cells_4 {args} {
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
-
-    # Update netlist
-    write_verilog $::env(routing_results)/$::env(DESIGN_NAME)_diodes.nl.v\
-        -powered_to $::env(routing_results)/$::env(DESIGN_NAME)_diodes.pnl.v\
-        -log $::env(routing_logs)/write_verilog.with_diodes.log
 }
 
 proc apply_route_obs {args} {
@@ -366,7 +362,7 @@ proc run_spef_extraction {args} {
 }
 
 proc run_routing {args} {
-    puts_info "Routing..."
+    puts_verbose "Starting routing process..."
 
     # |----------------------------------------------------|
     # |----------------   5. ROUTING ----------------------|
@@ -409,11 +405,6 @@ proc run_routing {args} {
         # detailed router to suffer later.
         ins_fill_cells
     }
-
-    write_verilog\
-        [index_file $::env(routing_tmpfiles)/grt.nl.v]\
-        -powered_to [index_file $::env(routing_tmpfiles)/grt.pnl.v]\
-        -log $::env(routing_logs)/write_verilog_global.log
 
     # detailed routing
     detailed_routing

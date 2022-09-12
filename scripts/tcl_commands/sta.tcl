@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ proc run_parasitics_sta {args} {
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
                 -rcx_rules $::env($ruleset)\
+                -rcx_lef $::env($lef)\
                 -process_corner $process_corner \
                 -save "$::env(SPEF_PREFIX).$process_corner.spef"
 

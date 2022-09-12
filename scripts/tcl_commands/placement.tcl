@@ -79,7 +79,7 @@ proc detailed_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl\
         -indexed_log $log\
-        -save "to=$arg_values(-outdir),name=$arg_values(-name),noindex,def,odb"
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),noindex,def,odb,netlist,powered_netlist"
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
         puts "Error: Check $log"

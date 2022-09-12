@@ -1060,20 +1060,20 @@ proc label_macro_pins {args} {
 
 
 proc write_verilog {args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Writing Verilog..."
-
     set options {
         {-def optional}
-        {-log optional}
+        {-indexed_log optional}
         {-powered_to optional}
     }
     set flags {}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
-    set_if_unset arg_values(-log) /dev/null
+    set_if_unset arg_values(-indexed_log) /dev/null
+
+    increment_index
+    TIMER::timer_start
+    puts_info "Writing Verilog (log: [relpath . $arg_values(-indexed_log)])..."
 
     set filename [lindex $args 0]
 
@@ -1087,7 +1087,7 @@ proc write_verilog {args} {
     }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
-        -indexed_log [index_file $arg_values(-log)]\
+        -indexed_log $arg_values(-indexed_log)\
         -save $save_arg
 
     set $::env(CURRENT_DEF) $current_def_backup
