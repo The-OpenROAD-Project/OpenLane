@@ -231,30 +231,33 @@ def write_powered_def(
         for port in pg_ports:
             net = port.getNet()
             iterms = net.getITerms()
-            inst_name = iterm.getInst().getName()
-            pin_name = iterm.getMTerm().getName()
-            port_name = port.getName()
+            for iterm in iterms:
+                inst_name = iterm.getInst().getName()
+                pin_name = iterm.getMTerm().getName()
+                port_name = port.getName()
 
-            original_inst = reader.block.findInst(inst_name)
-            if original_inst is None:
-                print(
-                    f"Instance {inst_name} was not found in the original netlist.",
-                    file=sys.stderr,
-                )
-                exit(os.EX_DATAERR)
+                original_inst = reader.block.findInst(inst_name)
+                if original_inst is None:
+                    print(
+                        f"Instance {inst_name} was not found in the original netlist.",
+                        file=sys.stderr,
+                    )
+                    exit(os.EX_DATAERR)
 
-            original_iterm = original_inst.findITerm(pin_name)
-            if original_iterm is None:
-                print(f"Pin {inst_name}/{pin_name} not found in the original netlist.")
-                exit(os.EX_DATAERR)
+                original_iterm = original_inst.findITerm(pin_name)
+                if original_iterm is None:
+                    print(
+                        f"Pin {inst_name}/{pin_name} not found in the original netlist."
+                    )
+                    exit(os.EX_DATAERR)
 
-            original_port = find_power_ground_port(port_name, VDD_PORTS + GND_PORTS)
-            if original_port is None:
-                print(f"Port {original_port} not found in the original netlist.")
-                exit(os.EX_DATAERR)
+                original_port = find_power_ground_port(port_name, VDD_PORTS + GND_PORTS)
+                if original_port is None:
+                    print(f"Port {original_port} not found in the original netlist.")
+                    exit(os.EX_DATAERR)
 
-            original_iterm.connect(original_port.getNet())
-            print(f"Connected {port_name} to {inst_name}/{pin_name}.")
+                original_iterm.connect(original_port.getNet())
+                print(f"Connected {port_name} to {inst_name}/{pin_name}.")
 
     odb.write_def(reader.block, output)
 
