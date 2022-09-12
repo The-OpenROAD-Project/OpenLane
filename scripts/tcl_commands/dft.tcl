@@ -15,7 +15,7 @@ proc run_dft {args} {
     if { $::env(DFT_ENABLE) } {
         fault_chain \
             -verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v \
-            -liberty $::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_100C_1v80.lib \
+            -liberty $::env(LIB_SYNTH) \
             -clock $::env(CLOCK_PORT) \
             -reset $::env(RESET_PORT) \
             -output $::env(synthesis_results)/$::env(DESIGN_NAME).v
@@ -24,7 +24,7 @@ proc run_dft {args} {
 
         fault_tap \
             -verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v \
-            -liberty $::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_100C_1v80.lib \
+            -liberty $::env(LIB_SYNTH) \
             -clock $::env(CLOCK_PORT) \
             -reset $::env(RESET_PORT) \
             -output $::env(synthesis_results)/$::env(DESIGN_NAME).v
