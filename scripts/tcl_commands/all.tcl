@@ -228,7 +228,7 @@ proc trim_lib {args} {
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
 
     set no_synth_list "$::env(NO_SYNTH_CELL_LIST)"
-    if { [info exists $::env(NO_SYNTH_CELL_LIST_OPT)] } {
+    if { [info exists ::env(NO_SYNTH_CELL_LIST_OPT)] } {
         set no_synth_list "$no_synth_list $::env(NO_SYNTH_CELL_LIST_OPT)"
     }
 
