@@ -105,7 +105,7 @@ In order to improve the readability of the documentation, please use and capital
     Mac OS X → macOS
     MAGIC → Magic
     Skywater130 → sky130
-    KLayout → KLayout
+    Klayout → KLayout
     Pip -> pip 
 
 * For technical terms, use the following terms preferred by OpenROAD documentation for consistency:
