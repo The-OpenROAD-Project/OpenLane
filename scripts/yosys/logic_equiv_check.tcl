@@ -18,6 +18,7 @@ if { [info exists ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
 }
 set decap_cell_wildcard "$::env(DECAP_CELL)*"
 set fill_cell_wildcard "$::env(FILL_CELL)*"
+set buff_ef_cell_wildcare sky130_ef_sc_hd__decap*
 
 set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
@@ -35,10 +36,11 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	}
 }
 foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
 read_verilog $::env(LEC_LHS_NETLIST)
+hierarchy -auto-top
 rmports
 if { [info exists well_tap_cell] } {
 	hierarchy -generate $well_tap_cell
@@ -46,7 +48,7 @@ if { [info exists well_tap_cell] } {
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
-hierarchy -auto-top
+
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
 }
@@ -70,10 +72,11 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	}
 }
 foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
 read_verilog $::env(LEC_RHS_NETLIST)
+hierarchy -auto-top
 rmports
 if { [info exists well_tap_cell] } {
 	hierarchy -generate $well_tap_cell
@@ -81,7 +84,7 @@ if { [info exists well_tap_cell] } {
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
 splitnets -ports;;
-hierarchy -auto-top
+
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
 }
@@ -107,7 +110,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 	}
 }
 foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-	read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
 equiv_make gold gate equiv
@@ -116,6 +119,7 @@ if { [info exists well_tap_cell] } {
 }
 hierarchy -generate $decap_cell_wildcard
 hierarchy -generate $fill_cell_wildcard
+hierarchy -generate $buff_ef_cell_wildcare
 setattr -set keep 1
 prep -flatten -top equiv
 equiv_simple -seq 10 -v
