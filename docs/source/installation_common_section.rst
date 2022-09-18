@@ -34,6 +34,8 @@ You will get a little happy message of Hello world, once again, but this time wi
    https://docs.docker.com/get-started/
 
 
+.. todo:: Move this section to be specific to ubuntu and Linux distros
+
 Troubleshooting docker installation issues
 --------------------------------------------------------------------------------
 

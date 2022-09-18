@@ -1,5 +1,5 @@
 
-Hierarchical design flow
+Tutorial: Hierarchical design flow
 ================================================================================
 This guide covers creation of simple hierarchical chip level macro.
 Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip level macros.

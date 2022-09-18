@@ -1,4 +1,4 @@
-OpenRAM macro guide (sky130)
+Tutorial: OpenRAM macro (sky130)
 --------------------------------------------------------------------------------
 
 Overview
@@ -8,7 +8,7 @@ This guide covers RTL-to-GDS flow using OpenRAM cells.
 This guides uses as many macro related features from OpenLane flow possible
 in order to guide users in their journey towards full chip integration.
 
-Create a new design.
+Create a new design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create a new design using following command:
@@ -20,8 +20,19 @@ Create a new design using following command:
 Create the Blackbox
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. note::
+    See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`_ regarding the blackboxes.
+
 Create blackbox declaration of ``sky130_sram_1kbyte_1rw1r_32x256_8``
 in file ``designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v``.
+
+
+.. warning::
+
+    It is users responsibility to avoid name collisions between the blackbox macro blocks.
+    If two blackbox modules with the same module name, but different set of parameters exist,
+    then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
+
 
 Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v``.
 Then add ``(*blackbox*)`` attribute. This is specified, to let the synthesis tool know that this module is a blackbox.
@@ -36,12 +47,14 @@ Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLA
 
     "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
 
-In the future ``liberty`` with proper power/ground pins support will be added,
-so the creation of blackbox is no longer required. See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`_.
+.. warning::
 
-It is also users responsibility to avoid name collisions between the blackbox macro blocks.
-If two blackbox modules with the same module name, but different set of parameters exist,
-then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
+    If you skip this configuration yo will get following error:
+
+    .. code-block::
+
+        ERROR: Module `\sky130_sram_1kbyte_1rw1r_32x256_8' referenced in module `\test_sram_macro_unwrapped' in cell `\sram1' is not part of the design.
+        child process exited abnormally
 
 Create the Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -59,6 +72,8 @@ In this case absolute path is used, if the PDK location is different then path n
 This files contains lightweight abstract representation of the cell.
 LEF contains only metal layers and layers that can connect between cells (met1, via2, nwell, pwell, etc).
 
+.. todo:: Rephrase
+
 Connect GDS files with the subcomponent.
 The GDS from ``EXTRA_GDS_FILES`` that will be used to generate the final GDS file.
 It is users responsibility to make sure that GDS matches LEF files.
@@ -69,20 +84,22 @@ It is users responsibility to make sure that GDS matches LEF files.
     "EXTRA_GDS_FILES": "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds",
     
 
-If you ran the design without this configuration you will get following error:
+.. warning::
 
-.. code-block::
+    If you ran the design without this configuration you will get following error:
 
-    [INFO]: Running Initial Floorplanning (log: designs/test_sram_macro/runs/full_guide_nomacros/logs/floorplan/3-initial_fp.log)...
-    [ERROR]: Floorplanning failed
-    [ERROR]: module sky130_sram_1kbyte_1rw1r_32x256_8 not found in /openlane/designs/test_sram_macro/runs/full_guide_nomacros/tmp/merged.nom.lef
-    [ERROR]: Check whether EXTRA_LEFS is set appropriately
-    [INFO]: Saving current set of views in 'designs/test_sram_macro/runs/full_guide_nomacros/results/final'...
-    [INFO]: Generating final set of reports...
-    [INFO]: Created manufacturability report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/manufacturability.rpt'.
-    [INFO]: Created metrics report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/metrics.csv'.
-    [INFO]: Saving runtime environment...
-    [ERROR]: Flow failed.
+    .. code-block::
+
+        [INFO]: Running Initial Floorplanning (log: designs/test_sram_macro/runs/full_guide_nomacros/logs/floorplan/3-initial_fp.log)...
+        [ERROR]: Floorplanning failed
+        [ERROR]: module sky130_sram_1kbyte_1rw1r_32x256_8 not found in /openlane/designs/test_sram_macro/runs/full_guide_nomacros/tmp/merged.nom.lef
+        [ERROR]: Check whether EXTRA_LEFS is set appropriately
+        [INFO]: Saving current set of views in 'designs/test_sram_macro/runs/full_guide_nomacros/results/final'...
+        [INFO]: Generating final set of reports...
+        [INFO]: Created manufacturability report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/manufacturability.rpt'.
+        [INFO]: Created metrics report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/metrics.csv'.
+        [INFO]: Saving runtime environment...
+        [ERROR]: Flow failed.
 
 
 Power/Ground nets
@@ -103,33 +120,13 @@ If you need more power/ground nets add the nets to the list:
     "VDD_NETS": "vccd1 vccd2",
     "GND_NETS": "vssd1 vssd2",
 
-The sky130 caravel template has 4 power domains.
-If this variable does not have the power domains properly declared then you will have issues with the PDN in caravel template.
-
-Use ``SYNTH_USE_PG_PINS_DEFINES`` to allow automatic parsing of the power/ground nets.
-
-.. code-block:: json
-
-    "SYNTH_USE_PG_PINS_DEFINES": "USE_POWER_PINS",
-    
-This will run synthesis without USE_POWER_PINS to generate the final verilog
-and then another synthesis with USE_POWER_PINS defined to generate the powered verilog netlist.
-
-If you unconditionally define the USE_POWER_PINS then powered netlist is generated properly,
-but the synthesis netlist is generated with signal port vccd1,
-which should not exist because it is power/ground connection in non powered netlist.
-
-Example of an error you can get:
-
-.. code-block::
-
-    [ERROR DRT-0302] Unsupported multiple pins on bterm vccd1
-
 Power/Ground PDN connections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Add the PDN connections between sram cells and the power/ground nets.
+
 Syntax: ``<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>``.
+
 More information is available in `configuration variables documentation <configuration>`_.
 Each macro hook is separated using comma, for example:
 
@@ -443,3 +440,5 @@ It will look like this:
 .. figure:: ../_static/openram/final.png
 
 Reports can be found in ``designs/test_sram_macro/runs/full_guide/reports``.
+
+./flow.tcl -design test_sram_macro -tag full_guide_nobb -overwrite
