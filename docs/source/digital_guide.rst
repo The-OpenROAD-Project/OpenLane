@@ -152,7 +152,7 @@ This will add the LEF abstract representation of the macro block. This abstracti
 In contrast, GDS contains all of the layers and is used to generate the final GDS file.
 Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
 
-.. warning:: It is responsiblity of the user to make sure that every instance of the blackbox has matching parameters to the parameters that was used in submacro block's RTL-to-GDS flow. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
+.. warning:: Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
 
 The PDN straps will be routed in opposite directions.
 In locations where the two routing cross each other,

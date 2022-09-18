@@ -67,7 +67,7 @@ It is users responsibility to make sure that GDS matches LEF files.
 
 .. warning::
 
-    If you skip this configuration yo will get following error:
+    If you skip this configuration you will get following error:
 
     .. code-block::
 
@@ -138,12 +138,17 @@ Open following file ``designs/test_sram_macro/runs/synthesis_only/results/synthe
     );
 
 
-If the cell is referenced in the submodule then it has the prefix with the submodule name and escaped slash ``\``.
+If the cell is referenced in the submodule then it has the prefix with the submodule name and escape slash ``\``.
+This is Verilog specific syntax. The entire content of the name is parsed from the escape slash until the space.
+
 As can be seen there is two cells ``sky130_sram_1kbyte_1rw1r_32x256_8`` with instance names ``\submodule.sram0``, ``\submodule.sram1``.
-Directly copy the instance names without the prefix escape symbol: ``submodule.sram0``, ``submodule.sram1``, avoid guessing it.
+Therefore the name of the instance is actually ``submodule.sram0``, ``submodule.sram1``.
 
+In ``FP_PDN_MACRO_HOOKS`` you need to use the name without the escape slash. Therefore it turns into ``submodule.sram0``, ``submodule.sram1``.
 
-Then the ``FP_PDN_MACRO_HOOKS`` will look like this (note that there is no backslash in front of the name):
+.. warning:: Do not try to guess the name of the instances, this is the most common mistake regarding ``FP_PDN_MACRO_HOOKS``
+
+Then the ``FP_PDN_MACRO_HOOKS`` will look like this:
 
 .. code-block:: json
 
@@ -152,20 +157,11 @@ Then the ``FP_PDN_MACRO_HOOKS`` will look like this (note that there is no backs
 ``FP_PDN_MACRO_HOOKS`` forces connection between these pins and power/ground nets.
 If these configuration is missing then power/ground will be missing between netlist and PDN, therefore creating an LVS issue.
 
-
 Try removing the parameter and running:
 
 .. code-block::
 
     ./flow.tcl -design test_sram_macro -tag full_guide_pdn_macrohooks -overwrite
-
-As can be observed, this generates an LVS error, because in the RTL code the power pins are attached,
-meanwhile in the layout there is no connection between the PDN and the SRAM cell power rings.
-
-.. code-block::
-
-    [INFO]: Running LEF LVS...
-    [ERROR]: There are LVS errors in the design: See 'designs/test_sram_macro/runs/full_guide_pdn_macrohooks/logs/signoff/40-test_sram_macro.lvs.lef.log' for details.
 
 Open an interactive session:
 
