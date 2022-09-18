@@ -3,10 +3,10 @@ Tutorial: OpenRAM macro (sky130)
 
 Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Using OpenRAM generated or other mixed signal or analog cells can be very confusing.
-This guide covers RTL-to-GDS flow using OpenRAM cells.
-This guides uses as many macro related features from OpenLane flow possible
-in order to guide users in their journey towards full chip integration.
+This guide covers the RTL-to-GDS flow using `OpenRAM <https://openram.org/>`_ cells and many macro related features from the OpenLane flow for full chip integration.
+
+
+    .. todo:: Add extra libs
 
 Create a new design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16,45 +16,6 @@ Create a new design using following command:
 .. code-block::
 
     ./flow.tcl -design test_sram_macro -init_design_config -add_to_designs
-
-Create the Blackbox
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. note::
-    See `issue 1273 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1273>`_ regarding the blackboxes.
-
-Create blackbox declaration of ``sky130_sram_1kbyte_1rw1r_32x256_8``
-in file ``designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v``.
-
-
-.. warning::
-
-    It is users responsibility to avoid name collisions between the blackbox macro blocks.
-    If two blackbox modules with the same module name, but different set of parameters exist,
-    then it is possible to get RTL behavor missmatch without any warning. See `issue 1291 <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
-
-
-Copy the relevant sections from ``pdks/sky130B/libs.ref/sky130_sram_macros/verilog/sky130_sram_1kbyte_1rw1r_32x256_8.v``.
-Then add ``(*blackbox*)`` attribute. This is specified, to let the synthesis tool know that this module is a blackbox.
-If the module is empty it is assumed to be blackbox anyway, but specifying the attribute makes it more clear.
-
-.. literalinclude:: ../../designs/test_sram_macro/sky130_sram_1kbyte_1rw1r_32x256_8.bb.v
-    :language: verilog
-
-Finally, connect the blackbox declaration verilog file using ``VERILOG_FILES_BLACKBOX``.
-
-.. code-block:: json
-
-    "VERILOG_FILES_BLACKBOX": "dir::sky130_sram_1kbyte_1rw1r_32x256_8.bb.v",
-
-.. warning::
-
-    If you skip this configuration yo will get following error:
-
-    .. code-block::
-
-        ERROR: Module `\sky130_sram_1kbyte_1rw1r_32x256_8' referenced in module `\test_sram_macro_unwrapped' in cell `\sram1' is not part of the design.
-        child process exited abnormally
 
 Create the Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,6 +61,18 @@ It is users responsibility to make sure that GDS matches LEF files.
         [INFO]: Created metrics report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/metrics.csv'.
         [INFO]: Saving runtime environment...
         [ERROR]: Flow failed.
+
+
+.. todo:: Extra libs
+
+.. warning::
+
+    If you skip this configuration yo will get following error:
+
+    .. code-block::
+
+        ERROR: Module `\sky130_sram_1kbyte_1rw1r_32x256_8' referenced in module `\test_sram_macro_unwrapped' in cell `\sram1' is not part of the design.
+        child process exited abnormally
 
 
 Power/Ground nets
@@ -292,10 +265,7 @@ For example:
 
 To specify the cell placement create file ``designs/test_sram_macro/macro_placement.cfg``:
 
-.. code-block::
-
-    submodule.sram0 125 125 N
-    submodule.sram1 125 700 S
+.. literalinclude:: ../../designs/test_sram_macro/macro_placement.cfg
 
 The syntax is ``<instance name> <x> <y> <direction>``.
 The instance name needs to be taken directly from synthesis netlist without escape symbol at the beggining.
@@ -354,11 +324,39 @@ However, you will still get DRCs.
     "MAGIC_DRC_USE_GDS": false
 
 Instead, for this example we can just disable the DRC check.
-However, this is very dangerous and needs to be approved by the foundry.
+However, this is very dangerous.
+Run the DRC and make sure that the errors you get are suggestions, for example ``This layer can't abut or partially overlap between subcells``
 
 .. code-block:: json
 
     "RUN_MAGIC_DRC": false
+
+DRC because of PDN being too close to the met4 inside SRAM
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+The selected placement can cause DRC.
+In this guide the selected location of Y=700 causes met4 of the SRAM being too close to power straps.
+To mitigate this, the SRAM instance was moved down.
+
+
+Setup violations
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+During the run it was clear that clock period of `10.0` was too low:
+
+.. code-block::
+
+    [WARNING]: There are max slew violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
+    [WARNING]: There are max fanout violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
+    [WARNING]: There are max capacitance violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
+    [INFO]: There are no hold violations in the design at the typical corner.
+    [ERROR]: There are setup violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.max.rpt'.
+
+As a solution the period was increased to `25.0`
+
+.. code-block::
+
+    "CLOCK_PERIOD": 25.0,
 
 JSON syntax error regarding the comma
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -440,5 +438,3 @@ It will look like this:
 .. figure:: ../_static/openram/final.png
 
 Reports can be found in ``designs/test_sram_macro/runs/full_guide/reports``.
-
-./flow.tcl -design test_sram_macro -tag full_guide_nobb -overwrite
