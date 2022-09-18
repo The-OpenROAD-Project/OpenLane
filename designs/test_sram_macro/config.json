@@ -22,5 +22,5 @@
 
     "RUN_KLAYOUT_XOR": false,
     "MAGIC_DRC_USE_GDS": false,
-    "RUN_MAGIC_DRC": false
+    "QUIT_ON_MAGIC_DRC": false
 }
