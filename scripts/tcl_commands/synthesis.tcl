@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,13 +31,9 @@ proc run_yosys {args} {
 
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
+    set_if_unset arg_values(-output) $::env(synthesis_results)/$::env(DESIGN_NAME).v
     set_if_unset arg_values(-log) /dev/null
 
-    if { [info exists arg_values(-output)] } {
-        set ::env(SAVE_NETLIST) $arg_values(-output)
-    } else {
-        set ::env(SAVE_NETLIST) $::env(synthesis_results)/$::env(DESIGN_NAME).v
-    }
     if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
         set ::env(SYNTH_READ_BLACKBOX_LIB) 1
     }
@@ -60,26 +56,21 @@ proc run_yosys {args} {
         lappend ::env(LIB_SYNTH_NO_PG) $lib_path
     }
 
+    set ::env(SAVE_NETLIST) $arg_values(-output)
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SYNTH_SCRIPT) \
         -l $arg_values(-log)\
         |& tee $::env(TERMINAL_OUTPUT)
 
+
     if { ! [info exists flags_map(-no_set_netlist)] } {
-        set_netlist $::env(SAVE_NETLIST)
-    }
+        set_netlist -lec $::env(SAVE_NETLIST)
 
-    if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        # The following is a naive workaround to OpenROAD not accepting defparams.
+        # It *should* be handled with a fix to the OpenROAD Verilog parser.
+        try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
-
-    # The following is a naive workaround to the defparam issue.. it should be handled with
-    # an issue to the OpenROAD verilog parser.
-    if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
-        puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
-    } else {
-        try_catch sed -i {/defparam/d} $::env(SAVE_NETLIST)
-    }
+    unset ::env(SAVE_NETLIST)
 }
 
 proc run_synth_exploration {args} {
@@ -98,7 +89,7 @@ proc run_synth_exploration {args} {
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 
     puts_info "Generating exploration report..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
+    try_catch python3 $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
         --output $exploration_report\
         [index_file $::env(synthesis_logs)/synthesis.log]
 
@@ -130,23 +121,6 @@ proc run_synthesis {args} {
 
     run_sta -pre_cts -log $::env(synthesis_logs)/sta.log
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
-
-    if { $::env(RUN_SIMPLE_CTS) && $::env(CLOCK_TREE_SYNTH) } {
-        if { ! [info exists ::env(CLOCK_NET)] } {
-            set ::env(CLOCK_NET) $::env(CLOCK_PORT)
-        }
-
-        simple_cts \
-            -verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v \
-            -fanout $::env(CLOCK_BUFFER_FANOUT) \
-            -clk_net $::env(CLOCK_NET) \
-            -root_clk_buf $::env(ROOT_CLK_BUFFER) \
-            -clk_buf $::env(CLK_BUFFER) \
-            -clk_buf_input $::env(CLK_BUFFER_INPUT) \
-            -clk_buf_output $::env(CLK_BUFFER_OUTPUT) \
-            -cell_clk_port $::env(CELL_CLK_PORT) \
-            -output $::env(synthesis_results)/$::env(DESIGN_NAME).v
-    }
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
         check_assign_statements
@@ -181,22 +155,24 @@ proc yosys_rewrite_verilog {filename} {
         return
     }
     if { !$::env(YOSYS_REWRITE_VERILOG) } {
-        puts_verbose "Skipping Verilog rewrite."
+        puts_verbose "Skipping Verilog rewrite..."
         return
     }
-
-    assert_files_exist $filename
-
-    set ::env(SAVE_NETLIST) $filename
 
     increment_index
     TIMER::timer_start
     set log [index_file $::env(synthesis_logs)/rewrite_verilog.log]
     puts_info "Rewriting $filename to $::env(SAVE_NETLIST) using Yosys (log: [relpath . $log])..."
 
+    assert_files_exist $filename
+
+    set ::env(SAVE_NETLIST) $filename
+
     try_catch $::env(SYNTH_BIN) \
         -c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
         -l $log
+
+    unset ::env(SAVE_NETLIST)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "verilog rewrite - yosys"

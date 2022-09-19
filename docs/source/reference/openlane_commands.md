@@ -13,12 +13,12 @@ Most of the following commands' implementation exists in this [file][0]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `set_netlist <netlist>`   | | Sets the current netlist used by the flow to `<netlist>` |
-|    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist. <br> Optional flag.       |
+|    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist, if `LEC_ENABLE` is set to 1. <br> Optional flag. |
 | `set_def <def>`   | | Sets the current def file used by the flow to `<def>` |
 | `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generating a merged.lef.|
 | `trim_lib`   | | prepares a liberty file (i.e. `LIB_SYNTH`) by trimming the `NO_SYNTH_CELL_LIST` and `DRC_EXCLUDE_CELL_LIST` from another input liberty file (i.e. `$::env(LIB_SYNTH_COMPLETE)`). |
-|    | `[-output <lib_file>]` | The lib file to output the trimmed liberty into. <br> Default: `$::env(LIB_SYNTH)` <br> Optional flag. |
-|    | `[-input <lib_file>]` | The input liberty file to trim the cells from. <br> Default: `$::env(LIB_SYNTH_COMPLETE)` <br> Optional flag. |
+|    | `[-output <lib_file>]` | The lib file to output the trimmed liberty into. Required. |
+|    | `[-input <lib_file>]` | The input liberty file to trim the cells from. Required. |
 |    | `[-drc_exclude_only]` | If provided, it will only use `DRC_EXCLUDE_CELL_LIST` to create the exclude list. <br> Optional flag. |
 | `gen_exclude_list`   | | generates an exclude list file for a liberty file (i.e. `LIB_SYNTH`) by concatenating the `NO_SYNTH_CELL_LIST` and `DRC_EXCLUDE_CELL_LIST` into the output file. |
 |    | `-lib <lib_file_path>` | The lib file that the list will be trimmed from. This will general a `<-lib>.exclude.list` |
@@ -53,9 +53,11 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-pad_pin_name <pad_pin_name>` |  Name of the pin of the pad as it appears in the netlist def. |
 |    | `[-output <output_def>]` |  Output labeled def file. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
 |    | `[-extra_args <extra_args>]` | Gives extra control on the rest of the flags of the labeling script. For more information on the other args that the script supports, run: `openroad -python $OPENLANE_ROOT/scripts/odbpy/label_macro_pins.py -h`. <br> Optional flag.|
-| `write_verilog <filename>` | | Generates a verilog netlist from a given def file. Stores the resulting netlist in `<filename>`, and sets the generated netlist as the `CURRENT_NETLIST` used by the flow.|
-|    | `[-def <def_file>]` |  DEF view of the design from which to generate the netlist. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
-| `add_macro_obs` | |Creates and obstruction in def and lef files.|
+| `write_verilog <filename>` | | Generates a verilog netlist from a given def file. Stores the resulting netlist in `<filename>` and updates `CURRENT_NETLIST`. |
+|    | `[-def <def_file>]` | The def file to write a verilog netlist from. <br> Defaults to the `CURRENT_DEF`. <br> Optional flag.|
+|    | `[-log <log_file>]` | A file to which the output of OpenROAD is logged. <br> Defaults to `/dev/null`. <br> Optional flag.|
+|    | `[-powered]` | Add power and ground pins, and save to `CURRENT_POWERED_NETLIST` instead. <br> Optional flag. |  
+| `add_macro_obs` | | Creates obstructions in def and lef files.|
 |    | `-defFile <def_file>` |  DEF view of the design to write the obstruction into.|
 |    | `-lefFile <lef_file>` |  LEF file of the design to write the obstruction into.|
 |    | ` -obstruction <obstruction_name> ` |  Name of obstruction.|
@@ -66,11 +68,6 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-fixed <val>` |  if `<val>` is 1, then the macro is set as FIXED, else it's set as PLACED in the def file.|
 |    | `[-dbunit <val>]` | `<val>` reflects the value of the data base unit. <br> Defaults to 1000. <br> Optional flag.|
 |    | `-layerNames <list_of_layer_names>` |  the list of layer names on which to place the obstruction. |
-| `set_layer_tracks  ` | | sets the tracks on a layer to specific value.|
-|    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
-|    | `-layer <layer_name>` | layer to change.|
-|    | `-valuesFile <file>` |  tmp file to read the new track values from.|
-|    | `-originalFile <file>` |  tmp file to store the original value.|
 | `extract_core_dims` | | Extracts the core dimensions based on the existing set environment variables. The results are set into `CORE_WIDTH` and `CORE_HEIGHT`. |
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
@@ -78,6 +75,11 @@ Most of the following commands' implementation exists in this [file][0]
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna.rpt`|
 | `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
+| `set_layer_tracks  ` | | **Removed:** sets the tracks on a layer to specific value.|
+|    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
+|    | `-layer <layer_name>` | layer to change.|
+|    | `-valuesFile <file>` |  tmp file to read the new track values from.|
+|    | `-originalFile <file>` |  tmp file to store the original value.|
 
 ## Checker Commands
 
@@ -115,22 +117,21 @@ Most of the following commands' implementation exists in this [file][9]
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
 |    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
 |    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
-| `verilog_to_verilogPower` | | Adds the power pins and connections to a verilog file. |
+| `get_yosys_bin` | | **Deprecated:** Returns the used binary for yosys. |
+| `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
 |    | `-output <verilog_netlist_file>` | The output verilog file. |
 |    | `-lef <lef_file>` | The LEF view with the power pins information. |
 |    | `-power <power_pin>` | The name of the power pin. |
 |    | `-ground <ground_pin>` | The name of the ground pin. |
 | `write_powered_verilog` | | writes a verilog file that contains the power pins and connections from a DEF file. It stores the result in `/<run_path>/results/lvs` |
-|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to the `CURRENT_DEF` of the processed design. |
-|    | `[-output_def <def_file>]` | The output DEF file. <br> Defaults to `/<run_path>/tmp/routing/<design_name>.powered.def` |
-|    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. <br> Defaults to `/<run_path>/results/lvs/<design_name>.powered.v` |
+|    | `[-odb <odb_file>]` | The input ODB file. <br> Defaults to the `CURRENT_ODB` of the processed design. |
+|    | `[-output_def <def_file>]` | The output DEF file. Required. |
+|    | `[-output_verilog <verilog_netlist_file>]` | The output verilog file. Required. |
 |    | `[-lef <lef_file>]` | The LEF view with the power pins information. <br> Defaults to the `MERGED_LEF` |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-powered_netlist <verilog_netlist_file>]` | The verilog netlist parsed from yosys that contains the internal power connections in case the design has internal macros file. <br> Defaults to `/<run_path>/tmp/synthesis/synthesis.pg_define.v` if `::env(SYNTH_USE_PG_PINS_DEFINES)` is defined, and to empty string otherwise. |
-| `get_yosys_bin` | | **Deprecated** Returns the used binary for yosys. |
-
 
 ## Floorplan Commands
 
@@ -183,16 +184,6 @@ Most of the following commands' implementation exists in this [file][2]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `simple_cts` | | Runs clock tree synthesis using the simple cts application. The resulting file is under `/<run_path>/results/cts/` . <br> Not Advised to use. Legacy Command.|
-|    | `-verilog <file>` | The input verilog file. |
-|    | `-fanout <val>` | The maximum fanout value.       |
-|    | `-clk_net <name>` | Clock net name.       |
-|    | `-root_clk_buf <name>` | Root clk buffer name.       |
-|    | `-clk_buf <list>` | List of the other clock buffers.       |
-|    | `-clk_buf_input <pin_name>` | Clock buffer input pin name.  |
-|    | `-clk_buf_output <pin_name>` | Clock buffer output pin name.    |
-|    | `-cell_clk_port <name>` | Clock buffer port name.    |
-|    | `-output <output_file>` | Output file path.    |
 | `run_cts` | | Runs clock tree synthesis using the openroad app on the processed design. The resulting file is under `/<run_path>/results/cts/`. It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/cts` and runs yosys logic verification if enabled. |
 | `run_resizer_timing` | | Runs resizer timing optimizations which repairs setup and hold violations.  |
 
@@ -206,7 +197,7 @@ Most of the following commands' implementation exists in this [file][8]
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
 | `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
 | `ins_diode_cells_4` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs only if `DIODE_INSERTION_STRATEGY` is set to `2`|
+| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs on `CURRENT_DEF` and only if `DIODE_INSERTION_STRATEGY` is set to `2`.|
 
 
 ## PDN Generation Commands
@@ -217,11 +208,11 @@ Most of the following commands' implementation exists in this [file][8]
 |---------------|------------------------|-----------------------------------------|
 | `gen_pdn` | | Runs basic power grid generation on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `power_routing` | | Performs power routing on a chip level design. More details in [Chip Integration][15]. |
-|    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF`. |
-|    | `[-lef <lef_file>]` | The input LEF file. <br> Defaults to `MERGED_LEF`. |
+|    | `[-odb <odb_file>]` | The input ODB file. <br> Defaults to `CURRENT_ODB`. |
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-output_def <output_def_file>]` | The output DEF file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.def` |
+|    | `[-output_odb <output_odb_file>]` | The output ODB file path. <br> Defaults to `<run_path>/tmp/routing/$::env(DESIGN_NAME).power_routed.odb` |
 | `run_power_grid_generation` | | Runs power grid generation with the advanced control options, `VDD_NETS`, `GND_NETS`, etc... This proc is capable of generating multiple power grid. Check [this documentation][16] for more details about controlling this command.
 
 ## Routing Commands
@@ -300,10 +291,14 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `generate_final_summary_report` | | Generates a final summary csv report of the most important statistics and configurations in the run as well as a manufacturability report with the sumamry of DRC, LVS, and Antenna violations. This command is controlled by the flag `$::env(GENERATE_FINAL_SUMMARY_REPORT)`. |
 |    | `[-output_file <output_file>]` | The ouput final summary csv report file path. <br> Defaults to being generated under `<run_path>/reports/metrics.csv`. |
 |    | `[-man_report <man_report>]` | The ouput manufacturability report file path. <br> Defaults to being generated under `<run_path>/reports/manufacturability.rpt`. |
-| `remove_pins` | | Removes the pins' section from a given DEF file. |
-|    | `-input <def_file>` | The input DEF file. |
-| `remove_empty_nets` | | Removes the empty nets from a given DEF file. |
-|    | `-input <def_file>` | The input DEF file. |
+| `remove_pins` | | Removes pins from a given database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+| `remove_nets` | | Removes nets from a given database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+|    | `-rx <regular expression>` | A regular expression to match to delete a certain net. Must match whole name of the net. <br> Defaults to `.+` (matches everything.) |
+|    | `-empty`
 | `resize_die` | | Resizes the DIEAREA in a given DEF file to the given size. |
 |    | `-def <def_file>` | The input DEF file. |
 |    | `-area <list>` | The new coordinates of the DIEARA listed as (llx, lly, urx, ury). |
@@ -312,15 +307,14 @@ Most of the following commands' implementation exists in these files: [deflef][1
 |    | `[-def <def_file>]` | The input DEF file. <br> Defaults to `CURRENT_DEF` of the currently processed design. <br> Optional Flag. |
 | `add_lefs` | | Merges the given `<-src>` LEF files to the existing processed LEF files. |
 |    | `-src <lef_files>` | The input LEF files. |
-| `merge_components` | | Merges the components section of two DEF files. |
-|    | `-input1 <def_file>` | The first DEF file. |
-|    | `-input2 <def_file>` | The second DEF file. |
-|    | `-output <def_file>` | The output DEF file. |
-| `move_pins` | | Moves the PINS section from one DEF file to another. |
-|    | `-from <def_file>` | The input DEF file. |
-|    | `-to <def_file>` | The target DEF file. |
-| `zeroize_origin_lef` | | Zeroizes the origin of all views in a LEF file. |
-|    | `-file <lef_file>` | The input LEF file. |
+| `merge_components` | | Appends the components of a `def` file into the current database. |
+|    | `-input <odb_file>` | The ODB file to merge the components in to. <br> Defaults to `CURRENT_ODB`. |
+|    | `-donor <def_file>` | The DEF file to merge components from. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
+| `relocate_pins` | | **Previously: `replace_pins`**: Moves pins that are common between a template DEF file and a database to the location specified in the template DEF. |
+|    | `-input <odb_file>` | The ODB file to relocate the common pins of. <br> Defaults to `CURRENT_ODB`. |
+|    | `-template <def_file>` | The DEF file to relocate pins to. |
+|    | `-output <odb_file>` | The output ODB file. <br> Defaults to the value of `-input`. |
 | `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
 | `kill_display_buffer` | | Kills the fake display buffer. |
 | `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
@@ -336,6 +330,10 @@ Most of the following commands' implementation exists in these files: [deflef][1
 |    | `[-status <status>]` | The status message printed in the file. <br> Defaults to `flow completed`. |
 | `flow_fail` | | Calls `generate_final_summary_report`, calls `calc_total_runtime` with status `flow failed`, and finally prints `Flow Failed` to the terminal. |
 | `find_all <ext>` | | Print a sorted list of *.ext files that are found in the current run directory. |
+| `remove_empty_nets` | | **Deprecated: use `remove_nets -empty`** the empty nets from a given ODB file. |
+|    | `-input <odb_file>` | The input ODB file. |
+| `zeroize_origin_lef` | | **Removed:** Zeroizes the origin of all views in a LEF file. |
+|    | `-file <lef_file>` | The input LEF file. |
 
 
 [0]: ./../../../scripts/tcl_commands/all.tcl

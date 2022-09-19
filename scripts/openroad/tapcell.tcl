@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,16 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
 tapcell\
     -distance $::env(FP_TAPCELL_DIST)\
@@ -29,4 +21,4 @@ tapcell\
     -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\
     -halo_width_y $::env(FP_TAP_VERTICAL_HALO)
 
-write_def $::env(SAVE_DEF)
+write

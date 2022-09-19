@@ -50,11 +50,9 @@ def label_macro_pins(
     verbose,
     all_shapes,
     pad_pin_name,
-    pin_size,
     map,
-    output,
     input_lef,
-    input_def,
+    reader,
 ):
     """
     Takes a DEF file with no PINS section, a LEF file that has the shapes of all
@@ -62,6 +60,7 @@ def label_macro_pins(
     to single macro pin given also as an input -> writes a PINS section with shapes
     generated over those macro pins, "labels".
     """
+    top = reader
 
     extra_mappings = [tuple(m.split()) for m in map.split(";")]
     extra_mappings_pin_names = [tup[2] for tup in extra_mappings]
@@ -162,7 +161,6 @@ def label_macro_pins(
         pad_iterm.connect(net)
         pin_bterm.connect(net)
 
-    top = OdbReader(input_lef, input_def)
     mapping = OdbReader(input_lef, netlist_def)
 
     pad_pin_map = {}
@@ -276,8 +274,6 @@ def label_macro_pins(
         % (labeled_count, pad_pins_to_label_count),
         set(pad_pin_map.keys()) - set(labeled),
     )
-
-    odb.write_def(top.block, output)
 
 
 if __name__ == "__main__":

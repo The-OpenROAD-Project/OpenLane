@@ -17,7 +17,7 @@ import odb
 import os
 import sys
 import click
-from subprocess import Popen, PIPE
+import subprocess
 
 from reader import OdbReader, click_odb
 
@@ -47,20 +47,23 @@ def cli():
     help="A structural verilog netlist, readable by openroad, that includes extra power connections that are to be applied after connecting to the default power-port and ground-port specified.",
 )
 @click.option("-q", "--ignore-missing-pins", default=False, is_flag=True)
-@click_odb
+@click.option("-o", "--output", required=True, help="Output DEF file")
+@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
+@click.argument("input_def")
+# And the award for worst-written function goes to:
 def write_powered_def(
     output,
+    input_lef,
+    input_def,
     power_port,
     ground_port,
     powered_netlist,
     ignore_missing_pins,
-    input_lef,
-    input_def,
 ):
     """
-    Every cell having a pin labeled as a power pin (e.g., USE POWER) will be
-    connected to the power/ground port of the design.
+    Connects every cell with a power pin to the power/ground port of the design.
     """
+    reader = OdbReader(input_lef, input_def)
 
     def get_power_ground_ports(ports):
         vdd_ports = []
@@ -78,41 +81,39 @@ def write_powered_def(
                 return port
         return None
 
-    reader = OdbReader(input_lef, input_def)
-
     print(f"Top-level design name: {reader.name}")
 
     VDD_PORTS, GND_PORTS = get_power_ground_ports(reader.block.getBTerms())
-    assert (
-        VDD_PORTS and GND_PORTS
-    ), "No power ports found at the top-level. Make sure that they exist and have the USE POWER|GROUND property or they match the arguments specified with --power-port and --ground-port."
+    if len(VDD_PORTS) == 0 or len(GND_PORTS) == 0:
+        print(
+            "No power ports found at the top-level. Make sure that they exist and have the USE POWER|GROUND property or they match the arguments specified with --power-port and --ground-port.",
+            file=sys.stderr,
+        )
+        exit(os.EX_DATAERR)
 
-    vdd_net_idx = None
-    for index, port in enumerate(VDD_PORTS):
+    vdd_net = None
+    gnd_net = None
+    for port in VDD_PORTS + GND_PORTS:
         if port.getNet().getName() == power_port:
-            vdd_net_idx = index
+            vdd_net = port.getNet()
+        elif port.getNet().getName() == ground_port:
+            gnd_net = port.getNet()
 
-    gnd_net_idx = None
-    for index, port in enumerate(GND_PORTS):
-        if port.getNet().getName() == ground_port:
-            gnd_net_idx = index
+    nets_not_found = False
+    if vdd_net is None:
+        print(f"Power port {power_port} not found in design.", file=sys.stderr)
+        nets_not_found = True
+    if gnd_net is None:
+        print(f"Ground port {ground_port} not found in design.", file=sys.stderr)
+        nets_not_found = True
+    if nets_not_found:
+        exit(os.EX_DATAERR)
 
-    assert (
-        vdd_net_idx is not None
-    ), "Can't find power net at the top-level. Make sure that argument specified with --power-port"
+    print(f"Found default power net '{vdd_net.getName()}'")
+    print(f"Found default ground net '{gnd_net.getName()}'")
 
-    assert (
-        gnd_net_idx is not None
-    ), "Can't find ground net at the top-level. Make sure that argument specified with --ground-port"
-
-    DEFAULT_VDD = VDD_PORTS[vdd_net_idx].getNet()
-    DEFAULT_GND = GND_PORTS[gnd_net_idx].getNet()
-
-    print("Default power net: ", DEFAULT_VDD.getName())
-    print("Default ground net:", DEFAULT_GND.getName())
-
-    print("Found a total of", len(VDD_PORTS), "power ports.")
-    print("Found a total of", len(GND_PORTS), "ground ports.")
+    print(f"Found {len(VDD_PORTS)} power ports.")
+    print(f"Found {len(GND_PORTS)} ground ports.")
 
     modified_cells = 0
     cells = reader.block.getInsts()
@@ -138,149 +139,126 @@ def write_powered_def(
 
         if len(VDD_ITERMS) == 0:
             print(
-                "Warning: No pins in the LEF view of",
-                cell_name,
-                " marked for use as power",
+                f"[WARN] No pins in the LEF view of {cell_name} marked for use as power."
             )
             print(
-                "Warning: Attempting to match power pin by name (using top-level port name) for cell:",
-                cell_name,
+                f"[WARN] Attempting to match power pin by name (using top-level port name) for {cell_name}."
             )
             if VDD_ITERM_BY_NAME is not None:  # note **PORT**
-                print("Found", power_port, "using that as a power pin")
+                print(f"Found '{power_port}', using it as a power pin...")
                 VDD_ITERMS.append(VDD_ITERM_BY_NAME)
 
         if len(GND_ITERMS) == 0:
             print(
-                "Warning: No pins in the LEF view of",
-                cell_name,
-                " marked for use as ground",
+                f"[WARN] No pins in the LEF view of {cell_name} marked for use as ground."
             )
             print(
-                "Warning: Attempting to match ground pin by name (using top-level port name) for cell:",
-                cell_name,
+                f"[WARN] Attempting to match power pin by name (using top-level port name) for {cell_name}."
             )
             if GND_ITERM_BY_NAME is not None:  # note **PORT**
-                print("Found", ground_port, "using that as a ground pin")
+                print(f"Found '{ground_port}', using it as a ground pin...")
                 GND_ITERMS.append(GND_ITERM_BY_NAME)
 
         if len(VDD_ITERMS) == 0 or len(GND_ITERMS) == 0:
-            print("Warning: not all power pins found for cell:", cell_name)
+            err_msg = (
+                f"Either power or ground (or both) pins not found for {cell_name}."
+            )
             if ignore_missing_pins:
-                print("Warning: ignoring", cell_name, "!!!!!!!")
-                continue
+                print(f"[WARN] {err_msg} Ignoring...")
             else:
-                print("Exiting... Use --ignore-missing-pins to ignore such errors")
-                sys.exit(1)
+                print(
+                    err_msg,
+                    file=sys.stderr,
+                )
+                exit(os.EX_DATAERR)
 
         if len(VDD_ITERMS) > 2:
-            print("Warning: cell", cell_name, "has", len(VDD_ITERMS), "power pins.")
+            print(f"[WARN] {cell_name} has {len(VDD_ITERMS)} power pins.")
 
         if len(GND_ITERMS) > 2:
-            print("Warning: cell", cell_name, "has", len(GND_ITERMS), "ground pins.")
+            print(f"[WARN] {cell_name} has {len(GND_ITERMS)} power pins.")
 
         for VDD_ITERM in VDD_ITERMS:
             if VDD_ITERM.isConnected():
                 pin_name = VDD_ITERM.getMTerm().getName()
                 cell_name = cell_name
                 print(
-                    "Warning: power pin",
-                    pin_name,
-                    "of",
-                    cell_name,
-                    "is already connected",
+                    f"[WARN] {cell_name}/{pin_name} appears to already be connected. Ignoring..."
                 )
-                print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
             else:
-                VDD_ITERM.connect(DEFAULT_VDD)
+                VDD_ITERM.connect(vdd_net)
 
         for GND_ITERM in GND_ITERMS:
             if GND_ITERM.isConnected():
                 pin_name = GND_ITERM.getMTerm().getName()
                 cell_name = cell_name
                 print(
-                    "Warning: ground pin",
-                    pin_name,
-                    "of",
-                    cell_name,
-                    "is already connected",
+                    f"[WARN] {cell_name}/{pin_name} appears to already be connected. Ignoring..."
                 )
-                print("Warning: ignoring", cell_name + "/" + pin_name, "!!!!!!!")
             else:
-                GND_ITERM.connect(DEFAULT_GND)
+                GND_ITERM.connect(gnd_net)
 
         modified_cells += 1
 
-    print(
-        "Modified power connections of",
-        modified_cells,
-        "cells (Remaining:",
-        len(cells) - modified_cells,
-        ").",
-    )
+    print(f"Modified power connections of {modified_cells}/{len(cells)} cells.")
 
     # apply extra special connections taken from another netlist:
+    ### ^ Literally what in God's name does this mean?
     if powered_netlist is not None and os.path.exists(powered_netlist):
-        tmp_def_file = f"{os.path.splitext(powered_netlist)[0]}.def"
-        openroad_script = []
-        openroad_script.append(f"read_lef {input_lef}")
-        openroad_script.append(f"read_verilog {powered_netlist}")
-        openroad_script.append(f"link_design {reader.name}")
-        openroad_script.append(f"write_def {tmp_def_file}")
-        openroad_script.append("exit")
+        tmp_def_file = f"{os.path.splitext(powered_netlist)[0]}.intermediate.def"
 
-        p = Popen(["openroad"], stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding="utf8")
+        openroad_script = f"""
+        read_lef {input_lef}
+        read_verilog {powered_netlist}
+        link_design {reader.name}
+        write_def {tmp_def_file}
+        exit
+        """
 
-        openroad_script = "\n".join(openroad_script)
-
-        openroad_stdout, openroad_stderr = p.communicate(openroad_script)
-        print(f"STDOUT: {openroad_stdout.strip()}")
-        print(f"STDERR: {openroad_stderr.strip()}")
-        print("openroad exit code:", p.returncode)
-        assert p.returncode == 0, p.returncode
-        assert os.path.exists(tmp_def_file), "DEF file doesn't exist"
+        subprocess.run(["openroad"], check=True, input=openroad_script.encode("utf8"))
 
         power = OdbReader(input_lef, tmp_def_file)
+
         assert power.name == reader.name
-        POWER_GROUND_PORT_NAMES = [port.getName() for port in VDD_PORTS + GND_PORTS]
 
         # using get_power_ground_ports doesn't work since the pins weren't
         # created using pdngen
-        power_ground_ports = [
-            port
-            for port in power.block.getBTerms()
-            if port.getName() in POWER_GROUND_PORT_NAMES
+        pg_port_names = [port.getName() for port in VDD_PORTS + GND_PORTS]
+        pg_ports = [
+            port for port in power.block.getBTerms() if port.getName() in pg_port_names
         ]
 
-        for port in power_ground_ports:
-            iterms = port.getNet().getITerms()
+        for port in pg_ports:
+            net = port.getNet()
+            iterms = net.getITerms()
             for iterm in iterms:
                 inst_name = iterm.getInst().getName()
                 pin_name = iterm.getMTerm().getName()
+                port_name = port.getName()
 
                 original_inst = reader.block.findInst(inst_name)
-                assert original_inst is not None, (
-                    "Instance "
-                    + inst_name
-                    + " not found in the original netlist. Perhaps it was optimized out during synthesis?"
-                )
+                if original_inst is None:
+                    print(
+                        f"Instance {inst_name} was not found in the original netlist.",
+                        file=sys.stderr,
+                    )
+                    exit(os.EX_DATAERR)
 
                 original_iterm = original_inst.findITerm(pin_name)
-                assert original_iterm is not None, (
-                    inst_name + " doesn't have a pin named " + pin_name
-                )
+                if original_iterm is None:
+                    print(
+                        f"Pin {inst_name}/{pin_name} not found in the original netlist."
+                    )
+                    exit(os.EX_DATAERR)
 
-                original_port = find_power_ground_port(
-                    port.getName(), VDD_PORTS + GND_PORTS
-                )
-                assert original_port is not None, (
-                    port.getName() + " not found in the original netlist."
-                )
+                original_port = find_power_ground_port(port_name, VDD_PORTS + GND_PORTS)
+                if original_port is None:
+                    print(f"Port {original_port} not found in the original netlist.")
+                    exit(os.EX_DATAERR)
 
                 original_iterm.connect(original_port.getNet())
-                print("Modified connections between", port.getName(), "and", inst_name)
+                print(f"Connected {port_name} to {inst_name}/{pin_name}.")
 
-    print(reader.block, output)
     odb.write_def(reader.block, output)
 
 
@@ -317,12 +295,11 @@ cli.add_command(write_powered_def)
 @click_odb
 def power_route(
     output,
-    input_lef,
+    reader,
     core_vdd_pin,
     core_gnd_pin,
     vdd_pad_pin_map,
     gnd_pad_pin_map,
-    input_def,
 ):
     """
     Takes a pre-routed top-level layout, produces a DEF file with VDD and GND special nets\
@@ -366,8 +343,6 @@ def power_route(
     SPECIAL_NETS[GND_NET_NAME]["map"] = gnd_pad_pin_map
 
     ##################
-
-    reader = OdbReader(input_lef, input_def)
 
     via_rules = reader.tech.getViaGenerateRules()
     print("Found", len(via_rules), "VIA GENERATE rules")
@@ -1164,8 +1139,6 @@ def power_route(
         sys.exit(1)
 
     # OUTPUT
-    odb.write_def(reader.block, output)
-
     odb.write_lef(odb.dbLib_getLib(reader.db, 1), f"{output}.lef")
 
 

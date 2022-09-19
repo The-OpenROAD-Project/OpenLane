@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,25 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read_libs -override "$::env(LIB_SYNTH_COMPLETE)"
+read_lef $::env(MERGED_LEF)
+read_netlist
 
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-read_verilog $::env(synthesis_results)/$::env(DESIGN_NAME).v
-link_design $::env(DESIGN_NAME)
-read_sdc $::env(CURRENT_SDC)
 unset_propagated_clock [all_clocks]
 
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
@@ -122,5 +108,4 @@ puts -nonewline $core_area_file $::env(CORE_AREA)
 close $core_area_file
 close $die_area_file
 
-write_def $::env(SAVE_DEF)
-write_sdc $::env(SAVE_SDC)
+write

@@ -12,12 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import odb
-
-import os
 import click
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 LEF2OA_MAP = {
     "N": "R0",
@@ -56,12 +53,10 @@ def gridify(n, f):
     help="A flag to signal whether the placement should be fixed or not",
 )
 @click_odb
-def manual_macro_place(output, config, fixed, input_lef, input_def):
+def manual_macro_place(reader, config, fixed):
     """
     Places macros in positions and orientations specified by a config file
     """
-
-    reader = OdbReader(input_lef, input_def)
 
     # read config
     macros = {}
@@ -104,10 +99,7 @@ def manual_macro_place(output, config, fixed, input_lef, input_def):
 
     assert not macros, ("Macros not found:", macros)
 
-    print("Successfully placed", macros_cnt, "instances")
-
-    odb.write_def(reader.block, output)
-    assert os.path.exists(output), "Output not written successfully"
+    print(f"Successfully placed {macros_cnt} instances.")
 
 
 if __name__ == "__main__":

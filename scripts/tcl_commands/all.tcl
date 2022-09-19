@@ -28,31 +28,28 @@ proc save_state {args} {
     }
 }
 
-proc set_netlist {netlist args} {
+proc set_netlist {args} {
     set options {}
 
     set flags {
         -lec
     }
-    set args_copy $args
 
     parse_key_args "set_netlist" args arg_values $options flags_map $flags
 
+    set netlist [lindex $args 0]
     set netlist_relative [relpath . $netlist]
 
     puts_verbose "Changing netlist to '$netlist_relative'..."
 
-    set ::env(PREV_NETLIST) $::env(CURRENT_NETLIST)
+    set previous_netlist $::env(CURRENT_NETLIST)
     set ::env(CURRENT_NETLIST) $netlist
 
     set replace [string map {/ \\/} $::env(CURRENT_NETLIST)]
     try_catch sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
-    set replace [string map {/ \\/} $::env(PREV_NETLIST)]
-    try_catch sed -i -e "s/\\(set ::env(PREV_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-
-    if { [info exists flags_map(-lec)] && [file exists $::env(PREV_NETLIST)] } {
-        logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+    if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
+        logic_equiv_check -rhs $previous_netlist -lhs $netlist
     }
 }
 
@@ -62,6 +59,22 @@ proc set_def {def} {
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
     exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
+proc set_odb {odb} {
+    set odb_relative [relpath . $odb]
+    puts_verbose "Changing database to '$odb_relative'..."
+    set ::env(CURRENT_ODB) $odb
+    set replace [string map {/ \\/} $odb]
+    exec sed -i -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+}
+
+proc set_sdc {sdc} {
+    set sdc_relative [relpath . $sdc]
+    puts_verbose "Changing timing constraints to '$sdc_relative'..."
+    set ::env(CURRENT_SDC) $sdc
+    set replace [string map {/ \\/} $sdc]
+    exec sed -i -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 }
 
 proc set_guide {guide} {
@@ -107,10 +120,11 @@ proc prep_lefs {args} {
         if { [info exists ::env(METAL_LAYER_NAMES)] } {
             set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
         } else {
-            try_catch openroad -python\
+            try_catch $::env(OPENROAD_BIN) -python\
                 $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
                 $arg_values(-tech_lef)
+
             set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
         }
         set ::env(MAX_METAL_LAYER) [llength $::env(TECH_METAL_LAYERS)]
@@ -210,12 +224,9 @@ proc gen_exclude_list {args} {
         set ::env(DONT_USE_CELLS) [join $y " "]
         puts_verbose "Created ::env(DONT_USE_CELLS): {$::env(DONT_USE_CELLS)}"
     }
-
-
 }
 
 proc trim_lib {args} {
-    puts_verbose "Trimming Liberty..."
     set options {
         {-input optional}
         {-output optional}
@@ -224,8 +235,11 @@ proc trim_lib {args} {
         -drc_exclude_only
     }
     parse_key_args "trim_lib" args arg_values $options flags_map $flags
+
     set_if_unset arg_values(-input) $::env(LIB_SYNTH_COMPLETE)
     set_if_unset arg_values(-output) $::env(LIB_SYNTH)
+
+    puts_verbose "Trimming liberty files \{$arg_values(-input)\} into $arg_values(-output)..."
 
     set no_synth_list "$::env(NO_SYNTH_CELL_LIST)"
     if { [info exists ::env(NO_SYNTH_CELL_LIST_OPT)] } {
@@ -244,10 +258,29 @@ proc trim_lib {args} {
         close $fid
     }
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/libtrim.py\
+    try_catch python3 $::env(SCRIPTS_DIR)/libtrim.py\
         --cell-file $arg_values(-output).exclude.list\
         --output $arg_values(-output)\
         {*}$arg_values(-input)
+}
+
+proc merge_lib {args} {
+    set options {
+        {-inputs required}
+        {-output required}
+        {-name optional}
+    }
+
+    set flags {}
+
+    parse_key_args "merge_lib" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) "$::env(PDK)_merged"
+
+    try_catch python3 $::env(SCRIPTS_DIR)/mergeLib.py\
+        --output $arg_values(-output)\
+        --name $arg_values(-name)\
+        {*}$arg_values(-inputs)
 }
 
 proc source_config {args} {
@@ -311,6 +344,15 @@ proc source_config {args} {
 
 
     source $config_in_path
+}
+
+proc set_verbose {level} {
+    global global_verbose_level
+    set global_verbose_level $level
+    set ::env(TERMINAL_OUTPUT) "/dev/null"
+    if { $global_verbose_level >= 2 } {
+        set ::env(TERMINAL_OUTPUT) ">&@stdout"
+    }
 }
 
 proc load_overrides {args} {
@@ -420,11 +462,8 @@ proc prep {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
 
     # Output
-    set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
-    set ::env(TERMINAL_OUTPUT) "/dev/null"
-    if { $::env(OPENLANE_VERBOSE) >= 2 } {
-        set ::env(TERMINAL_OUTPUT) ">&@stdout"
-    }
+    set_if_unset arg_values(-verbose) "0"
+    set_verbose $arg_values(-verbose)
 
     # Extract or Create Run Tag and Run Directory
     set ::env(START_TIME) [clock format [clock seconds] -format %Y.%m.%d_%H.%M.%S ]
@@ -518,7 +557,7 @@ proc prep {args} {
     }
 
     if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/pdn_cfg.tcl
+        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
     }
 
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
@@ -672,16 +711,18 @@ proc prep {args} {
         }
 
         set ::env(LIB_SYNTH_COMPLETE) $::env(LIB_SYNTH)
-        # merge synthesis libraries
         set ::env(LIB_SYNTH_MERGED) $::env(synthesis_tmpfiles)/merged.lib
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/mergeLib.py\
-            --output $::env(LIB_SYNTH_MERGED)\
-            --name $::env(PDK)_merged\
-            {*}$::env(LIB_SYNTH_COMPLETE)
+
+        merge_lib\
+            -output $::env(LIB_SYNTH_MERGED)\
+            -name $::env(PDK)_merged\
+            -inputs {*}$::env(LIB_SYNTH_COMPLETE)
 
         # trim synthesis library
         set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
-        trim_lib -input $::env(LIB_SYNTH_MERGED)
+        trim_lib\
+            -output $::env(LIB_SYNTH)\
+            -input $::env(LIB_SYNTH_MERGED)
 
         # trim resizer library
         if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
@@ -701,6 +742,15 @@ proc prep {args} {
                     lappend ::env(LIB_RESIZER_OPT) $lib_resizer
                 }
             }
+        }
+
+        # trim the lib for CTS to only exclude cells with drc errors
+        if { ! [info exists ::env(LIB_CTS) ] } {
+            set ::env(LIB_CTS) $::env(cts_tmpfiles)/cts.lib
+            trim_lib\
+                -output $::env(LIB_CTS)\
+                -input $::env(LIB_SYNTH_COMPLETE)\
+                -drc_exclude_only
         }
 
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
@@ -734,7 +784,7 @@ proc prep {args} {
         # Convert Tracks
         if { $::env(TRACKS_INFO_FILE) != "" } {
             set tracks_processed $::env(routing_tmpfiles)/config.tracks
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+            try_catch python3 $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
             set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
         }
 
@@ -761,6 +811,11 @@ proc prep {args} {
     set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
 
+    if { ! [info exists ::env(CURRENT_INDEX)] } {
+        set ::env(CURRENT_INDEX) 0
+        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+    }
+
     if { ! [info exists ::env(CURRENT_DEF)] } {
         set ::env(CURRENT_DEF) 0
         set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
@@ -771,26 +826,27 @@ proc prep {args} {
         set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
     }
 
-    if { ! [info exists ::env(CURRENT_INDEX)] } {
-        set ::env(CURRENT_INDEX) 0
-        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
-    }
-
     if { ! [info exists ::env(CURRENT_NETLIST)] } {
         set ::env(CURRENT_NETLIST) 0
         set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
     }
 
-    if { ! [info exists ::env(PREV_NETLIST)] } {
-        set ::env(PREV_NETLIST) 0
-        set_log ::env(PREV_NETLIST) $::env(PREV_NETLIST) $::env(GLB_CFG_FILE) 1
+    if { ! [info exists ::env(CURRENT_POWERED_NETLIST)] } {
+        set ::env(CURRENT_POWERED_NETLIST) 0
+        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CFG_FILE) 1
+    }
+
+    if { ! [info exists ::env(CURRENT_ODB)] } {
+        set ::env(CURRENT_ODB) 0
+        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
     }
 
     if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
         file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
     }
+
     if { [info exists ::env(OPENLANE_VERSION) ] } {
-        try_catch echo "openlane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
+        try_catch echo "OpenLane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
@@ -960,15 +1016,11 @@ proc heal_antenna_violators {args} {
         TIMER::timer_start
         puts_info "Healing Antenna Violators..."
 
-        #replace violating cells with real diodes
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/diodes.py\
-            replace_fake\
-            --output $::env(routing_results)/$::env(DESIGN_NAME).def\
-            --input-lef $::env(MERGED_LEF)\
+        manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py replace_fake\
+            -output_def $::env(CURRENT_DEF)\
             --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
             --fake-diode $::env(FAKEDIODE_CELL)\
-            --true-diode $::env(DIODE_CELL)\
-            $::env(routing_results)/$::env(DESIGN_NAME).def
+            --true-diode $::env(DIODE_CELL)
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
@@ -988,84 +1040,73 @@ proc label_macro_pins {args} {
     set flags {}
     parse_key_args "label_macro_pins" args arg_values $options flags_map $flags
 
-    set output_def $::env(CURRENT_DEF)
-    set extra_args ""
 
-    if {[info exists arg_values(-output)]} {
-        set output_def $arg_values(-output)
-    }
-
-    if {[info exists arg_values(-extra_args)]} {
-        set extra_args $arg_values(-extra_args)
-    }
-
+    set_if_unset arg_values(-output) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-extra_args) ""
     set_if_unset arg_values(-pad_pin_name) ""
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
-        --input-lef $arg_values(-lef)\
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/label_macro_pins.py\
+        -indexed_log [index_file $::env(signoff_logs)/label_macro_pins.log]\
+        -output_def $arg_values(-output)\
+        -output $arg_values(-output).odb\
+        -input $::env(CURRENT_ODB) \
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
-        --output $output_def\
-        {*}$extra_args $::env(CURRENT_DEF)\
-        |& tee [index_file $::env(signoff_logs)/label_macro_pins.log] $::env(TERMINAL_OUTPUT)
+        {*}$extra_args
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
 }
 
 
-proc write_verilog {filename args} {
-    increment_index
-    TIMER::timer_start
-    puts_info "Writing Verilog..."
-    set ::env(SAVE_NETLIST) $filename
-
+proc write_verilog {args} {
     set options {
         {-def optional}
-        {-log optional}
+        {-indexed_log optional}
+        {-powered_to optional}
     }
-    set flags {
-        -canonical
-    }
+    set flags {}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
-    set_if_unset arg_values(-log) /dev/null
+    set_if_unset arg_values(-indexed_log) /dev/null
 
-    set ::env(INPUT_DEF) $arg_values(-def)
+    increment_index
+    TIMER::timer_start
+    puts_info "Writing Verilog (log: [relpath . $arg_values(-indexed_log)])..."
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_verilog.tcl -indexed_log [index_file $arg_values(-log)]
+    set filename [lindex $args 0]
+
+    set save_arg "odb=/dev/null,netlist=$filename"
+
+    set current_def_backup $::env(CURRENT_DEF)
+    set ::env(CURRENT_DEF) $arg_values(-def)
+
+    if { [info exists arg_values(-powered_to)] } {
+        set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
+    }
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
+        -indexed_log $arg_values(-indexed_log)\
+        -save $save_arg
+
+    set $::env(CURRENT_DEF) $current_def_backup
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"
-    if { [info exists flags_map(-canonical)] } {
-        yosys_rewrite_verilog $filename
-    }
-}
-
-proc set_layer_tracks {args} {
-    puts_info "Setting Layer Tracks..."
-    set options {
-        {-defFile required}
-        {-layer required}
-        {-valuesFile required}
-        {-originalFile required}
-    }
-    set flags {}
-    parse_key_args "set_layer_tracks" args arg_values $options flags_map $flags
-
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/set_layer_tracks.py -d $arg_values(-defFile) -l $arg_values(-layer) -v $arg_values(-valuesFile) -o $arg_values(-originalFile)
-
 }
 
 proc run_or_antenna_check {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(signoff_logs)/antenna.log]
+
     puts_info "Running OpenROAD Antenna Rule Checker (log: [relpath . $log])..."
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
+    try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
         --output $antenna_violators_rpt\
         $log
 

@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,28 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-foreach lib $::env(LIB_SYNTH) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
 macro_placement\
     -channel $::env(PL_MACRO_CHANNEL)\
     -halo $::env(PL_MACRO_HALO)
 
-write_def $::env(SAVE_DEF)
+write

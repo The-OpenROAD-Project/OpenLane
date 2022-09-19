@@ -55,6 +55,8 @@ def docker_config():
     from dependencies.env_info import ContainerInfo
 
     cinfo = ContainerInfo.get()
+    if cinfo is None:
+        raise Exception("No container engine found.")
 
     if cinfo.engine == "docker":
         if cinfo.rootless:

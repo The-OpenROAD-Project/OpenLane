@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 proc run_sta {args} {
     set options {
         {-log required}
-        {-lef optional}
         {-process_corner optional}
     }
     set flags {
@@ -26,8 +25,6 @@ proc run_sta {args} {
     set multi_corner [info exists flags_map(-multi_corner)]
     set pre_cts [info exists flags_map(-pre_cts)]
 
-    set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-    set ::env(STA_LEF) $arg_values(-lef)
     set ::env(RUN_STANDALONE) 1
 
     set corner_prefix "Single-Corner"
@@ -74,9 +71,6 @@ proc run_parasitics_sta {args} {
     set_if_unset arg_values(-spef_out_prefix) [file rootname $::env(CURRENT_DEF)]
 
     set ::env(SPEF_PREFIX) $arg_values(-spef_out_prefix)
-    set ::env(SAVE_SDF) $arg_values(-sdf_out)
-
-    puts_info "Running parasitics-based static timing analysis..."
 
     # Nom last so CURRENT_SPEF is the nom current SPEF after the loop is done
     foreach {process_corner lef ruleset} {
@@ -85,38 +79,33 @@ proc run_parasitics_sta {args} {
         nom MERGED_LEF RCX_RULES
     } {
         if { [info exists ::env($lef)] } {
-            set ::env(SAVE_SPEF) "$::env(SPEF_PREFIX).$process_corner.spef"
-
             run_spef_extraction\
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
                 -rcx_rules $::env($ruleset)\
                 -rcx_lef $::env($lef)\
-                -process_corner $process_corner
+                -process_corner $process_corner \
+                -save "$::env(SPEF_PREFIX).$process_corner.spef"
 
-            set ::env(CURRENT_SPEF) $::env(SAVE_SPEF)
+            set log_name $::env(signoff_logs)/rcx_mcsta.$process_corner.log
 
-            set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.$process_corner.log
+            run_sta\
+                -log $log_name\
+                -process_corner $process_corner\
+                -multi_corner
+
 
             if { $process_corner == "nom" } {
-                # First, we need this for the reports:
-                set log_name $::env(signoff_logs)/parasitics_multi_corner_sta.log
-
-                # We also need to run a single-corner STA at the tt timing corner
+                set ::env(SAVE_SDF) $arg_values(-sdf_out)
                 run_sta\
-                    -log $::env(signoff_logs)/parasitics_sta.log\
+                    -log $::env(signoff_logs)/rcx_sta.log\
                     -process_corner $process_corner
 
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
 
                 set ::env(CURRENT_SDF) $::env(SAVE_SDF)
+                unset ::env(SAVE_SDF)
             }
-
-            run_sta\
-                -lef $::env($lef)\
-                -log $log_name\
-                -process_corner $process_corner\
-                -multi_corner
         }
     }
 }

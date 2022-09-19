@@ -33,11 +33,11 @@ from reader import OdbReader, click_odb
 )
 @click.option("--keep-inner-connections", default=False, is_flag=True)
 @click_odb
-def contextualize(
-    output, input_lef, top_def, top_lef, keep_inner_connections, input_def
-):
+def contextualize(reader, top_def, top_lef, keep_inner_connections):
+    reader.add_lef(top_lef)
+
     top = OdbReader(top_lef, top_def)
-    macro = OdbReader([top_lef, input_lef], input_def)
+    macro = reader
 
     print("Block design name:", macro.name)
     print("Top-level design name:", top.name)
@@ -105,8 +105,6 @@ def contextualize(
                 else:
                     new_inst = macro.block.findInst(node_inst_name)
                 new_inst.findITerm(node_iterm.getMTerm().getName()).connect(net)
-
-    odb.write_def(macro.block, output)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,14 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-set_global_routing_layer_adjustment * $::env(GRT_ADJUSTMENT)
-
-set array [split $::env(GRT_LAYER_ADJUSTMENTS) ","]
-
-set i 0
-foreach adjustment $array {
-    set layer_name [lindex $::env(TECH_METAL_LAYERS) $i]
-    set_global_routing_layer_adjustment $layer_name $adjustment
-    incr i
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
+write

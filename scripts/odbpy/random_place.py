@@ -12,12 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import odb
-
 import click
 import random
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 
 def gridify(n, f):
@@ -29,9 +27,7 @@ def gridify(n, f):
 
 @click.command()
 @click_odb
-def random_place(output, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
-
+def random_place(reader):
     core_area = reader.block.getCoreArea()
     LLX, LLY = core_area.ll()
     URX, URY = core_area.ur()
@@ -56,8 +52,6 @@ def random_place(output, input_lef, input_def):
         placed_cnt += 1
 
     print(f"Placed {placed_cnt} instances.")
-
-    odb.write_def(reader.block, output)
 
 
 if __name__ == "__main__":

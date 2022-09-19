@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +14,8 @@
 
 # NORMAL MODE: inserts diode cells
 # OPTIMIZED MODE: inserts a fake diode, to be replaced later with a real diode if necessary
-
-set input_def $::env(CURRENT_DEF)
-set input_lef $::env(MERGED_LEF)
-set output_def $::env(SAVE_DEF)
-
-read_lef $input_lef
-read_def $input_def
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
 set ::PREFIX ANTENNA
 set ::VERBOSE 0
@@ -92,7 +87,8 @@ detailed_placement
 if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
 	optimize_mirroring
 }
-write_def $::env(SAVE_DEF)
+
+write
 
 if { [catch {check_placement -verbose} errmsg] } {
 	puts stderr $errmsg
