@@ -7,14 +7,17 @@ It is the recommended installation method under Windows. Other variants like
 
 1. Follow `official Microsoft documentation for WSL located here <https://docs.microsoft.com/en-us/windows/wsl/install>`_ to install the WSL 2. Make sure your OS version supports WSL 2.
 2. Follow `official steps to Install Docker Desktop on Windows located here <https://docs.docker.com/desktop/install/windows-install/>`_.
+3. Make sure that ``WSL 2 Docker engine`` is enabled
+4. Make sure that option ``Start Docker Desktop when you login`` is enabled in ``Docker Desktop`` -> ``Settings``
 
-.. todo:: Instructions for enabling docker at boot
-.. todo:: there is a need to mention in the guide "open powershell and do ..."
-.. todo:: "Troubleshooting docker installation issues" is not needed in windows. THis needs to be fixed.
-.. todo:: Make troubleshooting docker installation issues at the end
+.. figure:: ../_static/installation/wsl_docker_settings.png
 
-3. Install Ubuntu using wsl ``wsl --install -d Ubuntu``
-4. Check the verison of WSL using following command: ``wsl --list --verbose``
+5. Click Windows icon, type in "Windows PowerShell" and open it.
+
+.. figure:: ../_static/installation/powershell.png
+
+6. Install Ubuntu using wsl command: ``wsl --install -d Ubuntu``
+7. Check the verison of WSL using following command: ``wsl --list --verbose``
 
 
 It should produce following output:
@@ -37,7 +40,7 @@ If you get following output, then you need to start the `Docker Desktop on Windo
     docker-desktop         Stopped         2
     docker-desktop-data    Stopped         2
 
-Or if you get this error, similarly you need to start the `Docker Desktop on Windows`.
+Or if you get this error similar to below, then you need to start the `Docker Desktop on Windows`.
 
 .. code-block::
 
@@ -51,8 +54,8 @@ Or if you get this error, similarly you need to start the `Docker Desktop on Win
     https://docs.docker.com/go/wsl2/
 
 
-5. Press Start and open Ubuntu
-6. Follow steps below
+8. Press Start and open Ubuntu
+9. Follow steps below
 
 .. figure:: ../_static/installation/wsl.png
 
