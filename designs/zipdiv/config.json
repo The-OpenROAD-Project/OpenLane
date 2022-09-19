@@ -18,6 +18,6 @@
         }
     },
     "pdk::gf180*": {
-        "PL_TARGET_DENSITY": 0.62,
+        "PL_TARGET_DENSITY": 0.62
     }
 }
