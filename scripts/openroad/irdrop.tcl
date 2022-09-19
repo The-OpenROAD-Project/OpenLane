@@ -32,6 +32,6 @@ if { [info exists ::env(EXTRA_LIBS) ] } {
     }
 }
 
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 
 analyze_power_grid -net $::env(VDD_NET) -outfile $::env(_tmp_save_rpt)

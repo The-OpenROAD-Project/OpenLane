@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ proc run_magic {args} {
     # |----------------   6. TAPE-OUT ---------------------|
     # |----------------------------------------------------|
     set log [index_file $::env(signoff_logs)/gdsii.log]
-    puts_info "Streaming out GDS-II with Magic (log: [relpath . $log])..."
+    puts_info "Streaming out GDSII with Magic (log: [relpath . $log])..."
     # the following MAGTYPE better be mag for clean GDS generation
     # use load -dereference to ignore it later if needed
 
@@ -97,21 +97,21 @@ proc run_magic_drc {args} {
         -indexed_log $log
 
     puts_info "Converting Magic DRC Violations to Magic Readable Format..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
 
-    puts_info "Converting Magic DRC Violations to Klayout XML Database..."
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
+    puts_info "Converting Magic DRC Violations to KLayout XML Database..."
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
         -o $::env(drc_prefix).klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(drc_prefix).tr
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
         -o $::env(drc_prefix).rdb \
         $::env(drc_prefix).rpt
 

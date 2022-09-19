@@ -117,18 +117,11 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
 }
 
 if { [info exists ::env(INSERT_BUFFER_COMMAND) ]} {
-    if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
+    source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+    read
 
     set arg_list [split $::env(INSERT_BUFFER_COMMAND) " "]
     insert_buffer {*}$arg_list
 
-    write_def $::env(SAVE_DEF)
+    write
 }

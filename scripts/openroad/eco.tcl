@@ -42,30 +42,11 @@ proc run_eco {args} {
     }
 }
 
-foreach lib $::env(LIB_CTS) {
-    read_liberty $lib
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read -override_libs "$::env(LIB_CTS)"
 
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-read_sdc $::env(CURRENT_SDC)
 set_propagated_clock [all_clocks]
 
 run_eco
 
-write_verilog $::env(SAVE_NETLIST)
-write_def     $::env(SAVE_DEF)
+write

@@ -2,7 +2,7 @@ package require openlane;
 
 prep -design tests/1007
 
-set ::env(CURRENT_DEF) $::env(DESIGN_DIR)/in.def
+set ::env(CURRENT_ODB) $::env(DESIGN_DIR)/in.odb
 
 insert_buffer\
     -at_pin _0_/A\
@@ -10,7 +10,7 @@ insert_buffer\
     -net_name inserted_net\
     -inst_name inserted_buffer
 
-exec cp $::env(CURRENT_DEF) $::env(DESIGN_DIR)/out.def
+exec cp $::env(CURRENT_ODB) $::env(DESIGN_DIR)/out.odb
 
 exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py
 

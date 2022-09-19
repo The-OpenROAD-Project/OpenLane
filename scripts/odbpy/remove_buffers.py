@@ -19,7 +19,7 @@ from typing import List
 
 import click
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 
 def get_pin_name(pin: odb.dbITerm):
@@ -95,8 +95,7 @@ def get_io(cell: odb.dbInst):
     help="A regular expression matching all nets to remove.",
 )
 @click_odb
-def remove_buffers(output, rx_str: str, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def remove_buffers(reader, rx_str):
     if rx_str != "^$":
         # Save some compute time :)
 
@@ -162,7 +161,6 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
             odb.dbInst.destroy(buffer)
 
         print("  * Done.")
-    odb.write_def(reader.block, output)
 
 
 if __name__ == "__main__":

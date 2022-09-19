@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,39 +11,20 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-read_sdc $::env(CURRENT_SDC)
 set_propagated_clock [all_clocks]
 
 if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
-source $::env(SCRIPTS_DIR)/openroad/set_routing_layers.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/set_routing_layers.tcl
 
 set_macro_extension $::env(GRT_MACRO_EXTENSION)
 
-source $::env(SCRIPTS_DIR)/openroad/layer_adjustments.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/set_layer_adjustments.tcl
 
 set arg_list [list]
 lappend arg_list -congestion_iterations $::env(GRT_OVERFLOW_ITERS)
@@ -59,14 +40,12 @@ if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
     check_placement
 }
 
-
-write_guides $::env(SAVE_GUIDE)
-write_def $::env(SAVE_DEF)
+write
 
 if {[info exists ::env(CLOCK_PORT)]} {
     if { $::env(GRT_ESTIMATE_PARASITICS) == 1 } {
         # set rc values
-        source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
+        source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
         # estimate wire rc parasitics
         estimate_parasitics -global_routing
 
