@@ -100,7 +100,7 @@ Add the PDN connections between sram cells and the power/ground nets.
 
 Syntax: ``<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>``.
 
-More information is available in `configuration variables documentation <configuration>`_.
+More information is available in `configuration variables documentation <../reference/configuration.html>`_.
 Each macro hook is separated using comma, for example:
 
 .. code-block:: json

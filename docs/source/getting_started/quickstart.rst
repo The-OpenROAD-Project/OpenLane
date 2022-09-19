@@ -3,13 +3,13 @@ Quick-Start Guide
 Overview
 ------------------------------------
 
-.. note:: This page assumes `OpenLane installation <installation.rst>`_ is done. If you have not yet installed OpenLane, please visit the link and follow the instructions there.
+.. note:: This page assumes `OpenLane installation <index.html>`_ is done. If you have not yet installed OpenLane, please visit the link and follow the instructions there.
 
 This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
 
 Starting the OpenLane Environment
 ------------------------------------------------------------------------
-.. note:: If you installed OpenLane following `local installation <local_installs.html>`_ steps, these instructions will not entirely apply. We no longer actively support local installation.
+.. note:: If you installed OpenLane following `local installation <installation_local.html>`_ steps, these instructions will not entirely apply. We no longer actively support local installation.
 
 OpenLane uses Docker to create a reproducible environment for your projects. You don't need any extra steps to run the Docker image, as the Makefile already takes care of it. Just run the following commands to enter the OpenLane environment:
 
@@ -55,7 +55,7 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.json
 
-``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <../reference/configuration>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
 The ``design_name`` could be replaced by the ``design_directory``, which will allow you to run designs from any folder in your machine.
 
@@ -99,7 +99,7 @@ This is a typical structure for a design folder:
 
 The main files are a configuration file and a ``src/`` folder that contains source code, as well as a ``runs`` folder that creates designs.
 
-You can find more information `regarding the ./flow.tcl in the documentation here <designs.html>`_. And here is the `reference documentation regarding the configuration valirables <configuration.html>`_.
+You can find more information `regarding the ./flow.tcl in the documentation here <../usage/designs>`_. And here is the `reference documentation regarding the configuration variables <../reference/configuration>`_.
 
 Advanced: Using custom PDK locations and OpenLane Docker images
 ---------------------------------------------------------------
