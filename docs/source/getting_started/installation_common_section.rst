@@ -134,12 +134,12 @@ Open the final layout using KLayout. This will open the window of KLayout in edi
 .. image:: ../../_static/installation/spm.png
 
 .. seealso::
-   `Quickstart guide <quickstart>`_
+   `Quickstart guide <quickstart.html>`_
 
-   `Ubuntu installation <installation_ubuntu>`_
+   `Ubuntu installation <installation_ubuntu.html>`_
 
-   `Linux installation <installation_linux>`_
+   `Linux installation <installation_linux.html>`_
 
-   `macOS installation <installation_macos>`_
+   `macOS installation <installation_macos.html>`_
 
-   `Windows installation <installation_win>`_
+   `Windows installation <installation_win.html>`_

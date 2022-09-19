@@ -55,7 +55,7 @@ This will create the following directory structure:
     designs/<design_name>
     ├── config.json
 
-``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <../reference/configuration>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
+``config.json`` is a global configuration for all PDKs. For more information about design `configuration files please visit this page <../reference/configuration.html>`_. In the configuration file, you should edit the required variables and the optional variables, if needed.
 
 The ``design_name`` could be replaced by the ``design_directory``, which will allow you to run designs from any folder in your machine.
 
@@ -99,7 +99,7 @@ This is a typical structure for a design folder:
 
 The main files are a configuration file and a ``src/`` folder that contains source code, as well as a ``runs`` folder that creates designs.
 
-You can find more information `regarding the ./flow.tcl in the documentation here <../usage/designs>`_. And here is the `reference documentation regarding the configuration variables <../reference/configuration>`_.
+You can find more information `regarding the ./flow.tcl in the documentation here <../usage/designs.html>`_. And here is the `reference documentation regarding the configuration variables <../reference/configuration.html>`_.
 
 Advanced: Using custom PDK locations and OpenLane Docker images
 ---------------------------------------------------------------

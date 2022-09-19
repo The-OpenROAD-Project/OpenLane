@@ -70,7 +70,7 @@ Modify the ``config.json`` to include following:
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
 
-More information on `configuration can be found here <../reference/configuration.html>`_. 
+More information on `configuration can be found here <../reference/configuration>`_. 
 
 .. figure:: ../../_static/digital_flow/ring_around_macro.png
 
