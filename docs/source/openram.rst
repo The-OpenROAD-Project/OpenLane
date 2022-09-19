@@ -1,4 +1,4 @@
-Tutorial: OpenRAM macro (sky130)
+OpenRAM macro (sky130)
 --------------------------------------------------------------------------------
 
 Overview
