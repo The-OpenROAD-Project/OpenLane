@@ -11,5 +11,8 @@
             "FP_CORE_UTIL": 30,
             "PL_TARGET_DENSITY": 0.32
         }
+    },
+    "pdk::gf180*": {
+        "PL_TARGET_DENSITY": 0.62
     }
 }
