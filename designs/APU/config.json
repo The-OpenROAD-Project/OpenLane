@@ -6,10 +6,11 @@
     "FP_CORE_UTIL": 35,
     "CLOCK_PERIOD": 17,
     "pdk::gf180mcuC": {
-        "DIODE_INSERTION_STRATEGY": "0",
+        "DIODE_INSERTION_STRATEGY": "3",
         "PL_RESIZER_HOLD_SLACK_MARGIN": 0.25,
         "FP_CORE_UTIL": 25,
         "PL_RESIZER_HOLD_MAX_BUFFER_PERCENT": 60,
+        "PL_TARGET_DENSITY": 0.31,
         "CLOCK_PERIOD": 75
     },
     "pdk::sky130*": {
