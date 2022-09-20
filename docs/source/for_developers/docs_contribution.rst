@@ -1,7 +1,7 @@
 Contributing Docs
 ================================================================================
 
-.. note:: This page is for documentation contributors. For prospecting code contributors, please see `Code Contributions <../../CONTRIBUTING.html>`_
+.. note:: This page is for documentation contributors. For prospecting code contributors, please see `Code Contributions <for_developers/code_contribution>`_
 
 Introduction
 --------------------------------------------------------------------------------
