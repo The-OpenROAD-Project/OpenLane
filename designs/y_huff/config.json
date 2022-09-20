@@ -23,5 +23,10 @@
         "scl::sky130_fd_sc_ms": {
             "FP_CORE_UTIL": 30
         }
+    },
+    "pdk::gf180*": {
+        "FP_SIZING": "relative",
+        "FP_CORE_UTIL": 50,
+        "PL_TARGET_DENSITY": 0.62
     }
 }
