@@ -5,9 +5,6 @@ Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 This guide covers the RTL-to-GDS flow using `OpenRAM <https://openram.org/>`_ cells and many macro related features from the OpenLane flow for full chip integration.
 
-
-    .. todo:: Add extra libs
-
 Create a new design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -55,18 +52,22 @@ It is users responsibility to make sure that GDS matches LEF files.
         [ERROR]: Floorplanning failed
         [ERROR]: module sky130_sram_1kbyte_1rw1r_32x256_8 not found in /openlane/designs/test_sram_macro/runs/full_guide_nomacros/tmp/merged.nom.lef
         [ERROR]: Check whether EXTRA_LEFS is set appropriately
-        [INFO]: Saving current set of views in 'designs/test_sram_macro/runs/full_guide_nomacros/results/final'...
-        [INFO]: Generating final set of reports...
-        [INFO]: Created manufacturability report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/manufacturability.rpt'.
-        [INFO]: Created metrics report at 'designs/test_sram_macro/runs/full_guide_nomacros/reports/metrics.csv'.
-        [INFO]: Saving runtime environment...
-        [ERROR]: Flow failed.
-
 
 Connect the blackbox information and timing data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. note::
 
-.. todo:: EXTRA_LIBS
+    `Multiple scenario Libery files are not supported yet <https://github.com/The-OpenROAD-Project/OpenLane/issues/1343>`_.
+
+Liberty flow contains the timings, description I/O of the macro.
+It is used in Timing analysis and in synthesis.
+The liberty file is supplied to flow using ``EXTRA_LIBS`` configuration. Add it to configuration file:
+
+.. code-block::
+
+    "EXTRA_LIBS":      "/openlane/pdks/sky130B/libs.ref/sky130_sram_macros/lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib",
+
+
 
 .. warning::
 

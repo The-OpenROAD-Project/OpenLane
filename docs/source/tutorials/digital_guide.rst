@@ -4,9 +4,6 @@ Hierarchical design flow
 This guide covers creation of simple hierarchical chip level macro.
 Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip level macros.
 
-.. todo:: Use more word of hierarchical
-.. todo:: Spell check
-
 Hardening the mem_1r1w macro block
 --------------------------------------------------------------------------------
 
@@ -223,7 +220,7 @@ While the area is enough, there is no combination of placement for this cells th
 Change the ``FP_ASPECT_RATIO`` value to ``2``.
 This will make the flooplan a rectange instead of square and the rectangle will be double in height compared to width.
 
-.. todo:: Reference the hardening macro relevant section and maybe openram section for the DIE_AREA example
+More information regarding floorplanning is available `Hardening Macros guide <../usage/hardening_macros.html>`_.
 
 ``config.json`` should look like this:
 
