@@ -64,8 +64,6 @@ Modify the ``config.json`` to include following:
 
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
-.. todo:: Define what IS_CORE and is not core is. match the documentation
-
 ``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macro block.
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
@@ -74,9 +72,7 @@ More information on `configuration can be found here <reference/configuration>`_
 
 .. figure:: ../../_static/digital_flow/ring_around_macro.png
 
-    A macro with a PDN ring around. ``"FP_PDN_CORE_RING": true``
-
-.. todo:: Replace with comparison
+    On the left ``"FP_PDN_CORE_RING": true``, on the right ``"FP_PDN_CORE_RING": false``
 
 Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
