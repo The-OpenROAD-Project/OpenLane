@@ -4,14 +4,12 @@ Hierarchical design flow
 This guide covers creation of simple hierarchical chip level macro.
 Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip level macros.
 
-Hardening the mem_1r1w macro block
+Hardening the mem_1r1w macroblock
 --------------------------------------------------------------------------------
+In this section the process of hardening the macroblock mem_1r1w is covered.
+As these macroblocks will be used in the top level hierarchy some configurations need to be made.
 
-In these section the process of hardening the macro block mem_1r1w is covered.
-As these macro block will be used in the top level hierarchy some configurations need to be made.
-
-Keep in mind that these designs are not ready for production
-and are just used as to showcase the capabilities of OpenLane.
+Keep in mind that these designs are not ready for production and are just used to showcase the capabilities of OpenLane.
 
 Create the memory macro design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32,8 +30,8 @@ Example of the common issues people face:
 They copy ``inverter`` design, rename it. Then run the flow and the router crashes with ``error 10``.
 This is caused by enabled "basic placement",
 which works only for designs with a couple of dozen standard cells, not hundreds.
-So when you change the basic inverter with a design containing many cells
-router will not be able to route your design, therefore crashing with cryptic message.
+So when you change the basic inverter with a design containing many cells,
+the router will not be able to route your design, therefore crashing with cryptic messages.
 
 Create the RTL files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,9 +45,13 @@ Create ``design/mem_1r1w/src/mem_1r1w.v`` file and put following content:
 
 
 .. note::
-    Originally we used a very small macro block as an example,
-    however there is known issue: Small macro blocks do not fit proper power grid,
-    therefore you need to avoid making small macro blocks. For this, set the ``FP_SIZING`` to ``absolute`` and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
+
+    Originally we used a very small macroblock as an example,
+    however, there is a known issue:
+    Small macroblocks do not fit the power grid,
+    therefore you need to avoid making small macroblocks.
+    
+    For this, set the ``FP_SIZING`` to absolute and configure ``DIE_AREA`` to be bigger than ``200um x 200um`` for sky130.
 
 Configure mem_1r1w
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -61,7 +63,7 @@ Modify the ``config.json`` to include following:
 
 ``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
 
-``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macro block.
+``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macroblock.
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
 
@@ -71,7 +73,7 @@ More information on `configuration can be found here <../reference/configuration
 
     On the left ``"FP_PDN_CORE_RING": true``, on the right ``"FP_PDN_CORE_RING": false``
 
-Run the flow on the macro block
+Run the flow on the macroblock
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Finally, run OpenLane. ``flow.tcl`` is the entry point for OpenLane.
@@ -97,13 +99,13 @@ You can open interactive view using following commands:
 Chip level integration
 --------------------------------------------------------------------------------
 
-In these section the integration of previously hardened macro block is covered.
+In these section the integration of previously hardened macroblock is covered.
 Currently OpenLane does not support cross hierarchy timing analysis, so this is rather
 
 Create chip level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The top level macro block is called ``regfile_2r1w``. However, to run the flow we need to prepare the design first.
+The top level macroblock is called ``regfile_2r1w``. However, to run the flow we need to prepare the design first.
 Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
 
 .. code-block::
@@ -147,13 +149,13 @@ Then add ``VERILOG_FILES_BLACKBOX``, ``EXTRA_LEFS`` and ``EXTRA_GDS_FILES`` to t
         "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
     }
 
-This will add the LEF abstract representation of the macro block. This abstraction file contains only layers required by tools.
+This will add the LEF abstract representation of the macroblock. This abstraction file contains only layers required by tools.
 In contrast, GDS contains all of the layers and is used to generate the final GDS file.
 Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
 
 .. warning::
     
-    Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
+    Check for name collisions between the blackboxed macroblocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
 
 The PDN straps will be routed in opposite directions.
 In locations where the two routing cross each other,
@@ -164,7 +166,7 @@ If it is set to ``false`` then VIAs will be missing and you will get LVS issues.
 Verilog files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create the RTL files for the macro block ``regfile_2r1w``.
+Create the RTL files for the macroblock ``regfile_2r1w``.
 The file is located in newly created design path ``designs/regfile_2r1w/src/regfile_2r1w.v`` and has following content:
 
 .. literalinclude:: ../../../designs/regfile_2r1w/src/regfile_2r1w.v
@@ -214,7 +216,7 @@ To debug this issue, open an OpenROAD GUI:
 .. figure:: ../../_static/digital_flow/broken_aspect_ratio.png
 
 As can be observed in the image, placement of the mem_1r1w instances failed.
-It was unable to place the macro blocks inside the ``DIE_AREA``.
+It was unable to place the macroblocks inside the ``DIE_AREA``.
 While the area is enough, there is no combination of placement for this cells that fits. All of the possible placements of these cells overlap.
 
 Change the ``FP_ASPECT_RATIO`` value to ``2``.

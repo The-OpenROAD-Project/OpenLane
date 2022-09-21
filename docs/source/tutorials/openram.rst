@@ -25,7 +25,7 @@ Create or add Verilog files. In this case create file ``designs/test_sram_macro/
 Connect the layout files and abstracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-LEF files are abstract representations of hard macro blocks, such as OpenRAM macros.
+LEF files are abstract representations of hard macroblocks, such as OpenRAM macros.
 This files contains lightweight abstract representation of the cell.
 LEF contains only metal layers and layers that can connect between cells (met1, via2, nwell, pwell, etc).
 
@@ -213,7 +213,7 @@ It will look like this:
 Looking at the floorplan, it would be better if the macros were centered, so the buffers can be placed near I/O.
 In order to achieve this, keep the area almost the same,
 but resize the DIE_AREA to a rectangle that allows 100um all around each macro for standard cells.
-In the next step the location of macro blocks will be selected.
+In the next step the location of macroblocks will be selected.
 
 Set the following floorplan parameters:
 
@@ -223,7 +223,7 @@ Set the following floorplan parameters:
     "DIE_AREA": "0 0 750 1250",
     "PL_TARGET_DENSITY": 0.5,
 
-``FP_SIZING`` is set to ``absolute`` and it will tell the floorplan to use ``DIE_AREA`` as final macro block's size.
+``FP_SIZING`` is set to ``absolute`` and it will tell the floorplan to use ``DIE_AREA`` as final macroblock's size.
 The we set the ``DIE_AREA``. This value is carefully constructed.
 
 .. warning::
@@ -329,7 +329,7 @@ After the run is done, check the DRC report manually and make sure the issues ar
     "QUIT_ON_MAGIC_DRC": false
 
 .. warning::
-    
+
     If you do not manualy check the DRC,
     then in the submission process to the foundry DRC errors will be checked anyway,
     but the turnaround is too long to rely on this.
@@ -433,7 +433,7 @@ Final ``config.json`` looks like this:
 .. literalinclude:: ../../../designs/test_sram_macro/config.json
     :language: json
 
-Finally, harden the macro block by running the following command:
+Finally, harden the macroblock by running the following command:
 
 .. code-block::
 
