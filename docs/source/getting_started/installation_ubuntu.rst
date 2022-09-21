@@ -9,8 +9,8 @@ Only Ubuntu 20.04 and above are supported.
 
 Docker Installation
 --------------------------------------------------------------------------------
-Next install Docker.
-Follow `instructions provided in documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as steps provided below might be outdated.
+Next, install Docker.
+Follow `the instructions provided in the documentation of the Docker  here <https://docs.docker.com/engine/install/ubuntu/>`_ as the steps provided below might be outdated.
 
 .. warning::
     The steps below might be simply outdated, it is encouraged to follow the link to the official Docker documentation

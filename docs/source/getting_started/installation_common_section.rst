@@ -1,7 +1,7 @@
 Checking the Docker Installation
 --------------------------------------------------------------------------------
 
-After that you can run Docker Hello World without root. To test it use following command:
+After that, you can run Docker Hello World without root. To test it use the following command:
 
 .. code-block:: shell
 
@@ -38,7 +38,7 @@ Troubleshooting docker installation issues [Linux/Ubuntu only]
 --------------------------------------------------------------------------------
 
 If you get Docker permission error when running any Docker images, then likely,
-you forgot to follow steps to make Docker available without root or you need to *restart your Operating System*.
+you forgot to follow the steps to make Docker available without root or you need to *restart your Operating System*.
 
 .. code-block::
 
@@ -51,7 +51,7 @@ you forgot to follow steps to make Docker available without root or you need to 
 Checking Installation Requirements
 --------------------------------------------------------------------------------
 
-In order to check installation, you can use following commands:
+In order to check the installation, you can use the following commands:
 
 .. code-block::
 
@@ -62,7 +62,7 @@ In order to check installation, you can use following commands:
    make --version
    python3 -m venv -h
 
-Successful outputs looks like this:
+Successful output will look like this:
 
 .. code-block::
 
@@ -103,10 +103,10 @@ Download OpenLane from GitHub:
    make test
 
 
-This steps will download and build OpenLane and sky130 PDK. Finally, it will run a ~5 minute test that verifies that the flow and the pdk were properly installed.
-If you are planning to use other PDK, then you need to follow the PDK installation guide for that specific PDK.
+These steps will download and build OpenLane and sky130 PDK. Finally, it will run a ~5 minute test that verifies that the flow and the PDK were properly installed.
+If you are planning to use another PDK, then you need to follow the PDK installation guide for that specific PDK.
 
-Sucessful test will output following line:
+Successful test will output the following line:
 
 .. code-block::
 

@@ -124,7 +124,7 @@ This means that the only remaining option is the Verilog Blackbox flow.
 .. warning::
 
     The users should be careful when making subcomponents or blackboxes that have parameters,
-    because this may cause behaviour missmatches between RTL and the final GDS.
+    because this may cause behaviour mismatches between RTL and the final GDS.
 
 Create the verilog blackbox:
 
