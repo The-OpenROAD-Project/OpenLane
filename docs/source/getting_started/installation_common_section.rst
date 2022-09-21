@@ -37,7 +37,8 @@ You will get a little happy message of Hello world, once again, but this time wi
 Troubleshooting docker installation issues [Linux/Ubuntu only]
 --------------------------------------------------------------------------------
 
-If you get Docker permission error when running any Docker images:
+If you get Docker permission error when running any Docker images, then likely,
+you forgot to follow steps to make Docker available without root or you need to *restart your Operating System*.
 
 .. code-block::
 
@@ -46,7 +47,6 @@ If you get Docker permission error when running any Docker images:
    See 'docker run --help'.
    OpenLane> 
 
-Then you skipped a step or two. Likely, you forgot to follow steps to make Docker available without root or you need to *restart your Operating System*.
 
 Checking Installation Requirements
 --------------------------------------------------------------------------------
