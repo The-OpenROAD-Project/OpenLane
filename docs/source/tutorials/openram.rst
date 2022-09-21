@@ -25,16 +25,18 @@ Create or add Verilog files. In this case create file ``designs/test_sram_macro/
 Connect the layout files and abstracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Connect LEF files using ``EXTRA_LEFS``.
-In this case absolute path is used, if the PDK location is different then path needs to be changed.
+LEF files are abstract representations of hard macro blocks, such as OpenRAM macros.
 This files contains lightweight abstract representation of the cell.
 LEF contains only metal layers and layers that can connect between cells (met1, via2, nwell, pwell, etc).
 
-.. todo:: Rephrase
+OpenLane configuration of LEF files are done using ``EXTRA_LEFS``.
+In this case absolute path is used, if the PDK location is different then path needs to be changed.
 
-Connect GDS files with the subcomponent.
-The GDS from ``EXTRA_GDS_FILES`` that will be used to generate the final GDS file.
-It is users responsibility to make sure that GDS matches LEF files.
+Next, configure GDS files of the hard macro. OpenLane configuration of GDS is ``EXTRA_GDS_FILES``.
+
+.. warning::
+
+    It is users responsibility to make sure that GDS matches LEF files.
 
 .. code-block:: json
 
