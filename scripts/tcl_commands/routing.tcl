@@ -270,11 +270,13 @@ proc ins_diode_cells_4 {args} {
     set_odb $save_odb
 
     # Legalize
+    set dpl_cell_padding $::env(DIODE_PADDING)
+    set ::env(DPL_CELL_PADDING) $::env(DIODE_PADDING)
     detailed_placement_or\
         -outdir $::env(routing_tmpfiles)\
         -log $::env(routing_logs)/diode_legalization.log\
         -name diodes
-
+    set ::env(DPL_CELL_PADDING) $dpl_cell_padding
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
 }
