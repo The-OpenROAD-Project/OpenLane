@@ -77,7 +77,8 @@ More information on `configuration can be found here <reference/configuration>`_
 Run the flow on the macro block
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. todo:: Add proper description
+Finally, run OpenLane. ``flow.tcl`` is the entry point for OpenLane.
+The command needs to be ran from inside the OpenLane's enviorment as described in quickstart.
 
 .. code-block::
 
@@ -102,11 +103,10 @@ Chip level integration
 In these section the integration of previously hardened macro block is covered.
 Currently OpenLane does not support cross hierarchy timing analysis, so this is rather
 
-Create chip level RTL
+Create chip level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. todo:: better description of this section
-
+The top level macro block is called ``regfile_2r1w``. However, to run the flow we need to prepare the design first.
 Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
 
 .. code-block::
@@ -148,12 +148,25 @@ This will add the LEF abstract representation of the macro block. This abstracti
 In contrast, GDS contains all of the layers and is used to generate the final GDS file.
 Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
 
-.. warning:: Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
+.. warning::
+    
+    Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
 
 The PDN straps will be routed in opposite directions.
 In locations where the two routing cross each other,
 VIAs connecting the layers are added. When ``DESIGN_IS_CORE`` is set to ``true`` then higher layers (met5 in sky130) is used.
 If it is set to ``false`` then VIAs will be missing and you will get LVS issues.
+
+
+Verilog files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create the RTL files for the macro block ``regfile_2r1w``.
+The file is located in newly created design path ``designs/regfile_2r1w/src/regfile_2r1w.v`` and has following content:
+
+.. literalinclude:: ../../../designs/regfile_2r1w/src/regfile_2r1w.v
+    :language: verilog
+
 
 Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
