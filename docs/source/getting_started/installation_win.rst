@@ -1,8 +1,11 @@
 Installation on Windows
 ================================================================================
+
+.. include:: installation_overview.rst
+
 OpenLane in Windows uses WSL 2 and Docker Destop on Windows.
 Recent version of Windows 10 or Windows 11 is required, for more information consult Microsoft's documentation.
-It is the recommended installation method under Windows. Other variants like
+It is the recommended installation method under Windows. Other variants like Virtual Machines are not supported.
 
 
 1. Follow `official Microsoft documentation for WSL located here <https://docs.microsoft.com/en-us/windows/wsl/install>`_ to install the WSL 2. Make sure your OS version supports WSL 2.

@@ -1,7 +1,7 @@
 Installation on macOS
 ================================================================================
 
-.. todo:: Add overview
+.. include:: installation_overview.rst
 
 Installation of required packages
 --------------------------------------------------------------------------------
