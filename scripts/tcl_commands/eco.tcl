@@ -65,14 +65,14 @@ proc eco_gen_buffer {args} {
     puts_info "\[ECO: $::env(ECO_ITER)\] Generating buffer insertion script..."
 
     try_catch $::env(OPENROAD_BIN) \
+	-exit \
         -python $::env(SCRIPTS_DIR)/odbpy/eco.py \
         insert_buffer \
         -o $::env(routing_tmpfiles)/eco_fix.tcl \
         -s $::env(ECO_SKIP_PIN) \
         -l $::env(MERGED_LEF) \
         {*}$sta_args \
-        $::env(CURRENT_DEF) \
-	-exit
+        $::env(CURRENT_DEF)
 }
 
 proc eco_output_check {args} {

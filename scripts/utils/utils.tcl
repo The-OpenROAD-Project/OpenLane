@@ -424,13 +424,12 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_catch $::env(OPENROAD_BIN) -python \
+    try_catch $::env(OPENROAD_BIN) -exit -python \
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
         --output $arg_values(-output) \
         $arg_values(-input) \
-	-exit\
         |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
 }
 

@@ -140,11 +140,10 @@ proc detailed_routing_tritonroute {args} {
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
-        $::env(routing_reports)/drt.drc\
-	-exit
+        $::env(routing_reports)/drt.drc
 
     quit_on_tr_drc
 
