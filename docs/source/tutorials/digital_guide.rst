@@ -717,3 +717,6 @@ Therefore the layout, which does not have connections to the submacro, while the
 This is expected as it was disabled by setting ``DESIGN_IS_CORE`` to ``false`` above.
 Of course, reverting the change fixes this issue.
 
+.. note::
+    
+    In the future OpenDB will be used instead of DEF/LEF flow.

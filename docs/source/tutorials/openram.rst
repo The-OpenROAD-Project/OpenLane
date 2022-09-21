@@ -316,6 +316,11 @@ However, you will still get DRCs. This DRCs are not critical.
 
 
 
+If you open ``designs/test_sram_macro/runs/full_guide/reports/signoff/drc.rpt``
+you can see following error: ``This layer can't abut or partially overlap between subcells``.
+
+This error is caused by the issue in Open PDKs. It is a warning, therefore it can be ignored.
+
 For this example we can just disable the DRC stopping the flow.
 After the run is done, check the DRC report manually and make sure the issues are not critical.
 
@@ -324,6 +329,7 @@ After the run is done, check the DRC report manually and make sure the issues ar
     "QUIT_ON_MAGIC_DRC": false
 
 .. warning::
+    
     If you do not manualy check the DRC,
     then in the submission process to the foundry DRC errors will be checked anyway,
     but the turnaround is too long to rely on this.
@@ -449,3 +455,7 @@ It will look like this:
 .. figure:: ../../_static/openram/final.png
 
 Reports can be found in ``designs/test_sram_macro/runs/full_guide/reports``.
+
+.. note::
+    
+    In the future OpenDB will be used instead of DEF/LEF flow.
