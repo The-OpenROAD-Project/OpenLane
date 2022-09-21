@@ -22,7 +22,8 @@ proc extract_core_dims {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
-        $::env(CURRENT_DEF)
+        $::env(CURRENT_DEF)\
+	-exit
 
     set dims [join [cat $out_tmp] " "]
 
@@ -80,7 +81,8 @@ proc init_floorplan {args} {
             try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
-                [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
+                [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]\
+		-exit
 
             set adjusted_values [cat $intermediate]
 

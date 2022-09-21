@@ -143,7 +143,8 @@ proc detailed_routing_tritonroute {args} {
     try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
-        $::env(routing_reports)/drt.drc
+        $::env(routing_reports)/drt.drc\
+	-exit
 
     quit_on_tr_drc
 

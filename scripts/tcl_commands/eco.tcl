@@ -71,7 +71,8 @@ proc eco_gen_buffer {args} {
         -s $::env(ECO_SKIP_PIN) \
         -l $::env(MERGED_LEF) \
         {*}$sta_args \
-        $::env(CURRENT_DEF)
+        $::env(CURRENT_DEF) \
+	-exit
 }
 
 proc eco_output_check {args} {

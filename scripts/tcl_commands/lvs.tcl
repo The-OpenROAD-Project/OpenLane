@@ -100,6 +100,7 @@ proc write_powered_verilog {args} {
         --ground-port $arg_values(-ground) \
         --powered-netlist $arg_values(-powered_netlist) \
         $arg_values(-def)\
+	-exit\
         |& tee $::env(TERMINAL_OUTPUT) $log_def
 
     write_verilog\

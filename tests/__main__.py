@@ -156,6 +156,7 @@ def run_test_case(test_case):
                 subprocess.run(
                     [
                         "openroad",
+                        "-exit",
                         "-python",
                         test_case_issue_regression_script,
                         os.path.join(test_case, "runs", "issue_regression_run"),

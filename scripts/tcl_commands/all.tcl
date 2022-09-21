@@ -123,7 +123,8 @@ proc prep_lefs {args} {
             try_catch $::env(OPENROAD_BIN) -python\
                 $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
-                $arg_values(-tech_lef)
+                $arg_values(-tech_lef)\
+		-exit
 
             set ::env(TECH_METAL_LAYERS)  [cat $::env(TMP_DIR)/layers.list]
         }

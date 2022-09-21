@@ -430,6 +430,7 @@ proc manipulate_layout {args} {
         --output-def $arg_values(-output_def) \
         --output $arg_values(-output) \
         $arg_values(-input) \
+	-exit\
         |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
 }
 

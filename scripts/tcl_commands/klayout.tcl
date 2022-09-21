@@ -155,7 +155,8 @@ proc run_klayout_gds_xor {args} {
 					|& tee $::env(TERMINAL_OUTPUT) $log
 				try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
 					-l [index_file $::env(signoff_logs)/xor.log] \
-					-o [index_file $::env(signoff_reports)/xor.rpt]
+				        -o [index_file $::env(signoff_reports)/xor.rpt]\
+				        -exit
 				scrot_klayout -layout $arg_values(-output_gds) -log $::env(signoff_logs)/screenshot.klayout.xor.log
 			}
 
