@@ -68,7 +68,7 @@ Modify the ``config.json`` to include following:
 
 ``RT_MAX_LAYER`` set to ``met4`` to limit metal layers allowed for routing.
 
-More information on `configuration can be found here <reference/configuration>`_. 
+More information on `configuration can be found here <../reference/configuration.html>`_. 
 
 .. figure:: ../../_static/digital_flow/ring_around_macro.png
 
@@ -117,11 +117,17 @@ Integrate the macros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Verilog blackbox is used by the synthesis tool.
-It tells the synthesis tool the purpose and width of the Input and Output.
-In the future versions this should be fixed by generating liberty files and loading it in the top level macro blocks.
-Meanwhile, the users should be careful when making sub components that have parameter, because this may cause missmatches between RTL and the final GDS.
+It tells the synthesis tool the purpose and width of the input and output,
+but does not carry information regarding the timings.
 
-.. todo:: Mention this as a warning
+In the `OpenRAM macro tutorial <../tutorials/openram.html>`_ the alternative with Liberty file is described.
+Liberty flow contains the timings, unfortunetly OpenLane does not generate the Liberty output.
+This means that the only remaining option is the Verilog Blackbox flow.
+
+.. warning::
+
+    The users should be careful when making subcomponents or blackboxes that have parameters,
+    because this may cause behaviour missmatches between RTL and the final GDS.
 
 Create the verilog blackbox:
 
@@ -150,7 +156,7 @@ Missmatch between these files are not allowed. It is users responsibility to ens
 
 .. warning::
     
-    Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`.
+    Check for name collisions between the blackboxed macro blocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
 
 The PDN straps will be routed in opposite directions.
 In locations where the two routing cross each other,

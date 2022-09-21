@@ -63,7 +63,10 @@ It is users responsibility to make sure that GDS matches LEF files.
         [ERROR]: Flow failed.
 
 
-.. todo:: Extra libs
+Connect the blackbox information and timing data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. todo:: EXTRA_LIBS
 
 .. warning::
 
@@ -225,6 +228,8 @@ The we set the ``DIE_AREA``. This value is carefully constructed.
     On the other hand setting the value too low will cause placement and routing congestion issues.
 
 ``PL_TARGET_DENSITY`` is set to 0.5 to reflect the target final density of 50%.
+
+I/O placement can be defined using the process described in the `Hardening Macros guide <../usage/hardening_macros.html>`_.
 
 Macro cell placement
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
