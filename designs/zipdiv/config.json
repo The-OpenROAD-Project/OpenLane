@@ -18,6 +18,7 @@
         }
     },
     "pdk::gf180*": {
+        "DIODE_PADDING": 0,
         "PL_TARGET_DENSITY": 0.62
     }
 }
