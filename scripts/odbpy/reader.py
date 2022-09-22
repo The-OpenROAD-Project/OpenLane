@@ -16,6 +16,7 @@ import odb
 import os
 import sys
 import inspect
+import functools
 
 import click
 
@@ -49,6 +50,7 @@ class OdbReader(object):
 
 
 def click_odb(function):
+    @functools.wraps(function)
     def wrapper(input_db, output, output_def, input_lef, **kwargs):
         reader = OdbReader(input_db)
 
