@@ -3,12 +3,12 @@ OpenRAM macro (sky130)
 
 Overview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-This guide covers the RTL-to-GDS flow using `OpenRAM <https://openram.org/>`_ cells and many macro related features from the OpenLane flow for full chip integration.
+This guide covers the RTL-to-GDS flow using `OpenRAM <https://openram.org/>`_ cells and many macro-related features from the OpenLane flow for full chip integration.
 
 Create a new design
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create a new design using following command:
+Create a new design using the following command:
 
 .. code-block::
 
@@ -26,17 +26,17 @@ Connect the layout files and abstracts
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 LEF files are abstract representations of hard macroblocks, such as OpenRAM macros.
-This files contains lightweight abstract representation of the cell.
-LEF contains only metal layers and layers that can connect between cells (met1, via2, nwell, pwell, etc).
+These files contain a lightweight abstract representation of the cell.
+LEF contains only metal layers and layers that can connect between cells (``met1``, ``via2``, ``nwell``, ``pwell``, etc).
 
-OpenLane configuration of LEF files are done using ``EXTRA_LEFS``.
-In this case absolute path is used, if the PDK location is different then path needs to be changed.
+OpenLane configuration of LEF files is done using ``EXTRA_LEFS``.
+In this case the absolute path is used, if the PDK location is different then the path needs to be changed.
 
-Next, configure GDS files of the hard macro. OpenLane configuration of GDS is ``EXTRA_GDS_FILES``.
+Next, configure the GDS files of the hard macro. OpenLane configuration of GDS is ``EXTRA_GDS_FILES``.
 
 .. warning::
 
-    It is users responsibility to make sure that GDS matches LEF files.
+    It is the user's responsibility to make sure that GDS matches LEF files.
 
 .. code-block:: json
 
@@ -46,7 +46,7 @@ Next, configure GDS files of the hard macro. OpenLane configuration of GDS is ``
 
 .. warning::
 
-    If you ran the design without this configuration you will get following error:
+    If you run the design without this configuration you will get the following error:
 
     .. code-block::
 
@@ -59,11 +59,11 @@ Connect the blackbox information and timing data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. note::
 
-    `Multiple scenario Libery files are not supported yet <https://github.com/The-OpenROAD-Project/OpenLane/issues/1343>`_.
+    `Multiple scenario Liberty files are not supported yet <https://github.com/The-OpenROAD-Project/OpenLane/issues/1343>`_.
 
-Liberty flow contains the timings, description I/O of the macro.
+Liberty flow contains the timings and description of I/O of the macro.
 It is used in Timing analysis and in synthesis.
-The liberty file is supplied to flow using ``EXTRA_LIBS`` configuration. Add it to configuration file:
+The liberty file is supplied to flow using ``EXTRA_LIBS`` configuration. Add it to the configuration file:
 
 .. code-block::
 
@@ -73,7 +73,7 @@ The liberty file is supplied to flow using ``EXTRA_LIBS`` configuration. Add it 
 
 .. warning::
 
-    If you skip this configuration you will get following error:
+    If you skip this configuration you will get the following error:
 
     .. code-block::
 
@@ -85,7 +85,7 @@ Power/Ground nets
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Create the power/ground nets.
-First net in the list will be used for standard cell power connections.
+The first net in the list will be used for standard cell power connections.
 
 .. code-block:: json
 
@@ -102,25 +102,25 @@ If you need more power/ground nets add the nets to the list:
 Power/Ground PDN connections
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Add the PDN connections between sram cells and the power/ground nets.
+Add the PDN connections between SRAM cells and the power/ground nets.
 
 Syntax: ``<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>``.
 
 More information is available in `configuration variables documentation <../reference/configuration.html>`_.
-Each macro hook is separated using comma, for example:
+Each macro hook is separated using a comma, for example:
 
 .. code-block:: json
 
     "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
 
-The instance names need to be fetched from synthesis netlist.
-For this purpose run the design until synthesis stage using following command:
+The instance names need to be fetched from the synthesis netlist.
+For this purpose run the design until the synthesis stage using the following command:
 
 .. code-block::
 
     ./flow.tcl -design test_sram_macro -tag synthesis_only -to synthesis -overwrite
 
-Open following file ``designs/test_sram_macro/runs/synthesis_only/results/synthesis/test_sram_macro.v``.
+Open the following file ``designs/test_sram_macro/runs/synthesis_only/results/synthesis/test_sram_macro.v``.
 
 
 .. code-block:: verilog
@@ -172,21 +172,21 @@ Open an interactive session:
 
     # empty new line to force the command to run
 
-Notice that the PDN straps are not connected to SRAM's ring:
+Notice that the PDN straps are not connected to ring of SRAM:
 
 .. figure:: ../../_static/openram/pdn_macro_hooks_missing.png
 
 Floorplanning
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run the flow until floorplanning stage:
+Run the flow until the floorplanning stage:
 
 .. code-block::
 
     ./flow.tcl -design test_sram_macro -tag floorplan -overwrite -to floorplan
 
 
-You will get following output:
+You will get the following output:
 
 .. code-block::
 
@@ -195,7 +195,7 @@ You will get following output:
     [INFO]: Extracting core dimensions...
     [INFO]: Set CORE_WIDTH to 877.22, CORE_HEIGHT to 875.84.
 
-To view the floorplan stage output, run the following command:
+To view the output of the floorplan stage, run the following command:
 
 .. code-block::
 
@@ -212,8 +212,8 @@ It will look like this:
 
 Looking at the floorplan, it would be better if the macros were centered, so the buffers can be placed near I/O.
 In order to achieve this, keep the area almost the same,
-but resize the DIE_AREA to a rectangle that allows 100um all around each macro for standard cells.
-In the next step the location of macroblocks will be selected.
+but resize the ``DIE_AREA`` to a rectangle that allows ``100um`` all around each macro for standard cells.
+In the next step, the location of macroblocks will be selected.
 
 Set the following floorplan parameters:
 
