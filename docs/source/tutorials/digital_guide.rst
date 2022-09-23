@@ -1,13 +1,13 @@
 
 Hierarchical design flow
 ================================================================================
-This guide covers creation of simple hierarchical chip level macro.
-Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip level macros.
+This guide covers the creation of simple hierarchical chip level macro.
+Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip-level macros.
 
 Hardening the mem_1r1w macroblock
 --------------------------------------------------------------------------------
-In this section the process of hardening the macroblock mem_1r1w is covered.
-As these macroblocks will be used in the top level hierarchy some configurations need to be made.
+In this section, the process of hardening the macroblock mem_1r1w is covered.
+As these macroblocks will be used in the top-level hierarchy some configurations need to be made.
 
 Keep in mind that these designs are not ready for production and are just used to showcase the capabilities of OpenLane.
 
@@ -27,7 +27,7 @@ Always create new designs using ``-init_design_config``.
 It will ensure that your configuration is the absolute minimum.
 
 Example of the common issues people face:
-They copy ``inverter`` design, rename it. Then run the flow and the router crashes with ``error 10``.
+They copy ``inverter`` design and rename it. Next, run the flow and the router crashes with ``error 10``.
 This is caused by enabled "basic placement",
 which works only for designs with a couple of dozen standard cells, not hundreds.
 So when you change the basic inverter with a design containing many cells,
@@ -61,7 +61,7 @@ Modify the ``config.json`` to include following:
 .. literalinclude:: ../../../designs/mem_1r1w/config.json
     :language: json
 
-``DESIGN_IS_CORE`` controls the metal levels used for power routing, set it to ``false`` to use only lower levels.
+``DESIGN_IS_CORE`` controls the metal levels used for power routing. Set it to ``false`` to use only lower levels.
 
 ``FP_PDN_CORE_RING`` is set to ``false`` to disable a power ring around the macroblock.
 
@@ -77,16 +77,16 @@ Run the flow on the macroblock
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Finally, run OpenLane. ``flow.tcl`` is the entry point for OpenLane.
-The command needs to be ran from inside the OpenLane's enviorment as described in quickstart.
+The command needs to be run from inside the environment of OpenLane as described in quickstart.
 
 .. code-block::
 
     ./flow.tcl -design mem_1r1w -tag full_guide -overwrite
 
-Analyzing the flow generated files
+Analyzing the flow-generated files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can open interactive view using following commands:
+You can open the interactive view using the following commands:
 
 .. code-block::
 
@@ -99,13 +99,13 @@ You can open interactive view using following commands:
 Chip level integration
 --------------------------------------------------------------------------------
 
-In these section the integration of previously hardened macroblock is covered.
-Currently OpenLane does not support cross hierarchy timing analysis, so this is rather
+In this section, the integration of previously hardened macroblock is covered.
+Currently, OpenLane does not support cross-hierarchy timing analysis, so users should avoid multiple hierarchies.
 
 Create chip level
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The top level macroblock is called ``regfile_2r1w``. However, to run the flow we need to prepare the design first.
+The top-level macroblock is called ``regfile_2r1w``. However, to run the flow we need to prepare the design first.
 Create a new design named ``regfile_2r1w``. This design will use the ``mem_1r1w``.
 
 .. code-block::
@@ -116,17 +116,17 @@ Integrate the macros
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Verilog blackbox is used by the synthesis tool.
-It tells the synthesis tool the purpose and width of the input and output,
+It tells the synthesis tool the purpose and width of the input and output
 but does not carry information regarding the timings.
 
-In the `OpenRAM macro tutorial <../tutorials/openram.html>`_ the alternative with Liberty file is described.
-Liberty flow contains the timings, unfortunetly OpenLane does not generate the Liberty output.
+In the `OpenRAM macro tutorial <../tutorials/openram.html>`_, the alternative with the Liberty file is described.
+Liberty flow contains the timings, unfortunately, OpenLane does not generate the Liberty output.
 This means that the only remaining option is the Verilog Blackbox flow.
 
 .. warning::
 
     The users should be careful when making subcomponents or blackboxes that have parameters,
-    because this may cause behaviour mismatches between RTL and the final GDS.
+    because this may cause behavior mismatches between RTL and the final GDS.
 
 Create the verilog blackbox:
 
@@ -151,15 +151,17 @@ Then add ``VERILOG_FILES_BLACKBOX``, ``EXTRA_LEFS`` and ``EXTRA_GDS_FILES`` to t
 
 This will add the LEF abstract representation of the macroblock. This abstraction file contains only layers required by tools.
 In contrast, GDS contains all of the layers and is used to generate the final GDS file.
-Missmatch between these files are not allowed. It is users responsibility to ensure that they match.
+Mismatches between these files is not allowed. It is the users' responsibility to ensure that they match.
 
 .. warning::
     
-    Check for name collisions between the blackboxed macroblocks that have same name but different parameters, to avoid a behavioral mismatch. This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
+    Check for name collisions between the blackboxed macroblocks that have the same name but different parameters,
+    to avoid a behavioral mismatch.
+    This is a `known issue documented here <https://github.com/The-OpenROAD-Project/OpenLane/issues/1291>`_.
 
 The PDN straps will be routed in opposite directions.
-In locations where the two routing cross each other,
-VIAs connecting the layers are added. When ``DESIGN_IS_CORE`` is set to ``true`` then higher layers (met5 in sky130) is used.
+In locations where the two routings cross each other,
+VIAs connecting the layers are added. When ``DESIGN_IS_CORE`` is set to ``true`` then higher layers (met5 in sky130) are used.
 If it is set to ``false`` then VIAs will be missing and you will get LVS issues.
 
 
@@ -176,7 +178,7 @@ The file is located in newly created design path ``designs/regfile_2r1w/src/regf
 Run the flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run the flow. It is expected for the flow to fail. In next step, explaination is provided.
+Run the flow. It is expected for the flow to fail. In the next step, explanation is provided.
 
 .. code-block::
 
@@ -205,7 +207,7 @@ Flow is expected to fail.
     Error: replace.tcl, 91 GPL-0301
     child process exited abnormally
 
-To debug this issue, open an OpenROAD GUI:
+To debug this issue, open the OpenROAD GUI:
 
 .. code-block::
 
@@ -215,12 +217,13 @@ To debug this issue, open an OpenROAD GUI:
 
 .. figure:: ../../_static/digital_flow/broken_aspect_ratio.png
 
-As can be observed in the image, placement of the mem_1r1w instances failed.
+As can be observed in the image, the placement of the mem_1r1w instances failed.
 It was unable to place the macroblocks inside the ``DIE_AREA``.
-While the area is enough, there is no combination of placement for this cells that fits. All of the possible placements of these cells overlap.
+While the area is enough, there is no combination of placement for these cells that fits.
+All of the possible placements of these cells overlap.
 
 Change the ``FP_ASPECT_RATIO`` value to ``2``.
-This will make the flooplan a rectange instead of square and the rectangle will be double in height compared to width.
+This will make the floorplan a rectangle instead of a square and the rectangle will be double in height compared to width.
 
 More information regarding floorplanning is available `Hardening Macros guide <../usage/hardening_macros.html>`_.
 
@@ -231,8 +234,8 @@ More information regarding floorplanning is available `Hardening Macros guide <.
     :language: json
 
 There is no need to change the default PDN configuration.
-It is going to create power straps on met5 and connect the macro
-that has power straps on met4 using vias.
+It is going to create power straps on ``met5`` and connect the macro
+that has power straps on ``met4`` using vias.
 
 Run the flow again
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -248,7 +251,9 @@ Run the flow again. This time it should no longer fail.
 Analyzing the results
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note:: ``set_def`` currently overwrites the DEF file instead of temporary changing it.
+.. note::
+    
+    ``set_def`` currently overwrites the DEF file instead of temporarily changing it.
     This guide will be updated with another command that does not overwrite the DEF.
 
 Open OpenROAD GUI to view the results of the flow.
@@ -265,7 +270,7 @@ Open OpenROAD GUI to view the results of the flow.
 
 .. figure:: ../../_static/digital_flow/final_def.png
 
-    OpenROAD gui with loaded final DEF file
+    OpenROAD GUI with loaded final DEF file
 
 
 If you want to load different DEF file use ``set_def`` command. For example:
@@ -295,10 +300,10 @@ Each run has following structure:
     ├── runtime.yaml
     └── warnings.log
 
-There is 4 directories ``logs`` ``reports`` ``results`` and ``tmp``.
-In each of these directories there is multiple directories. Directories are named according to the stage they belong to.
+There are 4 directories ``logs`` ``reports`` ``results`` and ``tmp``.
+In each of these directories, there are multiple directories. Directories are named according to the stage they belong to.
 
-Directory ``results`` contains the results (outputs) of each step. For example content of the ``results/cts``:
+Directory ``results`` contain the results (outputs) of each step. For example content of the ``results/cts``:
 
 .. code-block::
 
@@ -308,7 +313,7 @@ Directory ``results`` contains the results (outputs) of each step. For example c
     ├── regfile_2r1w.sdc
     └── regfile_2r1w.v
 
-DEF files can be loaded usings steps provided above.
+DEF files can be loaded using the steps provided above.
 
 Finally output of OpenLane can be found in ``designs/regfile_2r1w/runs/full_guide/results/final``:
 
@@ -338,7 +343,7 @@ Finally output of OpenLane can be found in ``designs/regfile_2r1w/runs/full_guid
         └── gl
             └── regfile_2r1w.v
 
-Directory ``logs`` contains log files of each step. Steps are numerated. For example content of the ``logs/``: 
+Directory ``logs`` contain log files of each step. Steps are enumerated. For example content of the ``logs/``: 
 
 .. code-block::
 
@@ -398,7 +403,7 @@ Directory ``logs`` contains log files of each step. Steps are numerated. For exa
         ├── 1-synthesis.log
         └── 2-sta.log
 
-Directory ``reports`` contains all of the reports from corresponding stage. For example content of the ``reports/synthesis``
+Directory ``reports`` contains all of the reports from the corresponding stage. For example content of the ``reports/synthesis``
 
 .. code-block::
 
@@ -510,7 +515,7 @@ Directory ``reports`` contains all of the reports from corresponding stage. For 
         └── 2-syn_sta.worst_slack.rpt
 
 It is recommended to check the reports for power, timings, etc.
-This allows to get better understanding of the underlying flow.
+This allows getting a better understanding of the underlying flow.
 
 Finally, open the final layout.
 
@@ -641,7 +646,7 @@ Then run the flow:
 
     ./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
 
-Following error is expected:
+The following error is expected:
 
 .. code-block::
 
@@ -696,7 +701,7 @@ Check the log ``designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signof
     Total errors = 37
 
 The router will fail if it is unable to route the signals.
-Therefore the issue is in PDN stage.
+Therefore the issue is in the PDN stage.
 Use ``or_gui`` to help debug this issue.
 
 .. code-block::
@@ -713,12 +718,12 @@ Use ``or_gui`` to help debug this issue.
 
 
 The submacros are by default logically connected to ``VPWR/VGND`` power domain.
-As can be seen the PDN is missing the power straps in layer ``met5``.
-Therefore the layout, which does not have connections to the submacro, while the net is logically connected.
+As can be seen, the PDN is missing the power straps in layer ``met5``.
+Therefore the layout, does not have connections to the submacro, while the net is logically connected.
 
 This is expected as it was disabled by setting ``DESIGN_IS_CORE`` to ``false`` above.
 Of course, reverting the change fixes this issue.
 
 .. note::
     
-    In the future OpenDB will be used instead of DEF/LEF flow.
+    In the future, OpenDB will be used instead of DEF/LEF flow.

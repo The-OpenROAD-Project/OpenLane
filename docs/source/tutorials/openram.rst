@@ -416,7 +416,7 @@ Optional: Memory footprint
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 While running the flow it may use significant amount of memory.
-You can temporary disable KLayout XOR check to reduce the memory footprint, while experimenting.
+You can temporarily disable KLayout XOR check to reduce the memory footprint, while experimenting.
 But for the final GDS submission make sure that XOR check is enabled.
 
 .. code-block:: json
