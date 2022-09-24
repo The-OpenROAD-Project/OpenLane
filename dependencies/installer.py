@@ -150,7 +150,7 @@ class Installer(object):
 
                     Ctrl+C at any time to quit.
 
-                    Make sure you read the documentation in ./docs/source/getting_started/installation_local.html
+                    Make sure you read the documentation in ./docs/source/getting_started/installation_local.md
                 """
             )
         )
