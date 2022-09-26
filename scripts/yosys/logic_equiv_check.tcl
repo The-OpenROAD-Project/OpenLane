@@ -35,7 +35,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
+foreach lib $::env(LIB_TYPICAL) {
 	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
@@ -71,7 +71,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
+foreach lib $::env(LIB_TYPICAL) {
 	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
@@ -109,7 +109,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 		read_verilog -lib $verilog_file
 	}
 }
-foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
+foreach lib $::env(LIB_TYPICAL) {
 	read_liberty -ignore_miss_func -ignore_miss_dir $::env(LIB_TYPICAL)
 }
 
@@ -124,3 +124,4 @@ setattr -set keep 1
 prep -flatten -top equiv
 equiv_simple -seq 10 -v
 equiv_status -assert
+
