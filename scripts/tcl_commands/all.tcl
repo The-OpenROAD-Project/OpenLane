@@ -906,6 +906,7 @@ proc save_views {args} {
         {-sdf_path optional}
         {-spef_path optional}
         {-sdc_path optional}
+        {-lib_path optional}
         {-save_path optional}
     }
 
@@ -996,6 +997,14 @@ proc save_views {args} {
         file mkdir $destination
         if { [file exists $arg_values(-sdc_path)] } {
             file copy -force $arg_values(-sdc_path) $destination/$::env(DESIGN_NAME).sdc
+        }
+    }
+
+    if { [info exists arg_values(-lib_path)] } {
+        set destination $path/lib
+        file mkdir $destination
+        if { [file exists $arg_values(-lib_path)] } {
+            file copy -force $arg_values(-lib_path) $destination/$::env(DESIGN_NAME).lib
         }
     }
 }
@@ -1173,6 +1182,9 @@ proc save_final_views {args} {
     }
     if { [info exists ::env(CURRENT_SDC)] } {
         lappend arg_list -sdc_path $::env(CURRENT_SDC)
+    }
+    if { [info exists ::env(CURRENT_LIB)] } {
+        lappend arg_list -lib_path $::env(CURRENT_LIB)
     }
 
     # Add the path if it exists...

@@ -119,7 +119,7 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
-    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log
+    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log -save_to $::env(synthesis_results)
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
