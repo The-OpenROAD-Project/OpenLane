@@ -93,8 +93,7 @@ def get_io(cell: odb.dbInst):
     help="A regular expression matching all nets to remove.",
 )
 @click_odb
-def remove_buffers(output, rx_str: str, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def remove_buffers(reader, rx_str):
     if rx_str != "^$":
         # Save some compute time :)
 
@@ -171,7 +170,6 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
             odb.dbNet.destroy(input_net)
 
         print("  * Done.")
-    odb.write_def(reader.block, output)
 
 
 if __name__ == "__main__":
