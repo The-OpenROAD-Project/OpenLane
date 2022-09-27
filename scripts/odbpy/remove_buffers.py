@@ -101,7 +101,9 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
         rx = re.compile(rx_str)
 
         design_nets = reader.block.getNets()
-        dont_buffer_nets = [net for net in design_nets if rx.match(net.getConstName()) is not None]
+        dont_buffer_nets = [
+            net for net in design_nets if rx.match(net.getConstName()) is not None
+        ]
 
         for net in dont_buffer_nets:
             net_name = net.getConstName()
@@ -151,7 +153,9 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
             _, bid_outputs = get_io(buffer_input_driver)
             (bid_iterm, _) = bid_outputs[0]
             bid_iterm.connect(output_net)
-            print(f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(bid_iterm)}.")
+            print(
+                f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(bid_iterm)}."
+            )
 
             print(f"  * Removing buffer {buffer_name} ({master_name})...")
             odb.dbInst.destroy(buffer)
@@ -159,11 +163,12 @@ def remove_buffers(output, rx_str: str, input_lef, input_def):
             input_net_sinks = get_sinks_terms(input_net)
             for iterm in input_net_sinks:
                 iterm.connect(output_net)
-                print(f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(iterm)}.")
+                print(
+                    f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(iterm)}."
+                )
 
             print(f"  * Removing net {input_net.getName()}...")
             odb.dbNet.destroy(input_net)
-
 
         print("  * Done.")
     odb.write_def(reader.block, output)
