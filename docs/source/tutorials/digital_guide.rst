@@ -619,7 +619,7 @@ Detailed setup (max) timing path reports. Content of ``designs/mem_1r1w/runs/ful
                                         4.68   slack (MET)
 
 
-Debugging LVS issues due to PDN issues
+Demo: Debugging LVS issues due to PDN issues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Copy the original ``regfile_2r1w`` as ``regfile_2r1w_design_not_core``. Change ``DESIGN_IS_CORE`` to ``false``.
