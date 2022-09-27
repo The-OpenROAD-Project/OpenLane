@@ -22,12 +22,11 @@ if {[catch {source $::env(PDN_CFG)} errmsg]} {
 }
 set arg_list [list]
 if { $::env(FP_PDN_SKIPTRIM) } {
-    lappend arg_list -skip_trim $::env(CTS_CLK_BUFFER_LIST)
+    lappend arg_list -skip_trim
     puts "adding -skip_trim to pdngen"
 }
 # run PDNGEN
-set pdngen_cmd "pdngen {*}$arg_list"
-if {[catch {} errmsg]} {
+if {[catch {pdngen {*}$arg_list} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
