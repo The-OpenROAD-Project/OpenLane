@@ -30,9 +30,10 @@ proc run_klayout {args} {
 
 		set klayout_out $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
 		try_catch klayout -b\
-			-rm $::env(SCRIPTS_DIR)/klayout/def2gds.py\
+			-rm $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			-rd out_gds=$klayout_out\
 			-rd tech_file=$::env(KLAYOUT_TECH)\
+			-rd layer_props_file=$::env(KLAYOUT_PROPERTIES)\
 			-rd design_name=$::env(DESIGN_NAME)\
 			-rd in_def=$::env(CURRENT_DEF)\
 			-rd "in_gds=$cells_gds $gds_files_in"\
