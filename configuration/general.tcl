@@ -11,24 +11,51 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-set ::env(USE_GPIO_PADS) 0
 
 # General Defaults
 set ::env(CLOCK_PERIOD) "10.0"
+set ::env(USE_GPIO_PADS) 0
+set ::env(RSZ_DONT_TOUCH_RX) "$^"
 
 # Flow Controls
-set ::env(RUN_SIMPLE_CTS) 0
-
+set ::env(LEC_ENABLE) 0
+set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(FILL_INSERTION) 1
 set ::env(TAP_DECAP_INSERTION) 1
 
+## STA
+set ::env(STA_REPORT_POWER) {1}
+
+## ECO Flow
+set ::env(ECO_ENABLE) {0}
+set ::env(ECO_ITER) {0}
+set ::env(ECO_FINISH) {0}
+set ::env(ECO_SKIP_PIN) {1}
+
+## Routing
 set ::env(RUN_DRT) 1
 set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_IRDROP_REPORT) 1
 
+# 0: no diodes
+# 1: spray inputs with diodes
+# 2: spray inputs with fake diodes first then fix up the violators with real ones
+# 3: use FR Antenna Avoidance flow
+# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
+# 5: Same as 2 but behaves like 4.
+set ::env(DIODE_INSERTION_STRATEGY) {3}
+
+## Signoff
+set ::env(RUN_CVC) 1
 set ::env(PRIMARY_SIGNOFF_TOOL) magic
 
+### Netgen
+set ::env(RUN_LVS) 1
+set ::env(LVS_INSERT_POWER_PINS) 1
+set ::env(LVS_CONNECT_BY_LABEL) 0
+
+### Magic-Specific
 set ::env(RUN_MAGIC) 1
 set ::env(RUN_MAGIC_DRC) 1
 set ::env(MAGIC_PAD) 0
@@ -43,6 +70,7 @@ set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 
+### Klayout-Specific
 set ::env(RUN_KLAYOUT) 1
 set ::env(RUN_KLAYOUT_DRC) 0
 set ::env(KLAYOUT_XOR_GDS) 1
@@ -51,27 +79,4 @@ set ::env(TAKE_LAYOUT_SCROT) 0
 set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 set ::env(RUN_KLAYOUT_XOR) 1
 
-set ::env(RUN_CVC) 1
-set ::env(RUN_LVS) 1
-
-set ::env(YOSYS_REWRITE_VERILOG) 0
-set ::env(LEC_ENABLE) 0
-
-set ::env(GENERATE_FINAL_SUMMARY_REPORT) 1
-
-
-# 0: no diodes
-# 1: spray inputs with diodes
-# 2: spray inputs with fake diodes first then fix up the violators with real ones
-# 3: use FR Antenna Avoidance flow
-# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
-# 5: Same as 2 but behaves like 4.
-set ::env(DIODE_INSERTION_STRATEGY) 3
-
-set ::env(STA_REPORT_POWER) {1}
-
-## ECO Flow
-set ::env(ECO_ENABLE) {0}
-set ::env(ECO_ITER) {0}
-set ::env(ECO_FINISH) {0}
-set ::env(ECO_SKIP_PIN) {1}
+set ::env(GENERATE_FINAL_SUMMARY_REPORT) {1}

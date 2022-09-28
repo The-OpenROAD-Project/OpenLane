@@ -12,10 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -override_libs "$::env(LIB_RESIZER_OPT)"
+read -override_libs "$::env(RSZ_LIB)"
 
 set_propagated_clock [all_clocks]
 
+# set don't touch nets
+source $::env(SCRIPTS_DIR)/openroad/common/resizer.tcl
+set_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
+
+# set don't use cells
 if { [info exists ::env(DONT_USE_CELLS)] } {
     set_dont_use $::env(DONT_USE_CELLS)
 }
@@ -66,6 +71,8 @@ if { [catch {check_placement -verbose} errmsg] } {
     puts stderr $errmsg
     exit 1
 }
+
+unset_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
 
 write
 

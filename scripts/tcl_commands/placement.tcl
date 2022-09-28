@@ -178,7 +178,6 @@ proc run_placement {args} {
     }
 
     run_resizer_design
-    remove_buffers_from_nets
 
     detailed_placement_or
 
@@ -222,7 +221,7 @@ proc remove_buffers_from_nets {args} {
         -output $save_odb\
         -output_def $save_def\
         -input $::env(CURRENT_ODB)\
-        --match $::env(UNBUFFER_NETS)
+        --match $::env(RSZ_DONT_TOUCH_RX)
 
     set_def $save_def
     set_odb $save_odb

@@ -176,7 +176,7 @@ proc write {args} {
         }
     }
 
-    if { [info exists ::env(SAVE_LIB)] } {
+    if { [info exists ::env(SAVE_LIB)] && !$::env(STA_PRE_CTS)} {
         set corners [sta::corners]
         if { [llength $corners] > 1 } {
             puts "Writing timing models for all corners..."

@@ -44,7 +44,6 @@ proc run_cts_step {args} {
 
     run_cts
     run_resizer_timing
-    remove_buffers_from_nets
 }
 
 proc run_routing_step {args} {
