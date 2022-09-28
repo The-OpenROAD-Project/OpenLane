@@ -160,7 +160,36 @@ proc write {args} {
     }
 
     if { [info exists ::env(SAVE_SDF)] } {
-        puts "Writing SDF to $::env(SAVE_SDF)..."
-        write_sdf -include_typ -divider . $::env(SAVE_SDF)
+        set corners [sta::corners]
+        if { [llength $corners] > 1 } {
+            puts "Writing SDF files for all corners..."
+            set prefix [file rootname $::env(SAVE_SDF)]
+            foreach corner $corners {
+                set corner_name [$corner name]
+                set target $prefix.$corner_name.sdf
+                puts "Writing SDF for the $corner_name corner to $target..."
+                write_sdf -include_typ -divider . -corner $corner_name $target
+            }
+        } else {
+            puts "Writing SDF to $::env(SAVE_SDF)..."
+            write_sdf -include_typ -divider . $::env(SAVE_SDF)
+        }
+    }
+
+    if { [info exists ::env(SAVE_LIB)] } {
+        set corners [sta::corners]
+        if { [llength $corners] > 1 } {
+            puts "Writing timing models for all corners..."
+            set prefix [file rootname $::env(SAVE_LIB)]
+            foreach corner $corners {
+                set corner_name [$corner name]
+                set target $prefix.$corner_name.lib
+                puts "Writing timing models for the $corner_name corner to $target..."
+                write_timing_model -corner $corner_name $target
+            }
+        } else {
+            puts "Writing timing model to $::env(SAVE_LIB)..."
+            write_timing_model $::env(SAVE_LIB)
+        }
     }
 }
