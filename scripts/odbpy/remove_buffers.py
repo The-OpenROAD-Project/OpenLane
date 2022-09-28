@@ -30,7 +30,7 @@ def get_pin_name(pin: odb.dbITerm):
     return f"{cell_name}/{master_pin_name}"
 
 
-def get_sinks_terms(net: odb.dbNet):
+def get_sinks_terms(net: odb.dbNet) -> List[odb.dbITerm]:
     sinks = []
     for it in net.getITerms():
         cell = it.getInst()
