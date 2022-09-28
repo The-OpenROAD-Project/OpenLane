@@ -25,6 +25,8 @@ set ::env(FP_PDN_VPITCH) 153.6
 set ::env(FP_PDN_HOFFSET) 16.65
 set ::env(FP_PDN_HPITCH) 153.18
 
+set ::env(FP_PDN_SKIPTRIM) 0
+
 set ::env(FP_PDN_AUTO_ADJUST) 1
 
 set ::env(FP_PDN_CORE_RING) 0
