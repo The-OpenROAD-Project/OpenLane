@@ -215,7 +215,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RT_MAXLAYER` | **Removed: Use RT_MAX_LAYER**: The number of highest layer to be used in routing. <br> (Default: `6`)|
 | `GLB_RT_CLOCK_MINLAYER` | **Removed: Use RT_CLOCK_MIN_LAYER**: The number of lowest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MINLAYER`)|
 | `GLB_RT_CLOCK_MAXLAYER` | **Removed: Use RT_CLOCK_MIN_LAYER**: The number of highest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MAXLAYER`)|
-| `GLB_RT_L{1/2/3/4/5/6}_ADJUSTMENT` | **Removed: See PDK variable `GLB_RT_LAYER_ADJUSTMENTS` instead**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to a metal layer in sky130A. Values ranged from 0 to 1 |
+| `GLB_RT_L{1/2/3/4/5/6}_ADJUSTMENT` | **Removed: See PDK variable `GRT_LAYER_ADJUSTMENTS` instead**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to a metal layer in sky130A. Values ranged from 0 to 1 |
 | `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
 | `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
 
