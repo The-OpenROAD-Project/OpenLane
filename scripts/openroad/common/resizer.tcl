@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 proc set_dont_touch_rx {net_pattern} {
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        return
+    }
     if { $net_pattern == {^$} } {
         # Save some compute
         return
@@ -28,6 +31,9 @@ proc set_dont_touch_rx {net_pattern} {
 }
 
 proc unset_dont_touch_rx {net_pattern} {
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        return
+    }
     if { $net_pattern == {^$} } {
         # Save some compute
         return

@@ -178,6 +178,9 @@ proc run_placement {args} {
     }
 
     run_resizer_design
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 
     detailed_placement_or
 
@@ -200,6 +203,34 @@ proc run_resizer_design {args} {
     } else {
         puts_info "Skipping Placement Resizer Design Optimizations."
     }
+}
+
+proc remove_buffers_from_nets {args} {
+    # This is a workaround for some situations where the resizer would buffer
+    # analog ports.
+    #
+    # Though to be clear- it works on all nets.
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(placement_logs)/remove_buffers.log]
+    puts_info "Removing Buffers from Nets (If Applicable) (log: [relpath . $log])..."
+
+    set fbasename [file rootname $::env(CURRENT_DEF)]
+    set save_def ${fbasename}.buffers_removed.def
+    set save_odb ${fbasename}.buffers_removed.odb
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
+        -indexed_log $log\
+        -output $save_odb\
+        -output_def $save_def\
+        -input $::env(CURRENT_ODB)\
+        --match $::env(RSZ_DONT_TOUCH_RX)
+
+    set_def $save_def
+    set_odb $save_odb
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"
 }
 
 package provide openlane 0.9
