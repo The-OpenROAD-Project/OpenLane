@@ -52,6 +52,7 @@ BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
+FULL_TEST_SET_TAG ?= FULL_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
 SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
@@ -133,14 +134,17 @@ venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt 
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
 	touch $@
 
-DLTAG=custom_design_List
-.PHONY: test_design_list fastest_test_set extended_test_set
+DLTAG ?= custom_design_list
+.PHONY: test_design_list fastest_test_set extended_test_set full_test_set
 fastest_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
 extended_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/extended_test_set)
 extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
 extended_test_set: test_design_list
+full_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set ./.github/test_sets/extended_test_set)
+full_test_set: DLTAG=full_test_set
+full_test_set: test_design_list
 test_design_list:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
