@@ -612,6 +612,9 @@ proc prep {args} {
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
     handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY;
 
+    handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB;
+    handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX;
+
     #
     ############################
     # Prep directories and files
@@ -725,13 +728,13 @@ proc prep {args} {
             -input $::env(LIB_SYNTH_MERGED)
 
         # trim resizer library
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) [list]
+        if { ! [info exists ::env(RSZ_LIB) ] } {
+            set ::env(RSZ_LIB) [list]
             foreach lib $::env(LIB_SYNTH_COMPLETE) {
                 set fbasename [file rootname [file tail $lib]]
                 set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
                 file copy -force $lib $lib_resizer
-                lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+                lappend ::env(RSZ_LIB) $lib_resizer
             }
 
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
@@ -739,7 +742,7 @@ proc prep {args} {
                     set fbasename [file rootname [file tail $lib]]
                     set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
                     file copy -force $lib $lib_resizer
-                    lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+                    lappend ::env(RSZ_LIB) $lib_resizer
                 }
             }
         }

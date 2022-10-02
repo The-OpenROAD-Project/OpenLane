@@ -44,7 +44,9 @@ proc run_cts_step {args} {
 
     run_cts
     run_resizer_timing
-    remove_buffers_from_nets
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 }
 
 proc run_routing_step {args} {

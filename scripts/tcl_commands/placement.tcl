@@ -178,7 +178,9 @@ proc run_placement {args} {
     }
 
     run_resizer_design
-    remove_buffers_from_nets
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 
     detailed_placement_or
 
@@ -222,21 +224,13 @@ proc remove_buffers_from_nets {args} {
         -output $save_odb\
         -output_def $save_def\
         -input $::env(CURRENT_ODB)\
-        --match $::env(UNBUFFER_NETS)
+        --match $::env(RSZ_DONT_TOUCH_RX)
 
     set_def $save_def
     set_odb $save_odb
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"
-}
-
-proc remove_buffers_from_ports {args} {
-    handle_deprecated_command remove_buffers_from_nets
-}
-
-proc remove_buffers {args} {
-    handle_deprecated_command remove_buffers_from_nets
 }
 
 package provide openlane 0.9
