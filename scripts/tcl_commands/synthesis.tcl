@@ -144,7 +144,7 @@ proc run_synthesis {args} {
 proc verilog_elaborate {args} {
     # usually run on structural verilog (top-level netlists)
     set synth_script_old $::env(SYNTH_SCRIPT)
-    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/synth_top.tcl
+    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/elaborate.tcl
     run_yosys {*}$args
     set ::env(SYNTH_SCRIPT) $synth_script_old
 }

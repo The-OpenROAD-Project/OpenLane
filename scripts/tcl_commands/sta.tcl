@@ -82,6 +82,13 @@ proc run_parasitics_sta {args} {
     # * CURRENT_SPEF is the nom SPEF after the loop is done
     # * CURRENT_LIB is the nom/nom LIB after the loop is done
     # * CURRENT_SDF is the nom/nom SDF after the loop is done
+    if { ![info exists ::env(RCX_SDC_FILE)] } {
+        set ::env(RCX_SDC_FILE) $::env(CURRENT_SDC)
+    }
+
+    set backup_sdc_variable $::env(CURRENT_SDC)
+    set ::env(CURRENT_SDC) $::env(RCX_SDC_FILE)
+
     foreach {process_corner lef ruleset} {
         min MERGED_LEF_MIN RCX_RULES_MIN
         max MERGED_LEF_MAX RCX_RULES_MAX
@@ -117,6 +124,8 @@ proc run_parasitics_sta {args} {
             }
         }
     }
+
+    set ::env(CURRENT_SDC) $backup_sdc_variable
 }
 
 package provide openlane 0.9

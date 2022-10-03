@@ -15,7 +15,6 @@ yosys -import
 
 set vtop $::env(DESIGN_NAME)
 set sclib $::env(LIB_SYNTH)
-#set sdc_file $::env(SDC_FILE)
 
 set stat_ext    ".stat.rpt"
 set chk_ext    ".chk.rpt"
@@ -63,8 +62,8 @@ for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
 
 if { [info exists ::env(SYNTH_PARAMETERS) ] } {
 	foreach define $::env(SYNTH_PARAMETERS) {
-                set param_and_value [split $define "="]
-                lassign $param_and_value param value
+		set param_and_value [split $define "="]
+		lassign $param_and_value param value
 		chparam -set $param $value $vtop
 	}
 }

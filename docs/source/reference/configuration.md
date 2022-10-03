@@ -23,8 +23,8 @@ These variables are optional that can be specified in the design configuration f
 |-|-|
 | `PDK` | Specifies the process design kit (PDK). <br> (Default: `sky130A` )|
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
-| `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `$STD_CELL_LIBRARY` )|
-| `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$PDK_ROOT/$PDK/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$PDK_ROOT/$PDK/libs.tech/openlane/$STD_CELL_LIBRARY`. |
+| `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `STD_CELL_LIBRARY` )|
+| `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)`. |
 | `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
 | `MERGED_LEF` | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
@@ -58,11 +58,12 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_SHARE_RESOURCES` | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_ADDER_TYPE` | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
 | `SYNTH_EXTRA_MAPPING_FILE` | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
-| `SYNTH_PARAMETERS` | Space-separated key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> Default: None.  |
+| `SYNTH_PARAMETERS` | Space-separated key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
+| `SYNTH_ELABORATE_ONLY` | "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. <br> (Default: `0`) |
 | `CLOCK_BUFFER_FANOUT` | Fanout of clock tree buffers. <br> (Default: `16`) |
 | `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 | `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
-| `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> Default: `0`. |
+| `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0` )|
 | `IO_PCT` | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
 
 ### Floorplanning
@@ -233,6 +234,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (**removed:** `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
+| `RCX_SDC_FILE` | Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
 | `SPEF_WIRE_MODEL` | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
 
