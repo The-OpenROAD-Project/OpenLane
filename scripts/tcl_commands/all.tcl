@@ -591,6 +591,7 @@ proc prep {args} {
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
+    handle_deprecated_config SYNTH_TOP_LEVEL SYNTH_ELABORATE_ONLY;
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
 
@@ -807,8 +808,8 @@ proc prep {args} {
         }
         set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
     }
-    if { $::env(SYNTH_TOP_LEVEL) } {
-        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/synth_top.tcl" $::env(GLB_CFG_FILE) 0
+    if { $::env(SYNTH_ELABORATE_ONLY) } {
+        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CFG_FILE) 0
     }
     set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
