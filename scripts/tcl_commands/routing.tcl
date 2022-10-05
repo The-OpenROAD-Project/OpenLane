@@ -297,7 +297,7 @@ proc apply_route_obs {args} {
     puts_verbose "Obstructions added over $::env(GRT_OBS)."
 
     set_def $save_def
-    set_db $save_db
+    set_odb $save_db
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "adding routing obstructions - openlane"
