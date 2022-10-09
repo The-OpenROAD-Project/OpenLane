@@ -15,15 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import sys
 import json
 import click
 import pathlib
 import subprocess
-
-# TODO: If command is get designs
-# print(json.dumps({"design": designs}))
-# else if design specified
-#
 
 openlane_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -34,14 +30,13 @@ def mkdirp(path):
 
 def get_test_cases():
     test_dir = os.path.join(openlane_root, "tests")
-    retval = []
-    for file in os.listdir(test_dir):
-        if file == "__pycache__":
+    test_cases = []
+    for test in os.listdir(test_dir):
+        test_path = os.path.join(test_dir, test)
+        if test == "__pycache__" or not os.path.isdir(test_path):
             continue
-        test_path = os.path.join(test_dir, file)
-        if os.path.isdir(test_path):
-            retval.append(test_path)
-    return retval
+        test_cases.append(test)
+    return test_cases
 
 
 @click.group()
@@ -52,7 +47,7 @@ def cli():
 # Note: Following command is executed outside of OpenRoad, so you can't run the ./flow.tcl
 @click.command("get_matrix")
 def get_matrix():
-    print(json.dumps({"design": get_test_cases()}))
+    print(json.dumps({"test": get_test_cases()}))
 
 
 cli.add_command(get_matrix)
@@ -89,7 +84,8 @@ def run_test_case(test_case):
         original_test_case = test_case
         test_case = os.path.join(openlane_root, "tests", test_case)
         if not os.path.isdir(test_case):
-            print(f"Test case {original_test_case} not found.")
+            print(f"Test case {original_test_case} not found.", file=sys.stderr)
+            exit(os.EX_DATAERR)
 
     test_case = os.path.abspath(test_case)
 
@@ -106,34 +102,34 @@ def run_test_case(test_case):
     # 1. Run the flow
     # -------------------------------
     try:
-        logfile = open(run_log_path, "w")
-        print(
-            f"Running test case: {test_case_name}... (log: {os.path.relpath(run_log_path, '.')})"
-        )
-        interactive = []
-        interactive_file = os.path.join(test_case, "interactive.tcl")
-        if os.path.exists(interactive_file):
-            interactive = ["-it", "-file", interactive_file]
-        env = os.environ.copy()
-        env["TEST_DIR"] = test_case
-        result = subprocess.run(
-            [
-                "flow.tcl",
-                "-design",
-                test_case,
-                "-tag",
-                "issue_regression_run",
-                "-run_hooks",
-                "-overwrite",
-                "-verbose",
-                "99",
-            ]
-            + interactive,
-            stdout=logfile,
-            stderr=subprocess.STDOUT,
-            check=True,
-            env=env,
-        )
+        with open(run_log_path, "w") as log:
+            print(
+                f"Running test case: {test_case_name}... (log: '{os.path.relpath(run_log_path, '.')}')"
+            )
+            interactive = []
+            interactive_file = os.path.join(test_case, "interactive.tcl")
+            if os.path.exists(interactive_file):
+                interactive = ["-it", "-file", interactive_file]
+            env = os.environ.copy()
+            env["TEST_DIR"] = test_case
+            result = subprocess.run(
+                [
+                    "flow.tcl",
+                    "-verbose",
+                    "99",
+                    "-design",
+                    test_case,
+                    "-tag",
+                    "issue_regression_run",
+                    "-run_hooks",
+                    "-overwrite",
+                ]
+                + interactive,
+                stdout=log,
+                stderr=log,
+                check=True,
+                env=env,
+            )
     except subprocess.CalledProcessError as err:
         # -------------------------------
         # 2.1 If run was not successful, then run the issue_regression.py which
@@ -147,34 +143,34 @@ def run_test_case(test_case):
             print(
                 f"flow.tcl failed and issue_regression.py does not exist, therefore test case {test_case} failed."
             )
-            raise err
+            exit(os.EX_DATAERR)
     # -------------------------------
     # 3. Run the issue_regression.py.
     # -------------------------------
     if script_exists:
-        print(
-            f"Running post-run check... (log: '{os.path.relpath(check_log_path, '.')}')"
-        )
-        logfile_check = open(check_log_path, "w")
         try:
-            subprocess.run(
-                [
-                    "openroad",
-                    "-python",
-                    test_case_issue_regression_script,
-                    os.path.join(test_case, "runs", "issue_regression_run"),
-                    str(result.returncode),
-                ],
-                check=True,
-                stdout=logfile_check,
-                stderr=subprocess.STDOUT,
-            )
-        except subprocess.CalledProcessError as err:
+            with open(check_log_path, "w") as log:
+                print(
+                    f"Running post-run check... (log: '{os.path.relpath(check_log_path, '.')}')"
+                )
+                subprocess.run(
+                    [
+                        "openroad",
+                        "-python",
+                        test_case_issue_regression_script,
+                        os.path.join(test_case, "runs", "issue_regression_run"),
+                        str(result.returncode),
+                    ],
+                    check=True,
+                    stdout=log,
+                    stderr=log,
+                )
+        except subprocess.CalledProcessError:
             # -------------------------------
             # 4. Run the issue_regression.py. If it errors out, log it and then raise an error
             # -------------------------------
-            print("Failed.")
-            raise err
+            print("Post-run check has failed.")
+            exit(os.EX_DATAERR)
     print(f"{test_case_name} completed successfully.")
 
 

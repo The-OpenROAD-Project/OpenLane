@@ -11,12 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
+import glob
 
+glob_str = os.path.join(sys.argv[1], "**", "*apply_def_template.log")
+glob_result = glob.glob(glob_str, recursive=True)
+if len(glob_result) < 1:
+    print("apply_def_template log not found.", file=sys.stderr)
+    exit(os.EX_DATAERR)
 
-with open(sys.argv[1] + "/openlane.log") as f:
+log = glob_result[0]
+
+with open(log) as f:
     content = f.read()
-    print(content)
+    print(f"-- {log} --\n{content}\n-- --")
     if (
         content.find(
             "Pin manufacturing_grid_missaligned_pin's coordinate 9861 does not lie on the manufacturing grid."
@@ -28,6 +37,7 @@ with open(sys.argv[1] + "/openlane.log") as f:
         )
         is not -1
     ):
-        sys.exit(0)
+        print("OK")
     else:
-        sys.exit("Didn't match the log")
+        print("Expected errors were not found in the log.")
+        exit(os.EX_DATAERR)
