@@ -331,8 +331,8 @@ cli.add_command(relocate_pins_command)
     help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_components(rx, instance_name, reader):
-    matcher = re.compile(instance_name if rx else f"^{re.escape(instance_name)}$")
+def remove_components(rx_str, reader):
+    matcher = re.compile(rx_str)
     instances = reader.block.getInsts()
     for instance in instances:
         name = instance.getName()
@@ -359,12 +359,12 @@ cli.add_command(remove_components)
     help="Adds a further condition to only remove empty nets (i.e. unconnected nets).",
 )
 @click_odb
-def remove_nets(rx, net_name, empty_only, reader):
-    matcher = re.compile(net_name if rx else f"^{re.escape(net_name)}$")
+def remove_nets(rx_str, empty_only, reader):
+    matcher = re.compile(rx_str)
     nets = reader.block.getNets()
     for net in nets:
         name = net.getName()
-        name_m = matcher.search(name)
+        name_m = matcher.match(name)
         if name_m is not None:
             if empty_only and len(net.getITerms()) > 0:
                 continue
@@ -388,8 +388,8 @@ cli.add_command(remove_nets)
     help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_pins(rx, pin_name, reader):
-    matcher = re.compile(pin_name if rx else f"^{re.escape(pin_name)}$")
+def remove_pins(rx_str, reader):
+    matcher = re.compile(rx_str)
     pins = reader.block.getBTerms()
     for pin in pins:
         name = pin.getName()

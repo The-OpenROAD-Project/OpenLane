@@ -47,20 +47,26 @@ proc run_sta {args} {
     puts_info "Running $corner_prefix Static Timing Analysis$process_corner_postfix (log: [relpath . $log])..."
 
     set ::env(STA_PRE_CTS) $pre_cts
+    set lib_option ""
+    if { $::env(STA_WRITE_LIB) } {
+        set lib_option "lib"
+    }
 
     if {[info exists ::env(CLOCK_PORT)]} {
         if { $multi_corner == 1 } {
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
                 -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,lib,sdf"\
+                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"\
                 -no_update_current
 
-            unset ::env(SAVE_LIB)
+            if { $::env(STA_WRITE_LIB) } {
+                unset ::env(SAVE_LIB)
+            }
             unset ::env(SAVE_SDF)
         } else {
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl \
                 -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,lib,sdf"
+                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
         }
     } else {
         puts_warn "CLOCK_PORT is not set. STA will be skipped..."
@@ -89,13 +95,20 @@ proc run_parasitics_sta {args} {
     set backup_sdc_variable $::env(CURRENT_SDC)
     set ::env(CURRENT_SDC) $::env(RCX_SDC_FILE)
 
+    set mca_results_dir "$arg_values(-out_directory)/mca"
+    set ::env(MC_SPEF_DIR) "$mca_results_dir/spef"
+    set ::env(MC_SDF_DIR) "$mca_results_dir/sdf"
+
+    exec rm -rf $::env(MC_SPEF_DIR)
+    exec rm -rf $::env(MC_SDF_DIR)
+
     foreach {process_corner lef ruleset} {
         min MERGED_LEF_MIN RCX_RULES_MIN
         max MERGED_LEF_MAX RCX_RULES_MAX
         nom MERGED_LEF RCX_RULES
     } {
         if { [info exists ::env($lef)] } {
-            set directory "$arg_values(-out_directory)/process_corner_$process_corner"
+            set directory "$mca_results_dir/process_corner_$process_corner"
             file mkdir $directory
 
             run_spef_extraction\
@@ -122,6 +135,13 @@ proc run_parasitics_sta {args} {
 
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
             }
+
+            file mkdir $::env(MC_SPEF_DIR)
+            file copy -force "$directory/$::env(DESIGN_NAME).spef" "$::env(MC_SPEF_DIR)/$::env(DESIGN_NAME).$process_corner.spef"
+
+            set sdf_folder "$::env(MC_SDF_DIR)/$process_corner"
+            file mkdir $sdf_folder
+            file copy -force {*}[glob $directory/$::env(DESIGN_NAME).*.sdf] $sdf_folder
         }
     }
 

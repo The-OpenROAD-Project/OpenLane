@@ -66,6 +66,12 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0` )|
 | `IO_PCT` | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
 
+### STA
+
+| Variable | Description |
+|-|-|
+| `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
+
 ### Floorplanning
 
 |Variable|Description|

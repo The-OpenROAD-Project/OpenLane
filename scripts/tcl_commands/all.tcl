@@ -906,9 +906,13 @@ proc save_views {args} {
         {-def_path optional}
         {-gds_path optional}
         {-verilog_path optional}
+        {-nl_path optional}
+        {-pnl_path optional}
         {-spice_path optional}
         {-sdf_path optional}
+        {-mc_sdf_dir optional}
         {-spef_path optional}
+        {-mc_spef_dir optional}
         {-sdc_path optional}
         {-lib_path optional}
         {-save_path optional}
@@ -916,6 +920,18 @@ proc save_views {args} {
 
     set flags {}
     parse_key_args "save_views" args arg_values $options flags_map $flags
+
+
+    if { [info exists arg_values(-verilog_path)] } {
+        puts_warn "The argument -verilog_path is ambiguous and deprecated."
+        puts_warn "You may use either -nl_path for unpowered or -pnl_path for powered netlists."
+
+        if { ![info exists arg_values(-pnl_path)] } {
+            puts_warn "Setting -pnl_path to '$arg_values(-verilog_path)'..."
+            set arg_values(-pnl_path) $arg_values(-verilog_path)
+        }
+    }
+
     if { [info exists arg_values(-save_path)]\
         && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
@@ -964,11 +980,24 @@ proc save_views {args} {
             file copy -force $arg_values(-gds_path) $destination/$::env(DESIGN_NAME).gds
         }
     }
-    if { [info exists arg_values(-verilog_path)] } {
+
+    if { [info exists arg_values(-nl_path)] } {
         set destination $path/verilog/gl
         file mkdir $destination
-        if { [file exists $arg_values(-verilog_path)] } {
-            file copy -force $arg_values(-verilog_path) $destination/$::env(DESIGN_NAME).v
+        if { [file exists $arg_values(-nl_path)] } {
+            set nl_file_path $destination/$::env(DESIGN_NAME).nl.v
+            set f [open $nl_file_path w]
+            puts $f "// This is the unpowered netlist."
+            puts $f [cat $arg_values(-nl_path)]
+            close $f
+        }
+    }
+
+    if { [info exists arg_values(-pnl_path)] } {
+        set destination $path/verilog/gl
+        file mkdir $destination
+        if { [file exists $arg_values(-pnl_path)] } {
+            file copy -force $arg_values(-pnl_path) $destination/$::env(DESIGN_NAME).v
         }
     }
 
@@ -988,6 +1017,14 @@ proc save_views {args} {
         }
     }
 
+    if { [info exists arg_values(-mc_spef_dir)] } {
+        set destination $path/spef/multicorner
+        if { [file exists $arg_values(-mc_spef_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_spef_dir) $destination
+        }
+    }
+
     if { [info exists arg_values(-sdf_path)] } {
         set destination $path/sdf
         file mkdir $destination
@@ -995,6 +1032,16 @@ proc save_views {args} {
             file copy -force $arg_values(-sdf_path) $destination/$::env(DESIGN_NAME).sdf
         }
     }
+
+
+    if { [info exists arg_values(-mc_sdf_dir)] } {
+        set destination $path/sdf/multicorner
+        if { [file exists $arg_values(-mc_sdf_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_sdf_dir) $destination
+        }
+    }
+
 
     if { [info exists arg_values(-sdc_path)] } {
         set destination $path/sdc
@@ -1175,14 +1222,23 @@ proc save_final_views {args} {
 
     # Guaranteed to have default values
     lappend arg_list -def_path $::env(CURRENT_DEF)
-    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+    lappend arg_list -nl_path $::env(CURRENT_NETLIST)
 
     # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_POWERED_NETLIST)] } {
+        lappend arg_list -pnl_path $::env(CURRENT_POWERED_NETLIST)
+    }
     if { [info exists ::env(CURRENT_SPEF)] } {
         lappend arg_list -spef_path $::env(CURRENT_SPEF)
     }
+    if { [info exists ::env(MC_SPEF_DIR)]} {
+        lappend arg_list -mc_spef_dir $::env(MC_SPEF_DIR)
+    }
     if { [info exists ::env(CURRENT_SDF)] } {
         lappend arg_list -sdf_path $::env(CURRENT_SDF)
+    }
+    if { [info exists ::env(MC_SDF_DIR)]} {
+        lappend arg_list -mc_sdf_dir $::env(MC_SDF_DIR)
     }
     if { [info exists ::env(CURRENT_SDC)] } {
         lappend arg_list -sdc_path $::env(CURRENT_SDC)
@@ -1190,6 +1246,7 @@ proc save_final_views {args} {
     if { [info exists ::env(CURRENT_LIB)] } {
         lappend arg_list -lib_path $::env(CURRENT_LIB)
     }
+
 
     # Add the path if it exists...
     if { [info exists arg_values(-save_path) ] } {

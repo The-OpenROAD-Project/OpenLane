@@ -1,6 +1,6 @@
 package require openlane;
 
-prep -design tests/1007
+prep -design $::env(TEST_DIR)
 
 set ::env(CURRENT_ODB) $::env(DESIGN_DIR)/in.odb
 

@@ -146,7 +146,7 @@ proc remove_nets {args} {
     lappend arg_list -output $arg_values(-output)
 
     if { [info exists arg_values(-rx)] } {
-        lappend arg_list --rx $arg_values(-rx)
+        lappend arg_list --match $arg_values(-rx)
     }
 
     if { [info exists flags_map(-empty)] } {
@@ -164,10 +164,16 @@ proc remove_empty_nets {args} {
 proc remove_components {args} {
     set options {
         {-input required}
+        {-output optional}
     }
     set flags {}
     parse_key_args "remove_components" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_components \
+        -output $arg_values(-output) \
         -input $arg_values(-input)
 }
 
