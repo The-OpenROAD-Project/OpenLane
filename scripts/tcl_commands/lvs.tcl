@@ -185,7 +185,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     try_catch netgen -batch source $lvs_file_path \
         |& tee $::env(TERMINAL_OUTPUT) $log
 
-    set count_lvs_log $extraction_prefix.log
+    set count_lvs_log $extraction_prefix-count.log
 
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
         -f $extraction_prefix.json \
