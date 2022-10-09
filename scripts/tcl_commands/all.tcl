@@ -910,7 +910,9 @@ proc save_views {args} {
         {-pnl_path optional}
         {-spice_path optional}
         {-sdf_path optional}
+        {-mc_sdf_dir optional}
         {-spef_path optional}
+        {-mc_spef_dir optional}
         {-sdc_path optional}
         {-lib_path optional}
         {-save_path optional}
@@ -1015,6 +1017,14 @@ proc save_views {args} {
         }
     }
 
+    if { [info exists arg_values(-mc_spef_dir)] } {
+        set destination $path/spef/multicorner
+        if { [file exists $arg_values(-mc_spef_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_spef_dir) $destination
+        }
+    }
+
     if { [info exists arg_values(-sdf_path)] } {
         set destination $path/sdf
         file mkdir $destination
@@ -1022,6 +1032,16 @@ proc save_views {args} {
             file copy -force $arg_values(-sdf_path) $destination/$::env(DESIGN_NAME).sdf
         }
     }
+
+
+    if { [info exists arg_values(-mc_sdf_dir)] } {
+        set destination $path/sdf/multicorner
+        if { [file exists $arg_values(-mc_sdf_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_sdf_dir) $destination
+        }
+    }
+
 
     if { [info exists arg_values(-sdc_path)] } {
         set destination $path/sdc
@@ -1211,8 +1231,14 @@ proc save_final_views {args} {
     if { [info exists ::env(CURRENT_SPEF)] } {
         lappend arg_list -spef_path $::env(CURRENT_SPEF)
     }
+    if { [info exists ::env(MC_SPEF_DIR)]} {
+        lappend arg_list -mc_spef_dir $::env(MC_SPEF_DIR)
+    }
     if { [info exists ::env(CURRENT_SDF)] } {
         lappend arg_list -sdf_path $::env(CURRENT_SDF)
+    }
+    if { [info exists ::env(MC_SDF_DIR)]} {
+        lappend arg_list -mc_sdf_dir $::env(MC_SDF_DIR)
     }
     if { [info exists ::env(CURRENT_SDC)] } {
         lappend arg_list -sdc_path $::env(CURRENT_SDC)
@@ -1220,6 +1246,7 @@ proc save_final_views {args} {
     if { [info exists ::env(CURRENT_LIB)] } {
         lappend arg_list -lib_path $::env(CURRENT_LIB)
     }
+
 
     # Add the path if it exists...
     if { [info exists arg_values(-save_path) ] } {

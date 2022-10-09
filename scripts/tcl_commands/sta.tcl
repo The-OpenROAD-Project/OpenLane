@@ -95,13 +95,20 @@ proc run_parasitics_sta {args} {
     set backup_sdc_variable $::env(CURRENT_SDC)
     set ::env(CURRENT_SDC) $::env(RCX_SDC_FILE)
 
+    set mca_results_dir "$arg_values(-out_directory)/mca"
+    set ::env(MC_SPEF_DIR) "$mca_results_dir/spef"
+    set ::env(MC_SDF_DIR) "$mca_results_dir/sdf"
+
+    exec rm -rf $::env(MC_SPEF_DIR)
+    exec rm -rf $::env(MC_SDF_DIR)
+
     foreach {process_corner lef ruleset} {
         min MERGED_LEF_MIN RCX_RULES_MIN
         max MERGED_LEF_MAX RCX_RULES_MAX
         nom MERGED_LEF RCX_RULES
     } {
         if { [info exists ::env($lef)] } {
-            set directory "$arg_values(-out_directory)/process_corner_$process_corner"
+            set directory "$mca_results_dir/process_corner_$process_corner"
             file mkdir $directory
 
             run_spef_extraction\
@@ -128,6 +135,13 @@ proc run_parasitics_sta {args} {
 
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
             }
+
+            file mkdir $::env(MC_SPEF_DIR)
+            file copy -force "$directory/$::env(DESIGN_NAME).spef" "$::env(MC_SPEF_DIR)/$::env(DESIGN_NAME).$process_corner.spef"
+
+            set sdf_folder "$::env(MC_SDF_DIR)/$process_corner"
+            file mkdir $sdf_folder
+            file copy -force {*}[glob $directory/$::env(DESIGN_NAME).*.sdf] $sdf_folder
         }
     }
 
