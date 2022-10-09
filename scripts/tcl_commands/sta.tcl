@@ -47,20 +47,26 @@ proc run_sta {args} {
     puts_info "Running $corner_prefix Static Timing Analysis$process_corner_postfix (log: [relpath . $log])..."
 
     set ::env(STA_PRE_CTS) $pre_cts
+    set lib_option ""
+    if { $::env(STA_WRITE_LIB) } {
+        set lib_option "lib"
+    }
 
     if {[info exists ::env(CLOCK_PORT)]} {
         if { $multi_corner == 1 } {
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
                 -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,lib,sdf"\
+                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"\
                 -no_update_current
 
-            unset ::env(SAVE_LIB)
+            if { $::env(STA_WRITE_LIB) } {
+                unset ::env(SAVE_LIB)
+            }
             unset ::env(SAVE_SDF)
         } else {
             run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl \
                 -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,lib,sdf"
+                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
         }
     } else {
         puts_warn "CLOCK_PORT is not set. STA will be skipped..."

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 #
+# Copyright 2022 Efabless Corporation
 # Copyright 2022 Arman Avetisyan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,24 +14,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import os  # For checking if file exists
-import json  # To serialize the matrix for the CI
-import click  # For command line parsing
-import subprocess  # For running the flow
+import os
+import json
+import click
+import pathlib
+import subprocess
 
 # TODO: If command is get designs
 # print(json.dumps({"design": designs}))
 # else if design specified
 #
 
+openlane_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def mkdirp(path):
+    return pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+
 
 def get_test_cases():
-    openlane_dir_relative = os.path.dirname(os.path.relpath(__file__))
-    test_dir_relative = os.path.join(openlane_dir_relative, "tests")
+    test_dir = os.path.join(openlane_root, "tests")
     retval = []
-    for file in os.listdir(test_dir_relative):
-        test_path = os.path.join(test_dir_relative, file)
+    for file in os.listdir(test_dir):
+        if file == "__pycache__":
+            continue
+        test_path = os.path.join(test_dir, file)
         if os.path.isdir(test_path):
             retval.append(test_path)
     return retval
@@ -71,45 +79,60 @@ cli.add_command(run_all)
 
 def run_test_case(test_case):
     # test_case is the path to design
-    # test_case_name is name of design to test
-    # It is assumed that every test case is inside designs path
+    # if the path does not exist, openlane_root/tests/<test_case> will also be checked
 
     # -------------------------------
-    # 0. Calculate names
+    # 0. Extract names and paths
     # -------------------------------
     result = ""
-    test_case_issue_regression_script = test_case + "/issue_regression.py"
+    if not os.path.isdir(test_case):
+        original_test_case = test_case
+        test_case = os.path.join(openlane_root, "tests", test_case)
+        if not os.path.isdir(test_case):
+            print(f"Test case {original_test_case} not found.")
+
+    test_case = os.path.abspath(test_case)
+
+    test_case_issue_regression_script = os.path.join(test_case, "issue_regression.py")
     script_exists = os.path.isfile(test_case_issue_regression_script)
     (_, test_case_name) = os.path.split(test_case)
-    # print("test_case_name", test_case_name)
-    logpath = "./regression_results/issue_regression_" + test_case_name + ".log"
-    logpath_check = (
-        "./regression_results/issue_regression_" + test_case_name + "_check.log"
-    )
+
+    log_dir = os.path.join(openlane_root, "test_logs")
+    mkdirp(log_dir)
+    run_log_path = os.path.join(log_dir, f"{test_case_name}.log")
+    check_log_path = os.path.join(log_dir, f"{test_case_name}.check.log")
+
     # -------------------------------
     # 1. Run the flow
     # -------------------------------
     try:
-        logfile = open(logpath, "w")
-        print(f"Running test case: {test_case_name} (log: {logpath})")
+        logfile = open(run_log_path, "w")
+        print(
+            f"Running test case: {test_case_name}... (log: {os.path.relpath(run_log_path, '.')})"
+        )
         interactive = []
         interactive_file = os.path.join(test_case, "interactive.tcl")
         if os.path.exists(interactive_file):
             interactive = ["-it", "-file", interactive_file]
+        env = os.environ.copy()
+        env["TEST_DIR"] = test_case
         result = subprocess.run(
             [
-                "./flow.tcl",
+                "flow.tcl",
                 "-design",
                 test_case,
                 "-tag",
                 "issue_regression_run",
                 "-run_hooks",
                 "-overwrite",
+                "-verbose",
+                "99",
             ]
             + interactive,
             stdout=logfile,
             stderr=subprocess.STDOUT,
             check=True,
+            env=env,
         )
     except subprocess.CalledProcessError as err:
         # -------------------------------
@@ -122,22 +145,24 @@ def run_test_case(test_case):
             result = err
         else:
             print(
-                f"./flow.tcl failed and issue_regression.py does not exist, therefore test case {test_case} failed."
+                f"flow.tcl failed and issue_regression.py does not exist, therefore test case {test_case} failed."
             )
             raise err
     # -------------------------------
     # 3. Run the issue_regression.py.
     # -------------------------------
     if script_exists:
-        print("Running post-run hook...")
-        logfile_check = open(logpath_check, "w")
+        print(
+            f"Running post-run check... (log: '{os.path.relpath(check_log_path, '.')}')"
+        )
+        logfile_check = open(check_log_path, "w")
         try:
             subprocess.run(
                 [
                     "openroad",
                     "-python",
                     test_case_issue_regression_script,
-                    test_case + "/runs/issue_regression_run",
+                    os.path.join(test_case, "runs", "issue_regression_run"),
                     str(result.returncode),
                 ],
                 check=True,
@@ -148,7 +173,7 @@ def run_test_case(test_case):
             # -------------------------------
             # 4. Run the issue_regression.py. If it errors out, log it and then raise an error
             # -------------------------------
-            print(f"{test_case_name} failed: see '{logpath_check}'.")
+            print("Failed.")
             raise err
     print(f"{test_case_name} completed successfully.")
 

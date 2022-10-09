@@ -906,6 +906,8 @@ proc save_views {args} {
         {-def_path optional}
         {-gds_path optional}
         {-verilog_path optional}
+        {-nl_path optional}
+        {-pnl_path optional}
         {-spice_path optional}
         {-sdf_path optional}
         {-spef_path optional}
@@ -916,6 +918,18 @@ proc save_views {args} {
 
     set flags {}
     parse_key_args "save_views" args arg_values $options flags_map $flags
+
+
+    if { [info exists arg_values(-verilog_path)] } {
+        puts_warn "The argument -verilog_path is ambiguous and deprecated."
+        puts_warn "You may use either -nl_path for unpowered or -pnl_path for powered netlists."
+
+        if { [info exists arg_values(-pnl_path)] } {
+            puts_warn "Setting -pnl_path to '$arg_values(-verilog_path)'..."
+            set arg_values(-pnl_path) $arg_values(-verilog_path)
+        }
+    }
+
     if { [info exists arg_values(-save_path)]\
         && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
@@ -964,11 +978,24 @@ proc save_views {args} {
             file copy -force $arg_values(-gds_path) $destination/$::env(DESIGN_NAME).gds
         }
     }
-    if { [info exists arg_values(-verilog_path)] } {
+
+    if { [info exists arg_values(-nl_path)] } {
         set destination $path/verilog/gl
         file mkdir $destination
-        if { [file exists $arg_values(-verilog_path)] } {
-            file copy -force $arg_values(-verilog_path) $destination/$::env(DESIGN_NAME).v
+        if { [file exists $arg_values(-nl_path)] } {
+            set nl_file_path $destination/$::env(DESIGN_NAME).nl.v
+            set f [open $nl_file_path w]
+            puts $f "// This is the unpowered netlist."
+            puts $f [cat $arg_values(-nl_path)]
+            close $f
+        }
+    }
+
+    if { [info exists arg_values(-pnl_path)] } {
+        set destination $path/verilog/gl
+        file mkdir $destination
+        if { [file exists $arg_values(-pnl_path)] } {
+            file copy -force $arg_values(-pnl_path) $destination/$::env(DESIGN_NAME).v
         }
     }
 
@@ -1175,9 +1202,12 @@ proc save_final_views {args} {
 
     # Guaranteed to have default values
     lappend arg_list -def_path $::env(CURRENT_DEF)
-    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+    lappend arg_list -nl_path $::env(CURRENT_NETLIST)
 
     # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_POWERED_NETLIST)] } {
+        lappend arg_list -pnl_path $::env(CURRENT_POWERED_NETLIST)
+    }
     if { [info exists ::env(CURRENT_SPEF)] } {
         lappend arg_list -spef_path $::env(CURRENT_SPEF)
     }

@@ -70,7 +70,7 @@ jobs:
           else
             echo "::set-output name=design_matrix::$(python3 ./.github/test_sets/get_test_matrix.py fastest_test_set)"
           fi
-          echo "::set-output name=issue_regression_matrix::$(python3 ./run_issue_regressions.py get_matrix)"
+          echo "::set-output name=issue_regression_matrix::$(python3 -m tests get_matrix)"
   docker_build_amd64:
     name: Docker Build (amd64)
     runs-on: ubuntu-20.04
@@ -132,6 +132,13 @@ jobs:
 
       - name: Run Issue Regression Test
         run: cd ${GITHUB_WORKSPACE}/ &&  make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.design }}
+
+      - name: Upload Logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test_${{ matrix.design }}_logs
+          path: ./test_logs
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
@@ -169,7 +176,7 @@ jobs:
           tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
 
       - name: Set PDK Variant
-        run: | 
+        run: |
           echo "PDK=sky130A" >> $GITHUB_ENV
 
       - name: Get Pyyaml

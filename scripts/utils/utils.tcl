@@ -509,7 +509,7 @@ proc run_tcl_script {args} {
             }
         } elseif { $element == "noindex" } {
             set index 0
-        } else {
+        } elseif { $element != "" } {
             set extension $element
 
             if { $element == "netlist" } {
