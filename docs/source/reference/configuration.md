@@ -70,7 +70,7 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable | Description |
 |-|-|
-| `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself can be quite buggy.) <br> (Default: `1`) |
+| `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
 ### Floorplanning
 
