@@ -924,7 +924,7 @@ proc save_views {args} {
         puts_warn "The argument -verilog_path is ambiguous and deprecated."
         puts_warn "You may use either -nl_path for unpowered or -pnl_path for powered netlists."
 
-        if { [info exists arg_values(-pnl_path)] } {
+        if { ![info exists arg_values(-pnl_path)] } {
             puts_warn "Setting -pnl_path to '$arg_values(-verilog_path)'..."
             set arg_values(-pnl_path) $arg_values(-verilog_path)
         }
