@@ -95,18 +95,15 @@ proc run_magic_drc {args} {
     run_magic_script $::env(SCRIPTS_DIR)/magic/drc.tcl\
         -indexed_log $log
 
-    puts_info "Converting Magic DRC Violations to a Magic-readable Format..."
+    puts_info "Converting Magic DRC database to various tool-readable formats..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
 
-    puts_info "Converting Magic DRC Violations to KLayout XML Database..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt
 
-
-    puts_info "Converting Magic DRC Violations to Tr XML Database..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
         -o $::env(drc_prefix).klayout.xml \
         --design-name $::env(DESIGN_NAME) \
