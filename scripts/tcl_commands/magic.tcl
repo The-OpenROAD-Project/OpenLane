@@ -30,7 +30,7 @@ proc run_magic {args} {
 
     run_magic_script\
         -indexed_log $log\
-        $::env(SCRIPTS_DIR)/magic/mag_gds.tcl
+        $::env(SCRIPTS_DIR)/magic/def/mag_gds.tcl
 
     if { $::env(PRIMARY_SIGNOFF_TOOL) == "magic" } {
         set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
@@ -47,7 +47,7 @@ proc run_magic {args} {
 
         # Generate mag file that includes GDS pointers
         set ::env(MAGTYPE) mag
-        run_magic_script $::env(SCRIPTS_DIR)/magic/gds_pointers.tcl\
+        run_magic_script $::env(SCRIPTS_DIR)/magic/gds/mag_with_pointers.tcl\
             -indexed_log $log
 
         # Only keep the properties section in the file
@@ -64,7 +64,7 @@ proc run_magic {args} {
         set ::env(MAGTYPE) maglef
         run_magic_script\
             -indexed_log [index_file $::env(signoff_logs)/lef.log]\
-            $::env(SCRIPTS_DIR)/magic/lef.tcl
+            $::env(SCRIPTS_DIR)/magic/mag/lef.tcl
 
         if { $::env(MAGIC_GENERATE_MAGLEF) } {
             # Generate MAGLEF view
@@ -72,7 +72,7 @@ proc run_magic {args} {
 
             run_magic_script\
                 -indexed_log [index_file $::env(signoff_logs)/maglef.log]\
-                $::env(SCRIPTS_DIR)/magic/maglef.tcl
+                $::env(SCRIPTS_DIR)/magic/lef/maglef.tcl
 
             # By default, copy the GDS properties into the maglef/ view
             copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
@@ -81,7 +81,6 @@ proc run_magic {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 }
-
 
 proc run_magic_drc {args} {
     increment_index
@@ -96,7 +95,7 @@ proc run_magic_drc {args} {
     run_magic_script $::env(SCRIPTS_DIR)/magic/drc.tcl\
         -indexed_log $log
 
-    puts_info "Converting Magic DRC Violations to Magic Readable Format..."
+    puts_info "Converting Magic DRC Violations to a Magic-readable Format..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
@@ -106,6 +105,8 @@ proc run_magic_drc {args} {
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt
 
+
+    puts_info "Converting Magic DRC Violations to Tr XML Database..."
     try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
         -o $::env(drc_prefix).klayout.xml \
         --design-name $::env(DESIGN_NAME) \
@@ -170,25 +171,28 @@ proc export_magic_view {args} {
     }
     set flags {}
     parse_key_args "export_magic_view" args arg_values $options flags_map $flags
-
     increment_index
     TIMER::timer_start
 
-    set script_dir $::env(signoff_tmpfiles)/magic_mag_save.tcl
+    set log [index_file $::env(signoff_logs)/save_mag.log]
+    puts_info "Running Magic Antenna Checks (log: [relpath . $log])..."
 
-    set stream [open $script_dir w]
-    puts $stream $commands
-    close $stream
+    set script_dir [index_file $::env(signoff_tmpfiles)/mag_save]
+    set script_path $script_dir/mag.tcl
 
-    set ::env(_tmp_save_mag) $arg_values(-output)
-    set ::env(_tmp_def_in) $arg_values(-def)
+    file mkdir script_dir
+    file copy -force $::env(SCRIPT_DIR)/magic/def/mag.tcl $script_path
+
+    set backup_def $::env(CURRENT_DEF)
+
+    set ::env(SAVE_MAG) $arg_values(-output)
+    set ::env(CURRENT_DEF) $arg_values(-def)
 
     run_magic_script\
         -indexed_log [index_file $::env(signoff_logs)/save_mag.log]\
         $script_dir
 
-    unset ::env(_tmp_save_mag)
-    unset ::env(_tmp_def_in)
+    set ::env(CURRENT_DEF) $backup_def
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "mag export - magic"
@@ -208,7 +212,7 @@ proc run_magic_antenna_check {args} {
 
     set ::env(_tmp_feedback_file) $feedback_file
 
-    run_magic_script $::env(SCRIPTS_DIR)/magic/antenna_check.tcl\
+    run_magic_script $::env(SCRIPTS_DIR)/magic/def/antenna_check.tcl\
         -indexed_log $log
 
     unset ::env(_tmp_feedback_file)
@@ -251,6 +255,37 @@ proc copy_gds_properties {from to} {
     set fp [open $to w]
     puts $fp [join $new_mag_lines "\n"]
     close $fp
+}
+
+proc erase_box {args} {
+    set options {
+        {-input optional}
+        {-output optional}
+        {-box required}
+    }
+    set flags {}
+
+    parse_key_args "erase_box" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-input) $::env(CURRENT_GDS)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(signoff_logs)/erase_box.log]
+    puts_info "Erasing a box with Magic... (log: [relpath . $log])..."
+
+    set gds_backup $::env(CURRENT_GDS)
+    set ::env(CURRENT_GDS) $arg_values(-input)
+    set ::env(SAVE_GDS) $arg_values(-output)
+    set ::env(_tmp_mag_box_coordinates) $arg_values(-box)
+
+    run_magic_script $::env(SCRIPTS_DIR)/magic/gds/erase_box.tcl\
+        -indexed_log $log
+
+    set ::env(CURRENT_GDS) $gds_backup
+    unset ::env(_tmp_mag_box_coordinates)
+    unset ::env(SAVE_GDS)
 }
 
 package provide openlane 0.9

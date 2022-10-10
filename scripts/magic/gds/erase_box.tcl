@@ -12,31 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lef read $::env(TECH_LEF)
-if {  [info exist ::env(EXTRA_LEFS)] } {
-    set lefs_in $::env(EXTRA_LEFS)
-    foreach lef_file $lefs_in {
-        lef read $lef_file
-    }
-}
-def read $::env(CURRENT_DEF)
-load $::env(DESIGN_NAME) -dereference
+tech unlock *
 
-set extdir $::env(signoff_tmpfiles)/magic_antenna_ext
-file mkdir $extdir
-cd $extdir
+gds read $::env(CURRENT_GDS)
+
+set box_coordinates [list]
+lappend box_coordinates {*}$::env(_tmp_mag_box_coordinates)
+
+box [lindex box_coordinates 2]um [lindex box_coordinates 3]um [lindex box_coordinates 4]um [lindex box_coordinates 5]um
+
+erase
+select area
+delete
 
 select top cell
-extract do local
-extract no capacitance
-extract no coupling
-extract no resistance
-extract no adjust
-if { ! $::env(LVS_CONNECT_BY_LABEL) } {
-    extract unique
-}
-extract
-feedback save $::env(_tmp_feedback_file)
+erase labels
 
-antennacheck debug
-antennacheck
+gds write $::env(SAVE_GDS)

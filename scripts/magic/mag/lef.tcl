@@ -1,10 +1,8 @@
 drc off
 
 lef read $::env(TECH_LEF)
-
 if {  [info exist ::env(EXTRA_LEFS)] } {
-	set lefs_in $::env(EXTRA_LEFS)
-	foreach lef_file $lefs_in {
+	foreach lef_file $::env(EXTRA_LEFS) {
 		lef read $lef_file
 	}
 }

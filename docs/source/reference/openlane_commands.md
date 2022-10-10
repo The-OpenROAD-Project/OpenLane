@@ -241,7 +241,7 @@ Most of the following commands' implementation exists in this [file][6]
 | `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF` or the `CURRENT_GDS` based on the value of `MAGIC_DRC_USE_GDS`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
 | `run_magic_spice_export` | | Runs spice extractions on the processed design. Based on the value of `MAGIC_EXT_USE_GDS` either the GDS or the DEF/LEF is used for the extraction. The resulting file is under `/<run_path>/results/magic/` . |
 | `export_magic_view` | | Export a mag view of a given def file. |
-|    | `-def <def_file>` | The input DEF file. |
+|    | `-def <def_file>` | The input DEF file, the default is `::env(CURRENT_DEF)`. |
 |    | `-output <output_file>` | The output mag file path. |
 | `run_magic_antenna_check` | | Runs spice extractions on the processed design and performs antenna checks. The resulting file is under `/<run_path>/results/magic/` and `/<run_path>/reports/magic/` . |
 

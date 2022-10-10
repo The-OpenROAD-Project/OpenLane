@@ -318,13 +318,13 @@ proc run_magic_drc_batch {args} {
             -noconsole \
             -dnull \
             -rcfile $magicrc \
-            $::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
+            $::env(OPENLANE_ROOT)/scripts/magic/gds/drc_batch.tcl \
             </dev/null |& tee /dev/tty
     } else {
         exec magic \
             -noconsole \
             -dnull \
-            $::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
+            $::env(OPENLANE_ROOT)/scripts/magic/gds/drc_batch.tcl \
             </dev/null |& tee /dev/tty
     }
 }
