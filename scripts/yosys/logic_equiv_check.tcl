@@ -16,9 +16,7 @@ yosys -import
 if { [info exists ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
 	set well_tap_cell "$::env(FP_WELLTAP_CELL)"
 }
-set decap_cell_wildcard "$::env(DECAP_CELL)*"
-set fill_cell_wildcard "$::env(FILL_CELL)*"
-set buff_ef_cell_wildcare sky130_ef_sc_hd__decap*
+set all "$::env(CELL_PAD_EXCLUDE)"
 
 set vtop $::env(DESIGN_NAME)
 #set sdc_file $::env(SDC_FILE)
@@ -45,8 +43,11 @@ rmports
 if { [info exists well_tap_cell] } {
 	hierarchy -generate $well_tap_cell
 }
-hierarchy -generate $decap_cell_wildcard
-hierarchy -generate $fill_cell_wildcard
+
+foreach i $all {
+	hierarchy -generate $i
+	}
+
 splitnets -ports;;
 
 if { $::env(SYNTH_FLAT_TOP) } {
@@ -81,8 +82,11 @@ rmports
 if { [info exists well_tap_cell] } {
 	hierarchy -generate $well_tap_cell
 }
-hierarchy -generate $decap_cell_wildcard
-hierarchy -generate $fill_cell_wildcard
+
+foreach i $all {
+	hierarchy -generate $i
+	}
+
 splitnets -ports;;
 
 if { $::env(SYNTH_FLAT_TOP) } {
@@ -117,11 +121,12 @@ equiv_make gold gate equiv
 if { [info exists well_tap_cell] } {
 	hierarchy -generate $well_tap_cell
 }
-hierarchy -generate $decap_cell_wildcard
-hierarchy -generate $fill_cell_wildcard
-hierarchy -generate $buff_ef_cell_wildcare
+
+foreach i $all {
+	hierarchy -generate $i
+	}
+
 setattr -set keep 1
 prep -flatten -top equiv
 equiv_simple -seq 10 -v
 equiv_status -assert
-
