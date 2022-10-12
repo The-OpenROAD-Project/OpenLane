@@ -74,6 +74,8 @@ set ::env(MAGIC_EXT_USE_GDS) 0
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
+set ::env(MAGIC_DEF_NO_BLOCKAGES) 1
+set ::env(MAGIC_DEF_LABELS) 1
 
 ### Klayout-Specific
 set ::env(RUN_KLAYOUT) 1

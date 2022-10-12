@@ -1,4 +1,4 @@
-# Copyright 2020 Efabless Corporation
+# Copyright 2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,21 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+lef read $::env(TECH_LEF)
+if {  [info exist ::env(EXTRA_LEFS)] } {
+    foreach lef_file $::env(EXTRA_LEFS) {
+        lef read $lef_file
+    }
+}
 
-drc off
+set def_read_args [list]
+lappend def_read_args $::env(CURRENT_DEF)
+if { $::env(MAGIC_DEF_NO_BLOCKAGES) } {
+    lappend def_read_args -noblockage
+}
+if { $::env(MAGIC_DEF_LABELS) } {
+    lappend def_read_args -labels
+}
 
-gds readonly true
-gds rescale false
 
-# This comes afterwards, so that it would contain GDS pointers
-# And yes, we need to re-read the GDS we just generated...
-gds read $::env(MAGIC_GDS)
-cellname filepath $::env(DESIGN_NAME) $::env(signoff_tmpfiles)
-save
-
-set final_filepath $::env(signoff_tmpfiles)/gds_ptrs.mag
-
-file rename -force $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).mag $final_filepath
-
-puts "\[INFO\]: Wrote $final_filepath including GDS pointers."
-exit 0
+def read {*}$def_read_args

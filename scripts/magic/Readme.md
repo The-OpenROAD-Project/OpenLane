@@ -1,0 +1,1 @@
+Files here are categorized by the input format. `drc.tcl` and `extract_spice.tcl` accept both GDS and DEF depending on a flag.
