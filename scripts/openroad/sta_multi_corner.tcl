@@ -80,6 +80,14 @@ puts "\n======================= Fastest Corner =================================
 report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff
 puts "check_report_end"
 
+puts "annotated_check_report"
+puts "\n==========================================================================="
+puts "report_annotated_check -list_not_annotated"
+puts "============================================================================"
+puts "\n======================= All Corners ===================================\n"
+report_annotated_check -list_not_annotated
+puts "annotated_check_report_end"
+
 
 puts "check_slew"
 puts "\n==========================================================================="

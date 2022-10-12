@@ -226,6 +226,7 @@ class Report(object):
 
         basic_set = [
             ("_sta.rpt", "check_report"),
+            ("_sta.annotated_check.rpt", "annotated_check_report"),
             ("_sta.min.rpt", "min_report"),
             ("_sta.max.rpt", "max_report"),
             ("_sta.wns.rpt", "wns_report"),
