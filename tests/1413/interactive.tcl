@@ -1,6 +1,12 @@
 package require openlane;
 
-prep -design $::env(TEST_DIR)
+prep -design $::env(TEST_DIR) {*}$argv
+
+try_catch echo {
+    read_lef $::env(MERGED_LEF)
+    read_def $::env(DESIGN_DIR)/../1413/in.def
+    write_db $::env(DESIGN_DIR)/in.odb
+} | openroad -exit
 
 set ::env(CURRENT_ODB) $::env(DESIGN_DIR)/in.odb
 
@@ -13,6 +19,6 @@ remove_nets -rx {^in$} -input $save_odb
 
 set ::env(CURRENT_ODB) $save_odb
 
-exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py
+try_catch $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py
 
 puts_info "Done."

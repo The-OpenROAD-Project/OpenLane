@@ -115,10 +115,10 @@ def run_test_case(test_case):
             result = subprocess.run(
                 [
                     "flow.tcl",
-                    "-verbose",
-                    "99",
                     "-design",
                     test_case,
+                    "-verbose",
+                    "99",
                     "-tag",
                     "issue_regression_run",
                     "-run_hooks",
