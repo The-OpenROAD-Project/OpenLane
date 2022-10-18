@@ -386,9 +386,11 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPEN
     }
 }
 
-if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
-    if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
-        unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
+if { ! [info exists ::env(OPENLANE_LOCAL_INSTALL)] || ! $::env(OPENLANE_LOCAL_INSTALL)} {
+    if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
+        if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
+            unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
+        }
     }
 }
 
