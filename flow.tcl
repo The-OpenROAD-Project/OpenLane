@@ -205,7 +205,7 @@ proc run_non_interactive_mode {args} {
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc" "run_lef_cvc"
+        "cvc_rv" "run_lef_cvc"
     ]
 
     if { [info exists arg_values(-from) ]} {
@@ -218,7 +218,7 @@ proc run_non_interactive_mode {args} {
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc"
+    set_if_unset arg_values(-to) "cvc_rv"
 
     set exe 0;
     dict for {step_name step_exe} $steps {

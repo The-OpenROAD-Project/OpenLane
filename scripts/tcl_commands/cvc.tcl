@@ -20,7 +20,7 @@ proc run_lef_cvc {args} {
     }
 
     if { ![info exists ::env(CVC_SCRIPTS_DIR)] } {
-        puts_warn "This PDK does not support cvc, skipping..."
+        puts_warn "This PDK does not support cvc_rv, skipping..."
         return
     }
 
@@ -68,12 +68,12 @@ proc run_lef_cvc {args} {
         > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).cdl
 
     # The main event
-    try_catch cvc $::env(CVC_SCRIPTS_DIR)/cvcrc \
+    try_catch cvc_rv $::env(CVC_SCRIPTS_DIR)/cvcrc \
         |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop
 
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc_rv"
 }
 
 package provide openlane 0.9

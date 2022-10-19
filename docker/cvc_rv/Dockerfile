@@ -20,7 +20,7 @@ ARG CVC_REPO
 ARG CVC_COMMIT
 
 # Build
-WORKDIR /cvc
+WORKDIR /cvc_rv
 RUN curl -L ${CVC_REPO}/tarball/${CVC_COMMIT} | tar -xzC . --strip-components=1 &&\
     autoreconf -i && \
     autoconf && \
@@ -28,8 +28,8 @@ RUN curl -L ${CVC_REPO}/tarball/${CVC_COMMIT} | tar -xzC . --strip-components=1 
     make install
    
 RUN mkdir -p /build/version/
-RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cvc.version
-RUN echo ${CVC_COMMIT} >> /build/version/cvc.version
+RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cvc_rv.version
+RUN echo ${CVC_COMMIT} >> /build/version/cvc_rv.version
 RUN tar -czf /build.tar.gz /build
 
 # ---
