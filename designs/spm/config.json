@@ -31,6 +31,6 @@
         "CLOCK_PERIOD": 24.0,
         "FP_CORE_UTIL": 40,
         "SYNTH_MAX_FANOUT": 4,
-        "PL_TARGET_DENSITY": 0.45
+        "PL_TARGET_DENSITY": 0.5
     }
 }

@@ -13,5 +13,8 @@
         "FP_CORE_UTIL": 20,
         "PL_TARGET_DENSITY": 0.25,
         "CLOCK_PERIOD": 18.0
+    },
+    "pdk::gf180*": {
+        "PL_TARGET_DENSITY": 0.48
     }
 }
