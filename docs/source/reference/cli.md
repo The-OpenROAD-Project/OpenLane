@@ -8,7 +8,8 @@ The following are the command-line arguments that can be passed to `flow.tcl`:
 | `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
 | `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
 | `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `./designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design ./designs/spm -config_file ./designs/spm/config2.tcl`  <br>By default `config.tcl` is used, and if not found, `config.json` is used instead. |
-| `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `KEY1=VALUE1,KEY2=VALUE2` |
+| `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `-override_env KEY1=VALUE1,KEY2=VALUE2` |
+| `-expose_env` | Expose the following environment variables to `config.json` as configuration variables. Has no effect on config.tcl sourcing, which already has access to all environment variables. Format: `-expose KEY1,KEY2` |
 | `-tag <name>`  <br>(Optional) | Specifies a "name" for a specific run. If the tag is not specified, a timestamp is generated for identification of that run.  |
 | `-run_path <path>`  <br>(Optional) | Specifies a `path` to save the run in. By default the run is in `design_path/`, where the design path is the one passed to `-design` |
 | `-src <verilog_source_file>`  <br>(Optional) | Sets the verilog source code file(s) in case of using `-init\_design\_config`.  <br>The default is that the source code files are under `design_path/src/`, where the design path is the one passed to `-design` |
