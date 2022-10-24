@@ -19,6 +19,7 @@ proc convert_pg_pins {lib_in lib_out} {
 proc run_yosys {args} {
     set options {
         {-output optional}
+        {-log optional}
         {-indexed_log optional}
     }
     set flags {
@@ -27,8 +28,13 @@ proc run_yosys {args} {
 
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
+    if { [info exists arg_values(-log)] } {
+        puts_warn "run_yosys -log is deprecated: replace -log with -indexed_log."
+        set arg_values(-indexed_log) $arg_values(-log)
+    }
+
     set_if_unset arg_values(-output) $::env(synthesis_results)/$::env(DESIGN_NAME).v
-    set_if_unset arg_values(-log) /dev/null
+    set_if_unset arg_values(-indexed_log) /dev/null
 
     if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
         set ::env(SYNTH_READ_BLACKBOX_LIB) 1
