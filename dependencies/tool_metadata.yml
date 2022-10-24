@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 7905e15ae3b66ed26349fb701b475ef93b566de5
+  commit: 94daf986ab9aa94a9ae2ac3539fa5def9bd2a1ac
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -58,7 +58,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 4174c3ad802d2ac1d04d387d2c4b883903f6647e
+  commit: 389a1f09821c0f57e3bf8e88f4ab43c76ec5f5c4
   build: ''
   in_install: false
 - name: git
@@ -68,7 +68,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: de752ec0ba4da0ecb1fbcd309eeec4993d88f5bc
+  commit: 0059588eebfc704681dc2368bd1d33d96281d10f
   build: ''
   in_install: false
   pdk: true

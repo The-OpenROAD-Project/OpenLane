@@ -156,7 +156,7 @@ proc run_klayout_step {args} {
 proc run_post_run_hooks {} {
     if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
         puts_info "Running post run hook"
-        set result [exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py]
+        set result [exec $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py]
         puts_info "$result"
     } else {
         puts_info "hooks/post_run.py not found, skipping"

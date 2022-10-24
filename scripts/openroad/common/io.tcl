@@ -25,7 +25,7 @@ proc read_netlist {args} {
     link_design $::env(DESIGN_NAME)
 
     if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc $::env(CURRENT_SDC)}]} {
+        if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
             puts stderr $errmsg
             exit 1
         }
@@ -102,7 +102,7 @@ proc read {args} {
     read_libs {*}$read_libs_args
 
     if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc $::env(CURRENT_SDC)}]} {
+        if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
             puts stderr $errmsg
             exit 1
         }
