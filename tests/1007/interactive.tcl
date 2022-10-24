@@ -1,8 +1,14 @@
 package require openlane;
 
-prep -design tests/1007
+prep -design $::env(TEST_DIR) {*}$argv
 
-set ::env(CURRENT_DEF) $::env(DESIGN_DIR)/in.def
+try_catch echo {
+    read_lef $::env(MERGED_LEF)
+    read_def $::env(DESIGN_DIR)/in.def
+    write_db $::env(DESIGN_DIR)/in.odb
+} | openroad -exit
+
+set ::env(CURRENT_ODB) $::env(DESIGN_DIR)/in.odb
 
 insert_buffer\
     -at_pin _0_/A\
@@ -10,8 +16,8 @@ insert_buffer\
     -net_name inserted_net\
     -inst_name inserted_buffer
 
-exec cp $::env(CURRENT_DEF) $::env(DESIGN_DIR)/out.def
+exec cp $::env(CURRENT_ODB) $::env(DESIGN_DIR)/out.odb
 
-exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py
+try_catch $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py
 
 puts_info "Done."

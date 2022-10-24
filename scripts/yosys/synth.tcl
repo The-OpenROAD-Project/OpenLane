@@ -23,8 +23,6 @@ if {[info exists ::env(DFF_LIB_SYNTH)]} {
 } else {
     set dfflib $sclib
 }
-#set opt $::env(SYNTH_OPT)
-#set sdc_file $::env(SDC_FILE)
 
 if { [info exists ::env(SYNTH_DEFINES) ] } {
     foreach define $::env(SYNTH_DEFINES) {
@@ -90,10 +88,9 @@ set timing_ext  ".timing.txt"
 set abc_ext     ".abc"
 
 
-# get old sdc, add library specific stuff for abc scripts
+# Create SDC File
 set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
-#puts $outfile $sdc_data
 puts $outfile "set_driving_cell ${driver}"
 puts $outfile "set_load ${cload}"
 close $outfile

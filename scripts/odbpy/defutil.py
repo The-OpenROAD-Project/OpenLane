@@ -14,14 +14,13 @@
 # limitations under the License.
 import odb
 
+import os
 import re
+import sys
+
 import click
 
 from reader import OdbReader, click_odb
-
-import os  # For checks of file existance
-import shutil  # For copy
-import sys  # For stderr
 
 
 @click.group()
@@ -52,249 +51,92 @@ cli.add_command(extract_core_dims)
     "-c", "--cell-name", required=True, help="Cell name of the components to mark fixed"
 )
 @click_odb
-def mark_component_fixed(cell_name, output, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def mark_component_fixed(cell_name, reader):
     instances = reader.block.getInsts()
     for instance in instances:
         if instance.getMaster().getName() == cell_name:
             instance.setPlacementStatus("FIRM")
 
-    assert odb.write_def(reader.block, output) == 1
-
 
 cli.add_command(mark_component_fixed)
 
 
-def merge_item_section(
-    item: str, def_one_str: str, def_two_str: str, replace_two: bool = False
-) -> str:
-    import re
-
-    section_start_rx = re.compile(rf"{item}\s+(\d+)\s*;\s*")
-    section_end_rx = re.compile(rf"END\s+{item}")
-
-    def_one_lines = def_one_str.splitlines()
-    def_two_lines = def_two_str.splitlines()
-
-    collecting = False
-    def_two_out_lines = []
-    def_two_count = 0
-    for line in def_two_lines:
-        start_match = section_start_rx.search(line)
-        end_match = section_end_rx.search(line)
-        if end_match is not None:
-            collecting = False
-            break
-        if collecting:
-            def_two_out_lines.append(line)
-        if start_match is not None:
-            def_two_count = int(start_match[1])
-            collecting = True
-
-    # assert(len(def_two_out_lines) == def_two_count) # sanity check
-    final_out_lines = []
-
-    def_one_count = 0
-    for line in def_one_lines:
-        start_match = section_start_rx.search(line)
-        end_match = section_end_rx.search(line)
-        if start_match is not None:
-            def_one_count = int(start_match[1])
-            final_count = def_one_count
-            if not replace_two:
-                final_count += def_two_count
-            final_out_lines.append(f"{item} {final_count} ;")
-        elif end_match is not None:
-            if not replace_two:
-                final_out_lines += def_two_out_lines
-            final_out_lines.append(f"END {item}")
-        else:
-            final_out_lines.append(line)
-
-    return "\n".join(final_out_lines)
-
-
 @click.command("merge_components")
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("def_one")
-@click.argument("def_two")
-def merge_components(output, input_lef, def_one, def_two):
-    # TODO: Rewrite in OpenDB if possible
-    def_one_str = open(def_one).read()
-    def_two_str = open(def_two).read()
+@click.option(
+    "-w",
+    "--with-components-from",
+    "donor_def",
+    required=True,
+    help="A donor def file from which to extract components.",
+)
+@click_odb
+def merge_components(reader, donor_def, input_lef):
+    """
+    Adds all components in a donor DEF file that do not exist in the (recipient) INPUT_DEF.
 
-    with open(output, "w") as f:
-        f.write(merge_item_section("COMPONENTS", def_one_str, def_two_str))
+    Existing components with the same name will *not* be overwritten.
+    """
+    donor = OdbReader(input_lef, donor_def)
+    recipient = reader
+
+    for instance in donor.instances:
+        odb.dbInst_create(recipient.block, instance.getMaster(), instance.getName())
 
 
 cli.add_command(merge_components)
 
 
-@click.command("merge_pins")
-@click.option("-o", "--output", default="./out.def")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.argument("def_one")
-@click.argument("def_two")
-def merge_pins(output, input_lef, def_one, def_two):
-    # TODO: Rewrite in OpenDB if possible
-    def_one_str = open(def_one).read()
-    def_two_str = open(def_two).read()
-
-    with open(output, "w") as f:
-        f.write(merge_item_section("PINS", def_one_str, def_two_str))
-
-
-@click.command("move_diearea")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.option(
-    "-o",
-    "--output-def",
-    required=True,
-    help="Output DEF. File should exist. Die area will be applied to this DEF",
-)
-@click.option("-i", "--template-def", required=True, help="Input DEF")
-def move_diearea_command(input_lef, output_def, template_def):
-    """
-    Move die area from input def to output def
-    """
-    move_diearea(input_lef, output_def, template_def)
-
-
-def move_diearea(input_lef, output_def, template_def):
-    if not os.path.isfile(template_def):
-        print("LEF file ", input_lef, " not found")
-        raise FileNotFoundError
-    if not os.path.isfile(template_def):
-        print("Input DEF file ", template_def, " not found")
-        raise FileNotFoundError
-    if not os.path.isfile(output_def):
-        print("Output DEF file ", output_def, " not found")
-        raise FileNotFoundError
-
+def move_diearea(target_db, input_lef, template_def):
     source_db = odb.dbDatabase.create()
-    destination_db = odb.dbDatabase.create()
-    odb.read_lef(source_db, input_lef)
-    odb.read_lef(destination_db, input_lef)
 
+    odb.read_lef(source_db, input_lef)
     odb.read_def(source_db, template_def)
-    odb.read_def(destination_db, output_def)
 
     assert (
         source_db.getTech().getManufacturingGrid()
-        == destination_db.getTech().getManufacturingGrid()
+        == target_db.getTech().getManufacturingGrid()
     )
     assert (
         source_db.getTech().getDbUnitsPerMicron()
-        == destination_db.getTech().getDbUnitsPerMicron()
+        == target_db.getTech().getDbUnitsPerMicron()
     )
 
     diearea = source_db.getChip().getBlock().getDieArea()
-    output_block = destination_db.getChip().getBlock()
+    output_block = target_db.getChip().getBlock()
     output_block.setDieArea(diearea)
-    # print("Applied die area: ", destination_db.getChip().getBlock().getDieArea().ur(), destination_db.getChip().getBlock().getDieArea().ll(), file=sys.stderr)
-
-    assert odb.write_def(output_block, output_def) == 1
 
 
-def check_pin_grid(
-    manufacturing_grid, dbu_per_microns, pin_name, pin_coordinate, logfile
-):
+@click.command("move_diearea")
+@click.option("-i", "--template-def", required=True, help="Input DEF")
+@click_odb
+def move_diearea_command(reader, input_lef, template_def):
+    """
+    Move die area from input def to output def
+    """
+    move_diearea(reader.db, input_lef, template_def)
+
+
+def check_pin_grid(manufacturing_grid, dbu_per_microns, pin_name, pin_coordinate):
     if (pin_coordinate % manufacturing_grid) != 0:
         print(
-            "[ERROR]: Pin coordinate",
-            pin_coordinate,
-            "for pin",
-            pin_name,
-            "does not match the manufacturing grid",
-            file=sys.stderr,
-        )
-        print(
-            "[ERROR]: Pin coordinate",
-            pin_coordinate,
-            "for pin",
-            pin_name,
-            "does not match the manufacturing grid",
-            file=logfile,
+            f"[ERROR]: Pin {pin_name}'s coordinate {pin_coordinate} does not lie on the manufacturing grid."
         )  # IDK how to do this
         return True
 
 
-@click.command("replace_pins")
-@click.option("-o", "--output-def", default="./out.def", help="Destination DEF path")
-@click.option("-l", "--input-lef", required=True, help="Merged LEF file")
-@click.option("--log", "logpath", help="Log output file")
-@click.argument("source_def")
-@click.argument("template_def")
-def replace_pins_command(output_def, input_lef, logpath, source_def, template_def):
-    """
-        Copies source_def to output, then if same pin exists in template def and first def then, it's written to output def
-
-    Example to run:
-
-        openroad -python scripts/defutil.py replace_pins -o output.def\
-            --log defutil.log\
-            --input-lef designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/merged.lef\
-                designs/def_test/runs/RUN_2022.01.30_12.32.26/tmp/floorplan/4-io.def designs/def_test/def_test.def
-
-    Note: Assumes that all pins are on metal layers and via pins dont exist.
-    Note: It assumes that all pins are rectangles, not polygons.
-    Note: This tool assumes no power pins exist in template def.
-    Note: It should leave pins in source_def as-is if no pin in template def is found.
-    Note: It assumes only one port with the same name exist.
-    Note: It assumes that pin names matches the net names in template DEF.
-    """
-    replace_pins(output_def, input_lef, logpath, source_def, template_def)
-
-
-cli.add_command(replace_pins_command)
-
-# Note: If you decide to change any parameters, also change replace_pins_command's
-def replace_pins(output_def, input_lef, logpath, source_def, template_def):
+def relocate_pins(db, input_lef, template_def):
     # --------------------------------
-    # 0. Sanity check: Check for all defs and lefs to exist
-    # I removed the output def to NOT exist check, as it was making testing harder
+    # 1. Find list of all bterms in existing database
     # --------------------------------
-
-    if not os.path.isfile(input_lef):
-        print("LEF file ", input_lef, " not found")
-        raise FileNotFoundError
-    if not os.path.isfile(source_def):
-        print("First DEF file ", source_def, " not found")
-        raise FileNotFoundError
-    if not os.path.isfile(template_def):
-        print("Template DEF file ", template_def, " not found")
-        raise FileNotFoundError
-    if logpath is None:
-        logfile = sys.stdout
-    else:
-        logfile = open(logpath, "w+")
-
-    # --------------------------------
-    # 1. Copy the one def to second
-    # --------------------------------
-    print(
-        "[defutil.py:replace_pins] Creating output DEF based on first DEF", file=logfile
-    )
-    shutil.copy(source_def, output_def)
-
-    # --------------------------------
-    # 2. Find list of all bterms in first def
-    # --------------------------------
-    source_db = odb.dbDatabase.create()
-    odb.read_lef(source_db, input_lef)
-    odb.read_def(source_db, source_def)
+    source_db = db
     source_bterms = source_db.getChip().getBlock().getBTerms()
 
     manufacturing_grid = source_db.getTech().getManufacturingGrid()
     dbu_per_microns = source_db.getTech().getDbUnitsPerMicron()
 
     print(
-        "Using manufacturing grid:",
-        manufacturing_grid,
-        "Using dbu per mircons: ",
-        dbu_per_microns,
-        file=logfile,
+        f"Using manufacturing grid: {manufacturing_grid}",
+        f"Using dbu per mircons: {dbu_per_microns}",
     )
 
     all_bterm_names = set()
@@ -307,29 +149,20 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
         # --------------------------------
         # 3. Check no bterms should be marked as power, because it is assumed that caller already removed them
         # --------------------------------
-        if (source_bterm.getSigType() == "POWER") or (
-            source_bterm.getSigType() == "GROUND"
-        ):
+        sigtype = source_bterm.getSigType()
+        if sigtype in ["POWER", "GROUND"]:
             print(
-                "Bterm",
-                source_name,
-                "is declared as",
-                source_bterm.getSigType(),
-                "ignoring it",
-                file=logfile,
+                f"[WARNING] Bterm {source_name} is declared as a '{sigtype}' pin. It will be ignored.",
             )
             continue
         all_bterm_names.add(source_name)
 
     print(
-        "[defutil.py:replace_pins] Found",
-        len(all_bterm_names),
-        "block terminals in first def",
-        file=logfile,
+        f"Found {len(all_bterm_names)} block terminals in existing database...",
     )
 
     # --------------------------------
-    # 4. Read the template def
+    # 2. Read the donor def
     # --------------------------------
     template_db = odb.dbDatabase.create()
     odb.read_lef(template_db, input_lef)
@@ -344,8 +177,9 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
         source_db.getTech().getDbUnitsPerMicron()
         == template_db.getTech().getDbUnitsPerMicron()
     )
+
     # --------------------------------
-    # 5. Create a dict with net -> pin location. Check for only one pin location to exist, overwise return an error
+    # 3. Create a dict with net -> pin location. Check for only one pin location to exist, overwise return an error
     # --------------------------------
     template_bterm_locations = dict()
 
@@ -371,26 +205,15 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                     )
                 )
 
-    print(
-        "[defutil.py:replace_pins] Found template_bterms: ",
-        len(template_bterm_locations),
-        file=logfile,
-    )
+    print(f"Found {len(template_bterm_locations)} template_bterms:")
 
-    for template_bterm_name in template_bterm_locations:
-        print(
-            template_bterm_name,
-            ": ",
-            template_bterm_locations[template_bterm_name],
-            file=logfile,
-        )
+    for name in template_bterm_locations.keys():
+        print(f"  * {name}: {template_bterm_locations[name]}")
 
     # --------------------------------
-    # 6. Modify the pins in out def, according to dict
+    # 4. Modify the pins in out def, according to dict
     # --------------------------------
-    output_db = odb.dbDatabase.create()
-    odb.read_lef(output_db, input_lef)
-    odb.read_def(output_db, output_def)
+    output_db = db
     output_tech = output_db.getTech()
     output_block = output_db.getChip().getBlock()
     output_bterms = output_block.getBTerms()
@@ -413,16 +236,7 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                 output_new_bpin = odb.dbBPin.create(output_bterm)
 
                 print(
-                    "For:",
-                    name,
-                    "Wrote on layer:",
-                    layer.getName(),
-                    "coordinates: ",
-                    template_bterm_location_tuple[1],
-                    template_bterm_location_tuple[2],
-                    template_bterm_location_tuple[3],
-                    template_bterm_location_tuple[4],
-                    file=logfile,
+                    f"Wrote pin {name} at layer {layer.getName()} at {template_bterm_location_tuple[1:]}..."
                 )
                 grid_errors = (
                     check_pin_grid(
@@ -430,7 +244,6 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                         dbu_per_microns,
                         name,
                         template_bterm_location_tuple[1],
-                        logfile,
                     )
                     or grid_errors
                 )
@@ -440,7 +253,6 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                         dbu_per_microns,
                         name,
                         template_bterm_location_tuple[2],
-                        logfile,
                     )
                     or grid_errors
                 )
@@ -450,7 +262,6 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                         dbu_per_microns,
                         name,
                         template_bterm_location_tuple[3],
-                        logfile,
                     )
                     or grid_errors
                 )
@@ -460,7 +271,6 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                         dbu_per_microns,
                         name,
                         template_bterm_location_tuple[4],
-                        logfile,
                     )
                     or grid_errors
                 )
@@ -475,19 +285,41 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
                 output_new_bpin.setPlacementStatus("PLACED")
         else:
             print(
-                "[defutil.py:replace_pins] Not found",
-                name,
-                "in template def, but found in output def. Leaving as-is",
-                file=logfile,
+                f"{name} not found in donor def, but found in output def. Leaving as-is.",
             )
 
     if grid_errors:
-        sys.exit("[ERROR]: Grid errors happened. Check log for grid errors.")
-    # --------------------------------
-    # 7. Write back the output def
-    # --------------------------------
-    print("[defutil.py:replace_pins] Writing output def to: ", output_def, file=logfile)
-    assert odb.write_def(output_block, output_def) == 1
+        print(
+            "[ERROR]: Some pins were grid-misaligned. Please check the log.",
+            file=sys.stderr,
+        )
+        exit(os.EX_DATAERR)
+
+
+@click.command("relocate_pins")
+@click.option(
+    "-t",
+    "--template-def",
+    required=True,
+    help="Template DEF to use the locations of pins from.",
+)
+@click_odb
+def relocate_pins_command(reader, input_lef, template_def):
+    """
+    Moves pins that are common between a template_def and the database to the
+    location specified in the template_def.
+
+    Assumptions:
+        * The template def lacks power pins.
+        * All pins are on metal layers (none on vias.)
+        * All pins are rectangular.
+        * All pins have unique names.
+        * All pin names match the net names in the template DEF.
+    """
+    relocate_pins(reader.db, input_lef, template_def)
+
+
+cli.add_command(relocate_pins_command)
 
 
 @click.command("remove_components")
@@ -499,8 +331,7 @@ def replace_pins(output_def, input_lef, logpath, source_def, template_def):
     help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_components(rx_str, output, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def remove_components(rx_str, reader):
     matcher = re.compile(rx_str)
     instances = reader.block.getInsts()
     for instance in instances:
@@ -508,8 +339,6 @@ def remove_components(rx_str, output, input_lef, input_def):
         name_m = matcher.search(name)
         if name_m is not None:
             odb.dbInst.destroy(instance)
-
-    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(remove_components)
@@ -530,13 +359,12 @@ cli.add_command(remove_components)
     help="Adds a further condition to only remove empty nets (i.e. unconnected nets).",
 )
 @click_odb
-def remove_nets(rx_str, output, empty_only, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def remove_nets(rx_str, empty_only, reader):
     matcher = re.compile(rx_str)
     nets = reader.block.getNets()
     for net in nets:
         name = net.getName()
-        name_m = matcher.search(name)
+        name_m = matcher.match(name)
         if name_m is not None:
             if empty_only and len(net.getITerms()) > 0:
                 continue
@@ -546,8 +374,6 @@ def remove_nets(rx_str, output, empty_only, input_lef, input_def):
                     odb.dbITerm.disconnect(port)
             else:
                 odb.dbNet.destroy(net)
-
-    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(remove_nets)
@@ -562,8 +388,7 @@ cli.add_command(remove_nets)
     help="Regular expression to match for components to be removed. (Default: '^.+$', matches all strings.)",
 )
 @click_odb
-def remove_pins(rx_str, output, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
+def remove_pins(rx_str, reader):
     matcher = re.compile(rx_str)
     pins = reader.block.getBTerms()
     for pin in pins:
@@ -571,8 +396,6 @@ def remove_pins(rx_str, output, input_lef, input_def):
         name_m = matcher.search(name)
         if name_m is not None:
             odb.dbBTerm.destroy(pin)
-
-    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(remove_pins)
@@ -582,24 +405,18 @@ cli.add_command(remove_pins)
 @click.option("-f", "--original-prefix", required=True, help="The original prefix.")
 @click.option("-t", "--new-prefix", required=True, help="The new prefix.")
 @click_odb
-def replace_instance_prefixes(
-    original_prefix, new_prefix, output, input_lef, input_def
-):
-    reader = OdbReader(input_lef, input_def)
-
+def replace_instance_prefixes(original_prefix, new_prefix, reader):
     for instance in reader.block.getInsts():
         name: str = instance.getName()
         if name.startswith(f"{original_prefix}_"):
             new_name = name.replace(f"{original_prefix}_", f"{new_prefix}_")
             instance.rename(new_name)
 
-    assert odb.write_def(reader.block, output) == 1
-
 
 cli.add_command(replace_instance_prefixes)
 
 
-@click.command("add_def_obstructions")
+@click.command("add_obstructions")
 @click.option(
     "-O",
     "--obstructions",
@@ -607,9 +424,7 @@ cli.add_command(replace_instance_prefixes)
     help="Format: layer llx lly urx ury, (microns)",
 )
 @click_odb
-def add_def_obstructions(output, obstructions, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
-
+def add_obstructions(obstructions, reader):
     RE_NUMBER = r"[\-]?[0-9]+(\.[0-9]+)?"
     RE_OBS = (
         r"(?P<layer>\S+)\s+"
@@ -646,10 +461,8 @@ def add_def_obstructions(output, obstructions, input_lef, input_def):
         print("Creating an obstruction on", layer, "at", *bbox, "(DBU)")
         odb.dbObstruction_create(reader.block, reader.tech.findLayer(layer), *bbox)
 
-    odb.write_def(reader.block, output)
 
-
-cli.add_command(add_def_obstructions)
+cli.add_command(add_obstructions)
 
 if __name__ == "__main__":
     cli()

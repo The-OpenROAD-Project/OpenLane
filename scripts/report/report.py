@@ -257,11 +257,7 @@ class Report(object):
             ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
             ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
             ("rt_rsz", Artifact(rp, "logs", "routing", "resizer.log")),
-            ("rcx", Artifact(rp, "logs", "signoff", "parasitics_sta.log")),
-            (
-                "rcx_mca",
-                Artifact(rp, "logs", "signoff", "parasitics_multi_corner_sta.log"),
-            ),
+            ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)
@@ -500,7 +496,7 @@ class Report(object):
                 # Not really sure why we do this
                 magic_violations = (magic_violations_raw + 3) // 4
 
-        # Klayout DRC Violations
+        # KLayout DRC Violations
         klayout_drc = Artifact(rp, "reports", "signoff", "magic.lydrc", True)
         klayout_drc_content = klayout_drc.get_content()
 
@@ -547,11 +543,11 @@ class Report(object):
                         f"Didn't find {filter} in {kind}/{step}/{sta_report_filename}"
                     )
             else:
-                debug(f"Can't find {sta_report_filename}")
+                debug(f"Can't find {kind}/{step}/{sta_report_filename}")
             return value
 
         wns = sta_report_extraction("syn_sta.wns.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="routing")
+        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="signoff")
         opt_wns = sta_report_extraction("rt_rsz_sta.wns.rpt", "wns", step="routing")
         pl_wns = sta_report_extraction(
             "global.log", "wns", kind="logs", step="placement"
@@ -559,7 +555,7 @@ class Report(object):
         fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
 
         tns = sta_report_extraction("syn_sta.tns.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="routing")
+        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="signoff")
         opt_tns = sta_report_extraction("rt_rsz_sta.tns.rpt", "tns", step="routing")
         pl_tns = sta_report_extraction(
             "global.log", "tns", kind="logs", step="placement"
@@ -683,7 +679,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, "logs", "signoff", f"{self.design_name}.lvs.lef.log")
+        lvs_report = Artifact(rp, "reports", "signoff", f"{self.design_name}.lvs.rpt")
         lvs_report_content = lvs_report.get_content()
 
         lvs_total_errors = -1

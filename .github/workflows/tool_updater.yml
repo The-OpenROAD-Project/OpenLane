@@ -57,7 +57,7 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Update PDK
-        run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py sky130 open_pdks
+        run: python3 ${GITHUB_WORKSPACE}/.github/scripts/update_tools.py open_pdks
 
       - name: Create Pull Request
         if: ${{ env.NO_UPDATE != '1' }}

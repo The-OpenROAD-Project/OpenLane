@@ -255,14 +255,16 @@ proc quit_on_magic_drc {args} {
 proc quit_on_lvs_error {args} {
     if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
         set options {
+            {-rpt required}
             {-log required}
         }
         parse_key_args "quit_on_lvs_error" args arg_values $options
-        set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-log)} error]
+        set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-rpt)} error]
 
         if { $checker != 0 } {
+            set rpt_relative [relpath . $arg_values(-rpt)]
             set log_relative [relpath . $arg_values(-log)]
-            puts_err "There are LVS errors in the design: See '$log_relative' for details."
+            puts_err "There are LVS errors in the design: See '$rpt_relative' for a summary and '$log_relative' for details."
             flow_fail
         }
     }

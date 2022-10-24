@@ -20,7 +20,7 @@ import math
 import click
 import random
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 
 def grid_to_tracks(origin, count, step):
@@ -166,6 +166,7 @@ def bus_keys(enum):
 )
 @click_odb
 def io_place(
+    reader,
     config,
     ver_layer,
     hor_layer,
@@ -176,9 +177,6 @@ def io_place(
     ver_extension,
     reverse,
     bus_sort,
-    output,
-    input_lef,
-    input_def,
     unmatched_error,
 ):
     """
@@ -192,10 +190,6 @@ def io_place(
 
     #S|#N|#E|#W
     """
-
-    def_file_name = input_def
-    lef_file_name = input_lef
-    output_def_file_name = output
     config_file_name = config
     bus_sort_flag = bus_sort
     unmatched_error_flag = unmatched_error
@@ -205,9 +199,6 @@ def io_place(
 
     h_width_mult = float(hor_width_mult)
     v_width_mult = float(ver_width_mult)
-
-    # Initialize OpenDB
-    reader = OdbReader(lef_file_name, def_file_name)
 
     micron_in_units = reader.dbunits
 
@@ -396,11 +387,6 @@ def io_place(
                     x = BLOCK_LL_X - H_EXTENSION
                 rect.moveTo(x, slot - H_WIDTH // 2)
                 odb.dbBox_create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
-
-    print(
-        f"Writing {output_def_file_name}...",
-    )
-    odb.write_def(reader.block, output_def_file_name)
 
 
 if __name__ == "__main__":

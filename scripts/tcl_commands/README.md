@@ -1,7 +1,7 @@
 # OpenLane Package
 -------------------
 
-## Commands:
+## Commands
 
 Refer to this [README](../../docs/source/openlane_commands.md)
 

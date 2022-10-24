@@ -12,42 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
 # load the grid definitions
 if {[catch {source $::env(PDN_CFG)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
-
+set arg_list [list]
+if { $::env(FP_PDN_SKIPTRIM) } {
+    lappend arg_list -skip_trim
+    puts "adding -skip_trim to pdngen"
+}
 # run PDNGEN
-if {[catch {pdngen} errmsg]} {
+if {[catch {pdngen {*}$arg_list} errmsg]} {
     puts stderr $errmsg
     exit 1
 }
 
+# https://github.com/The-OpenROAD-Project/OpenROAD/issues/2126
 # checks for unconnected nodes (e.g., isolated rails or stripes)
 if { $::env(FP_PDN_CHECK_NODES) } {
     check_power_grid -net $::env(VDD_NET)
     check_power_grid -net $::env(GND_NET)
 }
 
-write_def $::env(SAVE_DEF)
+write

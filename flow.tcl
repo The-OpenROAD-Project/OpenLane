@@ -44,7 +44,9 @@ proc run_cts_step {args} {
 
     run_cts
     run_resizer_timing
-    remove_buffers_from_nets
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 }
 
 proc run_routing_step {args} {
@@ -130,6 +132,12 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
     }
 }
 
+proc run_erc_step {args} {
+    if { $::env(RUN_CVC) } {
+        run_erc
+    }
+}
+
 proc run_eco_step {args} {
     if { $::env(ECO_ENABLE) == 1 } {
         run_eco_flow
@@ -154,7 +162,7 @@ proc run_klayout_step {args} {
 proc run_post_run_hooks {} {
     if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
         puts_info "Running post run hook"
-        set result [exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py]
+        set result [exec $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py]
         puts_info "$result"
     } else {
         puts_info "hooks/post_run.py not found, skipping"
@@ -204,7 +212,7 @@ proc run_non_interactive_mode {args} {
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc" "run_lef_cvc"
+        "cvc_rv" "run_erc_step"
     ]
 
     if { [info exists arg_values(-from) ]} {
@@ -217,7 +225,7 @@ proc run_non_interactive_mode {args} {
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc"
+    set_if_unset arg_values(-to) "cvc_rv"
 
     set exe 0;
     dict for {step_name step_exe} $steps {
@@ -317,13 +325,13 @@ proc run_magic_drc_batch {args} {
             -noconsole \
             -dnull \
             -rcfile $magicrc \
-            $::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
+            $::env(OPENLANE_ROOT)/scripts/magic/gds/drc_batch.tcl \
             </dev/null |& tee /dev/tty
     } else {
         exec magic \
             -noconsole \
             -dnull \
-            $::env(OPENLANE_ROOT)/scripts/magic/drc_batch.tcl \
+            $::env(OPENLANE_ROOT)/scripts/magic/gds/drc_batch.tcl \
             </dev/null |& tee /dev/tty
     }
 }

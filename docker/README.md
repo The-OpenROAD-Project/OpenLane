@@ -1,6 +1,4 @@
-# For developers: Building the Docker Image
-Note: You probably shouldn't be here.
-
+# Building and Customizing the Docker Image
 ## Structure
 
 There are two "families" of images: one is for building tools, and the other is for running tools.
@@ -11,13 +9,13 @@ The run family has a base image that contains all the running dependencies. Ther
 
 ```
 openlane-build-base
-L cvc **builder**
+L cvc_rv **builder**
 L openroad_app **builder**
 L [...]
 
 openlane-run-base
 L openlane
-L cvc **runnable**
+L cvc_rv **runnable**
 L openroad_app **runnable**
 ```
 
@@ -61,7 +59,7 @@ OpenLane scripts depend upon a variety of different shell environment variables 
 ```
 
 ## Running as root
-* For security reasons, we don't recommend the default root Docker installation. See https://docs.docker.com/engine/security/rootless/ for a safer Docker installation also supported by OpenLane.
+* For security reasons, we don't recommend the default root Docker installation on GNU/Linux. See https://docs.docker.com/engine/security/rootless/ for a safer Docker installation also supported by OpenLane.
 
 By default `make mount` logs into the image with the user ID that is currently active. If you are running as an unprivileged user, you can use `make mount` to log in as root to the Docker image, but you will need to use `sudo` to do this. But, if you are depending on shell environment variables that you may have set during the current session they will be dropped by the `sudo` command. One way to pass those on to the sudo shell is to use the `-E` option. The following shows how you can do that:
 

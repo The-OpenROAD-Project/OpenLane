@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -41,29 +41,51 @@ proc verilog_to_verilogPower {args} {
 # WORKS ON DEF FILES
 proc write_powered_verilog {args} {
     set options {
+        # Required (Manual Check)
+        {-output_def required}
+        {-output_nl optional}
+        {-output_pnl optional}
+
+        # Optional
         {-def optional}
         {-lef optional}
         {-power optional}
         {-ground optional}
         {-powered_netlist optional}
-        {-def_log optional}
-        {-output_def required}
-        {-output_verilog required}
+        {-output_verilog optional}
     }
     set flags {}
 
     parse_key_args "write_powered_verilog" args arg_values $options flags_map $flags
+
+    if { [info exists arg_values(-output_verilog)] } {
+        puts_warn "The -output_verilog option of write_powered_verilog is deprecated."
+        puts_warn "Update your invocation to:"
+        puts_warn "    write_powered_verilog -output_nl <UNPOWERED_NETLIST> -output_pnl <POWERED_NETLIST>"
+
+        set arg_values(-output_nl) "$arg_values(-output_verilog).unpowered.nl.v"
+        set arg_values(-output_pnl) $arg_values(-output_verilog)
+    } else {
+        if { ![info exists arg_values(-output_nl)] } {
+            puts_err "-output_nl is required for write_powered_verilog."
+            return -code error
+        }
+        if { ![info exists arg_values(-output_pnl)] } {
+            puts_err "-output_pnl is required for write_powered_verilog."
+            return -code error
+        }
+    }
+
     set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-power) $::env(VDD_PIN)
     set_if_unset arg_values(-ground) $::env(GND_PIN)
     set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-    set_if_unset arg_values(-def_log) /dev/null
-    set_if_unset arg_values(-log) /dev/null
 
     increment_index
     TIMER::timer_start
-    set log [index_file $arg_values(-log)]
-    puts_info "Writing Powered Verilog (log: [relpath . $log])..."
+    set log_def [index_file $::env(signoff_logs)/write_powered_def.log]
+    set log [index_file $::env(signoff_logs)/write_powered_verilog.log]
+    puts_info "Writing Powered Verilog (logs: [relpath . $log_def], [relpath . $log])..."
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
         set_if_unset arg_values(-powered_netlist) $::env(synthesis_tmpfiles)/pg_define.v
@@ -71,16 +93,21 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+        --output $arg_values(-output_def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
         --ground-port $arg_values(-ground) \
         --powered-netlist $arg_values(-powered_netlist) \
-        --output $arg_values(-output_def) \
-        $arg_values(-def) \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $arg_values(-def_log)]
+        $arg_values(-def)\
+        |& tee $::env(TERMINAL_OUTPUT) $log_def
 
-    write_verilog $arg_values(-output_verilog) -def $arg_values(-output_def) -log $log -canonical
+    write_verilog\
+        $arg_values(-output_nl)\
+        -powered_to $arg_values(-output_pnl)\
+        -def $arg_values(-output_def)\
+        -indexed_log $log
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write powered verilog - openlane"
 }
@@ -93,35 +120,29 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     # GDS LVS uses STD_CELL_LIBRARY spice and
     # if defined, additional LVS_EXTRA_STD_CELL_LIBRARY spice and LVS_EXTRA_GATE_LEVEL_VERILOG files
     # Write Netlist
+    puts_verbose "Starting LVS process..."
     if { $::env(LVS_INSERT_POWER_PINS) } {
-        set powered_netlist_name [index_file $::env(signoff_tmpfiles)/powered_netlist.v]
-        set powered_def_name [index_file $::env(signoff_tmpfiles)/powered_def.def]
+        set netlist_name [index_file $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).nl.v]
+        set powered_netlist_name [index_file $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).pnl.v]
+        set powered_def_name [index_file $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).p.def]
+
         write_powered_verilog\
-            -output_verilog $powered_netlist_name\
-            -output_def $powered_def_name\
-            -log $::env(signoff_logs)/write_verilog.log\
-            -def_log $::env(signoff_logs)/write_powered_def.log
-
-        set_netlist $powered_netlist_name
-
-        if { $::env(LEC_ENABLE) } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
+            -output_nl $netlist_name\
+            -output_pnl $powered_netlist_name\
+            -output_def $powered_def_name
     }
 
     increment_index
     TIMER::timer_start
     if { [info exist ::env(MAGIC_EXT_USE_GDS)] && $::env(MAGIC_EXT_USE_GDS) } {
         set extract_type gds
-        puts_info "Running GDS LVS..."
     } else {
         set extract_type lef
-        puts_info "Running LEF LVS..."
     }
+    set log [index_file $::env(signoff_logs)/lvs.$extract_type.log]
+    puts_info "Running LVS (log: [relpath . $log])..."
 
-
-    set schematic $::env(CURRENT_NETLIST)
-
+    set schematic $::env(CURRENT_POWERED_NETLIST)
     set layout [subst $layout]
 
     set setup_file $::env(NETGEN_SETUP_FILE)
@@ -154,7 +175,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         }
     }
 
-    set extraction_prefix [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).$extract_type]
+    set extraction_prefix [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).$extract_type.lvs]
 
     puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
     close $lvs_file
@@ -162,17 +183,17 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     puts_verbose "$layout against $schematic"
 
     try_catch netgen -batch source $lvs_file_path \
-        |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/$extract_type.log]
+        |& tee $::env(TERMINAL_OUTPUT) $log
 
-    set count_lvs_log [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).lvs.$extract_type.log]
 
+    set count_lvs_rpt [index_file $::env(signoff_reports)/$::env(DESIGN_NAME).lvs.rpt]
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
         -f $extraction_prefix.json \
-        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_log
+        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_rpt
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $count_lvs_log
+    quit_on_lvs_error -rpt $count_lvs_rpt -log $log
 }
 
 proc run_netgen {args} {

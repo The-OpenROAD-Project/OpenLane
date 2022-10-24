@@ -222,6 +222,7 @@ def process_string(value: str, state: State) -> str:
         path = value[len(DIR_PREFIX) :]
         full_path = os.path.join(state.design_dir, path)
         full_abspath = os.path.abspath(full_path)
+        value = full_abspath
         # print(state.design_dir, path, full_path, full_abspath, file=stderr)
         if full_abspath.startswith(
             state.design_dir

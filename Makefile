@@ -155,12 +155,12 @@ test_design_list:
 run_issue_regression:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
-			python3 -u run_issue_regressions.py run $(ISSUE_REGRESSION_DESIGN)"
+			python3 -um tests run $(ISSUE_REGRESSION_DESIGN)"
 
 issue_regression_all:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "\
-			python3 -u run_issue_regressions.py run_all"
+			python3 -um tests run_all"
 
 .PHONY: test
 test:

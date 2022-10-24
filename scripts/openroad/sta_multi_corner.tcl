@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 # ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,55 +12,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 
-define_corners ss tt ff
-
-foreach lib $::env(LIB_SLOWEST) {
-    read_liberty -corner ss $lib
-}
-foreach lib $::env(LIB_TYPICAL) {
-    read_liberty -corner tt $lib
-}
-foreach lib $::env(LIB_FASTEST) {
-    read_liberty -corner ff $lib
-}
-
-foreach corner {ss tt ff} {
-    if { [info exists ::env(EXTRA_LIBS) ] } {
-        foreach lib $::env(EXTRA_LIBS) {
-            read_liberty -corner $corner $lib
-        }
-    }
-}
-
-if {[catch {read_lef $::env(STA_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if { $::env(CURRENT_DEF) != 0 } {
-    if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-} else {
-    if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
-    }
-    link_design $::env(DESIGN_NAME)
-}
+read -multi_corner_libs
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-# read spef files if they are generated prior to this point
+# Read parasitics if they are generated prior to this point
 if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef -corner ss $::env(CURRENT_SPEF)
     read_spef -corner tt $::env(CURRENT_SPEF)
     read_spef -corner ff $::env(CURRENT_SPEF)
 }
 
-read_sdc $::env(CURRENT_SDC)
 if { $::env(STA_PRE_CTS) == 1 } {
     unset_propagated_clock [all_clocks]
 } else {
@@ -179,20 +143,17 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "clock_skew_end"
 }
 
-# this sometimes segfaults on corner cases
-if { $::env(STA_REPORT_POWER) == 1 } {
-    puts "power_report"
-    puts "\n==========================================================================="
-    puts " report_power"
-    puts "============================================================================"
-    puts "\n\n======================= Slowest Corner =================================\n"
-    report_power -corner ss
-    puts "\n======================= Typical Corner ===================================\n"
-    report_power -corner tt
-    puts "\n\n======================= Fastest Corner =================================\n"
-    report_power -corner ff
-    puts "power_report_end"
-}
+puts "power_report"
+puts "\n==========================================================================="
+puts " report_power"
+puts "============================================================================"
+puts "\n\n======================= Slowest Corner =================================\n"
+report_power -corner ss
+puts "\n======================= Typical Corner ===================================\n"
+report_power -corner tt
+puts "\n\n======================= Fastest Corner =================================\n"
+report_power -corner ff
+puts "power_report_end"
 
 
 puts "area_report"
@@ -201,3 +162,5 @@ puts " report_design_area"
 puts "============================================================================"
 report_design_area
 puts "area_report_end"
+
+write

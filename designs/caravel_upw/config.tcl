@@ -112,7 +112,7 @@ set ::env(RT_MAX_LAYER) {met4}
 set ::env(FP_PDN_CHECK_NODES) 0
 
 # The following is because there are no std cells in the example wrapper project.
-set ::env(SYNTH_TOP_LEVEL) 1
+set ::env(SYNTH_ELABORATE_ONLY) 1
 set ::env(PL_RANDOM_GLB_PLACEMENT) 1
 
 set ::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) 0

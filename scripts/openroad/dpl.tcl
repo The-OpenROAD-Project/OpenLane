@@ -11,18 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
 
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
 
 detailed_placement\
     -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]
@@ -36,4 +28,4 @@ if { [catch {check_placement -verbose} errmsg] } {
     exit 1
 }
 
-write_def $::env(SAVE_DEF)
+write

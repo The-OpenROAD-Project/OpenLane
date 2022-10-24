@@ -82,7 +82,7 @@ $(TOOL_EXPORT_TARGETS): pull-% : FORCE
 	rm -rf ./tar/openlane
 	mkdir -p ./tar/openlane
 	for file in $(OPENLANE_SKELETON); do\
-		$(PYTHON_BIN) ./utils.py copy-tree -i */runs/* ../$$file ./tar/openlane/$$file ;\
+		$(PYTHON_BIN) ./utils.py copy-tree -i '*/runs/*' ../$$file ./tar/openlane/$$file ;\
 	done
 
 .PHONY: merge openlane

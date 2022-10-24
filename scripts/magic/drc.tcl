@@ -15,14 +15,7 @@
 if { [info exist ::env(MAGIC_DRC_USE_GDS)] && $::env(MAGIC_DRC_USE_GDS) } {
 	gds read $::env(CURRENT_GDS)
 } else {
-	lef read $::env(TECH_LEF)
-	if {  [info exist ::env(EXTRA_LEFS)] } {
-		set lefs_in $::env(EXTRA_LEFS)
-		foreach lef_file $lefs_in {
-			lef read $lef_file
-		}
-	}
-	def read $::env(CURRENT_DEF) -noblockage
+	source $::env(SCRIPTS_DIR)/magic/def/read.tcl
 }
 
 set drc_rpt_path $::env(drc_prefix).rpt

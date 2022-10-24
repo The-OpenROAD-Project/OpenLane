@@ -40,12 +40,11 @@ proc insert_buffer {args} {
         set ::env(INSERT_BUFFER_NO_PLACE) "1"
     }
 
-    set ::env(SAVE_DEF) [index_file $::env(routing_tmpfiles)/$::env(DESIGN_NAME).def]
 
     set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]
-
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl\
+        -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]\
+        -save "to=$::env(routing_tmpfiles),def,odb"
     unset ::env(INSERT_BUFFER_COMMAND)
 
     if { ![info exists flags_map(-place)] } {
@@ -53,8 +52,6 @@ proc insert_buffer {args} {
     }
 
     incr ::env(INSERT_BUFFER_COUNTER)
-
-    set_def $::env(SAVE_DEF)
 }
 
 proc eco_gen_buffer {args} {
@@ -67,13 +64,12 @@ proc eco_gen_buffer {args} {
 
     puts_info "\[ECO: $::env(ECO_ITER)\] Generating buffer insertion script..."
 
-    try_catch $::env(OPENROAD_BIN) \
-        -python $::env(SCRIPTS_DIR)/odbpy/eco.py \
-        "insert_buffer" \
+    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/eco.py \
+        insert_buffer \
+        -o $::env(routing_tmpfiles)/eco_fix.tcl \
         -s $::env(ECO_SKIP_PIN) \
-        {*}$sta_args \
         -l $::env(MERGED_LEF) \
-        -o $::env(routing_results)/eco_fix.tcl \
+        {*}$sta_args \
         $::env(CURRENT_DEF)
 }
 
@@ -97,21 +93,15 @@ proc eco_output_check {args} {
 }
 
 proc run_apply_step {args} {
-
     puts_info "\[ECO: $::env(ECO_ITER)\] Applying fixes..."
 
     set ::env(ECO_FIX_FILE) $::env(routing_results)/eco_fix.tcl
-    set ::env(SAVE_NETLIST) $::env(routing_results)/eco_fix.v
-    set ::env(SAVE_DEF) $::env(routing_results)/eco_fix.def
 
     # This runs the tcl script to apply the fixes. Buffers are placed over the top of
     # the cells being fixed, and then detailed placement is called to fix it up.
-    try_catch $::env(OPENROAD_BIN) \
-        -exit $::env(SCRIPTS_DIR)/openroad/eco.tcl \
-        |& tee $::env(TERMINAL_OUTPUT) $::env(routing_logs)/eco.log
-
-    set_netlist $::env(SAVE_NETLIST)
-    set_def $::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/eco.tcl \
+        -indexed_log [index_file $::env(routing_logs)/eco.log] \
+        -save "to=$::env(routing_results),name=eco,noindex,netlist,def,odb"
 }
 
 proc run_eco_flow {args} {

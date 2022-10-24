@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 proc extract_core_dims {args} {
-    puts_info "Extracting core dimensions..."
+    puts_verbose "Extracting core dimensions..."
     set options {}
     parse_key_args "extract_core_dims" args values $options
     set def_units $::env(DEF_UNITS_PER_MICRON)
 
     set out_tmp $::env(TMP_DIR)/dimensions.txt
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
+    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
         $::env(CURRENT_DEF)
@@ -29,7 +29,7 @@ proc extract_core_dims {args} {
     set ::env(CORE_WIDTH) [lindex $dims 0]
     set ::env(CORE_HEIGHT) [lindex $dims 1]
 
-    puts_info "Set CORE_WIDTH to $::env(CORE_WIDTH), CORE_HEIGHT to $::env(CORE_HEIGHT)."
+    puts_info "Floorplanned with width $::env(CORE_WIDTH) and height $::env(CORE_HEIGHT)."
 }
 
 proc set_core_dims {args} {
@@ -42,10 +42,12 @@ proc init_floorplan {args} {
     set log [index_file $::env(floorplan_logs)/initial_fp.log]
     puts_info "Running Initial Floorplanning (log: [relpath . $log])..."
 
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/initial_fp.def]
-    set ::env(SAVE_SDC) [index_file $::env(floorplan_tmpfiles)/initial_fp.sdc]
-
     set ::env(fp_report_prefix) [index_file $::env(floorplan_reports)/initial_fp]
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/initial_fp.log]\
+        -netlist_in \
+        -save "to=$::env(floorplan_tmpfiles),name=initial_fp,def,sdc,odb"
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log $log -netlist_in
 
@@ -75,7 +77,7 @@ proc init_floorplan {args} {
 
             set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+            try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
                 [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
@@ -88,7 +90,7 @@ proc init_floorplan {args} {
             set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
             set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
 
-            puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
+            puts_warn "Current core area is too small for the power grid settings chosen. The power grid will be scaled down."
         }
     }
 
@@ -100,8 +102,6 @@ proc init_floorplan {args} {
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
-    set_def $::env(SAVE_DEF)
-    set ::env(CURRENT_SDC) $::env(SAVE_SDC)
 
     extract_core_dims
 }
@@ -117,8 +117,7 @@ proc place_io_ol {args} {
     puts_info "Running IO Placement (log: [relpath . $log])..."
 
     set options {
-        {-lef optional}
-        {-def optional}
+        {-odb optional}
         {-cfg optional}
         {-horizontal_layer optional}
         {-vertical_layer optional}
@@ -129,14 +128,16 @@ proc place_io_ol {args} {
         {-vertical_ext optional}
         {-length optional}
         {-output_def optional}
+        {-output_odb optional}
         {-extra_args optional}
     }
     set flags {-unmatched_error optional}
 
     parse_key_args "place_io_ol" args arg_values $options flags_map $flags
 
-    set_if_unset arg_values(-lef) $::env(MERGED_LEF)
-    set_if_unset arg_values(-def) $::env(CURRENT_DEF)
+    set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
+    set_if_unset arg_values(-output_odb) [index_file $::env(floorplan_tmpfiles)/io.odb]
 
     set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
 
@@ -150,7 +151,6 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
     set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
-    set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
 
     if { $::env(FP_IO_UNMATCHED_ERROR) } {
         set_if_unset flags_map(-unmatched_error) "--unmatched-error"
@@ -159,9 +159,11 @@ proc place_io_ol {args} {
     }
     set_if_unset arg_values(-extra_args) ""
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/io_place.py\
-        --output $arg_values(-output_def)\
-        --input-lef $arg_values(-lef)\
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/io_place.py\
+        -indexed_log [index_file $::env(floorplan_logs)/place_io.log]\
+        -output_def $arg_values(-output_def)\
+        -output $arg_values(-output_odb)\
+        -input $arg_values(-odb)\
         --config $arg_values(-cfg)\
         --hor-layer $arg_values(-horizontal_layer)\
         --ver-layer $arg_values(-vertical_layer)\
@@ -171,10 +173,10 @@ proc place_io_ol {args} {
         --ver-extension $arg_values(-vertical_ext)\
         --length $arg_values(-length)\
         {*}$flags_map(-unmatched_error)\
-        {*}$arg_values(-extra_args)\
-        $arg_values(-def) |& tee $log $::env(TERMINAL_OUTPUT)
+        {*}$arg_values(-extra_args)
 
     set_def $arg_values(-output_def)
+    set_odb $arg_values(-output_odb)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "io_place - openlane"
@@ -186,12 +188,12 @@ proc place_io {args} {
     set log [index_file $::env(floorplan_logs)/io.log]
     puts_info "Running IO Placement..."
 
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/io.log]\
+        -save "to=$::env(floorplan_tmpfiles),name=io,def,odb"
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log $log
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"
-    set_def $::env(SAVE_DEF)
 }
 
 proc place_contextualized_io {args} {
@@ -212,28 +214,35 @@ proc place_contextualized_io {args} {
     file copy -force $arg_values(-def) $::env(placement_tmpfiles)/top_level.def
     file copy -force $arg_values(-lef) $::env(placement_tmpfiles)/top_level.lef
 
-    set prev_def $::env(CURRENT_DEF)
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.context.def]
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
-        --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF) \
-        --top-def $::env(placement_tmpfiles)/top_level.def \
-        --top-lef $::env(placement_tmpfiles)/top_level.lef \
-        $prev_def |& tee
+    set prev_db $::env(CURRENT_ODB)
+    set save_db [index_file $::env(floorplan_tmpfiles)/io.context.odb]
+    set save_def [index_file $::env(floorplan_tmpfiles)/io.context.def]
 
-    puts_info "Custom floorplan created."
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/contextualize.py \
+        -indexed_log $log \
+        -output_def $save_def \
+        -output $save_db \
+        -input $prev_db \
+        --top-def $::env(placement_tmpfiles)/top_level.def\
+        --top-lef $::env(placement_tmpfiles)/top_level.lef
 
-    set_def $::env(SAVE_DEF)
+    set_odb $save_db
 
-    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles)/io.def]
+    puts_verbose "Custom floorplan created at '[relpath . $save_db]'."
 
     set old_mode $::env(FP_IO_MODE)
+
     set ::env(FP_IO_MODE) 0; # set matching mode
     set ::env(CONTEXTUAL_IO_FLAG) 1
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl -indexed_log [index_file $::env(floorplan_logs)/io.log]
-    set ::env(FP_IO_MODE) $old_mode
 
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl \
+        -indexed_log [index_file $::env(floorplan_logs)/io.log] \
+        -save "to=$::env(floorplan_tmpfiles),name=io,def,odb" \
+        -no_update_current
+
+    set ::env(FP_IO_MODE) $old_mode
     move_pins -from $::env(SAVE_DEF) -to $prev_def
+    unset ::env(SAVE_DEF)
     set_def $prev_def
 
     TIMER::timer_stop
@@ -249,11 +258,11 @@ proc tap_decap_or {args} {
             set log [index_file $::env(floorplan_logs)/tap.log]
             puts_info "Running Tap/Decap Insertion (log: [relpath . $log])..."
 
-            set ::env(SAVE_DEF) $::env(floorplan_results)/$::env(DESIGN_NAME).def
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl -indexed_log $log
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
+                -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
+                -save "to=$::env(floorplan_results),noindex,def,odb"
             TIMER::timer_stop
             exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
-            set_def $::env(SAVE_DEF)
         } else {
             puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
         }
@@ -264,26 +273,53 @@ proc tap_decap_or {args} {
 
 proc chip_floorplan {args} {
     puts_info "Running Chip Floorplanning..."
+
     # intial fp
     init_floorplan
-    # remove pins section and others
-    remove_pins -input $::env(CURRENT_DEF)
-    remove_empty_nets -input $::env(CURRENT_DEF)
+
+    # clear some sections
+    remove_pins
+    remove_empty_nets
 }
 
 proc apply_def_template {args} {
     if { [info exists ::env(FP_DEF_TEMPLATE)] } {
         set log [index_file $::env(floorplan_logs)/apply_def_template.log]
         set def [index_file $::env(floorplan_tmpfiles)/apply_def_template.def]
-        puts_info "Applying DEF template. See log: $log"
-        try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
-            --output $::env(CURRENT_DEF)\
-            --log $log\
-            --def-template $::env(FP_DEF_TEMPLATE)\
-            --input-lef $::env(MERGED_LEF) \
-            $::env(CURRENT_DEF)
+
+        puts_info "Applying DEF template..."
+        manipulate_layout $::env(SCRIPTS_DIR)/odbpy/apply_def_template.py\
+            -indexed_log $log\
+            -output_def $::env(CURRENT_DEF)\
+            --def-template $::env(FP_DEF_TEMPLATE)
     }
 
+}
+
+
+
+proc gen_pdn {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/pdn.log]
+    puts_info "Generating PDN (log: [relpath . $log])..."
+
+    if { ! [info exists ::env(VDD_NET)] } {
+        set ::env(VDD_NET) $::env(VDD_PIN)
+    }
+
+    if { ! [info exists ::env(GND_NET)] } {
+        set ::env(GND_NET) $::env(GND_PIN)
+    }
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
+        -indexed_log [index_file $::env(floorplan_logs)/pdn.log] \
+        -save "to=$::env(floorplan_tmpfiles),name=pdn,def,odb"
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
+
+    quit_on_unconnected_pdn_nodes
 }
 
 proc run_power_grid_generation {args} {

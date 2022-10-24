@@ -25,7 +25,7 @@ import glob
 import shutil
 import pathlib
 import textwrap
-from typing import List
+from typing import List, Dict
 from collections import deque
 from os.path import join, abspath, dirname, basename, isdir, relpath
 
@@ -53,7 +53,7 @@ openlane_path = abspath(dirname(dirname(__file__)))
     "--run-path",
     "-r",
     default=None,
-    help="The run path. If not specified, the script will attempt to discern it from the input_def path.",
+    help="The run path. If not specified, the script will attempt to discern it from the input file's path.",
 )
 @click.option(
     "--output",
@@ -63,15 +63,22 @@ openlane_path = abspath(dirname(dirname(__file__)))
     help="Name of def file to be generated [default: ./out.def]",
 )
 @click.option(
+    "--output-db",
+    "-O",
+    "save_odb",
+    default="./out.odb",
+    help="Name of odb file to be generated [default: ./out.odb]",
+)
+@click.option(
     "--verbose/--not-verbose",
     default=False,
     help="Verbose output of all found environment variables.",
 )
 @click.option(
-    "--netlist/--def",
-    "-n/-D",
-    default=False,
-    help="Use the netlist as an input instead of a def file. Useful for evaluating some scripts such as floorplan.tcl.",
+    "--input-type",
+    type=click.Choice(["def", "netlist", "odb"]),
+    default="odb",
+    help="Use a netlist or a DEF layout as an input instead of an ODB file. Useful for evaluating some scripts such as floorplan.tcl.",
 )
 @click.option("--output-dir", default=None, help="Output to this directory.")
 @click.option(
@@ -81,7 +88,16 @@ openlane_path = abspath(dirname(dirname(__file__)))
 )
 @click.argument("input_file")
 def issue(
-    script, pdk_root, run_path, save_def, verbose, netlist, output_dir, tool, input_file
+    script,
+    pdk_root,
+    run_path,
+    save_def,
+    save_odb,
+    verbose,
+    input_type,
+    output_dir,
+    tool,
+    input_file,
 ):
     """
     Issue packager for Tcl-based tools (currently: OpenROAD, Magic)
@@ -155,11 +171,15 @@ def issue(
     env = read_tcl_env(run_config)
 
     # Cannot be reliably read from config.tcl
-    input_key = "CURRENT_DEF"
-    if netlist:
-        input_key = "CURRENT_NETLIST"
-    env[input_key] = input_file
     env["SAVE_DEF"] = save_def
+    input_key = "CURRENT_DEF"
+    if input_type == "odb":
+        input_key = "CURRENT_ODB"
+        env["SAVE_ODB"] = save_odb
+    elif input_type == "netlist":
+        input_key = "CURRENT_NETLIST"
+
+    env[input_key] = input_file
 
     # Phase 2: Set up destination folder
     script_basename = basename(script)[:-4]
@@ -218,7 +238,8 @@ def issue(
                     use: List[str]
                     full, accessor, extra = use
                     env_keys_used.add(key)
-                    print(f"Found {accessor}…", file=sys.stderr)
+                    if verbose:
+                        print(f"Found {accessor}…", file=sys.stderr)
 
                     value_substituted = full.replace(accessor, value)
 
@@ -277,13 +298,7 @@ def issue(
         value = env[key]
         if verbose:
             print(f"Processing {key}: {value}…", file=sys.stderr)
-        if value == input_file:
-            final_path = join(destination_folder, "in.def")
-            from_path = value
-            copy(from_path, final_path)
-
-            final_env[input_key] = "./in.def"
-        elif value.startswith(run_path):
+        if value.startswith(run_path):
             relative = relpath(value, run_path)
             final_value = join(".", relative)
             final_path = join(destination_folder, final_value)
@@ -331,11 +346,19 @@ def issue(
     print("\n")
 
     # Phase 5: Create Environment Set/Run Files
+    def env_list(
+        format_string: str = "{key}={value}",
+        env: Dict[str, str] = final_env,
+        indent: int = 0,
+    ) -> str:
+        array = []
+        for key, value in sorted(env.items()):
+            array.append(format_string.format(key=key, value=value))
+        value = f"\n{'    ' * indent}".join(array)
+        return value
+
     run_shell = join(destination_folder, "run.sh")
     with open(run_shell, "w") as f:
-        env_list = "\n                ".join(
-            [f"export {key}='{value}';" for key, value in final_env.items()]
-        )
         run_cmd = None
         if tool == "openroad":
             run_cmd = "$TOOL_BIN -exit $PACKAGED_SCRIPT_0"
@@ -347,7 +370,7 @@ def issue(
                 #!/bin/sh
                 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
                 cd $dir;
-                {env_list}
+                {env_list("export {key}='{value}';", indent=4)}
                 TOOL_BIN=${{TOOL_BIN:-{tool}}}
                 {run_cmd}
                 """
@@ -358,14 +381,11 @@ def issue(
     if tool == "openroad":
         run_tcl = join(destination_folder, "run.tcl")
         with open(run_tcl, "w") as f:
-            env_list = "\n                    ".join(
-                [f"set ::env({key}) {{{value}}};" for key, value in final_env.items()]
-            )
             f.write(
                 textwrap.dedent(
                     f"""\
                     #!/usr/bin/env openroad
-                    {env_list}
+                    {env_list('set ::env({key}) {{{value}}};', indent=5)}
                     source $::env(PACKAGED_SCRIPT_0)
                     """
                 )
@@ -374,15 +394,11 @@ def issue(
 
     gdb_env = join(destination_folder, "env.gdb")
     with open(gdb_env, "w") as f:
-        env_list = "\n".join(
-            [f"set env {key} {value}" for key, value in final_env.items()]
-        )
-        f.write(env_list)
+        f.write(env_list("set env {key} {value}"))
 
     lldb_env = join(destination_folder, "env.lldb")
     with open(lldb_env, "w") as f:
-        env_list = "\n".join([f"env {key}={value}" for key, value in final_env.items()])
-        f.write(env_list)
+        f.write(env_list("env {key}={value}"))
 
     print("Done.", file=sys.stderr)
     print(destination_folder)

@@ -36,13 +36,18 @@ proc find_all {ext} {
     return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
 }
 
-proc handle_deprecated_command {new} {
+proc handle_deprecated_command {args} {
+    set new [lindex $args 0]
+    set insert_args [lrange $args 1 end]
+
     set invocation [info level -1]
     set caller [lindex $invocation 0]
-    set args [lrange $invocation 1 end]
+    set caller_args [lrange $invocation 1 end]
 
-    puts_warn "$caller is now deprecated; use $new instead."
-    eval {$new {*}$args}
+    set final_args [list {*}$insert_args {*}$caller_args]
+
+    puts_warn "The command $caller is now deprecated; use $new $insert_args instead."
+    eval {$new {*}$final_args}
 }
 
 proc set_if_unset {var default_value} {
@@ -172,102 +177,6 @@ proc relpath {args} {
     return [exec python3 -c "import os; print(os.path.relpath('$to', '$from'), end='')"]
 }
 
-proc run_tcl_script {args} {
-    # Note that this proc is not responsible for indexing its own logs.
-    set options {
-        {-tool required}
-        {-indexed_log optional}
-    }
-
-    # -gui only supported for OpenROAD
-    set flags {-netlist_in -gui}
-
-    parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
-
-    set_if_unset arg_values(-indexed_log) /dev/null
-
-    set create_reproducible 0
-    set script [lindex $args 0]
-    set tool $arg_values(-tool)
-
-    if { $tool == "openroad" } {
-        if { [info exists flag_map(-gui)] } {
-            set args "$::env(OPENROAD_BIN) -gui $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
-        } else {
-            set args "$::env(OPENROAD_BIN) -exit $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
-        }
-    } elseif { $arg_values(-tool) == "magic" } {
-        set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
-    } else {
-        puts_err "run_tcl_script only supports '-tool magic' and '-tool openroad' for now."
-        return -code error
-    }
-
-    if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
-        set timestamp [clock format [clock seconds]]
-        puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
-        close $cmd_log_file
-    }
-
-    set script_relative [relpath . $script]
-
-    set exit_code 0
-
-    if { [info exists ::env(CREATE_REPRODUCIBLE_FROM_SCRIPT)] && [string match *$::env(CREATE_REPRODUCIBLE_FROM_SCRIPT) $script] } {
-        puts_info "Script $script matches $::env(CREATE_REPRODUCIBLE_FROM_SCRIPT), creating reproducible..."
-        set create_reproducible 1
-    } else {
-        puts_verbose "Executing $tool with Tcl script '$script_relative'..."
-
-        set exit_code [catch {exec {*}$args} error_msg]
-
-        if { $exit_code } {
-            set print_error_msg "during executing $tool script $script"
-            set log_relpath [relpath $::env(PWD) $arg_values(-indexed_log)]
-
-            puts_err "$print_error_msg"
-            puts_err "Log: $log_relpath"
-            puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
-
-            set create_reproducible 1
-            puts_err "Creating issue reproducible..."
-        }
-    }
-
-    if { $create_reproducible } {
-        save_state
-
-        set reproducible_dir $::env(RUN_DIR)/issue_reproducible
-        set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
-
-        set or_issue_arg_list [list]
-
-        lappend or_issue_arg_list --tool $tool
-        lappend or_issue_arg_list --output-dir $reproducible_dir
-        lappend or_issue_arg_list --script $script
-        lappend or_issue_arg_list --run-path $::env(RUN_DIR)
-
-        if { [info exists flag_map(-netlist_in)] } {
-            lappend or_issue_arg_list --netlist $::env(CURRENT_NETLIST)
-        } else {
-            lappend or_issue_arg_list $::env(CURRENT_DEF)
-        }
-
-        if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
-            puts_err "Failed to package reproducible."
-            flow_fail
-        }
-
-        if { $exit_code } {
-            puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
-            flow_fail
-        } else {
-            puts_info "Reproducible packaged at '$reproducible_dir_relative'."
-            exit 0
-        }
-    }
-}
-
 proc run_openroad_script {args} {
     run_tcl_script -tool openroad -no_consume {*}$args
 }
@@ -385,7 +294,8 @@ proc puts_info {txt} {
 }
 
 proc puts_verbose {txt} {
-    if { $::env(OPENLANE_VERBOSE) } {
+    global global_verbose_level
+    if { $global_verbose_level } {
         set message "\[INFO\]: $txt"
         puts "[color_text 6 "$message"]"
         if { [info exists ::env(RUN_DIR)] } {
@@ -407,7 +317,7 @@ proc show_warnings {msg} {
 proc generate_routing_report {args} {
     puts_info "Generating a partial report for routing..."
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
+    try_catch python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
         --design_name $::env(DESIGN_NAME) \
         --tag $::env(RUN_TAG) \
         --run_path $::env(RUN_DIR)
@@ -429,7 +339,7 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/metrics.csv
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+    try_catch python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
         --design_name $::env(DESIGN_NAME) \
         --tag $::env(RUN_TAG) \
         --output_file $arg_values(-output) \
@@ -494,6 +404,259 @@ proc cat {args} {
         append res $tmp
     }
     return $res
+}
+
+proc manipulate_layout {args} {
+    # Requires at least one non-flag/option arg, which is the path to the script.
+    set options {
+        {-indexed_log optional}
+        {-input optional}
+        {-output optional}
+        {-output_def optional}
+    }
+
+    set flags {}
+
+    parse_key_args "manipulate_layout" args arg_values $options flag_map $flags
+
+    set_if_unset arg_values(-indexed_log) /dev/null
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+    set_if_unset arg_values(-output_def) /dev/null
+
+    try_catch $::env(OPENROAD_BIN) -exit -python \
+        {*}$args \
+        --input-lef $::env(MERGED_LEF) \
+        --output-def $arg_values(-output_def) \
+        --output $arg_values(-output) \
+        $arg_values(-input) \
+        |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
+}
+
+proc run_tcl_script {args} {
+    # -tool: openroad/magic
+    # -indexed_log: a log that is already pre-indexed
+    # -save:
+    #     OpenROAD only. A list of commands to handle saving views.
+    #     The commands are comma delimited, and can either be in the format
+    #     command or command=value. Here is a list of commands:
+    #          * def/sdc/netlist/powered_netlist/sdf/spef/odb=: Saves a view to
+    #            the qualified path.
+    #          * def/sdc/netlist/powered_netlist/sdf/spef/odb: Saves a view to a
+    #            default path with a default name.
+    #          * to=: Replace the default save directory for unqualified views,
+    #            which is $::env(TMP_DIR) by default. Must be set before
+    #            any unqualified views.
+    #          * name=: Replace the default name for unqualified views,
+    #            which is $::env(DESIGN_NAME) by default. Must be set before
+    #            any unqualified views.
+    #          * index=: Turns running [index_file] for unqualified views on
+    #            or off. Must be set before any unqualified views.
+    #          * index: alias for index=1
+    #          * noindex: alias for index=0
+    #
+    set options {
+        {-tool required}
+        {-indexed_log optional}
+        {-save optional}
+    }
+
+    # -netlist_in: Specify that the input is CURRENT_NETLIST and not the ODB file.
+    # -def_in: Specify that the input is CURRENT_DEF and not the ODB file.
+    # -gui: Launch the GUI (OpenROAD Only)
+    # -no_update_current: See '-save'
+    set flags {-netlist_in -gui -no_update_current}
+
+    parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
+
+    set_if_unset arg_values(-indexed_log) /dev/null
+    set_if_unset arg_values(-save) ""
+
+    set create_reproducible 0
+    set script [lindex $args 0]
+    set tool $arg_values(-tool)
+
+    set save_list [list]
+    set save_dir "$::env(TMP_DIR)"
+    set metrics_path ""
+    set index 1
+    set name $::env(DESIGN_NAME)
+
+    set saved_values [split $arg_values(-save) ","]
+
+    # C-style for loop because Tcl foreach cannot handle the list being
+    # dynamically modified
+    set layout_saved 0
+    set odb_saved 0
+    for {set i 0} {$i < [llength $saved_values]} {incr i} {
+        set value [lindex $saved_values $i]
+        set kv [split $value "="]
+        set element [lindex $kv 0]
+        set value [lindex $kv 1]
+
+        if { $element == "to" } {
+            set save_dir $value
+        } elseif { $element == "name" } {
+            set name $value
+        } elseif { $element == "index" } {
+            if { $value == "0" || $value == "1" } {
+                set index $value
+            } elseif { $value == "" } {
+                set index "1"
+            } else {
+                puts_err "Invalid value $value for \"index\" command."
+                flow_fail
+            }
+        } elseif { $element == "noindex" } {
+            set index 0
+        } elseif { $element != "" } {
+            set extension $element
+
+            if { $element == "netlist" } {
+                set extension "nl.v"
+            } elseif { $element == "powered_netlist" } {
+                set extension "pnl.v"
+            } elseif { $element == "metrics" } {
+                set extension ".json"
+            } elseif { $element == "odb" } {
+                set odb_saved 1
+            } elseif { $element == "def" } {
+                set layout_saved 1
+            }
+
+            if { $value != "/dev/null" } {
+                if { $value == "" } {
+                    set value "$save_dir/$name.$extension"
+                    if { $index } {
+                        set value [index_file $value]
+                    }
+                }
+
+                if { $element == "metrics" } {
+                    set metrics_path $value
+                } else {
+                    lappend save_list $element $value
+                }
+            }
+        }
+    }
+
+    if { $layout_saved && !$odb_saved } {
+        puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
+        flow_fail
+    }
+
+    if { $tool == "openroad" } {
+        set args [list]
+        lappend args $::env(OPENROAD_BIN)
+        if { [info exists flag_map(-gui)] } {
+            lappend args -gui
+        } else {
+            lappend args -exit
+        }
+        if { $metrics_path != "" } {
+            lappend args -metrics $metrics_path
+        }
+        lappend args $script
+        lappend args |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+            set ::env(SAVE_${cap}) $value
+        }
+    } elseif { $arg_values(-tool) == "magic" } {
+        set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+    } else {
+        puts_err "run_tcl_script only supports '-tool magic' and '-tool openroad' for now."
+        return -code error
+    }
+
+    if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
+        set timestamp [clock format [clock seconds]]
+        puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
+        close $cmd_log_file
+    }
+
+    set script_relative [relpath . $script]
+
+    set exit_code 0
+
+    if { [info exists ::env(CREATE_REPRODUCIBLE_FROM_SCRIPT)] && [string match *$::env(CREATE_REPRODUCIBLE_FROM_SCRIPT) $script] } {
+        puts_info "Script $script matches $::env(CREATE_REPRODUCIBLE_FROM_SCRIPT), creating reproducible..."
+        set create_reproducible 1
+    } else {
+        puts_verbose "Executing $tool with Tcl script '$script_relative'..."
+
+        set exit_code [catch {exec {*}$args} error_msg]
+
+        if { $exit_code } {
+            set print_error_msg "during executing $tool script $script"
+            set log_relpath [relpath $::env(PWD) $arg_values(-indexed_log)]
+
+            puts_err "$print_error_msg"
+            puts_err "Log: $log_relpath"
+            puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+
+            set create_reproducible 1
+            puts_err "Creating issue reproducible..."
+        }
+    }
+
+    if { $create_reproducible } {
+        save_state
+
+        set reproducible_dir $::env(RUN_DIR)/issue_reproducible
+        set reproducible_dir_relative [relpath $::env(PWD) $reproducible_dir]
+
+        set or_issue_arg_list [list]
+
+        lappend or_issue_arg_list --tool $tool
+        lappend or_issue_arg_list --output-dir $reproducible_dir
+        lappend or_issue_arg_list --script $script
+        lappend or_issue_arg_list --run-path $::env(RUN_DIR)
+
+        if { [info exists flag_map(-netlist_in)] } {
+            lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
+        } elseif { $tool != "openroad" || [info exists flag_map(-def_in)]} {
+            lappend or_issue_arg_list --input-type "def" $::env(CURRENT_DEF)
+        } else {
+            lappend or_issue_arg_list --input-type "odb" $::env(CURRENT_ODB)
+        }
+
+        if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
+            puts_err "Failed to package reproducible."
+            flow_fail
+        }
+
+        if { $exit_code } {
+            puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
+            flow_fail
+        } else {
+            puts_info "Reproducible packaged at '$reproducible_dir_relative'."
+            exit 0
+        }
+    }
+
+    if { ![info exist flag_map(-no_update_current)]} {
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+
+            set save_env SAVE_$cap
+            set current_env CURRENT_$cap
+
+            if { $element == "def" } {
+                set_def $::env(SAVE_DEF)
+            } elseif { $element == "odb" } {
+                set_odb $::env(SAVE_ODB)
+            } elseif { $element == "sdc" } {
+                set_sdc $::env(SAVE_SDC)
+            } elseif { $element == "netlist" } {
+                set_netlist -lec $::env(SAVE_NETLIST)
+            } else {
+                set ::env(${current_env}) $::env(${save_env})
+            }
+            unset ::env(${save_env})
+        }
+    }
 }
 
 

@@ -1,4 +1,4 @@
-# How to Contribute
+# Contributing Code
 We'd love to accept your patches and contributions to this project. There are just a few small guidelines you need to follow.
 
 ## Branching
@@ -18,7 +18,7 @@ Please do not write new shell scripts, no matter how trivial.
 ### Python
 Python code should run on Python 3.6+.
 
-You will need to ensure that your Python code passes linting with the tools and plugins in [`requirements_lint.txt`](./requirements_lint.txt). The commands are simply `black .` and `flake8 .`. Please fix all warnings.
+You will need to ensure that your Python code passes linting with the tools and plugins in [`requirements_lint.txt`](https://github.com/The-OpenROAD-Project/OpenLane/tree/master/requirements_lint.txt). The commands are simply `black .` and `flake8 .`. Please fix all warnings.
 
 For new code, please follow [PEP-8 naming conventions](https://peps.python.org/pep-0008/#naming-conventions). The linters do not enforce them just yet because of the corpus of existing code that does not do that, but they will in the future.
 

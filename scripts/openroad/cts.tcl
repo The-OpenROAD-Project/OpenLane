@@ -1,4 +1,4 @@
-# Copyright 2020-2021 Efabless Corporation
+# Copyright 2020-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,33 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-foreach lib $::env(LIB_CTS) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-read_sdc $::env(CURRENT_SDC)
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read -override_libs "$::env(LIB_CTS)"
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
 # set rc values
-source $::env(SCRIPTS_DIR)/openroad/set_rc.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 estimate_parasitics -placement
 
 # Clone clock tree inverters next to register loads
@@ -79,9 +59,10 @@ puts "\[INFO]: Repairing long wires on clock nets..."
 repair_clock_nets -max_wire_length $::env(CTS_CLK_MAX_WIRE_LENGTH)
 
 estimate_parasitics -placement
-write_def $::env(SAVE_DEF)
+write
+
 puts "\[INFO\]: Legalizing..."
-source $::env(SCRIPTS_DIR)/openroad/dpl_cell_pad.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
 
 detailed_placement
 
@@ -90,8 +71,7 @@ if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING)
 }
 estimate_parasitics -placement
 
-write_def $::env(SAVE_DEF)
-write_sdc $::env(SAVE_SDC)
+write
 if { [catch {check_placement -verbose} errmsg] } {
     puts stderr $errmsg
     exit 1

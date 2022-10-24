@@ -21,7 +21,7 @@ import sys
 import click
 import random
 
-from reader import OdbReader, click_odb
+from reader import click_odb
 
 
 @click.group()
@@ -340,8 +340,7 @@ class DiodeInserter:
 )
 @click_odb
 def place(
-    output,
-    input_lef,
+    reader,
     verbose,
     diode_cell,
     fake_diode_cell,
@@ -349,9 +348,7 @@ def place(
     side_strategy,
     port_protect,
     short_span,
-    input_def,
 ):
-    reader = OdbReader(input_lef, input_def)
 
     print(f"Design name: {reader.name}")
 
@@ -376,9 +373,6 @@ def place(
 
     print("Inserted", len(di.inserted), "diodes.")
 
-    # Write result
-    odb.write_def(reader.block, output)
-
 
 cli.add_command(place)
 
@@ -393,12 +387,10 @@ cli.add_command(place)
     help="Text file with white space separated cells that cause antenna violations",
 )
 @click_odb
-def replace_fake(fake_diode, true_diode, violations_file, output, input_lef, input_def):
-    reader = OdbReader(input_lef, input_def)
-
+def replace_fake(fake_diode, true_diode, violations_file, reader):
     violations = open(violations_file).read().strip().split()
 
-    diode = [sc for sc in reader.lef.getMasters() if sc.getName() == true_diode]
+    diode = [sc for sc in reader.block.getMasters() if sc.getName() == true_diode]
 
     antenna_rx = re.compile(r"ANTENNA_(\s+)_.*")
 
@@ -414,8 +406,6 @@ def replace_fake(fake_diode, true_diode, violations_file, output, input_lef, inp
         master_name = instance.getMaster().getName()
         if master_name == fake_diode:
             instance.swapMasters(diode)
-
-    assert odb.write_def(reader.block, output) == 1
 
 
 cli.add_command(replace_fake)

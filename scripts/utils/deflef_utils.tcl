@@ -12,20 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc remove_empty_nets {args} {
-    set options {
-        {-input required}
-    }
-    set flags {}
-
-    parse_key_args "remove_empty_nets" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets\
-        --empty-only\
-        --input-lef $::env(MERGED_LEF)\
-        --output $arg_values(-input)\
-        $arg_values(-input)
-}
-
 proc resize_die {args} {
     set options {
         {-def required}
@@ -85,82 +71,110 @@ proc add_lefs {args} {
 
 proc merge_components {args} {
     set options {
-        {-input1 required}
-        {-input2 required}
-        {-output required}
+        {-input optional}
+        {-donor required}
+        {-output optional}
     }
     set flags {}
+
     parse_key_args "merge_components" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py merge_components\
-        --input-lef $::env(MERGED_LEF)\
-        --output $arg_values(-output)\
-        $arg_values(-input1) $arg_values(-input2)
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py merge_components \
+        -output $arg_values(-output) \
+        -input $arg_values(-input) \
+        --with-components-from $arg_values(-donor)
 }
 
 
 proc move_pins {args} {
     # To be precise, this REPLACES pins in to with the ones in from.
-    set options {
-        {-from required}
-        {-to required}
-    }
-    set flags {}
-    parse_key_args "move_pins" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_pins\
-        --output $arg_values(-to)\
-        --input-lef $::env(MERGED_LEF)\
-        $arg_values(-from) $arg_values(-to)
+    handle_deprecated_command relocate_pins;
 }
 
-proc zeroize_origin_lef {args} {
+proc relocate_pins {args} {
     set options {
-        {-file required}
+        {-input optional}
+        {-template required}
+        {-output optional}
     }
     set flags {}
-    parse_key_args "zeroize_origin_lef" args arg_values $options flags_map $flags
-    exec cp $arg_values(-file) $arg_values(-file).original
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/lefutil.py zeroize_origin\
-        --output $arg_values(-file).zeroized\
-        $arg_values(-file)
-    exec mv  $arg_values(-file).zeroized $arg_values(-file)
-}
 
+    parse_key_args "relocate_pins" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py relocate_pins\
+        -output $arg_values(-output)\
+        -input $arg_values(-input)\
+        --template-def $arg_values(-template)
+}
 
 proc remove_pins {args} {
     set options {
-        {-input required}
+        {-input optional}
+        {-output optional}
     }
     set flags {}
     parse_key_args "remove_pins" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_pins\
-        --input-lef $::env(MERGED_LEF)\
-        --output $arg_values(-input)\
-        $arg_values(-input)
-}
 
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_pins\
+        -input $arg_values(-input)\
+        -output $arg_values(-output)
+}
 
 proc remove_nets {args} {
     set options {
-        {-input required}
+        {-input optional}
+        {-output optional}
+        {-rx optional}
     }
-    set flags {}
+    set flags {-empty}
     parse_key_args "remove_nets" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets\
-        --input-lef $::env(MERGED_LEF)\
-        --output $arg_values(-input)\
-        $arg_values(-input)
+
+    set_if_unset arg_values(-input) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+    set arg_list [list]
+    lappend arg_list -input $arg_values(-input)
+    lappend arg_list -output $arg_values(-output)
+
+    if { [info exists arg_values(-rx)] } {
+        lappend arg_list --match $arg_values(-rx)
+    }
+
+    if { [info exists flags_map(-empty)] } {
+        lappend --empty-only
+    }
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets\
+        {*}$arg_list
+}
+
+proc remove_empty_nets {args} {
+    handle_deprecated_command remove_nets -empty
 }
 
 proc remove_components {args} {
     set options {
         {-input required}
+        {-output optional}
     }
     set flags {}
     parse_key_args "remove_components" args arg_values $options flags_map $flags
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_components\
-        --input-lef $::env(MERGED_LEF)\
-        --output $arg_values(-input)\
-        $arg_values(-input)
+
+    set_if_unset arg_values(-output) $arg_values(-input)
+
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_components \
+        -output $arg_values(-output) \
+        -input $arg_values(-input)
 }
 
 package provide openlane_utils 0.9

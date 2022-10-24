@@ -17,35 +17,25 @@ proc global_placement_or {args} {
     TIMER::timer_start
     set log [index_file $::env(placement_logs)/global.log]
     puts_info "Running Global Placement (log: [relpath . $log])..."
-
-    set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
-
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
         random_global_placement
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl -indexed_log $log
-
-    # sometimes replace fails with a ZERO exit code; the following is a workaround
-    # until the cause is found and fixed
-    if { ! [file exists $::env(SAVE_DEF)] } {
-        puts_err "Global placement has failed to produce a DEF file."
-        flow_fail
-    }
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
+        -indexed_log [index_file $::env(placement_logs)/global.log]\
+        -save "to=$::env(placement_tmpfiles),name=global,def,odb"
 
     check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - openroad"
-    set_def $::env(SAVE_DEF)
 }
 
 proc global_placement {args} {
     global_placement_or args
 }
-
 
 proc random_global_placement {args} {
     increment_index
@@ -54,34 +44,42 @@ proc random_global_placement {args} {
     puts_info "Performing Random Global Placement (log: [relpath . $log])..."
     set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/global.def]
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/random_place.py\
-        --output $::env(SAVE_DEF) \
-        --input-lef $::env(MERGED_LEF) \
-        $::env(CURRENT_DEF) \
-        |& tee $::env(TERMINAL_OUTPUT) $log
+    set save_def [index_file $::env(placement_tmpfiles)/global.def]
+    set save_odb [index_file $::env(placement_tmpfiles)/global.odb]
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/random_place.py\
+        -indexed_log [index_file $::env(placement_logs)/global.log]\
+        -output_def $save_def\
+        -output $save_odb\
+        -input $::env(CURRENT_ODB)
+
+    set_odb $save_odb
+    set_def $save_def
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "random global placement - openlane"
-    set_def $::env(SAVE_DEF)
 }
 
 proc detailed_placement_or {args} {
     set options {
-        {-log required}
-        {-def required}
+        {-log optional}
+        {-outdir optional}
+        {-name optional}
     }
     set flags {}
     parse_key_args "detailed_placement_or" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) $::env(DESIGN_NAME)
+    set_if_unset arg_values(-log) $::env(placement_logs)/detailed.log
+    set_if_unset arg_values(-outdir) $::env(placement_results)
 
     increment_index
     TIMER::timer_start
     set log [index_file $arg_values(-log)]
     puts_info "Running Detailed Placement (log: [relpath . $log])..."
 
-    set ::env(SAVE_DEF) $arg_values(-def)
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl -indexed_log $log
-    set_def $::env(SAVE_DEF)
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/dpl.tcl\
+        -indexed_log $log\
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),noindex,def,odb,netlist,powered_netlist"
 
     if {[catch {exec grep -q -i "fail" $log}] == 0}  {
         puts "Error: Check $log"
@@ -91,11 +89,10 @@ proc detailed_placement_or {args} {
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed placement - openroad"
-    set_def $::env(SAVE_DEF)
 }
 
 proc detailed_placement {args} {
-    detailed_placement_or args
+    detailed_placement_or ${*}args
 }
 
 proc add_macro_placement {args} {
@@ -118,25 +115,27 @@ proc manual_macro_placement {args} {
     set log [index_file $::env(placement_logs)/macro_placement.log]
     puts_info "Performing Manual Macro Placement (log: [relpath . $log])..."
 
-    set fbasename [file rootname $::env(CURRENT_DEF)]
-    set output_def ${fbasename}.macro_placement.def
+    set fbasename [file rootname $::env(CURRENT_ODB)]
+
+    set prev_db $::env(CURRENT_ODB)
+    set save_def ${fbasename}.macro_placement.def
+    set save_db ${fbasename}.macro_placement.odb
 
     set arg_list [list]
-
-    lappend arg_list --output $output_def
-    lappend arg_list --input-lef $::env(MERGED_LEF)
     lappend arg_list --config $::env(placement_tmpfiles)/macro_placement.cfg
-    lappend arg_list $::env(CURRENT_DEF)
-
     if { [info exists flags_map(-f)] } {
         lappend arg_list --fixed
     }
 
-    try_catch openroad -python\
-        $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
-        tee $::env(TERMINAL_OUTPUT) $log
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py\
+        -indexed_log $log \
+        -output_def $save_def \
+        -output $save_db \
+        -input $prev_db \
+        {*}$arg_list
 
-    set_def $output_def
+    set_odb $save_db
+    set_def $save_def
 }
 
 proc basic_macro_placement {args} {
@@ -146,15 +145,15 @@ proc basic_macro_placement {args} {
     puts_info "Running basic macro placement (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
-    set ::env(SAVE_DEF) ${fbasename}.macro_placement.def
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl -indexed_log $log
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/basic_mp.tcl\
+        -indexed_log [index_file $::env(placement_logs)/basic_mp.log]\
+        -save "to=$::env(placement_tmpfiles),name=macros_placed,def,odb"
 
     check_macro_placer_num_solns
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "macro placement - basic_mp.tcl"
-    set_def $::env(SAVE_DEF)
 }
 
 proc run_placement {args} {
@@ -179,35 +178,28 @@ proc run_placement {args} {
     }
 
     run_resizer_design
-    remove_buffers_from_nets
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 
-    detailed_placement_or -def $::env(placement_results)/$::env(DESIGN_NAME).def -log $::env(placement_logs)/detailed.log
+    detailed_placement_or
 
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(placement_logs)/screenshot.log
 }
 
 proc run_resizer_design {args} {
-    if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
+    if { $::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) == 1 } {
         increment_index
         TIMER::timer_start
         set log [index_file $::env(placement_logs)/resizer.log]
         puts_info "Running Placement Resizer Design Optimizations (log: [relpath . $log])..."
 
-        set ::env(SAVE_DEF) [index_file $::env(placement_tmpfiles)/resizer.def]
-        set ::env(SAVE_SDC) [index_file $::env(placement_tmpfiles)/resizer.sdc]
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl -indexed_log $log
-        set_def $::env(SAVE_DEF)
-        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer.tcl\
+            -indexed_log [index_file $::env(placement_logs)/resizer.log]\
+            -save "to=$::env(placement_tmpfiles),name=resizer,def,odb,sdc,netlist,powered_netlist"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
-
-        write_verilog $::env(placement_results)/$::env(DESIGN_NAME).resized.v -log $::env(placement_logs)/write_verilog.log
-        set_netlist $::env(placement_results)/$::env(DESIGN_NAME).resized.v
-
-        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
-            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
-        }
     } else {
         puts_info "Skipping Placement Resizer Design Optimizations."
     }
@@ -221,28 +213,24 @@ proc remove_buffers_from_nets {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(placement_logs)/remove_buffers.log]
-    puts_info "Removing Buffers from Ports (If Applicable) (log: [relpath . $log])..."
+    puts_info "Removing Buffers from Nets (If Applicable) (log: [relpath . $log])..."
 
     set fbasename [file rootname $::env(CURRENT_DEF)]
-    set ::env(SAVE_DEF) ${fbasename}.buffers_removed.def
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
-        --output $::env(SAVE_DEF)\
-        --input-lef $::env(MERGED_LEF)\
-        --match $::env(UNBUFFER_NETS)\
-        $::env(CURRENT_DEF)\
-        |& tee $::env(TERMINAL_OUTPUT) $log
+    set save_def ${fbasename}.buffers_removed.def
+    set save_odb ${fbasename}.buffers_removed.odb
 
-    set_def $::env(SAVE_DEF)
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/remove_buffers.py\
+        -indexed_log $log\
+        -output $save_odb\
+        -output_def $save_def\
+        -input $::env(CURRENT_ODB)\
+        --match $::env(RSZ_DONT_TOUCH_RX)
+
+    set_def $save_def
+    set_odb $save_odb
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "remove buffers from nets - openlane"
-}
-
-proc remove_buffers_from_ports {args} {
-    handle_deprecated_command remove_buffers_from_nets
-}
-
-proc remove_buffers {args} {
-    handle_deprecated_command remove_buffers_from_nets
 }
 
 package provide openlane 0.9

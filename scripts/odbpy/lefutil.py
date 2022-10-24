@@ -45,63 +45,10 @@ def get_metal_layers(output, lefs):
 cli.add_command(get_metal_layers)
 
 
-@click.command("widen_site")
-@click.option("--widen-value", "-w", type=float, required=True)
-@click.option(
-    "--factor/--absolute",
-    "-f/-a",
-    default=False,
-    help="use the widen value as a factor or an absolute value",
-)
-@click.option("--output", "-o", default="./out.lef", help="Output file.")
-@click.argument("lef")
-def widen_site(output, widen_value, factor, lef):
-    # TODO: Redo using OpenDB (if possible)
-    lef_content = open(lef).read().splitlines()
-
-    started = False
-    done = False
-    for i in range(len(lef_content)):
-        # looking for SITE
-        if lef_content[i].find("SITE") != -1:
-            started = True
-
-        if started:
-            # looking for SIZE
-            if lef_content[i].find("SIZE") != -1:
-                line = lef_content[i].split(" ")
-                for j in range(len(line)):
-                    if line[j] == "SIZE":
-                        # if a factor modify the value by the factor
-                        for x in range(j + 1, len(line)):
-                            if line[x] != "":
-                                if factor:
-                                    orgVal = float(line[x])
-                                    widen_value = float(widen_value) * orgVal
-                                # change the value
-                                line[x] = str(widen_value)
-                                done = True
-                                break
-                        break
-                lef_content[i] = " ".join(line)
-
-        if done:
-            break
-
-    # writing to output file
-    with open(output, "w") as f:
-        for line in lef_content:
-            print(line, file=f)
-
-
-cli.add_command(widen_site)
-
-
 @click.command("zeroize_origin")
 @click.option("--output", "-o", default="./out.lef", help="Output file.")
 @click.argument("lef")
 def zeroize_origin(output, lef):
-    # TODO: Redo using OpenDB (if possible)
     RECT_REGEX = re.compile(
         r"^\s*RECT\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+;$"
     )
