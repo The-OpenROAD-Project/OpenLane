@@ -43,12 +43,7 @@ set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_IRDROP_REPORT) 1
 
-# 0: no diodes
-# 1: spray inputs with diodes
-# 2: spray inputs with fake diodes first then fix up the violators with real ones
-# 3: use FR Antenna Avoidance flow
-# 4: Spray diodes on design pins, and add diodes where they need to be added for each macro.
-# 5: Same as 2 but behaves like 4.
+# See documentation for the various strategies.
 set ::env(DIODE_INSERTION_STRATEGY) {3}
 
 ## Signoff
