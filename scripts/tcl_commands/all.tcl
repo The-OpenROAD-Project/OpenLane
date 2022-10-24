@@ -49,7 +49,7 @@ proc set_netlist {args} {
     try_catch sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
     if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
-        logic_equiv_check -rhs $previous_netlist -lhs $netlist
+        logic_equiv_check -lhs $previous_netlist -rhs $netlist
     }
 }
 
