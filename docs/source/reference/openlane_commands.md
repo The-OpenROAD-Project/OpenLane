@@ -24,10 +24,10 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-lib <lib_file_path>` | The lib file that the list will be trimmed from. This will general a `<-lib>.exclude.list` |
 |    | `[-drc_exclude_only]` | If provided, it will only use `DRC_EXCLUDE_CELL_LIST` to create the exclude list. <br> Optional flag. |
 |    | `[-create_dont_use_list]` | If provided, it will create an environment variable with the file content. The variable will be named `DONT_USE_CELLS`. <br> Optional flag. |
-| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file. |
-|    | `[-run_path <path>]` |  Specifies a <code>path</code> to save `config_in.tcl` in. By default the path will be `$::env(RUN_DIR)`. <br> Optional flag. |
 | `prep`  | | Prepares a run in openlane or loads a previously stopped run in order to proceed with it. It calls `trim_lib`, `prep_lefs`, `source_config`, and other procs to set all the needed environment variables.<br> It has similar flags to ./flow.tcl. |
 |    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a `config.tcl` or `config.json` file defining the design parameters. <br> If the folder is not found, the ./designs directory is searched for said file. |
+|    | `-override_env` | Allows you to override certain configuration environment variables for this run. Format: `-override_env KEY1=VALUE1,KEY2=VALUE2` <br> Optional flag. |
+|    | `-expose_env` | Expose the following environment variables to `config.json` as configuration variables. Has no effect on config.tcl sourcing, which already has access to all environment variables. Format: `-expose KEY1,KEY2` <br> Optional flag. |
 |    | `[-overwrite]` |  Flag to overwirte an existing run with the same tag. <br> Optional flag. |
 |    | `[-run_path <path>]` |  Specifies a <code>path</code> to save the run in. By default the run is in <code>design_path/</code>, where the design path is the one passed to <code>-design</code> <br> Optional flag. |
 |    | `[-tag <tag>]` |  Specifies a <code>name</code> for a specific run. If the tag is not specified, a timestamp is generated for identification of that run. <br> Can Specify the configuration file name in case of using <code>-init_design_config</code>. <br> Optional flag. |

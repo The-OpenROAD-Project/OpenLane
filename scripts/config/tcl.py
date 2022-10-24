@@ -26,7 +26,10 @@ from typing import Any, Dict, List, Tuple, Union
 import click
 
 PDK_VAR = "PDK"
+PDKPATH_VAR = "PDKPATH"
 SCL_VAR = "STD_CELL_LIBRARY"
+SCLPATH_VAR = "SCLPATH"
+DESIGN_DIR_VAR = "DESIGN_DIR"
 PROCESS_INFO_ALLOWLIST = [PDK_VAR, SCL_VAR, "STD_CELL_LIBRARY_OPT"]
 
 
@@ -42,11 +45,8 @@ class State(object):
     scl: str
     vars: Dict[str, str]
 
-    def __init__(self, pdk, scl, design_dir) -> None:
-        self.vars = {}
-        self.vars[PDK_VAR] = pdk
-        self.vars[SCL_VAR] = scl
-        self.design_dir = os.path.abspath(design_dir)
+    def __init__(self, exposed_variables: Dict[str, str]) -> None:
+        self.vars = exposed_variables.copy()
 
 
 class Expr(object):
@@ -209,33 +209,50 @@ class Expr(object):
         return eval_stack[0]
 
 
+ref_rx = re.compile(r"^\$([A-Za-z_][A-Za-z0-9_]*)")
+
+
 def process_string(value: str, state: State) -> str:
+    global ref_rx
     EXPR_PREFIX = "expr::"
+    REF_PREFIX = "ref::"
+
     DIR_PREFIX = "dir::"
-    REF_PREFIX = "ref::$"
+    PDK_DIR_PREFIX = "pdk_dir::"
+    SCL_DIR_PREFIX = "scl_dir::"
+
+    if value.startswith(DIR_PREFIX):
+        value = value.replace(DIR_PREFIX, f"ref::${DESIGN_DIR_VAR}/")
+    elif value.startswith(PDK_DIR_PREFIX):
+        value = value.replace(DIR_PREFIX, f"ref::${PDKPATH_VAR}/")
+    elif value.startswith(SCL_DIR_PREFIX):
+        value = value.replace(DIR_PREFIX, f"ref::${SCLPATH_VAR}/")
+
     if value.startswith(EXPR_PREFIX):
         try:
             value = f"{Expr.evaluate(value[len(EXPR_PREFIX):], state.vars)}"
         except SyntaxError as e:
             raise InvalidConfig(f"Invalid expression '{value}': {e}")
-    elif value.startswith(DIR_PREFIX):
-        path = value[len(DIR_PREFIX) :]
-        full_path = os.path.join(state.design_dir, path)
-        full_abspath = os.path.abspath(full_path)
-        value = full_abspath
-        # print(state.design_dir, path, full_path, full_abspath, file=stderr)
-        if full_abspath.startswith(
-            state.design_dir
-        ):  # Just so people don't try to be funny with ./../
-            files = glob.glob(full_abspath)
-            files_escaped = [file.replace("$", r"\$") for file in files]
-            value = " ".join(files_escaped)
     elif value.startswith(REF_PREFIX):
         reference = value[len(REF_PREFIX) :]
+        match = ref_rx.match(reference)
+        if match is None:
+            raise InvalidConfig(f"Invalid reference string '{reference}'")
+        reference_variable = match[1]
         try:
-            value = state.vars[reference]
+            found = state.vars[reference_variable]
+            value = reference.replace(match[0], found)
+            full_abspath = os.path.abspath(value)
+
+            # Resolve globs for paths that are inside the exposed directory
+            if value.startswith("/") and full_abspath.startswith(found):
+                files = glob.glob(full_abspath)
+                files_escaped = [file.replace("$", r"\$") for file in files]
+                value = " ".join(files_escaped)
         except KeyError:
-            raise InvalidConfig(f"Configuration variable '{reference}' not found.")
+            raise InvalidConfig(
+                f"Referenced variable '{reference_variable}' not found."
+            )
     return value
 
 
@@ -298,14 +315,14 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
             state.vars[key] = value
 
 
-def process_config_dict(config_in: dict, pdk: str, scl: str, design_dir: str):
-    state = State(pdk, scl, design_dir)
+def process_config_dict(config_in: dict, exposed_variables: Dict[str, str]):
+    state = State(exposed_variables)
     process_config_dict_recursive(config_in, state)
     return state.vars
 
 
 def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, str]:
-    rx = r"\s*set\s*::env\((.+?)\)\s*(.+)"
+    rx = re.compile(r"\s*set\s*::env\((.+?)\)\s*(.+)")
     env = input_env.copy()
     string_data = ""
     try:
@@ -330,7 +347,7 @@ def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, 
         del entries[i + 1]
 
     for entry in entries:
-        match = re.match(rx, entry)
+        match = rx.match(entry)
         if match is None:
             continue
         name = match[1]
@@ -354,7 +371,11 @@ def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str
 
 
 def extract_process_vars(config_in: Dict[str, str]) -> Dict[str, str]:
-    return {key: config_in.get(key) for key in PROCESS_INFO_ALLOWLIST}
+    return {
+        key: config_in.get(key)
+        for key in PROCESS_INFO_ALLOWLIST
+        if config_in.get(key) != ""
+    }
 
 
 @click.group()
@@ -387,12 +408,12 @@ cli.add_command(extract_process_info)
 
 @click.command()
 @click.option("-o", "--output", default="/dev/stdout", help="File to output the Tcl to")
-@click.option("-p", "--pdk", default=None, help="The name of the PDK")
 @click.option(
-    "-s",
-    "--scl",
-    default=None,
-    help="The name of the standard cell library",
+    "-e",
+    "--expose",
+    "exposed",
+    multiple=True,
+    help="Expose this environment variable to the config file as a configuration variable. PDK and STD_CELL_LIBRARY are exposed implicitly.",
 )
 @click.option(
     "-x",
@@ -401,28 +422,43 @@ cli.add_command(extract_process_info)
     default=None,
     help="Extract PDK, SCL and optimization SCL only.",
 )
-@click.option(
-    "-d",
-    "--design-dir",
-    required=True,
-    help="The name of the standard cell library",
-)
 @click.argument("config_json")
-def from_json(output, pdk, scl, extract_process_info, design_dir, config_json):
+def from_json(output, exposed, extract_process_info, config_json):
     config_json_str = open(config_json).read()
     config_dict = json.loads(config_json_str)
 
-    try:
-        if extract_process_info:
-            resolved = extract_process_vars(config_dict)
-        else:
-            if pdk is None or scl is None:
-                print(
-                    "--pdk and --scl arguments must both be provided.", file=sys.stderr
-                )
-                exit(os.EX_USAGE)
+    exposed_dict = {}
 
-            resolved = process_config_dict(config_dict, pdk, scl, design_dir)
+    implicitly_exposed = [PDK_VAR, PDKPATH_VAR, SCL_VAR, SCLPATH_VAR, DESIGN_DIR_VAR]
+    if extract_process_info:
+        implicitly_exposed = [DESIGN_DIR_VAR]
+
+        # So we don't crash on conditional processing:
+        if os.getenv(PDK_VAR) is not None:
+            implicitly_exposed += [PDK_VAR]
+        else:
+            exposed_dict[PDK_VAR] = ""
+        if os.getenv(SCL_VAR) is not None:
+            implicitly_exposed += [SCL_VAR]
+        else:
+            exposed_dict[SCL_VAR] = ""
+
+    exposed = list(exposed) + implicitly_exposed
+    for key in exposed:
+        exposed_dict[key] = os.getenv(key)
+
+    for key in implicitly_exposed:
+        if exposed_dict.get(key) is None:
+            print(
+                f"{key} environment variable must be set.",
+                file=sys.stderr,
+            )
+            exit(os.EX_USAGE)
+
+    try:
+        resolved = process_config_dict(config_dict, exposed_dict)
+        if extract_process_info:
+            resolved = extract_process_vars(resolved)
         with open(output, "w") as f:
             write_key_value_pairs(f, resolved)
     except InvalidConfig as e:

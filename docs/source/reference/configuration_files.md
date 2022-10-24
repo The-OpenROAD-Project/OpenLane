@@ -101,16 +101,9 @@ Note that ***the order of declarations matter here***: as seen in the following 
 ```
 > In the first example, the final value for A would always be 4 given the order of declarations. In the second example, it would be 40 is the PDK is sky130A and 4 otherwise.
 
-#### The Design Directory
-
-You can reference files relative to the design directory by adding `dir::` to the beginning of a string, where at runtime it will be replaced with the relevant path. If the files you choose lie **inside** the design directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown above, `dir::src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
-> **Note:** Paths with whitespace are not presently supported by OpenLane.
-
 #### Variable Reference
 
-If a string's value starts with `ref::$`, all text after that prefix will be interpreted as a variable name, where you can reference any previously declared variable.
-
-To be accurate, you can only identically copy exactly one variable. You cannot perform any sort of string interpolation or concatenation.
+If a string's value starts with `ref::`, you can interpolate exactly one variable at the beginning of your string.
 
 Like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
 
@@ -126,6 +119,36 @@ Like conditional execution, the order of declarations matter: i.e., you cannot r
 }
 ```
 > In this example, the first configuration is invalid, as B is referenced before it is declared, but the latter is OK, where the value will be "vdd gnd" as well.
+
+Unlike Tcl config files, environment variables (other than `DESIGN_DIR`, `PDK`, `PDKPATH`, `STD_CELL_LIBRARY` and `SCLPATH`) are not exposed to `config.json` by default. You can expose an environment variable to `config.json` files by adding a `-expose_env` flag to your `flow.tcl` invocation, e.g.:
+
+```sh
+export CARAVEL_ROOT=/caravel
+./flow.tcl -design user_project_wrapper -expose_env CARAVEL_ROOT
+```
+
+Which you can then use as follows:
+
+```json
+{
+    "DEFINES_FILE": "ref::$CARAVEL_ROOT/verilog/rtl/defines.v"
+}
+```
+
+...which then would evaluate to `/caravel/verilog/rtl/defines.v`.
+
+Another feature this has is if the files you choose lie **inside** an exposed directory, this prefix supports non-recursive globs, i.e., you can use an asterisk as a wildcard to pick multiple files in a specific folder. Outside the design directory, this is disabled for security reasons, and the final path will continue to include the asterisk. As shown below, `ref::$DESIGN_DIR/src/*.v` would find all files ending with `.v` in the `src` folder inside the design directory.
+
+```json
+{
+    "VERILOG_FILES": "ref::$DESIGN_DIR/src/*.v"
+}
+```
+
+There are some shorthands for the exposed default variables:
+* `dir::` is equivalent to `ref::$DESIGN_DIR/`
+* `pdk_dir::` is equivalent to `ref::$PDKPATH/`
+* `scl_dir::` is equivalent to `ref::$SCLPATH/`
 
 
 #### Expression Engine

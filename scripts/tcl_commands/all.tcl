@@ -286,8 +286,10 @@ proc merge_lib {args} {
 proc source_config {args} {
     set options {
         {-run_path optional}
+        {-expose optional}
     }
     set flags {-process_info_only}
+
     parse_key_args "source_config" args arg_values $options flags_map $flags
 
     if { ![info exists arg_values(-run_path)] } {
@@ -298,6 +300,9 @@ proc source_config {args} {
             set_if_unset $arg_values(-run_path) $::env(RUN_DIR)
         }
     }
+    set_if_unset arg_values(-expose) ""
+
+    set exposed_vars [split $arg_values(-expose) ","]
 
     set config_file [lindex $args 0]
     set config_file_rel [relpath . $config_file]
@@ -321,18 +326,22 @@ proc source_config {args} {
             exec cp $config_file $config_in_path
         }
     } elseif { $ext == ".json" } {
-        set scl NULL
         set arg_list [list]
+
+        lappend arg_list from-json
+        lappend arg_list $config_file
+
         if { [info exist flags_map(-process_info_only)] } {
             lappend arg_list --extract-process-info
-        } else {
-            lappend arg_list --pdk $::env(PDK)
-            lappend arg_list --scl $::env(STD_CELL_LIBRARY)
         }
-        lappend arg_list --output $config_in_path
-        lappend arg_list --design-dir $::env(DESIGN_DIR)
 
-        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py from-json $config_file {*}$arg_list} errmsg] } {
+        foreach exposed_var $exposed_vars {
+            lappend arg_list --expose $exposed_var
+        }
+
+        lappend arg_list --output $config_in_path
+
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py {*}$arg_list} errmsg] } {
             puts_err $errmsg
             exit -1
         }
@@ -390,6 +399,7 @@ proc prep {args} {
         {-override_env optional}
         {-verbose optional}
         {-test_mismatches optional}
+        {-expose_env optional}
     }
 
     set flags {
@@ -407,6 +417,7 @@ proc prep {args} {
     set_if_unset arg_values(-src) ""
     set_if_unset arg_values(-design) "."
     set_if_unset arg_values(-verbose) 0
+    set_if_unset arg_values(-expose_env) ""
 
     if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py $arg_values(-test_mismatches)} ::env(VCHECK_OUTPUT)] {
         if { ![info exists flags_map(-ignore_mismatches)]} {
@@ -513,7 +524,9 @@ proc prep {args} {
     set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
 
     puts_info "Using configuration in '$config_file_rel'..."
-    source_config -process_info_only -run_path $run_path $::env(DESIGN_CONFIG)
+    source_config -process_info_only\
+        -run_path $run_path $::env(DESIGN_CONFIG)\
+        -expose $arg_values(-expose_env)
 
     ## 2. Overrides (Process Info Only)
     if { [info exists arg_values(-override_env)] } {
@@ -549,6 +562,7 @@ proc prep {args} {
 
     ## 4. SCL-Specific Config
     puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+    set ::env(SCLPATH) $::env(PDKPATH)/$::env(STD_CELL_LIBRARY)
     if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
         set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
         puts_verbose "Optimization SCL also set to $::env(STD_CELL_LIBRARY_OPT)."
@@ -581,7 +595,9 @@ proc prep {args} {
     }
 
     ## 5. Design-Specific Config
-    source_config -run_path $run_path $::env(DESIGN_CONFIG)
+    source_config\
+        -run_path $run_path $::env(DESIGN_CONFIG)\
+        -expose $arg_values(-expose_env)
 
     ## 6. Overrides
     if { [info exists arg_values(-override_env)] } {
