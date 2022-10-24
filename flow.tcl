@@ -132,6 +132,12 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
     }
 }
 
+proc run_erc_step {args} {
+    if { $::env(RUN_CVC) } {
+        run_erc
+    }
+}
+
 proc run_eco_step {args} {
     if { $::env(ECO_ENABLE) == 1 } {
         run_eco_flow
@@ -205,7 +211,7 @@ proc run_non_interactive_mode {args} {
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc_rv" "run_lef_cvc"
+        "cvc_rv" "run_erc_step"
     ]
 
     if { [info exists arg_values(-from) ]} {

@@ -274,13 +274,14 @@ Most of the following commands' implementation exists in this [file][5]
 |---------------|------------------------|-----------------------------------------|
 | `run_lvs` | | Runs an lvs check between an extracted spice netlist `EXT_NETLIST` (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. The LVS could be on the block/cell level or on the device/transistor level, this is controlled by the extraction type set by `MAGIC_EXT_USE_GDS`. If the GDS is used in extraction then the LVS will be run down to the device/transistor level, otherwise it will be run on the block/cell level which is the default behavior in OpenLane. |
 
-## CVC Commands
+## ERC Commands
 
 Most of the following commands' implementation exists in this [file][18]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_lef_cvc` | | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`. It is controlled by `::env(RUN_CVC)`.|
+| `run_erc` | | Runs Circuit Validity Checker Electrical Rule Checking. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`..|
+| `run_lef_cvc` | | **Deprecated: Use run_erc**: Runs Circuit Validity Checker ERC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`..|
 
 ## Utility Commands
 
@@ -354,4 +355,4 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [15]: ../usage/chip_integration.md
 [16]: ../usage/advanced_power_grid_control.md
 [17]: ./../../../scripts/tcl_commands/klayout.tcl
-[18]: ./../../../scripts/tcl_commands/cvc.tcl
+[18]: ./../../../scripts/tcl_commands/cvc_rv.tcl

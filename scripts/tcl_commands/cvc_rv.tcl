@@ -13,24 +13,19 @@
 # limitations under the License.
 
 
-proc run_lef_cvc {args} {
-    if { $::env(RUN_CVC) != 1} {
-        puts_info "Skipping CVC..."
-        return
-    }
-
+proc run_erc {args} {
     if { ![info exists ::env(CVC_SCRIPTS_DIR)] } {
-        puts_warn "This PDK does not support cvc_rv, skipping..."
+        puts_warn "This PDK does not support the Circuit Validity Checker, skipping..."
         return
     }
 
     if { [info exists ::env(EXTRA_LEFS)] } {
-        puts_info "Your design contains macros, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
+        puts_info "Your design contains macros, which is not supported by the current integration of the Circuit Validity Checker. So CVC won't run, however CVC is just a check so it's not critical to your design."
         return
     }
 
     if { $::env(VDD_PIN) != $::env(VDD_NETS) || $::env(GND_PIN) != $::env(GND_NETS)} {
-        puts_info "Your design uses the advanced power settings, which is not supported by the current integration of CVC. So CVC won't run, however CVC is just a check so it's not critical to your design."
+        puts_info "Your design uses the advanced power settings, which is not supported by the current integration of the Circuit Validity Checker. So CVC won't run, however CVC is just a check so it's not critical to your design."
         return
     }
 
@@ -43,7 +38,7 @@ proc run_lef_cvc {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(signoff_logs)/erc_screen.log]
-    puts_info "Running CVC (log: [relpath . $log])..."
+    puts_info "Running Circuit Validity Checker ERC (log: [relpath . $log])..."
 
     # merge cdl views of the optimization library and the base library if they are different
     if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
@@ -73,7 +68,11 @@ proc run_lef_cvc {args} {
 
     TIMER::timer_stop
 
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - cvc_rv"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "erc - circuit validity checker"
+}
+
+proc run_lef_cvc {args} {
+    handle_deprecated_command run_erc
 }
 
 package provide openlane 0.9
