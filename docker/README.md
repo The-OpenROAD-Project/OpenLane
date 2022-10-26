@@ -9,13 +9,13 @@ The run family has a base image that contains all the running dependencies. Ther
 
 ```
 openlane-build-base
-L cvc **builder**
+L cvc_rv **builder**
 L openroad_app **builder**
 L [...]
 
 openlane-run-base
 L openlane
-L cvc **runnable**
+L cvc_rv **runnable**
 L openroad_app **runnable**
 ```
 

@@ -120,7 +120,7 @@ proc prep_lefs {args} {
         if { [info exists ::env(METAL_LAYER_NAMES)] } {
             set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
         } else {
-            try_catch $::env(OPENROAD_BIN) -python\
+            try_catch $::env(OPENROAD_BIN) -exit -python\
                 $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
                 $arg_values(-tech_lef)
@@ -286,8 +286,10 @@ proc merge_lib {args} {
 proc source_config {args} {
     set options {
         {-run_path optional}
+        {-expose optional}
     }
     set flags {-process_info_only}
+
     parse_key_args "source_config" args arg_values $options flags_map $flags
 
     if { ![info exists arg_values(-run_path)] } {
@@ -298,6 +300,9 @@ proc source_config {args} {
             set_if_unset $arg_values(-run_path) $::env(RUN_DIR)
         }
     }
+    set_if_unset arg_values(-expose) ""
+
+    set exposed_vars [split $arg_values(-expose) ","]
 
     set config_file [lindex $args 0]
     set config_file_rel [relpath . $config_file]
@@ -321,18 +326,22 @@ proc source_config {args} {
             exec cp $config_file $config_in_path
         }
     } elseif { $ext == ".json" } {
-        set scl NULL
         set arg_list [list]
+
+        lappend arg_list from-json
+        lappend arg_list $config_file
+
         if { [info exist flags_map(-process_info_only)] } {
             lappend arg_list --extract-process-info
-        } else {
-            lappend arg_list --pdk $::env(PDK)
-            lappend arg_list --scl $::env(STD_CELL_LIBRARY)
         }
-        lappend arg_list --output $config_in_path
-        lappend arg_list --design-dir $::env(DESIGN_DIR)
 
-        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py from-json $config_file {*}$arg_list} errmsg] } {
+        foreach exposed_var $exposed_vars {
+            lappend arg_list --expose $exposed_var
+        }
+
+        lappend arg_list --output $config_in_path
+
+        if { [catch {exec python3 $::env(SCRIPTS_DIR)/config/tcl.py {*}$arg_list} errmsg] } {
             puts_err $errmsg
             exit -1
         }
@@ -390,6 +399,7 @@ proc prep {args} {
         {-override_env optional}
         {-verbose optional}
         {-test_mismatches optional}
+        {-expose_env optional}
     }
 
     set flags {
@@ -407,6 +417,7 @@ proc prep {args} {
     set_if_unset arg_values(-src) ""
     set_if_unset arg_values(-design) "."
     set_if_unset arg_values(-verbose) 0
+    set_if_unset arg_values(-expose_env) ""
 
     if [catch {exec python3 $::env(OPENLANE_ROOT)/dependencies/verify_versions.py $arg_values(-test_mismatches)} ::env(VCHECK_OUTPUT)] {
         if { ![info exists flags_map(-ignore_mismatches)]} {
@@ -513,7 +524,9 @@ proc prep {args} {
     set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
 
     puts_info "Using configuration in '$config_file_rel'..."
-    source_config -process_info_only -run_path $run_path $::env(DESIGN_CONFIG)
+    source_config -process_info_only\
+        -run_path $run_path $::env(DESIGN_CONFIG)\
+        -expose $arg_values(-expose_env)
 
     ## 2. Overrides (Process Info Only)
     if { [info exists arg_values(-override_env)] } {
@@ -549,6 +562,7 @@ proc prep {args} {
 
     ## 4. SCL-Specific Config
     puts_info "Standard Cell Library: $::env(STD_CELL_LIBRARY)"
+    set ::env(SCLPATH) $::env(PDKPATH)/$::env(STD_CELL_LIBRARY)
     if { ! [info exists ::env(STD_CELL_LIBRARY_OPT)] } {
         set ::env(STD_CELL_LIBRARY_OPT) $::env(STD_CELL_LIBRARY)
         puts_verbose "Optimization SCL also set to $::env(STD_CELL_LIBRARY_OPT)."
@@ -581,7 +595,9 @@ proc prep {args} {
     }
 
     ## 5. Design-Specific Config
-    source_config -run_path $run_path $::env(DESIGN_CONFIG)
+    source_config\
+        -run_path $run_path $::env(DESIGN_CONFIG)\
+        -expose $arg_values(-expose_env)
 
     ## 6. Overrides
     if { [info exists arg_values(-override_env)] } {
@@ -591,6 +607,7 @@ proc prep {args} {
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
+    handle_deprecated_config SYNTH_TOP_LEVEL SYNTH_ELABORATE_ONLY;
     handle_deprecated_config LIB_MIN LIB_FASTEST;
     handle_deprecated_config LIB_MAX LIB_SLOWEST;
 
@@ -611,6 +628,9 @@ proc prep {args} {
 
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
     handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY;
+
+    handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB;
+    handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX;
 
     #
     ############################
@@ -725,13 +745,13 @@ proc prep {args} {
             -input $::env(LIB_SYNTH_MERGED)
 
         # trim resizer library
-        if { ! [info exists ::env(LIB_RESIZER_OPT) ] } {
-            set ::env(LIB_RESIZER_OPT) [list]
+        if { ! [info exists ::env(RSZ_LIB) ] } {
+            set ::env(RSZ_LIB) [list]
             foreach lib $::env(LIB_SYNTH_COMPLETE) {
                 set fbasename [file rootname [file tail $lib]]
                 set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
                 file copy -force $lib $lib_resizer
-                lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+                lappend ::env(RSZ_LIB) $lib_resizer
             }
 
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
@@ -739,7 +759,7 @@ proc prep {args} {
                     set fbasename [file rootname [file tail $lib]]
                     set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
                     file copy -force $lib $lib_resizer
-                    lappend ::env(LIB_RESIZER_OPT) $lib_resizer
+                    lappend ::env(RSZ_LIB) $lib_resizer
                 }
             }
         }
@@ -804,8 +824,8 @@ proc prep {args} {
         }
         set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
     }
-    if { $::env(SYNTH_TOP_LEVEL) } {
-        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/synth_top.tcl" $::env(GLB_CFG_FILE) 0
+    if { $::env(SYNTH_ELABORATE_ONLY) } {
+        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CFG_FILE) 0
     }
     set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
     set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
@@ -902,15 +922,32 @@ proc save_views {args} {
         {-def_path optional}
         {-gds_path optional}
         {-verilog_path optional}
+        {-nl_path optional}
+        {-pnl_path optional}
         {-spice_path optional}
         {-sdf_path optional}
+        {-mc_sdf_dir optional}
         {-spef_path optional}
+        {-mc_spef_dir optional}
         {-sdc_path optional}
+        {-lib_path optional}
         {-save_path optional}
     }
 
     set flags {}
     parse_key_args "save_views" args arg_values $options flags_map $flags
+
+
+    if { [info exists arg_values(-verilog_path)] } {
+        puts_warn "The argument -verilog_path is ambiguous and deprecated."
+        puts_warn "You may use either -nl_path for unpowered or -pnl_path for powered netlists."
+
+        if { ![info exists arg_values(-pnl_path)] } {
+            puts_warn "Setting -pnl_path to '$arg_values(-verilog_path)'..."
+            set arg_values(-pnl_path) $arg_values(-verilog_path)
+        }
+    }
+
     if { [info exists arg_values(-save_path)]\
         && $arg_values(-save_path) != "" } {
         set path "[file normalize $arg_values(-save_path)]"
@@ -959,11 +996,24 @@ proc save_views {args} {
             file copy -force $arg_values(-gds_path) $destination/$::env(DESIGN_NAME).gds
         }
     }
-    if { [info exists arg_values(-verilog_path)] } {
+
+    if { [info exists arg_values(-nl_path)] } {
         set destination $path/verilog/gl
         file mkdir $destination
-        if { [file exists $arg_values(-verilog_path)] } {
-            file copy -force $arg_values(-verilog_path) $destination/$::env(DESIGN_NAME).v
+        if { [file exists $arg_values(-nl_path)] } {
+            set nl_file_path $destination/$::env(DESIGN_NAME).nl.v
+            set f [open $nl_file_path w]
+            puts $f "// This is the unpowered netlist."
+            puts $f [cat $arg_values(-nl_path)]
+            close $f
+        }
+    }
+
+    if { [info exists arg_values(-pnl_path)] } {
+        set destination $path/verilog/gl
+        file mkdir $destination
+        if { [file exists $arg_values(-pnl_path)] } {
+            file copy -force $arg_values(-pnl_path) $destination/$::env(DESIGN_NAME).v
         }
     }
 
@@ -983,6 +1033,14 @@ proc save_views {args} {
         }
     }
 
+    if { [info exists arg_values(-mc_spef_dir)] } {
+        set destination $path/spef/multicorner
+        if { [file exists $arg_values(-mc_spef_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_spef_dir) $destination
+        }
+    }
+
     if { [info exists arg_values(-sdf_path)] } {
         set destination $path/sdf
         file mkdir $destination
@@ -991,11 +1049,29 @@ proc save_views {args} {
         }
     }
 
+
+    if { [info exists arg_values(-mc_sdf_dir)] } {
+        set destination $path/sdf/multicorner
+        if { [file exists $arg_values(-mc_sdf_dir)] } {
+            exec rm -rf $destination
+            file copy -force $arg_values(-mc_sdf_dir) $destination
+        }
+    }
+
+
     if { [info exists arg_values(-sdc_path)] } {
         set destination $path/sdc
         file mkdir $destination
         if { [file exists $arg_values(-sdc_path)] } {
             file copy -force $arg_values(-sdc_path) $destination/$::env(DESIGN_NAME).sdc
+        }
+    }
+
+    if { [info exists arg_values(-lib_path)] } {
+        set destination $path/lib
+        file mkdir $destination
+        if { [file exists $arg_values(-lib_path)] } {
+            file copy -force $arg_values(-lib_path) $destination/$::env(DESIGN_NAME).lib
         }
     }
 }
@@ -1162,18 +1238,31 @@ proc save_final_views {args} {
 
     # Guaranteed to have default values
     lappend arg_list -def_path $::env(CURRENT_DEF)
-    lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+    lappend arg_list -nl_path $::env(CURRENT_NETLIST)
 
     # Not guaranteed to have default values
+    if { [info exists ::env(CURRENT_POWERED_NETLIST)] } {
+        lappend arg_list -pnl_path $::env(CURRENT_POWERED_NETLIST)
+    }
     if { [info exists ::env(CURRENT_SPEF)] } {
         lappend arg_list -spef_path $::env(CURRENT_SPEF)
+    }
+    if { [info exists ::env(MC_SPEF_DIR)]} {
+        lappend arg_list -mc_spef_dir $::env(MC_SPEF_DIR)
     }
     if { [info exists ::env(CURRENT_SDF)] } {
         lappend arg_list -sdf_path $::env(CURRENT_SDF)
     }
+    if { [info exists ::env(MC_SDF_DIR)]} {
+        lappend arg_list -mc_sdf_dir $::env(MC_SDF_DIR)
+    }
     if { [info exists ::env(CURRENT_SDC)] } {
         lappend arg_list -sdc_path $::env(CURRENT_SDC)
     }
+    if { [info exists ::env(CURRENT_LIB)] } {
+        lappend arg_list -lib_path $::env(CURRENT_LIB)
+    }
+
 
     # Add the path if it exists...
     if { [info exists arg_values(-save_path) ] } {

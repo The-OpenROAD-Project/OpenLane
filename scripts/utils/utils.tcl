@@ -424,7 +424,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_catch $::env(OPENROAD_BIN) -python \
+    try_catch $::env(OPENROAD_BIN) -exit -python \
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
@@ -486,7 +486,7 @@ proc run_tcl_script {args} {
 
     # C-style for loop because Tcl foreach cannot handle the list being
     # dynamically modified
-    set anything_saved 0
+    set layout_saved 0
     set odb_saved 0
     for {set i 0} {$i < [llength $saved_values]} {incr i} {
         set value [lindex $saved_values $i]
@@ -509,8 +509,7 @@ proc run_tcl_script {args} {
             }
         } elseif { $element == "noindex" } {
             set index 0
-        } else {
-            set anything_saved 1
+        } elseif { $element != "" } {
             set extension $element
 
             if { $element == "netlist" } {
@@ -521,6 +520,8 @@ proc run_tcl_script {args} {
                 set extension ".json"
             } elseif { $element == "odb" } {
                 set odb_saved 1
+            } elseif { $element == "def" } {
+                set layout_saved 1
             }
 
             if { $value != "/dev/null" } {
@@ -540,7 +541,7 @@ proc run_tcl_script {args} {
         }
     }
 
-    if { $anything_saved && !$odb_saved } {
+    if { $layout_saved && !$odb_saved } {
         puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
         flow_fail
     }

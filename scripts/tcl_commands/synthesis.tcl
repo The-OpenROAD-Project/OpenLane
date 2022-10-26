@@ -65,9 +65,13 @@ proc run_yosys {args} {
 
     if { ! [info exists flags_map(-no_set_netlist)] } {
         set_netlist -lec $::env(SAVE_NETLIST)
+    }
 
         # The following is a naive workaround to OpenROAD not accepting defparams.
         # It *should* be handled with a fix to the OpenROAD Verilog parser.
+    if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
+        puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
+    } else {
         try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
     }
     unset ::env(SAVE_NETLIST)
@@ -119,7 +123,7 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
-    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log
+    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log -save_to $::env(synthesis_results)
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
@@ -144,7 +148,7 @@ proc run_synthesis {args} {
 proc verilog_elaborate {args} {
     # usually run on structural verilog (top-level netlists)
     set synth_script_old $::env(SYNTH_SCRIPT)
-    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/synth_top.tcl
+    set ::env(SYNTH_SCRIPT) $::env(SCRIPTS_DIR)/yosys/elaborate.tcl
     run_yosys {*}$args
     set ::env(SYNTH_SCRIPT) $synth_script_old
 }

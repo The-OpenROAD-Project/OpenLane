@@ -11,20 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 drc off
 
-lef read $::env(TECH_LEF)
-
-if {  [info exist ::env(EXTRA_LEFS)] } {
-	set lefs_in $::env(EXTRA_LEFS)
-	foreach lef_file $lefs_in {
-		lef read $lef_file
-	}
-}
-
-# Read def and load design
-def read $::env(CURRENT_DEF)
+source $::env(SCRIPTS_DIR)/magic/def/read.tcl
 
 load $::env(DESIGN_NAME)
 select top cell

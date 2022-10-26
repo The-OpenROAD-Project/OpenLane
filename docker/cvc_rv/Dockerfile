@@ -16,20 +16,21 @@ ARG RUN_BASE_IMAGE=
 ARG BUILD_BASE_IMAGE=
 FROM ${BUILD_BASE_IMAGE} AS builder
 
-ARG CVC_REPO
-ARG CVC_COMMIT
+ARG CVC_RV_REPO
+ARG CVC_RV_COMMIT
 
 # Build
-WORKDIR /cvc
-RUN curl -L ${CVC_REPO}/tarball/${CVC_COMMIT} | tar -xzC . --strip-components=1 &&\
+WORKDIR /cvc_rv
+RUN curl -L ${CVC_RV_REPO}/tarball/${CVC_RV_COMMIT} | tar -xzC . --strip-components=1 &&\
     autoreconf -i && \
     autoconf && \
     ./configure --disable-nls --prefix=/build && \
-    make install
-   
+    sed -i 's/api.parser.class/parser_class_name/' src/cdlParser.yy && \
+    make -j$(nproc) install
+
 RUN mkdir -p /build/version/
-RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cvc.version
-RUN echo ${CVC_COMMIT} >> /build/version/cvc.version
+RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/cvc_rv.version
+RUN echo ${CVC_RV_COMMIT} >> /build/version/cvc_rv.version
 RUN tar -czf /build.tar.gz /build
 
 # ---

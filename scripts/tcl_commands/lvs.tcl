@@ -93,7 +93,7 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
         --output $arg_values(-output_def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
@@ -175,7 +175,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
         }
     }
 
-    set extraction_prefix [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).$extract_type]
+    set extraction_prefix [index_file $::env(signoff_logs)/$::env(DESIGN_NAME).$extract_type.lvs]
 
     puts $lvs_file "lvs {$layout $module_name} {$schematic $module_name} $setup_file $extraction_prefix.log -json"
     close $lvs_file
@@ -185,15 +185,15 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
     try_catch netgen -batch source $lvs_file_path \
         |& tee $::env(TERMINAL_OUTPUT) $log
 
-    set count_lvs_log $extraction_prefix.log
 
+    set count_lvs_rpt [index_file $::env(signoff_reports)/$::env(DESIGN_NAME).lvs.rpt]
     exec python3 $::env(SCRIPTS_DIR)/count_lvs.py \
         -f $extraction_prefix.json \
-        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_log
+        |& tee $::env(TERMINAL_OUTPUT) $count_lvs_rpt
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -log $count_lvs_log
+    quit_on_lvs_error -rpt $count_lvs_rpt -log $log
 }
 
 proc run_netgen {args} {
