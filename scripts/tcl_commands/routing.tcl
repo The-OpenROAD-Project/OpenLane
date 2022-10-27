@@ -118,10 +118,6 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    if { !$::env(RUN_DRT) } {
-        return
-    }
-
     if { $::env(DETAILED_ROUTER) == "drcu" } {
         puts_warn "DR-CU is no longer supported. OpenROAD's detailed router will be used instead."
         set ::env(DETAILED_ROUTER) "tritonroute"
