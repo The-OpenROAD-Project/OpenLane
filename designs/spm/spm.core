@@ -1,0 +1,28 @@
+CAPI=2:
+
+name : efabless::spm:0
+
+filesets:
+  rtl:
+    files: [src/spm.v : {file_type : verilogSource}]
+
+  sky130:
+    files:
+      - pin_order.cfg : {file_type : user, copyto : .}
+      - sky130.tcl : {file_type : tclSource}
+
+targets:
+  default:
+    filesets : [rtl]
+
+  lint:
+    default_tool : verilator
+    filesets : [rtl]
+    tools:
+      verilator: {mode: lint-only}
+    toplevel: spm
+
+  sky130:
+    default_tool : openlane
+    filesets: [rtl, sky130]
+    toplevel : spm
