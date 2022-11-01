@@ -40,9 +40,9 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
     actual_pin_count = len(side_pin_placement)
     total_pin_count = actual_pin_count + virtual_pin_count
     for i in range(len(side_pin_placement)):
-        if isinstance(side_pin_placement[i], int): # This is an int value indicating virtual pins
-            virtual_pin_count = virtual_pin_count + side_pin_placement[i] 
-            actual_pin_count = actual_pin_count - 1 # Decrement actual pin count, this value was only there to indicate virtual pin count
+        if isinstance(side_pin_placement[i], int):  # This is an int value indicating virtual pins
+            virtual_pin_count = virtual_pin_count + side_pin_placement[i]
+            actual_pin_count = actual_pin_count - 1  # Decrement actual pin count, this value was only there to indicate virtual pin count
             total_pin_count = actual_pin_count + virtual_pin_count
     result = []
     tracks = len(possible_locations)
@@ -66,40 +66,42 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
 
     # Place the pins at those tracks...
     current_track = unused_tracks // 2  # So that the tracks used are centered
-    starting_track_index = current_track 
-    if virtual_pin_count == 0: # No virtual pins
+    starting_track_index = current_track
+    if virtual_pin_count == 0:  # No virtual pins
         for _ in range(0, total_pin_count):
             result.append(possible_locations[current_track])
             current_track += tracks_per_pin
-    else: # There are virtual pins
+    else:  # There are virtual pins
         for i in range(len(side_pin_placement)):
-            if not isinstance(side_pin_placement[i], int): # We have an actual pin
-               result.append(possible_locations[current_track]) 
-               current_track += tracks_per_pin
-            else: # Virtual Pins, so just leave their needed spaces 
+            if not isinstance(side_pin_placement[i], int):  # We have an actual pin
+                result.append(possible_locations[current_track])
+                current_track += tracks_per_pin
+            else:  # Virtual Pins, so just leave their needed spaces
                 current_track += tracks_per_pin * side_pin_placement[i]
-        side_pin_placement = [pin for pin in side_pin_placement if not isinstance(pin, int)] # Remove the virtual pins from the side_pin_placement list
+        side_pin_placement = [pin for pin in side_pin_placement if not isinstance(pin, int)]  # Remove the virtual pins from the side_pin_placement list
+
+    print(f"Placement details for the {side} side")
+    print("Virtual pin count: ", virtual_pin_count)
+    print("Actual pin count: ", actual_pin_count)
+    print("Total pin count: ", total_pin_count)
+    print("Tracks count: ", len(possible_locations))
+    print("Tracks per pin: ", tracks_per_pin)
+    print("Used tracks count: ", used_tracks)
+    print("Unused track count: ", unused_tracks)
+    print("Starting track index: ", starting_track_index)
+
     VISUALIZE_PLACEMENT = True
     if VISUALIZE_PLACEMENT:
-        print(f"Placement Details for the {side} side")
-        print("Virtual Pin Count: ", virtual_pin_count)
-        print("Actual Pin Count: ", actual_pin_count)
-        print("Total Pin Count: ", total_pin_count)
-        print("Tracks Count: ", len(possible_locations))
-        print("Tracks per pin: ", tracks_per_pin)
-        print("Used Tracks: ", used_tracks)
-        print("Unused Tracks: ", unused_tracks)
-        print("Starting Track: ", starting_track_index)
-        #print("Placement Map:")
-        #print("[", end="")
+        print("Placement Map:")
+        print("[", end="")
         used_track_indices = []
         for i, location in enumerate(possible_locations):
             if location in result:
-                #print(f"\033[91m{location}\033[0m, ", end="")
+                print(f"\033[91m{location}\033[0m, ", end="")
                 used_track_indices.append(i)
-        #     else:
-        #         print(f"{location}, ", end="")
-        # print("]")
+            else:
+                print(f"{location}, ", end="")
+        print("]")
         print(f"Indices of used tracks: {used_track_indices}")
         print("---")
 
@@ -310,12 +312,11 @@ def io_place(
     bterm_regex_map = {}
     for side in pin_placement_cfg:
         for regex in pin_placement_cfg[side]:  # going through them in order
-            if regex[0] == "$": # Sign of Virtual Pins
-                if regex.split("$")[1].isdigit(): # Check that only numbers are followed by the dollar sign
-                    # Convert the number of virtual pins to integer and increment it to the pin_placement list
-                    virtual_pins_count = int(regex.split("$")[1])
+            if regex[0] == "$":  # Sign of Virtual Pins
+                try:
+                    virtual_pins_count = int(regex[1:])
                     pin_placement[side].append(virtual_pins_count)
-                else: # Dollar sign followed by characters other than numbers
+                except ValueError:
                     print("You provided invalid values for virtual pins")
                     sys.exit(1)
             else:
