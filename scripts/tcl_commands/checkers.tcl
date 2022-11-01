@@ -270,6 +270,22 @@ proc quit_on_lvs_error {args} {
     }
 }
 
+proc quit_on_xor_error {args} {
+    if { [info exists ::env(QUIT_ON_XOR_ERROR)] && $::env(QUIT_ON_XOR_ERROR) } {
+        set options {
+            {-log required}
+        }
+        parse_key_args "quit_on_xor_error" args arg_values $options
+        set checker [catch {exec grep -E -o "Total XOR differences: 0" $arg_values(-log)} error]
+
+        if { $checker != 0 } {
+            set log_relative [relpath . $arg_values(-log)]
+            puts_err "There are XOR differences in the design: See '$log_relative' for details."
+            flow_fail
+        }
+    }
+}
+
 proc quit_on_illegal_overlaps {args} {
     if { [info exists ::env(QUIT_ON_ILLEGAL_OVERLAPS)] && $::env(QUIT_ON_ILLEGAL_OVERLAPS) } {
         set options {

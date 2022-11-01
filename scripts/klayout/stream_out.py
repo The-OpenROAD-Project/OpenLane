@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (c) 2021-2022 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,9 +45,80 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import pya
 
+import os
 from typing import TYPE_CHECKING, Optional
+
+try:
+    import pya
+except ImportError:
+    import click
+
+    @click.command()
+    @click.option("-o", "--output", required=True)
+    @click.option(
+        "-l",
+        "--input-lef",
+        required=os.getenv("MERGED_LEF") is None,
+        default=os.getenv("MERGED_LEF"),
+    )
+    @click.option(
+        "-T",
+        "--tech-file",
+        "lyt",
+        required=os.getenv("KLAYOUT_TECH") is None,
+        default=os.getenv("KLAYOUT_TECH"),
+        help="KLayout .lyt file",
+    )
+    @click.option(
+        "-P",
+        "--props-file",
+        "lyp",
+        required=os.getenv("KLAYOUT_PROPERTIES") is None,
+        default=os.getenv("KLAYOUT_PROPERTIES"),
+        help="KLayout .lyp file",
+    )
+    @click.option("-w", "--with-gds-file", "input_gds_files", multiple=True, default=[])
+    @click.option("-s", "--seal-gds-file", default=None)
+    @click.option("-t", "--top", required=True, help="Name of the design/top module")
+    @click.argument("input_def")
+    def stream_out(
+        output,
+        input_lef,
+        lyt,
+        lyp,
+        input_gds_files,
+        seal_gds_file,
+        top,
+        input_def,
+    ):
+        args = [
+            "klayout",
+            "-b",
+            "-rm",
+            __file__,
+            "-rd",
+            f"out_gds={output}",
+            "-rd",
+            f"lef_file={input_lef}",
+            "-rd",
+            f"tech_file={lyt}",
+            "-rd",
+            f"props_file={lyp}",
+            "-rd",
+            f"design_name={top}",
+            "-rd",
+            f"in_def={input_def}",
+            "-rd",
+            f"in_gds={';'.join(list(input_gds_files))}",
+            "-rd",
+            f"seal_gds={seal_gds_file}",
+        ]
+        os.execlp("klayout", *args)
+
+    if __name__ == "__main__":
+        stream_out()
+
 
 if TYPE_CHECKING:
     # Dummy data for type-checking
@@ -54,27 +126,14 @@ if TYPE_CHECKING:
     out_gds: str = ""
     design_name: str = ""
     tech_file: str = ""
-    layer_props_file: str = ""
+    props_file: str = ""
     in_gds: str = ""
     lef_file: str = ""
     seal_gds: Optional[str] = ""
 
-if seal_gds == "":
+if seal_gds == "None":
     seal_gds = None
 
-print(
-    f"""
-    Starting KLayout GDS-II stream-out...
-
-    Input: {in_def}
-    Output: {out_gds}
-    Design: {design_name}
-    Technology File: {tech_file}
-    Layer Properties File: {layer_props_file}
-    GDS File List: {in_gds}
-    LEF File: {lef_file}
-    """
-)
 
 try:
     # Load technology file
@@ -86,7 +145,7 @@ try:
 
     # Load def file
     main_layout = pya.Layout()
-    # main_layout.load_layer_props(layer_props_file)
+    # main_layout.load_layer_props(props_file)
     main_layout.read(in_def, layout_options)
 
     # Clear cells
@@ -100,7 +159,7 @@ try:
 
     # Load in the gds to merge
     print("[INFO] Merging GDS files...")
-    for gds in in_gds.split():
+    for gds in in_gds.split(";"):
         print(f"\t{gds}")
         main_layout.read(gds)
 
@@ -116,9 +175,7 @@ try:
     for i in top_only_layout.each_cell():
         if i.is_empty():
             missing_gds = True
-            print(
-                f"[ERROR] LEF Cell '{i.name}' has no matching GDS cell. Cell will be empty"
-            )
+            print(f"[ERROR] LEF Cell '{i.name}' has no matching GDS cell.")
 
     if missing_gds:
         raise Exception("One or more cell GDS files are missing.")

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <full-hierarchy-new-cell>true</full-hierarchy-new-cell>
+    <tip-window-hidden>only-top-level-shown-by-default=3</tip-window-hidden>
+</config>
