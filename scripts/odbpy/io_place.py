@@ -328,14 +328,7 @@ def io_place(
                     pin_name = bterm.getName()
                     if re.match(regex, pin_name) is not None:
                         if bterm in bterm_regex_map:
-                            print(
-                                "Error: Multiple regexes matched",
-                                pin_name,
-                                ". Those are",
-                                bterm_regex_map[bterm],
-                                "and",
-                                regex,
-                            )
+                            print(f"Error: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}")
                             sys.exit(os.EX_DATAERR)
                         bterm_regex_map[bterm] = regex
                         pin_placement[side].append(bterm)  # to maintain the order
@@ -392,7 +385,7 @@ def io_place(
             pin_name = bterm.getName()
             pins = bterm.getBPins()
             if len(pins) > 0:
-                print("Warning:", pin_name, "already has shapes. Modifying them")
+                print(f"Warning: {pin_name} already has shapes. Modifying them")
                 assert len(pins) == 1
                 pin_bpin = pins[0]
             else:
