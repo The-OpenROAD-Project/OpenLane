@@ -19,7 +19,7 @@ proc extract_core_dims {args} {
 
     set out_tmp $::env(TMP_DIR)/dimensions.txt
 
-    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
+    try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
         $::env(CURRENT_DEF)
@@ -77,7 +77,7 @@ proc init_floorplan {args} {
 
             set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+            try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
                 [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]

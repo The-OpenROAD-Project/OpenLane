@@ -140,7 +140,7 @@ proc detailed_routing_tritonroute {args} {
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
@@ -309,6 +309,30 @@ proc add_route_obs {args} {
     }
 }
 
+proc check_wire_lengths {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/wire_lengths.log]
+    puts_info "Checking Wire Lengths (log: [relpath . $log])..."
+
+    set arg_list [list]
+    lappend arg_list --report-out [index_file $::env(routing_reports)/wire_lengths.csv]
+    if { [info exists ::env(WIRE_LENGTH_THRESHOLD)] } {
+        lappend arg_list --threshold $::env(WIRE_LENGTH_THRESHOLD)
+    }
+    if { $::env(QUIT_ON_LONG_WIRE) } {
+        lappend arg_list --fail
+    }
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/wire_lengths.py\
+        -indexed_log $log\
+        {*}$arg_list
+
+    TIMER::timer_stop
+
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "wire lengths - openlane"
+}
+
 proc run_spef_extraction {args} {
     set options {
         {-save required}
@@ -408,12 +432,16 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
-    # detailed routing
+    # Detailed Routing
     detailed_routing
 
+    # Print Wire Lengths + Check Thresholds
+    check_wire_lengths
+
+    # Screenshot (If Applicable)
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
-    ## Calculate Runtime To Routing
+    # Calculate Runtime
     set ::env(timer_routed) [clock seconds]
 }
 
