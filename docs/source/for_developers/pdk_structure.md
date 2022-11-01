@@ -67,7 +67,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `RCX_RULES_MIN` | OpenRCX rules at the minimum corner. (Optional) |
 | `RCX_RULES` | OpenRCX rules at the nominal corner. |
 | `RCX_RULES_MAX` | OpenRCX rules at the maximum corner. (Optional) |
-
+| `WIRE_LENGTH_THRESHOLD` | A value in microns above which wire lengths generate warnings, and, if `QUIT_ON_LONG_WIRE` is set, the flow will error out. If a PDK does not set this value, the value is considered to be infinite. (Optional) |
 
 ## SCL-specific variables
 

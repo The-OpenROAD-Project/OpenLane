@@ -2,7 +2,7 @@
 # export MERGED_LEF=/openlane/designs/def_test/runs/RUN_2022.01.23_17.23.46/tmp/merged.lef
 # export HOOK_OUTPUT_PATH=/openlane/designs/def_test/runs/RUN_2022.01.23_17.23.46/results/final
 # export DESIGN_DIR=/openlane/designs/def_test
-# openroad -exit -python designs/def_test/hooks/post_run.py
+# openroad -exit -no_init -python designs/def_test/hooks/post_run.py
 
 import odb
 

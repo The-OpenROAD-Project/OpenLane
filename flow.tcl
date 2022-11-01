@@ -162,7 +162,7 @@ proc run_klayout_step {args} {
 proc run_post_run_hooks {} {
     if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
         puts_info "Running post run hook"
-        set result [exec $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py]
+        set result [exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py]
         puts_info "$result"
     } else {
         puts_info "hooks/post_run.py not found, skipping"
@@ -392,7 +392,7 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPEN
     }
 }
 
-if { ! [info exists ::env(OPENLANE_LOCAL_INSTALL)] || ! $::env(OPENLANE_LOCAL_INSTALL)} {
+if { [file isdirectory $::env(OPENLANE_ROOT)/.git] } {
     if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
         if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
             unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
