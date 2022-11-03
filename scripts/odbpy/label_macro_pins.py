@@ -134,17 +134,17 @@ def label_macro_pins(
         net_name = pin_name
         net = top.block.findNet(net_name)
         if net is None:
-            net = odb.dbNet_create(top.block, net_name)
+            net = odb.dbNet.create(top.block, net_name)
 
         pin_bterm = top.block.findBTerm(pin_name)
         if pin_bterm is None:
-            pin_bterm = odb.dbBTerm_create(net, pin_name)
+            pin_bterm = odb.dbBTerm.create(net, pin_name)
 
         assert pin_bterm is not None, "Failed to create or find " + pin_name
 
         pin_bterm.setIoType(iotype)
 
-        pin_bpin = odb.dbBPin_create(pin_bterm)
+        pin_bpin = odb.dbBPin.create(pin_bterm)
         pin_bpin.setPlacementStatus("PLACED")
 
         if not all_shapes_flag:
@@ -154,7 +154,7 @@ def label_macro_pins(
 
         for box in boxes:
             layer, ll, ur = box
-            odb.dbBox_create(
+            odb.dbBox.create(
                 pin_bpin, layer, ll.getX(), ll.getY(), ur.getX(), ur.getY()
             )
 

@@ -367,7 +367,7 @@ def io_place(
                 assert len(pins) == 1
                 pin_bpin = pins[0]
             else:
-                pin_bpin = odb.dbBPin_create(bterm)
+                pin_bpin = odb.dbBPin.create(bterm)
 
             pin_bpin.setPlacementStatus("PLACED")
 
@@ -378,7 +378,7 @@ def io_place(
                 else:
                     y = BLOCK_LL_Y - V_EXTENSION
                 rect.moveTo(slot - V_WIDTH // 2, y)
-                odb.dbBox_create(pin_bpin, V_LAYER, *rect.ll(), *rect.ur())
+                odb.dbBox.create(pin_bpin, V_LAYER, *rect.ll(), *rect.ur())
             else:
                 rect = odb.Rect(0, 0, LENGTH + H_EXTENSION, H_WIDTH)
                 if side == "#E":
@@ -386,7 +386,7 @@ def io_place(
                 else:
                     x = BLOCK_LL_X - H_EXTENSION
                 rect.moveTo(x, slot - H_WIDTH // 2)
-                odb.dbBox_create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
+                odb.dbBox.create(pin_bpin, H_LAYER, *rect.ll(), *rect.ur())
 
 
 if __name__ == "__main__":

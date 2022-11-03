@@ -430,7 +430,7 @@ def power_route(
             upper_enclosure_x = via_params.getXTopEnclosure()
             upper_enclosure_y = via_params.getYTopEnclosure()
 
-            custom_via = odb.dbVia_create(reader.block, via_name)
+            custom_via = odb.dbVia.create(reader.block, via_name)
             custom_via.setViaGenerateRule(via_rule)
 
             array_width = width - 2 * max(lower_enclosure_x, upper_enclosure_x)
@@ -699,11 +699,11 @@ def power_route(
 
     # create special nets
     for special_net_name in SPECIAL_NETS:
-        net = odb.dbNet_create(reader.block, special_net_name)
+        net = odb.dbNet.create(reader.block, special_net_name)
         net.setSpecial()
         net.setWildConnected()
 
-        wire = odb.dbSWire_create(net, "ROUTED")
+        wire = odb.dbSWire.create(net, "ROUTED")
 
         SPECIAL_NETS[special_net_name]["net"] = net
         SPECIAL_NETS[special_net_name]["wire"] = wire
@@ -1110,7 +1110,7 @@ def power_route(
         print(net_name, ": drawing a special wire on layer", box["layer"].getName())
         rect = gridify(box["rect"])
         if isRoutingLayer(box["layer"]):
-            odb.dbSBox_create(
+            odb.dbSBox.create(
                 SPECIAL_NETS[net_name]["wire"],
                 box["layer"],
                 *rect.ll(),
@@ -1119,7 +1119,7 @@ def power_route(
                 odb.dbSBox.UNDEFINED,
             )
         else:
-            odb.dbSBox_create(
+            odb.dbSBox.create(
                 SPECIAL_NETS[net_name]["wire"],
                 box["layer"],
                 (rect.xMin() + rect.xMax()) // 2,
@@ -1139,7 +1139,7 @@ def power_route(
         sys.exit(1)
 
     # OUTPUT
-    odb.write_lef(odb.dbLib_getLib(reader.db, 1), f"{output}.lef")
+    odb.write_lef(odb.dbLib.getLib(reader.db, 1), f"{output}.lef")
 
 
 cli.add_command(power_route)

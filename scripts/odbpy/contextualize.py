@@ -93,7 +93,7 @@ def contextualize(reader, top_def, top_lef, keep_inner_connections):
                 if node_inst_name not in created_macros:
                     created_macros[node_inst_name] = 1
                     print("Creating: ", node_master.getName(), node_inst_name)
-                    new_inst = odb.dbInst_create(
+                    new_inst = odb.dbInst.create(
                         macro.block, node_master, node_inst_name
                     )
                     new_inst.setOrient(node_inst.getOrient())

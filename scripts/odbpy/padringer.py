@@ -396,7 +396,7 @@ def padringer(
             placed_cells_count += 1
         else:
             # must be a filler cell
-            new_inst = odb.dbInst_create(
+            new_inst = odb.dbInst.create(
                 top.block, top.db.findMaster(master_name), inst_name
             )
             assert new_inst is not None, "Failed to create " + inst_name

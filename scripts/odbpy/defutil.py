@@ -80,7 +80,7 @@ def merge_components(reader, donor_def, input_lef):
     recipient = reader
 
     for instance in donor.instances:
-        odb.dbInst_create(recipient.block, instance.getMaster(), instance.getName())
+        odb.dbInst.create(recipient.block, instance.getMaster(), instance.getName())
 
 
 cli.add_command(merge_components)
@@ -459,7 +459,7 @@ def add_obstructions(obstructions, reader):
         dbu = reader.tech.getDbUnitsPerMicron()
         bbox = [int(x * dbu) for x in bbox]
         print("Creating an obstruction on", layer, "at", *bbox, "(DBU)")
-        odb.dbObstruction_create(reader.block, reader.tech.findLayer(layer), *bbox)
+        odb.dbObstruction.create(reader.block, reader.tech.findLayer(layer), *bbox)
 
 
 cli.add_command(add_obstructions)

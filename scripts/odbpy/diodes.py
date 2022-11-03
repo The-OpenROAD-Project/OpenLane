@@ -253,7 +253,7 @@ class DiodeInserter:
         diode_inst_name = "ANTENNA_" + inst_name + "_" + it.getMTerm().getConstName()
         diode_master = self.true_diode_master if force_true else self.diode_master
 
-        diode_inst = odb.dbInst_create(self.block, diode_master, diode_inst_name)
+        diode_inst = odb.dbInst.create(self.block, diode_master, diode_inst_name)
 
         diode_inst.setOrient(do)
         diode_inst.setLocation(dx, dy)
