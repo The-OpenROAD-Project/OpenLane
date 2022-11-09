@@ -1,4 +1,3 @@
-set ::env(DESIGN_NAME) "spm"
 set ::env(CLOCK_PERIOD) 10
 set ::env(CLOCK_PORT) "clk"
 set ::env(CLOCK_NET) "clk"
