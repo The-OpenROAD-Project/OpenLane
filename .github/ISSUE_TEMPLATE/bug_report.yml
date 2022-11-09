@@ -41,12 +41,11 @@ body:
       description: Please paste the output from the conmmand. It will be automatically formatted into code, so no need for backticks.
     validations:
       required: true
-  - type: textarea
-    id: reproduction-material
+  - type: markdown
     attributes:
-      label: Reproduction material
-      description: |
-        You have two options here:
+      value: |
+        ---
+        You also need to upload some files so we can reproduce your issue.
 
         A. If you see a message like `Reproducible packaged: Please tarball and
           upload <PATH> if you're going to submit an issue` in your logs,
@@ -58,6 +57,10 @@ body:
             * Please compress and upload that folder by dragging the .tar.gz or
               the .zip file to this text field.
             * List the commands used to run the design.
+  - type: textarea
+    id: reproduction-material
+    attributes:
+      label: Reproduction material
     validations:
       required: true
   - type: textarea
@@ -66,3 +69,5 @@ body:
       label: Relevant log output
       description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
       render: shell
+    validations:
+      required: true
