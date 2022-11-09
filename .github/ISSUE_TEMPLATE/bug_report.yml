@@ -49,14 +49,17 @@ body:
         1. If you see a message like `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue` in your logs,  please compress and upload that folder by dragging the .tar.gz or the .zip file to this text field. The reproducible tarball is 100% required for OpenROAD bugs.
 
         2. If you don't...
-          * Please compress and upload that folder by dragging the .tar.gz or the .zip file to this text field.
-          * List the commands used to run the design.
+            * Please compress and upload that folder by dragging the .tar.gz or the .zip file to this text field.
+            * List the commands used to run the design.
   - type: textarea
     id: reproduction-material
     attributes:
       label: Reproduction material
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: ---
   - type: textarea
     id: logs
     attributes:
