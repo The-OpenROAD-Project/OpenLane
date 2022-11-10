@@ -14,6 +14,7 @@
     },
     "pdk::gf180mcu*": {
         "CLOCK_PERIOD": 15,
-        "PL_TARGET_DENSITY": 0.5
+        "PL_TARGET_DENSITY": 0.5,
+        "DIODE_INSERTION_STRATEGY": "4"
     }
 }
