@@ -182,7 +182,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `200`ps)|
 | `CLOCK_TREE_SYNTH` | Enable clock tree synthesis. <br> (Default: `1`)|
-| `FILL_INSERTION` | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `CTS_TOLERANCE` | An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 | `CTS_SINK_CLUSTERING_SIZE` | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
@@ -191,6 +190,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
 | `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
 | `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
 ### Routing
@@ -271,23 +271,30 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Flow control
 
+> Note: The commands prefixed `RUN_` enable or disable a certain step as part of the larger OpenLane flow, not when calling the relevant function standalone. For example, if RUN_DRT is set 0, but calling `detailed_routing` in interactive mode will still run detailed routing.
+
 |Variable|Description|
 |-|-|
-| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
-| `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT_DRC` | Enables running KLayout DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_KLAYOUT_XOR` | Enables running KLayout XOR on 2 GDSIIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
+| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1=Enabled, 0=Disabled. <br> Default: `1` |
+| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1=Enabled, 0=Disabled. <br> Default: `0` |
+| `RUN_TAP_DECAP_INSERTION` | Enables tap and decap cells insertion after floorplanning. 1 = Enabled, 0 = Disabled <br> (Default: `1`) |
+| `RUN_FILL_INSERTION` | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
+| `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
+| `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `KLAYOUT_XOR_GDS` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `TAP_DECAP_INSERTION` | Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. |
 | | 0: No diode insertion. |
 | | 1: Spray diodes. |
@@ -297,13 +304,11 @@ These variables worked initially, but they were too sky130 specific and will be 
 | | 5: A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
-| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
-| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
-| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1=Enabled, 0=Disabled. <br> Default: `1` |
-| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1=Enabled, 0=Disabled. <br> Default: `0` |
+| `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
 | `QUIT_ON_MISMATCHES` | **Removed: See `./flow.tcl -ignore_mismatches`** Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
+
 
 ### Checkers
 
