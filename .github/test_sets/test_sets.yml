@@ -28,11 +28,11 @@
   name: fastest_test_set
   designs:
     - spm
-    - wbqspiflash
     - APU
-    - zipdiv
     - usb
-    - usb_cdc_core
+    # - usb_cdc_core
+    # - zipdiv
+    # - wbqspiflash
 - pdk: gf180mcuC
   name: extended_test_set
   designs:
