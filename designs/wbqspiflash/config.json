@@ -26,7 +26,7 @@
             "FP_CORE_UTIL": 30
         }
     },
-    "pdk::gf180*": {
+    "pdk::gf180mcu*": {
         "DIODE_PADDING": 0,
         "PL_TARGET_DENSITY": 0.62
     }

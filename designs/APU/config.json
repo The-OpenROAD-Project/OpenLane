@@ -5,7 +5,7 @@
     "CLOCK_NET": "clk",
     "FP_CORE_UTIL": 35,
     "CLOCK_PERIOD": 17,
-    "pdk::gf180mcuC": {
+    "pdk::gf180mcu*": {
         "DIODE_INSERTION_STRATEGY": "3",
         "PL_RESIZER_HOLD_SLACK_MARGIN": 0.25,
         "FP_CORE_UTIL": 25,

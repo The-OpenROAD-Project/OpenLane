@@ -14,29 +14,34 @@
 # limitations under the License.
 
 import os
-import re
-import sys
 import json
 
-args = sys.argv[1:]
+import yaml
+import click
 
-if len(args) < 1:
-    print(
-        f"Usage: {__file__} [test set 0 name [test set 1 name [...]]]", file=sys.stderr
-    )
-    exit(os.EX_USAGE)
+__dir__ = os.path.dirname(os.path.abspath(__file__))
 
-directory = os.path.dirname(os.path.realpath(__file__))
+TEST_SETS_FILE = os.path.join(__dir__, "test_sets.yml")
 
-files = [os.path.join(directory, x) for x in args]
 
-designs = []
+@click.command()
+@click.option(
+    "--pdk", "pdks", multiple=True, default=["sky130A"], help="Specify which PDK to use"
+)
+@click.argument("test_sets", nargs=-1)
+def main(pdks, test_sets):
 
-for file in files:
-    designs_temp = re.split(r"\s+", open(file).read().strip())
-    for design in designs_temp:
-        if design.startswith("#") or design == "":
-            continue
-        designs.append(design)
+    data_str = open(TEST_SETS_FILE).read()
+    data = yaml.safe_load(data_str)
+    test_set_data = filter(lambda e: e["pdk"] in pdks and e["name"] in test_sets, data)
 
-print(json.dumps({"design": designs}))
+    designs = list()
+    for test_set in list(test_set_data):
+        for design in test_set["designs"]:
+            designs.append({"name": design, "pdk": test_set["pdk"]})
+
+    print(json.dumps({"design": designs}), end="")
+
+
+if __name__ == "__main__":
+    main()
