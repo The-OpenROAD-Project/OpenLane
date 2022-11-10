@@ -26,7 +26,8 @@ jobs:
 
       - name: Build (or Get) PDK
         run: |
-          PDK_FAMILY=${${{ matrix.pdk }}%?}
+          PDK=${{ matrix.pdk }}
+          PDK_FAMILY=${PDK%?}
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
           go get -u github.com/tcnksm/ghr
