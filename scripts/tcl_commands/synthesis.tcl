@@ -12,10 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc get_yosys_bin {} {
-    return $::env(SYNTH_BIN)
-}
-
 proc convert_pg_pins {lib_in lib_out} {
     try_catch sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
 }
@@ -24,6 +20,7 @@ proc run_yosys {args} {
     set options {
         {-output optional}
         {-log optional}
+        {-indexed_log optional}
     }
     set flags {
         -no_set_netlist
@@ -31,8 +28,13 @@ proc run_yosys {args} {
 
     parse_key_args "run_yosys" args arg_values $options flags_map $flags
 
+    if { [info exists arg_values(-log)] } {
+        puts_warn "run_yosys -log is deprecated: replace -log with -indexed_log."
+        set arg_values(-indexed_log) $arg_values(-log)
+    }
+
     set_if_unset arg_values(-output) $::env(synthesis_results)/$::env(DESIGN_NAME).v
-    set_if_unset arg_values(-log) /dev/null
+    set_if_unset arg_values(-indexed_log) /dev/null
 
     if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
         set ::env(SYNTH_READ_BLACKBOX_LIB) 1
@@ -57,10 +59,7 @@ proc run_yosys {args} {
     }
 
     set ::env(SAVE_NETLIST) $arg_values(-output)
-    try_catch $::env(SYNTH_BIN) \
-        -c $::env(SYNTH_SCRIPT) \
-        -l $arg_values(-log)\
-        |& tee $::env(TERMINAL_OUTPUT)
+    run_yosys_script $::env(SYNTH_SCRIPT) -indexed_log $arg_values(-indexed_log)
 
 
     if { ! [info exists flags_map(-no_set_netlist)] } {
@@ -88,7 +87,7 @@ proc run_synth_exploration {args} {
     set ::env(SYNTH_EXPLORE) 1
     set log [index_file $::env(synthesis_logs)/synthesis.log]
 
-    run_yosys -log $log
+    run_yosys -indexed_log $log
 
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 
@@ -118,7 +117,7 @@ proc run_synthesis {args} {
         puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists. Synthesis will be skipped."
         set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
     } else {
-        run_yosys -log $log
+        run_yosys -indexed_log $log
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
@@ -172,9 +171,7 @@ proc yosys_rewrite_verilog {filename} {
 
     set ::env(SAVE_NETLIST) $filename
 
-    try_catch $::env(SYNTH_BIN) \
-        -c $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl \
-        -l $log
+    run_yosys_script $::env(SCRIPTS_DIR)/yosys/rewrite_verilog.tcl -indexed_log $log
 
     unset ::env(SAVE_NETLIST)
 
@@ -209,10 +206,11 @@ proc logic_equiv_check {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(synthesis_logs).equiv.log]
-    puts_info "Running LEC: $::env(LEC_LHS_NETLIST) Vs. $::env(LEC_RHS_NETLIST) (log: [relpath . $log])..."
+    set lhs_rel [relpath . $::env(LEC_LHS_NETLIST)]
+    set rhs_rel [relpath . $::env(LEC_RHS_NETLIST)]
+    puts_info "Running LEC: '$lhs_rel' vs. '$rhs_rel' (log: [relpath . $log])..."
 
-
-    if { [catch {exec $::env(SYNTH_BIN) -c $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -l $log |& tee $::env(TERMINAL_OUTPUT)} ]} {
+    if { [run_yosys_script $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -indexed_log $log]} {
         puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)."
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
