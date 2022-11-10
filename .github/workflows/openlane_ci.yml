@@ -56,7 +56,7 @@ jobs:
           tar -cf /tmp/${{ matrix.pdk }}.tar -C $PDK_ROOT/${{ matrix.pdk }} .
 
       - name: Upload PDK Tarball
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pdk-tarball-${{ matrix.pdk }}
           path: /tmp/${{ matrix.pdk }}.tar
@@ -124,7 +124,7 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: docker-image-amd64
           path: /tmp
@@ -133,7 +133,7 @@ jobs:
         run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: pdk-tarball-sky130A
           path: /tmp
@@ -152,7 +152,7 @@ jobs:
 
       - name: Upload Logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test_${{ matrix.test }}_logs
           path: ./test_logs
@@ -172,7 +172,7 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: docker-image-amd64
           path: /tmp
@@ -181,7 +181,7 @@ jobs:
         run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: pdk-tarball-${{ matrix.design.pdk }}
           path: /tmp
@@ -206,7 +206,7 @@ jobs:
 
       - name: Upload Run Tarball
         if: ${{ always() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.design.name }}-${{ matrix.design.pdk }}
           path: ./reproducible.tar.gz
@@ -234,13 +234,13 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: docker-image-amd64
           path: /tmp
 
       - name: Download Docker Image (arm64v8)
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: docker-image-arm64v8
           path: /tmp
