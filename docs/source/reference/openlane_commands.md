@@ -117,7 +117,7 @@ Most of the following commands' implementation exists in this [file][9]
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
 |    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
 |    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
-| `get_yosys_bin` | | **Deprecated:** Returns the used binary for yosys. |
+| `get_yosys_bin` | | **Removed: Read $::env(SYNTH_BIN)** Returns the used binary for yosys. |
 | `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
 |    | `-output <verilog_netlist_file>` | The output verilog file. |

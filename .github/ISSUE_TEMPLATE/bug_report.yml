@@ -1,0 +1,66 @@
+name: Bug Report
+description: If OpenLane is not behaving as expected, please file a report here.
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong? Be clear and concise.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you *want* to happen?
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        This part is incredibly important:
+
+        Please run the following shell command in the OpenLane root folder:
+
+            python3 ./env.py issue-survey
+
+        Then copy and paste the ENTIRE output in the text field below.
+
+        If the command does not succeed, you are using an out-of-date version of OpenLane, and it is recommended that you update.
+  - type: textarea
+    id: environment-report
+    attributes:
+      label: Environment report
+      render: shell
+      description: Please paste the output from the previous command. It will be automatically formatted into code, so no need for backticks.
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        You also need to upload some files so we can reproduce your issue.
+
+        1. If you see a message like `Reproducible packaged: Please tarball and upload <PATH> if you're going to submit an issue` in your logs,  please compress and upload that folder by dragging the .tar.gz or the .zip file to the following text field. The reproducible tarball is 100% required for OpenROAD bugs.
+
+        2. If you don't...
+            * Please compress and upload that folder by dragging the .tar.gz or the .zip file to the following text field.
+            * List the commands used to run the design.
+  - type: textarea
+    id: reproduction-material
+    attributes:
+      label: Reproduction material
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: ---
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+    validations:
+      required: true

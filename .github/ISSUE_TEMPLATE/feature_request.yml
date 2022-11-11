@@ -1,0 +1,15 @@
+name: Feature Requests and Enhancements
+description: Have any ideas? Find any shortcomings? Feel free to share them.
+body:
+  - type: textarea
+    id: prompt
+    attributes:
+      label: Description
+      description: What do you think is missing from OpenLane? Be clear and concise.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Do you have any thoughts on how to address this?

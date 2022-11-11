@@ -118,10 +118,6 @@ proc global_routing {args} {
 }
 
 proc detailed_routing_tritonroute {args} {
-    if { !$::env(RUN_DRT) } {
-        return
-    }
-
     if { $::env(DETAILED_ROUTER) == "drcu" } {
         puts_warn "DR-CU is no longer supported. OpenROAD's detailed router will be used instead."
         set ::env(DETAILED_ROUTER) "tritonroute"
@@ -164,9 +160,6 @@ proc ins_fill_cells_or {args} {
 }
 
 proc ins_fill_cells {args} {
-    if {!$::env(FILL_INSERTION)} {
-        return
-    }
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/fill.log]
@@ -419,7 +412,9 @@ proc run_routing {args} {
     # if diode insertion does *not* happen as part of global routing, then
     # we can insert fill cells early on
     if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6) && ($::env(ECO_ENABLE) == 0) } {
-        ins_fill_cells
+        if {$::env(RUN_FILL_INSERTION)} {
+            ins_fill_cells
+        }
     }
 
     global_routing
@@ -429,11 +424,15 @@ proc run_routing {args} {
         # addressed in FastRoute since fill cells *might* occupy some of the
         # resources that were already used during global routing causing the
         # detailed router to suffer later.
-        ins_fill_cells
+        if {$::env(RUN_FILL_INSERTION)} {
+            ins_fill_cells
+        }
     }
 
     # Detailed Routing
-    detailed_routing
+    if { $::env(RUN_DRT) } {
+        detailed_routing
+    }
 
     # Print Wire Lengths + Check Thresholds
     check_wire_lengths
