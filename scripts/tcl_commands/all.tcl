@@ -739,7 +739,7 @@ proc prep {args} {
         merge_lib\
             -output $::env(LIB_SYNTH_MERGED)\
             -name $::env(PDK)_merged\
-            -inputs {*}$::env(LIB_SYNTH_COMPLETE)
+            -inputs $::env(LIB_SYNTH_COMPLETE)
 
         # trim synthesis library
         set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
