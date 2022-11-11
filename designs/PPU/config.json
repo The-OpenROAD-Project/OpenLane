@@ -3,7 +3,7 @@
     "VERILOG_FILES": "dir::src/PPU.v",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
-    "pdk::gf180mcuC": {
+    "pdk::gf180mcu*": {
         "FP_CORE_UTIL": 40,
         "SYNTH_MAX_FANOUT": 8,
         "CLOCK_PERIOD": 18.0
@@ -14,7 +14,7 @@
         "PL_TARGET_DENSITY": 0.25,
         "CLOCK_PERIOD": 18.0
     },
-    "pdk::gf180*": {
+    "pdk::gf180mcu*": {
         "PL_TARGET_DENSITY": 0.48
     }
 }

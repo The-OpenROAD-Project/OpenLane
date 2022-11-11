@@ -1,0 +1,41 @@
+- pdk: sky130A
+  name: fastest_test_set
+  designs:
+    - inverter
+    - wbqspiflash
+    - APU
+    - s44
+    - zipdiv
+    - xtea
+    - usb
+    - usb_cdc_core
+    - manual_macro_placement_test
+    - spm
+    - gcd
+    - caravel_upw
+- pdk: sky130A
+  name: extended_test_set
+  designs:
+    - BM64
+    - salsa20
+    - aes_core
+    - blabla
+    - picorv32a
+    - PPU
+    - y_huff
+    - aes
+- pdk: gf180mcuC
+  name: fastest_test_set
+  designs:
+    - spm
+    - APU
+    - usb
+    # - usb_cdc_core
+    # - zipdiv
+    # - wbqspiflash
+- pdk: gf180mcuC
+  name: extended_test_set
+  designs:
+    - picorv32a
+    - PPU
+    - y_huff
