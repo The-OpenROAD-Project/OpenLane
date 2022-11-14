@@ -13,8 +13,8 @@ Check the sidebar to the left to get started.
 
    getting_started/index
    flow_overview
-   tutorials/index
    usage/index
+   tutorials/index
    for_developers/index
    reference/index
    additional_material
