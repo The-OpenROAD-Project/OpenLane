@@ -24,10 +24,10 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-lib <lib_file_path>` | The lib file that the list will be trimmed from. This will general a `<-lib>.exclude.list` |
 |    | `[-drc_exclude_only]` | If provided, it will only use `DRC_EXCLUDE_CELL_LIST` to create the exclude list. <br> Optional flag. |
 |    | `[-create_dont_use_list]` | If provided, it will create an environment variable with the file content. The variable will be named `DONT_USE_CELLS`. <br> Optional flag. |
-| `source_config <config_file>`   | | Sources the configurations inside `<config_file>`, whether it is a tcl file or a json file. |
-|    | `[-run_path <path>]` |  Specifies a <code>path</code> to save `config_in.tcl` in. By default the path will be `$::env(RUN_DIR)`. <br> Optional flag. |
 | `prep`  | | Prepares a run in openlane or loads a previously stopped run in order to proceed with it. It calls `trim_lib`, `prep_lefs`, `source_config`, and other procs to set all the needed environment variables.<br> It has similar flags to ./flow.tcl. |
 |    | `-design <design_name>` |  Specifies the design folder. A design folder should contain a `config.tcl` or `config.json` file defining the design parameters. <br> If the folder is not found, the ./designs directory is searched for said file. |
+|    | `-override_env` | Allows you to override certain configuration environment variables for this run. Format: `-override_env KEY1=VALUE1,KEY2=VALUE2` <br> Optional flag. |
+|    | `-expose_env` | Expose the following environment variables to `config.json` as configuration variables. Has no effect on config.tcl sourcing, which already has access to all environment variables. Format: `-expose KEY1,KEY2` <br> Optional flag. |
 |    | `[-overwrite]` |  Flag to overwirte an existing run with the same tag. <br> Optional flag. |
 |    | `[-run_path <path>]` |  Specifies a <code>path</code> to save the run in. By default the run is in <code>design_path/</code>, where the design path is the one passed to <code>-design</code> <br> Optional flag. |
 |    | `[-tag <tag>]` |  Specifies a <code>name</code> for a specific run. If the tag is not specified, a timestamp is generated for identification of that run. <br> Can Specify the configuration file name in case of using <code>-init_design_config</code>. <br> Optional flag. |
@@ -117,7 +117,7 @@ Most of the following commands' implementation exists in this [file][9]
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
 |    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
 |    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
-| `get_yosys_bin` | | **Deprecated:** Returns the used binary for yosys. |
+| `get_yosys_bin` | | **Removed: Read $::env(SYNTH_BIN)** Returns the used binary for yosys. |
 | `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
 |    | `-output <verilog_netlist_file>` | The output verilog file. |
@@ -241,7 +241,7 @@ Most of the following commands' implementation exists in this [file][6]
 | `run_magic_drc` | | Runs a drc check on the `CURRENT_DEF` or the `CURRENT_GDS` based on the value of `MAGIC_DRC_USE_GDS`. The resulting file is under `/<run_path>/logs/magic/magic.drc` . |
 | `run_magic_spice_export` | | Runs spice extractions on the processed design. Based on the value of `MAGIC_EXT_USE_GDS` either the GDS or the DEF/LEF is used for the extraction. The resulting file is under `/<run_path>/results/magic/` . |
 | `export_magic_view` | | Export a mag view of a given def file. |
-|    | `-def <def_file>` | The input DEF file. |
+|    | `-def <def_file>` | The input DEF file, the default is `::env(CURRENT_DEF)`. |
 |    | `-output <output_file>` | The output mag file path. |
 | `run_magic_antenna_check` | | Runs spice extractions on the processed design and performs antenna checks. The resulting file is under `/<run_path>/results/magic/` and `/<run_path>/reports/magic/` . |
 
@@ -274,13 +274,14 @@ Most of the following commands' implementation exists in this [file][5]
 |---------------|------------------------|-----------------------------------------|
 | `run_lvs` | | Runs an lvs check between an extracted spice netlist `EXT_NETLIST` (so `run_magic_spice_export` should be run before it.) and the current verilog netlist of the processed design `CURRENT_NETLIST`. The resulting file is under `/<run_path>/results/lvs/` and `/<run_path>/reports/lvs/`. The LVS could be on the block/cell level or on the device/transistor level, this is controlled by the extraction type set by `MAGIC_EXT_USE_GDS`. If the GDS is used in extraction then the LVS will be run down to the device/transistor level, otherwise it will be run on the block/cell level which is the default behavior in OpenLane. |
 
-## CVC Commands
+## ERC Commands
 
 Most of the following commands' implementation exists in this [file][18]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_lef_cvc` | | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`. It is controlled by `::env(RUN_CVC)`.|
+| `run_erc` | | Runs Circuit Validity Checker Electrical Rule Checking. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`..|
+| `run_lef_cvc` | | **Deprecated: Use run_erc**: Runs Circuit Validity Checker ERC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. The output files exist under `<run-path>/results/cvc/`..|
 
 ## Utility Commands
 
@@ -354,4 +355,4 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [15]: ../usage/chip_integration.md
 [16]: ../usage/advanced_power_grid_control.md
 [17]: ./../../../scripts/tcl_commands/klayout.tcl
-[18]: ./../../../scripts/tcl_commands/cvc.tcl
+[18]: ./../../../scripts/tcl_commands/cvc_rv.tcl

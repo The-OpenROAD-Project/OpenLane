@@ -25,7 +25,7 @@ You can view the results of the run against some designs (more [here](#usage)) a
 The script can be used in two ways
 
 1. Running one or more designs.
-    
+   
     ```bash
     python3 run_designs.py --threads 4 spm xtea PPU APU
     ```
@@ -33,11 +33,11 @@ The script can be used in two ways
     You can run the default test set consisting of all designs under [designs](../../../designs/) through running the following command along with any of the flags:
     
     ```bash
-    python3 run_design.py --defaultTestSet
+    python3 run_designs.py --defaultTestSet
     ```
 
 2. An exploration run that generates configuration files of all possible combinations of the passed regression file and runs them on the provided designs.
-    
+   
     ```bash
     python3 run_designs.py --regression ./scripts/config/regression.config --threads 2 spm xtea
     ```
@@ -80,7 +80,7 @@ The script can be used in two ways
         ```
         FP_CORE_UTIL=(40,50)
         PL_TARGET_DENSITY=(FP_CORE_UTIL*0.01-0.1,0.4)
-    
+        
         extra="
         set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
         "

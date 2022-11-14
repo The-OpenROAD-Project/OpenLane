@@ -30,9 +30,8 @@ def get_pin_name(pin: odb.dbITerm):
     return f"{cell_name}/{master_pin_name}"
 
 
-def get_sinks(net: odb.dbNet) -> List[odb.dbInst]:
+def get_sinks_terms(net: odb.dbNet) -> List[odb.dbITerm]:
     sinks = []
-    print(net.getITerms())
     for it in net.getITerms():
         cell = it.getInst()
         cell_pin = it.getMTerm()
@@ -40,12 +39,11 @@ def get_sinks(net: odb.dbNet) -> List[odb.dbInst]:
         master_instance = cell.getMaster()
         master_name = master_instance.getConstName()
 
-        print(net.getConstName(), cell_pin.getIoType())
         if cell_pin.getIoType() == "INPUT":
             print(
                 f"  * Net {net.getConstName()} sinks into {get_pin_name(it)} ({master_name})..."
             )
-            sinks.append(cell)
+            sinks.append(it)
 
     return sinks
 
@@ -102,7 +100,9 @@ def remove_buffers(reader, rx_str):
         rx = re.compile(rx_str)
 
         design_nets = reader.block.getNets()
-        dont_buffer_nets = [net for net in design_nets if rx.match(net) is not None]
+        dont_buffer_nets = [
+            net for net in design_nets if rx.match(net.getConstName()) is not None
+        ]
 
         for net in dont_buffer_nets:
             net_name = net.getConstName()
@@ -152,13 +152,22 @@ def remove_buffers(reader, rx_str):
             _, bid_outputs = get_io(buffer_input_driver)
             (bid_iterm, _) = bid_outputs[0]
             bid_iterm.connect(output_net)
-            print(f"  * Connected buffer output to {get_pin_name(bid_iterm)}.")
-
-            print(f"  * Removing net {input_net.getName()}...")
-            odb.dbNet.destroy(input_net)
+            print(
+                f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(bid_iterm)}."
+            )
 
             print(f"  * Removing buffer {buffer_name} ({master_name})...")
             odb.dbInst.destroy(buffer)
+
+            input_net_sinks = get_sinks_terms(input_net)
+            for iterm in input_net_sinks:
+                iterm.connect(output_net)
+                print(
+                    f"  * Connected buffer output({output_net.getConstName()}) to {get_pin_name(iterm)}."
+                )
+
+            print(f"  * Removing net {input_net.getName()}...")
+            odb.dbNet.destroy(input_net)
 
         print("  * Done.")
 

@@ -29,6 +29,7 @@ set ::env(QUIT_ON_SETUP_VIOLATIONS) 1
 
 # Routing
 set ::env(QUIT_ON_TR_DRC) 1
+set ::env(QUIT_ON_LONG_WIRE) 0
 
 # Magic
 # This is disabled by default for now until we are 100% sure we want to make this

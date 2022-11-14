@@ -3,6 +3,7 @@
     "VERILOG_FILES": "dir::src/*.v",
     "CLOCK_PORT": "i_clk",
     "CLOCK_NET": "i_clk",
+    "DIODE_INSERTION_STRATEGY": 6,
     "pdk::sky130*": {
         "CLOCK_PERIOD": 18.86,
         "SYNTH_MAX_FANOUT": 6,
@@ -24,5 +25,9 @@
         "scl::sky130_fd_sc_ms": {
             "FP_CORE_UTIL": 30
         }
+    },
+    "pdk::gf180*": {
+        "DIODE_PADDING": 0,
+        "PL_TARGET_DENSITY": 0.62
     }
 }

@@ -19,9 +19,9 @@ import json
 
 
 def get_design_path(design):
-    path = os.path.abspath(design) + "/"
+    path = os.path.abspath(design)
     if not os.path.exists(path):
-        path = os.path.join(os.getcwd(), f"./designs/{design}/")
+        path = os.path.join(os.getcwd(), "designs", design)
     if os.path.exists(path):
         return path
     else:

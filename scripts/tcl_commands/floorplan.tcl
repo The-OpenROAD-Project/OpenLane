@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 proc extract_core_dims {args} {
-    puts_info "Extracting core dimensions..."
+    puts_verbose "Extracting core dimensions..."
     set options {}
     parse_key_args "extract_core_dims" args values $options
     set def_units $::env(DEF_UNITS_PER_MICRON)
 
     set out_tmp $::env(TMP_DIR)/dimensions.txt
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
+    try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
         $::env(CURRENT_DEF)
@@ -29,7 +29,7 @@ proc extract_core_dims {args} {
     set ::env(CORE_WIDTH) [lindex $dims 0]
     set ::env(CORE_HEIGHT) [lindex $dims 1]
 
-    puts_info "Set CORE_WIDTH to $::env(CORE_WIDTH), CORE_HEIGHT to $::env(CORE_HEIGHT)."
+    puts_info "Floorplanned with width $::env(CORE_WIDTH) and height $::env(CORE_HEIGHT)."
 }
 
 proc set_core_dims {args} {
@@ -77,7 +77,7 @@ proc init_floorplan {args} {
 
             set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+            try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
                 [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
@@ -90,7 +90,7 @@ proc init_floorplan {args} {
             set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
             set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
 
-            puts_warn "Current core area is too small for a power grid. The power grid will be minimized."
+            puts_warn "Current core area is too small for the power grid settings chosen. The power grid will be scaled down."
         }
     }
 

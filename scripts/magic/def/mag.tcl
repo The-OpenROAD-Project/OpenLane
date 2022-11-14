@@ -12,15 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-lef read $::env(TECH_LEF)
-if {  [info exist ::env(EXTRA_LEFS)] } {
-    set lefs_in $::env(EXTRA_LEFS)
-    foreach lef_file $lefs_in {
-        lef read $lef_file
-    }
-}
-def read $::env(_tmp_def_in)
+source $::env(SCRIPTS_DIR)/magic/def/read.tcl
 
-save $::env(_tmp_save_mag)
+save $::env(SAVE_MAG)
 
-puts "[INFO]: Done exporting $::env(_tmp_save_mag)."
+puts "[INFO]: Done exporting $::env(SAVE_MAG)."

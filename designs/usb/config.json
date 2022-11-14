@@ -11,5 +11,9 @@
             "CLOCK_PERIOD": 15,
             "SYNTH_STRATEGY": "DELAY 0"
         }
+    },
+    "pdk::gf180*": {
+        "CLOCK_PERIOD": 15,
+        "PL_TARGET_DENSITY": 0.5
     }
 }

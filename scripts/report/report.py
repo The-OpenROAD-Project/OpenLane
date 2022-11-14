@@ -299,7 +299,7 @@ class Report(object):
 
         # Cell Count
         cell_count = -1
-        yosys_report = Artifact(rp, "reports", "synthesis", "synthesis.stat.rpt", True)
+        yosys_report = Artifact(rp, "reports", "synthesis", ".stat.rpt", True)
         yosys_report_content = yosys_report.get_content()
         if yosys_report_content is not None:
             match = re.search(r"Number of cells:\s*(\d+)", yosys_report_content)
@@ -679,7 +679,7 @@ class Report(object):
         filler_cells = tapcells + endcaps + diodes
 
         # LVS Total Errors
-        lvs_report = Artifact(rp, "logs", "signoff", f"{self.design_name}.lvs.lef.log")
+        lvs_report = Artifact(rp, "reports", "signoff", f"{self.design_name}.lvs.rpt")
         lvs_report_content = lvs_report.get_content()
 
         lvs_total_errors = -1

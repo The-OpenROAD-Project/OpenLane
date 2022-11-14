@@ -177,6 +177,10 @@ proc relpath {args} {
     return [exec python3 -c "import os; print(os.path.relpath('$to', '$from'), end='')"]
 }
 
+proc run_yosys_script {args} {
+    run_tcl_script -tool yosys -no_consume {*}$args
+}
+
 proc run_openroad_script {args} {
     run_tcl_script -tool openroad -no_consume {*}$args
 }
@@ -219,7 +223,7 @@ proc flow_fail {args} {
         save_state
         puts_err "Flow failed."
         show_warnings "The failure may have been because of the following warnings:"
-        return -code error
+        exit -1
     }
 }
 
@@ -424,7 +428,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_catch $::env(OPENROAD_BIN) -python \
+    try_catch $::env(OPENROAD_BIN) -exit -no_init -python\
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
@@ -434,7 +438,7 @@ proc manipulate_layout {args} {
 }
 
 proc run_tcl_script {args} {
-    # -tool: openroad/magic
+    # -tool: openroad/magic/yosys
     # -indexed_log: a log that is already pre-indexed
     # -save:
     #     OpenROAD only. A list of commands to handle saving views.
@@ -486,7 +490,7 @@ proc run_tcl_script {args} {
 
     # C-style for loop because Tcl foreach cannot handle the list being
     # dynamically modified
-    set anything_saved 0
+    set layout_saved 0
     set odb_saved 0
     for {set i 0} {$i < [llength $saved_values]} {incr i} {
         set value [lindex $saved_values $i]
@@ -509,8 +513,7 @@ proc run_tcl_script {args} {
             }
         } elseif { $element == "noindex" } {
             set index 0
-        } else {
-            set anything_saved 1
+        } elseif { $element != "" } {
             set extension $element
 
             if { $element == "netlist" } {
@@ -521,6 +524,8 @@ proc run_tcl_script {args} {
                 set extension ".json"
             } elseif { $element == "odb" } {
                 set odb_saved 1
+            } elseif { $element == "def" } {
+                set layout_saved 1
             }
 
             if { $value != "/dev/null" } {
@@ -540,7 +545,7 @@ proc run_tcl_script {args} {
         }
     }
 
-    if { $anything_saved && !$odb_saved } {
+    if { $layout_saved && !$odb_saved } {
         puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
         flow_fail
     }
@@ -564,8 +569,10 @@ proc run_tcl_script {args} {
         }
     } elseif { $arg_values(-tool) == "magic" } {
         set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+    } elseif { $arg_values(-tool) == "yosys" } {
+        set args "$::env(SYNTH_BIN) -c $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } else {
-        puts_err "run_tcl_script only supports '-tool magic' and '-tool openroad' for now."
+        puts_err "run_tcl_script only supports tools 'magic', 'yosys' or 'openroad' for now."
         return -code error
     }
 
@@ -613,7 +620,9 @@ proc run_tcl_script {args} {
         lappend or_issue_arg_list --script $script
         lappend or_issue_arg_list --run-path $::env(RUN_DIR)
 
-        if { [info exists flag_map(-netlist_in)] } {
+        if { $tool == "yosys" } {
+            lappend or_issue_arg_list --input-type "n/a" "/dev/null"
+        } elseif { [info exists flag_map(-netlist_in)] } {
             lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
         } elseif { $tool != "openroad" || [info exists flag_map(-def_in)]} {
             lappend or_issue_arg_list --input-type "def" $::env(CURRENT_DEF)

@@ -162,3 +162,5 @@ puts " report_design_area"
 puts "============================================================================"
 report_design_area
 puts "area_report_end"
+
+write

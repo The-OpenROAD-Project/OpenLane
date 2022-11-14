@@ -44,7 +44,7 @@ proc global_routing_fastroute {args} {
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
         -no_update_current
 
-    if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
         set iter 1
 
@@ -140,7 +140,7 @@ proc detailed_routing_tritonroute {args} {
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch $::env(OPENROAD_BIN) -python $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
@@ -297,7 +297,7 @@ proc apply_route_obs {args} {
     puts_verbose "Obstructions added over $::env(GRT_OBS)."
 
     set_def $save_def
-    set_db $save_db
+    set_odb $save_db
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "adding routing obstructions - openlane"
@@ -307,6 +307,30 @@ proc add_route_obs {args} {
     if {[info exists ::env(GRT_OBS)]} {
         apply_route_obs
     }
+}
+
+proc check_wire_lengths {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/wire_lengths.log]
+    puts_info "Checking Wire Lengths (log: [relpath . $log])..."
+
+    set arg_list [list]
+    lappend arg_list --report-out [index_file $::env(routing_reports)/wire_lengths.csv]
+    if { [info exists ::env(WIRE_LENGTH_THRESHOLD)] } {
+        lappend arg_list --threshold $::env(WIRE_LENGTH_THRESHOLD)
+    }
+    if { $::env(QUIT_ON_LONG_WIRE) } {
+        lappend arg_list --fail
+    }
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/wire_lengths.py\
+        -indexed_log $log\
+        {*}$arg_list
+
+    TIMER::timer_stop
+
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "wire lengths - openlane"
 }
 
 proc run_spef_extraction {args} {
@@ -369,13 +393,15 @@ proc run_routing {args} {
     # |----------------------------------------------------|
 
     run_resizer_timing_routing
-    remove_buffers_from_nets
+    if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
+        remove_buffers_from_nets
+    }
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
         if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
             ins_diode_cells_1
         }
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
+        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) || ( $::env(DIODE_INSERTION_STRATEGY) == 6) } {
             ins_diode_cells_4
         }
     }
@@ -383,7 +409,7 @@ proc run_routing {args} {
     add_route_obs
 
     #legalize if not yet legalized
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) && ($::env(DIODE_INSERTION_STRATEGY) != 6) } {
         detailed_placement_or\
             -outdir $::env(routing_tmpfiles)\
             -name diode\
@@ -392,13 +418,13 @@ proc run_routing {args} {
 
     # if diode insertion does *not* happen as part of global routing, then
     # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(ECO_ENABLE) == 0) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6) && ($::env(ECO_ENABLE) == 0) } {
         ins_fill_cells
     }
 
     global_routing
 
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) && ($::env(ECO_ENABLE) == 0) } {
+    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) && ($::env(ECO_ENABLE) == 0) } {
         # Doing this here can be problematic and is something that needs to be
         # addressed in FastRoute since fill cells *might* occupy some of the
         # resources that were already used during global routing causing the
@@ -406,12 +432,16 @@ proc run_routing {args} {
         ins_fill_cells
     }
 
-    # detailed routing
+    # Detailed Routing
     detailed_routing
 
+    # Print Wire Lengths + Check Thresholds
+    check_wire_lengths
+
+    # Screenshot (If Applicable)
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(routing_logs)/screenshot.log
 
-    ## Calculate Runtime To Routing
+    # Calculate Runtime
     set ::env(timer_routed) [clock seconds]
 }
 

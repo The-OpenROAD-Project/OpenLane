@@ -16,7 +16,7 @@ read
 
 set_propagated_clock [all_clocks]
 
-if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
     set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
@@ -35,7 +35,7 @@ if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
 puts $arg_list
 global_route {*}$arg_list
 
-if { $::env(DIODE_INSERTION_STRATEGY) == 3 } {
+if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
     repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS)
     check_placement
 }
