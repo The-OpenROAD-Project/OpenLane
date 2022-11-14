@@ -35,37 +35,72 @@ def grid_to_tracks(origin, count, step):
     return tracks
 
 
-def equally_spaced_sequence(pin_count, possible_locations):
+def equally_spaced_sequence(side, side_pin_placement, possible_locations):
+    virtual_pin_count = 0
+    actual_pin_count = len(side_pin_placement)
+    total_pin_count = actual_pin_count + virtual_pin_count
+    for i in range(len(side_pin_placement)):
+        if isinstance(
+            side_pin_placement[i], int
+        ):  # This is an int value indicating virtual pins
+            virtual_pin_count = virtual_pin_count + side_pin_placement[i]
+            actual_pin_count = (
+                actual_pin_count - 1
+            )  # Decrement actual pin count, this value was only there to indicate virtual pin count
+            total_pin_count = actual_pin_count + virtual_pin_count
     result = []
     tracks = len(possible_locations)
 
-    if pin_count > tracks:
-        raise Exception(
-            "There are more pins than places to put them. Try making your floorplan area larger."
+    if total_pin_count > tracks:
+        print(
+            f"There are more pins/virtual_pins: {total_pin_count}, than places to put them: {tracks}. Try making your floorplan area larger."
         )
-    elif pin_count == tracks:
+        sys.exit(1)
+    elif total_pin_count == tracks:
         return possible_locations  # All positions.
-    elif pin_count == 0:
+    elif total_pin_count == 0:
         return []
 
     # From this point, pin_count always < tracks.
-    tracks_per_pin = math.floor(tracks / pin_count)  # >=1
-
+    tracks_per_pin = math.floor(tracks / total_pin_count)  # >=1
     # O| | | O| | | O| | |
     # tracks_per_pin = 3
     # notice the last two tracks are unused
     # thus:
-    used_tracks = tracks_per_pin * (pin_count - 1) + 1
+    used_tracks = tracks_per_pin * (total_pin_count - 1) + 1
     unused_tracks = tracks - used_tracks
 
     # Place the pins at those tracks...
     current_track = unused_tracks // 2  # So that the tracks used are centered
-    for _ in range(0, pin_count):
-        result.append(possible_locations[current_track])
-        current_track += tracks_per_pin
+    starting_track_index = current_track
+    if virtual_pin_count == 0:  # No virtual pins
+        for _ in range(0, total_pin_count):
+            result.append(possible_locations[current_track])
+            current_track += tracks_per_pin
+    else:  # There are virtual pins
+        for i in range(len(side_pin_placement)):
+            if not isinstance(side_pin_placement[i], int):  # We have an actual pin
+                result.append(possible_locations[current_track])
+                current_track += tracks_per_pin
+            else:  # Virtual Pins, so just leave their needed spaces
+                current_track += tracks_per_pin * side_pin_placement[i]
+        side_pin_placement = [
+            pin for pin in side_pin_placement if not isinstance(pin, int)
+        ]  # Remove the virtual pins from the side_pin_placement list
 
-    VISUALIZE_PLACEMENT = False
+    print(f"Placement details for the {side} side")
+    print("Virtual pin count: ", virtual_pin_count)
+    print("Actual pin count: ", actual_pin_count)
+    print("Total pin count: ", total_pin_count)
+    print("Tracks count: ", len(possible_locations))
+    print("Tracks per pin: ", tracks_per_pin)
+    print("Used tracks count: ", used_tracks)
+    print("Unused track count: ", unused_tracks)
+    print("Starting track index: ", starting_track_index)
+
+    VISUALIZE_PLACEMENT = True
     if VISUALIZE_PLACEMENT:
+        print("Placement Map:")
         print("[", end="")
         used_track_indices = []
         for i, location in enumerate(possible_locations):
@@ -75,12 +110,10 @@ def equally_spaced_sequence(pin_count, possible_locations):
             else:
                 print(f"{location}, ", end="")
         print("]")
-        print(f"Total tracks: {tracks}")
-        print(f"Track spacing between pins: {tracks_per_pin - 1}")
         print(f"Indices of used tracks: {used_track_indices}")
         print("---")
 
-    return result
+    return result, side_pin_placement
 
 
 # HUMAN SORTING: https://stackoverflow.com/questions/5967500/how-to-correctly-sort-a-string-with-a-number-inside
@@ -287,25 +320,28 @@ def io_place(
     bterm_regex_map = {}
     for side in pin_placement_cfg:
         for regex in pin_placement_cfg[side]:  # going through them in order
-            regex += "$"  # anchor
-            for bterm in bterms:
-                # if a pin name matches multiple regexes, their order will be
-                # arbitrary. More refinement requires more strict regexes (or just
-                # the exact pin name).
-                pin_name = bterm.getName()
-                if re.match(regex, pin_name) is not None:
-                    if bterm in bterm_regex_map:
-                        print(
-                            "Error: Multiple regexes matched",
-                            pin_name,
-                            ". Those are",
-                            bterm_regex_map[bterm],
-                            "and",
-                            regex,
-                        )
-                        sys.exit(os.EX_DATAERR)
-                    bterm_regex_map[bterm] = regex
-                    pin_placement[side].append(bterm)  # to maintain the order
+            if regex[0] == "$":  # Sign of Virtual Pins
+                try:
+                    virtual_pins_count = int(regex[1:])
+                    pin_placement[side].append(virtual_pins_count)
+                except ValueError:
+                    print("You provided invalid values for virtual pins")
+                    sys.exit(1)
+            else:
+                regex += "$"  # anchor
+                for bterm in bterms:
+                    # if a pin name matches multiple regexes, their order will be
+                    # arbitrary. More refinement requires more strict regexes (or just
+                    # the exact pin name).
+                    pin_name = bterm.getName()
+                    if re.match(regex, pin_name) is not None:
+                        if bterm in bterm_regex_map:
+                            print(
+                                f"Error: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}"
+                            )
+                            sys.exit(os.EX_DATAERR)
+                        bterm_regex_map[bterm] = regex
+                        pin_placement[side].append(bterm)  # to maintain the order
 
     unmatched_bterms = [bterm for bterm in bterms if bterm not in bterm_regex_map]
 
@@ -321,13 +357,6 @@ def io_place(
                 random_side = random.choice(list(pin_placement.keys()))
                 pin_placement[random_side].append(bterm)
 
-    assert len(reader.block.getBTerms()) == len(
-        pin_placement["#N"]
-        + pin_placement["#E"]
-        + pin_placement["#S"]
-        + pin_placement["#W"]
-    )
-
     # generate slots
 
     DIE_AREA = reader.block.getDieArea()
@@ -339,9 +368,11 @@ def io_place(
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
     origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
+    print(f"Horizontal Tracks Origin: {origin}, Count: {count}, Step: {step}")
     h_tracks = grid_to_tracks(origin, count, step)
 
     origin, count, step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
+    print(f"Vertical Tracks Origin: {origin}, Count: {count}, Step: {step}")
     v_tracks = grid_to_tracks(origin, count, step)
 
     for rev in reverse_arr:
@@ -350,20 +381,25 @@ def io_place(
     # create the pins
     for side in pin_placement:
         if side in ["#N", "#S"]:
-            slots = equally_spaced_sequence(len(pin_placement[side]), v_tracks)
+            slots, pin_placement[side] = equally_spaced_sequence(
+                side, pin_placement[side], v_tracks
+            )
         else:
-            slots = equally_spaced_sequence(len(pin_placement[side]), h_tracks)
+            slots, pin_placement[side] = equally_spaced_sequence(
+                side, pin_placement[side], h_tracks
+            )
 
         assert len(slots) == len(pin_placement[side])
 
         for i in range(len(pin_placement[side])):
             bterm = pin_placement[side][i]
             slot = slots[i]
+            # print(f"Pin name: {bterm.getName()}, placed at slot: {slot}")
 
             pin_name = bterm.getName()
             pins = bterm.getBPins()
             if len(pins) > 0:
-                print("Warning:", pin_name, "already has shapes. Modifying them")
+                print(f"Warning: {pin_name} already has shapes. Modifying them")
                 assert len(pins) == 1
                 pin_bpin = pins[0]
             else:
