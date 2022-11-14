@@ -40,15 +40,21 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
     actual_pin_count = len(side_pin_placement)
     total_pin_count = actual_pin_count + virtual_pin_count
     for i in range(len(side_pin_placement)):
-        if isinstance(side_pin_placement[i], int):  # This is an int value indicating virtual pins
+        if isinstance(
+            side_pin_placement[i], int
+        ):  # This is an int value indicating virtual pins
             virtual_pin_count = virtual_pin_count + side_pin_placement[i]
-            actual_pin_count = actual_pin_count - 1  # Decrement actual pin count, this value was only there to indicate virtual pin count
+            actual_pin_count = (
+                actual_pin_count - 1
+            )  # Decrement actual pin count, this value was only there to indicate virtual pin count
             total_pin_count = actual_pin_count + virtual_pin_count
     result = []
     tracks = len(possible_locations)
 
     if total_pin_count > tracks:
-        print(f"There are more pins/virtual_pins: {total_pin_count}, than places to put them: {tracks}. Try making your floorplan area larger.")
+        print(
+            f"There are more pins/virtual_pins: {total_pin_count}, than places to put them: {tracks}. Try making your floorplan area larger."
+        )
         sys.exit(1)
     elif total_pin_count == tracks:
         return possible_locations  # All positions.
@@ -78,7 +84,9 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
                 current_track += tracks_per_pin
             else:  # Virtual Pins, so just leave their needed spaces
                 current_track += tracks_per_pin * side_pin_placement[i]
-        side_pin_placement = [pin for pin in side_pin_placement if not isinstance(pin, int)]  # Remove the virtual pins from the side_pin_placement list
+        side_pin_placement = [
+            pin for pin in side_pin_placement if not isinstance(pin, int)
+        ]  # Remove the virtual pins from the side_pin_placement list
 
     print(f"Placement details for the {side} side")
     print("Virtual pin count: ", virtual_pin_count)
@@ -328,7 +336,9 @@ def io_place(
                     pin_name = bterm.getName()
                     if re.match(regex, pin_name) is not None:
                         if bterm in bterm_regex_map:
-                            print(f"Error: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}")
+                            print(
+                                f"Error: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}"
+                            )
                             sys.exit(os.EX_DATAERR)
                         bterm_regex_map[bterm] = regex
                         pin_placement[side].append(bterm)  # to maintain the order
@@ -371,9 +381,13 @@ def io_place(
     # create the pins
     for side in pin_placement:
         if side in ["#N", "#S"]:
-            slots, pin_placement[side] = equally_spaced_sequence(side, pin_placement[side], v_tracks)
+            slots, pin_placement[side] = equally_spaced_sequence(
+                side, pin_placement[side], v_tracks
+            )
         else:
-            slots, pin_placement[side] = equally_spaced_sequence(side, pin_placement[side], h_tracks)
+            slots, pin_placement[side] = equally_spaced_sequence(
+                side, pin_placement[side], h_tracks
+            )
 
         assert len(slots) == len(pin_placement[side])
 
