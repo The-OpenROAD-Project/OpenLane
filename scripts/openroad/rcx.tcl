@@ -14,7 +14,7 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read_lef $::env(RCX_LEF)
 read_def $::env(RCX_DEF)
-read_libs -override "$::env(RCX_LIB)"
+read_libs -override "$::env(LIB_SYNTH)"
 
 set_propagated_clock [all_clocks]
 
