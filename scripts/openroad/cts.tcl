@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -override_libs "$::env(LIB_CTS)"
+read -override_libs "$::env(LIB_SYNTH_MERGED)"
 
 set max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # must convert to seconds
 set max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # must convert to farad
