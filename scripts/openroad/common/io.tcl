@@ -38,7 +38,7 @@ proc read_libs {args} {
         keys {-override}\
         flags {-multi_corner}
 
-    set libs $::env(LIB_SYNTH)
+    set libs $::env(LIB_SYNTH_COMPLETE)
 
     if { [info exists keys(-override)] } {
         set libs $keys(-override)
