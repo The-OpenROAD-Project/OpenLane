@@ -57,9 +57,10 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
         )
         sys.exit(1)
     elif total_pin_count == tracks:
-        return possible_locations  # All positions.
+    #return result, side_pin_placement
+        return possible_locations, side_pin_placement # All positions.
     elif total_pin_count == 0:
-        return []
+        return result, side_pin_placement
 
     # From this point, pin_count always < tracks.
     tracks_per_pin = math.floor(tracks / total_pin_count)  # >=1
