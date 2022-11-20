@@ -103,7 +103,7 @@ Note that ***the order of declarations matter here***: as seen in the following 
 
 #### Variable Reference
 
-If a string's value starts with `ref::`, you can interpolate exactly one variable at the beginning of your string.
+If a string's value starts with `ref::`, you can interpolate exactly one **string** variable at the beginning of your string.
 
 Like conditional execution, the order of declarations matter: i.e., you cannot reference a variable that is declared after the current expression.
 
@@ -171,6 +171,16 @@ It is important to note that, like variable referencing and conditional executio
 }
 ```
 > In this example, the first configuration is invalid, as B is used in a mathematical expression before declaration, but the latter is OK, evaluating to 8.
+
+You can also simply reference another number using this prefix:
+
+```json
+{
+    "A": 10,
+    "B": "expr::$A"
+}
+```
+> In this example, B will simply hold the value of A.
 
 ## Tcl
 These configuration files are simple Tcl scripts with environment variables that are sourced by the OpenLane flow. Again, Tcl config files are not recommended for newer designs, but is still maintained and supported at the moment.
