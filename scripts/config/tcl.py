@@ -241,6 +241,15 @@ def process_string(value: str, state: State) -> str:
         reference_variable = match[1]
         try:
             found = state.vars[reference_variable]
+            if type(found) != str:
+                if type(found) in [int, float]:
+                    raise InvalidConfig(
+                        f"Referenced variable {reference_variable} is a number and not a string: use expr::{match[0]} if you want to reference this number."
+                    )
+                else:
+                    raise InvalidConfig(
+                        f"Referenced variable {reference_variable} is not a string."
+                    )
             value = reference.replace(match[0], found)
             full_abspath = os.path.abspath(value)
 
