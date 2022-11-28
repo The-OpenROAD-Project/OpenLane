@@ -126,7 +126,7 @@ proc manual_macro_placement {args} {
         lappend arg_list --fixed
     }
 
-    try_catch openroad -python\
+    try_catch $::env(OPENROAD_BIN) -python\
         $::env(SCRIPTS_DIR)/odbpy/manual_macro_place.py {*}$arg_list |&\
         tee $::env(TERMINAL_OUTPUT) [index_file $::env(placement_logs)/macro_placement.log]
 

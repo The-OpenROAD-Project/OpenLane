@@ -102,7 +102,7 @@ proc prep_lefs {args} {
     if { $arg_values(-corner) == "nom" } {
         puts_verbose "Extracting the number of available metal layers from $arg_values(-tech_lef)..."
 
-        try_catch openroad -python\
+        try_catch $::env(OPENROAD_BIN) -python\
             $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
             -o $::env(TMP_DIR)/layers.list\
             $arg_values(-tech_lef)
