@@ -58,6 +58,8 @@ def manual_macro_place(reader, config, fixed):
     Places macros in positions and orientations specified by a config file
     """
 
+    db_units_per_micron = reader.block.getDbUnitsPerMicron()
+
     # read config
     macros = {}
     with open(config, "r") as config_file:
@@ -68,8 +70,8 @@ def manual_macro_place(reader, config, fixed):
                 continue
             line = line.split()
             macros[line[0]] = [
-                str(int(float(line[1]) * 1000)),
-                str(int(float(line[2]) * 1000)),
+                str(int(float(line[1]) * db_units_per_micron)),
+                str(int(float(line[2]) * db_units_per_micron)),
                 line[3],
             ]
 
