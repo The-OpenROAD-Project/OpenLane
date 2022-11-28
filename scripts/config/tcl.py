@@ -224,9 +224,9 @@ def process_string(value: str, state: State) -> str:
     if value.startswith(DIR_PREFIX):
         value = value.replace(DIR_PREFIX, f"ref::${DESIGN_DIR_VAR}/")
     elif value.startswith(PDK_DIR_PREFIX):
-        value = value.replace(DIR_PREFIX, f"ref::${PDKPATH_VAR}/")
+        value = value.replace(PDK_DIR_PREFIX, f"ref::${PDKPATH_VAR}/")
     elif value.startswith(SCL_DIR_PREFIX):
-        value = value.replace(DIR_PREFIX, f"ref::${SCLPATH_VAR}/")
+        value = value.replace(SCL_DIR_PREFIX, f"ref::${SCLPATH_VAR}/")
 
     if value.startswith(EXPR_PREFIX):
         try:
@@ -447,10 +447,18 @@ def from_json(output, exposed, extract_process_info, config_json):
             implicitly_exposed += [PDK_VAR]
         else:
             exposed_dict[PDK_VAR] = ""
+        if os.getenv(PDKPATH_VAR) is not None:
+            implicitly_exposed += [PDKPATH_VAR]
+        else:
+            exposed_dict[PDKPATH_VAR] = ""
         if os.getenv(SCL_VAR) is not None:
             implicitly_exposed += [SCL_VAR]
         else:
             exposed_dict[SCL_VAR] = ""
+        if os.getenv(SCLPATH_VAR) is not None:
+            implicitly_exposed += [SCLPATH_VAR]
+        else:
+            exposed_dict[SCLPATH_VAR] = ""
 
     exposed = list(exposed) + implicitly_exposed
     for key in exposed:
