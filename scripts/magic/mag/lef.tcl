@@ -17,11 +17,6 @@ if { $::env(MAGIC_WRITE_FULL_LEF) } {
 	lef write $::env(signoff_results)/$::env(DESIGN_NAME).lef
 } else {
 	puts "\[INFO\]: Writing abstract LEF"
-	if { [info exists ::env(FP_PDN_CORE_RING)] && $::env(FP_PDN_CORE_RING) == 1 } {
-		set tolerance 0.3
-		lef write $::env(signoff_results)/$::env(DESIGN_NAME).lef -hide
-	} else {
-		lef write $::env(signoff_results)/$::env(DESIGN_NAME).lef -hide
-	}
+	lef write $::env(signoff_results)/$::env(DESIGN_NAME).lef -hide
 }
 puts "\[INFO\]: LEF Write Complete"
