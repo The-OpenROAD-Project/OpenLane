@@ -15,7 +15,7 @@
     "FP_PDN_AUTO_ADJUST": false,
     "TEST_FLOAT_REF": "expr::$CLOCK_PERIOD",
     "TEST_FLOAT_CALC": "expr::2 * $CLOCK_PERIOD",
-    "TEST_POTENTIALLY_MALICIOUS_VARIABLE": "{}{}{}{}}}}{{{\"\"\"''''",
-    "TEST_INTERNAL_GLOB": "dir::../1509/src/*",
+    "TEST_POTENTIALLY_MALICIOUS_VARIABLE": "\t\\};puts hi;{\"\"\"''''",
+    "TEST_INTERNAL_GLOB": "dir::../1506/src/*",
     "TEST_EXTERNAL_GLOB": "dir::../*"
 }
