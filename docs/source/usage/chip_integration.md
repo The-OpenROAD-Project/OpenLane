@@ -31,7 +31,7 @@ You need to set the following environment variables in your configuration file f
 
 | Key | Description |
 |-|-|
-| `VERILOG_FILES` | Space-delimited list of Verilog files*. |
+| `VERILOG_FILES` | Whitespace-delimited list of Verilog files*. |
 | `VERILOG_FILES_BLACKBOX` | Black-box, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design. |
 | `EXTRA_LEFS` | LEF files for pre-hardened macros you incorporate into your design. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used to improve timing analysis. (Optional) |

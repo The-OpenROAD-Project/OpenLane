@@ -9,7 +9,7 @@ The default configuration files in this folder are loaded in the order described
 |Variable|Description|
 |-|-|
 | `DESIGN_NAME`   | The name of the top level module of the design        |
-| `VERILOG_FILES` | The path of the design's verilog files, space-delimited. |
+| `VERILOG_FILES` | The path of the design's verilog files, whitespace-delimited. |
 | `CLOCK_PERIOD`  | The clock period for the design in nanoseconds. |
 | `CLOCK_NET` | The name of the net input to root clock buffer used in Clock Tree Synthesis. |
 | `CLOCK_PORT`    | The name of the design's clock port used in Static Timing Analysis.   |
@@ -58,7 +58,7 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_SHARE_RESOURCES` | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_ADDER_TYPE` | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
 | `SYNTH_EXTRA_MAPPING_FILE` | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
-| `SYNTH_PARAMETERS` | Space-separated key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
+| `SYNTH_PARAMETERS` | Whitespace-delimited key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
 | `SYNTH_ELABORATE_ONLY` | "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. <br> (Default: `0`) |
 | `CLOCK_BUFFER_FANOUT` | Fanout of clock tree buffers. <br> (Default: `16`) |
 | `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
@@ -105,14 +105,14 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_CORE_RING` | Enables adding a core ring around the design. More details on the control variables in the pdk configurations documentation. 0=Disable 1=Enable. <br> (Default: `0`) |
 | `FP_PDN_ENABLE_RAILS` | Enables the creation of rails in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_PDN_ENABLE_MACROS_GRID` | Enables the connection of macros to the top level power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
-| `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. Comma separated list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>` |
+| `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. As a comma-delimited ([warning](#on-comma-delimited-variables)) list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>`  |
 | `FP_PDN_CHECK_NODES` | Enables checking for unconnected nodes in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_TAP_HORIZONTAL_HALO` | Specify the horizontal halo size around macros during tap insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_TAP_VERTICAL_HALO` | Specify the vertical halo size around macros during tap insertion. The value provided is in microns. <br> Default: set to the value of `FP_TAP_HORIZONTAL_HALO` |
 | `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> Default: set to the value of `FP_PDN_HORIZONTAL_HALO` |
 | `DESIGN_IS_CORE` | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
-| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). Check this [file][0] as an example. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
+| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_DEF` | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_LEF` | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_DEF_TEMPLATE` | Points to the DEF file to be used as a template when running `apply_def_template`. This will be used to exctract pin names, locations, shapes -excluding power and ground pins- as well as the die area and replicate all this information in the `CURRENT_DEF`. |
@@ -219,7 +219,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
 | `GRT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3` and `6`.  <br> (Default: `1`) |
-| `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma separated list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
+| `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `GRT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
 | `GRT_MACRO_EXTENSION` | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
@@ -323,4 +323,25 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_LVS_ERROR` | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 
-[0]: ./../../../designs/spm/pin_order.cfg
+### On comma-delimited variables
+:::{warning}
+Comma-delimited variables such as `FP_PDN_MACRO_HOOK` and `GRT_OBS` must be expressed in a pretty unorthodox way in JSON for now, either:
+
+```json
+    "FP_PDN_MACRO_HOOKS": "first item, second item, third item"
+```
+
+or:
+
+```json
+    "FP_PDN_MACRO_HOOKS": [
+        "first item,",
+        "second item,",
+        "third item"
+    ]
+```
+
+You'll notice that even as an array, all items except for the last item must include a comma in the string itself.
+
+This is an unfortunate limitation with how Tcl handles arrays, i.e., they're just whitespace-delimited strings.
+:::

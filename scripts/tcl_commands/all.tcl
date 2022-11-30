@@ -1039,7 +1039,7 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_spef_dir)] } {
         set destination $path/spef/multicorner
         if { [file exists $arg_values(-mc_spef_dir)] } {
-            exec rm -rf $destination
+            file delete -force $destination
             file copy -force $arg_values(-mc_spef_dir) $destination
         }
     }
@@ -1056,7 +1056,7 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_sdf_dir)] } {
         set destination $path/sdf/multicorner
         if { [file exists $arg_values(-mc_sdf_dir)] } {
-            exec rm -rf $destination
+            file delete -force $destination
             file copy -force $arg_values(-mc_sdf_dir) $destination
         }
     }
@@ -1275,6 +1275,16 @@ proc save_final_views {args} {
     # Aaand fire!
     save_views {*}$arg_list
 
+}
+
+proc run_post_run_hooks {} {
+    if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
+        puts_info "Running post run hook"
+        set result [exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py]
+        puts_info "$result"
+    } else {
+        puts_info "hooks/post_run.py not found, skipping"
+    }
 }
 
 package provide openlane 0.9

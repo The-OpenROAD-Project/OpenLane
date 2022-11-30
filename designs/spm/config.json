@@ -2,7 +2,6 @@
     "DESIGN_NAME": "spm",
     "VERILOG_FILES": "dir::src/*.v",
     "CLOCK_PERIOD": 10,
-    "TEST_FLOAT_REF": "expr::$CLOCK_PERIOD",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "ref::$CLOCK_PORT",
     "FP_PDN_VOFFSET": 7,

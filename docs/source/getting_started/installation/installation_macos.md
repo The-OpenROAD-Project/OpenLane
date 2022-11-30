@@ -1,4 +1,4 @@
-# Installation (macOS)
+# macOS 11+
 
 ```{include} installation_overview.md
 ```

@@ -123,11 +123,11 @@ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
 exit
 ```
 
-```{image} ../../_static/installation/spm.png
+```{image} ../../../_static/installation/spm.png
 ```
 
 :::{seealso}
-[Quickstart guide](quickstart.md)
+[Quickstart guide](../quickstart.md)
 
 [Ubuntu installation](installation_ubuntu.md)
 

@@ -1,4 +1,4 @@
-# Installation (Other Linux)
+# Other Linux
 
 ```{include} installation_overview.md
 ```
