@@ -18,6 +18,6 @@ insert_buffer\
 
 exec cp $::env(CURRENT_ODB) $::env(DESIGN_DIR)/out.odb
 
-try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py
+run_post_run_hooks
 
 puts_info "Done."

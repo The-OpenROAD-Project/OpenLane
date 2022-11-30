@@ -1,4 +1,4 @@
-# Installation (Containerless/Local)
+# Containerless/Local
 
 :::{warning}
 The local installer is no longer actively supported. Unless you ***absolutely*** know what you're doing, please use the Docker image.

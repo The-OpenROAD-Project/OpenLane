@@ -1,4 +1,4 @@
-# Installation (Ubuntu)
+# Ubuntu 20.04+
 
 ```{include} installation_overview.md
 ```

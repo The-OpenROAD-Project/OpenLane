@@ -1,4 +1,4 @@
-# Installation (Windows)
+# Windows 10+
 ```{include} installation_overview.md
 ```
 
@@ -13,12 +13,12 @@ The following is the recommended installation method under Windows. Other virtua
 3. Make sure that `WSL 2 Docker engine` is enabled and `Settings` -> `Resource` -> `WSL Integration` is enabled
 4. Make sure that option `Start Docker Desktop when you login` is enabled in `Docker Desktop` -> `Settings`
 
-:::{figure} ../../_static/installation/wsl_docker_settings.png
+:::{figure} ../../../_static/installation/wsl_docker_settings.png
 :::
 
 5. Click the Windows icon, type in "Windows PowerShell" and open it.
 
-:::{figure} ../../_static/installation/powershell.png
+:::{figure} ../../../_static/installation/powershell.png
 :::
 
 6. Install Ubuntu using the following command: `wsl --install -d Ubuntu`
@@ -60,7 +60,7 @@ https://docs.docker.com/go/wsl2/
 8. Launch "Ubuntu" from your Start Menu.
 
 
-:::{figure} ../../_static/installation/wsl.png
+:::{figure} ../../../_static/installation/wsl.png
 :::
 
 9. Follow the steps shown below.

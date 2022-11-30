@@ -370,7 +370,7 @@ def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, 
 
 
 def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
-    character_rx = re.compile(r"([{}])")
+    character_rx = re.compile(r"([\\{}])")
     for key, value in key_value_pairs.items():
         if value is None:
             continue

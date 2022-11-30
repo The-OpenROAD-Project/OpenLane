@@ -99,8 +99,8 @@ proc run_parasitics_sta {args} {
     set ::env(MC_SPEF_DIR) "$mca_results_dir/spef"
     set ::env(MC_SDF_DIR) "$mca_results_dir/sdf"
 
-    exec rm -rf $::env(MC_SPEF_DIR)
-    exec rm -rf $::env(MC_SDF_DIR)
+    file delete -force $::env(MC_SPEF_DIR)
+    file delete -force $::env(MC_SDF_DIR)
 
     foreach {process_corner lef ruleset} {
         min MERGED_LEF_MIN RCX_RULES_MIN
