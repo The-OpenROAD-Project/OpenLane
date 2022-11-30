@@ -38,8 +38,8 @@ set ::env(FP_PDN_IRDROP) 1
 set ::env(FP_IO_MODE) 1; # 0 matching mode - 1 random equidistant mode
 set ::env(FP_IO_HLENGTH) 4
 set ::env(FP_IO_VLENGTH) 4
-set ::env(FP_IO_VEXTEND) ""
-set ::env(FP_IO_HEXTEND) ""
+set ::env(FP_IO_VEXTEND) "-1"
+set ::env(FP_IO_HEXTEND) "-1"
 set ::env(FP_IO_VTHICKNESS_MULT) 2
 set ::env(FP_IO_HTHICKNESS_MULT) 2
 set ::env(FP_IO_MIN_DISTANCE) 3
