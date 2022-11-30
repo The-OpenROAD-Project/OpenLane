@@ -49,8 +49,6 @@ proc init_floorplan {args} {
         -netlist_in \
         -save "to=$::env(floorplan_tmpfiles),name=initial_fp,def,sdc,odb"
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log $log -netlist_in
-
     check_floorplan_missing_lef
     check_floorplan_missing_pins
 
