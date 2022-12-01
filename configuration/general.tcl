@@ -70,6 +70,7 @@ set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 set ::env(MAGIC_DEF_NO_BLOCKAGES) 1
 set ::env(MAGIC_DEF_LABELS) 1
+set ::env(MAGIC_GDS_ALLOW_ABSTRACT) 0
 
 ### Klayout-Specific
 set ::env(RUN_KLAYOUT) 1
