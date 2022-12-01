@@ -83,6 +83,10 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 
 	gds nodatestamp yes
 
+    if { $::env(MAGIC_GDS_ALLOW_ABSTRACT) } { 
+        gds abstract allow
+    }
+
 	gds write $::env(MAGIC_GDS)
 	puts "\[INFO\]: GDS Write Complete"
 }
