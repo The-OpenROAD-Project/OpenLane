@@ -21,8 +21,9 @@ import sys
 import json
 import pathlib
 import traceback
-from os.path import dirname, abspath, join
+import functools
 from typing import Optional
+from os.path import dirname, abspath, join
 
 sys.path.append(os.path.dirname(__file__))
 import includedyaml as yaml  # noqa: E402
@@ -65,7 +66,10 @@ def verify_versions(
             if not os.getenv("PDK_ROOT"):
                 pdk_root = join(openlane_dir, "pdks")
 
-            if pdk.startswith("sky130"):
+            if functools.reduce(
+                lambda x, y: x or y,
+                [pdk.startswith(prefix) for prefix in ["sky130", "gf180mcu"]],
+            ):
                 pdk_dir = join(pdk_root, pdk)
 
                 if not pathlib.Path(pdk_dir).is_dir():
