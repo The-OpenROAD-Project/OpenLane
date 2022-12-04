@@ -63,6 +63,21 @@ PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 
 export PDK ?= sky130A
 
+ifeq ($(PDK),sky130A)
+PDK_FAMILY = sky130
+endif
+ifeq ($(PDK),sky130B)
+PDK_FAMILY = sky130
+endif
+ifeq ($(PDK),gf180mcuA)
+PDK_FAMILY = gf180mcu
+endif
+ifeq ($(PDK),gf180mcuB)
+PDK_FAMILY = gf180mcu
+endif
+ifeq ($(PDK),gf180mcuC)
+PDK_FAMILY = gf180mcu
+endif
 
 PDK_OPTS += -e PDK=$(PDK)
 
@@ -109,7 +124,7 @@ mount:
 .PHONY: pdk
 pdk: venv/created
 	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
-	./venv/bin/volare enable
+	./venv/bin/volare enable --pdk $(PDK_FAMILY)
 
 .PHONY: survey
 survey:
