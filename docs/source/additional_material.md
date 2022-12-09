@@ -15,6 +15,8 @@ Additionally, we're also going to link to academic publications about OpenLane i
 ### Community
 - [Introduction to OpenMPW, VLSI.jp](https://vlsi.jp/Introduction_to_OpenMPW.html#introduction-to-openmpw)
 - [OpenMPW入門 改訂版, VLSI.jp](https://vlsi.jp/OpenMPW.html)
+- [RgGen ✕ OpenMPW Walkthrough](https://vlsi.jp/RgGenxOpenMPW_eng.html#rggen--openmpw-walkthrough)
+- [RgGen ✕ OpenMPWでLSIを焼こう！](https://vlsi.jp/RgGenxOpenMPW.html)
 
 ## Videos
 - [Aboard Caravel, Ahmed Ghazy](https://www.youtube.com/watch?v=9QV8SDelURk)
