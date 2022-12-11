@@ -1131,7 +1131,7 @@ proc label_macro_pins {args} {
         -input $::env(CURRENT_ODB) \
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
-        {*}$extra_args
+        {*}$arg_values(-extra_args)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
