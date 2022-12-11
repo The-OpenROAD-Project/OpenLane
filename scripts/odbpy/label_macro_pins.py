@@ -60,7 +60,7 @@ def label_macro_pins(
 
     extra_mappings = []
     extra_mappings_pin_names = []
-    if map is not "":
+    if map != "":
         extra_mappings = [tuple(m.split()) for m in map.split(";")]
         extra_mappings_pin_names = [tup[2] for tup in extra_mappings]
 
