@@ -42,7 +42,13 @@ from reader import OdbReader, click_odb
 )
 @click_odb
 def label_macro_pins(
-    netlist_def, verbose, all_shapes, pad_pin_name, map, input_lef, reader,
+    netlist_def,
+    verbose,
+    all_shapes,
+    pad_pin_name,
+    map,
+    input_lef,
+    reader,
 ):
     """
     Takes a DEF file with no PINS section, a LEF file that has the shapes of all
@@ -230,9 +236,11 @@ def label_macro_pins(
             ]
         )
     )
-    assert pad_pins_to_label_count == len(bterms), (
-        "Some pins were not going to be labeled %d/%d"
-        % (pad_pins_to_label_count, len(bterms),)
+    assert pad_pins_to_label_count == len(
+        bterms
+    ), "Some pins were not going to be labeled %d/%d" % (
+        pad_pins_to_label_count,
+        len(bterms),
     )
     print("Labeling", len(pad_pin_map), "pads")
     print("Labeling", pad_pins_to_label_count, "pad pins")
