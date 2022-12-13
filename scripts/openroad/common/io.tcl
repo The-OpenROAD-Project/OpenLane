@@ -68,7 +68,7 @@ proc read_libs {args} {
             }
         }
     } else {
-        foreach lib $libs{
+        foreach lib $libs {
             read_liberty $lib
         }
 
