@@ -21,6 +21,10 @@ drc off
 gds readonly true
 gds rescale false
 
+if { $::env(MAGIC_GDS_POLYGON_SUBCELLS) } {
+    gds polygon subcells true
+}
+
 if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 	set gds_files_in $::env(EXTRA_GDS_FILES)
 	foreach gds_file $gds_files_in {
