@@ -18,7 +18,7 @@ designs/<design_name>
 In the configuration file (`config.json`), you should edit the required variables and the optional variables, if needed. Further information about the variables can be found [here](../reference/configuration.md).
 > Note: config.json/config.tcl is a global configuration for all PDKs and SCLs. For more information about design configuration files, including how to set up PDK/SCL-specific variables, please see [this file](../reference/configuration_files.md).
 
-It is recommended to place the design's verilog files in a `src` directory inside the design's folder as following:
+It is recommended to place the verilog files of the design in a `src` directory inside the folder of the design as following:
 
 ```bash
 designs/<design_name>

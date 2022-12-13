@@ -3,7 +3,7 @@ Using OpenLane, you can produce a GDSII from an RTL for macros, and then use the
 
 In this document we will go through the hardening steps and discuss in some detail what considerations should be made when hardening your macro.
 
-> **NOTE:** For all the configurations mentioned in this documentation and any other openlane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
+> **NOTE:** For all the configurations mentioned in this documentation and any other OpenLane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
 
 ## Base Requirements
 
@@ -16,10 +16,10 @@ The basic configuration `config.json` or `config.tcl` file should at least conta
 | `DESIGN_NAME` | The Verilog module name of your design. |
 | `VERILOG_FILES` | Space-delimited list of Verilog files used in your design*. |
 | `CLOCK_PORT` | List of clock ports used in your design. If your design is purely combinational, you can set this value to `""` (Tcl) or `null` (JSON). |
-| `DESIGN_IS_CORE` | `1/0` (Tcl), `true/false` (json): Whether your design is a core or a reusable macro: for macros, you want to set this to `0`/`false`<sup>**</sup>. |
+| `DESIGN_IS_CORE` | `1/0` (Tcl), `true/false` (JSON): Whether your design is a core or a reusable macro: for macros, you want to set this to `0`/`false`<sup>**</sup>. |
 > \* The ``` `include ``` directive is not supported.
 >
-> \** If you're hardening the chip core, check [this][4] for more details about chip integration.
+> \** If you are hardening the chip core, check [this][4] for more details about chip integration.
 
 So, for example:
 
@@ -49,7 +49,7 @@ set ::env(DESIGN_IS_CORE) {0}
 </tr>
 </table>
 
-These configurations should get you through the flow with the all other configurations using openlane default values, read about those [here][0]. However, in the coming sections we will take a closer look on how to determine the best values for most of the other configurations.
+These configurations should get you through the flow with the all other configurations using OpenLane default values, read about those [here][0]. However, in the coming sections we will take a closer look on how to determine the best values for most of the other configurations.
 
 ## Synthesis
 
@@ -59,7 +59,7 @@ Then you need to consider the best values for the `SYNTH_MAX_FANOUT`.
 
 If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1` (Tcl)/`true` (JSON), which will postpone the flattening of the design during synthesis until the very end.
 
-Other configurations like `SYNTH_SIZING`, `SYNTH_BUFFERING`, and other synthesis configurations don't have to be changed. However, the advanced user can check [this][0] documentation for more details about those configurations and their values.
+Other configurations like `SYNTH_SIZING`, `SYNTH_BUFFERING`, and other synthesis configurations do not have to be changed. However, the advanced user can check [this][0] documentation for more details about those configurations and their values.
 
 ## Static Timing Analysis
 
@@ -67,7 +67,7 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 1. The clock ports in the design, explained in the base requirements section `CLOCK_PORT`.
 
-2. The clock period that you prefer the design to run with. This could be set using `CLOCK_PERIOD` and the unit is ns. It's important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
+2. The clock period that you prefer the design to run with. This could be set using `CLOCK_PERIOD` and the unit is ns. It is important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
 
 3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
 
@@ -130,7 +130,7 @@ For Global Placement, the most important value would be `PL_TARGET_DENSITY` whic
 
 - If your design is not a tiny design, then `PL_TARGET_DENSITY` should have a value that is `FP_CORE_UTIL` + 1~5%. Note that `FP_CORE_UTIL` has a value from 0 to 100, while `PL_TARGET_DENSITY` has a value from 0 to 1.0.
 
-- If your design is a tiny design, then you may need to set `PL_RANDOM_GLB_PLACEMENT` to `1` or `PL_RANDOM_INITIAL_PLACEMENT` to 1. Also, `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5). In very tiny designs (i.e. 1 std cell designs), the approximated DIE AREA in the floorplan stage may not leave enough room to insert tap cells in the design. Thus, it's recommended to use `FP_SIZING` as `absolute` and manually setting an appropriate `DIE_AREA`, check [the floorplan section](#floorplan) for more details. You may also want to reduce the values for `FP_PDN_HORIZONTAL_HALO` and `FP_PDN_VERTICAL_HALO`. You can read more about those [here][0].
+- If your design is a tiny design, then you may need to set `PL_RANDOM_GLB_PLACEMENT` to `1` or `PL_RANDOM_INITIAL_PLACEMENT` to 1. Also, `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5). In very tiny designs (i.e. 1 std cell designs), the approximated DIE AREA in the floorplan stage may not leave enough room to insert tap cells in the design. Thus, it is recommended to use `FP_SIZING` as `absolute` and manually setting an appropriate `DIE_AREA`, check [the floorplan section](#floorplan) for more details. You may also want to reduce the values for `FP_PDN_HORIZONTAL_HALO` and `FP_PDN_VERTICAL_HALO`. You can read more about those [here][0].
 
 Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here][0].
 
@@ -152,11 +152,11 @@ You can read more about that [here][0].
 
 ## Clock Tree Synthesis
 
-Most of the values for clock tree synthesis are (PDK, STD_CELL_LIBRARY) specific and you can read more about those [here][8].
+Most of the values for clock tree synthesis are (PDK,STD_CELL_LIBRARY) specific and you can read more about those [here][8].
 
 You can disable it by setting `CLOCK_TREE_SYNTH` to `0`.
 
-If you don't want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
+If you do not want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 
 ## Power Grid/Power Distribution Network
 See [here][9].
@@ -171,7 +171,7 @@ Here, you have four options to choose from and they are controlled by setting `D
 
 2. A fake diode is inserted for each PIN and connected to it, then after an antenna check is run and the fake diodes are replaced with real ones if the pin is violated.
 
-3. Rely on OpenROAD:FastRoute antenna avoidance flow to insert the diodes during global routing by using the Antenna Rule Checker and fixing violations. You can execute this iteratively by setting `GRT_MAX_DIODE_INS_ITERS`, it is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
+3. Rely on OpenROAD:FastRoute antenna avoidance flow to insert the diodes during global routing by using the Antenna Rule Checker and fixing violations. You can execute this iteratively by setting `GRT_MAX_DIODE_INS_ITERS`, it is capable to detect any divergence, so, you will probably end up with the lowest # of Antenna violations possible.
 
 4. A smarter version of strategy 1 that attempts to reduce the number of inserted diodes and places a diode at each design pin.
 
@@ -197,7 +197,7 @@ You can control whether the magic DRC should be done on GDSII or on LEF/DEF abst
 
 You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `USE_ARC_ANTENNA_CHECK`. The magic antenna checker was more reliable at the time of writing this documentation but it comes with a huge runtime trade-off and the accuracy gain is not significant enough to accept that tradeoff; thus, the default is OpenROAD's ARC.
 
-You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDSII then it's going to be down to the device/transistor level, otherwise using the LEF/DEF views then it's going to be down to the cell/block level. This is controlloed by `MAGIC_EXT_USE_GDS`.
+You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDSII then it is going to be down to the device/transistor level, otherwise using the LEF/DEF views then it is going to be down to the cell/block level. This is controlled by `MAGIC_EXT_USE_GDS`.
 
 You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
 
@@ -209,7 +209,7 @@ The final GDSII file can be found under `<run-path>/results/final/gds`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
-If you want to create further tweaks in the flow that the abundant configurations don't allow, make sure to check [this][2] for more details about the interactive mode of the OpenLane flow.
+If you want to create further tweaks in the flow that the abundant configurations do not allow, make sure to check [this][2] for more details about the interactive mode of the OpenLane flow.
 
 [0]: ../reference/configuration.md
 [1]: ../reference/openlane_commands.md
