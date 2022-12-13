@@ -66,7 +66,7 @@ puts "\n========================================================================
 puts "report_parasitic_annotation -report_unannotated"
 puts "============================================================================"
 report_parasitic_annotation -report_unannotated
-puts "annotated_check_report_end"
+puts "parastic_annotation_check"
 
 puts "check_slew"
 puts "\n==========================================================================="
