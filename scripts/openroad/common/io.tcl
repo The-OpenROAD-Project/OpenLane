@@ -68,7 +68,9 @@ proc read_libs {args} {
             }
         }
     } else {
-        read_liberty $libs
+        foreach lib $libs{
+            read_liberty $lib
+        }
 
         if { [info exists ::env(EXTRA_LIBS) ] } {
             foreach lib $::env(EXTRA_LIBS) {
