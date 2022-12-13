@@ -80,6 +80,12 @@ puts "\n======================= Fastest Corner =================================
 report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff
 puts "check_report_end"
 
+puts "parastic_annotation_check"
+puts "\n==========================================================================="
+puts "report_parasitic_annotation -report_unannotated"
+puts "============================================================================"
+report_parasitic_annotation -report_unannotated
+puts "parastic_annotation_check_end"
 
 puts "check_slew"
 puts "\n==========================================================================="

@@ -61,6 +61,13 @@ puts "==========================================================================
 report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded
 puts "check_report_end"
 
+puts "parastic_annotation_check"
+puts "\n==========================================================================="
+puts "report_parasitic_annotation -report_unannotated"
+puts "============================================================================"
+report_parasitic_annotation -report_unannotated
+puts "parastic_annotation_check"
+
 puts "check_slew"
 puts "\n==========================================================================="
 puts " report_check_types -max_slew -max_cap -max_fanout -violators"
