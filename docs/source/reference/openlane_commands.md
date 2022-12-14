@@ -93,7 +93,7 @@ Most of the following commands' implementation exists in this [file][1]
 | `check_floorplan_missing_pins` | | Checks if the LEF contains all pins, and that EXTRA_LEFS was set correctly. |
 | `check_cts_clock_nets` | | Checks if clock tree synthesis was successful and clock nets were added. |
 | `check_replace_divergence` | | Catches replace divergence and exits the flow because global placement failed. |
-| `check_macro_placer_num_solns` | | Checks if macro placment was successful using basic placement. |
+| `check_macro_placer_num_solns` | | Checks if macro placement was successful using basic placement. |
 | `quit_on_tr_drc` | | Checks for DRC violations after routing and exits the flow if any was found. Controlled by `QUIT_ON_TR_DRC`. |
 | `quit_on_magic_drc` | | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. Controlled by `QUIT_ON_MAGIC_DRC`. |
 | `quit_on_lvs_error` | | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. Controlled by `QUIT_ON_LVS_ERROR`. |
