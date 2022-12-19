@@ -344,10 +344,10 @@ proc run_lvs_batch {args} {
         set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
     }
     if { [info exists arg_values(-net)] } {
-        set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
+        set ::env(CURRENT_POWERED_NETLIST) [file normalize $arg_values(-net)]
     }
 
-    assert_files_exist "$::env(CURRENT_GDS) $::env(CURRENT_NETLIST)"
+    assert_files_exist "$::env(CURRENT_GDS) $::env(CURRENT_POWERED_NETLIST)"
 
     set ::env(MAGIC_EXT_USE_GDS) 1
     set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).gds.spice
@@ -357,7 +357,14 @@ proc run_lvs_batch {args} {
         run_magic_spice_export
     }
 
+    set ::env(LVS_INSERT_POWER_PINS) 0
     run_lvs
+
+    calc_total_runtime
+    save_state
+    generate_final_summary_report
+    puts_success "LVS success."
+    show_warnings "Note that the following warnings have been generated:"
 }
 
 
