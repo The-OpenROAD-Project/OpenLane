@@ -43,6 +43,7 @@ These variables are optional that can be specified in the design configuration f
 
 |Variable|Description|
 |-|-|
+| `SYNTH_AUTONAME` | Add a synthesis step to generate names for instances. This results in instance names that can be very long, but may be more useful than the internal names that are six digit numbers. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_BIN` | The yosys binary used in the flow. <br> (Default: `yosys`) |
 | `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `33.5` ff)|
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `10` cells) |
