@@ -32,7 +32,7 @@ In this case the absolute path is used, if the PDK location is different then th
 Next, configure the GDS files of the hard macro. OpenLane configuration of GDS is `EXTRA_GDS_FILES`.
 
 :::{warning}
-It is the user's responsibility to make sure that GDS matches LEF files.
+It is the responsibility of the user to make sure that GDS matches LEF files.
 :::
 
 ```json
@@ -213,7 +213,7 @@ Set the following floorplan parameters:
 "PL_TARGET_DENSITY": 0.5,
 ```
 
-`FP_SIZING` is set to `absolute` and it will tell the floorplan to use `DIE_AREA` as macroblock's size.
+`FP_SIZING` is set to `absolute` and it will tell the floorplan to use `DIE_AREA` as the size of the macroblock.
 Next, set the `DIE_AREA`. This value is carefully constructed.
 
 :::{warning}

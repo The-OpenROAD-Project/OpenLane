@@ -1,6 +1,6 @@
 # Regression & Exploration
 ## Overview
-OpenLane provides `run_designs.py`, a script that can do multiple runs in a parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). For examples, check the [Usage](#usage) section. 
+OpenLane provides `run_designs.py`, a script that can do multiple runs in parallel using different configurations. A run consists of a set of designs and a configuration file that contains the configuration values. It is useful to explore the design implementation using different configurations to figure out the best one(s). For examples, check the [Usage](#usage) section. 
 
 Also, it can be used for testing the flow by running the flow against several designs using their best configurations. For example the following has two runs: spm and xtea using their default configuration files `config.tcl.` :
 ```
@@ -95,7 +95,7 @@ The script can be used in two ways
         This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific information, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
 
 
-    It's important to note that the used configuration in the expression should be assigned a value or a range of values preceding its use in the file.
+    It is important to note that the used configuration in the expression should be assigned a value or a range of values preceding its use in the file.
 
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*

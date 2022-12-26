@@ -36,7 +36,7 @@ You need to set the following environment variables in your configuration file f
 | `EXTRA_LEFS` | LEF files for pre-hardened macros you incorporate into your design. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used to improve timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | GDS files for pre-hardened macros you incorporate into your design. |
-| `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (json): Should be set to true if you're using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
+| `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (JSON): Should be set to true if you are using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
 | `MACRO_PLACEMENT_CFG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
 > \* The ``` `include ``` directive is not supported.
 
@@ -54,7 +54,7 @@ You need to set ***all environment variables mentioned in [Hardening the Core](#
 
 | Key | Description |
 |-|-|
-| `SYNTH_FLAT_TOP` | `1/0` (Tcl), `true/false` (json): Flattens the padframe if true (and presented in a chip_io module). Otherwise, you can harden it separately as indicated in [this flow][4].  |
+| `SYNTH_FLAT_TOP` | `1/0` (Tcl), `true/false` (JSON): Flattens the padframe if true (and presented in a chip_io module). Otherwise, you can harden it separately as indicated in [this flow][4].  |
 
 The following inputs are provided to produce the final GDSII:
 
@@ -75,7 +75,7 @@ Given these inputs the following [interactive script][5] script. Mainly, it does
 -  Runs the top level netlist through yosys.
 -  Runs floorplan.
 -  Performs manual placement of the core macros, this sample has many cores, however for full automation you should have only a single core.
--  legalize the placement.
+-  Legalize the placement.
 -  Removes Nets and Pins to a different file.
 -  This stages is skipped because the design has many cores and so fully automated power routing is not possible. However if you only have a single core, you can perform automatic power routing by adding `power_routing` at this stage in your interactive script.
 -  Route the design.

@@ -12,7 +12,7 @@ Keep in mind that these designs are not ready for production and are just used t
 
 ### Create the memory macro design
 
-Let's create the design. The following command will create a directory `design/mem_1r1w/` and one file `config.json` that will be mostly empty.
+Let us create the design. The following command will create a directory `design/mem_1r1w/` and one file `config.json` that will be mostly empty.
 
 ```
 ./flow.tcl -design mem_1r1w -init_design_config -add_to_designs
@@ -32,7 +32,7 @@ the router will not be able to route your design, therefore crashing with crypti
 
 ### Create the RTL files
 
-Then we need to create/copy the RTL files. The recommended location for files is `design/mem_1r1w/src/`. Let's put a simple counter in there.
+Then we need to create/copy the RTL files. The recommended location for files is `design/mem_1r1w/src/`. Let us put a simple counter in there.
 
 Create `design/mem_1r1w/src/mem_1r1w.v` file and put following content:
 
@@ -145,7 +145,7 @@ Then add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS` and `EXTRA_GDS_FILES` to the `co
 
 This will add the LEF abstract representation of the macroblock. This abstraction file contains only layers required by tools.
 In contrast, GDS contains all of the layers and is used to generate the final GDS file.
-Mismatches between these files is not allowed. It is the users' responsibility to ensure that they match.
+Mismatches between these files is not allowed. It is the responsibility of the users to ensure that they match.
 
 :::{warning}
 Check for name collisions between the blackboxed macroblocks that have the same name but different parameters,

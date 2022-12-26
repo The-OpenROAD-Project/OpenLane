@@ -6,7 +6,7 @@
 This page assumes you have already installed OpenLane. Check the sidebar to install OpenLane if you haven't already.
 :::
 
-This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory strucutre.
+This guide covers running the flow on existing desings, adding new designs and quick overview of the design directory structure.
 
 ## Starting the OpenLane Environment
 
