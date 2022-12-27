@@ -1,4 +1,4 @@
-> Note: Information in this document may be out of date. It's always a good idea to take a look at the canonical documentation for OpenROAD's pdngen utility: https://openroad.readthedocs.io/en/latest/main/src/pdn/README.html
+> Note: Information in this document may be out of date. It is always a good idea to take a look at the canonical documentation for OpenROAD's pdngen utility: https://openroad.readthedocs.io/en/latest/main/src/pdn/README.html
 
 # Power Grid/Power Distribution Network
 
@@ -21,7 +21,7 @@ Therefore at the top level typically you only have the core block. All you need 
 
 ## Core Level
 
-Let's clarify here, before delving into details, that with each hierarchy level you lose one routing metal layer. For example, in the skywater pdk the metal stack has 5 layers, thus for the core level you can use all layers up to met5; however, if you have another macro inside your core, that macro can only use up to met4, and so forth.
+Let us clarify here, before delving into details, that with each hierarchy level you lose one routing metal layer. For example, in the skywater pdk the metal stack has 5 layers, thus for the core level you can use all layers up to met5; however, if you have another macro inside your core, that macro can only use up to met4, and so forth.
 
 The first decision to make at the core level is the core ring. So first, you need to know how many power domains do you need to use, and so how many core rings do you require. This can be easily set by the following configurations:
 
@@ -55,7 +55,7 @@ set ::env(SYNTH_USE_PG_PINS_DEFINES) "USE_POWER_PINS"
 </tr>
 </table>
 
-Here we're requiring 4 power domains. For each `VDD_NETS` there is a corresponding `GND_NETS`. Those net names must also exist in the RTL and must be connected to each hard macro inside your core explicitly in the RTL, and those must be guarded with the value given to `SYNTH_USE_PG_PINS_DEFINES`. If the internal modules are going to be flattened, then there is no need to reflect this connection in the RTL for those modules that will be flattened with the core module. For the example above, Here is the required RTL reflection:
+Here we are requiring 4 power domains. For each `VDD_NETS` there is a corresponding `GND_NETS`. Those net names must also exist in the RTL and must be connected to each hard macro inside your core explicitly in the RTL, and those must be guarded with the value given to `SYNTH_USE_PG_PINS_DEFINES`. If the internal modules are going to be flattened, then there is no need to reflect this connection in the RTL for those modules that will be flattened with the core module. For the example above, Here is the required RTL reflection:
 
 ```verilog
 `ifdef USE_POWER_PINS
@@ -188,9 +188,9 @@ At this stage you have automated the power grid generation for the Core Module.
 
 ## Macro Level
 
-For the skywater libraries the hierarchy typically can go one level down at most otherwise you will only have two routing layers, which is usually not recommended. Therefore, although it's supported, your macros will typically have no nested macros inside them.
+For the skywater libraries the hierarchy typically can go one level down at most otherwise you will only have two routing layers, which is usually not recommended. Therefore, although it is supported, your macros will typically have no nested macros inside them.
 
-To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it doesn't have a core ring. Also, prohibit the router from using metal layer 5 by setting the maximum routing layer to metal layer 4. This is done by setting the following configs:
+To begin the configurations for your macro, you want to announce that the design is a macro inside the core, and that it does not have a core ring. Also, prohibit the router from using metal layer 5 by setting the maximum routing layer to metal layer 4. This is done by setting the following configs:
 
 <table>
 <tr><th>JSON</th><th>Tcl</th></tr>
@@ -242,7 +242,7 @@ Then, you should use the same `VDD_NETS` and `GND_NETS` set in the core level by
 </table>
 
 
-This should also reflected in the module declaration in that macro's RTL in the same manner as follows:
+This should also reflected in the module declaration in the RTL of that macro in the same manner as follows:
 
 ```verilog
 `ifdef USE_POWER_PINS
@@ -257,7 +257,7 @@ This should also reflected in the module declaration in that macro's RTL in the 
 `endif
 ```
 
-These should match the names used in your core level. You don't need to use all the nets, the first two nets are used by default to power the digital cells. So you may want to only include a subset of these connections, this should be reflected in the configuration files as well as the RTL.
+These should match the names used in your core level. You do not need to use all the nets, the first two nets are used by default to power the digital cells. So you may want to only include a subset of these connections, this should be reflected in the configuration files as well as the RTL.
 
 - The height of each macro must be greater than or equal to the value of `$::env(FP_PDN_HPITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
 

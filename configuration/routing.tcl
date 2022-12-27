@@ -18,10 +18,11 @@ if { ![info exists ::env(ROUTING_CORES)] } {
     set ::env(ROUTING_CORES) 2
 }
 
+set ::env(DIODE_PADDING) 2
+
 set ::env(GLOBAL_ROUTER) fastroute
 set ::env(DETAILED_ROUTER) tritonroute
 
-set ::env(GLB_OPTIMIZE_MIRRORING) 1
 
 set ::env(GRT_ADJUSTMENT) 0.3
 set ::env(GRT_ALLOW_CONGESTION) 0
@@ -30,17 +31,14 @@ set ::env(GRT_ANT_ITERS) 3
 set ::env(GRT_ESTIMATE_PARASITICS) 1
 set ::env(GRT_MACRO_EXTENSION) 0
 
-set ::env(DIODE_PADDING) 2
-
-# GRT_MAX_DIODE_INS_ITERS is set to 1 because of the bulk testing we're running (as it will speed-up the runtime for big designs).
-# However, the user is advised to set it up to 5 or more, in case of running a specific design.
-# It is capable to detect any divergence, so, you'll probably end up with the lowest # of Antenna violations possible.
-# Check the configuration/README.md for more.
+# Increasing this value is very recommended for larger designs.
 set ::env(GRT_MAX_DIODE_INS_ITERS) 1
 
+# Maximum number of DRT Optimization iterations. Any number above 64 is ignored.
 set ::env(DRT_OPT_ITERS) 64
 
 # GLB Resizer
+set ::env(GLB_OPTIMIZE_MIRRORING) 1
 set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) 1
 set ::env(GLB_RESIZER_MAX_WIRE_LENGTH) 0
 set ::env(GLB_RESIZER_MAX_SLEW_MARGIN) 10

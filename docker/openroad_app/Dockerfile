@@ -54,6 +54,12 @@ RUN curl -L https://github.com/swig/swig/archive/refs/tags/v4.0.1.tar.gz | tar -
     make -j $(nproc) && \
     make install
 
+# Build OR Tools
+WORKDIR /ortools
+RUN curl -L https://github.com/google/or-tools/archive/refs/tags/v9.4.tar.gz | tar --strip-components=1 -xzC . && \
+    cmake -B build . -DBUILD_DEPS:BOOL=ON && \
+    cmake --build build -j $(nproc) --target install
+
 # Set up OpenROAD Build Files
 RUN localedef -c -f UTF-8 -i en_US en_US.UTF-8
 ENV LANG en_US.UTF-8
@@ -76,6 +82,10 @@ RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
 RUN cd build && make -j$(nproc)
 RUN cd build && make install
 RUN cp -r build/install/bin /build/
+
+## Add OR_Tools
+RUN mkdir -p /build/lib
+RUN cp /usr/local/lib64/libortools.so.9 /build/lib/libortools.so.9 
 
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/openroad.version
 RUN echo ${OPENROAD_APP_COMMIT} >> /build/version/openroad.version

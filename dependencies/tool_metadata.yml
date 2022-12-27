@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 94daf986ab9aa94a9ae2ac3539fa5def9bd2a1ac
+  commit: 70908a8ab5b6c914942e6e3649ff0d8574d49fd7
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -18,7 +18,7 @@
     make install
 - name: netgen
   repo: https://github.com/rtimothyedwards/netgen
-  commit: 3aeea9d1642c8d87911ed13626c77e4888caa9eb
+  commit: 28a29504390d53cd3748ff2636be112ef299da0b
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -45,7 +45,7 @@
     cp vlog2Verilog $PREFIX/bin
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
-  commit: 6e907acf86d9ff0edd9a1c10274e62690e19e939
+  commit: f109fa3d4c56fe33bc626c298e04d45ae510dd0e
   build: |
     make clean
     make PREFIX=$PREFIX config-gcc
@@ -58,7 +58,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 389a1f09821c0f57e3bf8e88f4ab43c76ec5f5c4
+  commit: 4f1108b6f558718ed142cbb6c1f5ba20958195ca
   build: ''
   in_install: false
 - name: git
@@ -68,7 +68,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: 0059588eebfc704681dc2368bd1d33d96281d10f
+  commit: 3f9bdbd857564726b731760dc2c817e84ca7d8ac
   build: ''
   in_install: false
   pdk: true

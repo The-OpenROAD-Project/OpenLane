@@ -49,7 +49,7 @@ proc set_netlist {args} {
     try_catch sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
 
     if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
-        logic_equiv_check -rhs $previous_netlist -lhs $netlist
+        logic_equiv_check -lhs $previous_netlist -rhs $netlist
     }
 }
 
@@ -120,7 +120,7 @@ proc prep_lefs {args} {
         if { [info exists ::env(METAL_LAYER_NAMES)] } {
             set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
         } else {
-            try_catch $::env(OPENROAD_BIN) -exit -python\
+            try_catch $::env(OPENROAD_BIN) -exit -no_init -python\
                 $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
                 $arg_values(-tech_lef)
@@ -626,7 +626,10 @@ proc prep {args} {
     handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION;
     handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
 
+    handle_deprecated_config TAP_DECAP_INSERTION RUN_TAP_DECAP_INSERTION;
     handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
+    handle_deprecated_config FILL_INSERTION RUN_FILL_INSERTION;
+
     handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY;
 
     handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB;
@@ -736,7 +739,7 @@ proc prep {args} {
         merge_lib\
             -output $::env(LIB_SYNTH_MERGED)\
             -name $::env(PDK)_merged\
-            -inputs {*}$::env(LIB_SYNTH_COMPLETE)
+            -inputs $::env(LIB_SYNTH_COMPLETE)
 
         # trim synthesis library
         set ::env(LIB_SYNTH) $::env(synthesis_tmpfiles)/trimmed.lib
@@ -1036,7 +1039,7 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_spef_dir)] } {
         set destination $path/spef/multicorner
         if { [file exists $arg_values(-mc_spef_dir)] } {
-            exec rm -rf $destination
+            file delete -force $destination
             file copy -force $arg_values(-mc_spef_dir) $destination
         }
     }
@@ -1053,7 +1056,7 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_sdf_dir)] } {
         set destination $path/sdf/multicorner
         if { [file exists $arg_values(-mc_sdf_dir)] } {
-            exec rm -rf $destination
+            file delete -force $destination
             file copy -force $arg_values(-mc_sdf_dir) $destination
         }
     }
@@ -1128,7 +1131,7 @@ proc label_macro_pins {args} {
         -input $::env(CURRENT_ODB) \
         --netlist-def $arg_values(-netlist_def)\
         --pad-pin-name $arg_values(-pad_pin_name)\
-        {*}$extra_args
+        {*}$arg_values(-extra_args)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "label macro pins - label_macro_pins.py"
@@ -1272,6 +1275,16 @@ proc save_final_views {args} {
     # Aaand fire!
     save_views {*}$arg_list
 
+}
+
+proc run_post_run_hooks {} {
+    if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
+        puts_info "Running post run hook"
+        set result [exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py]
+        puts_info "$result"
+    } else {
+        puts_info "hooks/post_run.py not found, skipping"
+    }
 }
 
 package provide openlane 0.9

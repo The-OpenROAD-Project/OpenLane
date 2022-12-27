@@ -76,14 +76,14 @@ openlane_path = abspath(dirname(dirname(__file__)))
 )
 @click.option(
     "--input-type",
-    type=click.Choice(["def", "netlist", "odb"]),
+    type=click.Choice(["def", "netlist", "odb", "n/a"]),
     default="odb",
-    help="Use a netlist or a DEF layout as an input instead of an ODB file. Useful for evaluating some scripts such as floorplan.tcl.",
+    help="Determine type of input file.",
 )
 @click.option("--output-dir", default=None, help="Output to this directory.")
 @click.option(
     "--tool",
-    type=click.Choice(["openroad", "magic"]),
+    type=click.Choice(["openroad", "magic", "yosys"]),
     help="The tool used for the desired Tcl script. [required]",
 )
 @click.argument("input_file")
@@ -178,6 +178,8 @@ def issue(
         env["SAVE_ODB"] = save_odb
     elif input_type == "netlist":
         input_key = "CURRENT_NETLIST"
+    elif input_type == "n/a":
+        input_key = "CURRENT_NOTHING"
 
     env[input_key] = input_file
 
@@ -364,6 +366,8 @@ def issue(
             run_cmd = "$TOOL_BIN -exit $PACKAGED_SCRIPT_0"
         elif tool == "magic":
             run_cmd = "$TOOL_BIN -dnull -noconsole -rcfile $MAGIC_MAGICRC < $PACKAGED_SCRIPT_0"
+        elif tool == "yosys":
+            run_cmd = "$TOOL_BIN -c $PACKAGED_SCRIPT_0"
         f.write(
             textwrap.dedent(
                 f"""\

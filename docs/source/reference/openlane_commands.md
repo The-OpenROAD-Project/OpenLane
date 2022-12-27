@@ -72,7 +72,7 @@ Most of the following commands' implementation exists in this [file][0]
 |    | `-log_path <path>` | The path to write the logs into. |
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)`, either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
-| `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna.rpt`|
+| `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna_violators.rpt`|
 | `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
 | `set_layer_tracks  ` | | **Removed:** sets the tracks on a layer to specific value.|
@@ -93,7 +93,7 @@ Most of the following commands' implementation exists in this [file][1]
 | `check_floorplan_missing_pins` | | Checks if the LEF contains all pins, and that EXTRA_LEFS was set correctly. |
 | `check_cts_clock_nets` | | Checks if clock tree synthesis was successful and clock nets were added. |
 | `check_replace_divergence` | | Catches replace divergence and exits the flow because global placement failed. |
-| `check_macro_placer_num_solns` | | Checks if macro placment was successful using basic placement. |
+| `check_macro_placer_num_solns` | | Checks if macro placement was successful using basic placement. |
 | `quit_on_tr_drc` | | Checks for DRC violations after routing and exits the flow if any was found. Controlled by `QUIT_ON_TR_DRC`. |
 | `quit_on_magic_drc` | | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. Controlled by `QUIT_ON_MAGIC_DRC`. |
 | `quit_on_lvs_error` | | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. Controlled by `QUIT_ON_LVS_ERROR`. |
@@ -117,7 +117,7 @@ Most of the following commands' implementation exists in this [file][9]
 | `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
 |    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
 |    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
-| `get_yosys_bin` | | **Deprecated:** Returns the used binary for yosys. |
+| `get_yosys_bin` | | **Removed: Read $::env(SYNTH_BIN)** Returns the used binary for yosys. |
 | `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
 |    | `-output <verilog_netlist_file>` | The output verilog file. |

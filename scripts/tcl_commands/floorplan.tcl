@@ -19,7 +19,7 @@ proc extract_core_dims {args} {
 
     set out_tmp $::env(TMP_DIR)/dimensions.txt
 
-    try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
+    try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
         $::env(CURRENT_DEF)
@@ -49,8 +49,6 @@ proc init_floorplan {args} {
         -netlist_in \
         -save "to=$::env(floorplan_tmpfiles),name=initial_fp,def,sdc,odb"
 
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/floorplan.tcl -indexed_log $log -netlist_in
-
     check_floorplan_missing_lef
     check_floorplan_missing_pins
 
@@ -77,7 +75,7 @@ proc init_floorplan {args} {
 
             set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            try_catch $::env(OPENROAD_BIN) -exit -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+            try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
                 [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
@@ -202,7 +200,7 @@ proc place_contextualized_io {args} {
     parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
 
     if { ![file exists $arg_values(-def)] || ![file exists $arg_values(-lef)]} {
-        puts_err "Contextual IO placement: def/lef files don't exist, exiting"
+        puts_err "Contextual IO placement: def/lef files don't exist. This is a critical failure."
         flow_fail
     }
 
@@ -251,24 +249,22 @@ proc place_contextualized_io {args} {
 }
 
 proc tap_decap_or {args} {
-    if { $::env(TAP_DECAP_INSERTION) } {
-        if {[info exists  ::env(FP_WELLTAP_CELL)] && $::env(FP_WELLTAP_CELL) ne ""} {
-            increment_index
-            TIMER::timer_start
-            set log [index_file $::env(floorplan_logs)/tap.log]
-            puts_info "Running Tap/Decap Insertion (log: [relpath . $log])..."
-
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
-                -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
-                -save "to=$::env(floorplan_results),noindex,def,odb"
-            TIMER::timer_stop
-            exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
-        } else {
-            puts_info "No tap cells found in this library. Skipping Tap/Decap Insertion."
-        }
-    } else {
-        puts_warn "Skipping Tap/Decap Insertion."
+    if { ![info exists  ::env(FP_WELLTAP_CELL)] || $::env(FP_WELLTAP_CELL) eq ""} {
+        puts_warn "No tap cells found for this standard cell library. Skipping Tap/Decap insertion."
+        return
     }
+
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(floorplan_logs)/tap.log]
+    puts_info "Running Tap/Decap Insertion (log: [relpath . $log])..."
+
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
+        -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
+        -save "to=$::env(floorplan_results),noindex,def,odb"
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
+
 }
 
 proc chip_floorplan {args} {
@@ -293,10 +289,7 @@ proc apply_def_template {args} {
             -output_def $::env(CURRENT_DEF)\
             --def-template $::env(FP_DEF_TEMPLATE)
     }
-
 }
-
-
 
 proc gen_pdn {args} {
     increment_index
@@ -441,7 +434,9 @@ proc run_floorplan {args} {
         }
     }
 
-    tap_decap_or
+    if { $::env(RUN_TAP_DECAP_INSERTION) } {
+        tap_decap_or
+    }
 
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(floorplan_logs)/screenshot.log
 

@@ -17,8 +17,8 @@
             "FP_CORE_UTIL": 35
         }
     },
-    "pdk::gf180*": {
-        "DIODE_PADDING": 0,
+    "pdk::gf180mcu*": {
+        "DIODE_INSERTION_STRATEGY": "6",
         "PL_TARGET_DENSITY": 0.62
     }
 }

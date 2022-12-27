@@ -1,20 +1,22 @@
 # Additional Material
 There are some cool tutorials and guides on using OpenLane to harden chips. Though do note, guides, especially video tutorials and webinars, tend to become out of date.
 
-Additionally, we're also going to link to academic publications about OpenLane if you're interested in reading and/or citing it.
+Additionally, we are also going to link to academic publications about OpenLane if you are interested in reading and/or citing it.
 
 ## Text Guides
 ### Official
 - [OpenLane ReadTheDocs](https://openlane.readthedocs.io/)
-    - You're probably already here, though! Hi.
+    - You are probably already here, though! Hi.
 - [Quick-Start Guide, Caravel User Project ReadTheDocs](https://caravel-harness.readthedocs.io/en/latest/getting-started.html#quick-start-for-user-projects)
-    - If you're looking to submit a project for an OpenMPW or ChipIgnite shuttle, start here.
+    - If you are looking to submit a project for an OpenMPW or ChipIgnite shuttle, start here.
 - [Digital inverter with OpenLane and Colab, Build Custom Silicon with Google](https://developers.google.com/silicon/guides/digital-inverter-openlane)
-    - This is a very simple introduction using Google Colab- you don't even need to install anything!
+    - This is a very simple introduction using Google Colab- you do not even need to install anything!
 
 ### Community
 - [Introduction to OpenMPW, VLSI.jp](https://vlsi.jp/Introduction_to_OpenMPW.html#introduction-to-openmpw)
 - [OpenMPW入門 改訂版, VLSI.jp](https://vlsi.jp/OpenMPW.html)
+- [RgGen ✕ OpenMPW Walkthrough](https://vlsi.jp/RgGenxOpenMPW_eng.html#rggen--openmpw-walkthrough)
+- [RgGen ✕ OpenMPWでLSIを焼こう！](https://vlsi.jp/RgGenxOpenMPW.html)
 
 ## Videos
 - [Aboard Caravel, Ahmed Ghazy](https://www.youtube.com/watch?v=9QV8SDelURk)

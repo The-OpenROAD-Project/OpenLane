@@ -36,7 +36,7 @@ volare build -j$(nproc) --pdk sky130 --clear-build-artifacts --sram -l all
 
 Either way, go grab a smoothie. This will take a while.
 
-After it's done, you can then enable the resulting PDK as such:
+After it is done, you can then enable the resulting PDK as such:
 
 ```bash
 volare enable

@@ -159,16 +159,6 @@ proc run_klayout_step {args} {
     }
 }
 
-proc run_post_run_hooks {} {
-    if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
-        puts_info "Running post run hook"
-        set result [exec $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py]
-        puts_info "$result"
-    } else {
-        puts_info "hooks/post_run.py not found, skipping"
-    }
-}
-
 proc run_non_interactive_mode {args} {
     set options {
         {-design optional}
@@ -354,10 +344,10 @@ proc run_lvs_batch {args} {
         set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
     }
     if { [info exists arg_values(-net)] } {
-        set ::env(CURRENT_NETLIST) [file normalize $arg_values(-net)]
+        set ::env(CURRENT_POWERED_NETLIST) [file normalize $arg_values(-net)]
     }
 
-    assert_files_exist "$::env(CURRENT_GDS) $::env(CURRENT_NETLIST)"
+    assert_files_exist "$::env(CURRENT_GDS) $::env(CURRENT_POWERED_NETLIST)"
 
     set ::env(MAGIC_EXT_USE_GDS) 1
     set ::env(EXT_NETLIST) $::env(signoff_results)/$::env(DESIGN_NAME).gds.spice
@@ -367,7 +357,14 @@ proc run_lvs_batch {args} {
         run_magic_spice_export
     }
 
+    set ::env(LVS_INSERT_POWER_PINS) 0
     run_lvs
+
+    calc_total_runtime
+    save_state
+    generate_final_summary_report
+    puts_success "LVS success."
+    show_warnings "Note that the following warnings have been generated:"
 }
 
 
@@ -392,7 +389,7 @@ if {[catch {exec cat $::env(OPENLANE_ROOT)/install/installed_version} ::env(OPEN
     }
 }
 
-if { ! [info exists ::env(OPENLANE_LOCAL_INSTALL)] || ! $::env(OPENLANE_LOCAL_INSTALL)} {
+if { [file isdirectory $::env(OPENLANE_ROOT)/.git] } {
     if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
         if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
             unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)

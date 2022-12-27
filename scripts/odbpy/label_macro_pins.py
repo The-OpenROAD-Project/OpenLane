@@ -35,12 +35,8 @@ from reader import OdbReader, click_odb
     help="Name of the pin of the pad as it appears in the netlist def.",
 )
 @click.option(
-    "-S", "--pin-size", default=1, type=int, help="Size of the block pin created in um"
-)
-@click.option(
     "-m",
     "--map",
-    "map_raw",
     default="",
     help="Semicolon;delimited extra mappings that are hard to infer from the netlist def. Format: -extra pad_instance_name pad_pin block_pin (INPUT|OUTPUT|INOUT)",
 )
@@ -62,8 +58,11 @@ def label_macro_pins(
     """
     top = reader
 
-    extra_mappings = [tuple(m.split()) for m in map.split(";")]
-    extra_mappings_pin_names = [tup[2] for tup in extra_mappings]
+    extra_mappings = []
+    extra_mappings_pin_names = []
+    if map != "":
+        extra_mappings = [tuple(m.split()) for m in map.split(";")]
+        extra_mappings_pin_names = [tup[2] for tup in extra_mappings]
 
     def getBiggestBox(iterm):
         inst = iterm.getInst()

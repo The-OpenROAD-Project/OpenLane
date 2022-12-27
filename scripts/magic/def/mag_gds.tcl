@@ -64,6 +64,11 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 	# GDS data gets copied verbatim
 	gds readonly true
 	gds rescale false
+
+    if { $::env(MAGIC_GDS_POLYGON_SUBCELLS) } {
+        gds polygon subcells true
+    }
+
 	if {  [info exist ::env(EXTRA_GDS_FILES)] } {
 		set gds_files_in $::env(EXTRA_GDS_FILES)
 		foreach gds_file $gds_files_in {
@@ -82,6 +87,10 @@ if { $::env(MAGIC_GENERATE_GDS) } {
 	}
 
 	gds nodatestamp yes
+
+    if { $::env(MAGIC_GDS_ALLOW_ABSTRACT) } { 
+        gds abstract allow
+    }
 
 	gds write $::env(MAGIC_GDS)
 	puts "\[INFO\]: GDS Write Complete"

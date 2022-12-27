@@ -9,7 +9,7 @@ The default configuration files in this folder are loaded in the order described
 |Variable|Description|
 |-|-|
 | `DESIGN_NAME`   | The name of the top level module of the design        |
-| `VERILOG_FILES` | The path of the design's verilog files, space-delimited. |
+| `VERILOG_FILES` | The path of the design's verilog files, whitespace-delimited. |
 | `CLOCK_PERIOD`  | The clock period for the design in nanoseconds. |
 | `CLOCK_NET` | The name of the net input to root clock buffer used in Clock Tree Synthesis. |
 | `CLOCK_PORT`    | The name of the design's clock port used in Static Timing Analysis.   |
@@ -58,7 +58,7 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_SHARE_RESOURCES` | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_ADDER_TYPE` | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
 | `SYNTH_EXTRA_MAPPING_FILE` | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
-| `SYNTH_PARAMETERS` | Space-separated key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
+| `SYNTH_PARAMETERS` | Whitespace-delimited key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
 | `SYNTH_ELABORATE_ONLY` | "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. <br> (Default: `0`) |
 | `CLOCK_BUFFER_FANOUT` | Fanout of clock tree buffers. <br> (Default: `16`) |
 | `BASE_SDC_FILE` | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
@@ -91,8 +91,8 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_AUTO_ADJUST` | Decides whether or not the flow should attempt to re-adjust the power grid, in order for it to fit inside the core area of the design, if needed. <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_PDN_SKIPTRIM` | Enables `-skip_trim` option during pdngen which skips the metal trim step, which attempts to remove metal stubs <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_TAPCELL_DIST`  | The horizontal distance between two tapcell columns <br> (Default: `14`) |
-| `FP_IO_VEXTEND`  |  Extends the vertical io pins outside of the die by the specified units<br> (Default: `-1` Disabled) |
-| `FP_IO_HEXTEND`  |  Extends the horizontal io pins outside of the die by the specified units<br> (Default: `-1` Disabled) |
+| `FP_IO_VEXTEND`  |  Extends the vertical io pins outside of the die by the specified units<br> (Default: `0` Disabled) |
+| `FP_IO_HEXTEND`  |  Extends the horizontal io pins outside of the die by the specified units<br> (Default: `0` Disabled) |
 | `FP_IO_VLENGTH`  | The length of the vertical IOs in microns. <br> (Default: `4`) |
 | `FP_IO_HLENGTH`  | The length of the horizontal IOs in microns. <br> (Default: `4`) |
 | `FP_IO_VTHICKNESS_MULT`  | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth <br> (Default: `2`) |
@@ -105,14 +105,14 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_CORE_RING` | Enables adding a core ring around the design. More details on the control variables in the pdk configurations documentation. 0=Disable 1=Enable. <br> (Default: `0`) |
 | `FP_PDN_ENABLE_RAILS` | Enables the creation of rails in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_PDN_ENABLE_MACROS_GRID` | Enables the connection of macros to the top level power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
-| `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. Comma separated list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>` |
+| `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. As a comma-delimited ([warning](#on-comma-delimited-variables)) list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>`  |
 | `FP_PDN_CHECK_NODES` | Enables checking for unconnected nodes in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_TAP_HORIZONTAL_HALO` | Specify the horizontal halo size around macros during tap insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_TAP_VERTICAL_HALO` | Specify the vertical halo size around macros during tap insertion. The value provided is in microns. <br> Default: set to the value of `FP_TAP_HORIZONTAL_HALO` |
 | `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> Default: set to the value of `FP_PDN_HORIZONTAL_HALO` |
 | `DESIGN_IS_CORE` | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
-| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). Check this [file][0] as an example. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
+| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_DEF` | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_LEF` | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_DEF_TEMPLATE` | Points to the DEF file to be used as a template when running `apply_def_template`. This will be used to exctract pin names, locations, shapes -excluding power and ground pins- as well as the die area and replicate all this information in the `CURRENT_DEF`. |
@@ -146,7 +146,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) +5 ) / 100.0`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
 | `PL_LIB` | Specifies the library for time driven placement <br> (Default: `LIB_TYPICAL`)|
-| `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement or not (by running initial placement, increasing the minimum overflow to 0.9, and limiting the number of iterations to 20). 0 = false, 1 = true <br> (Default: `0`) |
+| `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement. Basic placement is used for extremely simple, low-density designs of only a few dozens of gates, and should be disabled for most designs. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_SKIP_INITIAL_PLACEMENT` | Specifies whether the placer should run initial placement or not. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RANDOM_GLB_PLACEMENT` | Specifies whether the placer should run random placement or not. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RANDOM_INITIAL_PLACEMENT` | Specifies whether the placer should run random placement or not followed by replace's initial placement. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
@@ -182,7 +182,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `200`ps)|
 | `CLOCK_TREE_SYNTH` | Enable clock tree synthesis. <br> (Default: `1`)|
-| `FILL_INSERTION` | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `CTS_TOLERANCE` | An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 | `CTS_SINK_CLUSTERING_SIZE` | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
@@ -191,6 +190,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
 | `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
 | `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
 ### Routing
@@ -218,8 +218,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GRT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
 | `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
 | `GRT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3`.  <br> (Default: `1`) |
-| `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma separated list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
+| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3` and `6`.  <br> (Default: `1`) |
+| `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `GRT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
 | `GRT_MACRO_EXTENSION` | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
@@ -258,7 +258,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `MAGIC_INCLUDE_GDS_POINTERS` | A flag to choose whether to include GDS pointers in the generated mag files or not. 1 = Enabled, 0 = Disabled  <br> (Default: `0` )|
 | `MAGIC_DISABLE_HIER_GDS` | A flag to disable cif hier and array during GDSII writing.* 1=Enabled `<so this hier gds will be disabled>`, 0=Disabled `<so this hier gds will be enabled>`. <br> (Default: `1` )|
 | `MAGIC_DEF_NO_BLOCKAGES` | A flag to choose whether blockages are read with DEF files or not (they are read as a sheet of metal by Magic). 1 = No Blockages, 0 = Blockages as Metal Sheets  <br> (Default: `1` )|
-| `MAGIC_DEF_LABELS` | A flag to choose whether labels are read with DEF files or not. From the magic docs: "The '-labels' option to the 'def read' command causes each net in the NETS and SPECIALNETS sections of the DEF file to be annotated with a label having the net name as the label text." 1 = Labels, 0 = Unlabeled  <br> (Default: `1` )|
+| `MAGIC_DEF_LABELS` | A flag to choose whether labels are read with DEF files or not. From magic docs: "The '-labels' option to the 'def read' command causes each net in the NETS and SPECIALNETS sections of the DEF file to be annotated with a label having the net name as the label text." 1 = Labels, 0 = Unlabeled  <br> (Default: `1` )|
+| `MAGIC_GDS_ALLOW_ABSTRACT` | A flag to allow abstract view of macros during magic gds generation. 1 = Allow, 0 = Disallow  <br> (Default: `0` )|
+| `MAGIC_GDS_POLYGON_SUBCELLS` | A flag to enable polygon subcells in magic for gds read potentially speeding up magic. From magic docs: "Put non-Manhattan polygons. This prevents interations with other polygons on the same plane and so reduces tile splitting" 1 = Allow, 0 = Disallow  <br> (Default: `0` )|
 > * Tim Edwards's Explanation on disabling hier gds: The following is an explanation by Tim Edwards, provided in a slack thread, on how this affects the GDS writing process: "Magic can take a very long time writing out GDS while checking hierarchical interactions in a standard cell layout. If your design is all digital, I recommend using "gds *hier write disable" before "gds write" so that it does not try to resolve hierarchical interactions (since by definition, standard cells are designed to just sit next to each other without creating DRC issues).  That can actually make the difference between a 20 hour GDS write and a 2 minute GDS write.  For a standard cell design that takes up the majority of the user space, a > 24 hour write time (without disabling the hierarchy checks) would not surprise me."
 
 ### LVS
@@ -271,21 +273,30 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 ### Flow control
 
+> Note: The commands prefixed `RUN_` enable or disable a certain step as part of the larger OpenLane flow, not when calling the relevant function standalone. For example, if RUN_DRT is set 0, but calling `detailed_routing` in interactive mode will still run detailed routing.
+
 |Variable|Description|
 |-|-|
-| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
-| `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT_DRC` | Enables running KLayout DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_KLAYOUT_XOR` | Enables running KLayout XOR on 2 GDSIIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
+| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1=Enabled, 0=Disabled. <br> Default: `1` |
+| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1=Enabled, 0=Disabled. <br> Default: `0` |
+| `RUN_TAP_DECAP_INSERTION` | Enables tap and decap cells insertion after floorplanning. 1 = Enabled, 0 = Disabled <br> (Default: `1`) |
+| `RUN_FILL_INSERTION` | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
+| `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
+| `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
+| `KLAYOUT_XOR_GDS` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `TAP_DECAP_INSERTION` | Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. |
 | | 0: No diode insertion. |
 | | 1: Spray diodes. |
@@ -295,15 +306,13 @@ These variables worked initially, but they were too sky130 specific and will be 
 | | 5: A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
-| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
-| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
-| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1=Enabled, 0=Disabled. <br> Default: `1` |
-| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1=Enabled, 0=Disabled. <br> Default: `0` |
+| `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
 | `QUIT_ON_MISMATCHES` | **Removed: See `./flow.tcl -ignore_mismatches`** Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
 | `KLAYOUT_XOR_GDS` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_XOR_XML` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+
 
 ### Checkers
 
@@ -312,9 +321,31 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CHECK_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `CHECK_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_LONG_WIRE` | Exits the flow if any wire length exceeds the threshold set in the PDK. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_MAGIC_DRC` | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_ILLEGAL_OVERLAPS` | Checks for illegal overlaps during magic extraction. In some cases, these imply existing undetected shorts in the design. It also exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_LVS_ERROR` | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 
-[0]: ./../../../designs/spm/pin_order.cfg
+### On comma-delimited variables
+:::{warning}
+Comma-delimited variables such as `FP_PDN_MACRO_HOOK` and `GRT_OBS` must be expressed in a pretty unorthodox way in JSON for now, either:
+
+```json
+    "FP_PDN_MACRO_HOOKS": "first item, second item, third item"
+```
+
+or:
+
+```json
+    "FP_PDN_MACRO_HOOKS": [
+        "first item,",
+        "second item,",
+        "third item"
+    ]
+```
+
+You'll notice that even as an array, all items except for the last item must include a comma in the string itself.
+
+This is an unfortunate limitation with how Tcl handles arrays, i.e., they're just whitespace-delimited strings.
+:::

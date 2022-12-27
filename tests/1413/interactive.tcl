@@ -19,6 +19,6 @@ remove_nets -rx {^in$} -input $save_odb
 
 set ::env(CURRENT_ODB) $save_odb
 
-try_catch $::env(OPENROAD_BIN) -exit -python $::env(DESIGN_DIR)/hooks/post_run.py
+try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py
 
 puts_info "Done."

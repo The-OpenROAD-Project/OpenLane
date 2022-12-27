@@ -226,6 +226,7 @@ class Report(object):
 
         basic_set = [
             ("_sta.rpt", "check_report"),
+            ("_sta.parasitics_check.rpt", "parastic_annotation_check"),
             ("_sta.min.rpt", "min_report"),
             ("_sta.max.rpt", "max_report"),
             ("_sta.wns.rpt", "wns_report"),
@@ -299,7 +300,7 @@ class Report(object):
 
         # Cell Count
         cell_count = -1
-        yosys_report = Artifact(rp, "reports", "synthesis", "synthesis.stat.rpt", True)
+        yosys_report = Artifact(rp, "reports", "synthesis", ".stat.rpt", True)
         yosys_report_content = yosys_report.get_content()
         if yosys_report_content is not None:
             match = re.search(r"Number of cells:\s*(\d+)", yosys_report_content)
@@ -508,19 +509,32 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, "reports", "signoff", "antenna.rpt")
+        arc_antenna_report = Artifact(rp, "logs", "signoff", "antenna.log")
         aar_content = arc_antenna_report.get_content()
 
         antenna_violations = -1
         if aar_content is not None:
-            match = re.search(r"Number of pins violated:\s*(\d+)", aar_content)
+            net_violations = re.search(r"Found (\d+) net violations", aar_content)
+            pin_violations = re.search(r"Found (\d+) pin violations", aar_content)
 
-            if match is not None:
-                antenna_violations = int(match[1])
+            antenna_violations = (
+                0 if pin_violations or net_violations else antenna_violations
+            )
+            antenna_violations = (
+                antenna_violations + int(pin_violations[1])
+                if pin_violations
+                else antenna_violations
+            )
+            antenna_violations = (
+                antenna_violations + int(net_violations[1])
+                if net_violations
+                else antenna_violations
+            )
+            print(antenna_violations)
         else:
             # Old Magic-Based Check: Just Count The Lines
             magic_antenna_report = Artifact(
-                rp, "reports", "routing", "antenna_violators.rpt"
+                rp, "reports", "signoff", "antenna_violators.rpt"
             )
             mar_content = magic_antenna_report.get_content()
 

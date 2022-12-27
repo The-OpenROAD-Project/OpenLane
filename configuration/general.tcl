@@ -17,12 +17,11 @@ set ::env(CLOCK_PERIOD) "10.0"
 set ::env(USE_GPIO_PADS) 0
 set ::env(RSZ_DONT_TOUCH_RX) "$^"
 
-
 # Flow Controls
 set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
-set ::env(FILL_INSERTION) 1
-set ::env(TAP_DECAP_INSERTION) 1
+set ::env(RUN_FILL_INSERTION) 1
+set ::env(RUN_TAP_DECAP_INSERTION) 1
 
 ## Intentionally Undocumented
 set ::env(RSZ_USE_OLD_REMOVER) 0
@@ -71,6 +70,8 @@ set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1
 set ::env(MAGIC_DEF_NO_BLOCKAGES) 1
 set ::env(MAGIC_DEF_LABELS) 1
+set ::env(MAGIC_GDS_ALLOW_ABSTRACT) 0
+set ::env(MAGIC_GDS_POLYGON_SUBCELLS) 0
 
 ### Klayout-Specific
 set ::env(RUN_KLAYOUT) 1

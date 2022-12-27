@@ -17,7 +17,7 @@
 A script to manually update the includedyaml file from pyyaml upstream.
 
 # Why?
-These scripts are used in an environment where PIP may not be available,
+These scripts are used in an environment where pip may not be available,
 and obligatory submodules are a layer of complexity we could really do without.
 
 ---

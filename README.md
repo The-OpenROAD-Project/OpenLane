@@ -43,7 +43,7 @@ make test
 If everything's gone smoothly, that's it. OpenLane is set up on your computer. To enter the OpenLane environment, `cd $HOME/OpenLane` and then `make mount`.
 
 ## Installation, the long version
-See the installation docs at https://openlane.readthedocs.io/en/latest/getting_started/installation.html.
+See the installation docs at https://openlane.readthedocs.io/en/latest/getting_started/installation/index.html.
 
 ## Usage
 After entering the OpenLane environment, you can start hardening chips: the following command, for example, runs the included [spm design](./designs/spm).

@@ -3,8 +3,7 @@ Getting Started
 
 .. toctree::
    :glob:
-
-
-   installation
-   installation_local
+   
+   installation/index
+   updating
    quickstart

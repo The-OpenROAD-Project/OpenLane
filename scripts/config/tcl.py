@@ -224,9 +224,9 @@ def process_string(value: str, state: State) -> str:
     if value.startswith(DIR_PREFIX):
         value = value.replace(DIR_PREFIX, f"ref::${DESIGN_DIR_VAR}/")
     elif value.startswith(PDK_DIR_PREFIX):
-        value = value.replace(DIR_PREFIX, f"ref::${PDKPATH_VAR}/")
+        value = value.replace(PDK_DIR_PREFIX, f"ref::${PDKPATH_VAR}/")
     elif value.startswith(SCL_DIR_PREFIX):
-        value = value.replace(DIR_PREFIX, f"ref::${SCLPATH_VAR}/")
+        value = value.replace(SCL_DIR_PREFIX, f"ref::${SCLPATH_VAR}/")
 
     if value.startswith(EXPR_PREFIX):
         try:
@@ -241,6 +241,15 @@ def process_string(value: str, state: State) -> str:
         reference_variable = match[1]
         try:
             found = state.vars[reference_variable]
+            if type(found) != str:
+                if type(found) in [int, float]:
+                    raise InvalidConfig(
+                        f"Referenced variable {reference_variable} is a number and not a string: use expr::{match[0]} if you want to reference this number."
+                    )
+                else:
+                    raise InvalidConfig(
+                        f"Referenced variable {reference_variable} is not a string."
+                    )
             value = reference.replace(match[0], found)
             full_abspath = os.path.abspath(value)
 
@@ -361,7 +370,7 @@ def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, 
 
 
 def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
-    character_rx = re.compile(r"([{}])")
+    character_rx = re.compile(r"([\\{}])")
     for key, value in key_value_pairs.items():
         if value is None:
             continue
@@ -438,10 +447,18 @@ def from_json(output, exposed, extract_process_info, config_json):
             implicitly_exposed += [PDK_VAR]
         else:
             exposed_dict[PDK_VAR] = ""
+        if os.getenv(PDKPATH_VAR) is not None:
+            implicitly_exposed += [PDKPATH_VAR]
+        else:
+            exposed_dict[PDKPATH_VAR] = ""
         if os.getenv(SCL_VAR) is not None:
             implicitly_exposed += [SCL_VAR]
         else:
             exposed_dict[SCL_VAR] = ""
+        if os.getenv(SCLPATH_VAR) is not None:
+            implicitly_exposed += [SCLPATH_VAR]
+        else:
+            exposed_dict[SCLPATH_VAR] = ""
 
     exposed = list(exposed) + implicitly_exposed
     for key in exposed:
