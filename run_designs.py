@@ -382,7 +382,6 @@ def cli(
                         rem_designs.pop(design)
                 continue
             default_config_tag = f"config_{tag}"
-            print(design, config)
             err, design_name = utils.get_design_name(design, config)
             if err is not None:
                 update("ERROR", design, f"Cannot run: {err}")
