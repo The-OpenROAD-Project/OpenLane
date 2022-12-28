@@ -210,7 +210,7 @@ proc logic_equiv_check {args} {
     set rhs_rel [relpath . $::env(LEC_RHS_NETLIST)]
     puts_info "Running LEC: '$lhs_rel' vs. '$rhs_rel' (log: [relpath . $log])..."
 
-    if { [run_yosys_script $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -indexed_log $log]} {
+    if { [catch {run_yosys_script $::env(SCRIPTS_DIR)/yosys/logic_equiv_check.tcl -indexed_log $log}] } {
         puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)."
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
