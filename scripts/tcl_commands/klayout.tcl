@@ -28,18 +28,19 @@ proc run_klayout {args} {
 			set cells_gds $::env(GDS_FILES)
 		}
 
+        set gds_file_arg ""
+        foreach gds_file "$cells_gds $gds_files_in" {
+            set gds_file_arg "$gds_file_arg --with-gds-file $gds_file"
+        }
 		set klayout_out $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
-		try_catch klayout -b\
-			-rm $::env(SCRIPTS_DIR)/klayout/stream_out.py\
-			-rd out_gds=$klayout_out\
-			-rd tech_file=$::env(KLAYOUT_TECH)\
-			-rd layer_props_file=$::env(KLAYOUT_PROPERTIES)\
-			-rd design_name=$::env(DESIGN_NAME)\
-			-rd in_def=$::env(CURRENT_DEF)\
-			-rd in_gds=$cells_gds $gds_files_in\
-			-rd "config_file="\
-			-rd "seal_gds=None"\
-			-rd lef_file=$::env(MERGED_LEF)\
+        try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
+			--output $klayout_out\
+			--tech-file $::env(KLAYOUT_TECH)\
+			--props-file $::env(KLAYOUT_PROPERTIES)\
+			--top $::env(DESIGN_NAME)\
+            {*}$gds_file_arg \
+			--input-lef $::env(MERGED_LEF)\
+			$::env(CURRENT_DEF)\
 			|& tee $::env(TERMINAL_OUTPUT) $log
 
 
