@@ -156,7 +156,7 @@ proc run_klayout_gds_xor {args} {
                 -r $::env(SCRIPTS_DIR)/klayout/xor.drc \
                 -rd a=$arg_values(-layout1) \
                 -rd b=$arg_values(-layout2) \
-                -rd jobs=1 \
+                -rd jobs=$::env(KLAYOUT_XOR_THREADS) \
                 -rd rdb_out=$db \
                 -rd rpt_out=$report \
                 |& tee $::env(TERMINAL_OUTPUT) $log

@@ -78,6 +78,7 @@ set ::env(RUN_KLAYOUT) 1
 set ::env(RUN_KLAYOUT_DRC) 0
 set ::env(KLAYOUT_XOR_GDS) 1
 set ::env(KLAYOUT_XOR_XML) 1
+set ::env(KLAYOUT_XOR_THREADS) 1
 set ::env(TAKE_LAYOUT_SCROT) 0
 set ::env(KLAYOUT_DRC_KLAYOUT_GDS) 0
 set ::env(RUN_KLAYOUT_XOR) 1
