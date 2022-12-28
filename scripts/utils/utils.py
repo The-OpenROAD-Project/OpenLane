@@ -56,7 +56,7 @@ def get_design_name(design, config):
             return ("No key DESIGN_NAME in JSON configuration file.", None)
         return (None, config["DESIGN_NAME"])
     else:
-        return ("config.tcl/config.json not found", None)
+        return (f"{config}.tcl/{config}.json not found", None)
 
 
 def add_computed_statistics(filename):

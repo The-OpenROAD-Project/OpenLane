@@ -240,40 +240,58 @@ def cli(
                 "-no_save",
                 "-run_hooks",
             ] + (["-verbose", "1"] if show_log_output else [])
+            run_path_relative = os.path.relpath(run_path, ".")
+            try:
+                shutil.rmtree(run_path_relative)
+            except FileNotFoundError:
+                pass
             skip_rm_from_rems = False
             try:
                 if show_log_output:
                     subprocess.check_call(command)
                 else:
-                    subprocess.check_output(command, stderr=subprocess.PIPE)
-            except subprocess.CalledProcessError:
+                    subprocess.check_output(command, stderr=subprocess.STDOUT)
+            except subprocess.CalledProcessError as e:
                 if print_rem_time is not None:
                     rmDesignFromPrintList(design)
                     skip_rm_from_rems = True
-                run_path_relative = os.path.relpath(run_path, ".")
-                update(
-                    "FAIL",
-                    design,
-                    f"Check {run_path_relative}/openlane.log",
-                    error=True,
-                )
+                log_path = f"{run_path_relative}/openlane.log"
+                if os.path.isfile(log_path):
+                    update(
+                        "FAIL",
+                        design,
+                        f"Check {log_path}",
+                        error=True,
+                    )
+                else:
+                    update(
+                        "FAIL",
+                        design,
+                        "OpenLane failed to start up:",
+                        error=True,
+                    )
+                    print(e.stdout.decode("utf8"))
+
                 design_failure_flag = True
 
             if print_rem_time is not None and not skip_rm_from_rems:
                 rmDesignFromPrintList(design)
 
-            update("DONE", design, "Writing report...")
-            params = ConfigHandler.get_config(design, tag)
+            try:
+                params = ConfigHandler.get_config_for_run(None, design, tag)
+                update("DONE", design, "Writing report...")
 
-            report = Report(design, tag, design_name, params).get_report()
-            report_log.info(report)
+                report = Report(design, tag, design_name, params).get_report()
+                report_log.info(report)
 
-            with open(f"{run_path}/report.csv", "w") as report_file:
-                report_file.write(
-                    Report.get_header() + "," + ConfigHandler.get_header()
-                )
-                report_file.write("\n")
-                report_file.write(report)
+                with open(f"{run_path}/report.csv", "w") as report_file:
+                    report_file.write(
+                        Report.get_header() + "," + ConfigHandler.get_header()
+                    )
+                    report_file.write("\n")
+                    report_file.write(report)
+            except FileNotFoundError:
+                pass
 
             if benchmark is not None:
                 try:
@@ -364,6 +382,7 @@ def cli(
                         rem_designs.pop(design)
                 continue
             default_config_tag = f"config_{tag}"
+            print(design, config)
             err, design_name = utils.get_design_name(design, config)
             if err is not None:
                 update("ERROR", design, f"Cannot run: {err}")

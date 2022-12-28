@@ -14,18 +14,18 @@
 
 import os
 import sys
-import subprocess
+from typing import Dict
+from shutil import copyfile
+from collections import OrderedDict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.dirname(__file__))
 
 from utils.utils import get_run_path, get_design_path  # noqa: E402
-from shutil import copyfile  # noqa: E402
-from collections import OrderedDict  # noqa: E402
+from tcl import read_tcl_env  # noqa: E402
 
 
 class ConfigHandler:
-    config_getter_script = os.path.join(os.path.dirname(__file__), "config_get.sh")
-
     configuration_values = [
         "CLOCK_PERIOD",
         "SYNTH_STRATEGY",
@@ -85,18 +85,12 @@ class ConfigHandler:
         return ",".join(Self.configuration_values)
 
     @classmethod
-    def get_config(Self, design, tag, run_path=None):
+    def get_config_for_run(Self, run_path, design, tag) -> Dict[str, str]:
         if run_path is None:
             run_path = get_run_path(design=design, tag=tag)
-        config_relative_path = "config.tcl"
-        config_path = os.path.join(os.getcwd(), run_path, config_relative_path)
-        config_coded = subprocess.check_output(
-            [Self.config_getter_script, config_path, *Self.configuration_values]
-        )
-        config = config_coded.decode(sys.getfilesystemencoding()).strip()
-        config = config.split("##")
-        config = list(filter(None, config))
-        config = [element.strip('{}"') for element in config]
+        config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
+        config = read_tcl_env(config_path)
+        config = {k: v for k, v in config.items() if k in Self.configuration_values}
         return config
 
     @staticmethod
