@@ -36,9 +36,9 @@ proc run_klayout {args} {
 			-rd layer_props_file=$::env(KLAYOUT_PROPERTIES)\
 			-rd design_name=$::env(DESIGN_NAME)\
 			-rd in_def=$::env(CURRENT_DEF)\
-			-rd "in_gds=$cells_gds $gds_files_in"\
+			-rd in_gds=$cells_gds $gds_files_in\
 			-rd "config_file="\
-			-rd "seal_gds="\
+			-rd "seal_gds=None"\
 			-rd lef_file=$::env(MERGED_LEF)\
 			|& tee $::env(TERMINAL_OUTPUT) $log
 
@@ -141,36 +141,28 @@ proc run_klayout_gds_xor {args} {
 	set_if_unset arg_values(-layout2) $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
 	set_if_unset arg_values(-output_xml) $::env(signoff_reports)/$::env(DESIGN_NAME).xor.xml
 	set_if_unset arg_values(-output_gds) $::env(signoff_reports)/$::env(DESIGN_NAME).xor.gds
+
 	if { [file exists $arg_values(-layout1)]} {
 		if { [file exists $arg_values(-layout2)] } {
 
 			increment_index
 			TIMER::timer_start
 			set log [index_file $::env(signoff_logs)/xor.log]
+            set report [index_file $::env(signoff_reports)/xor.rpt]
+            set db [index_file $::env(signoff_reports)/xor.xml]
 			puts_info "Running XOR on the layouts using KLayout (log: [relpath . $log])..."
-
-			if { $::env(KLAYOUT_XOR_GDS) } {
-				try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
-					$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
-					$arg_values(-output_gds) \
-					|& tee $::env(TERMINAL_OUTPUT) $log
-				try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
-					-l [index_file $::env(signoff_logs)/xor.log] \
-					-o [index_file $::env(signoff_reports)/xor.rpt]
-				scrot_klayout -layout $arg_values(-output_gds) -log $::env(signoff_logs)/screenshot.klayout.xor.log
-			}
-
-			if { $::env(KLAYOUT_XOR_XML) } {
-				try_catch bash $::env(SCRIPTS_DIR)/klayout/xor.sh \
-					$arg_values(-layout1) $arg_values(-layout2) $::env(DESIGN_NAME) \
-					$arg_values(-output_xml) \
-					|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(signoff_logs)/xor.log]
-				try_catch python3 $::env(SCRIPTS_DIR)/parse_klayout_xor_log.py \
-					-l [index_file $::env(signoff_logs)/xor.log] \
-					-o [index_file $::env(signoff_reports)/xor.rpt]
-			}
+            try_catch klayout \
+                -b \
+                -r $::env(SCRIPTS_DIR)/klayout/xor.drc \
+                -rd a=$arg_values(-layout1) \
+                -rd b=$arg_values(-layout2) \
+                -rd jobs=1 \
+                -rd rdb_out=$db \
+                -rd rpt_out=$report \
+                |& tee $::env(TERMINAL_OUTPUT) $log
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "xor - klayout"
+            quit_on_xor_error  -log $report
 		} else {
 			set layout2_rel [relpath . $arg_values(-layout2)]
 			puts_warn "'$layout2_rel' wasn't found. Skipping GDS XOR."

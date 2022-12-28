@@ -276,12 +276,14 @@ proc quit_on_xor_error {args} {
             {-log required}
         }
         parse_key_args "quit_on_xor_error" args arg_values $options
-        set checker [catch {exec grep -E -o "Total XOR differences: 0" $arg_values(-log)} error]
+        set checker [catch {exec grep -E -o "Total XOR differences = 0" $arg_values(-log)} error]
 
         if { $checker != 0 } {
             set log_relative [relpath . $arg_values(-log)]
             puts_err "There are XOR differences in the design: See '$log_relative' for details."
             flow_fail
+        } else {
+            puts_info "No XOR differences between KLayout and Magic gds."
         }
     }
 }
