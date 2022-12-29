@@ -107,8 +107,11 @@ def expand_matrix(
     except json.JSONDecodeError:
         raise ValueError(f"Invalid JSON config file: {config_matrix_path}")
 
-    preloaded_variables = matrix["preload"]
-    del matrix["preload"]
+    preloaded_variables = matrix.get("preload")
+    if preloaded_variables is not None:
+        del matrix["preload"]
+    else:
+        preloaded_variables = {}
 
     configs = [{}]
     for key, variables in matrix.items():

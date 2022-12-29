@@ -15,6 +15,7 @@
 import os
 import re
 import sys
+import json
 import click
 import queue
 import shutil
@@ -25,9 +26,25 @@ import subprocess
 
 from scripts.report.report import Report
 from scripts.config.config import ConfigHandler, expand_matrix
+from scripts.config.tcl import read_tcl_env
 import scripts.utils.utils as utils
 
 configuration_line_rx = re.compile(r"^\s*(\w+)\s*=\s*(.+)\s*$")
+
+
+def get_design_name(config_file: str) -> str:
+    vars = None
+    if config_file.endswith(".tcl"):
+        vars = read_tcl_env(config_file)
+    elif config_file.endswith(".json"):
+        vars = json.load(open(config_file))
+    else:
+        raise ValueError(f"{config_file}: Configuration files must end with .tcl/.json")
+
+    name = vars.get("DESIGN_NAME")
+    if name is None:
+        raise ValueError(f"{config_file}: No DESIGN_NAME variable")
+    return name
 
 
 @click.command()
@@ -35,7 +52,7 @@ configuration_line_rx = re.compile(r"^\s*(\w+)\s*=\s*(.+)\s*$")
     "-c",
     "--config_file",
     default="config.json",
-    help="(Base) JSON configuration filename. Must inside the design directory",
+    help="(Base) configuration filename. Must inside the design directory. If an extension is omitted, both JSON and Tcl will be tried.",
 )
 @click.option(
     "-m", "--matrix", default=None, help="Path to configuration matrix JSON file"
@@ -133,7 +150,8 @@ def cli(
         rem_designs = dict.fromkeys(designs, 1)
 
     num_workers = threads
-    config = os.path.splitext(config_file)[0]
+
+    config_name = os.path.splitext(config_file)[0]
 
     if matrix is not None:
         configuration_matrix_variables = []
@@ -233,6 +251,43 @@ def cli(
             log.error(str)
         else:
             log.info(str)
+
+    def resolve_config(conf_file, allow_tcl=False):
+        if os.path.isfile(conf_file):
+            return conf_file
+
+        if conf_file.endswith(".tcl") or conf_file.endswith(".json"):
+            update(
+                "ERROR",
+                design,
+                f"Cannot run: {config_file} not found",
+                error=True,
+            )
+            return None
+
+        tcl = f"{conf_file}.tcl"
+        json = f"{conf_file}.json"
+        if os.path.isfile(tcl):
+            if allow_tcl:
+                return tcl
+            else:
+                update(
+                    "ERROR",
+                    design,
+                    f"Matrix mode is incompatible with .tcl config files",
+                    error=True,
+                )
+                return None
+        elif os.path.isfile(json):
+            return json
+        else:
+            update(
+                "ERROR",
+                design,
+                f"Cannot run: No {config_file}.tcl/{config_file}.json found",
+                error=True,
+            )
+            return None
 
     flow_failure_flag = False
     design_failure_flag = False
@@ -351,52 +406,42 @@ def cli(
 
     q = queue.Queue()
     total_runs = 0
-    if matrix is not None:
-        for design in designs:
-            base_path = utils.get_design_path(design=design)
-            if base_path is None:
-                update("ERROR", design, "Cannot run: Not found", error=True)
-                if print_rem_time is not None:
-                    if design in rem_designs.keys():
-                        rem_designs.pop(design)
-                continue
+    for design in designs:
+        base_path = utils.get_design_path(design=design)
+        if base_path is None:
+            update("ALERT", design, "Not found, skipping", error=True)
+            if print_rem_time is not None:
+                if design in rem_designs.keys():
+                    rem_designs.pop(design)
+            continue
 
-            err, design_name = utils.get_design_name(design, config)
-            if err is not None:
-                update("ERROR", design, f"Cannot run: {err}", error=True)
-                continue
+        conf_file = os.path.join(base_path, config_file)
+        conf_file = resolve_config(conf_file, matrix is None)
+        if conf_file is None:
+            continue
 
-            base_config_path = os.path.join(base_path, config_file)
+        try:
+            design_name = get_design_name(conf_file)
+        except ValueError as e:
+            update("ERROR", design, f"Cannot run: {e}", error=True)
+            continue
 
+        if matrix is not None:
             config_file_paths = expand_matrix(
-                base_config_path, matrix, os.path.join(base_path, f"{tag}_config")
+                conf_file, matrix, os.path.join(base_path, f"{tag}_config")
             )
 
             total_runs += len(config_file_paths)
             if print_rem_time is not None:
                 rem_designs[design] = total_runs
 
-            for config in config_file_paths:
-                q.put((design, config, design_name))
-    else:
-        for design in designs:
-            base_path = utils.get_design_path(design=design)
-            if base_path is None:
-                update("ALERT", design, "Not found, skipping...")
-                if print_rem_time is not None:
-                    if design in rem_designs.keys():
-                        rem_designs.pop(design)
-                continue
+            for config_name in config_file_paths:
+                q.put((design, config_name, design_name))
+        else:
+            conf_name, conf_ext = os.path.splitext(os.path.basename(conf_file))
+            target_config = os.path.join(base_path, f"{tag}_{conf_name}{conf_ext}")
+            shutil.copyfile(conf_file, target_config)
 
-            source_config = os.path.join(base_path, config_file)
-            target_config = os.path.join(base_path, f"{tag}_config.json")
-
-            shutil.copyfile(source_config, target_config)
-
-            err, design_name = utils.get_design_name(design, config)
-            if err is not None:
-                update("ERROR", design, f"Cannot run: {err}")
-                continue
             q.put((design, target_config, design_name))
 
     workers = []
