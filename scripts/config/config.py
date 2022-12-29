@@ -14,14 +14,14 @@
 
 import os
 import sys
-from typing import Dict
-from shutil import copyfile
+import json
+from typing import Dict, List
 from collections import OrderedDict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(os.path.dirname(__file__))
 
-from utils.utils import get_run_path, get_design_path  # noqa: E402
+from utils.utils import get_run_path  # noqa: E402
 from tcl import read_tcl_env  # noqa: E402
 
 
@@ -93,7 +93,51 @@ class ConfigHandler:
         config = {k: v for k, v in config.items() if k in Self.configuration_values}
         return config
 
-    @staticmethod
-    def gen_base_config(design, base_config_file):
-        config_file = os.path.join(get_design_path(design=design), "config.tcl")
-        copyfile(config_file, base_config_file)
+
+def expand_matrix(
+    base_config_path: str, config_matrix_path: str, output_prefix: str
+) -> List[str]:
+    try:
+        base_config = json.load(open(base_config_path))
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON config file: {base_config_path}")
+
+    try:
+        matrix = json.load(open(config_matrix_path))
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON config file: {config_matrix_path}")
+
+    preloaded_variables = matrix["preload"]
+    del matrix["preload"]
+
+    configs = [{}]
+    for key, variables in matrix.items():
+        stride = len(configs)
+        configs *= len(variables)
+
+        # Ensure the dictionaries themselves are copied, not just references
+        for i in range(0, stride):
+            tracker = stride + i
+            while tracker < len(configs):
+                configs[tracker] = configs[i].copy()
+                tracker += stride
+
+        tracker = 0
+        for i in range(0, len(configs)):
+            configs[i][key] = variables[tracker]
+            if ((i + 1) % stride) == 0:
+                tracker += 1
+
+    config_paths = []
+    for i, config in enumerate(configs):
+        current_config = preloaded_variables.copy()  # So SCL/PDK-specific configs work
+        current_config.update(base_config)
+        current_config.update(config)
+
+        current_config_path = f"{output_prefix}_{i}.json"
+        with open(current_config_path, "w") as f:
+            f.write(json.dumps(current_config, indent=2))
+
+        config_paths.append(current_config_path)
+
+    return config_paths

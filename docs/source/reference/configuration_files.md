@@ -50,7 +50,13 @@ cd ./openlane/SuccessiveApproximationRegister
 ```
 
 ## JSON
-The JSON files are simple key value pairs. The values can be scalars (strings, numbers, booleans, and `null`s), *one-dimensional lists of scalars*, and, in special cases, a dictionary.
+The JSON files are simple key-value pairs.
+
+<a name="scalars"></a>
+
+The values can be scalars (strings, numbers, booleans, and `null`s), *one-dimensional lists of scalars*, and, in special cases, a dictionary.
+
+All files must be ECMA404-compliant, i.e., pure JSON with no extensions such as comments or the new elements introduced in [JSON5](https://json5.org/).
 
 An minimal demonstrative configuration file would look as follows:
 

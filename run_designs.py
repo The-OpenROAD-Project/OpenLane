@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
+import re
 import sys
 import click
 import queue
@@ -23,14 +24,23 @@ import threading
 import subprocess
 
 from scripts.report.report import Report
-from scripts.config.config import ConfigHandler
+from scripts.config.config import ConfigHandler, expand_matrix
 import scripts.utils.utils as utils
+
+configuration_line_rx = re.compile(r"^\s*(\w+)\s*=\s*(.+)\s*$")
 
 
 @click.command()
-@click.option("-c", "--config_tag", default="config", help="Configuration file")
-@click.option("-r", "--regression", default=None, help="Regression file")
-@click.option("-t", "--tag", default="regression", help="Tag for the log file")
+@click.option(
+    "-c",
+    "--config_file",
+    default="config.json",
+    help="(Base) JSON configuration filename. Must inside the design directory",
+)
+@click.option(
+    "-m", "--matrix", default=None, help="Path to configuration matrix JSON file"
+)
+@click.option("-t", "--tag", default=None, help="Tag for the log file")
 @click.option(
     "-j", "--threads", default=1, type=int, help="Number of designs in parallel"
 )
@@ -77,8 +87,8 @@ import scripts.utils.utils as utils
 )
 @click.argument("designs", nargs=-1)
 def cli(
-    config_tag,
-    regression,
+    config_file,
+    matrix,
     tag,
     threads,
     configuration_parameters,
@@ -95,6 +105,12 @@ def cli(
     Run multiple designs in parallel, for testing or exploration.
     """
 
+    if tag is None:
+        if matrix is not None:
+            tag = "matrix"
+        else:
+            tag = "run"
+
     designs = list(designs)
     excluded_designs = excluded_designs.split(",")
 
@@ -102,7 +118,7 @@ def cli(
         if excluded_design in designs:
             designs.remove(excluded_design)
 
-    show_log_output = show_output and (len(designs) == 1) and (regression is None)
+    show_log_output = show_output and (len(designs) == 1) and (matrix is None)
 
     if print_rem is not None and not show_log_output:
         if float(print_rem) > 0:
@@ -117,24 +133,25 @@ def cli(
         rem_designs = dict.fromkeys(designs, 1)
 
     num_workers = threads
-    config = config_tag
+    config = os.path.splitext(config_file)[0]
 
-    if regression is not None:
-        regressionConfigurationsList = []
-        regressionFileOpener = open(regression, "r")
-        regressionFileContent = regressionFileOpener.read().split()
-        regressionFileOpener.close()
-        for k in regressionFileContent:
-            if k.find("=") == -1:
+    if matrix is not None:
+        configuration_matrix_variables = []
+        configuration_matrix_str = open(matrix).read()
+
+        for line in configuration_matrix_str.splitlines():
+            match = configuration_line_rx.match(line)
+            if match is None:
                 continue
 
-            if k.find("extra") != -1:
+            if "extra" in line:
                 break
-            else:
-                regressionConfigurationsList.append(k.split("=")[0])
-        if len(regressionConfigurationsList):
+
+            configuration_matrix_variables.append(line[1])
+
+        if len(configuration_matrix_variables) > 0:
             ConfigHandler.update_configuration_values(
-                regressionConfigurationsList, True
+                configuration_matrix_variables, True
             )
 
     if configuration_parameters is not None:
@@ -223,21 +240,19 @@ def cli(
     def run_design(designs_queue):
         nonlocal design_failure_flag, flow_failure_flag
         while not designs_queue.empty():
-            design, config, tag, design_name = designs_queue.get(
-                timeout=3
-            )  # 3s timeout
+            design, conf_file, design_name = designs_queue.get(timeout=3)  # 3s timeout
+            tag = os.path.splitext(os.path.basename(conf_file))[0]
             run_path = utils.get_run_path(design=design, tag=tag)
-            update("START", design)
+            update("START", design, tag)
             command = [
                 os.getenv("OPENLANE_ENTRY") or "./flow.tcl",
                 "-design",
                 design,
                 "-tag",
                 tag,
-                "-config_tag",
-                config,
+                "-config_file",
+                conf_file,
                 "-overwrite",
-                "-no_save",
                 "-run_hooks",
             ] + (["-verbose", "1"] if show_log_output else [])
             run_path_relative = os.path.relpath(run_path, ".")
@@ -279,7 +294,7 @@ def cli(
 
             try:
                 params = ConfigHandler.get_config_for_run(None, design, tag)
-                update("DONE", design, "Writing report...")
+                update("DONE", design, f"{tag}: Writing report...")
 
                 report = Report(design, tag, design_name, params).get_report()
                 report_log.info(report)
@@ -336,9 +351,7 @@ def cli(
 
     q = queue.Queue()
     total_runs = 0
-    if regression is not None:
-        regression_file = os.path.join(os.getcwd(), regression)
-        number_of_configs = 0
+    if matrix is not None:
         for design in designs:
             base_path = utils.get_design_path(design=design)
             if base_path is None:
@@ -347,31 +360,24 @@ def cli(
                     if design in rem_designs.keys():
                         rem_designs.pop(design)
                 continue
+
             err, design_name = utils.get_design_name(design, config)
             if err is not None:
                 update("ERROR", design, f"Cannot run: {err}", error=True)
                 continue
-            base_config_path = base_path + "base_config.tcl"
 
-            ConfigHandler.gen_base_config(design, base_config_path)
+            base_config_path = os.path.join(base_path, config_file)
 
-            number_of_configs = subprocess.check_output(
-                [
-                    "python3",
-                    "./scripts/config/generate_config.py",
-                    f"{base_path}/config_{tag}_",
-                    base_config_path,
-                    regression_file,
-                ]
+            config_file_paths = expand_matrix(
+                base_config_path, matrix, os.path.join(base_path, f"{tag}_config")
             )
 
-            number_of_configs = int(number_of_configs.decode(sys.getdefaultencoding()))
-            total_runs = total_runs + number_of_configs
+            total_runs += len(config_file_paths)
             if print_rem_time is not None:
-                rem_designs[design] = number_of_configs
-            for i in range(number_of_configs):
-                config_tag = f"config_{tag}_{i}"
-                q.put((design, config_tag, config_tag, design_name))
+                rem_designs[design] = total_runs
+
+            for config in config_file_paths:
+                q.put((design, config, design_name))
     else:
         for design in designs:
             base_path = utils.get_design_path(design=design)
@@ -381,12 +387,17 @@ def cli(
                     if design in rem_designs.keys():
                         rem_designs.pop(design)
                 continue
-            default_config_tag = f"config_{tag}"
+
+            source_config = os.path.join(base_path, config_file)
+            target_config = os.path.join(base_path, f"{tag}_config.json")
+
+            shutil.copyfile(source_config, target_config)
+
             err, design_name = utils.get_design_name(design, config)
             if err is not None:
                 update("ERROR", design, f"Cannot run: {err}")
                 continue
-            q.put((design, config, default_config_tag, design_name))
+            q.put((design, target_config, design_name))
 
     workers = []
     for i in range(num_workers):

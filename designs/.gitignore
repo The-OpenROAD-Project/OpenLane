@@ -6,3 +6,5 @@
 */base_config.tcl
 !*/config.tcl
 !*/script.tcl
+*/run_*.json
+*/matrix_*.json
