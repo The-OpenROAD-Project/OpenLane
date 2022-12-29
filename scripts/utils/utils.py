@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import re
 import csv
-import json
 
 
 def get_design_path(design):
@@ -30,9 +28,6 @@ def get_design_path(design):
 
 def get_run_path(design, tag):
     return os.path.join(get_design_path(design), "runs", tag)
-
-
-DESIGN_NAME_RX = re.compile(r"\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*")
 
 
 def add_computed_statistics(filename):

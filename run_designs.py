@@ -274,7 +274,7 @@ def cli(
                 update(
                     "ERROR",
                     design,
-                    f"Matrix mode is incompatible with .tcl config files",
+                    "Matrix mode is incompatible with .tcl config files",
                     error=True,
                 )
                 return None
