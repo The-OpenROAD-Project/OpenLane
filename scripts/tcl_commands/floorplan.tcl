@@ -402,6 +402,7 @@ proc padframe_gen_batch {args} {
 
     set_if_unset arg_values(-output) [index_file $::env(floorplan_tmpfiles)/padframe_out.odb]
     set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/padframe_out.def]
+    set_if_unset arg_values(-odb_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-log) [index_file $::env(floorplan_logs)/padringer.log]
     set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
     set_if_unset arg_values(-cfg) $::env(PADFRAME_CFG)
@@ -435,7 +436,7 @@ proc padframe_gen_batch {args} {
         --def-netlist $arg_values(-def) \
         {*}$prefix_argument \
         {*}$lefs_argument \
-        --odb-lef $::env(MERGED_LEF) \
+        --odb-lef $arg_values(-odb_lef) \
         -c $arg_values(-cfg) \
         --working-dir $::env(floorplan_tmpfiles) \
         --output $arg_values(-output) \
