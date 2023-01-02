@@ -383,6 +383,68 @@ proc run_power_grid_generation {args} {
     gen_pdn
 }
 
+proc padframe_gen_batch {args} {
+    increment_index
+    TIMER::timer_start
+
+    set options {
+        {-odb optional}
+        {-def optional}
+        {-cfg optional}
+        {-log optional}
+        {-output_def optional}
+        {-output_odb optional}
+        {-odb_lef optional}
+        {-design_name optional}
+    }
+    set flags {}
+
+    parse_key_args "padframe_gen_batch" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-output) [index_file $::env(floorplan_tmpfiles)/padframe_out.odb]
+    set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/padframe_out.def]
+    set_if_unset arg_values(-log) [index_file $::env(floorplan_logs)/padringer.log]
+    set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
+    set_if_unset arg_values(-cfg) $::env(PADFRAME_CFG)
+    set_if_unset arg_values(-design_name) $::env(DESIGN_NAME)
+    set_odb $arg_values(-odb)
+
+    if { ![info exist arg_values(-def)]} {
+        puts_verbose "Converting ODB to DEF for padringer"
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/read_write.tcl\
+            -indexed_log [index_file $::env(floorplan_logs)/odb_to_def.log]\
+            -save "to=$::env(floorplan_tmpfiles),name=padframe_in,def,odb"
+        set arg_values(-def) $::env(CURRENT_DEF)
+    }
+
+    set lefs_argument ""
+    foreach lef "$::env(TECH_LEF) $::env(GPIO_PADS_LEF) $::env(EXTRA_LEFS)" {
+        set lefs_argument "$lefs_argument --input-lef $lef"
+    }
+
+    set prefix_argument ""
+    foreach prefix "$::env(GPIO_PADS_PREFIX)" {
+        set prefix_argument "$prefix_argument --pad-name-prefixes $prefix"
+    }
+
+    puts_info "Generating pad frame"
+    try_catch openroad -python -exit $::env(SCRIPTS_DIR)/odbpy/padringer.py\
+        --def-netlist $arg_values(-def) \
+        {*}$prefix_argument \
+        {*}$lefs_argument \
+        --odb-lef $::env(MERGED_LEF) \
+        -c $arg_values(-cfg) \
+        --working-dir $::env(floorplan_tmpfiles) \
+        --output $arg_values(-output) \
+        --output-def $arg_values(-output_def) \
+        $arg_values(-design_name) \
+        |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan padringer"
+
+}
+
 proc run_floorplan {args} {
     # |----------------------------------------------------|
     # |----------------   2. FLOORPLAN   ------------------|
