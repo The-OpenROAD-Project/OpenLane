@@ -398,7 +398,6 @@ proc padframe_gen_batch {args} {
         {-design_name optional}
     }
     set flags {}
-
     parse_key_args "padframe_gen_batch" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-output) [index_file $::env(floorplan_tmpfiles)/padframe_out.odb]
@@ -417,8 +416,12 @@ proc padframe_gen_batch {args} {
         set arg_values(-def) $::env(CURRENT_DEF)
     }
 
+    set extra_lefs ""
+    if { [info exists ::env(EXTRA_LEFS)] } {
+        set extra_lefs $::env(EXTRA_LEFS)
+    }
     set lefs_argument ""
-    foreach lef "$::env(TECH_LEF) $::env(GPIO_PADS_LEF) $::env(EXTRA_LEFS)" {
+    foreach lef "$::env(TECH_LEF) $::env(GPIO_PADS_LEF) $extra_lefs" {
         set lefs_argument "$lefs_argument --input-lef $lef"
     }
 
