@@ -405,7 +405,7 @@ proc padframe_gen_batch {args} {
     set_if_unset arg_values(-odb_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-log) [index_file $::env(floorplan_logs)/padringer.log]
     set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
-    set_if_unset arg_values(-cfg) $::env(PADFRAME_CFG)
+    set_if_unset arg_values(-cfg) $::env(FP_PADFRAME_CFG)
     set_if_unset arg_values(-design_name) $::env(DESIGN_NAME)
     set_odb $arg_values(-odb)
 

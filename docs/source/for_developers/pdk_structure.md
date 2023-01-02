@@ -46,6 +46,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
+| `GPIO_PADS_PREFIX` | A list of pad cells name prefixes. |
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |
 | `FP_TAPCELL_DIST` | The distance between tapcell columns. Used in floorplanning in tapcell insertion. |
 | `DEFAULT_MAX_TRAN` | Defines the default maximum transition value, used in CTS & synthesis. |
