@@ -334,15 +334,7 @@ def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, 
     rx = re.compile(r"\s*set\s*::env\((.+?)\)\s*(.+)")
     env = input_env.copy()
     string_data = ""
-    try:
-        string_data = open(config_path).read()
-    except FileNotFoundError:
-        print(
-            f"[ERR] File {config_path} not found.",
-            file=sys.stderr,
-        )
-        exit(os.EX_NOINPUT)
-
+    string_data = open(config_path).read()
     # Process \ at ends of lines, remove semicolons
     entries = string_data.split("\n")
     i = 0

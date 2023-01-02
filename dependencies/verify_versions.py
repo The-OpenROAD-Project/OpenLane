@@ -59,7 +59,7 @@ def verify_versions(
     }
     pdk_manifest_names = set(manifest_names_by_SOURCES_name.values())
 
-    if not no_pdks:
+    if not no_pdks and pdk is not None:
         try:
             # 2. Check if the PDK is compatible with Flow Scripts
             pdk_root = os.getenv("PDK_ROOT")

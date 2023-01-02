@@ -17,7 +17,7 @@ import os
 import re
 import sys
 import yaml
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Dict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
@@ -119,7 +119,14 @@ class Artifact(object):
 
 
 class Report(object):
-    def __init__(self, design_path, tag, design_name, params, run_path=None):
+    def __init__(
+        self,
+        design_path: str,
+        tag: str,
+        design_name: str,
+        params: Dict[str, str],
+        run_path: Optional[str] = None,
+    ):
         self.design_path = design_path
         self.design_name = design_name
         self.tag = tag
@@ -127,7 +134,7 @@ class Report(object):
         if run_path is None:
             run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
-        self.configuration = params
+        self.configuration = params.values()
         self.raw_report = None
         self.formatted_report = None
 

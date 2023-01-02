@@ -164,6 +164,7 @@ test_design_list:
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
+			--config_file config\
 			$(DESIGN_LIST)\
 		"
 # -u is needed, as the python buffers the stdout, so no output is generated

@@ -13,9 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-import re
 import csv
-import json
 
 
 def get_design_path(design):
@@ -30,33 +28,6 @@ def get_design_path(design):
 
 def get_run_path(design, tag):
     return os.path.join(get_design_path(design), "runs", tag)
-
-
-DESIGN_NAME_RX = re.compile(r"\s*?set ::env\(DESIGN_NAME\)\s*?(\S+)\s*")
-
-
-def get_design_name(design, config):
-    # Why does this function look like it's been written by a Go developer
-    # forced to write Python at gunpoint?
-    design_path = get_design_path(design=design)
-    if design_path is None:
-        return (f"Path for '{design}' not found", None)
-    config_file_json = f"{design_path}/{config}.json"
-    config_file_tcl = f"{design_path}/{config}.tcl"
-
-    if os.path.isfile(config_file_tcl):
-        config_tcl_str = open(config_file_tcl).read()
-        for name in DESIGN_NAME_RX.findall(config_tcl_str):
-            return (None, name.strip('"{}'))
-        return ("No key ::env(DESIGN_NAME) in Tcl configuration file.", None)
-    elif os.path.isfile(config_file_json):
-        config_json_str = open(config_file_json).read()
-        config = json.loads(config_json_str)
-        if config.get("DESIGN_NAME") is None:
-            return ("No key DESIGN_NAME in JSON configuration file.", None)
-        return (None, config["DESIGN_NAME"])
-    else:
-        return ("config.tcl/config.json not found", None)
 
 
 def add_computed_statistics(filename):
