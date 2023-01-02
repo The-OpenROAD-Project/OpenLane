@@ -180,7 +180,6 @@ def padringer(
     """
 
     config_file_name = padframe_config
-    output_file_name = output
     lefs = input_lef
 
     working_def = f"{working_dir}/{design}.pf.def"
@@ -430,7 +429,6 @@ def padringer(
             height * 1000 // 2 - master_height // 2,
         )
         inst.setPlacementStatus("PLACED")
-
 
     if output_def:
         odb.write_def(top.block, output_def)
