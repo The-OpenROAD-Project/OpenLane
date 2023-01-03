@@ -1,0 +1,14 @@
+{
+  "FP_CORE_UTIL": [
+    40,
+    45,
+    50
+  ],
+  "DIODE_INSERTION_STRATEGY": [
+    3,
+    6
+  ],
+  "preload": {
+    "STD_CELL_LIBRARY": "sky130_fd_sc_hd"
+  }
+}

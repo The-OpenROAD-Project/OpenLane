@@ -14,18 +14,18 @@
 
 import os
 import sys
-import subprocess
+import json
+from typing import Dict, List
+from collections import OrderedDict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(os.path.dirname(__file__))
 
-from utils.utils import get_run_path, get_design_path  # noqa: E402
-from shutil import copyfile  # noqa: E402
-from collections import OrderedDict  # noqa: E402
+from utils.utils import get_run_path  # noqa: E402
+from tcl import read_tcl_env  # noqa: E402
 
 
 class ConfigHandler:
-    config_getter_script = os.path.join(os.path.dirname(__file__), "config_get.sh")
-
     configuration_values = [
         "CLOCK_PERIOD",
         "SYNTH_STRATEGY",
@@ -85,21 +85,62 @@ class ConfigHandler:
         return ",".join(Self.configuration_values)
 
     @classmethod
-    def get_config(Self, design, tag, run_path=None):
+    def get_config_for_run(Self, run_path, design, tag) -> Dict[str, str]:
         if run_path is None:
             run_path = get_run_path(design=design, tag=tag)
-        config_relative_path = "config.tcl"
-        config_path = os.path.join(os.getcwd(), run_path, config_relative_path)
-        config_coded = subprocess.check_output(
-            [Self.config_getter_script, config_path, *Self.configuration_values]
-        )
-        config = config_coded.decode(sys.getfilesystemencoding()).strip()
-        config = config.split("##")
-        config = list(filter(None, config))
-        config = [element.strip('{}"') for element in config]
+        config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
+        config = read_tcl_env(config_path)
+        config = {k: v for k, v in config.items() if k in Self.configuration_values}
         return config
 
-    @staticmethod
-    def gen_base_config(design, base_config_file):
-        config_file = os.path.join(get_design_path(design=design), "config.tcl")
-        copyfile(config_file, base_config_file)
+
+def expand_matrix(
+    base_config_path: str, config_matrix_path: str, output_prefix: str
+) -> List[str]:
+    try:
+        base_config = json.load(open(base_config_path))
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON config file: {base_config_path}")
+
+    try:
+        matrix = json.load(open(config_matrix_path))
+    except json.JSONDecodeError:
+        raise ValueError(f"Invalid JSON config file: {config_matrix_path}")
+
+    preloaded_variables = matrix.get("preload")
+    if preloaded_variables is not None:
+        del matrix["preload"]
+    else:
+        preloaded_variables = {}
+
+    configs = [{}]
+    for key, variables in matrix.items():
+        stride = len(configs)
+        configs *= len(variables)
+
+        # Ensure the dictionaries themselves are copied, not just references
+        for i in range(0, stride):
+            tracker = stride + i
+            while tracker < len(configs):
+                configs[tracker] = configs[i].copy()
+                tracker += stride
+
+        tracker = 0
+        for i in range(0, len(configs)):
+            configs[i][key] = variables[tracker]
+            if ((i + 1) % stride) == 0:
+                tracker += 1
+
+    config_paths = []
+    for i, config in enumerate(configs):
+        current_config = preloaded_variables.copy()  # So SCL/PDK-specific configs work
+        current_config.update(base_config)
+        current_config.update(config)
+
+        current_config_path = f"{output_prefix}_{i}.json"
+        with open(current_config_path, "w") as f:
+            f.write(json.dumps(current_config, indent=2))
+
+        config_paths.append(current_config_path)
+
+    return config_paths

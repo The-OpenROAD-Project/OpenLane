@@ -31,7 +31,7 @@ endif
 # Allow using GUIs
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host --security-opt seccomp=unconfined
   ifneq ("$(wildcard $(HOME)/.openroad)","")
     DOCKER_OPTIONS += -v $(HOME)/.openroad:/.openroad
   endif
@@ -164,6 +164,7 @@ test_design_list:
 			--threads $(THREADS)\
 			--print_rem $(PRINT_REM_DESIGNS_TIME)\
 			--benchmark $(BENCHMARK)\
+			--config_file config\
 			$(DESIGN_LIST)\
 		"
 # -u is needed, as the python buffers the stdout, so no output is generated

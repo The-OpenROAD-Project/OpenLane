@@ -36,67 +36,27 @@ The script can be used in two ways
     python3 run_designs.py --defaultTestSet
     ```
 
-2. An exploration run that generates configuration files of all possible combinations of the passed regression file and runs them on the provided designs.
+2. An exploration run that generates configuration files of all possible combinations of variables in the passed matrix JSON file and runs them on the provided designs.
    
     ```bash
-    python3 run_designs.py --regression ./scripts/config/regression.config --threads 2 spm xtea
+    python3 run_designs.py --matrix ./designs/wbqspiflash/matrix.json --threads 4 wbqspiflash
     ```
 
-    These parameters must be provided in the file passed to `--regression`. Any file can be used. The file used above is just an example
+    These parameters must be provided in the file passed to `--matrix`. Any file can be used with any combination of designs. The file used above is just an example.
     
-    - Basic Regression Script:
-    
-        The parameters that have multiple values inside the brackets will form the combinations. So here all combinations of GRT_ADJUSTMENT and FP_CORE_UTIL will be tried.
 
-        ```
-        GRT_ADJUSTMENT=(0.1,0.15)
-        FP_CORE_UTIL=(40,50)
-        PL_TARGET_DENSITY=(0.4)
-        SYNTH_STRATEGY=(1,3)
-        FP_PDN_VPITCH=(153.6)
-        FP_PDN_HPITCH=(153.18)
-        FP_ASPECT_RATIO=(1)
-        SYNTH_MAX_FANOUT=(5)
-
-        ```
-    
-    - Complex Expressions:
-
-        In addition, `extra` is appended to every configuration file generated. So it is used to add some configurations specific to this regression run. The file could also contain non-white-space-separated expressions of one or more configuration variables or alternatively this could be specified in the extra section:
-        
-        ```
-        FP_CORE_UTIL=(40,50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL*0.01-0.1,0.4)
-    
-        extra="
-        set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
-        "
-        ```
-
-    - SCL-specific section
-
-        You can use this section to specify information that you would like to be sourced before sourcing SCL-specific information:
-
-        ```
-        FP_CORE_UTIL=(40,50)
-        PL_TARGET_DENSITY=(FP_CORE_UTIL*0.01-0.1,0.4)
-        
-        extra="
-        set ::env(SYNTH_MAX_FANOUT) { $::env(FP_ASPECT_RATIO) * 5 }
-        "
-        
-        std_cell_library="
-        set ::env(STD_CELL_LIBRARY) sky130_fd_sc_hd
-        set ::env(SYNTH_STRATEGY) 1
-        "
-        ```
-        In the example above, SYNTH_STRATEGY and STD_CELL_LIBRARY will be set before sourcing the SCL-specific information, and thus if SYNTH_STRATEGY is already specified under the configurations, the old value will override the value specified here.
-
-        This can also be used to control the used PDK and its SCL, since it is set before sourcing the SCL-specific information, so this will override the SCL set in general.tcl and allow for more control on different standard cell libraries under the same design.
-
-
-    It is important to note that the used configuration in the expression should be assigned a value or a range of values preceding its use in the file.
-
+    * Matrix file structure
+        * The matrix file shall be a ECMA404-compliant JSON file with:
+            * One key called `"preload"`: the value of which being a dictionary of configuration variables in a similar manner to the OpenLane JSON configuration file spec. 
+            * N keys named for the configuration variable the user wishes to run multiple combinations of. The values for said keys shall be arrays of any valid values in the OpenLane JSON configuration file spec.
+            * You can review the OpenLane JSON configuration file spec for values [here](../reference/configuration_files.md#scalars).
+        * The script will generate all possible combinations of the N keys.
+            * This means the total number of combinations is |variable<sub>0</sub>| * |variable<sub>1</sub>| * ... * |variable<sub>n-1</sub>|
+            * For each combination:
+                * A configuration based on `"preload"` will be created.
+                * The values from the project's `config.json` will be added to that configuration.
+                * The values from the combination will finally be added to that configuration.
+            * The combination will be saved to a file, which is then run.
 
 **Important Note:** *If you are going to launch two or more separate regression runs that include same design(s), make sure to set different tags for them using the `--tag` option. Also, put memory management into consideration while running multiple threads to avoid running out of memory to avoid any invalid pointer access.*
 

@@ -61,6 +61,8 @@ docker_command = [
             "--benchmark",
             os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
             "--show_output",
+            "--config_file",
+            "config",
             design,
         ]
     ),

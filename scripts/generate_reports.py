@@ -44,11 +44,10 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     Creates manufacturability and metric summary reports for a given design and OpenLane run.
     """
     # Extracting Configurations
-    params = ConfigHandler.get_config(design, tag, run_path)
+    params = ConfigHandler.get_config_for_run(run_path, design, tag)
 
     # Extracting Report
     report = Report(design, tag, design_name, params, run_path).get_report()
-
     # Write into file
     with open(output_file, "w") as f:
         f.write(Report.get_header() + "," + ConfigHandler.get_header())

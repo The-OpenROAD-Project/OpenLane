@@ -51,7 +51,8 @@ def extract_opt_variables(
         "STD_CELL_LIBRARY": opt_scl,
     }
     config = read_tcl_env(pdk_config_path)
-    config.update(read_tcl_env(scl_config_path))
+    scl_config = read_tcl_env(scl_config_path)
+    config.update(scl_config)
     cfg_filtered = {k: v.strip() for k, v in config.items() if k in target_variables}
 
     env_access = re.compile(r"(\$(?:\:\:)?env\((\w+)\))")

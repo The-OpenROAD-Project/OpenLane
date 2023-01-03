@@ -34,5 +34,5 @@ design_name = args.design_name
 tag = args.tag
 run_path = args.run_path
 
-params = ConfigHandler.get_config(design, tag, run_path)
+params = ConfigHandler.get_config_for_run(run_path, design, tag)
 Report(design, tag, design_name, params, run_path).reports_from_logs()
