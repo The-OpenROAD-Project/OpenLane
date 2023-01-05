@@ -413,23 +413,6 @@ def padringer(
             new_inst.setPlacementStatus("FIRM")
             created_cells_count += 1
 
-    # TODO: place the core macros within the padframe (chip floorplan)
-    for inst in top.block.getInsts():
-        if inst.isPlaced() or inst.isFixed():
-            continue
-        print("Placing", inst.getName())
-        master = inst.getMaster()
-        master_width = master.getWidth()
-        master_height = master.getHeight()
-        print(master_width, master_height)
-        print(width, height)
-
-        inst.setLocation(
-            width * 1000 // 2 - master_width // 2,
-            height * 1000 // 2 - master_height // 2,
-        )
-        inst.setPlacementStatus("PLACED")
-
     if output_def:
         odb.write_def(top.block, output_def)
     odb.write_db(top.db, output)
