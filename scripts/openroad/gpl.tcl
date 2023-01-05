@@ -37,7 +37,6 @@ if { !$placement_needed } {
 set arg_list [list]
 
 lappend arg_list -density $::env(PL_TARGET_DENSITY)
-lappend arg_list -init_density_penalty 1e-5
 
 if { $::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -overflow 0.9
