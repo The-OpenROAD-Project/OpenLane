@@ -297,6 +297,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `KLAYOUT_XOR_GDS` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `KLAYOUT_XOR_THREADS` | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
 | `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. |
 | | 0: No diode insertion. |
 | | 1: Spray diodes. |
@@ -310,6 +311,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
 | `QUIT_ON_MISMATCHES` | **Removed: See `./flow.tcl -ignore_mismatches`** Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
+| `KLAYOUT_XOR_GDS` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `KLAYOUT_XOR_XML` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 
 ### Checkers

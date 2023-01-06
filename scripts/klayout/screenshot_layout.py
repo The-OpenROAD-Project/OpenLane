@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Copyright 2020-2022 Efabless Corporation
-# Copyright 2021 The American University in Cairo and the Cloud V Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 # limitations under the License.
 
 import os
-import sys
 from typing import TYPE_CHECKING
 
 try:
@@ -24,6 +22,7 @@ except ImportError:
     import click
 
     @click.command()
+    @click.option("-o", "--output", required=True)
     @click.option(
         "-l",
         "--input-lef",
@@ -47,46 +46,51 @@ except ImportError:
         help="KLayout .lyp file",
     )
     @click.argument("input_def")
-    def open_design(
+    def screenshot_layout(
+        output,
         input_lef,
         lyt,
         lyp,
         input_def,
     ):
         args = [
+            # "xvfb-run",
+            # "-a",
             "klayout",
             "-rm",
             __file__,
             "-rd",
-            f"input_lef={os.path.abspath(input_lef)}",
+            f"out_png={os.path.abspath(output)}",
+            "-rd",
+            f"lef_file={os.path.abspath(input_lef)}",
             "-rd",
             f"tech_file={os.path.abspath(lyt)}",
             "-rd",
             f"props_file={os.path.abspath(lyp)}",
             "-rd",
-            f"input_def={os.path.abspath(input_def)}",
+            f"in_def={os.path.abspath(input_def)}",
         ]
         os.execlp("klayout", *args)
 
     if __name__ == "__main__":
-        open_design()
+        screenshot_layout()
 
 if TYPE_CHECKING:
     # Dummy data for type-checking
-    input_def: str = ""
+    in_def: str = ""
+    out_png: str = ""
     tech_file: str = ""
     props_file: str = ""
-    input_lef: str = ""
+    lef_file: str = ""
 
 try:
+    WIDTH = 2048
+    HEIGHT = 2048
+
     main_window = pya.Application.instance().main_window()
 
-    # Relative to the layout path, ':' delimited. If not provided, all LEFs
-    # in the same folder as the layout will be loaded.
-    explicitly_listed_lefs_raw = os.getenv("EXPLICITLY_LISTED_LEFS")
-
-    use_explicitly_listed_lefs = explicitly_listed_lefs_raw is not None
-
+    # Load technology file
+    print(f"[INFO] Reading tech file: '{str(tech_file)}'...")
     tech = pya.Technology()
     tech.load(tech_file)
 
@@ -94,10 +98,32 @@ try:
     layout_options.keep_other_cells = True
     layout_options.lefdef_config.macro_resolution_mode = 1
     layout_options.lefdef_config.read_lef_with_def = False
-    layout_options.lefdef_config.lef_files = [input_lef]
+    layout_options.lefdef_config.lef_files = [lef_file]
 
-    cell_view = main_window.load_layout(input_def, layout_options, 0)
+    # Load def file in the main window
+    print(f"[INFO] Reading layout file: '{str(in_def)}'...")
+    cell_view = main_window.load_layout(in_def, layout_options, 0)
+    layout_view = cell_view.view()
+    layout_view.load_layer_props(props_file)
+    layout_view.max_hier()
+
+    # Hide layers with these purposes
+    hidden_purposes = [0, 4, 5]
+
+    li = layout_view.begin_layers()
+    while not li.at_end():
+        lp = li.current()
+        if lp.source_datatype in hidden_purposes:
+            new_lp = lp.dup()
+            new_lp.visible = False
+            layout_view.set_layer_properties(li, new_lp)
+
+        li.next()
+
+    print(f"[INFO] Writing out screenshot to '{out_png}'...")
+    layout_view.save_image(out_png, WIDTH, HEIGHT)
+    print("Done.")
     exit(0)
 except Exception as e:
-    print(e, file=sys.stderr)
+    print(e)
     exit(-1)

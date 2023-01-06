@@ -1,28 +1,75 @@
-# A general XOR script
-# (https://www.klayout.de/forum/discussion/100/xor-vs-diff-tool)
-# This script uses KLayout's DRC language to implement a generic
-# XOR between two layouts. The name of the layouts is given
-# in $a and $b.
+#!/usr/bin/env ruby
+# A general XOR script from: https://www.klayout.de/forum/discussion/100/xor-vs-diff-tool
 
-# For layout-to-layout XOR with multiple cores, run this script with
-#   ./klayout -r xor.drc -rd thr=NUM_CORES -rd top_cell=TOP_CELL_NAME -rd a=a.gds -rd b=b.gds -rd ol=xor.gds -zz
-# (replace NUM_CORES by the desired number of cores to utilize
+# This script uses KLayout's Ruby-based DRC language to implement a generic
+# XOR between two layouts. The names of the layouts are given in global variables
+# $a and $b.
 
-# enable timing output
+if !defined?(RBA)
+  require 'optparse'
+
+  options = {
+    :rpt_out => "/dev/null"
+  }
+  optparse = OptionParser.new do |opts|
+    opts.banner = "Usage: #{File.basename($0)} [options] <GDS A> <GDS B>"
+
+    opts.on("-o", "--output OUTPUT", "Klayout RDB (.xml) output file (required)") do |rdb_out|
+      options[:rdb_out] = rdb_out
+    end
+    opts.on("-R", "--report REPORT_FILE", "Text file  (default: #{options[:rpt_out]})") do |rpt_out|
+      options[:rpt_out] = rpt_out
+    end
+    # opts.on("-O", "--gds-out OUTPUT", "GDS output file (required)") do |gds_out|
+    #   options[:gds_out] = gds_out
+    # end
+    opts.on("-t", "--top TOP_CELL", "Top cell name (required)") do |top_cell|
+      options[:top_cell] = top_cell
+    end
+  end
+  optparse.parse!
+  
+  if [options[:rdb_out], options[:top_cell]].include?(nil)
+    puts optparse.help
+    exit 64
+  end
+
+  args = [
+    "klayout", "-b",
+    "-r", $0,
+    "-rd", "top_cell=#{options[:top_cell]}",
+    "-rd", "a=#{ARGV[0]}",
+    "-rd", "b=#{ARGV[1]}",
+    "-rd", "jobs=1",
+    "-rd", "rdb_out=#{File.absolute_path(options[:rdb_out])}",
+    "-rd", "rpt_out=#{File.absolute_path(options[:rpt_out])}",
+    # "-rd", "gds_out=#{options[:gds_out]}",
+  ]
+  puts "Running: '#{args.join(" ")}'..."
+  exec *args
+
+end
+
 verbose
 
-# set up input a
+# Set up inputs
 a = source($a, $top_cell)
-
-# set up input b
 b = source($b, $top_cell)
 
-$o && $ext != "gds" && report("XOR #{$a} vs. #{$b}", $o)
-$ol && $ext == "gds" && target($ol, $co || "XOR")
+# Set up output
+# target($gds_out, "XOR")
+report("XOR #{$a} vs. #{$b}", $rdb_out)
 
-$thr && threads($thr) || threads(2)
+def write_data(xor_data, layer_info)
+  # xor_data.output(layer_info.layer, layer_info.datatype, layer_info.name)
+  xor_data.output(layer_info.to_s, "XOR data for layer #{layer_info.to_s}")
+end
 
-# collect all common layers
+# Run XOR
+$jobs = $jobs.to_i
+threads($jobs) unless $jobs <= 1
+
+## Collect all common layers
 layers = {}
 [ a.layout, b.layout ].each do |ly|
   ly.layer_indices.each do |li|
@@ -31,12 +78,21 @@ layers = {}
   end
 end
 
-# perform the XOR's
-layers.keys.sort.each do |l|
-  i = layers[l]
-  info("--- Running XOR for #{l} ---")
-  x = a.input(l) ^ b.input(l)
-  info("XOR differences: #{x.data.size}")
-  $o && $ext != "gds" && x.output(l, "XOR results for layer #{l} #{i.name}")
-  $ol && $ext == "gds" && x.output(i.layer, i.datatype, i.name)
+## Perform per-layer XOR
+total_xor_differences = 0
+layers.keys.sort.each do |layer_name|
+  info "--- Running XOR for layer #{layer_name} ---"
+  
+  layer_info = layers[layer_name]
+  xor_data = a.input(layer_name) ^ b.input(layer_name)
+  total_xor_differences += xor_data.data.size
+  info "XOR differences: #{xor_data.data.size}"
+
+  write_data xor_data, layer_info
+end
+
+info "---"
+info "Total XOR differences: #{total_xor_differences}"
+File.open($rpt_out, "w") do |f|
+  f.puts "Total XOR differences = #{total_xor_differences}"
 end
