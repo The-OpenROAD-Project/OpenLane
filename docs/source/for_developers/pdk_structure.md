@@ -44,6 +44,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `MAGIC_TECH_FILE` | Points to the magic tech file which mainly has drc rules. |
 | `KLAYOUT_TECH` | Points to the klayout tech file (.lyt). |
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
+| `KLAYOUT_DEF_LAYER_MAP` | Points to the klayout deflef layer map file (.lmp). |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |

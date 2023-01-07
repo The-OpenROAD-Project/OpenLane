@@ -36,6 +36,7 @@ proc run_klayout {args} {
         try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			--output $klayout_out\
 			--tech-file $::env(KLAYOUT_TECH)\
+			--def-layer-map-file $::env(KLAYOUT_DEF_LAYER_MAP)\
 			--props-file $::env(KLAYOUT_PROPERTIES)\
 			--top $::env(DESIGN_NAME)\
             {*}$gds_file_arg \
