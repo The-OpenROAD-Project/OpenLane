@@ -411,7 +411,7 @@ proc padframe_gen_batch {args} {
 
     if { ![info exist arg_values(-def)]} {
         puts_verbose "Converting ODB to DEF for padringer"
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/read_write.tcl\
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
             -indexed_log [index_file $::env(floorplan_logs)/odb_to_def.log]\
             -save "to=$::env(floorplan_tmpfiles),name=padframe_in,def,odb"
         set arg_values(-def) $::env(CURRENT_DEF)
