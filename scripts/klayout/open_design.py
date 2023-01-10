@@ -81,12 +81,6 @@ if TYPE_CHECKING:
 try:
     main_window = pya.Application.instance().main_window()
 
-    # Relative to the layout path, ':' delimited. If not provided, all LEFs
-    # in the same folder as the layout will be loaded.
-    explicitly_listed_lefs_raw = os.getenv("EXPLICITLY_LISTED_LEFS")
-
-    use_explicitly_listed_lefs = explicitly_listed_lefs_raw is not None
-
     tech = pya.Technology()
     tech.load(tech_file)
 

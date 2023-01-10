@@ -53,7 +53,7 @@
     make PREFIX=$PREFIX install
 - name: klayout
   repo: https://github.com/KLayout/klayout
-  commit: 8bed8bcc3ca19f7e1a810815541977fd16bc1db5
+  commit: 44a2aa9ca17c2b1c154f9c410ded063de9ed3e12
   build: ''
   in_install: false
 - name: openroad_app
