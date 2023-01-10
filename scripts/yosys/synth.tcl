@@ -335,6 +335,17 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
     tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
 
+    if { [info exists ::env(SYNTH_AUTONAME)] && $::env(SYNTH_AUTONAME) } {
+        # Generate public names for the various nets, resulting in very long names that include
+        # the full heirarchy, which is preferable to the internal names that are simply
+        # sequential numbers such as `_000019_`. Renamed net names can be very long, such as:
+        #     manual_reset_gf180mcu_fd_sc_mcu7t5v0__dffq_1_Q_D_gf180mcu_ \
+        #     fd_sc_mcu7t5v0__nor3_1_ZN_A1_gf180mcu_fd_sc_mcu7t5v0__aoi21_ \
+        #     1_A2_A1_gf180mcu_fd_sc_mcu7t5v0__nand3_1_ZN_A3_gf180mcu_fd_ \
+        #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
+        autoname
+    }
+
     if { $postfix_with_strategy } {
         set output "$output.$strategy_escaped.nl.v"
     }
