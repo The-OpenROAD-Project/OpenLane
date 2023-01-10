@@ -66,8 +66,8 @@ proc run_yosys {args} {
         set_netlist -lec $::env(SAVE_NETLIST)
     }
 
-        # The following is a naive workaround to OpenROAD not accepting defparams.
-        # It *should* be handled with a fix to the OpenROAD Verilog parser.
+    # The following is a naive workaround to OpenROAD not accepting defparams.
+    # It *should* be handled with a fix to the OpenROAD Verilog parser.
     if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
         puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
     } else {
@@ -122,7 +122,12 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
-    run_sta -pre_cts -log $::env(synthesis_logs)/sta.log -save_to $::env(synthesis_results)
+    run_sta\
+        -log $::env(synthesis_logs)/sta.log \
+        -netlist_in \
+        -pre_cts \
+        -save_to $::env(synthesis_results)
+
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
 
     if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
