@@ -141,6 +141,7 @@ try:
     tech.load(tech_file)
     layout_options = tech.load_layout_options
     layout_options.lefdef_config.macro_resolution_mode = 1
+    layout_options.lefdef_config.read_lef_with_def = False
     layout_options.lefdef_config.lef_files = [lef_file]
 
     # Load def file
