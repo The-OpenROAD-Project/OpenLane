@@ -15,6 +15,7 @@
 proc run_sta {args} {
     if {![info exists ::env(CLOCK_PORT)]} {
         puts_warn "CLOCK_PORT is not set. STA will be skipped..."
+        return
     }
 
     set options {

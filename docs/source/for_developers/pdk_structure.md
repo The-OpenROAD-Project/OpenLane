@@ -101,7 +101,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
 | `FP_PDN_UPPER_LAYER` | Defines the upper layer used in PDN. |
-| `FP_PDN_LOWER_LAYER` | Defines the upper layer used in PDN. |
+| `FP_PDN_LOWER_LAYER` | Defines the lower layer used in PDN. |
 | `FP_PDN_RAILS_LAYER` | Defines the rail layer used in PDN. |
 | `FP_PDN_RAIL_WIDTH` | Defines the rail width for the rail layer used in PDN. |
 | `SYNTH_LATCH_MAP` | A pointer for the file contianing the latch mapping for yosys. |
