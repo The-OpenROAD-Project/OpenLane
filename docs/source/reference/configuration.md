@@ -147,7 +147,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) +5 ) / 100.0`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
-| `PL_LIB` | Specifies the library for time driven placement <br> (Default: `LIB_TYPICAL`)|
 | `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement. Basic placement is used for extremely simple, low-density designs of only a few dozens of gates, and should be disabled for most designs. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_SKIP_INITIAL_PLACEMENT` | Specifies whether the placer should run initial placement or not. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RANDOM_GLB_PLACEMENT` | Specifies whether the placer should run random placement or not. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |

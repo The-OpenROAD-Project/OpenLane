@@ -80,7 +80,6 @@ This section defines the necessary variables to configure a standard cell librar
 | `LIB_SLOWEST` | Points to the lib file, corresponding to the slowest corner, for max delay calculation during STA. |
 | `LIB_FASTEST` | Points to the lib file, corresponding to the fastest corner, for min delay calculation during STA. |
 | `LIB_TYPICAL` | Points to the lib file for typical delay calculation during STA. |
-| `NO_SYNTH_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `PLACE_SITE` | Defines the main site used by the cells. Used during floorplanning to generate the rows. |
 | `PLACE_SITE_WIDTH` | Defines the main site width. Used during floorplanning to generate the rows. |
 | `PLACE_SITE_HEIGHT` | Defines the main site height. Used during floorplanning to generate the rows. |
@@ -94,21 +93,18 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. <br> (Example: `sky130_fd_sc_hd__buf_2 A X`  )|
 | `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 HI`)|
 | `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
-| `CELL_CLK_PORT` | Defines the name of clk port of the flip flops and other cells. Used in CTS. |
-| `PL_LIB` | Points to the lib view used in time driven placement.  |
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Example: `0`) |
 | `DPL_CELL_PADDING` | Defines the number of sites to pad the cells lef views with during detailed placement . The number will be integer divided by 2 and placed on both sides. <br> (Example: `4`) |
 | `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
-| `ROOT_CLK_BUFFER` | Root clock buffer of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_16`) |
-| `CLK_BUFFER` | Clock buffer used for inner nodes of the clock tree. <br> (Example: `sky130_fd_sc_hd__clkbuf_4`) |
-| `CLK_BUFFER_INPUT` | Input pin of the clock tree buffer. <br> (Example: `A`) |
-| `CLK_BUFFER_OUTPUT` | Output pin of the clock tree buffer. <br> (Example: `X`)|
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
-| `FP_PDN_RAIL_WIDTH` | Defines the rail width for met1 used in PDN. |
+| `FP_PDN_UPPER_LAYER` | Defines the upper layer used in PDN. |
+| `FP_PDN_LOWER_LAYER` | Defines the lower layer used in PDN. |
+| `FP_PDN_RAILS_LAYER` | Defines the rail layer used in PDN. |
+| `FP_PDN_RAIL_WIDTH` | Defines the rail width for the rail layer used in PDN. |
 | `SYNTH_LATCH_MAP` | A pointer for the file contianing the latch mapping for yosys. |
 | `TRISTATE_BUFFER_MAP` | A pointer for the file containing the tri-state buffer mapping for yosys. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |

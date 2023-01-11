@@ -13,6 +13,11 @@
 # limitations under the License.
 
 proc run_sta {args} {
+    if {![info exists ::env(CLOCK_PORT)]} {
+        puts_warn "CLOCK_PORT is not set. STA will be skipped..."
+        return
+    }
+
     set options {
         {-log required}
         {-process_corner optional}
@@ -21,6 +26,7 @@ proc run_sta {args} {
     set flags {
         -multi_corner
         -pre_cts
+        -netlist_in
     }
     parse_key_args "run_sta" args arg_values $options flags_map $flags
 
@@ -52,24 +58,24 @@ proc run_sta {args} {
         set lib_option "lib"
     }
 
-    if {[info exists ::env(CLOCK_PORT)]} {
-        if { $multi_corner == 1 } {
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
-                -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"\
-                -no_update_current
+    set arg_list [list]
+    lappend arg_list -indexed_log $log
+    lappend arg_list -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
+    if { [info exists flags_map(-netlist_in)] } {
+        lappend arg_list -netlist_in
+    }
 
-            if { $::env(STA_WRITE_LIB) } {
-                unset ::env(SAVE_LIB)
-            }
-            unset ::env(SAVE_SDF)
-        } else {
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl \
-                -indexed_log $log\
-                -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
+    if { $multi_corner == 1 } {
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta_multi_corner.tcl \
+            -no_update_current\
+            {*}$arg_list
+
+        if { $::env(STA_WRITE_LIB) } {
+            unset ::env(SAVE_LIB)
         }
+        unset ::env(SAVE_SDF)
     } else {
-        puts_warn "CLOCK_PORT is not set. STA will be skipped..."
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
