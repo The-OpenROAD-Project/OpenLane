@@ -444,6 +444,8 @@ proc padframe_gen_batch {args} {
         $arg_values(-design_name) \
         |& tee $::env(TERMINAL_OUTPUT) $arg_values(-log)
 
+    set_def $arg_values(-output_def)
+    set_odb $arg_values(-output)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan padringer"
 
