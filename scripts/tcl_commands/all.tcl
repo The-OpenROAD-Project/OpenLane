@@ -1165,9 +1165,14 @@ proc write_verilog {args} {
         set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
 
+    set arg_list [list]
+    lappend arg_list -indexed_log $arg_values(-indexed_log)
+    lappend arg_list -save $save_arg
+    if { [info exists arg_values(-def)] } {
+        lappend arg_list -def_in
+    }
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
-        -indexed_log $arg_values(-indexed_log)\
-        -save $save_arg
+        {*}$arg_list
 
     set $::env(CURRENT_DEF) $current_def_backup
 
