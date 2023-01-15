@@ -471,7 +471,6 @@ proc run_tcl_script {args} {
     # -no_update_current: See '-save'
     set flags {-def_in -netlist_in -gui -no_update_current}
 
-    puts "{*}$args"
     parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
