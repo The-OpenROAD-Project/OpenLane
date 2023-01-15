@@ -520,6 +520,11 @@ proc prep {args} {
         source $::env(OPENLANE_ROOT)/configuration/$config
     }
 
+    # Users are allowed to use PDKPATH
+    if { [info exists ::env(PDK)] && [info exists $::env(PDK_ROOT)] } {
+        set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
+    }
+
     ## 1. Configuration File (Process Info Only)
     set config_file_rel [relpath . $::env(DESIGN_CONFIG)]
 
