@@ -1147,7 +1147,6 @@ proc write_verilog {args} {
     set flags {}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
-    set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-indexed_log) /dev/null
 
     increment_index
@@ -1158,9 +1157,6 @@ proc write_verilog {args} {
 
     set save_arg "odb=/dev/null,netlist=$filename"
 
-    set current_def_backup $::env(CURRENT_DEF)
-    set ::env(CURRENT_DEF) $arg_values(-def)
-
     if { [info exists arg_values(-powered_to)] } {
         set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
@@ -1168,9 +1164,12 @@ proc write_verilog {args} {
     set arg_list [list]
     lappend arg_list -indexed_log $arg_values(-indexed_log)
     lappend arg_list -save $save_arg
+    set current_def_backup $::env(CURRENT_DEF)
     if { [info exists arg_values(-def)] } {
+        set ::env(CURRENT_DEF) $arg_values(-def)
         lappend arg_list -def_in
     }
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
         {*}$arg_list
 
