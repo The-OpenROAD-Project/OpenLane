@@ -294,7 +294,7 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
         withhold = False
         try:
             if not isinstance(key, str):
-                raise InvalidConfig(f"must be a string.")
+                raise InvalidConfig("must be a string")
             if isinstance(value, dict):
                 withhold = True
                 if key.startswith(PDK_PREFIX):
@@ -318,7 +318,7 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
 
                 if not valid:
                     raise InvalidConfig(
-                        f"Invalid value: Arrays must consist only of strings."
+                        "Invalid value: Arrays must consist only of strings."
                     )
                 value = " ".join(processed)
             else:
