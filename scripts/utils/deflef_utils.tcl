@@ -150,7 +150,7 @@ proc remove_nets {args} {
     }
 
     if { [info exists flags_map(-empty)] } {
-        lappend --empty-only
+        lappend arg_list --empty-only
     }
 
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py remove_nets\
