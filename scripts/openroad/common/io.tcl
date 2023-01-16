@@ -86,7 +86,7 @@ proc read {args} {
         keys {-override_libs}\
         flags {-multi_corner_libs}
 
-    if { [info exists ::env(IO_READ_DEF)] } {
+    if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
         if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
             puts stderr $errmsg
             exit 1
