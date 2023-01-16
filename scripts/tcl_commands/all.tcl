@@ -1225,6 +1225,10 @@ proc run_irdrop_report {args} {
 }
 
 proc or_gui {args} {
+    if { ![info exists ::env(CURRENT_ODB)] || $::env(CURRENT_ODB) == 0 } {
+        puts_err "CURRENT_ODB is unset."
+        return -code error
+    }
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
 }
 
