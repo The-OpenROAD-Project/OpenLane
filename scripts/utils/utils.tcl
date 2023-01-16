@@ -487,7 +487,7 @@ proc run_tcl_script {args} {
     set name $::env(DESIGN_NAME)
 
     if { [info exists flag_map(-def_in)] } {
-        set ::env(DEF_IN) $::env(CURRENT_DEF)
+        set ::env(IO_READ_DEF) 1
     }
 
     set saved_values [split $arg_values(-save) ","]
@@ -649,7 +649,7 @@ proc run_tcl_script {args} {
     }
 
     if { [info exists arg_values(-def_in)] } {
-        unset ::env(DEF_IN)
+        unset ::env(IO_READ_DEF)
     }
 
     if { ![info exist flag_map(-no_update_current)]} {

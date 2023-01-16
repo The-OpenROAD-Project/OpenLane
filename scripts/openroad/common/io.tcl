@@ -88,10 +88,9 @@ proc read {args} {
 
     if {
         [catch {
-            if { [info exists ::env(DEF_IN)] } {
-                puts "Reading def $::env(DEF_IN)"
+            if { [info exists ::env(IO_READ_DEF)] } {
                 read_lef $::env(MERGED_LEF)
-                read_def $::env(DEF_IN)
+                read_def $::env(CURRENT_DEF)
             } else {
                 puts "Reading odb $::env(CURRENT_ODB)"
                 read_db $::env(CURRENT_ODB)
