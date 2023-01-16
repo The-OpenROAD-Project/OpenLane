@@ -254,10 +254,15 @@ def process_string(value: str, state: State) -> str:
             full_abspath = os.path.abspath(value)
 
             # Resolve globs for paths that are inside the exposed directory
-            if value.startswith("/") and full_abspath.startswith(found):
-                files = glob.glob(full_abspath)
-                files_escaped = [file.replace("$", r"\$") for file in files]
-                value = " ".join(files_escaped)
+            if value.startswith("/"):
+                if full_abspath.startswith(found):
+                    files = glob.glob(full_abspath)
+                    if not files:
+                        raise InvalidConfig(f"No such file {full_abspath}")
+                    files_escaped = [file.replace("$", r"\$") for file in files]
+                    value = " ".join(files_escaped)
+                else:
+                    raise InvalidConfig(f"Invalid path: {full_abspath}")
         except KeyError:
             raise InvalidConfig(
                 f"Referenced variable '{reference_variable}' not found."
@@ -287,38 +292,39 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
 
     for key, value in config_in.items():
         withhold = False
-        if not isinstance(key, str):
-            raise InvalidConfig(f"Invalid key {key}: must be a string.")
-        if isinstance(value, dict):
-            withhold = True
-            if key.startswith(PDK_PREFIX):
-                pdk_match = key[len(PDK_PREFIX) :]
-                if fnmatch.fnmatch(state.vars[PDK_VAR], pdk_match):
-                    process_config_dict_recursive(value, state)
-            elif key.startswith(SCL_PREFIX):
-                scl_match = key[len(SCL_PREFIX) :]
-                if state.vars[SCL_VAR] is not None and fnmatch.fnmatch(
-                    state.vars[SCL_VAR], scl_match
-                ):
-                    process_config_dict_recursive(value, state)
-            else:
-                raise InvalidConfig(
-                    f"Invalid value type {type(value)} for key '{key}'."
-                )
-        elif isinstance(value, list):
-            valid = True
-            processed = []
-            for (i, item) in enumerate(value):
-                current_key = f"{key}[{i}]"
-                processed.append(f"{process_scalar(current_key, item, state)}")
+        try:
+            if not isinstance(key, str):
+                raise InvalidConfig(f"must be a string.")
+            if isinstance(value, dict):
+                withhold = True
+                if key.startswith(PDK_PREFIX):
+                    pdk_match = key[len(PDK_PREFIX) :]
+                    if fnmatch.fnmatch(state.vars[PDK_VAR], pdk_match):
+                        process_config_dict_recursive(value, state)
+                elif key.startswith(SCL_PREFIX):
+                    scl_match = key[len(SCL_PREFIX) :]
+                    if state.vars[SCL_VAR] is not None and fnmatch.fnmatch(
+                        state.vars[SCL_VAR], scl_match
+                    ):
+                        process_config_dict_recursive(value, state)
+                else:
+                    raise InvalidConfig(f"Invalid value type {type(value)}'.")
+            elif isinstance(value, list):
+                valid = True
+                processed = []
+                for (i, item) in enumerate(value):
+                    current_key = f"{key}[{i}]"
+                    processed.append(f"{process_scalar(current_key, item, state)}")
 
-            if not valid:
-                raise InvalidConfig(
-                    f"Invalid value for key '{key}': Arrays must consist only of strings."
-                )
-            value = " ".join(processed)
-        else:
-            value = process_scalar(key, value, state)
+                if not valid:
+                    raise InvalidConfig(
+                        f"Invalid value: Arrays must consist only of strings."
+                    )
+                value = " ".join(processed)
+            else:
+                value = process_scalar(key, value, state)
+        except InvalidConfig as e:
+            raise InvalidConfig(f"Key {key}: {e}")
 
         if not withhold:
             state.vars[key] = value
