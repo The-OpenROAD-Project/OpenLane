@@ -257,12 +257,9 @@ def process_string(value: str, state: State) -> str:
             if value.startswith("/"):
                 if full_abspath.startswith(found):
                     files = glob.glob(full_abspath)
-                    if not files:
-                        raise InvalidConfig(f"No such file {full_abspath}")
-                    files_escaped = [file.replace("$", r"\$") for file in files]
-                    value = " ".join(files_escaped)
-                else:
-                    raise InvalidConfig(f"Invalid path: {full_abspath}")
+                    if files:
+                        files_escaped = [file.replace("$", r"\$") for file in files]
+                        value = " ".join(files_escaped)
         except KeyError:
             raise InvalidConfig(
                 f"Referenced variable '{reference_variable}' not found."
