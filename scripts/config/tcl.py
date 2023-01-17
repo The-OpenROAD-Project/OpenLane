@@ -254,12 +254,11 @@ def process_string(value: str, state: State) -> str:
             full_abspath = os.path.abspath(value)
 
             # Resolve globs for paths that are inside the exposed directory
-            if value.startswith("/"):
-                if full_abspath.startswith(found):
-                    files = glob.glob(full_abspath)
-                    if files:
-                        files_escaped = [file.replace("$", r"\$") for file in files]
-                        value = " ".join(files_escaped)
+            if value.startswith("/") and full_abspath.startswith(found):
+                files = glob.glob(full_abspath)
+                if files:
+                    files_escaped = [file.replace("$", r"\$") for file in files]
+                    value = " ".join(files_escaped)
         except KeyError:
             raise InvalidConfig(
                 f"Referenced variable '{reference_variable}' not found."
