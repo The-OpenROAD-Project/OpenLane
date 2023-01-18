@@ -300,38 +300,38 @@ def issue(
         final_env[key] = ""
         if verbose:
             print(f"Processing {key}: {full_value}", file=sys.stderr)
-        for value in full_value.split(" "):
-            if value.startswith(run_path):
+        for split_value in full_value.split(" "):
+            if split_value.startswith(run_path):
                 final_env[key] = ""
-                relative = relpath(value, run_path)
+                relative = relpath(split_value, run_path)
                 final_value = join(".", relative)
                 final_path = join(destination_folder, final_value)
-                from_path = value
+                from_path = split_value
                 copy(from_path, final_path)
                 final_env[key] += f"{final_value} "
-            elif value.startswith(pdk_root):
-                relative = relpath(value, pdk_root)
+            elif split_value.startswith(pdk_root):
+                relative = relpath(split_value, pdk_root)
                 final_value = join("pdk", relative)
                 final_path = join(destination_folder, final_value)
-                copy(value, final_path)
+                copy(split_value, final_path)
                 final_env[key] += f"{final_value} "
-            elif value.startswith("/openlane"):
-                relative = relpath(value, "/openlane")
+            elif split_value.startswith("/openlane"):
+                relative = relpath(split_value, "/openlane")
                 final_value = join("openlane", relative)
                 final_path = join(destination_folder, final_value)
-                from_path = value.replace("/openlane", openlane_path)
-                if value != "/openlane/scripts":  # Too many files to copy otherwise
+                from_path = split_value.replace("/openlane", openlane_path)
+                if split_value != "/openlane/scripts":  # Too many files to copy otherwise
                     copy(from_path, final_path)
                 final_env[key] += f"{final_value} "
-            elif value.startswith("/") and not value.startswith(
+            elif split_value.startswith("/") and not split_value.startswith(
                 "/dev"
             ):  # /dev/null, /dev/stdout, /dev/stderr, etc should still work
-                final_value = value[1:]
+                final_value = split_value[1:]
                 final_path = join(destination_folder, final_value)
-                copy(value, final_path)
+                copy(split_value, final_path)
                 final_env[key] += f"{final_value} "
             else:
-                final_env[key] += f"{value} "
+                final_env[key] += f"{split_value} "
         final_env[key] = final_env[key].rstrip()
     if verbose:
         print("---\n", file=sys.stderr)
