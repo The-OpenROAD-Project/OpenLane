@@ -86,9 +86,21 @@ proc read {args} {
         keys {-override_libs}\
         flags {-multi_corner_libs}
 
-    if {[catch {read_db $::env(CURRENT_ODB)} errmsg]} {
-        puts stderr $errmsg
-        exit 1
+    if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
+        if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
+        if { [ catch {read_def $::env(CURRENT_DEF)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    } else {
+        puts "\[INFO\]: Reading ODB at '$::env(CURRENT_ODB)'..."
+        if { [ catch {read_db $::env(CURRENT_ODB)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
     }
 
     set read_libs_args [list]

@@ -469,7 +469,7 @@ proc run_tcl_script {args} {
     # -def_in: Specify that the input is CURRENT_DEF and not the ODB file.
     # -gui: Launch the GUI (OpenROAD Only)
     # -no_update_current: See '-save'
-    set flags {-netlist_in -gui -no_update_current}
+    set flags {-def_in -netlist_in -gui -no_update_current}
 
     parse_key_args "run_tcl_script" args arg_values $options flag_map $flags
 
@@ -485,6 +485,10 @@ proc run_tcl_script {args} {
     set metrics_path ""
     set index 1
     set name $::env(DESIGN_NAME)
+
+    if { [info exists flag_map(-def_in)] } {
+        set ::env(IO_READ_DEF) 1
+    }
 
     set saved_values [split $arg_values(-save) ","]
 
@@ -642,6 +646,10 @@ proc run_tcl_script {args} {
             puts_info "Reproducible packaged at '$reproducible_dir_relative'."
             exit 0
         }
+    }
+
+    if { [info exists arg_values(-def_in)] } {
+        unset ::env(IO_READ_DEF)
     }
 
     if { ![info exist flag_map(-no_update_current)]} {
