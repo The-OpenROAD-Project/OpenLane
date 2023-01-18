@@ -35,6 +35,8 @@ from config.tcl import read_tcl_env
 
 openlane_path = abspath(dirname(dirname(__file__)))
 
+ws = re.compile(r"\s+")
+
 
 @click.command()
 @click.option(
@@ -109,7 +111,6 @@ def issue(
     input_file: Name of input into the script (usually denoted by environment variable CURRENT_NETLIST or CURRENT_DEF: get it from the logs)
     """
 
-    OPEN_SOURCE_PDKS = ["sky130A", "sky130B"]
     print(
         textwrap.dedent(
             """\
@@ -297,49 +298,45 @@ def issue(
     if verbose:
         print("\nProcessing environment variables…\n---", file=sys.stderr)
     for key in env_keys_used:
-        value = env[key]
+        full_value = env[key]
+        final_env[key] = ""
         if verbose:
-            print(f"Processing {key}: {value}…", file=sys.stderr)
-        if value.startswith(run_path):
-            relative = relpath(value, run_path)
-            final_value = join(".", relative)
-            final_path = join(destination_folder, final_value)
-            from_path = value
-            copy(from_path, final_path)
-
-            final_env[key] = final_value
-        elif value.startswith(pdk_root):
-            nonfree_warning = True
-            value_components = value.split(os.path.sep)
-            for pdk in OPEN_SOURCE_PDKS:
-                if pdk in value_components:
-                    nonfree_warning = False
-            if nonfree_warning:
-                warnings.append(
-                    f"[WRN] {value} appears to be a confidential PDK file. ENSURE THAT YOU INSPECT THE RESULTS."
-                )
-            relative = relpath(value, pdk_root)
-            final_value = join("pdk", relative)
-            final_path = join(destination_folder, final_value)
-            copy(value, final_path)
-            final_env[key] = final_value
-        elif value.startswith("/openlane"):
-            relative = relpath(value, "/openlane")
-            final_value = join("openlane", relative)
-            final_path = join(destination_folder, final_value)
-            from_path = value.replace("/openlane", openlane_path)
-            if value != "/openlane/scripts":  # Too many files to copy otherwise
+            print(f"Processing {key}: {full_value}", file=sys.stderr)
+        for split_value in ws.split(full_value):
+            if split_value.startswith(run_path):
+                final_env[key] = ""
+                relative = relpath(split_value, run_path)
+                final_value = join(".", relative)
+                final_path = join(destination_folder, final_value)
+                from_path = split_value
                 copy(from_path, final_path)
-            final_env[key] = final_value
-        elif value.startswith("/") and not value.startswith(
-            "/dev"
-        ):  # /dev/null, /dev/stdout, /dev/stderr, etc should still work
-            final_value = value[1:]
-            final_path = join(destination_folder, final_value)
-            copy(value, final_path)
-            final_env[key] = final_value
-        else:
-            final_env[key] = value
+                final_env[key] += f"{final_value} "
+            elif split_value.startswith(pdk_root):
+                relative = relpath(split_value, pdk_root)
+                final_value = join("pdk", relative)
+                final_path = join(destination_folder, final_value)
+                copy(split_value, final_path)
+                final_env[key] += f"{final_value} "
+            elif split_value.startswith("/openlane"):
+                relative = relpath(split_value, "/openlane")
+                final_value = join("openlane", relative)
+                final_path = join(destination_folder, final_value)
+                from_path = split_value.replace("/openlane", openlane_path)
+                if (
+                    split_value != "/openlane/scripts"
+                ):  # Too many files to copy otherwise
+                    copy(from_path, final_path)
+                final_env[key] += f"{final_value} "
+            elif split_value.startswith("/") and not split_value.startswith(
+                "/dev"
+            ):  # /dev/null, /dev/stdout, /dev/stderr, etc should still work
+                final_value = split_value[1:]
+                final_path = join(destination_folder, final_value)
+                copy(split_value, final_path)
+                final_env[key] += f"{final_value} "
+            else:
+                final_env[key] += f"{split_value} "
+        final_env[key] = final_env[key].rstrip()
     if verbose:
         print("---\n", file=sys.stderr)
 
