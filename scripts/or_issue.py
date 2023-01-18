@@ -320,7 +320,9 @@ def issue(
                 final_value = join("openlane", relative)
                 final_path = join(destination_folder, final_value)
                 from_path = split_value.replace("/openlane", openlane_path)
-                if split_value != "/openlane/scripts":  # Too many files to copy otherwise
+                if (
+                    split_value != "/openlane/scripts"
+                ):  # Too many files to copy otherwise
                     copy(from_path, final_path)
                 final_env[key] += f"{final_value} "
             elif split_value.startswith("/") and not split_value.startswith(
