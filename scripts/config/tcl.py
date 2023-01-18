@@ -256,7 +256,7 @@ def process_string(value: str, state: State) -> str:
             # Resolve globs for paths that are inside the exposed directory
             if value.startswith("/") and full_abspath.startswith(found):
                 files = glob.glob(full_abspath)
-                if files:
+                if len(files) != 0:
                     files_escaped = [file.replace("$", r"\$") for file in files]
                     value = " ".join(files_escaped)
         except KeyError:
