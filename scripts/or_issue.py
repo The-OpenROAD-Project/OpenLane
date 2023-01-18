@@ -35,6 +35,8 @@ from config.tcl import read_tcl_env
 
 openlane_path = abspath(dirname(dirname(__file__)))
 
+ws = re.compile(r"\s+")
+
 
 @click.command()
 @click.option(
@@ -300,7 +302,7 @@ def issue(
         final_env[key] = ""
         if verbose:
             print(f"Processing {key}: {full_value}", file=sys.stderr)
-        for split_value in full_value.split(" "):
+        for split_value in ws.split(full_value):
             if split_value.startswith(run_path):
                 final_env[key] = ""
                 relative = relpath(split_value, run_path)
