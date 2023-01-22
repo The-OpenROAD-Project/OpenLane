@@ -298,8 +298,7 @@ proc puts_info {txt} {
 }
 
 proc puts_verbose {txt} {
-    global global_verbose_level
-    if { $global_verbose_level } {
+    if { $::env(OPENLANE_VERBOSE_LEVEL) } {
         set message "\[INFO\]: $txt"
         puts "[color_text 6 "$message"]"
         if { [info exists ::env(RUN_DIR)] } {
