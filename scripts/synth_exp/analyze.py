@@ -49,9 +49,9 @@ def cli(output, input_file):
     best_gates = ""
 
     strat_rx = re.compile(r"USING STRATEGY ([A-Z]+\s+\d+)")
-    delay_rx = re.compile(r"Delay\s+\=\s+(\S+)")
-    area_rx = re.compile(r"Area\s+\=\s+(\S+)")
-    gates_rx = re.compile(r"Gates\s+\=\s+(\S+)")
+    delay_rx = re.compile(r"Delay\s+\=\s*(\S+)")
+    area_rx = re.compile(r"Area\s+\=\s*(\S+)")
+    gates_rx = re.compile(r"Gates\s+\=\s*(\S+)")
 
     data = []
 
