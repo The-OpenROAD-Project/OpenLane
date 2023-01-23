@@ -356,9 +356,10 @@ proc source_config {args} {
 }
 
 proc set_verbose {level} {
-    set ::env(OPENLANE_VERBOSE_LEVEL) $level
+    global global_verbose_level
+    set global_verbose_level $level
     set ::env(TERMINAL_OUTPUT) "/dev/null"
-    if { $::env(OPENLANE_VERBOSE_LEVEL) >= 2 } {
+    if { $global_verbose_level >= 2 } {
         set ::env(TERMINAL_OUTPUT) ">&@stdout"
     }
 }
