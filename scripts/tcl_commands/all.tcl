@@ -355,6 +355,7 @@ proc source_config {args} {
     source $config_in_path
 }
 
+set global_verbose_level 0
 proc set_verbose {level} {
     global global_verbose_level
     set global_verbose_level $level
