@@ -665,9 +665,9 @@ proc prep {args} {
             }
             puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
-            if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
-                puts_info "Current DEF: $::env(CURRENT_DEF)."
-                puts_info "Use 'set_def file_name.def' if you'd like to change it."
+            if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
+                puts_info "Current ODB: $::env(CURRENT_ODB)"
+                puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
             }
             after 1000
             if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {

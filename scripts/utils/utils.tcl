@@ -648,8 +648,8 @@ proc run_tcl_script {args} {
         }
     }
 
-    if { [info exists arg_values(-def_in)] } {
-        unset ::env(IO_READ_DEF)
+    if { [info exists flag_map(-def_in)] } {
+        set ::env(IO_READ_DEF) 0
     }
 
     if { ![info exist flag_map(-no_update_current)]} {
