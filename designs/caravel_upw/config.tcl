@@ -126,3 +126,6 @@ set ::env(DIODE_INSERTION_STRATEGY) 0
 set ::env(RUN_FILL_INSERTION) 0
 set ::env(RUN_TAP_DECAP_INSERTION) 0
 set ::env(CLOCK_TREE_SYNTH) 0
+
+# magic extraction issues
+set ::env(MAGIC_DEF_LABELS) 0
