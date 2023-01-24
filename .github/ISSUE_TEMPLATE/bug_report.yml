@@ -49,6 +49,10 @@ body:
         2. If you don't...
             * Please compress and upload the design folder by dragging the .tar.gz or the .zip file to the following text field.
             * List the commands used to run the design.
+        > **Warning:**
+        > GitHub's maximum file upload size is 25 MB, so if your upload is larger than 25MB, please consider splitting it as follows:
+        > for tar files: `split -b 24M <tar-file-name> "<file-tar-name>.part"`
+        > for zip files: `zip -r -s 24M <zip-file-name> <directory-name>`
   - type: textarea
     id: reproduction-material
     attributes:
