@@ -33,7 +33,7 @@ proc initialize {args} {
 		}
 	}
 	foreach lib $::env(LIB_TYPICAL) {
-		read_liberty -nooverwrite -lib -ignore_miss_dir -setattr blackbox $lib
+		read_liberty -ignore_miss_func -ignore_miss_dir $lib
 	}
 }
 
