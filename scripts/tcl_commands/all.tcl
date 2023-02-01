@@ -355,6 +355,7 @@ proc source_config {args} {
     source $config_in_path
 }
 
+set global_verbose_level 0
 proc set_verbose {level} {
     global global_verbose_level
     set global_verbose_level $level
@@ -665,9 +666,9 @@ proc prep {args} {
             }
             puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
             source $::env(GLB_CFG_FILE)
-            if { [info exists ::env(CURRENT_DEF)] && $::env(CURRENT_DEF) != 0 } {
-                puts_info "Current DEF: $::env(CURRENT_DEF)."
-                puts_info "Use 'set_def file_name.def' if you'd like to change it."
+            if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
+                puts_info "Current ODB: $::env(CURRENT_ODB)"
+                puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
             }
             after 1000
             if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
@@ -1147,7 +1148,6 @@ proc write_verilog {args} {
     set flags {}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
-    set_if_unset arg_values(-def) $::env(CURRENT_DEF)
     set_if_unset arg_values(-indexed_log) /dev/null
 
     increment_index
@@ -1158,16 +1158,21 @@ proc write_verilog {args} {
 
     set save_arg "odb=/dev/null,netlist=$filename"
 
-    set current_def_backup $::env(CURRENT_DEF)
-    set ::env(CURRENT_DEF) $arg_values(-def)
-
     if { [info exists arg_values(-powered_to)] } {
         set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
 
+    set arg_list [list]
+    lappend arg_list -indexed_log $arg_values(-indexed_log)
+    lappend arg_list -save $save_arg
+    set current_def_backup $::env(CURRENT_DEF)
+    if { [info exists arg_values(-def)] } {
+        set ::env(CURRENT_DEF) $arg_values(-def)
+        lappend arg_list -def_in
+    }
+
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/write_views.tcl\
-        -indexed_log $arg_values(-indexed_log)\
-        -save $save_arg
+        {*}$arg_list
 
     set $::env(CURRENT_DEF) $current_def_backup
 
@@ -1220,6 +1225,10 @@ proc run_irdrop_report {args} {
 }
 
 proc or_gui {args} {
+    if { ![info exists ::env(CURRENT_ODB)] || $::env(CURRENT_ODB) == 0 } {
+        puts_err "CURRENT_ODB is unset."
+        return -code error
+    }
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
 }
 

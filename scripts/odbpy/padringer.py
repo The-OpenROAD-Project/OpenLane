@@ -91,10 +91,13 @@ def generate_cfg(north, east, south, west, corner_pads, width, height):
 
 @click.command()
 @click.option(
-    "-o",
     "--output",
-    default="./out.def",
-    help="A verilog netlist containing pads and other user macros",
+    required=True,
+    help="Output ODB file",
+)
+@click.option(
+    "--output-def",
+    help="Output DEF file",
 )
 @click.option(
     "-v",
@@ -111,11 +114,17 @@ def generate_cfg(north, east, south, west, corner_pads, width, height):
 @click.option(
     "-l",
     "--input-lef",
+    multiple=True,
     required=True,
     help="LEF file needed to have a proper view of the DEF files",
 )
-@click.option("-w", "--width", required=True, help="Width of the die area.")
-@click.option("-h", "--height", required=True, help="Height of the die area.")
+@click.option(
+    "--odb-lef",
+    required=True,
+    help="LEF file to be included in output odb",
+)
+@click.option("-w", "--width", help="Width of the die area.")
+@click.option("-h", "--height", help="Height of the die area.")
 @click.option(
     "-c",
     "--padframe-config",
@@ -125,8 +134,8 @@ def generate_cfg(north, east, south, west, corner_pads, width, height):
 @click.option(
     "-P",
     "--pad-name-prefixes",
-    default="sky130_fd_io;sky130_ef_io",
-    help="Semicolon;delimited list of padname prefixes",
+    multiple=True,
+    help="Padname prefixes",
 )
 @click.option(
     "-i",
@@ -147,9 +156,11 @@ def generate_cfg(north, east, south, west, corner_pads, width, height):
 @click.argument("design")
 def padringer(
     output,
+    output_def,
     verilog_netlist,
     def_netlist,
     input_lef,
+    odb_lef,
     width,
     height,
     padframe_config,
@@ -169,8 +180,7 @@ def padringer(
     """
 
     config_file_name = padframe_config
-    output_file_name = output
-    lefs = [input_lef]
+    lefs = input_lef
 
     working_def = f"{working_dir}/{design}.pf.def"
     working_cfg = f"{working_dir}/{design}.pf.cfg"
@@ -198,13 +208,11 @@ def padringer(
         openroad_script.append(f"read_verilog {verilog_netlist}")
         openroad_script.append(f"link_design {design}")
         openroad_script.append(f"write_def {working_def}")
-        # openroad_script.append(f"write_db {design}.pf.db")
         openroad_script.append("exit")
 
         p = Popen(["openroad"], stdout=PIPE, stdin=PIPE, stderr=PIPE, encoding="utf8")
 
         openroad_script = "\n".join(openroad_script)
-        # print(openroad_script)
 
         output = p.communicate(openroad_script)
         print("STDOUT:")
@@ -220,7 +228,7 @@ def padringer(
 
     assert os.path.exists(working_def), "DEF file doesn't exist"
 
-    top = OdbReader(lefs, working_def)
+    top = OdbReader(odb_lef, working_def)
 
     print(f"Top-level design name: {top.name}")
 
@@ -405,24 +413,9 @@ def padringer(
             new_inst.setPlacementStatus("FIRM")
             created_cells_count += 1
 
-    # TODO: place the core macros within the padframe (chip floorplan)
-    for inst in top.block.getInsts():
-        if inst.isPlaced() or inst.isFixed():
-            continue
-        print("Placing", inst.getName())
-        master = inst.getMaster()
-        master_width = master.getWidth()
-        master_height = master.getHeight()
-        print(master_width, master_height)
-        print(width, height)
-
-        inst.setLocation(
-            width * 1000 // 2 - master_width // 2,
-            height * 1000 // 2 - master_height // 2,
-        )
-        inst.setPlacementStatus("PLACED")
-
-    odb.write_def(top.block, output_file_name)
+    if output_def:
+        odb.write_def(top.block, output_def)
+    odb.write_db(top.db, output)
     print("Done.")
 
 
