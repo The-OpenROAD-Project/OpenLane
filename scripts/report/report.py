@@ -689,11 +689,8 @@ class Report(object):
                 tapcells = int(match[1])
 
         if diode_log_content is not None:
-            match = None
-            if "inserted!" in diode_log_content:
-                match = re.search(r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
-            else:
-                match = re.search(r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
+            match = re.search(r"Inserted (\d+) diodes\.", diode_log_content)
+
             if match is not None:
                 diodes = int(match[1])
 
