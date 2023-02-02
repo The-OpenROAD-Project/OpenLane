@@ -334,8 +334,13 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
     set stat_libs ""
-    foreach stat_lib "$::env(LIB_SYNTH_NO_PG) $::env(EXTRA_LIBS)" {
+    foreach stat_lib "$::env(LIB_SYNTH_NO_PG)" {
         set stat_libs "$stat_libs -liberty $stat_lib"
+    }
+    if { [info exists ::env(EXTRA_LIBS)] } {
+        foreach stat_lib "$::env(EXTRA_LIBS)" {
+            set stat_libs "$stat_libs -liberty $stat_lib"
+        }
     }
     tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
     tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) {*}$stat_libs
