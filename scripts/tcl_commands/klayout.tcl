@@ -160,6 +160,7 @@ proc run_klayout_gds_xor {args} {
                 -rd b=$arg_values(-layout2) \
                 -rd jobs=$::env(KLAYOUT_XOR_THREADS) \
                 -rd rdb_out=$db \
+                -rd ignore=$::env(KLAYOUT_XOR_IGNORE_LAYERS) \
                 -rd rpt_out=$report \
                 |& tee $::env(TERMINAL_OUTPUT) $log
 			TIMER::timer_stop
