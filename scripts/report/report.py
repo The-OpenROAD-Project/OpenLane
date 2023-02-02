@@ -357,7 +357,7 @@ class Report(object):
 
         # Power after parasitics-extraction, multi-corner STA
         power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
-        power_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.power.rpt")
+        power_report = Artifact(rp, "reports", "signoff", "rcx_sta.power.rpt")
         power_report_content = power_report.get_content()
         if power_report_content is not None:
             current_corner = None
@@ -396,7 +396,7 @@ class Report(object):
 
         # Critical path
         critical_path_ns = -1
-        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.max.rpt")
+        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_sta.max.rpt")
         critical_path_report_content = critical_path_report.get_content()
         if critical_path_report_content is not None:
             start = 0
