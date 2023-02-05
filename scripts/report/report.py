@@ -357,7 +357,7 @@ class Report(object):
 
         # Power after parasitics-extraction, multi-corner STA
         power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
-        power_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.power.rpt")
+        power_report = Artifact(rp, "reports", "signoff", "rcx_sta.power.rpt")
         power_report_content = power_report.get_content()
         if power_report_content is not None:
             current_corner = None
@@ -396,7 +396,7 @@ class Report(object):
 
         # Critical path
         critical_path_ns = -1
-        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_mca_sta.max.rpt")
+        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_sta.max.rpt")
         critical_path_report_content = critical_path_report.get_content()
         if critical_path_report_content is not None:
             start = 0
@@ -689,11 +689,8 @@ class Report(object):
                 tapcells = int(match[1])
 
         if diode_log_content is not None:
-            match = None
-            if "inserted!" in diode_log_content:
-                match = re.search(r"(\d+)\s+of\s+.+?\s+inserted!", diode_log_content)
-            else:
-                match = re.search(r"(\d+)\s+diodes\s+inserted\.", diode_log_content)
+            match = re.search(r"Inserted (\d+) diodes\.", diode_log_content)
+
             if match is not None:
                 diodes = int(match[1])
 
