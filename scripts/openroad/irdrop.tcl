@@ -11,26 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-if {[catch {read_lef $::env(MERGED_LEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-if {[catch {read_def $::env(CURRENT_DEF)} errmsg]} {
-    puts stderr $errmsg
-    exit 1
-}
-
-foreach lib $::env(LIB_SYNTH_COMPLETE) {
-    read_liberty $lib
-}
-
-if { [info exists ::env(EXTRA_LIBS) ] } {
-    foreach lib $::env(EXTRA_LIBS) {
-        read_liberty $lib
-    }
-}
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+read
+read_spef $::env(CURRENT_SPEF)
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 

@@ -61,4 +61,6 @@ proc set_global_connections {} {
                 -ground
         }
     }
+
+    global_connect
 }
