@@ -65,7 +65,7 @@ except ImportError:
     @click.option(
         "--def-layer-map-file",
         required=True,
-        help="KLayout .lmp (layer map file) file",
+        help="KLayout .map (deflef layer map) file",
     )
     @click.option(
         "-T",

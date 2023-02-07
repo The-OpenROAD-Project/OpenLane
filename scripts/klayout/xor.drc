@@ -20,7 +20,7 @@ if !defined?(RBA)
     opts.on("-R", "--report REPORT_FILE", "Text file  (default: #{options[:rpt_out]})") do |rpt_out|
       options[:rpt_out] = rpt_out
     end
-    opts.on("-i", "--ignore file1,file2,...", "Ignore layer(s)") do |ignore|
+    opts.on("-i", "--ignore SPACE_DELIMITED_LIST", "Ignore layer(s)") do |ignore|
       options[:ignore] = ignore
     end
     # opts.on("-O", "--gds-out OUTPUT", "GDS output file (required)") do |gds_out|
