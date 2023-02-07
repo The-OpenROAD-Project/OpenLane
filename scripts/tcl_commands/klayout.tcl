@@ -36,6 +36,7 @@ proc run_klayout {args} {
         try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			--output $klayout_out\
 			--tech-file $::env(KLAYOUT_TECH)\
+			--def-layer-map-file $::env(KLAYOUT_DEF_LAYER_MAP)\
 			--props-file $::env(KLAYOUT_PROPERTIES)\
 			--top $::env(DESIGN_NAME)\
             {*}$gds_file_arg \
@@ -159,6 +160,7 @@ proc run_klayout_gds_xor {args} {
                 -rd b=$arg_values(-layout2) \
                 -rd jobs=$::env(KLAYOUT_XOR_THREADS) \
                 -rd rdb_out=$db \
+                -rd ignore=$::env(KLAYOUT_XOR_IGNORE_LAYERS) \
                 -rd rpt_out=$report \
                 |& tee $::env(TERMINAL_OUTPUT) $log
 			TIMER::timer_stop

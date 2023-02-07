@@ -63,6 +63,11 @@ except ImportError:
         default=os.getenv("MERGED_LEF"),
     )
     @click.option(
+        "--def-layer-map-file",
+        required=True,
+        help="KLayout .map (deflef layer map) file",
+    )
+    @click.option(
         "-T",
         "--tech-file",
         "lyt",
@@ -89,6 +94,7 @@ except ImportError:
         lyp,
         input_gds_files,
         seal_gds_file,
+        def_layer_map_file,
         top,
         input_def,
     ):
@@ -101,6 +107,8 @@ except ImportError:
             f"out_gds={output}",
             "-rd",
             f"lef_file={input_lef}",
+            "-rd",
+            f"def_layer_map_file={def_layer_map_file}",
             "-rd",
             f"tech_file={lyt}",
             "-rd",
@@ -143,6 +151,7 @@ try:
     layout_options.lefdef_config.macro_resolution_mode = 1
     layout_options.lefdef_config.read_lef_with_def = False
     layout_options.lefdef_config.lef_files = [lef_file]
+    layout_options.lefdef_config.map_file = def_layer_map_file
 
     # Load def file
     main_layout = pya.Layout()

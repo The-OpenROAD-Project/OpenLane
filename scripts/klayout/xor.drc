@@ -20,6 +20,9 @@ if !defined?(RBA)
     opts.on("-R", "--report REPORT_FILE", "Text file  (default: #{options[:rpt_out]})") do |rpt_out|
       options[:rpt_out] = rpt_out
     end
+    opts.on("-i", "--ignore SPACE_DELIMITED_LIST", "Ignore layer(s)") do |ignore|
+      options[:ignore] = ignore
+    end
     # opts.on("-O", "--gds-out OUTPUT", "GDS output file (required)") do |gds_out|
     #   options[:gds_out] = gds_out
     # end
@@ -28,7 +31,7 @@ if !defined?(RBA)
     end
   end
   optparse.parse!
-  
+
   if [options[:rdb_out], options[:top_cell]].include?(nil)
     puts optparse.help
     exit 64
@@ -43,6 +46,7 @@ if !defined?(RBA)
     "-rd", "jobs=1",
     "-rd", "rdb_out=#{File.absolute_path(options[:rdb_out])}",
     "-rd", "rpt_out=#{File.absolute_path(options[:rpt_out])}",
+    "-rd", "ignore=#{options[:ignore]}",
     # "-rd", "gds_out=#{options[:gds_out]}",
   ]
   puts "Running: '#{args.join(" ")}'..."
@@ -81,14 +85,18 @@ end
 ## Perform per-layer XOR
 total_xor_differences = 0
 layers.keys.sort.each do |layer_name|
-  info "--- Running XOR for layer #{layer_name} ---"
-  
-  layer_info = layers[layer_name]
-  xor_data = a.input(layer_name) ^ b.input(layer_name)
-  total_xor_differences += xor_data.data.size
-  info "XOR differences: #{xor_data.data.size}"
+  if $ignore.include? layer_name
+    warn "Skipping #{layer_name}"
+  else
+    info "--- Running XOR for layer #{layer_name} ---"
 
-  write_data xor_data, layer_info
+    layer_info = layers[layer_name]
+    xor_data = a.input(layer_name) ^ b.input(layer_name)
+    total_xor_differences += xor_data.data.size
+    info "XOR differences: #{xor_data.data.size}"
+
+    write_data xor_data, layer_info
+   end
 end
 
 info "---"

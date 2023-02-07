@@ -34,4 +34,4 @@ set ::env(QUIT_ON_ILLEGAL_OVERLAPS) 1
 set ::env(QUIT_ON_LVS_ERROR) 1
 
 # Klayout
-set ::env(QUIT_ON_XOR_ERROR) 0
+set ::env(QUIT_ON_XOR_ERROR) 1
