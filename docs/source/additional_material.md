@@ -13,10 +13,16 @@ Additionally, we are also going to link to academic publications about OpenLane 
     - This is a very simple introduction using Google Colab- you do not even need to install anything!
 
 ### Community
+#### English
 - [Introduction to OpenMPW, VLSI.jp](https://vlsi.jp/Introduction_to_OpenMPW.html#introduction-to-openmpw)
-- [OpenMPW入門 改訂版, VLSI.jp](https://vlsi.jp/OpenMPW.html)
 - [RgGen ✕ OpenMPW Walkthrough](https://vlsi.jp/RgGenxOpenMPW_eng.html#rggen--openmpw-walkthrough)
+
+#### 日本語
+- [OpenMPW入門 改訂版, VLSI.jp](https://vlsi.jp/OpenMPW.html)
 - [RgGen ✕ OpenMPWでLSIを焼こう！](https://vlsi.jp/RgGenxOpenMPW.html)
+
+#### Español
+- [Tutoriales de OpenLane/OpenROAD](https://erickcb.github.io/)
 
 ## Videos
 - [Aboard Caravel, Ahmed Ghazy](https://www.youtube.com/watch?v=9QV8SDelURk)
