@@ -45,7 +45,7 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `KLAYOUT_TECH` | Points to the klayout tech file (.lyt). |
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
 | `KLAYOUT_DEF_LAYER_MAP` | Points to the klayout deflef layer map file (.lmp). |
-| `KLAYOUT_XOR_IGNORE_LAYERS` | A space separated list of layers to ignore during klayout xor check. |
+| `KLAYOUT_XOR_IGNORE_LIST` | A space separated list of layers to ignore during klayout xor check. |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `GPIO_PADS_PREFIX` | A list of pad cells name prefixes. |
