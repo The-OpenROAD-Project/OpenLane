@@ -76,8 +76,8 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
 
             # $inst is the buffer we want to insert, now insert it in the position of the instance it is connected to,
             # using setLocation, and detail_place will help us separate them
-            [$inst setLocation $x_min $y_min]
-            [$inst setPlacementStatus PLACED]
+            $inst setLocation $x_min $y_min
+            $inst setPlacementStatus PLACED
         }
 
         odb::dbITerm_connect $in_iterm $new_net
@@ -102,8 +102,8 @@ proc insert_buffer {pin_name pin_type master_name net_name inst_name} {
 
             # $inst is the buffer we want to insert, now insert it in the position of the instance it is connected to,
             # using setLocation, and detail_place will help us separate them
-            [$inst setLocation $x_min $y_min]
-            [$inst setPlacementStatus PLACED]
+            $inst setLocation $x_min $y_min
+            $inst setPlacementStatus PLACED
         }
 
         # Find output/input of buffer iterm
