@@ -14,6 +14,7 @@
 yosys -import
 
 # inputs expected as env vars
+#
 set buffering $::env(SYNTH_BUFFERING)
 set sizing $::env(SYNTH_SIZING)
 set vtop $::env(DESIGN_NAME)
@@ -332,8 +333,17 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     opt_clean -purge
     insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
 
+    set stat_libs ""
+    foreach stat_lib "$::env(LIB_SYNTH_NO_PG)" {
+        set stat_libs "$stat_libs -liberty $stat_lib"
+    }
+    if { [info exists ::env(EXTRA_LIBS)] } {
+        foreach stat_lib "$::env(EXTRA_LIBS)" {
+            set stat_libs "$stat_libs -liberty $stat_lib"
+        }
+    }
     tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
-    tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) -liberty [lindex $::env(LIB_SYNTH_NO_PG) 0]
+    tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) {*}$stat_libs
 
     if { [info exists ::env(SYNTH_AUTONAME)] && $::env(SYNTH_AUTONAME) } {
         # Generate public names for the various nets, resulting in very long names that include
