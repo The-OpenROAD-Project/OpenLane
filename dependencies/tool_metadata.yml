@@ -68,7 +68,7 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: 032b059033c4cf67f94c5b7f0a44d936b8ff5aae
+  commit: e6f9c8876da77220403014b116761b0b2d79aab4
   build: ''
   in_install: false
   pdk: true
