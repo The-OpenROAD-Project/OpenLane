@@ -52,7 +52,7 @@ Be sure to `make openlane` **in the `docker/` folder** after building any tool, 
 ```
 
 ## Running the newly created Docker image
-OpenLane scripts depend upon a variety of different shell environment variables in order to run correctly. They are all conveniently set by using the `make mount` command at the root of the repository. However, if you just do that, it will spin up the original image and not the one you just created. In order to use your new Docker image, first set the shell varialble `OPENLANE_IMAGE_NAME` to the newly created image as follows (**in the root of the repository**):
+OpenLane scripts depend upon a variety of different shell environment variables in order to run correctly. They are all conveniently set by using the `make mount` command at the root of the repository. However, if you just do that, it will spin up the original image and not the one you just created. In order to use your new Docker image, first set the shell variable `OPENLANE_IMAGE_NAME` to the newly created image as follows (**in the root of the repository**):
 
 ```sh
     make mount OPENLANE_IMAGE_NAME=whatever/whatever:whatever
