@@ -122,6 +122,16 @@ proc run_synthesis {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
+    if { $::env(QUIT_ON_ASSIGN_STATEMENTS) == 1 } {
+        check_assign_statements
+    }
+
+    if { $::env(QUIT_ON_UNMAPPED_CELLS) == 1 } {
+        set strategy_escaped [string map {" " _} $::env(SYNTH_STRATEGY)]
+        set final_stat_file $::env(synth_report_prefix).$strategy_escaped.stat.rpt
+        check_unmapped_cells $final_stat_file
+    }
+
     run_sta\
         -log $::env(synthesis_logs)/sta.log \
         -netlist_in \
@@ -129,14 +139,6 @@ proc run_synthesis {args} {
         -save_to $::env(synthesis_results)
 
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
-
-    if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
-        check_assign_statements
-    }
-
-    if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
-        check_synthesis_failure
-    }
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
         puts_info "Creating a netlist with power/ground pins."

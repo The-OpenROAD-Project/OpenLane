@@ -25,11 +25,13 @@ proc check_assign_statements {args} {
     }
 }
 
-proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt]}]
+proc check_unmapped_cells {stat_file} {
+    set match {\$}
+    set checker [exec bash -c "grep '$match' \
+        $stat_file || true"]
 
-    if { ! $checker } {
-        puts_err "Synthesis failed"
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. There are unmapped cells after synthesis."
         flow_fail
     }
 }

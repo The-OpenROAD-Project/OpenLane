@@ -320,8 +320,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `CHECK_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `CHECK_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `QUIT_ON_UNMAPPED_CELLS` | Use yosys `check -assert` at the end of synthesis. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_SYNTH_CHECKS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_LONG_WIRE` | Exits the flow if any wire length exceeds the threshold set in the PDK. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_MAGIC_DRC` | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
