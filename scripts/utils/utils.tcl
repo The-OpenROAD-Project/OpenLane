@@ -612,7 +612,7 @@ proc run_tcl_script {args} {
     }
 
     if { [file exists $arg_values(-indexed_log)] \
-        && $arg_values(-indexed_log) ne "/dev/null"} {
+        && $arg_values(-indexed_log) ne "/dev/null" } {
         exec bash -c "grep -i warning $arg_values(-indexed_log) > \
             [file rootname $arg_values(-indexed_log)].warnings || true"
 
