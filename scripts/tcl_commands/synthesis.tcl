@@ -129,6 +129,10 @@ proc run_synthesis {args} {
     if { $::env(QUIT_ON_UNMAPPED_CELLS) == 1 } {
         set strategy_escaped [string map {" " _} $::env(SYNTH_STRATEGY)]
         set final_stat_file $::env(synth_report_prefix).$strategy_escaped.stat.rpt
+        if { [info exists ::env(SYNTH_ELABORATE_ONLY)] \
+            && $::env(SYNTH_ELABORATE_ONLY) == 1} {
+                set final_stat_file $::env(synth_report_prefix).stat
+            }
         check_unmapped_cells $final_stat_file
     }
 

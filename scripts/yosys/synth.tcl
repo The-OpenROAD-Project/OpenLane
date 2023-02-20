@@ -362,7 +362,7 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
 
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
     if { $::env(QUIT_ON_SYNTH_CHECKS) == 1 } {
-        read_liberty $::env(LIB_SYNTH)
+        read_liberty --ignore_miss_func $::env(LIB_SYNTH)
         check -assert $::env(DESIGN_NAME)
     }
     design -reset
