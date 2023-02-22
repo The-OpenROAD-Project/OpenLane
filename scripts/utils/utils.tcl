@@ -611,6 +611,15 @@ proc run_tcl_script {args} {
         }
     }
 
+    if { [file exists $arg_values(-indexed_log)] \
+        && $arg_values(-indexed_log) ne "/dev/null" } {
+        exec bash -c "grep -i warning $arg_values(-indexed_log) > \
+            [file rootname $arg_values(-indexed_log)].warnings || true"
+
+        exec bash -c "grep -i error $arg_values(-indexed_log) > \
+            [file rootname $arg_values(-indexed_log)].errors || true"
+    }
+
     if { $create_reproducible } {
         save_state
 

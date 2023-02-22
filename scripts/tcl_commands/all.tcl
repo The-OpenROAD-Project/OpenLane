@@ -636,6 +636,9 @@ proc prep {args} {
     handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB;
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX;
 
+    handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
+    handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
+
     #
     ############################
     # Prep directories and files
