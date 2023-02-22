@@ -18,7 +18,7 @@ FROM ${BUILD_BASE_IMAGE} AS builder
 
 # Build Boost
 WORKDIR /boost
-RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
+RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
     ./bootstrap.sh && \
     ./b2 install --with-iostreams --with-test --with-serialization --with-system --with-thread -j $(nproc)
 
