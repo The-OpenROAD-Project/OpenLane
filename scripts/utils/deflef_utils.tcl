@@ -26,7 +26,8 @@ proc resize_die {args} {
     set ury [expr {[lindex $arg_values(-area) 3] * $::env(DEF_UNITS_PER_MICRON)}]
 
     puts_info "Resizing Die to $arg_values(-area)"
-    try_catch sed -i -E "0,/^DIEAREA.*$/{s/^DIEAREA.*$/DIEAREA ( $llx $lly ) ( $urx $ury ) ;/}" $arg_values(-def)
+    try_catch sed -i.bak -E "0,/^DIEAREA.*$/{s/^DIEAREA.*$/DIEAREA ( $llx $lly ) ( $urx $ury ) ;/}" $arg_values(-def)
+    try_catch rm -f $arg_values(-def).bak
 }
 
 proc get_instance_position {args} {

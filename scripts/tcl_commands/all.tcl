@@ -46,7 +46,8 @@ proc set_netlist {args} {
     set ::env(CURRENT_NETLIST) $netlist
 
     set replace [string map {/ \\/} $::env(CURRENT_NETLIST)]
-    try_catch sed -i -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    try_catch sed -i.bak -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec rm -f "$::env(GLB_CFG_FILE).bak"
 
     if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
         logic_equiv_check -lhs $previous_netlist -rhs $netlist
@@ -58,7 +59,8 @@ proc set_def {def} {
     puts_verbose "Changing layout to '$def_relative'..."
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
-    exec sed -i -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec rm -f "$::env(GLB_CFG_FILE).bak"
 }
 
 proc set_odb {odb} {
@@ -66,7 +68,8 @@ proc set_odb {odb} {
     puts_verbose "Changing database to '$odb_relative'..."
     set ::env(CURRENT_ODB) $odb
     set replace [string map {/ \\/} $odb]
-    exec sed -i -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec rm -f "$::env(GLB_CFG_FILE).bak"
 }
 
 proc set_sdc {sdc} {
@@ -74,7 +77,8 @@ proc set_sdc {sdc} {
     puts_verbose "Changing timing constraints to '$sdc_relative'..."
     set ::env(CURRENT_SDC) $sdc
     set replace [string map {/ \\/} $sdc]
-    exec sed -i -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec rm -f "$::env(GLB_CFG_FILE).bak"
 }
 
 proc set_guide {guide} {
@@ -82,7 +86,8 @@ proc set_guide {guide} {
     puts_verbose "Changing guide to '$guide_relative'..."
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
-    exec sed -i -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    exec rm -f "$::env(GLB_CFG_FILE).bak"
 }
 
 proc prep_lefs {args} {

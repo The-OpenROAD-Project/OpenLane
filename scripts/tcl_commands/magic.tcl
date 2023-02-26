@@ -51,7 +51,8 @@ proc run_magic {args} {
             -indexed_log $log
 
         # Only keep the properties section in the file
-        try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
+        try_catch sed -i.bak -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
+        exec rm -f $::env(signoff_tmpfiles)/gds_ptrs.mag.bak
     }
 
     # If desired, copy GDS_* properties into the mag/ view
