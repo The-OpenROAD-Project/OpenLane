@@ -57,6 +57,16 @@ lappend arg_list -max_buffer_percent $::env(GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT)
 if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1 } {
     lappend arg_list -allow_setup_violations
 }
+
+if { [info exists ::env(GLB_RESIZER_MAX_WIRE_LENGTH)] && $::env(GLB_RESIZER_MAX_WIRE_LENGTH) } {
+    repair_design -max_wire_length $::env(GLB_RESIZER_MAX_WIRE_LENGTH) \
+        -slew_margin $::env(GLB_RESIZER_MAX_SLEW_MARGIN) \
+        -cap_margin $::env(GLB_RESIZER_MAX_CAP_MARGIN)
+} else {
+    repair_design -slew_margin $::env(GLB_RESIZER_MAX_SLEW_MARGIN) \
+        -cap_margin $::env(GLB_RESIZER_MAX_CAP_MARGIN)
+}
+
 repair_timing {*}$arg_list
 
 source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
