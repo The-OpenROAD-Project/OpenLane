@@ -66,7 +66,7 @@ proc run_sta {args} {
     }
 
     if { $multi_corner == 1 } {
-        run_sta_script $::env(SCRIPTS_DIR)/sta/sta_multi_corner.tcl \
+        run_sta_script $::env(SCRIPTS_DIR)/sta/multi_corner.tcl \
             -no_update_current\
             {*}$arg_list
 
