@@ -71,7 +71,7 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable | Description |
 |-|-|
-| `MODULES_SPEF_FILES` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Each module must have 3 files for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. <br> (Default: NONE) |
+| `MODULES_SPEF_FILES` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have 3 files for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. <br> (Default: NONE) |
 | `VERILOG_STA_NETLISTS` | Verilog files of additional modules for multiconrer sta. The netlists must be unpowered. <br> (Default: NONE) |
 | `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
