@@ -14,10 +14,15 @@
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
 
-proc read_netlist {args} {
-    puts "Reading netlist..."
+proc read_netlist {{args none}} {
+    set netlist $::env(CURRENT_NETLIST)
+    if { $args eq "-powered" } {
+        set netlist $::env(CURRENT_POWERED_NETLIST)
+    }
 
-    if {[catch {read_verilog $::env(CURRENT_NETLIST)} errmsg]} {
+    puts "Reading netlist $netlist..."
+
+    if {[catch {read_verilog $netlist} errmsg]} {
         puts stderr $errmsg
         exit 1
     }

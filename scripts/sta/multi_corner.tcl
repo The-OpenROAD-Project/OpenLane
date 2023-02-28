@@ -15,12 +15,12 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 
 read_libs -multi_corner
-if { [info exists ::env(VERILOG_STA_NETLISTS)] } {
-    foreach verilog $::env(VERILOG_STA_NETLISTS) {
+if { [info exists ::env(VERILOG_NETLISTS)] } {
+    foreach verilog $::env(VERILOG_NETLISTS) {
         read_verilog $verilog
     }
 }
-read_netlist
+read_netlist -powered
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
@@ -62,12 +62,11 @@ if { [info exists ::env(MODULES_SPEF_FILES)] } {
         set matched 0
         foreach cell [get_cells *] {
             if { "[get_property $cell ref_name]" eq "$module_name" } {
-                puts "matched [get_property $cell name] with $module_name"
+                puts "Matched [get_property $cell name] with $module_name"
                 set matched 1
                 read_spef -path [get_property $cell name] -corner ss $spef_file_min
                 read_spef -path [get_property $cell name] -corner tt $spef_file_nom
                 read_spef -path [get_property $cell name] -corner ff $spef_file_max
-                puts "read_spef -path [get_property $cell name] -corner ff $spef_file_max"
                 break
             }
         }
