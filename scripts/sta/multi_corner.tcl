@@ -14,7 +14,13 @@
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 
-read -multi_corner_libs
+read_libs -multi_corner
+if { [info exists ::env(VERILOG_STA_NETLISTS)] } {
+    foreach verilog $::env(VERILOG_STA_NETLISTS) {
+        read_verilog $verilog
+    }
+}
+read_netlist
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
@@ -23,6 +29,53 @@ if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef -corner ss $::env(CURRENT_SPEF)
     read_spef -corner tt $::env(CURRENT_SPEF)
     read_spef -corner ff $::env(CURRENT_SPEF)
+}
+
+proc lmap args {
+    set body [lindex $args end]
+    set args [lrange $args 0 end-1]
+    set n 0
+    set pairs [list]
+    foreach {varnames listval} $args {
+        set varlist [list]
+        foreach varname $varnames {
+            upvar 1 $varname var$n
+            lappend varlist var$n
+            incr n
+        }
+        lappend pairs $varlist $listval
+    }
+    set temp [list]
+    foreach {*}$pairs {
+        lappend temp [uplevel 1 $body]
+    }
+    set temp
+}
+
+if { [info exists ::env(MODULES_SPEF_FILES)] } {
+    set extra_spefs [lmap {a b c d} $::env(MODULES_SPEF_FILES) {list $a $b $c $d}]
+    foreach i $extra_spefs {
+        set module_name [lindex $i 0]
+        set spef_file_min [lindex $i 1]
+        set spef_file_nom [lindex $i 2]
+        set spef_file_max [lindex $i 3]
+        set matched 0
+        foreach cell [get_cells *] {
+            if { "[get_property $cell ref_name]" eq "$module_name" } {
+                puts "matched [get_property $cell name] with $module_name"
+                set matched 1
+                read_spef -path [get_property $cell name] -corner ss $spef_file_min
+                read_spef -path [get_property $cell name] -corner tt $spef_file_nom
+                read_spef -path [get_property $cell name] -corner ff $spef_file_max
+                puts "read_spef -path [get_property $cell name] -corner ff $spef_file_max"
+                break
+            }
+        }
+        if { $matched != 1 } {
+            puts "Error: Module $module_name specified in MODULES_SPEF_FILES not found."
+            exit 1
+        }
+    }
 }
 
 if { $::env(STA_PRE_CTS) == 1 } {
@@ -162,11 +215,4 @@ report_power -corner ff
 puts "power_report_end"
 
 
-puts "area_report"
-puts "\n==========================================================================="
-puts " report_design_area"
-puts "============================================================================"
-report_design_area
-puts "area_report_end"
-
-write
+write -no_global_connect

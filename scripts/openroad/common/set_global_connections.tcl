@@ -45,7 +45,18 @@ proc set_global_connections {} {
 
             if { $power_pin == "" || $ground_pin == "" } {
                 puts "FP_PDN_MACRO_HOOKS missing power and ground pin names"
-                exit -1
+                exit 1
+            }
+
+            set matched 0
+            foreach cell [[ord::get_db_block] getInsts] {
+                if { [regexp "\^$instance_name" [$cell getName]] } {
+                    set matched 1
+                }
+            }
+            if { $matched != 1 } {
+                puts "No regex match found for $instance_name defined in FP_PDN_MACRO_HOOKS"
+                exit 1
             }
 
             add_global_connection \

@@ -881,6 +881,18 @@ proc prep {args} {
         assert_files_exist "$::env(EXTRA_GDS_FILES)"
     }
 
+    if { [info exists ::env(VERILOG_STA_NETLISTS)] } {
+        puts_verbose "Verifying existence of files defined in ::env(VERILOG_STA_NETLISTS)..."
+        assert_files_exist "$::env(VERILOG_STA_NETLISTS)"
+    }
+
+    if { [info exists ::env(MODULES_SPEF_FILES)] } {
+        if { [expr [llength $::env(MODULES_SPEF_FILES)] % 4] != 0 } {
+            puts_err "Please define MODULES_SPEF_FILES correctly. i.e. : <module1> <min1> <nom1> <max1> <module2> ..."
+            flow_fail
+        }
+    }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok
@@ -1043,8 +1055,8 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_spef_dir)] } {
         set destination $path/spef/multicorner
         if { [file exists $arg_values(-mc_spef_dir)] } {
-            file delete -force $destination
-            file copy -force $arg_values(-mc_spef_dir) $destination
+            file mkdir $destination
+            file copy -force {*}[glob $arg_values(-mc_spef_dir)/*] $destination
         }
     }
 

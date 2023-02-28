@@ -129,9 +129,10 @@ proc write {args} {
     # attempt to write a corresponding view to the specified location.
     sta::parse_key_args "write" args \
         keys {}\
-        flags {}
+        flags {-no_global_connect}
 
-    if { [info exists ::env(VDD_NET)] } {
+    if { [info exists ::env(VDD_NET)] \
+            && ![info exist flags(-no_global_connect)] } {
         puts "Setting global connections for newly added cells..."
         set_global_connections
     }
