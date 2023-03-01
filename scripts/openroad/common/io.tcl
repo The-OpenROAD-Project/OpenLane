@@ -14,9 +14,12 @@
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
 
-proc read_netlist {{args none}} {
+proc read_netlist {args} {
+    sta::parse_key_args "read_netlists" args \
+        keys {}\
+        flags {-powered}
     set netlist $::env(CURRENT_NETLIST)
-    if { $args eq "-powered" } {
+    if { [info exists flags(-powered)] } {
         set netlist $::env(CURRENT_POWERED_NETLIST)
     }
 
