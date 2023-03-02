@@ -27,7 +27,8 @@ set ::env(DETAILED_ROUTER) tritonroute
 set ::env(GRT_ADJUSTMENT) 0.3
 set ::env(GRT_ALLOW_CONGESTION) 0
 set ::env(GRT_OVERFLOW_ITERS) 50
-set ::env(GRT_ANT_ITERS) 3
+set ::env(GRT_ANT_ITERS) 15
+set ::env(GRT_ANT_MARGIN) 10
 set ::env(GRT_ESTIMATE_PARASITICS) 1
 set ::env(GRT_MACRO_EXTENSION) 0
 
