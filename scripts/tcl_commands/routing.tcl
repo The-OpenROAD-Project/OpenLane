@@ -276,7 +276,7 @@ proc apply_route_obs {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/obs.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+    puts_info "Applying Routing Obstructions (log: [relpath . $log])..."
 
     set save_def [file rootname $::env(CURRENT_DEF)].obs.def
     set save_db [file rootname $::env(CURRENT_DEF)].obs.odb
