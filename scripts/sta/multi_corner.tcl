@@ -52,8 +52,8 @@ proc lmap args {
     set temp
 }
 
-if { [info exists ::env(MODULES_SPEF_FILES)] } {
-    set extra_spefs [lmap {a b c d} $::env(MODULES_SPEF_FILES) {list $a $b $c $d}]
+if { [info exists ::env(EXTRA_SPEFS)] } {
+    set extra_spefs [lmap {a b c d} $::env(EXTRA_SPEFS) {list $a $b $c $d}]
     foreach i $extra_spefs {
         set module_name [lindex $i 0]
         set spef_file_min [lindex $i 1]
@@ -71,7 +71,7 @@ if { [info exists ::env(MODULES_SPEF_FILES)] } {
             }
         }
         if { $matched != 1 } {
-            puts "Error: Module $module_name specified in MODULES_SPEF_FILES not found."
+            puts "Error: Module $module_name specified in EXTRA_SPEFS not found."
             exit 1
         }
     }

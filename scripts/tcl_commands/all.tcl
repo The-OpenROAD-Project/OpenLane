@@ -886,9 +886,9 @@ proc prep {args} {
         assert_files_exist "$::env(VERILOG_STA_NETLISTS)"
     }
 
-    if { [info exists ::env(MODULES_SPEF_FILES)] } {
-        if { [expr [llength $::env(MODULES_SPEF_FILES)] % 4] != 0 } {
-            puts_err "Please define MODULES_SPEF_FILES correctly. i.e. : <module1> <min1> <nom1> <max1> <module2> ..."
+    if { [info exists ::env(EXTRA_SPEFS)] } {
+        if { [expr [llength $::env(EXTRA_SPEFS)] % 4] != 0 } {
+            puts_err "Please define EXTRA_SPEFS correctly. i.e. : <module1> <min1> <nom1> <max1> <module2> ..."
             flow_fail
         }
     }

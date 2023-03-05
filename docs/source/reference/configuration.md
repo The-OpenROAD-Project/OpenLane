@@ -35,7 +35,7 @@ These variables are optional that can be specified in the design configuration f
 |Variable|Description|
 |-|-|
 | `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis. |
-| `VERILOG_NETLISTS` | Verilog files of additional modules. Currently, they are used in multiconrer sta. Netlists must be powered. <br> (Default: NONE) |
+| `VERILOG_NETLISTS` | Verilog files of additional modules. Currently, they are used in multicorner sta. Netlists must be powered. <br> (Default: NONE) |
 | `EXTRA_LEFS` | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
@@ -72,7 +72,7 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable | Description |
 |-|-|
-| `MODULES_SPEF_FILES` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have 3 files for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. <br> (Default: NONE) |
+| `EXTRA_SPEFS` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
 | `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
 ### Floorplanning
