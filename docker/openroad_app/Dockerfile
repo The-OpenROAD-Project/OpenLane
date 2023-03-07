@@ -18,7 +18,7 @@ FROM ${BUILD_BASE_IMAGE} AS builder
 
 # Build Boost
 WORKDIR /boost
-RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.76.0/boost_1_76_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
+RUN curl -L https://sourceforge.net/projects/boost/files/boost/1.80.0/boost_1_80_0.tar.bz2/download | tar --strip-components=1 -xjC . && \
     ./bootstrap.sh && \
     ./b2 install --with-iostreams --with-test --with-serialization --with-system --with-thread -j $(nproc)
 
@@ -76,6 +76,7 @@ RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPE
 
 # Build OpenROAD
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
+RUN sed -i "s/-m64//" src/par/CMakeLists.txt
 RUN sed -i "s/static char Cases/static signed char Cases/" third-party/abc/src/misc/extra/extraUtilMisc.c
 RUN mkdir build && mkdir -p /build/version && mkdir install
 RUN cd build && cmake -DCMAKE_INSTALL_PREFIX=$(pwd)/install ..
