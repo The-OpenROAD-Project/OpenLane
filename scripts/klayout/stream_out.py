@@ -193,7 +193,9 @@ try:
     print(f"[INFO] Writing out GDS '{output}'…")
     top_only_layout.write(output)
     print("[INFO] Done.")
-    exit(0)
+
+    pya.Application.instance().exit(0)
 except Exception as e:
     print(e)
-    exit(1)
+
+    pya.Application.instance().exit(1)
