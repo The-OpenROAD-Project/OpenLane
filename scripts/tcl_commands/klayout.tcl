@@ -35,9 +35,9 @@ proc run_klayout {args} {
 		set klayout_out $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
         try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			--output $klayout_out\
-			--tech-file $::env(KLAYOUT_TECH)\
-			--def-layer-map-file $::env(KLAYOUT_DEF_LAYER_MAP)\
-			--props-file $::env(KLAYOUT_PROPERTIES)\
+			--lyt $::env(KLAYOUT_TECH)\
+			--lym $::env(KLAYOUT_DEF_LAYER_MAP)\
+			--lyp $::env(KLAYOUT_PROPERTIES)\
 			--top $::env(DESIGN_NAME)\
             {*}$gds_file_arg \
 			--input-lef $::env(MERGED_LEF)\
@@ -184,7 +184,11 @@ proc open_in_klayout {args} {
 
 	set_if_unset arg_values(-layout) $::env(CURRENT_DEF)
 
-	try_catch python3 $::env(SCRIPTS_DIR)/klayout/open_design_cmd.py\
+	try_catch python3 $::env(SCRIPTS_DIR)/klayout/open_design.py\
+		--input-lef $::env(MERGED_LEF)\
+		--lyt $::env(KLAYOUT_TECH)\
+		--lyp $::env(KLAYOUT_PROPERTIES)\
+		--lym $::env(KLAYOUT_DEF_LAYER_MAP)\
 		$arg_values(-layout)
 }
 

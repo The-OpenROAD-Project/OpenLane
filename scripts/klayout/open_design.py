@@ -18,80 +18,83 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
-try:
+if "klayout" in os.path.basename(sys.executable):
     import pya
-except ImportError:
+else:
     import click
 
     @click.command()
     @click.option(
         "-l",
         "--input-lef",
-        required=os.getenv("MERGED_LEF") is None,
-        default=os.getenv("MERGED_LEF"),
+        "input_lefs",
+        multiple=True,
     )
     @click.option(
         "-T",
-        "--tech-file",
-        "lyt",
-        required=os.getenv("KLAYOUT_TECH") is None,
-        default=os.getenv("KLAYOUT_TECH"),
+        "--lyt",
+        required=True,
         help="KLayout .lyt file",
     )
     @click.option(
         "-P",
-        "--props-file",
-        "lyp",
-        required=os.getenv("KLAYOUT_PROPERTIES") is None,
-        default=os.getenv("KLAYOUT_PROPERTIES"),
+        "--lyp",
+        required=True,
         help="KLayout .lyp file",
     )
-    @click.argument("input_def")
-    def open_design(
-        input_lef,
-        lyt,
-        lyp,
-        input_def,
-    ):
+    @click.option(
+        "-M",
+        "--lym",
+        required=True,
+        help="KLayout .map (LEF/DEF layer map) file",
+    )
+    @click.argument("input")
+    def cli(**kwargs):
         args = [
             "klayout",
             "-rm",
             __file__,
-            "-rd",
-            f"input_lef={os.path.abspath(input_lef)}",
-            "-rd",
-            f"tech_file={os.path.abspath(lyt)}",
-            "-rd",
-            f"props_file={os.path.abspath(lyp)}",
-            "-rd",
-            f"input_def={os.path.abspath(input_def)}",
         ]
+        for key, value in kwargs.items():
+            args.append("-rd")
+            if isinstance(value, tuple) or isinstance(value, list):
+                value = ";".join(value)
+            elif isinstance(value, str) and os.path.exists(value):
+                value = os.path.abspath(value)
+
+            args.append(f"{key}={value or 'NULL'}")
+
         os.execlp("klayout", *args)
 
     if __name__ == "__main__":
-        open_design()
+        cli()
+
 
 if TYPE_CHECKING:
     # Dummy data for type-checking
-    input_def: str = ""
-    tech_file: str = ""
-    props_file: str = ""
-    input_lef: str = ""
+    input: str = ""
+    input_lefs: str = ""
+    lyp: str = ""
+    lyt: str = ""
+    lym: str = ""
 
 try:
     main_window = pya.Application.instance().main_window()
 
     tech = pya.Technology()
-    tech.load(tech_file)
+    tech.load(lyt)
 
     layout_options = tech.load_layout_options
     layout_options.keep_other_cells = True
     layout_options.lefdef_config.macro_resolution_mode = 1
     layout_options.lefdef_config.read_lef_with_def = False
-    layout_options.lefdef_config.lef_files = [input_lef]
+    layout_options.lefdef_config.lef_files = input_lefs.split(";")
+    layout_options.lefdef_config.map_file = lym
 
-    cell_view = main_window.load_layout(input_def, layout_options, 0)
-    exit(0)
+    cell_view = main_window.load_layout(input, layout_options, 0)
+
+    pya.Application.instance().exit(0)
 except Exception as e:
     print(e, file=sys.stderr)
-    exit(-1)
+
+    pya.Application.instance().exit(1)

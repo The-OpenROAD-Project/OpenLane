@@ -54,21 +54,17 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 44a2aa9ca17c2b1c154f9c410ded063de9ed3e12
-  build: ''
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
   commit: 1a1617d908d2ebdb731de9ab4e3d9fd93a6dcf97
-  build: ''
   in_install: false
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
   commit: e6f9c8876da77220403014b116761b0b2d79aab4
-  build: ''
   in_install: false
   pdk: true
