@@ -150,10 +150,10 @@ venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt 
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
-fastest_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set)
+fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) fastest_test_set)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
-extended_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/extended_test_set)
+extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) extended_test_set)
 extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
 extended_test_set: test_design_list
 test_design_list:
