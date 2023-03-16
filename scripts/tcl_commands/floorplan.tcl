@@ -199,10 +199,7 @@ proc place_contextualized_io {args} {
     set flags {}
     parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
 
-    if { ![file exists $arg_values(-def)] || ![file exists $arg_values(-lef)]} {
-        puts_err "Contextual IO placement: def/lef files don't exist. This is a critical failure."
-        flow_fail
-    }
+    assert_files_exist "$arg_values(-def) $arg_values(-lef)"
 
     increment_index
     TIMER::timer_start

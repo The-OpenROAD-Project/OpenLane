@@ -1097,7 +1097,7 @@ proc heal_antenna_violators {args} {
     if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
             puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
-            flow_fail
+            return -code error
         }
 
         increment_index

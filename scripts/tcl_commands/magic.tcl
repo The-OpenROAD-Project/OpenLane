@@ -118,7 +118,9 @@ proc run_magic_drc {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
 
-    quit_on_magic_drc -log $::env(drc_prefix).tr
+    if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
+        quit_on_magic_drc -log $::env(drc_prefix).tr
+    }
 }
 
 proc run_magic_spice_export {args} {
@@ -159,7 +161,9 @@ proc run_magic_spice_export {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
 
-    quit_on_illegal_overlaps -log $feedback_file
+    if { [info exists ::env(QUIT_ON_ILLEGAL_OVERLAPS)] && $::env(QUIT_ON_ILLEGAL_OVERLAPS) } {
+        quit_on_illegal_overlaps -log $feedback_file
+    }
 }
 
 proc export_magic_view {args} {

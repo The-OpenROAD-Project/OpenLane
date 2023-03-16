@@ -141,7 +141,9 @@ proc detailed_routing_tritonroute {args} {
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
 
-    quit_on_tr_drc
+    if { $::env(QUIT_ON_TR_DRC) } {
+        quit_on_tr_drc
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"

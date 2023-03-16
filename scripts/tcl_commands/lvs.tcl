@@ -193,7 +193,10 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lvs - netgen"
-    quit_on_lvs_error -rpt $count_lvs_rpt -log $log
+
+    if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
+        quit_on_lvs_error -rpt $count_lvs_rpt -log $log
+    }
 }
 
 proc run_netgen {args} {

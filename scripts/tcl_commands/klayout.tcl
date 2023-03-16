@@ -28,18 +28,18 @@ proc run_klayout {args} {
 			set cells_gds $::env(GDS_FILES)
 		}
 
-        set gds_file_arg ""
-        foreach gds_file "$cells_gds $gds_files_in" {
-            set gds_file_arg "$gds_file_arg --with-gds-file $gds_file"
-        }
+		set gds_file_arg ""
+		foreach gds_file "$cells_gds $gds_files_in" {
+			set gds_file_arg "$gds_file_arg --with-gds-file $gds_file"
+		}
 		set klayout_out $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
-        try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
+		try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			--output $klayout_out\
 			--lyt $::env(KLAYOUT_TECH)\
 			--lym $::env(KLAYOUT_DEF_LAYER_MAP)\
 			--lyp $::env(KLAYOUT_PROPERTIES)\
 			--top $::env(DESIGN_NAME)\
-            {*}$gds_file_arg \
+			{*}$gds_file_arg \
 			--input-lef $::env(MERGED_LEF)\
 			$::env(CURRENT_DEF)\
 			|& tee $::env(TERMINAL_OUTPUT) $log
@@ -150,22 +150,25 @@ proc run_klayout_gds_xor {args} {
 			increment_index
 			TIMER::timer_start
 			set log [index_file $::env(signoff_logs)/xor.log]
-            set report [index_file $::env(signoff_reports)/xor.rpt]
-            set db [index_file $::env(signoff_reports)/xor.xml]
+			set report [index_file $::env(signoff_reports)/xor.rpt]
+			set db [index_file $::env(signoff_reports)/xor.xml]
 			puts_info "Running XOR on the layouts using KLayout (log: [relpath . $log])..."
-            try_catch klayout \
-                -b \
-                -r $::env(SCRIPTS_DIR)/klayout/xor.drc \
-                -rd a=$arg_values(-layout1) \
-                -rd b=$arg_values(-layout2) \
-                -rd jobs=$::env(KLAYOUT_XOR_THREADS) \
-                -rd rdb_out=$db \
-                -rd ignore=$::env(KLAYOUT_XOR_IGNORE_LAYERS) \
-                -rd rpt_out=$report \
-                |& tee $::env(TERMINAL_OUTPUT) $log
+			try_catch klayout \
+				-b \
+				-r $::env(SCRIPTS_DIR)/klayout/xor.drc \
+				-rd a=$arg_values(-layout1) \
+				-rd b=$arg_values(-layout2) \
+				-rd jobs=$::env(KLAYOUT_XOR_THREADS) \
+				-rd rdb_out=$db \
+				-rd ignore=$::env(KLAYOUT_XOR_IGNORE_LAYERS) \
+				-rd rpt_out=$report \
+				|& tee $::env(TERMINAL_OUTPUT) $log
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "xor - klayout"
-            quit_on_xor_error  -log $report
+
+			if { [info exists ::env(QUIT_ON_XOR_ERROR)] && $::env(QUIT_ON_XOR_ERROR) } {
+				quit_on_xor_error  -log $report
+			}
 		} else {
 			set layout2_rel [relpath . $arg_values(-layout2)]
 			puts_warn "'$layout2_rel' wasn't found. Skipping GDS XOR."
