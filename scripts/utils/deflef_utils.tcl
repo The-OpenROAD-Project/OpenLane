@@ -178,4 +178,50 @@ proc remove_components {args} {
         -input $arg_values(-input)
 }
 
+
+
+proc insert_buffer {args} {
+    # Copyright 2021 The University of Michigan
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    set options {
+        {-at_pin required}
+        {-buffer_cell required}
+        {-net_name optional}
+        {-inst_name optional}
+    }
+    set flags {-block -place}
+
+    parse_key_args "insert_buffer" args arg_values $options flags_map $flags
+
+    if { ![info exists ::env(INSERT_BUFFER_COUNTER)]} {
+        set ::env(INSERT_BUFFER_COUNTER) 0
+    }
+
+    set_if_unset arg_values(-net_name) "inserted_buffer_$::env(INSERT_BUFFER_COUNTER)_net"
+    set_if_unset arg_values(-inst_name) "inserted_buffer_$::env(INSERT_BUFFER_COUNTER)"
+
+    set pin_type "ITerm"
+    if { [info exists flags_map(-block)] } {
+        set pin_type "BTerm"
+    }
+
+    if { ![info exists flags_map(-place)] } {
+        set ::env(INSERT_BUFFER_NO_PLACE) "1"
+    }
+
+
+    set ::env(INSERT_BUFFER_COMMAND) "$arg_values(-at_pin) $pin_type $arg_values(-buffer_cell) $arg_values(-net_name) $arg_values(-inst_name)"
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl\
+        -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]\
+        -save "to=$::env(routing_tmpfiles),def,odb"
+    unset ::env(INSERT_BUFFER_COMMAND)
+
+    if { ![info exists flags_map(-place)] } {
+        unset ::env(INSERT_BUFFER_NO_PLACE)
+    }
+
+    incr ::env(INSERT_BUFFER_COUNTER)
+}
+
+
 package provide openlane_utils 0.9
