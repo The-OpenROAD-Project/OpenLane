@@ -694,7 +694,6 @@ proc prep {args} {
         placement\
         cts\
         routing\
-        eco\
         signoff
     ]
 

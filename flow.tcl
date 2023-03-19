@@ -55,9 +55,7 @@ proc run_routing_step {args} {
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
-    if { $::env(ECO_ENABLE) == 0 } {
-        run_routing
-    }
+    run_routing
 }
 
 proc run_parasitics_sta_step {args} {
@@ -67,7 +65,7 @@ proc run_parasitics_sta_step {args} {
         set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
     }
 
-    if { $::env(RUN_SPEF_EXTRACTION) && ($::env(ECO_ENABLE) == 0)} {
+    if { $::env(RUN_SPEF_EXTRACTION)} {
         run_parasitics_sta
     }
 }
@@ -138,12 +136,6 @@ proc run_erc_step {args} {
     }
 }
 
-proc run_eco_step {args} {
-    if { $::env(ECO_ENABLE) == 1 } {
-        run_eco_flow
-    }
-}
-
 proc run_magic_step {args} {
     if {$::env(RUN_MAGIC)} {
         run_magic
@@ -199,7 +191,6 @@ proc run_non_interactive_mode {args} {
         "cts" "run_cts_step" \
         "routing" "run_routing_step" \
         "parasitics_sta" "run_parasitics_sta_step" \
-        "eco" "run_eco_step" \
         "diode_insertion" "run_diode_insertion_2_5_step" \
         "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \

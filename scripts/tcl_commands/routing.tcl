@@ -1,5 +1,4 @@
 # Copyright 2020-2022 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -414,7 +413,7 @@ proc run_routing {args} {
 
     # if diode insertion does *not* happen as part of global routing, then
     # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6) && ($::env(ECO_ENABLE) == 0) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6)} {
         if {$::env(RUN_FILL_INSERTION)} {
             ins_fill_cells
         }
@@ -422,7 +421,7 @@ proc run_routing {args} {
 
     global_routing
 
-    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) && ($::env(ECO_ENABLE) == 0) } {
+    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) } {
         # Doing this here can be problematic and is something that needs to be
         # addressed in FastRoute since fill cells *might* occupy some of the
         # resources that were already used during global routing causing the
