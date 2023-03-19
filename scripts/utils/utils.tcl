@@ -167,7 +167,7 @@ proc try_catch {args} {
         puts_err "Exit code: $exit_code"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
 
-        flow_fail
+        return -code error
     }
 }
 
@@ -241,7 +241,9 @@ proc calc_total_runtime {args} {
         set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
         set_if_unset arg_values(-status) "flow completed"
 
-        exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
+        if {[try_catch python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)]} {
+            puts_err "Failed to calculate total runtime."
+        }
     }
 }
 
@@ -344,18 +346,23 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/metrics.csv
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
-    try_catch python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
-        --design_name $::env(DESIGN_NAME) \
-        --tag $::env(RUN_TAG) \
-        --output_file $arg_values(-output) \
-        --man_report $arg_values(-man_report) \
-        --run_path $::env(RUN_DIR)
+    if {
+        [try_catch python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+            --design_name $::env(DESIGN_NAME) \
+            --tag $::env(RUN_TAG) \
+            --output_file $arg_values(-output) \
+            --man_report $arg_values(-man_report) \
+            --run_path $::env(RUN_DIR)]
+    } {
+        puts_err "Failed to create manufacturability and metric reports."
+    } else {
 
-    set man_report_rel [relpath . $arg_values(-man_report)]
-    set metrics_report_rel [relpath . $arg_values(-output)]
+        set man_report_rel [relpath . $arg_values(-man_report)]
+        set metrics_report_rel [relpath . $arg_values(-output)]
 
-    puts_info "Created manufacturability report at '$man_report_rel'."
-    puts_info "Created metrics report at '$metrics_report_rel'."
+        puts_info "Created manufacturability report at '$man_report_rel'."
+        puts_info "Created metrics report at '$metrics_report_rel'."
+    }
 }
 
 namespace eval TIMER {
@@ -388,7 +395,7 @@ proc assert_files_exist {files} {
     foreach f $files {
         if { ! [file exists $f] } {
             puts_err "$f doesn't exist."
-            flow_fail
+            return -code error
         } else {
             puts_verbose "$f existence verified."
         }
@@ -514,7 +521,7 @@ proc run_tcl_script {args} {
                 set index "1"
             } else {
                 puts_err "Invalid value $value for \"index\" command."
-                flow_fail
+                return -code error
             }
         } elseif { $element == "noindex" } {
             set index 0
@@ -552,7 +559,7 @@ proc run_tcl_script {args} {
 
     if { $layout_saved && !$odb_saved } {
         puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
-        flow_fail
+        return -code error
     }
 
     if { $tool == "openroad" } {
@@ -646,12 +653,12 @@ proc run_tcl_script {args} {
 
         if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
             puts_err "Failed to package reproducible."
-            flow_fail
+            return -code error
         }
 
         if { $exit_code } {
             puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
-            flow_fail
+            return -code error
         } else {
             puts_info "Reproducible packaged at '$reproducible_dir_relative'."
             exit 0

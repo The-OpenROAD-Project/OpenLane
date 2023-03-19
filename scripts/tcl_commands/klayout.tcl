@@ -65,7 +65,7 @@ proc run_klayout {args} {
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 	} else {
 		puts_err "::env(KLAYOUT_TECH) is not defined for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-		flow_fail
+		return -code error
 	}
 
 }
@@ -95,7 +95,7 @@ proc scrot_klayout {args} {
 			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 		} else {
 			puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-			flow_fail
+			return -code error
 		}
 	}
 }
@@ -127,7 +127,7 @@ proc run_klayout_drc {args} {
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 	} else {
 		puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined or doesn't exist for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-		flow_fail
+		return -code error
 	}
 }
 
