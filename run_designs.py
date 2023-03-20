@@ -200,7 +200,7 @@ def cli(
         os.makedirs(store_dir, exist_ok=True)
 
     log = logging.getLogger("log")
-    log_formatter = logging.Formatter("[%(asctime)s - %(levelname)5s] %(message)s")
+    log_formatter = logging.Formatter("%(asctime)s | %(message)s", "%Y-%m-%d %H:%M")
     handler1 = logging.FileHandler(f"{report_file_name}.log", "w")
     handler1.setFormatter(log_formatter)
     log.addHandler(handler1)
@@ -243,9 +243,13 @@ def cli(
         allow_print_rem_designs = True
 
     def update(status: str, design: str, message: str = None, error: bool = False):
-        str = "[%-5s] %-20s" % (status, design)
+        width = 10
+        str = f"%-7s| %-{width}s" % (
+            status,
+            design[: width - 3] + "." * 3 if len(design) > width else design,
+        )
         if message is not None:
-            str += f": {message}"
+            str += f" | {message}"
 
         if error:
             log.error(str)
@@ -321,6 +325,12 @@ def cli(
                     subprocess.check_call(command)
                 else:
                     subprocess.check_output(command, stderr=subprocess.STDOUT)
+
+                update(
+                    "SUCCESS",
+                    design,
+                    "",
+                )
             except subprocess.CalledProcessError as e:
                 if print_rem_time is not None:
                     rmDesignFromPrintList(design)
@@ -351,15 +361,15 @@ def cli(
                 params = ConfigHandler.get_config_for_run(None, design, tag)
                 update("DONE", design, f"{tag}: Writing report...")
 
-                report = Report(design, tag, design_name, params).get_report()
-                report_log.info(report)
+                report_str = Report(design, tag, design_name, params).get_report()
+                report_log.info(report_str)
 
                 with open(f"{run_path}/report.csv", "w") as report_file:
                     report_file.write(
-                        Report.get_header() + "," + ConfigHandler.get_header()
+                        Report.get_header() + "," + ",".join(params.keys())
                     )
                     report_file.write("\n")
-                    report_file.write(report)
+                    report_file.write(report_str)
             except FileNotFoundError:
                 pass
 

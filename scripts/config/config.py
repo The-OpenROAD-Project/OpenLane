@@ -93,6 +93,14 @@ class ConfigHandler:
         config = {k: v for k, v in config.items() if k in Self.configuration_values}
         return config
 
+    @classmethod
+    def get_config_for_run_full(Self, run_path, design, tag) -> Dict[str, str]:
+        if run_path is None:
+            run_path = get_run_path(design=design, tag=tag)
+        config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
+        config = read_tcl_env(config_path)
+        return config
+
 
 def expand_matrix(
     base_config_path: str, config_matrix_path: str, output_prefix: str
