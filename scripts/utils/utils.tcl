@@ -13,6 +13,14 @@
 # limitations under the License.
 
 # warn about deprecated configs and preserve backwards compatibility
+proc throw_error {} {
+    if { [info exists ::env(EXIT_ON_ERROR)] && $::env(EXIT_ON_ERROR) } {
+        flow_fail
+    } else {
+        return -code error
+    }
+}
+
 proc handle_deprecated_config {old new} {
     if { [info exists ::env($old)] } {
         puts_warn "$old is now deprecated; use $new instead."
@@ -22,7 +30,7 @@ proc handle_deprecated_config {old new} {
         }
         if { $::env($new) != $::env($old) } {
             puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
-            return -code error
+            throw_error
         }
     }
 }
@@ -30,7 +38,7 @@ proc handle_deprecated_config {old new} {
 proc find_all {ext} {
     if { ! [info exists ::env(RUN_DIR)] } {
         puts_err "You are not currently running a design. Perhaps you forgot to run 'prep'?"
-        return -code error
+        throw_error
     }
     return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
 }
@@ -45,7 +53,7 @@ proc handle_deprecated_command {args} {
 
     set final_args [list {*}$insert_args {*}$caller_args]
 
-    puts_warn "The command $caller is now deprecated; use $new $insert_args instead."
+    puts_warn "The command $caller is now deprecated; use $new instead."
     eval {$new {*}$final_args}
 }
 
@@ -99,7 +107,7 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
             set key_index [lsearch -exact $args [lindex $option 0]]
             if {$key_index < 0} {
                 puts_err "$cmd missing required $option_name"
-                return -code error
+                throw_error
             }
         }
         lappend keys $option_name
@@ -114,7 +122,7 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
                 set key $arg
                 if { [llength $args] == 1 } {
                     puts_err "$cmd $key missing value."
-                    return -code error
+                    throw_error
                 }
                 set key_value($key) [lindex $args 1]
                 set args [lrange $args 1 end]
@@ -149,8 +157,7 @@ proc set_log {var val filepath log_flag} {
     close $global_cfg_file
 }
 
-# a minimal try catch block
-proc try_catch {args} {
+proc try_exec {args} {
     # puts_info "Executing \"$args\"\n"
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
         set timestamp [clock format [clock seconds]]
@@ -168,6 +175,10 @@ proc try_catch {args} {
 
         return -code error
     }
+}
+
+proc try_catch {args} {
+    handle_deprecated_command try_exec
 }
 
 proc relpath {args} {
@@ -240,7 +251,7 @@ proc calc_total_runtime {args} {
         set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
         set_if_unset arg_values(-status) "flow completed"
 
-        if {[try_catch python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)]} {
+        if {[catch [try_exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)]]} {
             puts_err "Failed to calculate total runtime."
         }
     }
@@ -323,7 +334,7 @@ proc show_warnings {msg} {
 proc generate_routing_report {args} {
     puts_info "Generating a partial report for routing..."
 
-    try_catch python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
+    try_exec python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
         --design_name $::env(DESIGN_NAME) \
         --tag $::env(RUN_TAG) \
         --run_path $::env(RUN_DIR)
@@ -346,12 +357,12 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
     if {
-        [try_catch python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+        [catch [try_exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
             --design_name $::env(DESIGN_NAME) \
             --tag $::env(RUN_TAG) \
             --output_file $arg_values(-output) \
             --man_report $arg_values(-man_report) \
-            --run_path $::env(RUN_DIR)]
+            --run_path $::env(RUN_DIR)]]
     } {
         puts_err "Failed to create manufacturability and metric reports."
     } else {
@@ -394,7 +405,7 @@ proc assert_files_exist {files} {
     foreach f $files {
         if { ! [file exists $f] } {
             puts_err "$f doesn't exist."
-            return -code error
+            throw_error
         } else {
             puts_verbose "$f existence verified."
         }
@@ -435,7 +446,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_catch $::env(OPENROAD_BIN) -exit -no_init -python\
+    try_exec $::env(OPENROAD_BIN) -exit -no_init -python\
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
@@ -520,7 +531,7 @@ proc run_tcl_script {args} {
                 set index "1"
             } else {
                 puts_err "Invalid value $value for \"index\" command."
-                return -code error
+                throw_error
             }
         } elseif { $element == "noindex" } {
             set index 0
@@ -558,7 +569,7 @@ proc run_tcl_script {args} {
 
     if { $layout_saved && !$odb_saved } {
         puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
-        return -code error
+        throw_error
     }
 
     if { $tool == "openroad" } {
@@ -584,7 +595,7 @@ proc run_tcl_script {args} {
         set args "$::env(SYNTH_BIN) -c $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } else {
         puts_err "run_tcl_script only supports tools 'magic', 'yosys' or 'openroad' for now."
-        return -code error
+        throw_error
     }
 
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
@@ -652,12 +663,12 @@ proc run_tcl_script {args} {
 
         if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
             puts_err "Failed to package reproducible."
-            return -code error
+            throw_error
         }
 
         if { $exit_code } {
             puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
-            return -code error
+            throw_error
         } else {
             puts_info "Reproducible packaged at '$reproducible_dir_relative'."
             exit 0

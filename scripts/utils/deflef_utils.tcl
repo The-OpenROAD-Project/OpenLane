@@ -26,8 +26,8 @@ proc resize_die {args} {
     set ury [expr {[lindex $arg_values(-area) 3] * $::env(DEF_UNITS_PER_MICRON)}]
 
     puts_info "Resizing Die to $arg_values(-area)"
-    try_catch sed -i.bak -E "0,/^DIEAREA.*$/{s/^DIEAREA.*$/DIEAREA ( $llx $lly ) ( $urx $ury ) ;/}" $arg_values(-def)
-    try_catch rm -f $arg_values(-def).bak
+    try_exec sed -i.bak -E "0,/^DIEAREA.*$/{s/^DIEAREA.*$/DIEAREA ( $llx $lly ) ( $urx $ury ) ;/}" $arg_values(-def)
+    try_exec rm -f $arg_values(-def).bak
 }
 
 proc get_instance_position {args} {
@@ -46,7 +46,7 @@ proc get_instance_position {args} {
         set def $::env(CURRENT_DEF)
     } else {
         puts_err "No DEF specified"
-        return -code error
+        throw_error
     }
 
     puts $instance
@@ -66,8 +66,8 @@ proc add_lefs {args} {
     parse_key_args "add_lefs" args arg_values $options flags_map $flags
     puts_info "Merging $arg_values(-src)"
 
-    try_catch $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
-    try_catch mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
+    try_exec $::env(SCRIPTS_DIR)/mergeLef.py -i $::env(MERGED_LEF) {*}$arg_values(-src) -o $::env(MERGED_LEF).new
+    try_exec mv $::env(MERGED_LEF).new $::env(MERGED_LEF)
 }
 
 proc merge_components {args} {

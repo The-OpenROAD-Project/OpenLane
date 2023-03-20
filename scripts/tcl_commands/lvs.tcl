@@ -31,7 +31,7 @@ proc verilog_to_verilogPower {args} {
     set gnd $arg_values(-ground)
     set lef $arg_values(-lef)
 
-    try_catch $bin \
+    try_exec $bin \
         -v $power \
         -g $gnd \
         -l $lef \
@@ -68,11 +68,11 @@ proc write_powered_verilog {args} {
     } else {
         if { ![info exists arg_values(-output_nl)] } {
             puts_err "-output_nl is required for write_powered_verilog."
-            return -code error
+            throw_error
         }
         if { ![info exists arg_values(-output_pnl)] } {
             puts_err "-output_pnl is required for write_powered_verilog."
-            return -code error
+            throw_error
         }
     }
 
@@ -93,7 +93,7 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+    try_exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
         --output $arg_values(-output_def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \
@@ -182,7 +182,7 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
 
     puts_verbose "$layout against $schematic"
 
-    try_catch netgen -batch source $lvs_file_path \
+    try_exec netgen -batch source $lvs_file_path \
         |& tee $::env(TERMINAL_OUTPUT) $log
 
 

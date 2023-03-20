@@ -373,7 +373,7 @@ proc run_lvs_batch {args} {
 
 proc run_file {args} {
     set ::env(TCLLIBPATH) $::auto_path
-    exec tclsh {*}$args >&@stdout
+    exec env EXIT_ON_ERROR=1 tclsh {*}$args >&@stdout
 }
 
 set options {

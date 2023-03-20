@@ -135,7 +135,7 @@ proc detailed_routing_tritonroute {args} {
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
@@ -241,7 +241,7 @@ proc ins_diode_cells_4 {args} {
         if { ! [info exists ::env(FAKEDIODE_CELL)] } {
             puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
             puts_err "Please try a different strategy."
-            return -code error
+            throw_error
         }
         set ::antenna_cell_name $::env(FAKEDIODE_CELL)
     } else {

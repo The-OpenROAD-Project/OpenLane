@@ -33,7 +33,7 @@ proc run_klayout {args} {
 			set gds_file_arg "$gds_file_arg --with-gds-file $gds_file"
 		}
 		set klayout_out $::env(signoff_results)/$::env(DESIGN_NAME).klayout.gds
-		try_catch python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
+		try_exec python3 $::env(SCRIPTS_DIR)/klayout/stream_out.py\
 			--output $klayout_out\
 			--lyt $::env(KLAYOUT_TECH)\
 			--lym $::env(KLAYOUT_DEF_LAYER_MAP)\
@@ -65,7 +65,7 @@ proc run_klayout {args} {
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 	} else {
 		puts_err "::env(KLAYOUT_TECH) is not defined for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-		return -code error
+		throw_error
 	}
 
 }
@@ -86,7 +86,7 @@ proc scrot_klayout {args} {
 			set log [index_file $arg_values(-log)]
 			puts_info "Creating a screenshot using KLayout (log: [relpath . $log])..."
 
-			try_catch bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) $log
+			try_exec bash $::env(SCRIPTS_DIR)/klayout/scrotLayout.sh $::env(KLAYOUT_TECH) $arg_values(-layout) |& tee $::env(TERMINAL_OUTPUT) $log
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"
@@ -95,7 +95,7 @@ proc scrot_klayout {args} {
 			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 		} else {
 			puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-			return -code error
+			throw_error
 		}
 	}
 }
@@ -117,7 +117,7 @@ proc run_klayout_drc {args} {
 		set log [index_file $::env(signoff_logs)/$arg_values(-stage).drc.log]
 		puts_info "Running DRC on the layout using KLayout (log: [relpath . $log])..."
 
-		try_catch bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $log
+		try_exec bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $log
 		file copy -force $arg_values(-gds).lydrc [index_file $::env(signoff_reports)/$arg_values(-stage).lydrc]
 		puts_info "KLayout DRC Complete"
 		TIMER::timer_stop
@@ -127,7 +127,7 @@ proc run_klayout_drc {args} {
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 	} else {
 		puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined or doesn't exist for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-		return -code error
+		throw_error
 	}
 }
 
@@ -153,7 +153,7 @@ proc run_klayout_gds_xor {args} {
 			set report [index_file $::env(signoff_reports)/xor.rpt]
 			set db [index_file $::env(signoff_reports)/xor.xml]
 			puts_info "Running XOR on the layouts using KLayout (log: [relpath . $log])..."
-			try_catch klayout \
+			try_exec klayout \
 				-b \
 				-r $::env(SCRIPTS_DIR)/klayout/xor.drc \
 				-rd a=$arg_values(-layout1) \
@@ -187,7 +187,7 @@ proc open_in_klayout {args} {
 
 	set_if_unset arg_values(-layout) $::env(CURRENT_DEF)
 
-	try_catch python3 $::env(SCRIPTS_DIR)/klayout/open_design.py\
+	try_exec python3 $::env(SCRIPTS_DIR)/klayout/open_design.py\
 		--input-lef $::env(MERGED_LEF)\
 		--lyt $::env(KLAYOUT_TECH)\
 		--lyp $::env(KLAYOUT_PROPERTIES)\

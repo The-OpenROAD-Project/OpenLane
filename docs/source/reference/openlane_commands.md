@@ -319,7 +319,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
 | `kill_display_buffer` | | Kills the fake display buffer. |
 | `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
-| `try_catch <command>` | | A minimal try_catch block to execute the `<command>`. |
+| `try_exec <command>` | | Attempts to execute the following command, printing the last couple of lines and returning `-code error` on failure. |
 | `puts_err <text>` | | Prints `[ERROR]: ` followed by the `<text>` in red. |
 | `puts_success <text>` | | Prints `[SUCCESS]: ` followed by the `<text>` in green. |
 | `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |

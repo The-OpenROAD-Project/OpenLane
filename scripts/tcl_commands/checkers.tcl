@@ -19,7 +19,7 @@ proc check_assign_statements {args} {
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist."
-        return -code error
+        throw_error
     } else {
         puts_verbose "No assign statement in netlist, continuing..."
     }
@@ -32,7 +32,7 @@ proc check_unmapped_cells {stat_file} {
 
     if { $checker ne "" } {
         puts_err "Synthesis failed. There are unmapped cells after synthesis."
-        return -code error
+        throw_error
     }
 }
 
@@ -76,7 +76,7 @@ proc check_hold_violations {args} {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            return -code error
+            throw_error
         } else {
             puts_warn "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -102,7 +102,7 @@ proc check_setup_violations {args} {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            return -code error
+            throw_error
         } else {
             puts_warn "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -160,7 +160,7 @@ proc check_slew_violations {args} {
 
     if { $violated } {
         if { $quit_on_vios } {
-            return -code error
+            throw_error
         }
     } else {
         puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
@@ -177,7 +177,7 @@ proc check_floorplan_missing_lef {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately"
-        return -code error
+        throw_error
     }
 }
 
@@ -190,7 +190,7 @@ proc check_floorplan_missing_pins {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately and if they have the referenced pins."
-        return -code error
+        throw_error
     }
 }
 
@@ -201,7 +201,7 @@ proc check_cts_clock_nets {args} {
         puts_err "Clock Tree Synthesis failed"
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
-        return -code error
+        throw_error
     }
 }
 
@@ -211,7 +211,7 @@ proc check_replace_divergence {args} {
     if { ! $checker } {
         puts_err "Global placement failed"
         puts_err $error
-        return -code error
+        throw_error
     }
 }
 
@@ -221,7 +221,7 @@ proc check_macro_placer_num_solns {args} {
     if { ! $checker } {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
-        return -code error
+        throw_error
     }
 }
 
@@ -231,7 +231,7 @@ proc quit_on_tr_drc {args} {
     if { $checker != 0 } {
         puts_err "There are violations in the design after detailed routing."
         puts_err "Total Number of violations is $checker"
-        return -code error
+        throw_error
     } else {
         puts_info "No DRC violations after detailed routing."
     }
@@ -248,7 +248,7 @@ proc quit_on_magic_drc {args} {
     if { $checker != 0 } {
         puts_err "There are violations in the design after Magic DRC."
         puts_err "Total Number of violations is $checker"
-        return -code error
+        throw_error
     } else {
         puts_info "No DRC violations after GDS streaming out."
     }
@@ -266,7 +266,7 @@ proc quit_on_lvs_error {args} {
         set rpt_relative [relpath . $arg_values(-rpt)]
         set log_relative [relpath . $arg_values(-log)]
         puts_err "There are LVS errors in the design: See '$rpt_relative' for a summary and '$log_relative' for details."
-        return -code error
+        throw_error
     }
 }
 
@@ -280,7 +280,7 @@ proc quit_on_xor_error {args} {
     if { $checker != 0 } {
         set log_relative [relpath . $arg_values(-log)]
         puts_err "There are XOR differences in the design: See '$log_relative' for details."
-        return -code error
+        throw_error
     } else {
         puts_info "No XOR differences between KLayout and Magic gds."
     }
@@ -296,7 +296,7 @@ proc quit_on_illegal_overlaps {args} {
     if { ! $checker } {
         puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
         puts_err "See $arg_values(-log) for more."
-        return -code error
+        throw_error
     }
 }
 
@@ -309,7 +309,7 @@ proc quit_on_unconnected_pdn_nodes {args} {
         puts_err "You may need to adjust your macro placements or PDN \
             offsets/pitches to power all standard cell rails (or other PDN stripes) \
             in your design."
-        return -code error
+        throw_error
     }
 }
 
