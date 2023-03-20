@@ -28,7 +28,7 @@ class Tool(object):
         name,
         repo,
         commit,
-        build_script="make && make install",
+        build_script="",
         default_branch=None,
         in_install=True,
         in_container=True,

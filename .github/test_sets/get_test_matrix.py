@@ -28,8 +28,14 @@ TEST_SETS_FILE = os.path.join(__dir__, "test_sets.yml")
 @click.option(
     "--pdk", "pdks", multiple=True, default=["sky130A"], help="Specify which PDK to use"
 )
+@click.option(
+    "--json/--plain",
+    "use_json",
+    default=True,
+    help="Print as plain text joined by whitespace instead of a JSON file. Omits PDKs.",
+)
 @click.argument("test_sets", nargs=-1)
-def main(pdks, test_sets):
+def main(pdks, use_json, test_sets):
 
     data_str = open(TEST_SETS_FILE).read()
     data = yaml.safe_load(data_str)
@@ -40,7 +46,10 @@ def main(pdks, test_sets):
         for design in test_set["designs"]:
             designs.append({"name": design, "pdk": test_set["pdk"]})
 
-    print(json.dumps({"design": designs}), end="")
+    if use_json:
+        print(json.dumps({"design": designs}), end="")
+    else:
+        print(" ".join([design["name"] for design in designs]), end="")
 
 
 if __name__ == "__main__":

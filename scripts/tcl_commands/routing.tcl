@@ -276,7 +276,7 @@ proc apply_route_obs {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/obs.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+    puts_info "Applying Routing Obstructions (log: [relpath . $log])..."
 
     set save_def [file rootname $::env(CURRENT_DEF)].obs.def
     set save_db [file rootname $::env(CURRENT_DEF)].obs.odb
@@ -385,6 +385,7 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
 
+    run_resizer_design_routing
     run_resizer_timing_routing
     if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
         remove_buffers_from_nets
@@ -444,15 +445,34 @@ proc run_routing {args} {
     set ::env(timer_routed) [clock seconds]
 }
 
+proc run_resizer_design_routing {args} {
+    if { $::env(GLB_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
+        increment_index
+        TIMER::timer_start
+        set log [index_file $::env(routing_logs)/resizer_design.log]
+        puts_info "Running Global Routing Resizer Design Optimizations (log: [relpath . $log])..."
+
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_design.tcl\
+            -indexed_log $log\
+            -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
+
+    } else {
+        puts_info "Skipping Global Routing Resizer Design Optimizations."
+    }
+}
+
 proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        set log [index_file $::env(routing_logs)/resizer.log]
+        set log [index_file $::env(routing_logs)/resizer_timing.log]
         puts_info "Running Global Routing Resizer Timing Optimizations (log: [relpath . $log])..."
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl\
-            -indexed_log [index_file $::env(routing_logs)/resizer.log]\
+            -indexed_log $log\
             -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
 
         TIMER::timer_stop

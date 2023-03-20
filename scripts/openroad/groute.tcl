@@ -36,7 +36,7 @@ puts $arg_list
 global_route {*}$arg_list
 
 if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
-    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS)
+    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
     check_placement
 }
 

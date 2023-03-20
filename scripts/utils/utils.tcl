@@ -213,7 +213,8 @@ proc index_file {args} {
     set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     if { [info exists ::env(GLB_CFG_FILE)]} {
-        exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+        exec sed -i.bak -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+        exec rm -f "$::env(GLB_CFG_FILE).bak"
     }
     return $new_file_full_name
 }

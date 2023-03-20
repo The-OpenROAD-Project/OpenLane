@@ -71,7 +71,8 @@ proc run_yosys {args} {
     if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
         puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
     } else {
-        try_catch sed -i {/defparam/d} $arg_values(-output)
+        try_catch sed -i.bak {/defparam/d} $arg_values(-output)
+        exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
 }
