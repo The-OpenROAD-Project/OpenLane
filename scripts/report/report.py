@@ -137,7 +137,9 @@ class Report(object):
             run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params.values()
-        self.configuration_full = ConfigHandler.get_config_for_run_full(None, design_path, tag)
+        self.configuration_full = ConfigHandler.get_config_for_run_full(
+            None, design_path, tag
+        )
         self.raw_report = None
         self.formatted_report = None
 
@@ -420,7 +422,6 @@ class Report(object):
             if end is not None:
                 critical_path_ns = end - start
 
-
         # OpenDP Utilization and HPWL
         utilization = -1
         hpwl = -1  # Half Perimeter Wire Length?
@@ -438,7 +439,9 @@ class Report(object):
 
         final_utilization = -1
         # ./reports/signoff/26-rcx_sta.area.rpt
-        final_utilization_report = Artifact(rp, "reports", "signoff", "rcx_sta.area.rpt")
+        final_utilization_report = Artifact(
+            rp, "reports", "signoff", "rcx_sta.area.rpt"
+        )
         final_utilization_content = final_utilization_report.get_content()
         if final_utilization_content is not None:
             match = re.search(r"\s+([\d]+\.*[\d]*)%", final_utilization_content)
@@ -537,8 +540,12 @@ class Report(object):
             net_violations = re.search(r"Found (\d+) net violations", aar_content)
             pin_violations = re.search(r"Found (\d+) pin violations", aar_content)
 
-            pin_antenna_violations = int(pin_violations[1]) if pin_violations != None else 0
-            net_antenna_violations = int(net_violations[1]) if net_violations != None else 0
+            pin_antenna_violations = (
+                int(pin_violations[1]) if pin_violations != None else 0
+            )
+            net_antenna_violations = (
+                int(net_violations[1]) if net_violations != None else 0
+            )
         else:
             # Old Magic-Based Check: Just Count The Lines
             magic_antenna_report = Artifact(
@@ -687,7 +694,6 @@ class Report(object):
         non_phys_count = -1
         total_cells_count = -1
 
-
         design_netlist_content = design_netlist.get_content()
         diode_cell_names = self.configuration_full["DIODE_CELL"].split()
         fill_cell_names = self.configuration_full["FILL_CELL"].split()
@@ -698,11 +704,18 @@ class Report(object):
             well_tap_count = count_cells(well_tap_cell_names, design_netlist_content)
             decap_count = count_cells(decap_cell_names, design_netlist_content)
             filler_count = count_cells(fill_cell_names, design_netlist_content)
-            all_cells_count_match = re.search(r"COMPONENTS\s+([\d]+)\s+;", design_netlist_content)
+            all_cells_count_match = re.search(
+                r"COMPONENTS\s+([\d]+)\s+;", design_netlist_content
+            )
             if all_cells_count_match != None:
                 total_cells_count = int(all_cells_count_match[1])
-                non_phys_count = total_cells_count - decap_count - well_tap_count - diode_count - filler_count
-
+                non_phys_count = (
+                    total_cells_count
+                    - decap_count
+                    - well_tap_count
+                    - diode_count
+                    - filler_count
+                )
 
         # Cells per micrometer
         cells_per_mm = -1
