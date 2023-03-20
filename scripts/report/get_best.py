@@ -200,7 +200,7 @@ def get_best_results(results_dictionary):
     best = {}
     for key in results_dictionary:
         results = results_dictionary[key]
-        best_result = get_best_violation(results)
+        best_result = str(get_best_violation(results))
         best[key] = best_result
 
     return best
