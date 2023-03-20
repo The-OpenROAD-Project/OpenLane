@@ -64,7 +64,7 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         os.path.join(run_path, "reports", "routing"), "antenna_violators.rpt"
     )
     _, arc_antenna_report = get_name(
-        os.path.join(run_path, "reports", "signoff"), "antenna.rpt"
+        os.path.join(run_path, "reports", "signoff"), "antenna_violators.rpt"
     )
     _, magic_drc_report = get_name(
         os.path.join(run_path, "reports", "signoff"), "drc.rpt"
@@ -143,12 +143,11 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     if os.path.exists(arc_antenna_report):
         printArr.append("Source: " + str(arc_antenna_report))
         antFileOpener = open(arc_antenna_report)
+        antContent = []
         if antFileOpener.mode == "r":
-            antContent = antFileOpener.read().split("\n")[-5:]
+            antContent = antFileOpener.read().split("\n")
         antFileOpener.close()
-        for line in antContent:
-            if line.find("violated:") != -1:
-                printArr.append(line)
+        printArr.append(f"Violations: {len(antContent)}")
     elif os.path.exists(magic_antenna_report):
         printArr.append("Source: " + str(magic_antenna_report))
         antFileOpener = open(magic_antenna_report)
