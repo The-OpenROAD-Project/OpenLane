@@ -9,3 +9,5 @@
 */run_*.json
 */run_*.tcl
 */matrix_*.json
+*/*_config.json
+*/*_config.tcl
