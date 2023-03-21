@@ -280,6 +280,8 @@ proc merge_lib {args} {
 
     parse_key_args "merge_lib" args arg_values $options flags_map $flags
 
+    puts_verbose "Merging liberty files \{{*}$arg_values(-inputs)\} into \{$arg_values(-output)\}..."
+
     set_if_unset arg_values(-name) "$::env(PDK)_merged"
 
     try_catch python3 $::env(SCRIPTS_DIR)/mergeLib.py\
