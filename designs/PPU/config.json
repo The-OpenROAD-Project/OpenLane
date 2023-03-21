@@ -3,8 +3,8 @@
     "VERILOG_FILES": "dir::src/PPU.v",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
-    "GPL_CELL_PADDING": 2,
-    "DPL_CELL_PADDING": 2,
+    "GPL_CELL_PADDING": 4,
+    "DPL_CELL_PADDING": 4,
     "pdk::gf180mcu*": {
         "FP_CORE_UTIL": 40,
         "SYNTH_MAX_FANOUT": 8,

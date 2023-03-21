@@ -4,8 +4,8 @@
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
     "GLB_RESIZER_TIMING_OPTIMIZATIONS": true,
-    "GPL_CELL_PADDING": 2,
-    "DPL_CELL_PADDING": 2,
+    "GPL_CELL_PADDING": 4,
+    "DPL_CELL_PADDING": 4,
     "pdk::sky130*": {
         "FP_CORE_UTIL": 20,
         "SYNTH_MAX_FANOUT": 6,
