@@ -173,7 +173,7 @@ proc try_exec {args} {
         puts_err "Exit code: $exit_code"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
 
-        return -code error
+        throw_error
     }
 }
 
@@ -251,8 +251,9 @@ proc calc_total_runtime {args} {
         set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
         set_if_unset arg_values(-status) "flow completed"
 
-        if {[catch [try_exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)]]} {
-            puts_err "Failed to calculate total runtime."
+        if {[catch {exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)} err]} {
+            puts_err "Failed to calculate total runtime:"
+            puts_err "$err"
         }
     }
 }
@@ -357,14 +358,15 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
     if {
-        [catch [try_exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+        [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
             --design_name $::env(DESIGN_NAME) \
-            --tag $::env(RUN_TAG) \
-            --output_file $arg_values(-output) \
-            --man_report $arg_values(-man_report) \
-            --run_path $::env(RUN_DIR)]]
-    } {
-        puts_err "Failed to create manufacturability and metric reports."
+                --tag $::env(RUN_TAG) \
+                --output_file $arg_values(-output) \
+                --man_report $arg_values(-man_report) \
+                --run_path $::env(RUN_DIR)} err]
+        } {
+        puts_err "Failed to create manufacturability and metric reports:"
+        puts_err "$err"
     } else {
 
         set man_report_rel [relpath . $arg_values(-man_report)]
