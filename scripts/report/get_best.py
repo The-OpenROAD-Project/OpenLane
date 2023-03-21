@@ -200,7 +200,7 @@ def get_best_results(results_dictionary):
     best = {}
     for key in results_dictionary:
         results = results_dictionary[key]
-        best_result = str(get_best_violation(results))
+        best_result = get_best_violation(results)
         best[key] = best_result
 
     return best
@@ -235,7 +235,7 @@ results_dictionary = build_dictionary(report_file)
 tr_violations_idx = findIdx(headerSplit, "tritonRoute_violations") - (design_idx + 1)
 lvs_errors_idx = findIdx(headerSplit, "lvs_total_errors") - (design_idx + 1)
 magic_violations_idx = findIdx(headerSplit, "Magic_violations") - (design_idx + 1)
-antenna_violations_idx = findIdx(headerSplit, "antenna_violations") - (design_idx + 1)
+antenna_violations_idx = findIdx(headerSplit, "pin_antenna_violations") - (design_idx + 1)
 wire_length_idx = findIdx(headerSplit, "wire_length") - (design_idx + 1)
 via_idx = findIdx(headerSplit, "vias") - (design_idx + 1)
 flow_status_idx = findIdx(headerSplit, "flow_status") - (design_idx + 1)
