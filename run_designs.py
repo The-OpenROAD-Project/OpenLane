@@ -51,7 +51,7 @@ def get_design_name(config_file: str) -> str:
 @click.option(
     "-c",
     "--config_file",
-    default="config.json",
+    default="config",
     help="(Base) configuration filename. Must inside the design directory. If an extension is omitted, both JSON and Tcl will be tried.",
 )
 @click.option(
@@ -264,7 +264,7 @@ def cli(
             update(
                 "ERROR",
                 design,
-                f"Cannot run: {config_file} not found",
+                f"Cannot run: {conf_file} not found",
                 error=True,
             )
             return None
