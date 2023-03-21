@@ -28,7 +28,6 @@
     },
     "pdk::gf180mcu*": {
         "FP_SIZING": "relative",
-        "DIODE_PADDING": 0,
         "FP_CORE_UTIL": 40
     }
 }

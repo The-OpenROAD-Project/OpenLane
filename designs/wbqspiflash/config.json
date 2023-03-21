@@ -27,10 +27,5 @@
         "scl::sky130_fd_sc_ms": {
             "FP_CORE_UTIL": 30
         }
-    },
-    "pdk::gf180mcu*": {
-        "DIODE_PADDING": 0,
-        "PL_TARGET_DENSITY": 0.62,
-        "DIODE_INSERTION_STRATEGY": 3
     }
 }
