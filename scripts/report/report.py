@@ -24,7 +24,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from .get_file_name import get_name  # noqa E402
 from utils.utils import get_run_path  # noqa E402
-from config.config import ConfigHandler # noqa E402
+from config.config import ConfigHandler  # noqa E402
 
 
 def debug(*args, **kwargs):
