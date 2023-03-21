@@ -183,7 +183,6 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
     current_yaml[design] = design_report
 
     current_yaml_str = yaml.safe_dump(current_yaml, sort_keys=False)
-    import sys
 
     with open(output_report_file, "w") as f:
         f.write(current_yaml_str)
