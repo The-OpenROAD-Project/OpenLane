@@ -39,6 +39,7 @@ class ConfigHandler:
         "STD_CELL_LIBRARY",
         "DIODE_INSERTION_STRATEGY",
     ]
+    configuration_values.sort()
 
     configuration_files = [
         "synthesis.tcl",
@@ -91,6 +92,7 @@ class ConfigHandler:
         config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
         config = read_tcl_env(config_path)
         config = {k: v for k, v in config.items() if k in Self.configuration_values}
+        config = dict(sorted(config.items()))
         return config
 
     @classmethod

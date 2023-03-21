@@ -24,7 +24,7 @@ sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from .get_file_name import get_name  # noqa E402
 from utils.utils import get_run_path  # noqa E402
-from config.config import ConfigHandler
+from config.config import ConfigHandler  # noqa E402
 
 
 def debug(*args, **kwargs):
@@ -526,7 +526,7 @@ class Report(object):
         klayout_violations = -1
         if klayout_drc_content is not None:
             klayout_violations = 0
-            for line in klayout_drc_contect.split("\n"):
+            for line in klayout_drc_content.split("\n"):
                 if "<item>" in line:
                     klayout_violations += 1
 
@@ -541,10 +541,10 @@ class Report(object):
             pin_violations = re.search(r"Found (\d+) pin violations", aar_content)
 
             pin_antenna_violations = (
-                int(pin_violations[1]) if pin_violations != None else 0
+                int(pin_violations[1]) if pin_violations is not None else 0
             )
             net_antenna_violations = (
-                int(net_violations[1]) if net_violations != None else 0
+                int(net_violations[1]) if net_violations is not None else 0
             )
         else:
             # Old Magic-Based Check: Just Count The Lines
@@ -699,7 +699,7 @@ class Report(object):
         fill_cell_names = self.configuration_full["FILL_CELL"].split()
         well_tap_cell_names = self.configuration_full["FP_WELLTAP_CELL"].split()
         decap_cell_names = self.configuration_full["DECAP_CELL"].split()
-        if design_netlist_content != None:
+        if design_netlist_content is not None:
             diode_count = count_cells(diode_cell_names, design_netlist_content)
             well_tap_count = count_cells(well_tap_cell_names, design_netlist_content)
             decap_count = count_cells(decap_cell_names, design_netlist_content)
@@ -707,7 +707,7 @@ class Report(object):
             all_cells_count_match = re.search(
                 r"COMPONENTS\s+([\d]+)\s+;", design_netlist_content
             )
-            if all_cells_count_match != None:
+            if all_cells_count_match is not None:
                 total_cells_count = int(all_cells_count_match[1])
                 non_phys_count = (
                     total_cells_count
