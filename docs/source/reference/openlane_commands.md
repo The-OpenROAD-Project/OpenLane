@@ -195,9 +195,9 @@ Most of the following commands' implementation exists in this [file][8]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
-| `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `ins_diode_cells_1` | | **Deprecated** |
 | `heurisitc_diode_insertion` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs on `CURRENT_DEF` and only if `DIODE_INSERTION_STRATEGY` is set to `2`.|
+| `heal_antenna_violators`   | | **Deprecated** |
 
 
 ## PDN Generation Commands

@@ -37,7 +37,8 @@ class ConfigHandler:
         "PL_TARGET_DENSITY",
         "GRT_ADJUSTMENT",
         "STD_CELL_LIBRARY",
-        "DIODE_INSERTION_STRATEGY",
+        "RUN_HEURISTIC_DIODE_INSERTION",
+        "GRT_REPAIR_ANTENNAS",
     ]
     configuration_values.sort()
 
