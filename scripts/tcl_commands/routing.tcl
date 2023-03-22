@@ -231,6 +231,9 @@ proc ins_diode_cells_1 {args} {
 }
 
 proc ins_diode_cells_4 {args} {
+    if { $::env(DPL_CELL_PADDING) == 0 } {
+        puts_warn "DPL_CELL_PADDING is set to 0. Diode insertion strategies 4, 5 and 6 may not function properly."
+    }
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
