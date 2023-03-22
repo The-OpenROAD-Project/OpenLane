@@ -30,12 +30,6 @@ set ::env(RSZ_USE_OLD_REMOVER) 0
 set ::env(STA_REPORT_POWER) {1}
 set ::env(STA_WRITE_LIB) {1}
 
-## ECO Flow
-set ::env(ECO_ENABLE) {0}
-set ::env(ECO_ITER) {0}
-set ::env(ECO_FINISH) {0}
-set ::env(ECO_SKIP_PIN) {1}
-
 ## Routing
 set ::env(RUN_DRT) 1
 set ::env(USE_ARC_ANTENNA_CHECK) 1

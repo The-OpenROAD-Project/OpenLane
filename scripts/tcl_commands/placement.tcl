@@ -101,7 +101,7 @@ proc add_macro_placement {args} {
     if { [llength $args] == 4 } {
         set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
+    try_exec echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
