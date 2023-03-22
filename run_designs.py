@@ -20,6 +20,7 @@ import click
 import queue
 import shutil
 import logging
+import pathlib
 import datetime
 import threading
 import subprocess
@@ -45,6 +46,10 @@ def get_design_name(config_file: str) -> str:
     if name is None:
         raise ValueError(f"{config_file}: No DESIGN_NAME variable")
     return name
+
+
+def mkdirp(path):
+    return pathlib.Path(path).mkdir(parents=True, exist_ok=True)
 
 
 @click.command()
@@ -196,8 +201,7 @@ def cli(
         store_dir = f"./regression_results/{tag}"
         report_file_name = f"{store_dir}/{tag}"
 
-    if not os.path.exists(store_dir):
-        os.makedirs(store_dir, exist_ok=True)
+        mkdirp(store_dir)
 
     log = logging.getLogger("log")
     log_formatter = logging.Formatter("[%(asctime)s - %(levelname)5s] %(message)s")

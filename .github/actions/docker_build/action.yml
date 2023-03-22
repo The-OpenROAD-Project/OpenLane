@@ -13,6 +13,10 @@ inputs:
     description: The input dockerhub password
     required: false
     default: ""
+  tool_repository:
+    description: The Docker repository in which to store tools
+    required: false
+    default: "efabless/openlane-tools"
 runs:
   using: "composite"
   steps:

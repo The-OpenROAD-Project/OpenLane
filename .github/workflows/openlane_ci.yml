@@ -34,13 +34,13 @@ jobs:
           export PATH=$PATH:$(go env GOPATH)/bin
           python3 -m pip install --upgrade --no-cache-dir volare
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
-          if [ "${{ secrets.VOLARE_REPO }}" != "" ]; then
+          if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
               --pdk $PDK_FAMILY\
               --also-push\
               --token ${{ secrets.MY_TOKEN }}\
-              --owner ${{ secrets.VOLARE_OWNER }}\
-              --repository ${{ secrets.VOLARE_REPO }}\
+              --owner ${{ vars.VOLARE_OWNER }}\
+              --repository ${{ vars.VOLARE_REPO }}\
               -j$(nproc)\
               $OPDKS_VER
           else
@@ -82,9 +82,9 @@ jobs:
         id: set-matrix
         run: |
           if [[ "$USE_ETS" = "1" ]]; then
-            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --pdk sky130A --pdk gf180mcuC fastest_test_set extended_test_set)" >> $GITHUB_OUTPUT
+            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuC/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set extended_test_set)" >> $GITHUB_OUTPUT
           else
-            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --pdk sky130A --pdk gf180mcuC  fastest_test_set)" >> $GITHUB_OUTPUT
+            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuC/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set)" >> $GITHUB_OUTPUT
           fi
           echo "issue_regression_matrix=$(python3 -m tests get_matrix)" >> $GITHUB_OUTPUT
 
@@ -99,6 +99,7 @@ jobs:
           arch: amd64
           dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
   docker_build_arm64v8:
     name: Docker Build (arm64v8)
     runs-on: ubuntu-20.04
@@ -110,6 +111,7 @@ jobs:
           arch: arm64v8
           dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
           dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
   issue_regression_test:
     name: Regression Test (Test ${{ matrix.test }})
     needs: [docker_build_amd64, pdk_build, prepare_test_matrices]
@@ -159,7 +161,7 @@ jobs:
   # Each test has two components: a fast test set and an extended test set.
   # The fast test set is run on all PRs, etc. The extended test set runs on schedule.
   test:
-    name: Test Design ${{ matrix.design.name }}
+    name: Test Design ${{ matrix.design.name }} (${{ matrix.design.pdk }}/${{matrix.design.scl}})
     needs: [docker_build_amd64, pdk_build, prepare_test_matrices]
     runs-on: ubuntu-20.04
     strategy:
@@ -195,6 +197,10 @@ jobs:
       - name: Set PDK Variant
         run: |
           echo "PDK=${{ matrix.design.pdk }}" >> $GITHUB_ENV
+
+      - name: Set SCL
+        run: |
+          echo "STD_CELL_LIBRARY=${{ matrix.design.scl }}" >> $GITHUB_ENV
 
       - name: Get Pyyaml
         run: python3 -m pip install pyyaml
@@ -262,7 +268,7 @@ jobs:
 
       - name: Write Main Branch
         run: |
-          echo "MAIN_BRANCH=${{ secrets.MAIN_BRANCH }}" >> $GITHUB_ENV
+          echo "MAIN_BRANCH=${{ vars.MAIN_BRANCH }}" >> $GITHUB_ENV
 
       - name: Write Hash
         run: |
@@ -318,11 +324,11 @@ jobs:
         run: |
           for tag in $TAG_LIST; do
             for arch in amd64 arm64v8; do
-              docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
-              docker push ${{ secrets.DOCKER_IMAGE }}:$tag-$arch
+              docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ vars.DOCKER_IMAGE }}:$tag-$arch
+              docker push ${{ vars.DOCKER_IMAGE }}:$tag-$arch
             done
-            docker manifest create ${{ secrets.DOCKER_IMAGE }}:$tag\
-              --amend ${{ secrets.DOCKER_IMAGE }}:$tag-amd64\
-              --amend ${{ secrets.DOCKER_IMAGE }}:$tag-arm64v8
-            docker manifest push ${{ secrets.DOCKER_IMAGE }}:$tag
+            docker manifest create ${{ vars.DOCKER_IMAGE }}:$tag\
+              --amend ${{ vars.DOCKER_IMAGE }}:$tag-amd64\
+              --amend ${{ vars.DOCKER_IMAGE }}:$tag-arm64v8
+            docker manifest push ${{ vars.DOCKER_IMAGE }}:$tag
           done
