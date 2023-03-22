@@ -17,6 +17,8 @@ if { ![info exists ::env(ROUTING_CORES)] } {
     set ::env(ROUTING_CORES) 2
 }
 
+set ::env(DIODE_INSERTION_MIN_DISTANCE) 90
+set ::env(DIODE_INSERTION_SIDE_STRATEGY) "source"
 set ::env(DIODE_PADDING) 2
 
 set ::env(GLOBAL_ROUTER) fastroute

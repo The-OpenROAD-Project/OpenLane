@@ -16,7 +16,6 @@
 
 import odb
 
-import re
 import sys
 import click
 import random
