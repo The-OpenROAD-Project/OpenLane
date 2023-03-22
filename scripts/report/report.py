@@ -137,8 +137,8 @@ class Report(object):
             run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params.values()
-        self.configuration_full = ConfigHandler.get_config_for_run_full(
-            None, design_path, tag
+        self.configuration_full = ConfigHandler.get_config_for_run(
+            None, design_path, tag, full=True
         )
         self.raw_report = None
         self.formatted_report = None
@@ -211,10 +211,10 @@ class Report(object):
             "outputs",
             "level",
             "DecapCells",
-            "well_tap_count",
+            "WelltapCells",
             "DiodeCells",
             "FillCells",
-            "Non-physCells",
+            "NonPhysCells",
             "TotalCells",
         ]
         + [
@@ -719,8 +719,8 @@ class Report(object):
 
         # Cells per micrometer
         cells_per_mm = -1
-        if synth_cell_count != -1 and die_area != -1:
-            cells_per_mm = total_cells_count / die_area
+        if non_phys_count != -1 and die_area != -1:
+            cells_per_mm = non_phys_count / die_area
 
         # LVS Total Errors
         lvs_report = Artifact(rp, "reports", "signoff", f"{self.design_name}.lvs.rpt")

@@ -86,21 +86,14 @@ class ConfigHandler:
         return ",".join(Self.configuration_values)
 
     @classmethod
-    def get_config_for_run(Self, run_path, design, tag) -> Dict[str, str]:
+    def get_config_for_run(Self, run_path, design, tag, full=False) -> Dict[str, str]:
         if run_path is None:
             run_path = get_run_path(design=design, tag=tag)
         config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
         config = read_tcl_env(config_path)
-        config = {k: v for k, v in config.items() if k in Self.configuration_values}
+        if not full:
+            config = {k: v for k, v in config.items() if k in Self.configuration_values}
         config = dict(sorted(config.items()))
-        return config
-
-    @classmethod
-    def get_config_for_run_full(Self, run_path, design, tag) -> Dict[str, str]:
-        if run_path is None:
-            run_path = get_run_path(design=design, tag=tag)
-        config_path = os.path.join(os.getcwd(), run_path, "config.tcl")
-        config = read_tcl_env(config_path)
         return config
 
 
