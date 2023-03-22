@@ -43,7 +43,7 @@ proc global_routing_fastroute {args} {
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
         -no_update_current
 
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
+    if { $::env(GRT_REPAIR_ANTENNAS) } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
         set iter 1
 
@@ -230,23 +230,11 @@ proc ins_diode_cells_1 {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
 }
 
-proc ins_diode_cells_4 {args} {
+proc heurisitc_diode_insertion {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
     puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    # Select diode cell
-    if { $::env(DIODE_INSERTION_STRATEGY) == 5 } {
-        if { ! [info exists ::env(FAKEDIODE_CELL)] } {
-            puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
-            puts_err "Please try a different strategy."
-            throw_error
-        }
-        set ::antenna_cell_name $::env(FAKEDIODE_CELL)
-    } else {
-        set ::antenna_cell_name $::env(DIODE_CELL)
-    }
 
     # Custom script
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
@@ -258,8 +246,8 @@ proc ins_diode_cells_4 {args} {
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --min-distance $::env(DIODE_INSERTION_MIN_DISTANCE) \
-        --side-strategy $::env(DIODE_INSERTION_SIDE_STRATEGY) \
+        --threshold $::env(HEURISTIC_ANTENNA_THRESHOLD) \
+        --side-strategy $::env(HEURISITIC_ANTENNA_INSERTION_MODE) \
         --verbose
 
     set_def $save_def
@@ -395,42 +383,20 @@ proc run_routing {args} {
     }
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-            ins_diode_cells_1
-        }
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) || ( $::env(DIODE_INSERTION_STRATEGY) == 6) } {
-            ins_diode_cells_4
+        if { $::env(RUN_HEURISTIC_DIODE_INSERTION) } {
+            heurisitc_diode_insertion
         }
     }
 
     add_route_obs
 
     #legalize if not yet legalized
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) && ($::env(DIODE_INSERTION_STRATEGY) != 6) } {
-        detailed_placement_or\
-            -outdir $::env(routing_tmpfiles)\
-            -name diode\
-            -log $::env(routing_logs)/diode_legalization.log
-    }
 
-    # if diode insertion does *not* happen as part of global routing, then
-    # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6)} {
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
-    }
 
     global_routing
 
-    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) } {
-        # Doing this here can be problematic and is something that needs to be
-        # addressed in FastRoute since fill cells *might* occupy some of the
-        # resources that were already used during global routing causing the
-        # detailed router to suffer later.
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
+    if { $::env(RUN_FILL_INSERTION) } {
+        ins_fill_cells
     }
 
     # Detailed Routing

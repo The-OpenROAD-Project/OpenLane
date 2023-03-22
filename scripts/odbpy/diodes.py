@@ -19,6 +19,7 @@ import odb
 import sys
 import click
 import random
+from decimal import Decimal
 
 from reader import click_odb
 
@@ -35,7 +36,7 @@ class DiodeInserter:
         diode_cell,
         diode_pin,
         side_strategy="source",
-        min_distance=0,
+        threshold_microns=0,
         port_protect=[],
         verbose=False,
     ):
@@ -45,7 +46,7 @@ class DiodeInserter:
         self.diode_cell = diode_cell
         self.diode_pin = diode_pin
         self.side_strategy = side_strategy
-        self.min_distance = min_distance
+        self.threshold_microns = threshold_microns
         self.port_protect = port_protect
 
         self.diode_master = block.getDataBase().findMaster(diode_cell)
@@ -263,7 +264,7 @@ class DiodeInserter:
 
             # Determine the span of the signal and skip small internal nets
             span = self.net_manhattan_distance(net) / self.block.getDbUnitsPerMicron()
-            if (span < self.min_distance) and not io_protect:
+            if (span < self.threshold_microns) and not io_protect:
                 self.debug(f"[d] Skipping small net {net.getConstName():s} ({span:f})")
                 continue
 
@@ -299,11 +300,12 @@ class DiodeInserter:
     help="Always place a true diode on nets connected to selected ports",
 )
 @click.option(
-    "-s",
-    "--min-distance",
-    type=int,
+    "-t",
+    "--threshold",
+    "threshold_microns",
+    type=Decimal,
     default=90,
-    help="Minimum manhattan distance of a net to insert a diode",
+    help="Minimum manhattan distance of a net to be considered an antenna risk requiring a diode"
 )
 @click_odb
 def place(
@@ -313,7 +315,7 @@ def place(
     diode_pin,
     side_strategy,
     port_protect,
-    min_distance,
+    threshold_microns,
 ):
 
     print(f"Design name: {reader.name}")
@@ -330,7 +332,7 @@ def place(
         diode_cell=diode_cell,
         diode_pin=diode_pin,
         side_strategy=side_strategy,
-        min_distance=min_distance,
+        threshold_microns=threshold_microns,
         port_protect=pp_val[port_protect],
         verbose=verbose,
     )

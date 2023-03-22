@@ -309,8 +309,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | | 4: Use Sylvain Minaut's custom script for diode insertion. |
 | | 5: A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
-| `DIODE_INSERTION_MIN_DISTANCE` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for diodes inserted by `DIODE_INSERTION_STRATEGY` 4 and (partially) 6. 6 is a hybrid of 4 and 3 <br> (Default: `90`)
-| `DIODE_INSERTION_SIDE_STRATEGY` | Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Same applicability as `DIODE_INSERTION_MIN_DISTANCE`. <br> (Default: `source`)
+| `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for diodes inserted by `DIODE_INSERTION_STRATEGY` 4 and (partially) 6. 6 is a hybrid of 4 and 3 <br> (Default: `90`)
+| `HEURISITIC_ANTENNA_INSERTION_MODE` | Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Same applicability as `HEURISTIC_ANTENNA_THRESHOLD`. <br> (Default: `source`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|

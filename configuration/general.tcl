@@ -36,8 +36,6 @@ set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_IRDROP_REPORT) 1
 
-# See documentation for the various strategies.
-set ::env(DIODE_INSERTION_STRATEGY) {3}
 
 ## Signoff
 set ::env(RUN_CVC) 1
