@@ -251,13 +251,17 @@ proc ins_diode_cells_4 {args} {
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
     set save_odb [index_file $::env(routing_tmpfiles)/diodes.odb]
 
+    set span "90000"
+    if { [info exists ::env(DIODE_INSERTION_SHORT_SPAN)] } {
+        set span $::env(DIODE_INSERTION_SHORT_SPAN)
+    }
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py place\
         -indexed_log [index_file $::env(routing_logs)/diodes.log]\
         -output $save_odb\
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --fake-diode-cell $::antenna_cell_name
+        --short-span $span
 
     set_def $save_def
     set_odb $save_odb
