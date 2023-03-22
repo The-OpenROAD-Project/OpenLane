@@ -715,7 +715,7 @@ proc prep {args} {
     }
 
     if { ![info exists ::env(PL_TARGET_DENSITY)] } {
-        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 10.0 + (5 * $::env(GPL_CELL_PADDING))) / 100.0]
+        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 10.0 + (6 * $::env(GPL_CELL_PADDING))) / 100.0]
     }
 
     set util 	$::env(FP_CORE_UTIL)
