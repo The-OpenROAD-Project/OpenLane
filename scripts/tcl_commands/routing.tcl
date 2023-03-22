@@ -252,17 +252,15 @@ proc ins_diode_cells_4 {args} {
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
     set save_odb [index_file $::env(routing_tmpfiles)/diodes.odb]
 
-    set span "90000"
-    if { [info exists ::env(DIODE_INSERTION_SHORT_SPAN)] } {
-        set span $::env(DIODE_INSERTION_SHORT_SPAN)
-    }
     manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py place\
         -indexed_log [index_file $::env(routing_logs)/diodes.log]\
         -output $save_odb\
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --short-span $span
+        --min-distance $::env(DIODE_INSERTION_MIN_DISTANCE) \
+        --side-strategy $::env(DIODE_INSERTION_SIDE_STRATEGY) \
+        --verbose
 
     set_def $save_def
     set_odb $save_odb
@@ -271,7 +269,7 @@ proc ins_diode_cells_4 {args} {
     detailed_placement_or\
         -outdir $::env(routing_tmpfiles)\
         -log $::env(routing_logs)/diode_legalization.log\
-        -name diodes
+        -name [index_file diodes_legalized]
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"

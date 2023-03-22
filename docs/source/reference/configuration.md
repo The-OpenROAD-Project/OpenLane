@@ -25,7 +25,7 @@ These variables are optional that can be specified in the design configuration f
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
 | `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `STD_CELL_LIBRARY` )|
 | `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)`. |
-| `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
+| `DIODE_PADDING` | Number of sites to left pad `DIODE_CELL` during detailed placement. <br> (Default: `2` sites)|
 | `MERGED_LEF` | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
@@ -309,6 +309,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | | 4: Use Sylvain Minaut's custom script for diode insertion. |
 | | 5: A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
+| `DIODE_INSERTION_MIN_DISTANCE` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for diodes inserted by `DIODE_INSERTION_STRATEGY` 4 and (partially) 6. 6 is a hybrid of 4 and 3 <br> (Default: `90`)
+| `DIODE_INSERTION_SIDE_STRATEGY` | Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Same applicability as `DIODE_INSERTION_MIN_DISTANCE`. <br> (Default: `source`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
