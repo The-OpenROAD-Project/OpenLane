@@ -39,7 +39,7 @@ proc handle_diode_insertion_strategy {} {
     if { [info exists ::env(DIODE_INSERTION_STRATEGY)] } {
         puts_warn "DIODE_INSERTION_STRATEGY is now deprecated; use GRT_REPAIR_ANTENNAS and RUN_HEURISTIC_DIODE_INSERTION instead."
         set strategy $::env(DIODE_INSERTION_STRATEGY)
-        if { $strategy == 1 | $strategy == 5 | $strategy | 2 } {
+        if { $strategy == 1 | $strategy == 5 | $strategy == 2 } {
             puts_err "DIODE_INSERTION_STRATEGY $strategy is no longer supported"
             throw_error
         }
