@@ -16,6 +16,6 @@
         "CLOCK_PERIOD": 15,
         "GPL_CELL_PADDING": 4,
         "DPL_CELL_PADDING": 4,
-        "DIODE_INSERTION_STRATEGY": 4
+        "DIODE_INSERTION_STRATEGY": 3
     }
 }
