@@ -65,7 +65,6 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         os.path.join(run_path, "reports", "routing"), "antenna_violators.rpt"
     )
     _, arc_antenna_report = get_name(
-            #designs/spm/runs/strat4/logs/signoff/37-antenna.log
         os.path.join(run_path, "logs", "signoff"), "antenna.log"
     )
     _, magic_drc_report = get_name(
