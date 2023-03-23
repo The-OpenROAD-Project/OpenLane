@@ -211,9 +211,10 @@ proc run_non_interactive_mode {args} {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
 
-            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1]];
+            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
+                puts_err "Step($::env(CURRENT_INDEX):$step_name) failed with error:\n$err"
                 set exe 0;
                 break;
             }
