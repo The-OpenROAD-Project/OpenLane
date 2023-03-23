@@ -14,11 +14,17 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 
 read_libs -multi_corner
-if { [info exists ::env(VERILOG_NETLISTS)] } {
-    foreach verilog $::env(VERILOG_NETLISTS) {
-        read_verilog $verilog
+if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+    foreach verilog $::env(VERILOG_FILES_BLACKBOX) {
+        if { [catch {read_verilog $verilog} err] } {
+            puts "Error while reading $verilog:"
+            puts $err
+            puts "Skipping $verilog "
+        }
     }
 }
+#set link_create_black_boxes 0
+#set link_make_black_boxes 0
 read_netlist -powered
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
