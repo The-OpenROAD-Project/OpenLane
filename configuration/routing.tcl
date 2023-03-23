@@ -21,7 +21,7 @@ set ::env(RUN_HEURISTIC_DIODE_INSERTION) 0
 set ::env(HEURISTIC_ANTENNA_THRESHOLD) 90
 set ::env(HEURISITIC_ANTENNA_INSERTION_MODE) "source"
 set ::env(DIODE_PADDING) 2
-set ::env(DIODE_ON_PORTS) in
+set ::env(DIODE_ON_PORTS) none
 set ::env(GRT_REPAIR_ANTENNAS) 1
 
 set ::env(GLOBAL_ROUTER) fastroute

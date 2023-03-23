@@ -53,6 +53,11 @@ proc handle_diode_insertion_strategy {} {
             set ::env(RUN_HEURISTIC_DIODE_INSERTION) 1
             set ::env(DIODE_ON_PORTS) "in"
         }
+        if { $strategy == 0 } {
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting GRT_REPAIR_ANTENNAS to 0"
+            set ::env(GRT_REPAIR_ANTENNAS) 0
+            set ::env(DIODE_ON_PORTS) "none"
+        }
     }
 }
 
