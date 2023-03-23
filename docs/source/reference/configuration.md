@@ -35,7 +35,6 @@ These variables are optional that can be specified in the design configuration f
 |Variable|Description|
 |-|-|
 | `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis. |
-| `VERILOG_NETLISTS` | Verilog files of additional modules. Currently, they are used in multicorner sta. Netlists must be powered. <br> (Default: NONE) |
 | `EXTRA_LEFS` | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
