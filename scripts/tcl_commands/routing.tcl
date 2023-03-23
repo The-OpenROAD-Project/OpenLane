@@ -1,5 +1,4 @@
 # Copyright 2020-2022 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -136,12 +135,14 @@ proc detailed_routing_tritonroute {args} {
     unset ::env(_tmp_drt_file_prefix)
     unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
 
-    quit_on_tr_drc
+    if { $::env(QUIT_ON_TR_DRC) } {
+        quit_on_tr_drc
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
@@ -230,6 +231,9 @@ proc ins_diode_cells_1 {args} {
 }
 
 proc ins_diode_cells_4 {args} {
+    if { $::env(DPL_CELL_PADDING) == 0 } {
+        puts_warn "DPL_CELL_PADDING is set to 0. Diode insertion strategies 4, 5 and 6 may not function properly."
+    }
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
@@ -240,7 +244,7 @@ proc ins_diode_cells_4 {args} {
         if { ! [info exists ::env(FAKEDIODE_CELL)] } {
             puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
             puts_err "Please try a different strategy."
-            return -code error
+            throw_error
         }
         set ::antenna_cell_name $::env(FAKEDIODE_CELL)
     } else {
@@ -412,7 +416,7 @@ proc run_routing {args} {
 
     # if diode insertion does *not* happen as part of global routing, then
     # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6) && ($::env(ECO_ENABLE) == 0) } {
+    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6)} {
         if {$::env(RUN_FILL_INSERTION)} {
             ins_fill_cells
         }
@@ -420,7 +424,7 @@ proc run_routing {args} {
 
     global_routing
 
-    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) && ($::env(ECO_ENABLE) == 0) } {
+    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) } {
         # Doing this here can be problematic and is something that needs to be
         # addressed in FastRoute since fill cells *might* occupy some of the
         # resources that were already used during global routing causing the

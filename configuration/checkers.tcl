@@ -15,7 +15,7 @@
 # Synthesis
 set ::env(QUIT_ON_ASSIGN_STATEMENTS) 0
 set ::env(QUIT_ON_UNMAPPED_CELLS) 1
-set ::env(QUIT_ON_SYNTH_CHECKS) 0
+set ::env(QUIT_ON_SYNTH_CHECKS) 1
 
 # STA
 set ::env(QUIT_ON_TIMING_VIOLATIONS) 1

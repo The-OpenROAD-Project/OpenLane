@@ -46,7 +46,7 @@ proc set_netlist {args} {
     set ::env(CURRENT_NETLIST) $netlist
 
     set replace [string map {/ \\/} $::env(CURRENT_NETLIST)]
-    try_catch sed -i.bak -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+    try_exec sed -i.bak -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
     exec rm -f "$::env(GLB_CFG_FILE).bak"
 
     if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
@@ -112,7 +112,7 @@ proc prep_lefs {args} {
     if { ![file exists $arg_values(-tech_lef)] } {
         if { $arg_values(-env_var) == "MERGED_LEF" } {
             puts_err "Nominal process corner '$arg_values(-tech_lef)' not found."
-            return -code error
+            throw_error
         }
         puts_info "'$arg_values(-tech_lef)' not found, skipping..."
         return
@@ -125,7 +125,7 @@ proc prep_lefs {args} {
         if { [info exists ::env(METAL_LAYER_NAMES)] } {
             set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
         } else {
-            try_catch $::env(OPENROAD_BIN) -exit -no_init -python\
+            try_exec $::env(OPENROAD_BIN) -exit -no_init -python\
                 $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
                 $arg_values(-tech_lef)
@@ -138,7 +138,7 @@ proc prep_lefs {args} {
         puts_verbose "Merging LEF Files..."
     }
 
-    try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+    try_exec $::env(SCRIPTS_DIR)/mergeLef.py\
         -o $merged_lef_path\
         -i $arg_values(-tech_lef) $arg_values(-cell_lef)\
         |& tee $::env(TERMINAL_OUTPUT)
@@ -148,7 +148,7 @@ proc prep_lefs {args} {
 
     # Merged Extra Lefs (if they exist)
     if { [info exist ::env(EXTRA_LEFS)] } {
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+        try_exec $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $merged_lef_path\
             -i $merged_lef_path {*}$::env(EXTRA_LEFS)\
             |& tee $::env(TERMINAL_OUTPUT)
@@ -157,7 +157,7 @@ proc prep_lefs {args} {
 
     # Merge optimization TLEF/CLEF (if exists)
     if { [info exist ::env(STD_CELL_LIBRARY_OPT)] && $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+        try_exec $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $merged_lef_path\
             -i $merged_lef_path $::env(TECH_LEF_OPT) {*}$::env(CELLS_LEF_OPT) |& tee $::env(TERMINAL_OUTPUT)
         puts_verbose "Added optimization library tech lef and cell lefs to '$mlp_relative'..."
@@ -170,7 +170,7 @@ proc prep_lefs {args} {
         }
 
         puts_verbose "Merging the following GPIO LEF views: $::env(GPIO_PADS_LEF)..."
-        try_catch $::env(SCRIPTS_DIR)/mergeLef.py\
+        try_exec $::env(SCRIPTS_DIR)/mergeLef.py\
             -o $merged_lef_path\
             -i $merged_lef_path {*}$::env(GPIO_PADS_LEF)
         puts_verbose "Created '$mlp_relative' with gpio pads."
@@ -263,7 +263,7 @@ proc trim_lib {args} {
         close $fid
     }
 
-    try_catch python3 $::env(SCRIPTS_DIR)/libtrim.py\
+    try_exec python3 $::env(SCRIPTS_DIR)/libtrim.py\
         --cell-file $arg_values(-output).exclude.list\
         --output $arg_values(-output)\
         {*}$arg_values(-input)
@@ -280,9 +280,11 @@ proc merge_lib {args} {
 
     parse_key_args "merge_lib" args arg_values $options flags_map $flags
 
+    puts_verbose "Merging liberty files \{{*}$arg_values(-inputs)\} into \{$arg_values(-output)\}..."
+
     set_if_unset arg_values(-name) "$::env(PDK)_merged"
 
-    try_catch python3 $::env(SCRIPTS_DIR)/mergeLib.py\
+    try_exec python3 $::env(SCRIPTS_DIR)/mergeLib.py\
         --output $arg_values(-output)\
         --name $arg_values(-name)\
         {*}$arg_values(-inputs)
@@ -300,7 +302,7 @@ proc source_config {args} {
     if { ![info exists arg_values(-run_path)] } {
         if { ![info exists ::env(RUN_DIR)] } {
             puts_err "source_config needs either the -run_path option or ::env(RUN_DIR) set."
-            return -code error
+            throw_error
         } else {
             set_if_unset $arg_values(-run_path) $::env(RUN_DIR)
         }
@@ -314,7 +316,7 @@ proc source_config {args} {
 
     if { ![file exists $config_file] } {
         puts_err "$config_file_rel error: file not found"
-        return -code error
+        throw_error
     }
 
     set ext [file extension $config_file]
@@ -353,7 +355,7 @@ proc source_config {args} {
 
     } else {
         puts_err "$config_file error: unsupported extension '$ext'"
-        return -code error
+        throw_error
     }
 
 
@@ -488,7 +490,7 @@ proc prep {args} {
     if { [info exists flags_map(-last_run)] } {
         if { [info exists arg_values(-tag)] } {
             puts_err "Cannot specify a tag with -last_run set."
-            return -code error
+            throw_error
         }
 
         set arg_values(-tag) [exec python3 ./scripts/most_recent_run.py $::env(DESIGN_DIR)/runs]
@@ -518,7 +520,7 @@ proc prep {args} {
             set ::env(DESIGN_CONFIG) $::env(DESIGN_DIR)/config.json
         } else {
             puts_err "No design configuration (config.json/config.tcl) found in $::env(DESIGN_DIR)."
-            return -code error
+            throw_error
         }
     }
 
@@ -694,7 +696,6 @@ proc prep {args} {
         placement\
         cts\
         routing\
-        eco\
         signoff
     ]
 
@@ -713,7 +714,7 @@ proc prep {args} {
     }
 
     if { ![info exists ::env(PL_TARGET_DENSITY)] } {
-        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 5.0) / 100.0]
+        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 10.0 + (5 * $::env(GPL_CELL_PADDING))) / 100.0]
     }
 
     set util 	$::env(FP_CORE_UTIL)
@@ -816,7 +817,7 @@ proc prep {args} {
         # Convert Tracks
         if { $::env(TRACKS_INFO_FILE) != "" } {
             set tracks_processed $::env(routing_tmpfiles)/config.tracks
-            try_catch python3 $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
+            try_exec python3 $::env(SCRIPTS_DIR)/new_tracks.py -i $::env(TRACKS_INFO_FILE) -o $tracks_processed
             set ::env(TRACKS_INFO_FILE_PROCESSED) $tracks_processed
         }
 
@@ -878,7 +879,7 @@ proc prep {args} {
     }
 
     if { [info exists ::env(OPENLANE_VERSION) ] } {
-        try_catch echo "OpenLane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
+        try_exec echo "OpenLane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
@@ -1109,7 +1110,7 @@ proc heal_antenna_violators {args} {
     if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
         if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
             puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
-            flow_fail
+            throw_error
         }
 
         increment_index
@@ -1210,7 +1211,7 @@ proc run_or_antenna_check {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
-    try_catch python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
+    try_exec python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
         --output $antenna_violators_rpt\
         $log
 
@@ -1247,7 +1248,7 @@ proc run_irdrop_report {args} {
 proc or_gui {args} {
     if { ![info exists ::env(CURRENT_ODB)] || $::env(CURRENT_ODB) == 0 } {
         puts_err "CURRENT_ODB is unset."
-        return -code error
+        throw_error
     }
     run_openroad_script -gui $::env(SCRIPTS_DIR)/openroad/gui.tcl
 }

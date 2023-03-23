@@ -54,16 +54,16 @@ proc run_erc {args} {
     }
 
     # Create power file
-    try_catch awk -v vdd=$::env(VDD_PIN) -v gnd=$::env(GND_PIN) \
+    try_exec awk -v vdd=$::env(VDD_PIN) -v gnd=$::env(GND_PIN) \
         -f $::env(CVC_SCRIPTS_DIR)/power.awk $::env(CURRENT_NETLIST) \
         > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).power
 
     # Create cdl file by combining cdl library with lef spice
-    try_catch awk -f $::env(CVC_SCRIPTS_DIR)/cdl.awk $lib_cdl $lef_spice \
+    try_exec awk -f $::env(CVC_SCRIPTS_DIR)/cdl.awk $lib_cdl $lef_spice \
         > $::env(signoff_tmpfiles)/$::env(DESIGN_NAME).cdl
 
     # The main event
-    try_catch cvc_rv $::env(CVC_SCRIPTS_DIR)/cvcrc \
+    try_exec cvc_rv $::env(CVC_SCRIPTS_DIR)/cvcrc \
         |& tee $::env(TERMINAL_OUTPUT) $log
 
     TIMER::timer_stop

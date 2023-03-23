@@ -2,7 +2,7 @@ package require openlane;
 
 prep -design $::env(TEST_DIR) {*}$argv
 
-try_catch echo {
+try_exec echo {
     read_lef $::env(MERGED_LEF)
     read_def $::env(DESIGN_DIR)/in.def
     write_db $::env(DESIGN_DIR)/in.odb

@@ -101,7 +101,7 @@ proc add_macro_placement {args} {
     if { [llength $args] == 4 } {
         set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
+    try_exec echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
@@ -164,6 +164,10 @@ proc run_placement {args} {
     if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
         set old_pl_target_density $::env(PL_TARGET_DENSITY)
         set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
+    }
+
+    if { $::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING) } {
+        puts_warn "DPL_CELL_PADDING is set higher than GPL_CELL_PADDING ($::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING)). This may result in inconsistent behavior."
     }
 
     if { $::env(PL_RANDOM_GLB_PLACEMENT) } {

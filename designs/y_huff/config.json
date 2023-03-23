@@ -3,31 +3,16 @@
     "VERILOG_FILES": "dir::src/y_huff.v",
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
-    "FP_SIZING": "absolute",
-    "DIE_AREA": "0 0 700 700",
+    "GPL_CELL_PADDING": 4,
+    "DPL_CELL_PADDING": 4,
+    "FP_CORE_UTIL": 25,
     "pdk::sky130*": {
+        "FP_SIZING": "absolute",
+        "DIE_AREA": "0 0 700 700",
         "CLOCK_PERIOD": 11.35,
-        "SYNTH_MAX_FANOUT": 6,
-        "scl::sky130_fd_sc_hd": {
-            "FP_CORE_UTIL": 40
-        },
-        "scl::sky130_fd_sc_hdll": {
-            "FP_CORE_UTIL": 40
-        },
-        "scl::sky130_fd_sc_hs": {
-            "FP_CORE_UTIL": 30
-        },
-        "scl::sky130_fd_sc_ls": {
-            "FP_CORE_UTIL": 35
-        },
-        "scl::sky130_fd_sc_ms": {
-            "FP_CORE_UTIL": 30
-        }
+        "SYNTH_MAX_FANOUT": 6
     },
     "pdk::gf180mcu*": {
-        "FP_SIZING": "relative",
-        "DIODE_PADDING": 0,
-        "FP_CORE_UTIL": 40,
-        "PL_TARGET_DENSITY": 0.62
+        "DIODE_INSERTION_STRATEGY": 3
     }
 }
