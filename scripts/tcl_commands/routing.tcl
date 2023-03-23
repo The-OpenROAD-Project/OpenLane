@@ -220,11 +220,45 @@ proc ins_diode_cells_1 {args} {
     throw_error
 }
 
-proc heurisitc_diode_insertion {args} {
+proc io_diode_insertion {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/io_diodes.log]
+    puts_info "Running I/O Diode Insertion (log: [relpath . $log])..."
+
+    # Custom script
+    set save_def [index_file $::env(routing_tmpfiles)/io_diodes.def]
+    set save_odb [index_file $::env(routing_tmpfiles)/io_diodes.odb]
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py place\
+        -indexed_log [index_file $::env(routing_logs)/io_diodes.log]\
+        -output $save_odb\
+        -output_def $save_def\
+        --diode-cell $::env(DIODE_CELL)\
+        --diode-pin  $::env(DIODE_CELL_PIN)\
+        --threshold 10000000 \
+        --side-strategy $::env(HEURISITIC_ANTENNA_INSERTION_MODE) \
+        --port-protect $::env(DIODE_ON_PORTS) \
+        --verbose
+
+    set_def $save_def
+    set_odb $save_odb
+
+    # Legalize
+    detailed_placement_or\
+        -outdir $::env(routing_tmpfiles)\
+        -log $::env(routing_logs)/io_diode_legalization.log\
+        -name [index_file io_diode_legalized]
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "io diode insertion - openlane"
+}
+
+proc heuristic_diode_insertion {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+    puts_info "Running Heurisitic Diode Insertion (log: [relpath . $log])..."
 
     # Custom script
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
@@ -238,6 +272,7 @@ proc heurisitc_diode_insertion {args} {
         --diode-pin  $::env(DIODE_CELL_PIN)\
         --threshold $::env(HEURISTIC_ANTENNA_THRESHOLD) \
         --side-strategy $::env(HEURISITIC_ANTENNA_INSERTION_MODE) \
+        --port-protect none \
         --verbose
 
     set_def $save_def
@@ -250,7 +285,7 @@ proc heurisitc_diode_insertion {args} {
         -name [index_file diodes_legalized]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heurisitic diode insertion - openlane"
 }
 
 proc apply_route_obs {args} {
@@ -373,8 +408,11 @@ proc run_routing {args} {
     }
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
+        if { $::env(DIODE_ON_PORTS) ne "none" } {
+            io_diode_insertion
+        }
         if { $::env(RUN_HEURISTIC_DIODE_INSERTION) } {
-            heurisitc_diode_insertion
+            heuristic_diode_insertion
         }
     }
 

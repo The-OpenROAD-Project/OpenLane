@@ -37,7 +37,7 @@ proc handle_deprecated_config {old new} {
 
 proc handle_diode_insertion_strategy {} {
     if { [info exists ::env(DIODE_INSERTION_STRATEGY)] } {
-        puts_warn "DIODE_INSERTION_STRATEGY is now deprecated; use GRT_REPAIR_ANTENNAS and RUN_HEURISTIC_DIODE_INSERTION instead."
+        puts_warn "DIODE_INSERTION_STRATEGY is now deprecated; use GRT_REPAIR_ANTENNAS, DIODE_ON_PORTS and RUN_HEURISTIC_DIODE_INSERTION instead."
         set strategy $::env(DIODE_INSERTION_STRATEGY)
         if { $strategy == 1 | $strategy == 5 | $strategy == 2 } {
             puts_err "DIODE_INSERTION_STRATEGY $strategy is no longer supported"
@@ -49,7 +49,9 @@ proc handle_diode_insertion_strategy {} {
         }
         if { $strategy == 4 | $strategy == 6 } {
             puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting RUN_HEURISTIC_DIODE_INSERTION to 1"
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting DIODE_ON_PORTS to in"
             set ::env(RUN_HEURISTIC_DIODE_INSERTION) 1
+            set ::env(DIODE_ON_PORTS) "in"
         }
     }
 }

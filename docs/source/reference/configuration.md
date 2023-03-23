@@ -145,7 +145,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) +5 ) / 100.0`)|
+| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) + 10 + (5 * $::env(GPL_CELL_PADDING)) ) / 100.0`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
 | `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement. Basic placement is used for extremely simple, low-density designs of only a few dozens of gates, and should be disabled for most designs. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_SKIP_INITIAL_PLACEMENT` | Specifies whether the placer should run initial placement or not. 0 = false, 1 = true <br> (Default: `0`) |
@@ -302,7 +302,15 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
-| `DIODE_INSERTION_STRATEGY` | **Deprecated** |
+| `DIODE_INSERTION_STRATEGY` | **Deprecated** Specifies the insertion strategy of diodes to be used in the flow. |
+| | 0: No diode insertion. |
+| | 1: **removed** Spray diodes. |
+| | 2: **removed** Insert fake diodes and replace them with real diodes if needed. |
+| | (**Default**) 3: Use OpenROAD's Antenna Avoidance flow. |
+| | 4: Use Sylvain Minaut's custom script for diode insertion. |
+| | 5: **removed** A combination of strategies 2 and 4. |
+| | 6: A combination of strategies 3 and 4. | 
+| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
 | `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `HEURISITIC_ANTENNA_INSERTION_MODE` | Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Only applicable when `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `source`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)

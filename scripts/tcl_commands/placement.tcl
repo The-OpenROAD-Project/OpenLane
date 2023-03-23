@@ -166,6 +166,10 @@ proc run_placement {args} {
         set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
     }
 
+    if { $::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING) } {
+        puts_warn "DPL_CELL_PADDING is set higher than GPL_CELL_PADDING ($::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING)). This may result in inconsistent behavior."
+    }
+
     if { $::env(PL_RANDOM_GLB_PLACEMENT) } {
         # useful for very tiny designs
         random_global_placement
