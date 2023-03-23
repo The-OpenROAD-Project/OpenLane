@@ -1093,6 +1093,7 @@ proc save_views {args} {
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
     puts_err "heal_antenna_violators is no longer supported"
+    throw_error
 }
 
 proc label_macro_pins {args} {

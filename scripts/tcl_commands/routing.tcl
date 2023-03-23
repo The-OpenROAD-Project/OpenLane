@@ -216,18 +216,8 @@ proc power_routing {args} {
 
 
 proc ins_diode_cells_1 {args} {
-    increment_index
-    TIMER::timer_start
-    set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl\
-        -indexed_log [index_file $::env(routing_logs)/diodes.log]\
-        -save "to=$::env(routing_tmpfiles),name=diodes,def,odb,netlist,powered_netlist"
-
-    TIMER::timer_stop
-
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
+    puts_err "ins_diode_cells_1 is no longer supported"
+    throw_error
 }
 
 proc heurisitc_diode_insertion {args} {
