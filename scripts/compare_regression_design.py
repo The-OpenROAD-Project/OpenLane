@@ -85,7 +85,7 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
                 return -1
 
         design_out = dict()
-        csv_opener = open(csv_file, "r", encoding="utf-8-sig")
+        csv_opener = open(csv_file, "r", encoding="utf8")
         csv_data = csv_opener.read().split("\n")
         header_info = csv_data[0].split(",")
         designPathIdx = get_csv_index(header_info, "design")

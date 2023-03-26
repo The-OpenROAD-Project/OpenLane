@@ -123,7 +123,7 @@ def cli(
     def parseCSV(csv_file, isBenchmark):
         nonlocal note_worthy_statistics
         map_out = dict()
-        csvOpener = open(csv_file, "r", encoding="utf-8-sig")
+        csvOpener = open(csv_file, "r", encoding="utf8")
         csvData = csvOpener.read().split("\n")
         headerInfo = csvData[0].split(",")
         designNameIdx = findIdx(headerInfo, "design")
