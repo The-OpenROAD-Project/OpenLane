@@ -74,11 +74,22 @@ proc run_sta {args} {
             unset ::env(SAVE_LIB)
         }
         unset ::env(SAVE_SDF)
+        blackbox_modules_check $log
     } else {
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
+}
+
+proc blackbox_modules_check {file_path} {
+    set fp [open $file_path r]
+    set file_path [read $fp]
+    foreach line [split $file_path "\n"] {
+        if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
+            puts_warn "Module $first_group blackboxed during sta"
+        }
+    }
 }
 
 proc run_parasitics_sta {args} {
