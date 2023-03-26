@@ -236,10 +236,9 @@ proc io_diode_insertion {args} {
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --threshold 10000000 \
-        --side-strategy $::env(HEURISITIC_ANTENNA_INSERTION_MODE) \
-        --port-protect $::env(DIODE_ON_PORTS) \
-        --verbose
+        --threshold Infinity \
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect $::env(DIODE_ON_PORTS)
 
     set_def $save_def
     set_odb $save_odb
@@ -258,7 +257,7 @@ proc heuristic_diode_insertion {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Heurisitic Diode Insertion (log: [relpath . $log])..."
+    puts_info "Running Heuristic Diode Insertion (log: [relpath . $log])..."
 
     # Custom script
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
@@ -271,9 +270,8 @@ proc heuristic_diode_insertion {args} {
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
         --threshold $::env(HEURISTIC_ANTENNA_THRESHOLD) \
-        --side-strategy $::env(HEURISITIC_ANTENNA_INSERTION_MODE) \
-        --port-protect none \
-        --verbose
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect none
 
     set_def $save_def
     set_odb $save_odb
@@ -285,7 +283,7 @@ proc heuristic_diode_insertion {args} {
         -name [index_file diodes_legalized]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heurisitic diode insertion - openlane"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heuristic diode insertion - openlane"
 }
 
 proc apply_route_obs {args} {
