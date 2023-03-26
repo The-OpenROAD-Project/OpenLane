@@ -45,7 +45,7 @@
     cp vlog2Verilog $PREFIX/bin
 - name: verilator
   repo: https://github.com/verilator/verilator
-  commit: d4107dce52149f6416cb02aa42a281a5b3883c90
+  commit: 947402bc57625106e1387255772fdb5d850a6c65
   build: |
     autoconf
     ./configure --prefix=$PREFIX
