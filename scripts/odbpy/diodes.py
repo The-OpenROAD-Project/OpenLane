@@ -277,7 +277,11 @@ class DiodeInserter:
 
 @click.command()
 @click.option(
-    "-v", "--verbose", default=os.getenv("DEBUG", "0") == "1", is_flag=True, help="Verbose debug output"
+    "-v",
+    "--verbose",
+    default=os.getenv("DEBUG", "0") == "1",
+    is_flag=True,
+    help="Verbose debug output",
 )
 @click.option(
     "-c",
