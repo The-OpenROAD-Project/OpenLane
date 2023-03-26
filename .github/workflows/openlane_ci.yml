@@ -24,14 +24,23 @@ jobs:
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
 
+      - name: Get Volare Build/Push Dependencies
+        run: |
+          # Magic Build Dependencies
+          sudo apt-get install -y tcsh tcl-dev tk-dev libcairo2-dev m4
+          # GHR (Pushing)
+          go get -u github.com/tcnksm/ghr
+
       - name: Build (or Get) PDK
         run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           PDK=${{ matrix.pdk }}
           PDK_FAMILY=${PDK%?}
+
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
-          go get -u github.com/tcnksm/ghr
-          export PATH=$PATH:$(go env GOPATH)/bin
+
           python3 -m pip install --upgrade --no-cache-dir volare
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
@@ -60,11 +69,6 @@ jobs:
         with:
           name: pdk-tarball-${{ matrix.pdk }}
           path: /tmp/${{ matrix.pdk }}.tar
-
-      - name: Determine If Running Extended Test Set
-        run: |
-          export EVENT_NAME=${{ github.event_name }};
-          python3 ./.github/scripts/determine_test_set.py
   prepare_test_matrices:
     name: Prepare Test Matrices
     runs-on: ubuntu-20.04
@@ -78,6 +82,10 @@ jobs:
       - name: Python Dependencies
         run: |
           python3 -m pip install click pyyaml
+      - name: Determine If Running Extended Test Set
+        run: |
+          export EVENT_NAME=${{ github.event_name }};
+          python3 ./.github/scripts/determine_test_set.py
       - name: Set Matrix
         id: set-matrix
         run: |

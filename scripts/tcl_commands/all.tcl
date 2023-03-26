@@ -280,6 +280,8 @@ proc merge_lib {args} {
 
     parse_key_args "merge_lib" args arg_values $options flags_map $flags
 
+    puts_verbose "Merging liberty files \{{*}$arg_values(-inputs)\} into \{$arg_values(-output)\}..."
+
     set_if_unset arg_values(-name) "$::env(PDK)_merged"
 
     try_exec python3 $::env(SCRIPTS_DIR)/mergeLib.py\
@@ -712,7 +714,7 @@ proc prep {args} {
     }
 
     if { ![info exists ::env(PL_TARGET_DENSITY)] } {
-        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 5.0) / 100.0]
+        set ::env(PL_TARGET_DENSITY) [expr ($::env(FP_CORE_UTIL) + 10.0 + (5 * $::env(GPL_CELL_PADDING))) / 100.0]
     }
 
     set util 	$::env(FP_CORE_UTIL)

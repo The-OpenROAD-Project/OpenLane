@@ -4,6 +4,8 @@
     "CLOCK_PORT": "clk",
     "CLOCK_NET": "clk",
     "DIODE_INSERTION_STRATEGY": 4,
+    "GPL_CELL_PADDING": 4,
+    "DPL_CELL_PADDING": 4,
     "GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT": 60,
     "pdk::sky130*": {
         "SYNTH_MAX_FANOUT": 6,
