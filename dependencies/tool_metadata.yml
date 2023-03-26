@@ -43,6 +43,14 @@
     make clean
     make -j$(nproc) vlog2Verilog
     cp vlog2Verilog $PREFIX/bin
+- name: verilator
+  repo: https://github.com/verilator/verilator
+  commit: d4107dce52149f6416cb02aa42a281a5b3883c90
+  build: |
+    autoconf
+    ./configure --prefix=$PREFIX
+    make
+    make install
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: f109fa3d4c56fe33bc626c298e04d45ae510dd0e
