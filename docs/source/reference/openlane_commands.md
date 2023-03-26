@@ -196,7 +196,7 @@ Most of the following commands' implementation exists in this [file][8]
 |---------------|------------------------|-----------------------------------------|
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
 | `ins_diode_cells_1` | | **Deprecated** |
-| `heurisitc_diode_insertion` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `heuristic_diode_insertion` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
 | `heal_antenna_violators`   | | **Deprecated** |
 
 
