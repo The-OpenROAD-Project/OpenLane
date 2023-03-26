@@ -234,4 +234,41 @@ proc logic_equiv_check {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 }
 
+proc run_verilator {} {
+    set log $::env(synthesis_logs)/verilator.log
+    puts_info "Running Verilator (log: [relpath . $log])..."
+    set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
+    set includes ""
+    foreach model $pdk_verilog_models {
+        set includes "$includes -I $model"
+    }
+    set arg_list [list]
+    lappend arg_list {*}$includes
+    lappend arg_list {*}$::env(VERILOG_FILES)
+    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+        lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
+    }
+    if { $::env(QUIT_ON_VERILATOR_WARNINGS) != 1 } {
+        lappend arg_list -Wno-fatal
+    if { $::env(QUIT_ON_VERILATOR_ERRORS) == 1 } {
+        set arg "| tee $log $::env(TERMINAL_OUTPUT)"
+        lappend arg_list {*}$arg
+    } else {
+        set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
+        lappend arg_list {*}$arg
+    }
+}
+    try_exec bash -c "verilator \
+        --lint-only \
+        -Wall \
+        --Wno-DECLFILENAME \
+        $arg_list"
+
+    set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
+    puts_err "$errors_count errors found from Verilator"
+    set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
+    puts_warn "$warnings_count warnings found from Verilator"
+    exit 1
+}
+
 package provide openlane 0.9

@@ -185,6 +185,7 @@ proc run_non_interactive_mode {args} {
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
     set steps [dict create \
+        "verilator_lint" "run_verilator" \
         "synthesis" "run_synthesis" \
         "floorplan" "run_floorplan" \
         "placement" "run_placement_step" \
@@ -208,7 +209,7 @@ proc run_non_interactive_mode {args} {
     } elseif {  [info exists ::env(CURRENT_STEP) ] } {
         puts_info "Resuming flow from $::env(CURRENT_STEP)..."
     } else {
-        set ::env(CURRENT_STEP) "synthesis"
+        set ::env(CURRENT_STEP) "verilator_lint"
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
@@ -225,10 +226,11 @@ proc run_non_interactive_mode {args} {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
 
-            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1]];
+            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
                 set exe 0;
+                puts $err
                 break;
             }
         }

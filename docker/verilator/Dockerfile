@@ -23,8 +23,16 @@ WORKDIR /verilator
 RUN curl -L ${VERILATOR_REPO}/tarball/${VERILATOR_COMMIT} | tar -xzC . --strip-components=1 && \
     autoconf &&\
     ./configure --prefix=/build &&\
-    make &&\
+    make -j$(nproc)&&\
     make install
+
+# workaround for
+# %Error: //build/share/verilator/include/verilated_std.sv:28:9: Redeclaring the 'std' package is not allowed
+#28 | package std;
+#/build/share/verilator/include/verilated_std.sv:2:1: ... note: In file included from verilated_std.sv
+
+RUN rm /build/share/verilator/include/verilated_std.sv &&\
+    touch /build/share/verilator/include/verilated_std.sv
 
 RUN mkdir -p /build/version
 RUN date +"Build Timestamp: %Y-%m-%d_%H-%M-%S" > /build/version/verilator.version

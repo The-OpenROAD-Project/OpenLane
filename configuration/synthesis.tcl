@@ -33,3 +33,6 @@ set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
 
 set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
+
+set ::env(QUIT_ON_VERILATOR_WARNINGS) 0
+set ::env(QUIT_ON_VERILATOR_ERRORS) 1
