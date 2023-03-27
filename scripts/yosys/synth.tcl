@@ -252,11 +252,51 @@ if { $adder_type == "RCA"} {
     }
 }
 
-if { $::env(SYNTH_NO_FLAT) } {
-    synth -top $vtop
-} else {
-    synth -top $vtop -flatten
+# taken from https://github.com/YosysHQ/yosys/blob/master/techlibs/common/synth.cc
+hierarchy -check -auto-top
+proc_clean
+proc_rmdead
+proc_prune
+proc_init
+proc_arst
+proc_rom
+proc_mux
+proc_dlatch
+proc_dff
+proc_memwr
+proc_clean
+opt_expr
+if { $::env(SYNTH_NO_FLAT) != 1 } {
+    flatten
 }
+opt_expr
+opt_clean
+if { $::env(QUIT_ON_SYNTH_CHECKS) == 1 } {
+    check -assert $::env(DESIGN_NAME)
+} else {
+    check $::env(DESIGN_NAME)
+}
+opt -nodffe -nosdff
+fsm
+opt
+wreduce
+peepopt
+opt_clean
+alumacc
+share
+opt
+memory -nomap
+opt_clean
+opt -fast -full
+memory_map
+opt -full
+techmap
+opt -fast
+abc -fast
+opt -fast
+hierarchy -check
+stat
+check
 
 if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
     if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
@@ -361,10 +401,6 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     }
 
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
-    if { $::env(QUIT_ON_SYNTH_CHECKS) == 1 } {
-        read_liberty -ignore_miss_func $::env(LIB_SYNTH)
-        check -assert $::env(DESIGN_NAME)
-    }
     design -reset
 }
 design -save checkpoint
