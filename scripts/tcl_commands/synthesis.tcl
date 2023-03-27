@@ -265,10 +265,17 @@ proc run_verilator {} {
         $arg_list"
 
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
-    puts_err "$errors_count errors found from Verilator"
+    if { [expr $errors_count > 0] } {
+        puts_warn "$errors_count errors found from Verilator"
+    } else {
+        puts_info "$errors_count errors found from Verilator"
+    }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
-    puts_warn "$warnings_count warnings found from Verilator"
-    exit 1
+    if { [expr $warnings_count > 0] } {
+        puts_warn "$warnings_count warnings found from Verilator"
+    } else {
+        puts_info "$warnings_count warnings found from Verilator"
+    }
 }
 
 package provide openlane 0.9
