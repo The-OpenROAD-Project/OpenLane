@@ -43,7 +43,7 @@ proc global_routing_fastroute {args} {
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
         -no_update_current
 
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
+    if { $::env(GRT_REPAIR_ANTENNAS) } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
         set iter 1
 
@@ -216,40 +216,48 @@ proc power_routing {args} {
 
 
 proc ins_diode_cells_1 {args} {
-    increment_index
-    TIMER::timer_start
-    set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl\
-        -indexed_log [index_file $::env(routing_logs)/diodes.log]\
-        -save "to=$::env(routing_tmpfiles),name=diodes,def,odb,netlist,powered_netlist"
-
-    TIMER::timer_stop
-
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
+    puts_err "ins_diode_cells_1 is no longer supported"
+    throw_error
 }
 
-proc ins_diode_cells_4 {args} {
-    if { $::env(DPL_CELL_PADDING) == 0 } {
-        puts_warn "DPL_CELL_PADDING is set to 0. Diode insertion strategies 4, 5 and 6 may not function properly."
-    }
+proc io_diode_insertion {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/io_diodes.log]
+    puts_info "Running I/O Diode Insertion (log: [relpath . $log])..."
+
+    # Custom script
+    set save_def [index_file $::env(routing_tmpfiles)/io_diodes.def]
+    set save_odb [index_file $::env(routing_tmpfiles)/io_diodes.odb]
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py place\
+        -indexed_log [index_file $::env(routing_logs)/io_diodes.log]\
+        -output $save_odb\
+        -output_def $save_def\
+        --diode-cell $::env(DIODE_CELL)\
+        --diode-pin  $::env(DIODE_CELL_PIN)\
+        --threshold Infinity \
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect $::env(DIODE_ON_PORTS)
+
+    set_def $save_def
+    set_odb $save_odb
+
+    # Legalize
+    detailed_placement_or\
+        -outdir $::env(routing_tmpfiles)\
+        -log $::env(routing_logs)/io_diode_legalization.log\
+        -name [index_file io_diode_legalized]
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "io diode insertion - openlane"
+}
+
+proc heuristic_diode_insertion {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    # Select diode cell
-    if { $::env(DIODE_INSERTION_STRATEGY) == 5 } {
-        if { ! [info exists ::env(FAKEDIODE_CELL)] } {
-            puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
-            puts_err "Please try a different strategy."
-            throw_error
-        }
-        set ::antenna_cell_name $::env(FAKEDIODE_CELL)
-    } else {
-        set ::antenna_cell_name $::env(DIODE_CELL)
-    }
+    puts_info "Running Heuristic Diode Insertion (log: [relpath . $log])..."
 
     # Custom script
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
@@ -261,7 +269,9 @@ proc ins_diode_cells_4 {args} {
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --fake-diode-cell $::antenna_cell_name
+        --threshold $::env(HEURISTIC_ANTENNA_THRESHOLD) \
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect none
 
     set_def $save_def
     set_odb $save_odb
@@ -270,10 +280,10 @@ proc ins_diode_cells_4 {args} {
     detailed_placement_or\
         -outdir $::env(routing_tmpfiles)\
         -log $::env(routing_logs)/diode_legalization.log\
-        -name diodes
+        -name [index_file diodes_legalized]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heuristic diode insertion - openlane"
 }
 
 proc apply_route_obs {args} {
@@ -396,42 +406,23 @@ proc run_routing {args} {
     }
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-            ins_diode_cells_1
+        if { $::env(DIODE_ON_PORTS) ne "none" } {
+            io_diode_insertion
         }
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) || ( $::env(DIODE_INSERTION_STRATEGY) == 6) } {
-            ins_diode_cells_4
+        if { $::env(RUN_HEURISTIC_DIODE_INSERTION) } {
+            heuristic_diode_insertion
         }
     }
 
     add_route_obs
 
     #legalize if not yet legalized
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) && ($::env(DIODE_INSERTION_STRATEGY) != 6) } {
-        detailed_placement_or\
-            -outdir $::env(routing_tmpfiles)\
-            -name diode\
-            -log $::env(routing_logs)/diode_legalization.log
-    }
 
-    # if diode insertion does *not* happen as part of global routing, then
-    # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6)} {
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
-    }
 
     global_routing
 
-    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) } {
-        # Doing this here can be problematic and is something that needs to be
-        # addressed in FastRoute since fill cells *might* occupy some of the
-        # resources that were already used during global routing causing the
-        # detailed router to suffer later.
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
+    if { $::env(RUN_FILL_INSERTION) } {
+        ins_fill_cells
     }
 
     # Detailed Routing

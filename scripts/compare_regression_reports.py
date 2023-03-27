@@ -76,21 +76,20 @@ def cli(
         "PL_TARGET_DENSITY",
         "GRT_ADJUSTMENT",
         "STD_CELL_LIBRARY",
-        "DIODE_INSERTION_STRATEGY",
     ]
 
     tolerance = {
         "general_tolerance": 1,
         "tritonRoute_violations": 2,
         "Magic_violations": 10,
-        "antenna_violations": 10,
+        "pin_antenna_violations": 10,
         "lvs_total_errors": 0,
     }
 
     critical_statistics = [
         "tritonRoute_violations",
         "Magic_violations",
-        "antenna_violations",
+        "pin_antenna_violations",
         "lvs_total_errors",
     ]
 
@@ -124,7 +123,7 @@ def cli(
     def parseCSV(csv_file, isBenchmark):
         nonlocal note_worthy_statistics
         map_out = dict()
-        csvOpener = open(csv_file, "r")
+        csvOpener = open(csv_file, "r", encoding="utf8")
         csvData = csvOpener.read().split("\n")
         headerInfo = csvData[0].split(",")
         designNameIdx = findIdx(headerInfo, "design")

@@ -646,6 +646,8 @@ proc prep {args} {
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
 
+    handle_diode_insertion_strategy
+
     #
     ############################
     # Prep directories and files
@@ -1092,28 +1094,8 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-    # requires a pre-existing report containing a list of cells (-pins?)
-    # that need the real diode in place of the fake diode:
-    # => fixes the routed def
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-        if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
-            puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
-            throw_error
-        }
-
-        increment_index
-        TIMER::timer_start
-        puts_info "Healing Antenna Violators..."
-
-        manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py replace_fake\
-            -output_def $::env(CURRENT_DEF)\
-            --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
-            --fake-diode $::env(FAKEDIODE_CELL)\
-            --true-diode $::env(DIODE_CELL)
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
-    }
+    puts_err "heal_antenna_violators is no longer supported"
+    throw_error
 }
 
 proc label_macro_pins {args} {

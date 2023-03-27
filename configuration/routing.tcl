@@ -17,7 +17,15 @@ if { ![info exists ::env(ROUTING_CORES)] } {
     set ::env(ROUTING_CORES) 2
 }
 
+set ::env(RUN_HEURISTIC_DIODE_INSERTION) 0
+set ::env(HEURISTIC_ANTENNA_THRESHOLD) 90
+
+# Privbate: Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Only applicable when `RUN_HEURISTIC_DIODE_INSERTION` is enabled.
+set ::env(HEURISTIC_ANTENNA_INSERTION_MODE) "source"
+
 set ::env(DIODE_PADDING) 2
+set ::env(DIODE_ON_PORTS) none
+set ::env(GRT_REPAIR_ANTENNAS) 1
 
 set ::env(GLOBAL_ROUTER) fastroute
 set ::env(DETAILED_ROUTER) tritonroute

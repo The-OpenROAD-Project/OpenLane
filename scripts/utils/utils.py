@@ -64,8 +64,11 @@ def add_computed_statistics(filename):
         rows.append(row)
     csv_file_in.close()
 
-    with open(filename, "w") as f:
-        writer = csv.DictWriter(f, csv_headers)
+    with open(filename, "w", encoding="utf8") as f:
+        writer = csv.DictWriter(
+            f,
+            csv_headers,
+        )
         writer.writeheader()
         for row in rows:
             writer.writerow(row)
