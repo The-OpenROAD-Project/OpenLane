@@ -248,16 +248,10 @@ proc run_verilator {} {
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
         lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
     }
-    if { $::env(QUIT_ON_VERILATOR_WARNINGS) != 1 } {
-        lappend arg_list -Wno-fatal
-    if { $::env(QUIT_ON_VERILATOR_ERRORS) == 1 } {
-        set arg "| tee $log $::env(TERMINAL_OUTPUT)"
-        lappend arg_list {*}$arg
-    } else {
-        set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
-        lappend arg_list {*}$arg
-    }
-}
+    lappend arg_list -Wno-fatal
+
+    set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
+    lappend arg_list {*}$arg
     try_exec bash -c "verilator \
         --lint-only \
         -Wall \
@@ -266,12 +260,20 @@ proc run_verilator {} {
 
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
     if { [expr $errors_count > 0] } {
+        if { $::env(QUIT_ON_VERILATOR_ERRORS) } {
+            puts_err "$errors_count errors found from Verilator"
+            throw_error
+        }
         puts_warn "$errors_count errors found from Verilator"
     } else {
         puts_info "$errors_count errors found from Verilator"
     }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
     if { [expr $warnings_count > 0] } {
+        if { $::env(QUIT_ON_VERILATOR_WARNINGS) } {
+            puts_err "$warnings_count warnings found from Verilator"
+            throw_error
+        }
         puts_warn "$warnings_count warnings found from Verilator"
     } else {
         puts_info "$warnings_count warnings found from Verilator"
