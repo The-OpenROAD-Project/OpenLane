@@ -9,4 +9,4 @@
 */*.html
 */*.xlsx
 */*.yml
-!benchmark_results/*
+!benchmark_results/**/*

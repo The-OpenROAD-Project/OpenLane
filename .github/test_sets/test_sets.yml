@@ -1,4 +1,4 @@
-- pdk: sky130A
+- scl: sky130A/sky130_fd_sc_hd
   name: fastest_test_set
   designs:
     - inverter
@@ -13,7 +13,7 @@
     - spm
     - gcd
     - caravel_upw
-- pdk: sky130A
+- scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
   designs:
     - BM64
@@ -24,7 +24,7 @@
     - PPU
     - y_huff
     - aes
-- pdk: gf180mcuC
+- scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: fastest_test_set
   designs:
     - spm
@@ -33,7 +33,7 @@
     # - usb_cdc_core
     # - zipdiv
     # - wbqspiflash
-- pdk: gf180mcuC
+- scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: extended_test_set
   designs:
     - picorv32a
