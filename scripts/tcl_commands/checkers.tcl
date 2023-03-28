@@ -18,18 +18,18 @@ proc check_latches {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. There are latch cells during synthesis."
+        puts_err "Synthesis failed. There are latches during synthesis."
         throw_error
     }
 }
 
 proc check_out_of_bound {log} {
-    set match {Range select out of bounds on signal}
+    set match {out of bounds on signal}
     set checker [exec bash -c "grep '$match' \
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Out of bounds."
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Look for '$match' in $log"
         throw_error
     }
 }
@@ -40,7 +40,7 @@ proc check_resizing_cell_port {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Resizing cell port."
+        puts_err "Synthesis failed. Signal not matching port size. Look for '$match' in $log"
         throw_error
     }
 }
