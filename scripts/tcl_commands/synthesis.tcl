@@ -256,6 +256,7 @@ proc run_verilator {} {
         --lint-only \
         -Wall \
         --Wno-DECLFILENAME \
+        --top-module $::env(DESIGN_NAME) \
         $arg_list"
 
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
