@@ -119,6 +119,9 @@ proc run_synthesis {args} {
         set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
     } else {
         run_yosys -indexed_log $log
+        if { $::env(QUIT_ON_SYNTH_CHECKS) } {
+            run_synthesis_checkers $log
+        }
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"

@@ -12,7 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+proc check_latches {log} {
+    set match {\$LATCH}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
 
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. There are latches during synthesis."
+        throw_error
+    }
+}
+
+proc check_out_of_bound {log} {
+    set match {out of bounds on signal}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc check_resizing_cell_port {log} {
+    set match {Resizing cell port}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc run_synthesis_checkers {log} {
+    check_latches $log
+    check_out_of_bound $log
+    check_resizing_cell_port $log
+}
 
 proc check_assign_statements {args} {
     set checker [count_matches assign $::env(synthesis_results).v]
