@@ -253,6 +253,7 @@ if { $adder_type == "RCA"} {
 }
 
 # taken from https://github.com/YosysHQ/yosys/blob/master/techlibs/common/synth.cc
+# <synth> split to run check -assert in the middle
 hierarchy -check -auto-top
 proc_clean
 proc_rmdead
