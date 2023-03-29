@@ -138,6 +138,8 @@ proc run_synthesis {args} {
             set final_stat_file $::env(synth_report_prefix).stat
         }
         check_unmapped_cells $final_stat_file
+        set pre_synth_report $::env(synth_report_prefix)_pre_synth.check
+        check_tristate_only $pre_synth_report
     }
 
     run_sta\

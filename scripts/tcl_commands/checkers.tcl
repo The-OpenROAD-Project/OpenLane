@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+proc check_tristate_only {report} {
+    if { [catch {exec python3 $::env(SCRIPTS_DIR)/tristate_only.py $report} err] } {
+        puts_err "Yosys check failed"
+        puts_err "Example: $err"
+        throw_error
+    }
+}
+
 proc check_latches {log} {
     set match {\$LATCH}
     set checker [exec bash -c "grep '$match' \

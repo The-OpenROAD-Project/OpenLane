@@ -272,10 +272,10 @@ if { $::env(SYNTH_NO_FLAT) != 1 } {
 }
 opt_expr
 opt_clean
-if { $::env(QUIT_ON_SYNTH_CHECKS) == 1 } {
-    check -assert $::env(DESIGN_NAME)
+if { $::env(QUIT_ON_SYNTH_TRISTATE) == 1 } {
+    tee -o "$::env(synth_report_prefix)_pre_synth.check" check -assert
 } else {
-    check $::env(DESIGN_NAME)
+    tee -o "$::env(synth_report_prefix)_pre_synth.check" check
 }
 opt -nodffe -nosdff
 fsm
