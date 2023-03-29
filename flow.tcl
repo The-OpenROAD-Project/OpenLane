@@ -184,8 +184,7 @@ proc run_non_interactive_mode {args} {
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc_rv" "run_erc_step" \
-        "timing_check" "run_timing_check_step"
+        "cvc_rv" "run_erc_step"
     ]
 
     if { [info exists arg_values(-from) ]} {
@@ -198,7 +197,7 @@ proc run_non_interactive_mode {args} {
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "timing_check"
+    set_if_unset arg_values(-to) "cvc_rv"
 
     set failed 0;
     set exe 0;
@@ -248,6 +247,10 @@ proc run_non_interactive_mode {args} {
     calc_total_runtime
     save_state
     generate_final_summary_report
+
+    if { [catch run_timing_check_step] } {
+        flow_fail
+    }
 
     if { [info exists arg_values(-save_path)] && $arg_values(-save_path) != "" } {
         set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
