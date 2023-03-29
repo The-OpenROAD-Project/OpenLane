@@ -19,7 +19,7 @@ import click
 
 @click.command()
 @click.argument("report")
-def only_tristate(report):
+def tristate_only(report):
     content = open(report).read()
     if "Warning:" not in content:
         print("No errors found")
@@ -45,4 +45,4 @@ def only_tristate(report):
 
 
 if __name__ == "__main__":
-    only_tristate()
+    tristate_only()
