@@ -139,7 +139,9 @@ proc run_synthesis {args} {
         }
         check_unmapped_cells $final_stat_file
         set pre_synth_report $::env(synth_report_prefix)_pre_synth.check
-        check_tristate_only $pre_synth_report
+        if { [file exists $pre_synth_report] } {
+            check_tristate_only $pre_synth_report
+        }
     }
 
     run_sta\
