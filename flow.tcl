@@ -198,7 +198,7 @@ proc run_non_interactive_mode {args} {
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "timing_check"
+    set_if_unset arg_values(-to) "cvc_rv"
 
     set failed 0;
     set exe 0;
