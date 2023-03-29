@@ -14,8 +14,6 @@
 # limitations under the License.
 
 # Direct-translated from Perl to Python by Donn.
-import os
-
 import click
 
 
