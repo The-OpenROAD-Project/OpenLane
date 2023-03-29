@@ -240,20 +240,12 @@ class Report(object):
     def reports_from_logs(self):
         rp = self.run_path
 
-        basic_set = [
-            ("_sta.rpt", "check_report"),
-            ("_sta.parasitics_check.rpt", "parastic_annotation_check"),
+        report_set = [
+            ("_sta.checks.rpt", "checks_report"),
             ("_sta.min.rpt", "min_report"),
             ("_sta.max.rpt", "max_report"),
-            ("_sta.wns.rpt", "wns_report"),
-            ("_sta.tns.rpt", "tns_report"),
-            ("_sta.clock_skew.rpt", "clock_skew"),
-        ]
-
-        additional_set = [
-            ("_sta.slew.rpt", "check_slew"),
-            ("_sta.worst_slack.rpt", "worst_slack"),
-            ("_sta.clock_skew.rpt", "clock_skew"),
+            ("_sta.skew.rpt", "skew_report"),
+            ("_sta.summary.rpt", "summary_report"),
             ("_sta.power.rpt", "power_report"),
             ("_sta.area.rpt", "area_report"),
         ]
@@ -262,14 +254,6 @@ class Report(object):
             ("cts", Artifact(rp, "logs", "cts", "cts.log")),
             ("gpl", Artifact(rp, "logs", "placement", "global.log")),
             ("grt", Artifact(rp, "logs", "routing", "global.log")),
-        ]:
-            generate_report_args = [
-                (name + report_postfix, report_locus)
-                for report_postfix, report_locus in basic_set
-            ]
-            log.generate_reports(*generate_report_args)
-
-        for name, log in [
             ("syn", Artifact(rp, "logs", "synthesis", "sta.log")),
             ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
             ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
@@ -278,7 +262,7 @@ class Report(object):
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)
-                for report_postfix, report_locus in (basic_set + additional_set)
+                for report_postfix, report_locus in report_set
             ]
             log.generate_reports(*generate_report_args)
 
@@ -575,17 +559,17 @@ class Report(object):
                 debug(f"Can't find {kind}/{step}/{sta_report_filename}")
             return value
 
-        wns = sta_report_extraction("syn_sta.wns.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="signoff")
-        opt_wns = sta_report_extraction("rt_rsz_sta.wns.rpt", "wns", step="routing")
+        wns = sta_report_extraction("syn_sta.summary.rpt", "wns", step="synthesis")
+        spef_wns = sta_report_extraction("rcx_sta.summary.rpt", "wns", step="signoff")
+        opt_wns = sta_report_extraction("rt_rsz_sta.summary.rpt", "wns", step="routing")
         pl_wns = sta_report_extraction(
             "global.log", "wns", kind="logs", step="placement"
         )
         fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
 
-        tns = sta_report_extraction("syn_sta.tns.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="signoff")
-        opt_tns = sta_report_extraction("rt_rsz_sta.tns.rpt", "tns", step="routing")
+        tns = sta_report_extraction("syn_sta.summary.rpt", "tns", step="synthesis")
+        spef_tns = sta_report_extraction("rcx_sta.summary.rpt", "tns", step="signoff")
+        opt_tns = sta_report_extraction("rt_rsz_sta.summary.rpt", "tns", step="routing")
         pl_tns = sta_report_extraction(
             "global.log", "tns", kind="logs", step="placement"
         )

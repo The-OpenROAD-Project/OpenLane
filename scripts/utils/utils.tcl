@@ -358,16 +358,6 @@ proc show_warnings {msg} {
     }
 }
 
-proc generate_routing_report {args} {
-    puts_info "Generating a partial report for routing..."
-
-    try_exec python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
-        --design_name $::env(DESIGN_NAME) \
-        --tag $::env(RUN_TAG) \
-        --run_path $::env(RUN_DIR)
-}
-
-
 proc generate_final_summary_report {args} {
     if { $::env(GENERATE_FINAL_SUMMARY_REPORT) == 0 } {
         return

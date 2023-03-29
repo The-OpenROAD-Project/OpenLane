@@ -86,13 +86,15 @@ proc check_timing_violations {args} {
     if { [info exists ::env(LAST_TIMING_REPORT_TAG)] } {
         set hold_report $::env(LAST_TIMING_REPORT_TAG).min.rpt
         set setup_report $::env(LAST_TIMING_REPORT_TAG).max.rpt
-        set slew_report $::env(LAST_TIMING_REPORT_TAG).slew.rpt
+        set misc_report $::env(LAST_TIMING_REPORT_TAG).checks.rpt
 
-        assert_files_exist "$hold_report $setup_report $slew_report"
+        assert_files_exist "$hold_report $setup_report $misc_report"
 
-        check_slew_violations -report_file $slew_report -corner "typical"
+        check_misc_violations -report_file $misc_report -corner "typical"
         check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $arg_values(-quit_on_hold_vios)
         check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $arg_values(-quit_on_setup_vios)
+    } else {
+        puts_warn "::env(LAST_TIMING_REPORT_TAG) not found."
     }
 }
 
@@ -148,14 +150,14 @@ proc check_setup_violations {args} {
     }
 }
 
-proc check_slew_violations {args} {
+proc check_misc_violations {args} {
     # Perhaps counterintuitively, this also checks max fanout and max capacitance.
     set options {
         {-report_file required}
         {-corner required}
         {-quit_on_vios optional}
     }
-    parse_key_args "check_slew_violations" args arg_values $options
+    parse_key_args "check_misc_violations" args arg_values $options
     set_if_unset arg_values(-quit_on_vios) 0
     set report_file $arg_values(-report_file)
     set quit_on_vios $arg_values(-quit_on_vios)
@@ -202,6 +204,10 @@ proc check_slew_violations {args} {
     } else {
         puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
     }
+}
+
+proc check_slew_violations {args} {
+    handle_deprecated_command check_misc_violations
 }
 
 proc check_floorplan_missing_lef {args} {

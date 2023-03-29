@@ -198,7 +198,7 @@ proc run_non_interactive_mode {args} {
     }
 
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc_rv"
+    set_if_unset arg_values(-to) "timing_check"
 
     set failed 0;
     set exe 0;
@@ -214,7 +214,7 @@ proc run_non_interactive_mode {args} {
             set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
-                puts_err "Step($::env(CURRENT_INDEX):$step_name) failed with error:\n$err"
+                puts_err "Step $::env(CURRENT_INDEX) ($step_name) failed with error:\n$err"
                 set exe 0;
                 break;
             }
