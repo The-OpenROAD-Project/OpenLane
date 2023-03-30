@@ -326,7 +326,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `QUIT_ON_SYNTH_CHECKS` | Quit if any of the following conditions are met: (1) `check -assert` in yosys. This checks for combinational loops, conflicting drivers and wires with no drivers. (2) Using a signal that doesn't match a module port size in the RTL. For instance, given such a module `module example(x); input x; endmodule` it gets instantiated like that `example y(2'b11);` (3) Found Latches in the design. (4) Out of bound(range) errors in the RTL. e.g. `wire [10:0] x; assign x[13] = 1'b1`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `QUIT_ON_SYNTH_TRISTATE` | Checks if there is tristate logic in the design RTL. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `SYNTH_CHECKS_ALLOW_TRISTATE` | Allow tristate logic in `QUIT_ON_SYNTH_CHECKS`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
