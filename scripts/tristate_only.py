@@ -13,13 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Direct-translated from Perl to Python by Donn.
 import click
 
 
 @click.command()
-@click.argument("report")
+@click.argument(
+    "report",
+    required=True,
+)
 def tristate_only(report):
+    """Takes output of yosys check command. Generated using tee -o <report> -o check.
+    Then checks if the warnings generated belong to tristate buffers only"""
     content = open(report).read()
     if "Warning:" not in content:
         print("No errors found")
@@ -47,8 +51,10 @@ def tristate_only(report):
 if __name__ == "__main__":
     tristate_only()
 
-## Keeping this here because one will forget in the future what
-## this really does
+## Keeping this here because one will forget in the future what this really does
+
+# inputs are generated using check step in yosys by running the following command:
+# tee -o "$::env(synth_report_prefix)_pre_synth.check" check (-assert)
 
 ## Sample input flagging fail (trisate + other)
 #
