@@ -70,19 +70,6 @@ proc run_parasitics_sta_step {args} {
     }
 }
 
-proc run_diode_insertion_2_5_step {args} {
-    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
-        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
-    }
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-        run_antenna_check
-        heal_antenna_violators; # modifies the routed DEF
-    }
-
-}
-
 proc run_irdrop_report_step {args} {
     if { $::env(RUN_IRDROP_REPORT) } {
         run_irdrop_report
@@ -191,15 +178,13 @@ proc run_non_interactive_mode {args} {
         "cts" "run_cts_step" \
         "routing" "run_routing_step" \
         "parasitics_sta" "run_parasitics_sta_step" \
-        "diode_insertion" "run_diode_insertion_2_5_step" \
         "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \
         "gds_klayout" "run_klayout_step" \
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc_rv" "run_erc_step" \
-        "timing_check" "run_timing_check_step"
+        "cvc_rv" "run_erc_step"
     ]
 
     if { [info exists arg_values(-from) ]} {
@@ -225,9 +210,10 @@ proc run_non_interactive_mode {args} {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
 
-            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1]];
+            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
+                puts_err "Step($::env(CURRENT_INDEX):$step_name) failed with error:\n$err"
                 set exe 0;
                 break;
             }
@@ -261,6 +247,10 @@ proc run_non_interactive_mode {args} {
     calc_total_runtime
     save_state
     generate_final_summary_report
+
+    if { [catch run_timing_check_step] } {
+        flow_fail
+    }
 
     if { [info exists arg_values(-save_path)] && $arg_values(-save_path) != "" } {
         set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"

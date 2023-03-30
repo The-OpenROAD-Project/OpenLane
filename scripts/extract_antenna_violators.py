@@ -25,7 +25,7 @@ def extract_antenna_violators(output, report):
     Extracts the list of violating nets from an ARC report file"
     """
 
-    pattern = re.compile(r"\s*([\S+]+)\s*\([\S+]+\)\s*[\S+]+")
+    pattern = re.compile(r"\s*Net:\s*(\S+)")
 
     vios_list = []
     current_net = ""
@@ -38,7 +38,7 @@ def extract_antenna_violators(output, report):
                 current_net = m.group(1)
                 printed = False
 
-            if "*" in line and not printed:
+            if "VIOLATED" in line and not printed:
                 print(current_net)
                 vios_list.append(current_net + " ")
                 printed = True

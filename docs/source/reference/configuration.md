@@ -25,7 +25,7 @@ These variables are optional that can be specified in the design configuration f
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
 | `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `STD_CELL_LIBRARY` )|
 | `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)`. |
-| `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
+| `DIODE_PADDING` | Number of sites to left pad `DIODE_CELL` during detailed placement. <br> (Default: `2` sites)|
 | `MERGED_LEF` | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
@@ -219,10 +219,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GRT_ALLOW_CONGESTION` | Allow congestion in the resulting guides. 0 = false, 1 = true <br> (Default: `0`) 
 | `GRT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
-| `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3` or `6`. <br> (Default: `15`) |
-| `GRT_ANT_MARGIN` | The margin to over fix antenna violations in global routing as a percentage. This option is only available in `DIODE_INSERTION_STRATEGY` = `3` or `6`. <br> (Default: `10`) |
+| `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available when `GRT_REPAIR_ANETNNAS` is enabled. <br> (Default: `15`) |
+| `GRT_ANT_MARGIN` | The margin to over fix antenna violations in global routing as a percentage. This option is only available when `GRT_REPAIR_ANETNNAS` is enabled. <br> (Default: `10`) |
 | `GRT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3` and `6`.  <br> (Default: `1`) |
+| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in when `GRT_REPAIR_ANETNNAS` is enabled.  <br> (Default: `1`) |
 | `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `GRT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
 | `GRT_MACRO_EXTENSION` | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
@@ -283,6 +283,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_HEURISTIC_DIODE_INSERTION` | Enables running heuristic antenna insertion script. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
@@ -302,14 +303,16 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
-| `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. |
+| `DIODE_INSERTION_STRATEGY` | **Deprecated** Specifies the insertion strategy of diodes to be used in the flow. |
 | | 0: No diode insertion. |
-| | 1: Spray diodes. |
-| | 2: Insert fake diodes and replace them with real diodes if needed. |
+| | 1: **removed** Spray diodes. |
+| | 2: **removed** Insert fake diodes and replace them with real diodes if needed. |
 | | (**Default**) 3: Use OpenROAD's Antenna Avoidance flow. |
 | | 4: Use Sylvain Minaut's custom script for diode insertion. |
-| | 5: A combination of strategies 2 and 4. |
+| | 5: **removed** A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
+| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
+| `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
@@ -323,7 +326,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `QUIT_ON_SYNTH_CHECKS` | Use yosys `check -assert` at the end of synthesis. This checks for combinational loops, conflicting drivers and wires with no drivers. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_SYNTH_CHECKS` | Quit if any of the following conditions are met: (1) `check -assert` in yosys. This checks for combinational loops, conflicting drivers and wires with no drivers. (2) Using a signal that doesn't match a module port size in the RTL. For instance, given such a module `module example(x); input x; endmodule` it gets instantiated like that `example y(2'b11);` (3) Found Latches in the design. (4) Out of bound(range) errors in the RTL. e.g. `wire [10:0] x; assign x[13] = 1'b1`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
