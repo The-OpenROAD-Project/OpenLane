@@ -76,7 +76,7 @@ proc run_sta {args} {
         unset ::env(SAVE_SDF)
         blackbox_modules_check $log
     } else {
-        run_openroad_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
+        run_sta_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"

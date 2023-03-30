@@ -12,14 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+source $::env(SCRIPTS_DIR)/util/utils.tcl
 
+proc is_blackbox {file_path blackbox_wildcard} {
+    set not_found [catch {
+        exec bash -c "grep '$blackbox_wildcard' \
+            $file_path"
+    }]
+    return [expr !$not_found]
+}
+
+set blackbox_wildcard {/// sta-blackbox}
 read_libs -multi_corner
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-    foreach verilog $::env(VERILOG_FILES_BLACKBOX) {
-        if { [catch {read_verilog $verilog} err] } {
-            puts "Error while reading $verilog:"
-            puts $err
-            puts "Skipping $verilog "
+    foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+        if { [is_blackbox $verilog_file $blackbox_wildcard] } {
+            puts "Skipping [relpath . $verilog_file] $blackbox_wildcard found in [relpath . $verilog_file]"
+        } elseif { [catch {read_verilog $verilog_file} err] } {
+            puts "Error while reading $verilog_file:"
+            exit 1
         }
     }
 }
@@ -34,27 +45,6 @@ if { [info exists ::env(CURRENT_SPEF)] } {
     read_spef -corner ss $::env(CURRENT_SPEF)
     read_spef -corner tt $::env(CURRENT_SPEF)
     read_spef -corner ff $::env(CURRENT_SPEF)
-}
-
-proc lmap args {
-    set body [lindex $args end]
-    set args [lrange $args 0 end-1]
-    set n 0
-    set pairs [list]
-    foreach {varnames listval} $args {
-        set varlist [list]
-        foreach varname $varnames {
-            upvar 1 $varname var$n
-            lappend varlist var$n
-            incr n
-        }
-        lappend pairs $varlist $listval
-    }
-    set temp [list]
-    foreach {*}$pairs {
-        lappend temp [uplevel 1 $body]
-    }
-    set temp
 }
 
 if { [info exists ::env(EXTRA_SPEFS)] } {
