@@ -121,6 +121,10 @@ proc run_synthesis {args} {
         run_yosys -indexed_log $log
         if { $::env(QUIT_ON_SYNTH_CHECKS) } {
             run_synthesis_checkers $log
+            set pre_synth_report $::env(synth_report_prefix)_pre_synth.check
+            if { [file exists $pre_synth_report] } {
+                check_tristate_only $pre_synth_report
+            }
         }
     }
     TIMER::timer_stop
@@ -138,10 +142,6 @@ proc run_synthesis {args} {
             set final_stat_file $::env(synth_report_prefix).stat
         }
         check_unmapped_cells $final_stat_file
-        set pre_synth_report $::env(synth_report_prefix)_pre_synth.check
-        if { [file exists $pre_synth_report] } {
-            check_tristate_only $pre_synth_report
-        }
     }
 
     run_sta\
