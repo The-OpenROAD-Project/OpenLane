@@ -14,7 +14,7 @@
 
 proc check_tristate_only {report} {
     if { [catch {exec python3 $::env(SCRIPTS_DIR)/tristate_only.py $report} err] } {
-        puts_err "Yosys check failed"
+        puts_err "Yosys check failed. See: [relpath . $report]"
         puts_err "Example: $err"
         throw_error
     }
