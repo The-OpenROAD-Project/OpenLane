@@ -27,6 +27,8 @@ proc run_sta {args} {
         -multi_corner
         -pre_cts
         -netlist_in
+        -blackbox_check
+        -no_save
     }
     parse_key_args "run_sta" args arg_values $options flags_map $flags
 
@@ -60,9 +62,22 @@ proc run_sta {args} {
 
     set arg_list [list]
     lappend arg_list -indexed_log $log
-    lappend arg_list -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
+    if { ![info exist flags_map(-no_save)] } {
+        lappend arg_list -save "to=$arg_values(-save_to),noindex,sdf,$lib_option"
+    }
     if { [info exists flags_map(-netlist_in)] } {
         lappend arg_list -netlist_in
+    }
+
+    proc blackbox_modules_check {file_path} {
+        set fp [open $file_path r]
+        set file_path [read $fp]
+        foreach line [split $file_path "\n"] {
+            if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
+                puts_warn "Module $first_group blackboxed during sta"
+            }
+        }
+        close $fp
     }
 
     if { $multi_corner == 1 } {
@@ -74,23 +89,16 @@ proc run_sta {args} {
             unset ::env(SAVE_LIB)
         }
         unset ::env(SAVE_SDF)
-        blackbox_modules_check $log
     } else {
         run_sta_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
+        if { [info exists flags_map(-blackbox_check)] } {
+            blackbox_modules_check $log
+        }
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }
 
-proc blackbox_modules_check {file_path} {
-    set fp [open $file_path r]
-    set file_path [read $fp]
-    foreach line [split $file_path "\n"] {
-        if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
-            puts_warn "Module $first_group blackboxed during sta"
-        }
-    }
-}
 
 proc run_parasitics_sta {args} {
     set options {
@@ -148,7 +156,8 @@ proc run_parasitics_sta {args} {
                 run_sta\
                     -log $::env(signoff_logs)/rcx_sta.log\
                     -process_corner $process_corner\
-                    -save_to $directory
+                    -save_to $directory \
+                    -blackbox_check
 
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
             }

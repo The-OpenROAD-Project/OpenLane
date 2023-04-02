@@ -49,8 +49,8 @@ if {[info exists ::env(CLOCK_PORT)]} {
         # estimate wire rc parasitics
         estimate_parasitics -global_routing
 
-        set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/sta.tcl
+#        set ::env(RUN_STANDALONE) 0
+#        source $::env(SCRIPTS_DIR)/openroad/sta.tcl
     }
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

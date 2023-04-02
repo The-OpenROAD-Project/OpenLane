@@ -46,6 +46,8 @@ proc run_cts {args} {
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "cts - openroad"
 
         scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
+
+        run_sta -no_save $::env(cts_results) -log $::env(cts_logs)/sta.log
     }
 }
 

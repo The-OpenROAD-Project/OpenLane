@@ -11,22 +11,38 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if { $::env(RUN_STANDALONE) == 1 } {
-    source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-    if { $::env(CURRENT_ODB) != "0" } {
-        read
-    } else {
-        read_libs
-        read_lef $::env(MERGED_LEF)
-        read_netlist
-    }
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
+source $::env(SCRIPTS_DIR)/utils/utils.tcl
 
-    if { $::env(STA_PRE_CTS) == 1 } {
-        unset_propagated_clock [all_clocks]
-    } else {
-        set_propagated_clock [all_clocks]
+proc is_blackbox {file_path blackbox_wildcard} {
+    set not_found [catch {
+        exec bash -c "grep '$blackbox_wildcard' \
+            $file_path"
+    }]
+    return [expr !$not_found]
+}
+
+set blackbox_wildcard {/// sta-blackbox}
+read_libs
+if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+    foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+        if { [is_blackbox $verilog_file $blackbox_wildcard] } {
+            puts "Skipping [relpath . $verilog_file] $blackbox_wildcard found in [relpath . $verilog_file]"
+        } elseif { [catch {read_verilog $verilog_file} err] } {
+            puts "Error while reading $verilog_file:"
+            exit 1
+        }
     }
 }
+
+read_netlist
+
+if { $::env(STA_PRE_CTS) == 1 } {
+    unset_propagated_clock [all_clocks]
+} else {
+    set_propagated_clock [all_clocks]
+}
+
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
@@ -129,11 +145,4 @@ if { $::env(STA_REPORT_POWER) } {
     puts "power_report_end"
 }
 
-puts "area_report"
-puts "\n==========================================================================="
-puts " report_design_area"
-puts "============================================================================"
-report_design_area
-puts "area_report_end"
-
-write
+write -no_global_connect

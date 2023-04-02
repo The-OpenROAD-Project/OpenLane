@@ -78,5 +78,5 @@ write
 
 # Run post timing optimizations STA
 estimate_parasitics -global_routing
-set ::env(RUN_STANDALONE) 0
-source $::env(SCRIPTS_DIR)/openroad/sta.tcl
+#set ::env(RUN_STANDALONE) 0
+#source $::env(SCRIPTS_DIR)/openroad/sta.tcl

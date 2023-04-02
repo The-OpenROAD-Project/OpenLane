@@ -13,6 +13,7 @@
 # limitations under the License.
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
+source $::env(SCRIPTS_DIR)/utils/utils.tcl
 
 proc read_netlist {args} {
     sta::parse_key_args "read_netlists" args \
@@ -23,7 +24,7 @@ proc read_netlist {args} {
         set netlist $::env(CURRENT_POWERED_NETLIST)
     }
 
-    puts "Reading netlist $netlist..."
+    puts "Reading netlist $netlist ..."
 
     if {[catch {read_verilog $netlist} errmsg]} {
         puts stderr $errmsg
@@ -42,50 +43,35 @@ proc read_netlist {args} {
 }
 
 proc read_libs {args} {
-    sta::parse_key_args "read_libs" args \
-        keys {-override}\
-        flags {-multi_corner}
+    set options {
+        {-typical optional}
+        {-slowest optional}
+        {-fastest optional}
+    }
+    set flags {}
+    parse_key_args "read_libs" args arg_values $options flags_map $flags
 
+    set_if_unset arg_values(-typical) "$::env(LIB_TYPICAL)"
     set libs $::env(LIB_SYNTH_COMPLETE)
 
-    if { [info exists keys(-override)] } {
-        set libs $keys(-override)
+    if { [info exists arg_values(-slowest)] } {
+        set corner(ss) $arg_values(-slowest)
     }
+    if { [info exists arg_values(-fastest)] } {
+        set corner(ff) $arg_values(-fastest)
+    }
+    set corner(tt) $arg_values(-typical)
+    puts "define_corners [array name corner]"
+    define_corners {*}[array name corner]
 
-    if { [info exists flags(-multi_corner)] } {
-        # Note that the one defined first is the "default": meaning you
-        # shouldn't use -multi_corner for scripts that do not explicitly
-        # specify the corners for STA calls.
-        define_corners ss tt ff;
-
-        foreach lib $::env(LIB_SLOWEST) {
-            read_liberty -corner ss $lib
-        }
-        foreach lib $::env(LIB_TYPICAL) {
-            read_liberty -corner tt $lib
-        }
-        foreach lib $::env(LIB_FASTEST) {
-            read_liberty -corner ff $lib
-        }
-
-        foreach corner {ss tt ff} {
-            if { [info exists ::env(EXTRA_LIBS) ] } {
-                foreach lib $::env(EXTRA_LIBS) {
-                    read_liberty -corner $corner $lib
-                }
-            }
-        }
-    } else {
-        foreach lib $libs {
-            read_liberty $lib
-        }
-
+    foreach corner_name [array name corner] {
+        puts "read_liberty -corner $corner_name $corner($corner_name)"
+        read_liberty -corner $corner_name $corner($corner_name)
         if { [info exists ::env(EXTRA_LIBS) ] } {
             foreach lib $::env(EXTRA_LIBS) {
-                read_liberty $lib
+                read_liberty -corner $corner_name $lib
             }
         }
-
     }
 }
 
@@ -114,11 +100,11 @@ proc read {args} {
     set read_libs_args [list]
 
     if { [info exists keys(-override_libs)]} {
-        lappend read_libs_args -override $keys(-override_libs)
+        lappend read_libs_args -typical $keys(-override_libs)
     }
 
     if { [info exists flags(-multi_corner_libs)] } {
-        lappend read_libs_args -multi_corner
+        lappend read_libs_args -fastest $::env(LIB_FASTEST) -slowest $::env(LIB_SLOWEST)
     }
 
     read_libs {*}$read_libs_args

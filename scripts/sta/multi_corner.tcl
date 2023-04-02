@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-source $::env(SCRIPTS_DIR)/util/utils.tcl
+source $::env(SCRIPTS_DIR)/utils/utils.tcl
 
 proc is_blackbox {file_path blackbox_wildcard} {
     set not_found [catch {
@@ -23,7 +23,11 @@ proc is_blackbox {file_path blackbox_wildcard} {
 }
 
 set blackbox_wildcard {/// sta-blackbox}
-read_libs -multi_corner
+read_libs \
+    -typical $::env(LIB_TYPICAL) \
+    -fastest $::env(LIB_FASTEST) \
+    -slowest $::env(LIB_SLOWEST) \
+    -corners "tt ss ff"
 if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
     foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
         if { [is_blackbox $verilog_file $blackbox_wildcard] } {
@@ -36,7 +40,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 }
 #set link_create_black_boxes 0
 #set link_make_black_boxes 0
-read_netlist -powered
+read_netlist
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
