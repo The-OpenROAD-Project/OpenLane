@@ -46,6 +46,8 @@ proc read_netlist {args} {
                     puts "Found $blackbox_wildcard in $verilog_file skipping..."
                 } elseif { [catch {read_verilog $verilog_file} err] } {
                     puts "Error while reading $verilog_file:"
+                    puts "Make sure that this a gate-level netlist not an RTL file"
+                    puts "Add $blackbox_wildcard to skip this file and blackbox the modules if needed."
                     puts $err
                     exit 1
                 }
