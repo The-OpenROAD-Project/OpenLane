@@ -13,12 +13,19 @@
 # limitations under the License.
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
-source $::env(SCRIPTS_DIR)/utils/utils.tcl
+
+proc is_blackbox {file_path blackbox_wildcard} {
+    set not_found [catch {
+        exec bash -c "grep '$blackbox_wildcard' \
+            $file_path"
+    }]
+    return [expr !$not_found]
+}
 
 proc read_netlist {args} {
     sta::parse_key_args "read_netlists" args \
         keys {}\
-        flags {-powered}
+        flags {-powered -all}
     set netlist $::env(CURRENT_NETLIST)
     if { [info exists flags(-powered)] } {
         set netlist $::env(CURRENT_POWERED_NETLIST)
@@ -31,6 +38,20 @@ proc read_netlist {args} {
         exit 1
     }
 
+    if { [info exists flags(-all)] } {
+        set blackbox_wildcard {/// sta-blackbox}
+        if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+            foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+                if { [is_blackbox $verilog_file $blackbox_wildcard] } {
+                    puts "Found $blackbox_wildcard in $verilog_file skipping..."
+                } elseif { [catch {read_verilog $verilog_file} err] } {
+                    puts "Error while reading $verilog_file:"
+                    puts $err
+                    exit 1
+                }
+            }
+        }
+    }
     link_design $::env(DESIGN_NAME)
 
     if { [info exists ::env(CURRENT_SDC)] } {
@@ -43,24 +64,21 @@ proc read_netlist {args} {
 }
 
 proc read_libs {args} {
-    set options {
-        {-typical optional}
-        {-slowest optional}
-        {-fastest optional}
-    }
-    set flags {}
-    parse_key_args "read_libs" args arg_values $options flags_map $flags
+    sta::parse_key_args "read_libs" args \
+        keys {-typical -slowest -fastest}\
+        flags {-multi_corner_libs}
 
-    set_if_unset arg_values(-typical) "$::env(LIB_TYPICAL)"
-    set libs $::env(LIB_SYNTH_COMPLETE)
-
-    if { [info exists arg_values(-slowest)] } {
-        set corner(ss) $arg_values(-slowest)
+    if { ![info exists keys(-typical)] } {
+        puts "read_libs -typical is required"
+        exit 1
     }
-    if { [info exists arg_values(-fastest)] } {
-        set corner(ff) $arg_values(-fastest)
+    if { [info exists keys(-slowest)] } {
+        set corner(Slowest) $keys(-slowest)
     }
-    set corner(tt) $arg_values(-typical)
+    if { [info exists keys(-fastest)] } {
+        set corner(Fastest) $keys(-fastest)
+    }
+    set corner(Typical) $keys(-typical)
     puts "define_corners [array name corner]"
     define_corners {*}[array name corner]
 
@@ -73,6 +91,7 @@ proc read_libs {args} {
             }
         }
     }
+    return [array name corner]
 }
 
 proc read {args} {
@@ -101,6 +120,8 @@ proc read {args} {
 
     if { [info exists keys(-override_libs)]} {
         lappend read_libs_args -typical $keys(-override_libs)
+    } else {
+        lappend read_libs_args -typical $::env(LIB_TYPICAL)
     }
 
     if { [info exists flags(-multi_corner_libs)] } {
@@ -199,6 +220,40 @@ proc write {args} {
         } else {
             puts "Writing timing model to $::env(SAVE_LIB)..."
             write_timing_model $::env(SAVE_LIB)
+        }
+    }
+}
+
+
+proc read_spefs {} {
+    set corners [sta::corners]
+    if { [info exists ::env(CURRENT_SPEF)] } {
+        foreach corner $corners {
+        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+        }
+    }
+
+    if { [info exists ::env(EXTRA_SPEFS)] } {
+        foreach {module_name spef_file_min spef_file_nom spef_file_max} \
+            "$::env(EXTRA_SPEFS)" {
+            set matched 0
+            foreach cell [get_cells *] {
+                if { "[get_property $cell ref_name]" eq "$module_name" && !$matched } {
+                    puts "Matched [get_property $cell name] with $module_name"
+                    set matched 1
+                    foreach corner $corners {
+                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_min
+                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_nom
+                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_max
+                    }
+                }
+            }
+            if { $matched != 1 } {
+                puts "Error: Module $module_name specified in EXTRA_SPEFS not found."
+                exit 1
+            }
         }
     }
 }

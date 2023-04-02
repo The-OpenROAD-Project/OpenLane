@@ -80,7 +80,9 @@ proc run_sta {args} {
         close $fp
     }
 
+    set ::env(STA_MULTICORNER) 0
     if { $multi_corner == 1 } {
+        set ::env(STA_MULTICORNER) 1
         run_sta_script $::env(SCRIPTS_DIR)/sta/multi_corner.tcl \
             -no_update_current\
             {*}$arg_list
@@ -90,11 +92,12 @@ proc run_sta {args} {
         }
         unset ::env(SAVE_SDF)
     } else {
-        run_sta_script $::env(SCRIPTS_DIR)/openroad/sta.tcl {*}$arg_list
+        run_sta_script $::env(SCRIPTS_DIR)/sta/multi_corner.tcl {*}$arg_list
         if { [info exists flags_map(-blackbox_check)] } {
             blackbox_modules_check $log
         }
     }
+    unset ::env(STA_MULTICORNER)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }

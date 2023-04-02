@@ -12,69 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-source $::env(SCRIPTS_DIR)/utils/utils.tcl
 
-proc is_blackbox {file_path blackbox_wildcard} {
-    set not_found [catch {
-        exec bash -c "grep '$blackbox_wildcard' \
-            $file_path"
-    }]
-    return [expr !$not_found]
+set arg_list [list]
+lappend arg_list -typical $::env(LIB_TYPICAL)
+if { $::env(STA_MULTICORNER) } {
+    lappend arg_list -fastest $::env(LIB_FASTEST)
+    lappend arg_list -slowest $::env(LIB_SLOWEST)
 }
+read_libs {*}$arg_list
 
-set blackbox_wildcard {/// sta-blackbox}
-read_libs \
-    -typical $::env(LIB_TYPICAL) \
-    -fastest $::env(LIB_FASTEST) \
-    -slowest $::env(LIB_SLOWEST) \
-    -corners "tt ss ff"
-if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-    foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-        if { [is_blackbox $verilog_file $blackbox_wildcard] } {
-            puts "Skipping [relpath . $verilog_file] $blackbox_wildcard found in [relpath . $verilog_file]"
-        } elseif { [catch {read_verilog $verilog_file} err] } {
-            puts "Error while reading $verilog_file:"
-            exit 1
-        }
-    }
-}
-#set link_create_black_boxes 0
-#set link_make_black_boxes 0
-read_netlist
+read_netlist -all
+read_spefs
+
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
-
-# Read parasitics if they are generated prior to this point
-if { [info exists ::env(CURRENT_SPEF)] } {
-    read_spef -corner ss $::env(CURRENT_SPEF)
-    read_spef -corner tt $::env(CURRENT_SPEF)
-    read_spef -corner ff $::env(CURRENT_SPEF)
-}
-
-if { [info exists ::env(EXTRA_SPEFS)] } {
-    set extra_spefs [lmap {a b c d} $::env(EXTRA_SPEFS) {list $a $b $c $d}]
-    foreach i $extra_spefs {
-        set module_name [lindex $i 0]
-        set spef_file_min [lindex $i 1]
-        set spef_file_nom [lindex $i 2]
-        set spef_file_max [lindex $i 3]
-        set matched 0
-        foreach cell [get_cells *] {
-            if { "[get_property $cell ref_name]" eq "$module_name" } {
-                puts "Matched [get_property $cell name] with $module_name"
-                set matched 1
-                read_spef -path [get_property $cell name] -corner ss $spef_file_min
-                read_spef -path [get_property $cell name] -corner tt $spef_file_nom
-                read_spef -path [get_property $cell name] -corner ff $spef_file_max
-                break
-            }
-        }
-        if { $matched != 1 } {
-            puts "Error: Module $module_name specified in EXTRA_SPEFS not found."
-            exit 1
-        }
-    }
-}
 
 if { $::env(STA_PRE_CTS) == 1 } {
     unset_propagated_clock [all_clocks]
@@ -86,12 +37,10 @@ puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
-puts "\n======================= Slowest Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner tt
-puts "\n======================= Fastest Corner ===================================\n"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ff
+foreach corner [sta::corners] {
+    puts "\n======================= [$corner name] Corner ===================================\n"
+    report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+}
 puts "min_report_end"
 
 
@@ -99,36 +48,28 @@ puts "max_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
-puts "\n======================= Slowest Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner tt
-puts "\n======================= Fastest Corner ===================================\n"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner ff
+foreach corner [sta::corners] {
+    puts "\n======================= [$corner name] Corner ===================================\n"
+    report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+}
 puts "max_report_end"
 
 
 puts "check_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
-puts "============================================================================"
-puts "\n======================= Slowest Corner ===================================\n"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
-puts "\n======================= Fastest Corner ===================================\n"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff
-
+foreach corner [sta::corners] {
+puts "\n======================= [$corner name] Corner ===================================\n"
+    report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+}
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
 puts "============================================================================"
-puts "\n======================= Slowest Corner ===================================\n"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner tt
-puts "\n======================= Fastest Corner ===================================\n"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner ff
+foreach corner [sta::corners] {
+    puts "\n======================= [$corner name] Corner ===================================\n"
+    report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+}
 puts "check_report_end"
 
 puts "parastic_annotation_check"
@@ -142,12 +83,10 @@ puts "check_slew"
 puts "\n==========================================================================="
 puts " report_check_types -max_slew -max_cap -max_fanout -violators"
 puts "============================================================================"
-puts "\n======================= Slowest Corner ===================================\n"
-report_check_types -max_slew -max_capacitance -max_fanout -violators -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_check_types -max_slew -max_capacitance -max_fanout -violators -corner tt
-puts "\n======================= Fastest Corner ===================================\n"
-report_check_types -max_slew -max_capacitance -max_fanout -violators -corner ff
+foreach corner [sta::corners] {
+    puts "\n======================= [$corner name] Corner ===================================\n"
+    report_check_types -max_slew -max_capacitance -max_fanout -violators -corner [$corner name]
+}
 
 puts "\n==========================================================================="
 puts "max slew violation count [sta::max_slew_violation_count]"
@@ -191,12 +130,10 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "\n==========================================================================="
     puts " report_clock_skew"
     puts "============================================================================"
-    puts "\n======================== Slowest Corner ==================================\n"
-    report_clock_skew -corner ss
-    puts "\n======================= Typical Corner ===================================\n"
-    report_clock_skew -corner tt
-    puts "\n======================= Fastest Corner ===================================\n"
-    report_clock_skew -corner ff
+    foreach corner [sta::corners] {
+        puts "\n======================= [$corner name] Corner ===================================\n"
+        report_clock_skew -corner [$corner name]
+    }
     puts "clock_skew_end"
 }
 
@@ -204,12 +141,10 @@ puts "power_report"
 puts "\n==========================================================================="
 puts " report_power"
 puts "============================================================================"
-puts "\n\n======================= Slowest Corner =================================\n"
-report_power -corner ss
-puts "\n======================= Typical Corner ===================================\n"
-report_power -corner tt
-puts "\n\n======================= Fastest Corner =================================\n"
-report_power -corner ff
+foreach corner [sta::corners] {
+    puts "\n======================= [$corner name] Corner ===================================\n"
+    report_power -corner [$corner name]
+}
 puts "power_report_end"
 
 

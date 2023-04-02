@@ -35,6 +35,7 @@
  *-------------------------------------------------------------
  */
 
+/// sta-blackbox
 module user_proj_example #(
     parameter BITS = 32
 )(

@@ -30,6 +30,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
             puts "Skipping [relpath . $verilog_file] $blackbox_wildcard found in [relpath . $verilog_file]"
         } elseif { [catch {read_verilog $verilog_file} err] } {
             puts "Error while reading $verilog_file:"
+            puts $err
             exit 1
         }
     }
