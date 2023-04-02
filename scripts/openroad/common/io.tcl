@@ -91,7 +91,6 @@ proc read_libs {args} {
             }
         }
     }
-    return [array name corner]
 }
 
 proc read {args} {
