@@ -742,25 +742,4 @@ proc run_tcl_script {args} {
     }
 }
 
-proc lmap args {
-    set body [lindex $args end]
-    set args [lrange $args 0 end-1]
-    set n 0
-    set pairs [list]
-    foreach {varnames listval} $args {
-        set varlist [list]
-        foreach varname $varnames {
-            upvar 1 $varname var$n
-            lappend varlist var$n
-            incr n
-        }
-        lappend pairs $varlist $listval
-    }
-    set temp [list]
-    foreach {*}$pairs {
-        lappend temp [uplevel 1 $body]
-    }
-    set temp
-}
-
 package provide openlane_utils 0.9

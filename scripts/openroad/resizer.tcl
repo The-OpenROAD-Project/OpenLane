@@ -76,5 +76,3 @@ write
 
 # Run post design optimizations STA
 estimate_parasitics -placement
-#set ::env(RUN_STANDALONE) 0
-#source $::env(SCRIPTS_DIR)/openroad/sta.tcl

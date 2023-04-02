@@ -47,7 +47,9 @@ proc run_cts {args} {
 
         scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
 
-        run_sta -no_save $::env(cts_results) -log $::env(cts_logs)/sta.log
+        if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
+            run_sta -no_save $::env(cts_results) -log $::env(cts_logs)/sta.log
+        }
     }
 }
 
