@@ -53,7 +53,7 @@ def equally_spaced_sequence(side, side_pin_placement, possible_locations):
 
     if total_pin_count > tracks:
         print(
-            f"There are more pins/virtual_pins: {total_pin_count}, than places to put them: {tracks}. Try making your floorplan area larger."
+            f"There are more pins/virtual_pins: {total_pin_count}, than places to put them: {tracks} in the {side} side. Try making your floorplan area larger."
         )
         sys.exit(1)
     elif total_pin_count == tracks:
@@ -197,6 +197,12 @@ def bus_keys(enum):
     default=False,
     help="Misnomer: pins are grouped by index instead of bus, i.e. a[0] goes with b[0] instead of a[1].",
 )
+@click.option(
+    "--min-distance",
+    type=float,
+    default=None,
+    help="The minmimum distance between the IOs in microns",
+)
 @click_odb
 def io_place(
     reader,
@@ -211,6 +217,7 @@ def io_place(
     reverse,
     bus_sort,
     unmatched_error,
+    min_distance,
 ):
     """
     Places the IOs in an input def with an optional config file that supports regexes.
@@ -367,13 +374,41 @@ def io_place(
 
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
+    h_spacing = H_LAYER.getSpacing()
+    h_min_distance = min_distance * reader.dbunits if min_distance else h_spacing
+    if h_min_distance < h_spacing:
+        print(
+            f"Error: provided min_distance({min_distance}) is less than min spacing({h_spacing})"
+        )
+        exit(1)
+    v_spacing = V_LAYER.getSpacing()
+    v_min_distance = min_distance * reader.dbunits if min_distance else v_spacing
+    if v_min_distance < v_spacing:
+        print(
+            f"Error: provided min_distance({min_distance}) is less than min spacing({v_spacing})"
+        )
+        exit(1)
+
     origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
     print(f"Horizontal Tracks Origin: {origin}, Count: {count}, Step: {step}")
     h_tracks = grid_to_tracks(origin, count, step)
+    h_tracks = [
+        h_tracks[i]
+        for i in range(len(h_tracks))
+        if (i % (math.ceil((H_WIDTH + h_min_distance) / step))) == 0
+    ]
+    print(f"Legal Horizontal Tracks: {len(h_tracks)}")
 
     origin, count, step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
     print(f"Vertical Tracks Origin: {origin}, Count: {count}, Step: {step}")
     v_tracks = grid_to_tracks(origin, count, step)
+
+    v_tracks = [
+        v_tracks[i]
+        for i in range(len(v_tracks))
+        if (i % (math.ceil((V_WIDTH + v_min_distance) / step))) == 0
+    ]
+    print(f"Legal Vertical Tracks: {len(v_tracks)}")
 
     for rev in reverse_arr:
         pin_placement[rev].reverse()
