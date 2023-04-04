@@ -124,6 +124,7 @@ proc place_io_ol {args} {
         {-vertical_layer optional}
         {-vertical_mult optional}
         {-vertical_ext optional}
+        {-min_distance optional}
         {-length optional}
         {-output_def optional}
         {-output_odb optional}
@@ -149,6 +150,7 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
 
     set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
+    set_if_unset arg_values(-min_distance) $::env(FP_IO_MIN_DISTANCE)
 
     if { $::env(FP_IO_UNMATCHED_ERROR) } {
         set_if_unset flags_map(-unmatched_error) "--unmatched-error"
@@ -170,6 +172,7 @@ proc place_io_ol {args} {
         --hor-extension $arg_values(-horizontal_ext)\
         --ver-extension $arg_values(-vertical_ext)\
         --length $arg_values(-length)\
+        --min-distance $arg_values(-min_distance)\
         {*}$flags_map(-unmatched_error)\
         {*}$arg_values(-extra_args)
 
@@ -258,7 +261,7 @@ proc tap_decap_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
-        -save "to=$::env(floorplan_results),noindex,def,odb"
+        -save "to=$::env(floorplan_tmpfiles),name=tapcell,def,odb"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
 
@@ -304,7 +307,7 @@ proc gen_pdn {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/pdn.log] \
-        -save "to=$::env(floorplan_tmpfiles),name=pdn,def,odb"
+        -save "to=$::env(floorplan_results),noindex,def,odb"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
