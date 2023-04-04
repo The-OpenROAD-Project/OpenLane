@@ -378,16 +378,16 @@ def io_place(
     h_min_distance = min_distance * reader.dbunits if min_distance else h_spacing
     if h_min_distance < h_spacing:
         print(
-            f"Error: provided min_distance({min_distance}) is less than min spacing({h_spacing})"
+            f"Warn: provided min_distance({min_distance}) is less than min spacing({h_spacing})"
         )
-        sys.exit(1)
+    h_min_distance = max(h_spacing, h_min_distance)
     v_spacing = V_LAYER.getSpacing()
     v_min_distance = min_distance * reader.dbunits if min_distance else v_spacing
     if v_min_distance < v_spacing:
         print(
-            f"Error: provided min_distance({min_distance}) is less than min spacing({v_spacing})"
+            f"Warn: provided min_distance({min_distance}) is less than min spacing({v_spacing})"
         )
-        sys.exit(1)
+    v_min_distance = max(v_spacing, v_min_distance)
 
     origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
     print(f"Horizontal Tracks Origin: {origin}, Count: {count}, Step: {step}")
