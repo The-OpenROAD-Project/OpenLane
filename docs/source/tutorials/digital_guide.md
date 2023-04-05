@@ -541,7 +541,7 @@ Startpoint: write_addr[1] (input port clocked by clk)
 Endpoint: _3436_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
 Path Type: max
-Corner: ss
+Corner: Slowest
 
 Fanout     Cap    Slew   Delay    Time   Description
 -----------------------------------------------------------------------------

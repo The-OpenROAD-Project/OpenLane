@@ -25,12 +25,14 @@ proc global_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
         -indexed_log [index_file $::env(placement_logs)/global.log]\
-        -save "to=$::env(placement_tmpfiles),name=global,def,odb"
+        -save "to=$::env(placement_tmpfiles),name=global,def,odb,netlist,powered_netlist"
 
     check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - openroad"
+
+    run_sta -no_save -log $::env(placement_logs)/sta-global.log
 }
 
 proc global_placement {args} {
@@ -189,6 +191,7 @@ proc run_placement {args} {
     detailed_placement_or
 
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(placement_logs)/screenshot.log
+    run_sta -no_save -log $::env(placement_logs)/sta.log
 }
 
 proc run_resizer_design {args} {
