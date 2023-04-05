@@ -120,11 +120,8 @@ proc run_synthesis {args} {
     } else {
         run_yosys -indexed_log $log
         if { $::env(QUIT_ON_SYNTH_CHECKS) } {
-            run_synthesis_checkers $log
             set pre_synth_report $::env(synth_report_prefix)_pre_synth.check
-            if { [file exists $pre_synth_report] } {
-                check_tristate_only $pre_synth_report
-            }
+            run_synthesis_checkers $log $pre_synth_report
         }
     }
     TIMER::timer_stop

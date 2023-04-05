@@ -12,23 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import re
+import io
 import click
 from enum import IntEnum
-from io import StringIO
 
 
 MAGIC_SPLIT_LINE = "----------------------------------------"
 
+MAGIC_EXAMPLE = """RAM8
+----------------------------------------
+P-diff distance to N-tap must be < 15.0um (LU.3)
+----------------------------------------
+ 17.990um 21.995um 18.265um 22.995um
+ 20.905um 22.935um 21.575um 22.995um
+ 18.535um 21.995um 18.795um 22.635um
+"""
 
-def magic_to_rdb(magic_input: str, input_file_path: str = "UNKNOWN") -> str:
+
+def magic_to_rdb(
+    input: io.TextIOWrapper,
+    output: io.TextIOWrapper,
+    input_file_path: str = "UNKNOWN",
+):
     """
-    >>> print(magic_to_rdb('''RAM8
-    ... ----------------------------------------
-    ... P-diff distance to N-tap must be < 15.0um (LU.3)
-    ... ----------------------------------------
-    ...  17.990um 21.995um 18.265um 22.995um
-    ...  20.905um 22.935um 21.575um 22.995um
-    ...  18.535um 21.995um 18.795um 22.635um''')) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
+    >>> magic_drc = io.StringIO(MAGIC_EXAMPLE); magic_to_rdb(magic_drc, sys.stdout) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
     $RAM8 100
     r_0_LU.3
     500 500 2 Nov 29 03:26:39 2020
@@ -57,78 +64,75 @@ def magic_to_rdb(magic_input: str, input_file_path: str = "UNKNOWN") -> str:
 
     state = State.data
 
-    return_value = ""
+    for i, line in enumerate(input):
+        line = line.strip()
+        if ("[INFO]" in line) or (len(line.strip()) == 0):
+            continue
+        elif i == 0:
+            output.write(f"${line} 100\n")
+        elif MAGIC_SPLIT_LINE in line:
+            state = State.drc if state == State.data else State.data
+        elif state == State.drc:
+            drcRule = line.strip().split("(")
+            drcRule = [drcRule, "UnknownRule"] if len(drcRule) < 2 else drcRule
+            output.write(f"r_0_{drcRule[1][:-1]}\n")
+            output.write("500 500 2 Nov 29 03:26:39 2020\n")
+            output.write(f"Rule File Pathname: {input_file_path}\n")
+            output.write(f"{drcRule[1][:-1]}: {drcRule[0]}\n")
+            drcNumber = 1
+        elif state == State.data:
 
-    with StringIO() as f:
-        for i, line in enumerate(magic_input.split("\n")):
-            if ("[INFO]" in line) or (len(line.strip()) == 0):
-                continue
-            elif i == 0:
-                f.write(f"${line} 100\n")
-            elif MAGIC_SPLIT_LINE in line:
-                state = State.drc if state == State.data else State.data
-            elif state == State.drc:
-                drcRule = line.strip().split("(")
-                drcRule = [drcRule, "UnknownRule"] if len(drcRule) < 2 else drcRule
-                f.write(f"r_0_{drcRule[1][:-1]}\n")
-                f.write("500 500 2 Nov 29 03:26:39 2020\n")
-                f.write(f"Rule File Pathname: {input_file_path}\n")
-                f.write(f"{drcRule[1][:-1]}: {drcRule[0]}\n")
-                drcNumber = 1
-            elif state == State.data:
-
-                cord = [
-                    int(float(i)) * 100
-                    for i in line.strip().replace("um", "").split(" ")
-                ]
-                f.write(f"p {drcNumber} 4\n")
-                f.write(f"{cord[0]} {cord[1]}\n")
-                f.write(f"{cord[2]} {cord[1]}\n")
-                f.write(f"{cord[2]} {cord[3]}\n")
-                f.write(f"{cord[0]} {cord[3]}\n")
-                drcNumber += 1
-        return_value = f.getvalue()
-    return return_value
+            cord = [
+                int(float(i)) * 100 for i in line.strip().replace("um", "").split(" ")
+            ]
+            output.write(f"p {drcNumber} 4\n")
+            output.write(f"{cord[0]} {cord[1]}\n")
+            output.write(f"{cord[2]} {cord[1]}\n")
+            output.write(f"{cord[2]} {cord[3]}\n")
+            output.write(f"{cord[0]} {cord[3]}\n")
+            drcNumber += 1
 
 
-def magic_to_tcl(magic_input: str) -> str:
+def magic_to_tcl(
+    input: io.TextIOWrapper,
+    output: io.TextIOWrapper,
+):
     """
-    >>> print(magic_to_tcl('''RAM8
-    ... ----------------------------------------
-    ... P-diff distance to N-tap must be < 15.0um (LU.3)
-    ... ----------------------------------------
-    ...  17.990um 21.995um 18.265um 22.995um
-    ...  20.905um 22.935um 21.575um 22.995um
-    ...  18.535um 21.995um 18.795um 22.635um''')) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
+    >>> magic_drc = io.StringIO(MAGIC_EXAMPLE); magic_to_tcl(magic_drc, sys.stdout) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
     box 17.990um 21.995um 18.265um 22.995um; feedback add "P-diff distance to N-tap must be < 15.0um (LU.3)" medium
     box 20.905um 22.935um 21.575um 22.995um; feedback add "P-diff distance to N-tap must be < 15.0um (LU.3)" medium
     box 18.535um 21.995um 18.795um 22.635um; feedback add "P-diff distance to N-tap must be < 15.0um (LU.3)" medium
     """
 
-    sections = magic_input.split(MAGIC_SPLIT_LINE)
+    class State(IntEnum):
+        drc = 0
+        data = 1
+        header = 10
 
-    return_value = ""
+    state = State.header
+    vio_name = ""
+    for line in input:
+        if MAGIC_SPLIT_LINE in line:
+            if state.value > 1:
+                vio_name = ""
+                state = State.drc
+            else:
+                state = State.data
+        elif state == State.drc:
+            vio_name += line.strip()
+        elif state == State.data:
+            vio = line.strip()
+            if not len(vio):
+                continue
+            output.write(f'box {vio}; feedback add "{vio_name}" medium\n')
 
-    with StringIO() as f:
-        for i in range(1, len(sections) - 1, 2):
-            vio_name = sections[i].strip()
-            for vio in sections[i + 1].split("\n"):
-                vio = vio.strip()
-                if len(vio):
-                    print(f'box {vio}; feedback add "{vio_name}" medium', file=f)
-        return_value = f.getvalue()
-    return return_value
 
-
-def magic_to_tr(magic_input: str) -> str:
+def magic_to_tr(
+    input: io.TextIOWrapper,
+    output: io.TextIOWrapper,
+):
     """
-    >>> print(magic_to_tr('''RAM8
-    ... ----------------------------------------
-    ... P-diff distance to N-tap must be < 15.0um (LU.3)
-    ... ----------------------------------------
-    ...  17.990um 21.995um 18.265um 22.995um
-    ...  20.905um 22.935um 21.575um 22.995um
-    ...  18.535um 21.995um 18.795um 22.635um''')) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
+    >>> magic_drc = io.StringIO(MAGIC_EXAMPLE); magic_to_tr(magic_drc, sys.stdout) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
     violation type: P_diff_distance_to_N_tap_must_be_lt_15dot0um_LUdot3
         srcs: N/A N/A
         bbox = ( 17.990, 21.995 ) - ( 18.265, 22.995 ) on Layer LU
@@ -156,33 +160,43 @@ def magic_to_tr(magic_input: str) -> str:
             .replace(")", "")
         )
 
-    sections = magic_input.split(MAGIC_SPLIT_LINE)
-
     layer_extraction = re.compile(r".*\s*\((\S+)\.?\s*[^\(\)]+\)")
 
-    return_value = ""
+    class State(IntEnum):
+        drc = 0
+        data = 1
+        header = 10
 
-    with StringIO() as f:
-        for i in range(1, len(sections) - 1, 2):
-            vio_name = sections[i].strip()
-            vio_name_clean = cleanup(vio_name)
-
+    state = State.header
+    vio_name = ""
+    layer = "UNKNOWN"
+    for line in input:
+        if MAGIC_SPLIT_LINE in line:
+            if state.value > 1:
+                vio_name = ""
+                state = State.drc
+            else:
+                state = State.data
+        elif state == State.drc:
+            vio_name += line.strip()
+        elif state == State.data:
             m = layer_extraction.match(vio_name)
             layer = m.group(1).split(".")[0] if m is not None else "UNKNOWN"
 
-            for vio in sections[i + 1].split("\n"):
-                vio_cor = vio.strip().replace("um", "").split()
-                if len(vio_cor) > 3:
-                    print(f"  violation type: {vio_name_clean}", file=f)
-                    print("    srcs: N/A N/A", file=f)
-                    print(
-                        f"    bbox = ( {vio_cor[0]}, {vio_cor[1]} ) - ( {vio_cor[2]}, {vio_cor[3]} ) on Layer {layer}",
-                        file=f,
-                    )
+            vio_name_cleaned = cleanup(vio_name)
 
-        return_value = f.getvalue()
-
-    return return_value
+            vio = line.strip()
+            if not len(vio):
+                continue
+            vio_cor = vio.replace("um", "").split()
+            if len(vio_cor) <= 3:
+                continue
+            print(f"  violation type: {vio_name_cleaned}", file=output)
+            print("    srcs: N/A N/A", file=output)
+            print(
+                f"    bbox = ( {vio_cor[0]}, {vio_cor[1]} ) - ( {vio_cor[2]}, {vio_cor[3]} ) on Layer {layer}",
+                file=output,
+            )
 
 
 def tr_to_klayout(tr_input: str, design_name: str) -> str:
@@ -344,7 +358,7 @@ cli.add_command(magic)
 @click.argument("magic_input")
 def magic_to_rdb_cmd(output, magic_input):
     with open(output, "w") as f:
-        f.write(magic_to_rdb(open(magic_input).read(), magic_input))
+        magic_to_rdb(open(magic_input), f)
 
 
 magic.add_command(magic_to_rdb_cmd)
@@ -355,7 +369,7 @@ magic.add_command(magic_to_rdb_cmd)
 @click.argument("magic_input")
 def magic_to_tcl_cmd(output, magic_input):
     with open(output, "w") as f:
-        f.write(magic_to_tcl(open(magic_input).read()))
+        magic_to_tcl(open(magic_input), f)
 
 
 magic.add_command(magic_to_tcl_cmd)
@@ -366,7 +380,7 @@ magic.add_command(magic_to_tcl_cmd)
 @click.argument("magic_input")
 def magic_to_tr_cmd(output, magic_input):
     with open(output, "w") as f:
-        f.write(magic_to_tr(open(magic_input).read()))
+        magic_to_tr(open(magic_input).read(), f)
 
 
 magic.add_command(magic_to_tr_cmd)

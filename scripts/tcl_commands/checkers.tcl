@@ -12,10 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-proc check_tristate_only {report} {
-    if { [catch {exec python3 $::env(SCRIPTS_DIR)/tristate_only.py $report} err] } {
-        puts_err "Yosys check failed. See: [relpath . $report]"
-        puts_err "Example: $err"
+proc check_synth_misc {report} {
+    if { ![file exists $report] } {
+        puts_info "Yosys synthesis checks not conducted- continuing."
+        return
+    }
+    set arg_list [list]
+    if { !$::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
+        lappend arg_list --tristate-okay
+    }
+    if { [catch {exec python3 $::env(SCRIPTS_DIR)/parse_yosys_check.py {*}$arg_list $report} err] } {
+        puts_err "Yosys checks have failed: $err"
+        puts_err "See the full report here: [relpath . $report]"
         throw_error
     }
 }
@@ -53,10 +61,11 @@ proc check_resizing_cell_port {log} {
     }
 }
 
-proc run_synthesis_checkers {log} {
+proc run_synthesis_checkers {log report} {
     check_latches $log
     check_out_of_bound $log
     check_resizing_cell_port $log
+    check_synth_misc $report
 }
 
 proc check_assign_statements {args} {
