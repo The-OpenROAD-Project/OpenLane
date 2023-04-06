@@ -339,7 +339,9 @@ def io_place(
                 if variable[0] == "min_distance":
                     pin_distance[side] = float(variable[1]) * reader.dbunits
                     if pin_distance[side] < pin_distance_min[side]:
-                        print(f"Warning: Using min_distance {pin_distance_min[side] / reader.dbunits} for {side} pins to avoid overlap")
+                        print(
+                            f"Warning: Using min_distance {pin_distance_min[side] / reader.dbunits} for {side} pins to avoid overlap"
+                        )
                         pin_distance[side] = pin_distance_min[side]
             else:
                 regex += "$"  # anchor
@@ -406,7 +408,6 @@ def io_place(
                 for i in range(len(h_tracks))
                 if (i % (math.ceil(pin_distance[side] / h_step))) == 0
             ]
-
 
     # create the pins
     for side in pin_placement:
