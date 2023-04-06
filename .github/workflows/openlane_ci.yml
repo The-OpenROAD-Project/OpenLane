@@ -29,7 +29,7 @@ jobs:
           # Magic Build Dependencies
           sudo apt-get install -y tcsh tcl-dev tk-dev libcairo2-dev m4
           # GHR (Pushing)
-          go get -u github.com/tcnksm/ghr
+          go install github.com/tcnksm/ghr@latest
 
       - name: Build (or Get) PDK
         run: |
