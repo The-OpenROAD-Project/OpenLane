@@ -197,12 +197,6 @@ def bus_keys(enum):
     default=False,
     help="Misnomer: pins are grouped by index instead of bus, i.e. a[0] goes with b[0] instead of a[1].",
 )
-@click.option(
-    "--min-distance",
-    type=float,
-    default=None,
-    help="The minmimum distance between the IOs in microns",
-)
 @click_odb
 def io_place(
     reader,
@@ -217,7 +211,6 @@ def io_place(
     reverse,
     bus_sort,
     unmatched_error,
-    min_distance,
 ):
     """
     Places the IOs in an input def with an optional config file that supports regexes.
@@ -324,6 +317,13 @@ def io_place(
     bterms = [bterm[1] for bterm in bterms_enum]
 
     pin_placement = {"#N": [], "#E": [], "#S": [], "#W": []}
+    pin_distance_min = {
+        "#N": V_WIDTH + V_LAYER.getSpacing(),
+        "#S": V_WIDTH + V_LAYER.getSpacing(),
+        "#E": H_WIDTH + H_LAYER.getSpacing(),
+        "#W": H_WIDTH + H_LAYER.getSpacing(),
+    }
+    pin_distance = pin_distance_min.copy()
     bterm_regex_map = {}
     for side in pin_placement_cfg:
         for regex in pin_placement_cfg[side]:  # going through them in order
@@ -334,6 +334,13 @@ def io_place(
                 except ValueError:
                     print("You provided invalid values for virtual pins")
                     sys.exit(1)
+            elif regex[0] == "@":
+                variable = regex[1:].split("=")
+                if variable[0] == "min_distance":
+                    pin_distance[side] = float(variable[1]) * reader.dbunits
+                    if pin_distance[side] < pin_distance_min[side]:
+                        print(f"Warning: Using min_distance {pin_distance_min[side] / reader.dbunits} for {side} pins to avoid overlap")
+                        pin_distance[side] = pin_distance_min[side]
             else:
                 regex += "$"  # anchor
                 for bterm in bterms:
@@ -374,55 +381,38 @@ def io_place(
 
     print("Block boundaries:", BLOCK_LL_X, BLOCK_LL_Y, BLOCK_UR_X, BLOCK_UR_Y)
 
-    h_spacing = H_LAYER.getSpacing()
-    h_min_distance = min_distance * reader.dbunits if min_distance else h_spacing
-    if h_min_distance < h_spacing:
-        print(
-            f"Error: provided min_distance({min_distance}) is less than min spacing({h_spacing})"
-        )
-        sys.exit(1)
-    v_spacing = V_LAYER.getSpacing()
-    v_min_distance = min_distance * reader.dbunits if min_distance else v_spacing
-    if v_min_distance < v_spacing:
-        print(
-            f"Error: provided min_distance({min_distance}) is less than min spacing({v_spacing})"
-        )
-        sys.exit(1)
+    origin, count, h_step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
+    print(f"Horizontal Tracks Origin: {origin}, Count: {count}, Step: {h_step}")
+    h_tracks = grid_to_tracks(origin, count, h_step)
 
-    origin, count, step = reader.block.findTrackGrid(H_LAYER).getGridPatternY(0)
-    print(f"Horizontal Tracks Origin: {origin}, Count: {count}, Step: {step}")
-    h_tracks = grid_to_tracks(origin, count, step)
-    h_tracks = [
-        h_tracks[i]
-        for i in range(len(h_tracks))
-        if (i % (math.ceil((H_WIDTH + h_min_distance) / step))) == 0
-    ]
-    print(f"Legal Horizontal Tracks: {len(h_tracks)}")
-
-    origin, count, step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
-    print(f"Vertical Tracks Origin: {origin}, Count: {count}, Step: {step}")
-    v_tracks = grid_to_tracks(origin, count, step)
-
-    v_tracks = [
-        v_tracks[i]
-        for i in range(len(v_tracks))
-        if (i % (math.ceil((V_WIDTH + v_min_distance) / step))) == 0
-    ]
-    print(f"Legal Vertical Tracks: {len(v_tracks)}")
+    origin, count, v_step = reader.block.findTrackGrid(V_LAYER).getGridPatternX(0)
+    print(f"Vertical Tracks Origin: {origin}, Count: {count}, Step: {v_step}")
+    v_tracks = grid_to_tracks(origin, count, v_step)
 
     for rev in reverse_arr:
         pin_placement[rev].reverse()
 
-    # create the pins
+    pin_tracks = {}
     for side in pin_placement:
         if side in ["#N", "#S"]:
-            slots, pin_placement[side] = equally_spaced_sequence(
-                side, pin_placement[side], v_tracks
-            )
-        else:
-            slots, pin_placement[side] = equally_spaced_sequence(
-                side, pin_placement[side], h_tracks
-            )
+            pin_tracks[side] = [
+                v_tracks[i]
+                for i in range(len(v_tracks))
+                if (i % (math.ceil(pin_distance[side] / v_step))) == 0
+            ]
+        elif side in ["#W", "#E"]:
+            pin_tracks[side] = [
+                h_tracks[i]
+                for i in range(len(h_tracks))
+                if (i % (math.ceil(pin_distance[side] / h_step))) == 0
+            ]
+
+
+    # create the pins
+    for side in pin_placement:
+        slots, pin_placement[side] = equally_spaced_sequence(
+            side, pin_placement[side], pin_tracks[side]
+        )
 
         assert len(slots) == len(pin_placement[side])
 
