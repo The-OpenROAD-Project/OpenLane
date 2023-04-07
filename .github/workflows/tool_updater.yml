@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ secrets.MAIN_BRANCH }}
+          ref: ${{ vars.MAIN_BRANCH }}
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -33,8 +33,8 @@ jobs:
         with:
           token: ${{ secrets.MY_TOKEN }}
           title: "[BOT] Update ${{ env.TOOL }}"
-          author: ${{ secrets.BOT_AUTHOR_LINE }}
-          committer: ${{ secrets.BOT_AUTHOR_LINE }}
+          author: ${{ vars.BOT_AUTHOR_LINE }}
+          committer: ${{ vars.BOT_AUTHOR_LINE }}
           body: |
             This is an automated PR.
 
@@ -44,14 +44,14 @@ jobs:
 
             ${{ env.TOOL }} -> ${{ env.TOOL_COMMIT_HASH }}
           branch: ${{ matrix.tools }}-update-branch
-          push-to-fork: ${{ secrets.FORK_NAME }}
+          push-to-fork: ${{ vars.FORK_NAME }}
           delete-branch: true
   create-cid-pdk-branch:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${{ secrets.MAIN_BRANCH }}
+          ref: ${{ vars.MAIN_BRANCH }}
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -65,8 +65,8 @@ jobs:
         with:
           token: ${{ secrets.MY_TOKEN }}
           title: "[BOT] Update PDK"
-          author: ${{ secrets.BOT_AUTHOR_LINE }}
-          committer: ${{ secrets.BOT_AUTHOR_LINE }}
+          author: ${{ vars.BOT_AUTHOR_LINE }}
+          committer: ${{ vars.BOT_AUTHOR_LINE }}
           body: |
             This is an automated PR.
 
@@ -78,5 +78,5 @@ jobs:
             open_pdks -> ${{ env.OPEN_PDKS_COMMIT_HASH }}
           base: ${{ env.BRANCH_NAME }}
           branch: pdk-update-branch
-          push-to-fork: ${{ secrets.FORK_NAME }}
+          push-to-fork: ${{ vars.FORK_NAME }}
           delete-branch: true

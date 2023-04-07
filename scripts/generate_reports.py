@@ -16,6 +16,7 @@
 
 import os
 import click
+import re
 
 import utils.utils as utils
 
@@ -64,7 +65,7 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
         os.path.join(run_path, "reports", "routing"), "antenna_violators.rpt"
     )
     _, arc_antenna_report = get_name(
-        os.path.join(run_path, "reports", "signoff"), "antenna.rpt"
+        os.path.join(run_path, "logs", "signoff"), "antenna.log"
     )
     _, magic_drc_report = get_name(
         os.path.join(run_path, "reports", "signoff"), "drc.rpt"
@@ -143,15 +144,25 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     if os.path.exists(arc_antenna_report):
         printArr.append("Source: " + str(arc_antenna_report))
         antFileOpener = open(arc_antenna_report)
+        antContent = []
         if antFileOpener.mode == "r":
-            antContent = antFileOpener.read().split("\n")[-5:]
+            antContent = antFileOpener.read().split("\n")
         antFileOpener.close()
+        pin_violations = -1
+        net_violations = -1
         for line in antContent:
-            if line.find("violated:") != -1:
-                printArr.append(line)
+            pin_violation_match = re.match(r".*Found\s+(\d+)\s+pin violations", line)
+            if pin_violation_match is not None:
+                pin_violations = pin_violation_match[1]
+            net_violation_match = re.match(r".*Found\s+(\d+)\s+net violations", line)
+            if net_violation_match is not None:
+                net_violations = net_violation_match[1]
+        printArr.append(f"Pin violations: {pin_violations}")
+        printArr.append(f"Net violations: {net_violations}")
     elif os.path.exists(magic_antenna_report):
         printArr.append("Source: " + str(magic_antenna_report))
         antFileOpener = open(magic_antenna_report)
+        antContent = []
         if antFileOpener.mode == "r":
             antContent = antFileOpener.read().split("\n")
         antFileOpener.close()
@@ -166,6 +177,7 @@ def cli(design, design_name, tag, run_path, output_file, man_report):
     # write into file
     with open(man_report, "w") as f:
         f.write("\n".join(printArr))
+        f.write("\n")
 
 
 if __name__ == "__main__":

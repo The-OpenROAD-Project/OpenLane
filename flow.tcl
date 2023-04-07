@@ -55,9 +55,7 @@ proc run_routing_step {args} {
     } else {
         set ::env(CURRENT_DEF) $::env(ROUTING_CURRENT_DEF)
     }
-    if { $::env(ECO_ENABLE) == 0 } {
-        run_routing
-    }
+    run_routing
 }
 
 proc run_parasitics_sta_step {args} {
@@ -67,22 +65,9 @@ proc run_parasitics_sta_step {args} {
         set ::env(CURRENT_DEF) $::env(PARSITICS_CURRENT_DEF)
     }
 
-    if { $::env(RUN_SPEF_EXTRACTION) && ($::env(ECO_ENABLE) == 0)} {
+    if { $::env(RUN_SPEF_EXTRACTION)} {
         run_parasitics_sta
     }
-}
-
-proc run_diode_insertion_2_5_step {args} {
-    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
-        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
-    }
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-        run_antenna_check
-        heal_antenna_violators; # modifies the routed DEF
-    }
-
 }
 
 proc run_irdrop_report_step {args} {
@@ -138,12 +123,6 @@ proc run_erc_step {args} {
     }
 }
 
-proc run_eco_step {args} {
-    if { $::env(ECO_ENABLE) == 1 } {
-        run_eco_flow
-    }
-}
-
 proc run_magic_step {args} {
     if {$::env(RUN_MAGIC)} {
         run_magic
@@ -157,6 +136,12 @@ proc run_klayout_step {args} {
     if {$::env(RUN_KLAYOUT_XOR)} {
         run_klayout_gds_xor
     }
+}
+
+proc run_timing_check_step {args} {
+    check_timing_violations\
+        -quit_on_hold_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]\
+        -quit_on_setup_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_SETUP_VIOLATIONS)]
 }
 
 proc run_non_interactive_mode {args} {
@@ -193,8 +178,6 @@ proc run_non_interactive_mode {args} {
         "cts" "run_cts_step" \
         "routing" "run_routing_step" \
         "parasitics_sta" "run_parasitics_sta_step" \
-        "eco" "run_eco_step" \
-        "diode_insertion" "run_diode_insertion_2_5_step" \
         "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \
         "gds_klayout" "run_klayout_step" \
@@ -216,6 +199,7 @@ proc run_non_interactive_mode {args} {
     set_if_unset arg_values(-from) $::env(CURRENT_STEP)
     set_if_unset arg_values(-to) "cvc_rv"
 
+    set failed 0;
     set exe 0;
     dict for {step_name step_exe} $steps {
         if { [ string equal $arg_values(-from) $step_name ] } {
@@ -225,7 +209,14 @@ proc run_non_interactive_mode {args} {
         if { $exe } {
             # For when it fails
             set ::env(CURRENT_STEP) $step_name
-            [lindex $step_exe 0] [lindex $step_exe 1] ;
+
+            set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
+            if { $step_result } {
+                set failed 1;
+                puts_err "Step($::env(CURRENT_INDEX):$step_name) failed with error:\n$err"
+                set exe 0;
+                break;
+            }
         }
 
         if { [ string equal $arg_values(-to) $step_name ] } {
@@ -240,6 +231,9 @@ proc run_non_interactive_mode {args} {
     set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
     set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
 
+    if { $failed } {
+        flow_fail
+    }
     # Saves to <RUN_DIR>/results/final
     save_final_views
 
@@ -248,18 +242,17 @@ proc run_non_interactive_mode {args} {
         if { ! [info exists arg_values(-save_path)] } {
             set arg_values(-save_path) $::env(DESIGN_DIR)
         }
-        save_final_views\
-            -save_path $arg_values(-save_path)\
-            -tag $::env(RUN_TAG)
+        save_final_views -save_path $arg_values(-save_path) -tag $::env(RUN_TAG)
     }
     calc_total_runtime
     save_state
     generate_final_summary_report
 
-    check_timing_violations
+    if { [catch run_timing_check_step] } {
+        flow_fail
+    }
 
-    if { [info exists arg_values(-save_path)]\
-        && $arg_values(-save_path) != "" } {
+    if { [info exists arg_values(-save_path)] && $arg_values(-save_path) != "" } {
         set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
     } else {
         set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
@@ -370,7 +363,7 @@ proc run_lvs_batch {args} {
 
 proc run_file {args} {
     set ::env(TCLLIBPATH) $::auto_path
-    exec tclsh {*}$args >&@stdout
+    exec env EXIT_ON_ERROR=1 tclsh {*}$args >&@stdout
 }
 
 set options {

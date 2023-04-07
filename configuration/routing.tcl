@@ -1,5 +1,4 @@
 # Copyright 2020-2021 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +17,15 @@ if { ![info exists ::env(ROUTING_CORES)] } {
     set ::env(ROUTING_CORES) 2
 }
 
+set ::env(RUN_HEURISTIC_DIODE_INSERTION) 0
+set ::env(HEURISTIC_ANTENNA_THRESHOLD) 90
+
+# Privbate: Strategy for placement of the diodes. Possible values `source`, `pin`, `balanced` and `random`. Only applicable when `RUN_HEURISTIC_DIODE_INSERTION` is enabled.
+set ::env(HEURISTIC_ANTENNA_INSERTION_MODE) "source"
+
 set ::env(DIODE_PADDING) 2
+set ::env(DIODE_ON_PORTS) none
+set ::env(GRT_REPAIR_ANTENNAS) 1
 
 set ::env(GLOBAL_ROUTER) fastroute
 set ::env(DETAILED_ROUTER) tritonroute
@@ -27,7 +34,8 @@ set ::env(DETAILED_ROUTER) tritonroute
 set ::env(GRT_ADJUSTMENT) 0.3
 set ::env(GRT_ALLOW_CONGESTION) 0
 set ::env(GRT_OVERFLOW_ITERS) 50
-set ::env(GRT_ANT_ITERS) 3
+set ::env(GRT_ANT_ITERS) 15
+set ::env(GRT_ANT_MARGIN) 10
 set ::env(GRT_ESTIMATE_PARASITICS) 1
 set ::env(GRT_MACRO_EXTENSION) 0
 
@@ -40,6 +48,7 @@ set ::env(DRT_OPT_ITERS) 64
 # GLB Resizer
 set ::env(GLB_OPTIMIZE_MIRRORING) 1
 set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) 1
+set ::env(GLB_RESIZER_DESIGN_OPTIMIZATIONS) 1
 set ::env(GLB_RESIZER_MAX_WIRE_LENGTH) 0
 set ::env(GLB_RESIZER_MAX_SLEW_MARGIN) 10
 set ::env(GLB_RESIZER_MAX_CAP_MARGIN) 10

@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 1a3caee3761d3ad4d4d4a7e931137b21a608a92d
+  commit: 58c6a32a6ca954cbdf2943f4a3f64f1ecc385557
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -54,21 +54,17 @@
 - name: klayout
   repo: https://github.com/KLayout/klayout
   commit: 44a2aa9ca17c2b1c154f9c410ded063de9ed3e12
-  build: ''
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 1f720d3b442e2cd8dc6c5372535320b18a105e8d
-  build: ''
+  commit: 6840b7481d49c83870f79646cf979e66f22f6833
   in_install: false
 - name: git
   repo: https://github.com/git/git
   commit: e9d7761bb94f20acc98824275e317fa82436c25d
-  build: ''
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: e6f9c8876da77220403014b116761b0b2d79aab4
-  build: ''
+  commit: 12df12e2e74145e31c5a13de02f9a1e176b56e67
   in_install: false
   pdk: true

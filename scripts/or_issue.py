@@ -85,7 +85,7 @@ ws = re.compile(r"\s+")
 @click.option("--output-dir", default=None, help="Output to this directory.")
 @click.option(
     "--tool",
-    type=click.Choice(["openroad", "magic", "yosys"]),
+    type=click.Choice(["sta", "openroad", "magic", "yosys"]),
     help="The tool used for the desired Tcl script. [required]",
 )
 @click.argument("input_file")
@@ -363,6 +363,8 @@ def issue(
             run_cmd = "$TOOL_BIN -exit $PACKAGED_SCRIPT_0"
         elif tool == "magic":
             run_cmd = "$TOOL_BIN -dnull -noconsole -rcfile $MAGIC_MAGICRC < $PACKAGED_SCRIPT_0"
+        elif tool == "sta":
+            run_cmd = "$TOOL_BIN -exit $PACKAGED_SCRIPT_0"
         elif tool == "yosys":
             run_cmd = "$TOOL_BIN -c $PACKAGED_SCRIPT_0"
         f.write(

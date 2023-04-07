@@ -1037,6 +1037,7 @@ assign ep3_tx_data_strb_w  = 1'b0;
 assign ep3_tx_data_w       = 8'b0;
 assign ep3_tx_data_last_w  = 1'b0;
 assign ep3_tx_stall_w      = 1'b0;
+assign ep2_tx_stall_w      = 1'b0;
 
 assign ep2_rx_space_w      = 1'b0;
 assign ep3_rx_space_w      = 1'b0;

@@ -57,7 +57,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
-export PDK_ROOT ?= ./pdks
+export PDK_ROOT ?= $(HOME)/.volare
 export PDK_ROOT := $(shell $(PYTHON_BIN) -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 
@@ -150,10 +150,10 @@ venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt 
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
-fastest_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/fastest_test_set)
+fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) fastest_test_set)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
-extended_test_set: DESIGN_LIST=$(shell cat ./.github/test_sets/extended_test_set)
+extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) extended_test_set)
 extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
 extended_test_set: test_design_list
 test_design_list:

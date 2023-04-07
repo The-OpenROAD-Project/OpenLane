@@ -97,8 +97,8 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
-| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Example: `0`) |
-| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells lef views with during detailed placement . The number will be integer divided by 2 and placed on both sides. <br> (Example: `4`) |
+| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. <br> (Example: `2`) |
+| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells with during detailed placement. This value should not be higher than `GPL_CELL_PADDING` unless you know what you're doing. <br> (Example: `2`) |
 | `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |

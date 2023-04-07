@@ -25,12 +25,14 @@ proc global_placement_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
         -indexed_log [index_file $::env(placement_logs)/global.log]\
-        -save "to=$::env(placement_tmpfiles),name=global,def,odb"
+        -save "to=$::env(placement_tmpfiles),name=global,def,odb,netlist,powered_netlist"
 
     check_replace_divergence
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global placement - openroad"
+
+    run_sta -no_save -log $::env(placement_logs)/sta-global.log
 }
 
 proc global_placement {args} {
@@ -101,7 +103,7 @@ proc add_macro_placement {args} {
     if { [llength $args] == 4 } {
         set ori [lindex $args 3]
     }
-    try_catch echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
+    try_exec echo [lindex $args 0] [lindex $args 1] [lindex $args 2] $ori >> $::env(placement_tmpfiles)/macro_placement.cfg
 }
 
 proc manual_macro_placement {args} {
@@ -166,6 +168,10 @@ proc run_placement {args} {
         set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
     }
 
+    if { $::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING) } {
+        puts_warn "DPL_CELL_PADDING is set higher than GPL_CELL_PADDING ($::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING)). This may result in inconsistent behavior."
+    }
+
     if { $::env(PL_RANDOM_GLB_PLACEMENT) } {
         # useful for very tiny designs
         random_global_placement
@@ -185,6 +191,7 @@ proc run_placement {args} {
     detailed_placement_or
 
     scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(placement_logs)/screenshot.log
+    run_sta -no_save -log $::env(placement_logs)/sta.log
 }
 
 proc run_resizer_design {args} {

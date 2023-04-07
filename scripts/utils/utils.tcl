@@ -1,5 +1,4 @@
 # Copyright 2020-2022 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +13,14 @@
 # limitations under the License.
 
 # warn about deprecated configs and preserve backwards compatibility
+proc throw_error {} {
+    if { [info exists ::env(EXIT_ON_ERROR)] && $::env(EXIT_ON_ERROR) } {
+        flow_fail
+    } else {
+        return -code error
+    }
+}
+
 proc handle_deprecated_config {old new} {
     if { [info exists ::env($old)] } {
         puts_warn "$old is now deprecated; use $new instead."
@@ -23,7 +30,33 @@ proc handle_deprecated_config {old new} {
         }
         if { $::env($new) != $::env($old) } {
             puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
-            return -code error
+            throw_error
+        }
+    }
+}
+
+proc handle_diode_insertion_strategy {} {
+    if { [info exists ::env(DIODE_INSERTION_STRATEGY)] } {
+        puts_warn "DIODE_INSERTION_STRATEGY is now deprecated; use GRT_REPAIR_ANTENNAS, DIODE_ON_PORTS and RUN_HEURISTIC_DIODE_INSERTION instead."
+        set strategy $::env(DIODE_INSERTION_STRATEGY)
+        if { $strategy == 1 | $strategy == 5 | $strategy == 2 } {
+            puts_err "DIODE_INSERTION_STRATEGY $strategy is no longer supported"
+            throw_error
+        }
+        if { $strategy == 3 | $strategy == 6 } {
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting GRT_REPAIR_ANTENNAS to 1"
+            set ::env(GRT_REPAIR_ANTENNAS) 1
+        }
+        if { $strategy == 4 | $strategy == 6 } {
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting RUN_HEURISTIC_DIODE_INSERTION to 1"
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting DIODE_ON_PORTS to in"
+            set ::env(RUN_HEURISTIC_DIODE_INSERTION) 1
+            set ::env(DIODE_ON_PORTS) "in"
+        }
+        if { $strategy == 0 } {
+            puts_info "DIODE_INSERTION_STRATEGY set to $strategy. Setting GRT_REPAIR_ANTENNAS to 0"
+            set ::env(GRT_REPAIR_ANTENNAS) 0
+            set ::env(DIODE_ON_PORTS) "none"
         }
     }
 }
@@ -31,7 +64,7 @@ proc handle_deprecated_config {old new} {
 proc find_all {ext} {
     if { ! [info exists ::env(RUN_DIR)] } {
         puts_err "You are not currently running a design. Perhaps you forgot to run 'prep'?"
-        return -code error
+        throw_error
     }
     return [exec find $::env(RUN_DIR) -name "*.$ext" | sort | xargs realpath --relative-to=$::env(PWD)]
 }
@@ -46,7 +79,7 @@ proc handle_deprecated_command {args} {
 
     set final_args [list {*}$insert_args {*}$caller_args]
 
-    puts_warn "The command $caller is now deprecated; use $new $insert_args instead."
+    puts_warn "The command $caller is now deprecated; use $new instead."
     eval {$new {*}$final_args}
 }
 
@@ -100,7 +133,7 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
             set key_index [lsearch -exact $args [lindex $option 0]]
             if {$key_index < 0} {
                 puts_err "$cmd missing required $option_name"
-                return -code error
+                throw_error
             }
         }
         lappend keys $option_name
@@ -115,7 +148,7 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
                 set key $arg
                 if { [llength $args] == 1 } {
                     puts_err "$cmd $key missing value."
-                    return -code error
+                    throw_error
                 }
                 set key_value($key) [lindex $args 1]
                 set args [lrange $args 1 end]
@@ -150,8 +183,7 @@ proc set_log {var val filepath log_flag} {
     close $global_cfg_file
 }
 
-# a minimal try catch block
-proc try_catch {args} {
+proc try_exec {args} {
     # puts_info "Executing \"$args\"\n"
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
         set timestamp [clock format [clock seconds]]
@@ -167,8 +199,12 @@ proc try_catch {args} {
         puts_err "Exit code: $exit_code"
         puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
 
-        flow_fail
+        throw_error
     }
+}
+
+proc try_catch {args} {
+    handle_deprecated_command try_exec
 }
 
 proc relpath {args} {
@@ -183,6 +219,10 @@ proc run_yosys_script {args} {
 
 proc run_openroad_script {args} {
     run_tcl_script -tool openroad -no_consume {*}$args
+}
+
+proc run_sta_script {args} {
+    run_tcl_script -tool sta -no_consume {*}$args
 }
 
 proc run_magic_script {args} {
@@ -209,7 +249,8 @@ proc index_file {args} {
     set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
     if { [info exists ::env(GLB_CFG_FILE)]} {
-        exec sed -i -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+        exec sed -i.bak -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
+        exec rm -f "$::env(GLB_CFG_FILE).bak"
     }
     return $new_file_full_name
 }
@@ -240,7 +281,10 @@ proc calc_total_runtime {args} {
         set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
         set_if_unset arg_values(-status) "flow completed"
 
-        exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
+        if {[catch {exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)} err]} {
+            puts_err "Failed to calculate total runtime:"
+            puts_err "$err"
+        }
     }
 }
 
@@ -321,7 +365,7 @@ proc show_warnings {msg} {
 proc generate_routing_report {args} {
     puts_info "Generating a partial report for routing..."
 
-    try_catch python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
+    try_exec python3 $::env(SCRIPTS_DIR)/gen_report_routing.py -d $::env(DESIGN_DIR) \
         --design_name $::env(DESIGN_NAME) \
         --tag $::env(RUN_TAG) \
         --run_path $::env(RUN_DIR)
@@ -343,18 +387,24 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/metrics.csv
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
-    try_catch python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
-        --design_name $::env(DESIGN_NAME) \
-        --tag $::env(RUN_TAG) \
-        --output_file $arg_values(-output) \
-        --man_report $arg_values(-man_report) \
-        --run_path $::env(RUN_DIR)
+    if {
+        [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
+            --design_name $::env(DESIGN_NAME) \
+                --tag $::env(RUN_TAG) \
+                --output_file $arg_values(-output) \
+                --man_report $arg_values(-man_report) \
+                --run_path $::env(RUN_DIR)} err]
+        } {
+        puts_err "Failed to create manufacturability and metric reports:"
+        puts_err "$err"
+    } else {
 
-    set man_report_rel [relpath . $arg_values(-man_report)]
-    set metrics_report_rel [relpath . $arg_values(-output)]
+        set man_report_rel [relpath . $arg_values(-man_report)]
+        set metrics_report_rel [relpath . $arg_values(-output)]
 
-    puts_info "Created manufacturability report at '$man_report_rel'."
-    puts_info "Created metrics report at '$metrics_report_rel'."
+        puts_info "Created manufacturability report at '$man_report_rel'."
+        puts_info "Created metrics report at '$metrics_report_rel'."
+    }
 }
 
 namespace eval TIMER {
@@ -387,7 +437,7 @@ proc assert_files_exist {files} {
     foreach f $files {
         if { ! [file exists $f] } {
             puts_err "$f doesn't exist."
-            flow_fail
+            throw_error
         } else {
             puts_verbose "$f existence verified."
         }
@@ -428,7 +478,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_catch $::env(OPENROAD_BIN) -exit -no_init -python\
+    try_exec $::env(OPENROAD_BIN) -exit -no_init -python\
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
@@ -513,7 +563,7 @@ proc run_tcl_script {args} {
                 set index "1"
             } else {
                 puts_err "Invalid value $value for \"index\" command."
-                flow_fail
+                throw_error
             }
         } elseif { $element == "noindex" } {
             set index 0
@@ -551,7 +601,7 @@ proc run_tcl_script {args} {
 
     if { $layout_saved && !$odb_saved } {
         puts_err "The layout was saved, but not the ODB format was not. This is a bug with OpenLane. Please file an issue."
-        flow_fail
+        throw_error
     }
 
     if { $tool == "openroad" } {
@@ -575,9 +625,15 @@ proc run_tcl_script {args} {
         set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } elseif { $arg_values(-tool) == "yosys" } {
         set args "$::env(SYNTH_BIN) -c $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+    } elseif { $arg_values(-tool) == "sta" } {
+        set args "sta -exit -no_init $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+            set ::env(SAVE_${cap}) $value
+        }
     } else {
-        puts_err "run_tcl_script only supports tools 'magic', 'yosys' or 'openroad' for now."
-        return -code error
+        puts_err "run_tcl_script only supports tools 'magic', 'yosys', 'sta', or 'openroad' for now."
+        throw_error
     }
 
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
@@ -639,18 +695,20 @@ proc run_tcl_script {args} {
             lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
         } elseif { $tool != "openroad" || [info exists flag_map(-def_in)]} {
             lappend or_issue_arg_list --input-type "def" $::env(CURRENT_DEF)
+        } elseif { $tool != "sta" } {
+            lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
         } else {
             lappend or_issue_arg_list --input-type "odb" $::env(CURRENT_ODB)
         }
 
         if {![catch {exec -ignorestderr python3 $::env(SCRIPTS_DIR)/or_issue.py {*}$or_issue_arg_list} result] == 0} {
             puts_err "Failed to package reproducible."
-            flow_fail
+            throw_error
         }
 
         if { $exit_code } {
             puts_info "Reproducible packaged: Please tarball and upload '$reproducible_dir_relative' if you're going to submit an issue."
-            flow_fail
+            throw_error
         } else {
             puts_info "Reproducible packaged at '$reproducible_dir_relative'."
             exit 0
@@ -683,6 +741,5 @@ proc run_tcl_script {args} {
         }
     }
 }
-
 
 package provide openlane_utils 0.9
