@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 58c6a32a6ca954cbdf2943f4a3f64f1ecc385557
+  commit: 1d8fcca09bdbfad1066b78c3a6ac9742043f7d13
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
