@@ -13,13 +13,12 @@
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
+
 if { [info exists ::env(CURRENT_SPEF)] } {
-    puts "Reading spef $::env(CURRENT_SPEF)"
+    puts "Reading '$::env(CURRENT_SPEF)'..."
     read_spefs
 } else {
-    puts "WARNING no spef found for the current run. Please either run estimate_parasitics -placement or estimate_parasitics -global_routing"
-}
-if { [info exists ::env(CURRENT_SDC)] } {
-    puts "Reading sdc $::env(CURRENT_SDC)"
-    read_sdc $::env(CURRENT_SDC)
+    puts "\[WARNING\] No SPEF found."
+
+    puts "You may run estimate_parasitics -placement or estimate_parasitics -global_routing to get basic timing information."
 }
