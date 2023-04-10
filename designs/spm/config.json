@@ -8,7 +8,6 @@
     "FP_PDN_HOFFSET": 7,
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "FP_PDN_SKIPTRIM": true,
-    "FP_IO_MIN_DISTANCE": 1,
     "pdk::sky130*": {
         "FP_CORE_UTIL": 45,
         "scl::sky130_fd_sc_hd": {
