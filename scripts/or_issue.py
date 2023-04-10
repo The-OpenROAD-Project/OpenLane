@@ -129,6 +129,7 @@ def issue(
     )
 
     scripts_path = join(openlane_path, "scripts", tool)
+    script_abs_path = abspath(script)
     if run_path is not None:
         run_path = abspath(run_path)
     else:
@@ -152,7 +153,7 @@ def issue(
         print(f"[ERR] {input_file} not found.", file=sys.stderr)
         exit(os.EX_NOINPUT)
 
-    if not script.startswith(scripts_path):
+    if not script_abs_path.startswith(scripts_path):
         print(
             f"[ERR] The {tool} script {script} does not appear to be in {scripts_path}.",
             file=sys.stderr,
@@ -185,7 +186,7 @@ def issue(
     env[input_key] = input_file
 
     # Phase 2: Set up destination folder
-    script_basename = basename(script)[:-4]
+    script_basename = basename(script_abs_path)[:-4]
     destination_folder = output_dir or abspath(
         join(".", "_build", f"{run_name}_{script_basename}_packaged")
     )
@@ -202,7 +203,7 @@ def issue(
     mkdirp(destination_folder)
 
     # Phase 3: Process TCL Scripts To Find Full List Of Files
-    tcls_to_process = deque([script])
+    tcls_to_process = deque([script_abs_path])
 
     def shift(deque):
         try:
@@ -229,7 +230,7 @@ def issue(
         env[env_key] = current
 
         try:
-            script = open(current).read()
+            script_abs_path = open(current).read()
             if verbose:
                 print(f"Processing {current}...", file=sys.stderr)
 
@@ -237,7 +238,7 @@ def issue(
                 key_accessor = re.compile(
                     rf"((\$::env\({re.escape(key)}\))([/\-\w\.]*))"
                 )
-                for use in key_accessor.findall(script):
+                for use in key_accessor.findall(script_abs_path):
                     use: List[str]
                     full, accessor, extra = use
                     env_keys_used.add(key)
