@@ -133,8 +133,6 @@ proc detailed_routing_tritonroute {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl\
         -indexed_log $log\
         -save "to=$::env(routing_results),noindex,def,odb,netlist,powered_netlist"
-    unset ::env(_tmp_drt_file_prefix)
-    unset ::env(_tmp_drt_rpt_prefix)
 
     try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
