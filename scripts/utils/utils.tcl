@@ -226,7 +226,18 @@ proc run_sta_script {args} {
 }
 
 proc run_magic_script {args} {
-    run_tcl_script -tool magic -no_consume {*}$args
+    set options {
+        {-indexed_log required}
+    }
+    set flags {}
+    parse_key_args "run_magic_script" args arg_values $options flag_map $flags
+
+    set ::env(MAGIC_SCRIPT) [lindex $args 0]
+    if { ![file exists $::env(MAGIC_SCRIPT)] } {
+        puts_err "Magic script $::env(MAGIC_SCRIPT) doesn't exist"
+    }
+    run_tcl_script -tool magic -no_consume $::env(SCRIPTS_DIR)/magic/wrapper.tcl -indexed_log $arg_values(-indexed_log)
+    unset ::env(MAGIC_SCRIPT)
 }
 
 proc increment_index {args} {
