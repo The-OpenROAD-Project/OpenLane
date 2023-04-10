@@ -59,7 +59,11 @@ else:
             args.append("-rd")
             if isinstance(value, tuple) or isinstance(value, list):
                 value = ";".join(value)
-            elif isinstance(value, str) and os.path.exists(value):
+            elif (
+                isinstance(value, str)
+                and os.path.exists(value)
+                and key != "design_name"
+            ):
                 value = os.path.abspath(value)
 
             args.append(f"{key}={value or 'NULL'}")
