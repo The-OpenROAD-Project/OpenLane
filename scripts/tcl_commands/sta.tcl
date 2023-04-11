@@ -97,7 +97,7 @@ proc run_sta {args} {
             blackbox_modules_check $log
         }
     }
-    unset ::env(STA_MULTICORNER)
+    set ::env(STA_MULTICORNER) 0
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }
