@@ -214,10 +214,9 @@ proc insert_buffer {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/insert_buffer.tcl\
         -indexed_log [index_file $::env(routing_logs)/insert_buffer.log]\
         -save "to=$::env(routing_tmpfiles),def,odb"
-    unset ::env(INSERT_BUFFER_COMMAND)
 
     if { ![info exists flags_map(-place)] } {
-        unset ::env(INSERT_BUFFER_NO_PLACE)
+        set ::env(INSERT_BUFFER_NO_PLACE) 0
     }
 
     incr ::env(INSERT_BUFFER_COUNTER)

@@ -153,9 +153,6 @@ proc run_magic_spice_export {args} {
     run_magic_script $::env(SCRIPTS_DIR)/magic/extract_spice.tcl\
         -indexed_log $log
 
-    unset ::env(_tmp_magic_extract_type)
-    unset ::env(_tmp_magic_feedback_file)
-
     if { $extract_type == "spice" } {
         file copy -force $::env(signoff_results)/$::env(DESIGN_NAME).spice $::env(signoff_results)/$::env(DESIGN_NAME).lef.spice
     }
@@ -218,8 +215,6 @@ proc run_magic_antenna_check {args} {
 
     run_magic_script $::env(SCRIPTS_DIR)/magic/def/antenna_check.tcl\
         -indexed_log $log
-
-    unset ::env(_tmp_feedback_file)
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
 
@@ -288,8 +283,6 @@ proc erase_box {args} {
         -indexed_log $log
 
     set ::env(CURRENT_GDS) $gds_backup
-    unset ::env(_tmp_mag_box_coordinates)
-    unset ::env(SAVE_GDS)
 }
 
 package provide openlane 0.9

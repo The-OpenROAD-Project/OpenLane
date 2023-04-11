@@ -382,10 +382,6 @@ proc run_spef_extraction {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/rcx.tcl\
         -indexed_log $log\
         -save "odb=/dev/null,spef=$arg_values(-save)"
-    unset ::env(RCX_LIB)
-    unset ::env(RCX_RULESET)
-    unset ::env(RCX_LEF)
-    unset ::env(RCX_DEF)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "parasitics extraction - openroad"
