@@ -56,6 +56,7 @@ jobs:
           else
             volare enable_or_build\
               --pdk $PDK_FAMILY\
+              --build-magic\
               --token ${{ secrets.MY_TOKEN }}\
               -j$(nproc)\
               $OPDKS_VER
