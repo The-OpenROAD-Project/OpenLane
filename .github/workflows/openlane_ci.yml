@@ -46,6 +46,7 @@ jobs:
           if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
               --pdk $PDK_FAMILY\
+              --build-magic\
               --also-push\
               --token ${{ secrets.MY_TOKEN }}\
               --owner ${{ vars.VOLARE_OWNER }}\
