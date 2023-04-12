@@ -253,7 +253,7 @@ def io_place(
             reverse_arr.append(f"#{element}")
     # read config
 
-    pin_placement_cfg = {"#N": [], "#E": [], "#S": [], "#W": []}
+    pin_placement_config = {"#N": [], "#E": [], "#S": [], "#W": []}
     cur_side = None
     if config_file_name is not None and config_file_name != "":
         with open(config_file_name, "r") as config_file:
@@ -269,7 +269,7 @@ def io_place(
                 token = line[0]
 
                 if cur_side is not None and token[0] != "#":
-                    pin_placement_cfg[cur_side].append(token)
+                    pin_placement_config[cur_side].append(token)
                 elif token not in [
                     "#N",
                     "#E",
@@ -325,8 +325,8 @@ def io_place(
     }
     pin_distance = pin_distance_min.copy()
     bterm_regex_map = {}
-    for side in pin_placement_cfg:
-        for regex in pin_placement_cfg[side]:  # going through them in order
+    for side in pin_placement_config:
+        for regex in pin_placement_config[side]:  # going through them in order
             if regex[0] == "$":  # Sign of Virtual Pins
                 try:
                     virtual_pins_count = int(regex[1:])

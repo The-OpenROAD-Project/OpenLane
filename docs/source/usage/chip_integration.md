@@ -37,7 +37,7 @@ You need to set the following environment variables in your configuration file f
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used to improve timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | GDS files for pre-hardened macros you incorporate into your design. |
 | `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (JSON): Should be set to true if you are using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
-| `MACRO_PLACEMENT_CFG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
+| `MACRO_PLACEMENT_CONFIG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
 > \* The ``` `include ``` directive is not supported.
 
 You can follow the same instructions provided [here][8] for the rest of the hardenning steps.
@@ -115,7 +115,7 @@ It should have an `stdcell` section that includes a `core_ring` on met4 and met5
 </tr>
 </table>
 
-You can automate the power routing process in the core and macro level by reading [this documentation][10]. Otherwise, refer to [this][3] for more details about the syntax. In case you needed to create your own `pdn.tcl` then point to it using `PDN_CFG`.
+You can automate the power routing process in the core and macro level by reading [this documentation][10]. Otherwise, refer to [this][3] for more details about the syntax. In case you needed to create your own `pdn.tcl` then point to it using `FP_PDN_CONFIG`.
 
 When you use the `power_routing` command in the chip interactive script, the power pads will be connected to the core ring, and thus the whole chip would be powered.
 

@@ -29,42 +29,42 @@ set ::env(DIE_AREA) "0 0 2920 3520"
 set ::env(RUN_CVC) 0
 
 # Pin Configurations. DON'T TOUCH
-set ::env(FP_PIN_ORDER_CFG) $script_dir/pin_order.cfg
+set ::env(FP_PIN_ORDER_CONFIG) $script_dir/pin_order.cfg
 
 set ::unit 2.4
-set ::env(FP_IO_VEXTEND) [expr 2*$::unit]
-set ::env(FP_IO_HEXTEND) [expr 2*$::unit]
-set ::env(FP_IO_VLENGTH) $::unit
-set ::env(FP_IO_HLENGTH) $::unit
+set ::env(FP_IO_VERTICAL_EXTENSION) [expr 2*$::unit]
+set ::env(FP_IO_HORIZONTAL_EXTENSION) [expr 2*$::unit]
+set ::env(FP_IO_VERTICAL_LENGTH) $::unit
+set ::env(FP_IO_HORIZONTAL_LENGTH) $::unit
 
-set ::env(FP_IO_VTHICKNESS_MULT) 4
-set ::env(FP_IO_HTHICKNESS_MULT) 4
+set ::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER) 4
+set ::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER) 4
 
 # Power & Pin Configurations. DON'T TOUCH.
 set ::env(FP_PDN_CORE_RING) 1
-set ::env(FP_PDN_CORE_RING_VWIDTH) 3.1
-set ::env(FP_PDN_CORE_RING_HWIDTH) 3.1
-set ::env(FP_PDN_CORE_RING_VOFFSET) 14
-set ::env(FP_PDN_CORE_RING_HOFFSET) $::env(FP_PDN_CORE_RING_VOFFSET)
-set ::env(FP_PDN_CORE_RING_VSPACING) 1.7
-set ::env(FP_PDN_CORE_RING_HSPACING) $::env(FP_PDN_CORE_RING_VSPACING)
+set ::env(FP_PDN_CORE_RING_VERTICAL_WIDTH) 3.1
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_WIDTH) 3.1
+set ::env(FP_PDN_CORE_RING_VERTICAL_OFFSET) 14
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_OFFSET) $::env(FP_PDN_CORE_RING_VERTICAL_OFFSET)
+set ::env(FP_PDN_CORE_RING_VERTICAL_SPACING) 1.7
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_SPACING) $::env(FP_PDN_CORE_RING_VERTICAL_SPACING)
 
-set ::env(FP_PDN_VWIDTH) 3.1
-set ::env(FP_PDN_HWIDTH) 3.1
-set ::env(FP_PDN_VSPACING) [expr 5*$::env(FP_PDN_CORE_RING_VWIDTH)]
-set ::env(FP_PDN_HSPACING) [expr 5*$::env(FP_PDN_CORE_RING_HWIDTH)]
+set ::env(FP_PDN_VERTICAL_WIDTH) 3.1
+set ::env(FP_PDN_HORIZONTAL_WIDTH) 3.1
+set ::env(FP_PDN_VERTICAL_SPACING) [expr 5*$::env(FP_PDN_CORE_RING_VERTICAL_WIDTH)]
+set ::env(FP_PDN_HORIZONTAL_SPACING) [expr 5*$::env(FP_PDN_CORE_RING_HORIZONTAL_WIDTH)]
 
 set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
 set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
 set ::env(SYNTH_USE_PG_PINS_DEFINES) "USE_POWER_PINS"
 
 # PDN Pitch
-set ::env(FP_PDN_VPITCH) 180
-set ::env(FP_PDN_HPITCH) $::env(FP_PDN_VPITCH)
+set ::env(FP_PDN_VERTICAL_PITCH) 180
+set ::env(FP_PDN_HORIZONTAL_PITCH) $::env(FP_PDN_VERTICAL_PITCH)
 
 # PDN Offset
-set ::env(FP_PDN_VOFFSET) 5
-set ::env(FP_PDN_HOFFSET) $::env(FP_PDN_VOFFSET)
+set ::env(FP_PDN_VERTICAL_OFFSET) 5
+set ::env(FP_PDN_HORIZONTAL_OFFSET) $::env(FP_PDN_VERTICAL_OFFSET)
 
 set ::env(DESIGN_NAME) user_project_wrapper
 #section end
@@ -89,7 +89,7 @@ set ::env(FP_PDN_MACRO_HOOKS) "\
     mprj2 vccd2 vssd2 vccd2 vssd2"
 
 ### Macro Placement
-set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
+set ::env(MACRO_PLACEMENT_CONFIG) $script_dir/macro.cfg
 
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
@@ -127,7 +127,7 @@ set ::env(FP_PDN_ENABLE_RAILS) 0
 set ::env(DIODE_INSERTION_STRATEGY) 0
 set ::env(RUN_FILL_INSERTION) 0
 set ::env(RUN_TAP_DECAP_INSERTION) 0
-set ::env(CLOCK_TREE_SYNTH) 0
+set ::env(RUN_CTS) 0
 
 # magic extraction issues
 set ::env(MAGIC_DEF_LABELS) 0

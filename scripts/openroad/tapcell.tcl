@@ -15,7 +15,7 @@ source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
 
 tapcell\
-    -distance $::env(FP_TAPCELL_DIST)\
+    -distance $::env(FP_TAPCELL_DISTANCE)\
     -tapcell_master "$::env(FP_WELLTAP_CELL)"\
     -endcap_master "$::env(FP_ENDCAP_CELL)"\
     -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\

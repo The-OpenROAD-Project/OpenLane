@@ -67,8 +67,8 @@ proc init_floorplan {args} {
     puts_verbose "Core area width: $core_width"
     puts_verbose "Core area height: $core_height"
 
-    set min_width [expr {$::env(FP_PDN_VOFFSET) + $::env(FP_PDN_VPITCH)}]
-    set min_height [expr {$::env(FP_PDN_HOFFSET) + $::env(FP_PDN_HPITCH)}]
+    set min_width [expr {$::env(FP_PDN_VERTICAL_OFFSET) + $::env(FP_PDN_VERTICAL_PITCH)}]
+    set min_height [expr {$::env(FP_PDN_HORIZONTAL_OFFSET) + $::env(FP_PDN_HORIZONTAL_PITCH)}]
 
     if { $::env(FP_PDN_AUTO_ADJUST) } {
         if { $core_width <= $min_width || $core_height <= $min_height } {
@@ -82,21 +82,21 @@ proc init_floorplan {args} {
 
             set adjusted_values [cat $intermediate]
 
-            set ::env(FP_PDN_VOFFSET) [lindex $adjusted_values 0]
-            set ::env(FP_PDN_HOFFSET) [lindex $adjusted_values 1]
+            set ::env(FP_PDN_VERTICAL_OFFSET) [lindex $adjusted_values 0]
+            set ::env(FP_PDN_HORIZONTAL_OFFSET) [lindex $adjusted_values 1]
 
-            set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
-            set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
+            set ::env(FP_PDN_VERTICAL_PITCH) [lindex $adjusted_values 2]
+            set ::env(FP_PDN_HORIZONTAL_PITCH) [lindex $adjusted_values 3]
 
             puts_warn "Current core area is too small for the power grid settings chosen. The power grid will be scaled down."
         }
     }
 
-    puts_verbose "Final Vertical PDN Offset: $::env(FP_PDN_VOFFSET)"
-    puts_verbose "Final Horizontal PDN Offset: $::env(FP_PDN_HOFFSET)"
+    puts_verbose "Final Vertical PDN Offset: $::env(FP_PDN_VERTICAL_OFFSET)"
+    puts_verbose "Final Horizontal PDN Offset: $::env(FP_PDN_HORIZONTAL_OFFSET)"
 
-    puts_verbose "Final Vertical PDN Pitch: $::env(FP_PDN_VPITCH)"
-    puts_verbose "Final Horizontal PDN Pitch: $::env(FP_PDN_HPITCH)"
+    puts_verbose "Final Vertical PDN Pitch: $::env(FP_PDN_VERTICAL_PITCH)"
+    puts_verbose "Final Horizontal PDN Pitch: $::env(FP_PDN_HORIZONTAL_PITCH)"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "floorplan initialization - openroad"
@@ -137,18 +137,18 @@ proc place_io_ol {args} {
     set_if_unset arg_values(-output_def) [index_file $::env(floorplan_tmpfiles)/io.def]
     set_if_unset arg_values(-output_odb) [index_file $::env(floorplan_tmpfiles)/io.odb]
 
-    set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CFG)
+    set_if_unset arg_values(-cfg) $::env(FP_PIN_ORDER_CONFIG)
 
-    set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HLAYER)
-    set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VLAYER)
+    set_if_unset arg_values(-horizontal_layer) $::env(FP_IO_HORIZONTAL_LAYER)
+    set_if_unset arg_values(-vertical_layer) $::env(FP_IO_VERTICAL_LAYER)
 
-    set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VTHICKNESS_MULT)
-    set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HTHICKNESS_MULT)
+    set_if_unset arg_values(-vertical_mult) $::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER)
+    set_if_unset arg_values(-horizontal_mult) $::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER)
 
-    set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VEXTEND)
-    set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HEXTEND)
+    set_if_unset arg_values(-vertical_ext) $::env(FP_IO_VERTICAL_EXTENSION)
+    set_if_unset arg_values(-horizontal_ext) $::env(FP_IO_HORIZONTAL_EXTENSION)
 
-    set_if_unset arg_values(-length) [expr max($::env(FP_IO_VLENGTH), $::env(FP_IO_HLENGTH))]
+    set_if_unset arg_values(-length) [expr max($::env(FP_IO_VERTICAL_LENGTH), $::env(FP_IO_HORIZONTAL_LENGTH))]
 
     if { $::env(FP_IO_UNMATCHED_ERROR) } {
         set_if_unset flags_map(-unmatched_error) "--unmatched-error"
@@ -402,7 +402,7 @@ proc padframe_gen_batch {args} {
     set_if_unset arg_values(-odb_lef) $::env(MERGED_LEF)
     set_if_unset arg_values(-log) [index_file $::env(floorplan_logs)/padringer.log]
     set_if_unset arg_values(-odb) $::env(CURRENT_ODB)
-    set_if_unset arg_values(-cfg) $::env(FP_PADFRAME_CFG)
+    set_if_unset arg_values(-cfg) $::env(FP_PADFRAME_CONFIG)
     set_if_unset arg_values(-design_name) $::env(DESIGN_NAME)
     set_odb $arg_values(-odb)
 
@@ -458,22 +458,22 @@ proc run_floorplan {args} {
 
     # check for deprecated io variables
     if { [info exists ::env(FP_IO_HMETAL)]} {
-        set ::env(FP_IO_HLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+        set ::env(FP_IO_HORIZONTAL_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
         puts_warn "You're using FP_IO_HMETAL in your configuration, which is a deprecated variable that will be removed in the future."
         puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(FP_IO_HLAYER) {$::env(FP_IO_HLAYER)}"
+        puts_warn "\tset ::env(FP_IO_HORIZONTAL_LAYER) {$::env(FP_IO_HORIZONTAL_LAYER)}"
     }
 
     if { [info exists ::env(FP_IO_VMETAL)]} {
-        set ::env(FP_IO_VLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
+        set ::env(FP_IO_VERTICAL_LAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
         puts_warn "You're using FP_IO_VMETAL in your configuration, which is a deprecated variable that will be removed in the future."
         puts_warn "We recommend you update your configuration as follows:"
-        puts_warn "\tset ::env(FP_IO_VLAYER) {$::env(FP_IO_VLAYER)}"
+        puts_warn "\tset ::env(FP_IO_VERTICAL_LAYER) {$::env(FP_IO_VERTICAL_LAYER)}"
     }
 
 
     # place io
-    if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
+    if { [info exists ::env(FP_PIN_ORDER_CONFIG)] } {
         place_io_ol
     } else {
         if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
@@ -490,8 +490,8 @@ proc run_floorplan {args} {
     apply_def_template
 
     if { [info exist ::env(EXTRA_LEFS)] } {
-        if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
-            file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
+        if { [info exist ::env(MACRO_PLACEMENT_CONFIG)] } {
+            file copy -force $::env(MACRO_PLACEMENT_CONFIG) $::env(placement_tmpfiles)/macro_placement.cfg
             manual_macro_placement -f
         } else {
             global_placement_or

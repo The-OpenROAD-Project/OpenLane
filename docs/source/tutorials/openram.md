@@ -259,7 +259,7 @@ The instance name needs to be taken directly from the synthesis netlist without 
 Next, modify the `config.json` to reference this file.
 
 ```json
-"MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
+"MACRO_PLACEMENT_CONFIG": "dir::macro_placement.cfg",
 ```
 
 ```

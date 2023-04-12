@@ -18,12 +18,12 @@ package require openlane_utils
 proc save_state {args} {
     set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
     puts_info "Saving runtime environment..."
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CONFIG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
             set escaped_env_var [string map {\" \\\"} $::env($index)]
             set escaped_env_var [string map {\$ \\\$} $escaped_env_var]
-            set_log ::env($index) $escaped_env_var $::env(GLB_CFG_FILE) 1
+            set_log ::env($index) $escaped_env_var $::env(GLB_CONFIG_FILE) 1
         }
     }
 }
@@ -46,8 +46,8 @@ proc set_netlist {args} {
     set ::env(CURRENT_NETLIST) $netlist
 
     set replace [string map {/ \\/} $::env(CURRENT_NETLIST)]
-    try_exec sed -i.bak -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-    exec rm -f "$::env(GLB_CFG_FILE).bak"
+    try_exec sed -i.bak -e "s/\\(set ::env(CURRENT_NETLIST)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+    exec rm -f "$::env(GLB_CONFIG_FILE).bak"
 
     if { [info exists flags_map(-lec)] && $::env(LEC_ENABLE) && [file exists $previous_netlist] } {
         logic_equiv_check -lhs $previous_netlist -rhs $netlist
@@ -59,8 +59,8 @@ proc set_def {def} {
     puts_verbose "Changing layout to '$def_relative'..."
     set ::env(CURRENT_DEF) $def
     set replace [string map {/ \\/} $def]
-    exec sed -i.bak -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-    exec rm -f "$::env(GLB_CFG_FILE).bak"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_DEF)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+    exec rm -f "$::env(GLB_CONFIG_FILE).bak"
 }
 
 proc set_odb {odb} {
@@ -68,8 +68,8 @@ proc set_odb {odb} {
     puts_verbose "Changing database to '$odb_relative'..."
     set ::env(CURRENT_ODB) $odb
     set replace [string map {/ \\/} $odb]
-    exec sed -i.bak -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-    exec rm -f "$::env(GLB_CFG_FILE).bak"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_ODB)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+    exec rm -f "$::env(GLB_CONFIG_FILE).bak"
 }
 
 proc set_sdc {sdc} {
@@ -77,8 +77,8 @@ proc set_sdc {sdc} {
     puts_verbose "Changing timing constraints to '$sdc_relative'..."
     set ::env(CURRENT_SDC) $sdc
     set replace [string map {/ \\/} $sdc]
-    exec sed -i.bak -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-    exec rm -f "$::env(GLB_CFG_FILE).bak"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_SDC)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+    exec rm -f "$::env(GLB_CONFIG_FILE).bak"
 }
 
 proc set_guide {guide} {
@@ -86,8 +86,8 @@ proc set_guide {guide} {
     puts_verbose "Changing guide to '$guide_relative'..."
     set ::env(CURRENT_GUIDE) $guide
     set replace [string map {/ \\/} $guide]
-    exec sed -i.bak -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-    exec rm -f "$::env(GLB_CFG_FILE).bak"
+    exec sed -i.bak -e "s/\\(set ::env(CURRENT_GUIDE)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+    exec rm -f "$::env(GLB_CONFIG_FILE).bak"
 }
 
 proc prep_lefs {args} {
@@ -578,8 +578,8 @@ proc prep {args} {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
 
-    if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
+    if {![info exists ::env(FP_PDN_CONFIG)]} {
+        set ::env(FP_PDN_CONFIG) $::env(SCRIPTS_DIR)/openroad/common/pdn_config.tcl
     }
 
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
@@ -646,6 +646,24 @@ proc prep {args} {
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
 
+    handle_deprecated_config CLOCK_TREE_SYNTH RUN_CTS
+    handle_deprecated_config FP_PDN_VOFFSET FP_PDN_VERTICAL_OFFSET
+    handle_deprecated_config FP_PDN_VPITCH FP_PDN_VERTICAL_PITCH
+    handle_deprecated_config FP_PDN_HOFFSET FP_PDN_HORIZONTAL_OFFSET
+    handle_deprecated_config FP_PDN_HPITCH FP_PDN_HORIZONTAL_PITCH
+    handle_deprecated_config FP_IO_HLENGTH FP_IO_HORIZONTAL_LENGTH
+    handle_deprecated_config FP_IO_VLENGTH FP_IO_VERTICAL_LENGTH
+    handle_deprecated_config FP_IO_VEXTEND FP_IO_VERTICAL_EXTENSION
+    handle_deprecated_config FP_IO_HEXTEND FP_IO_HORIZONTAL_EXTENSION
+    handle_deprecated_config FP_IO_VTHICKNESS_MULT FP_IO_VERTICAL_THICKNESS_MULTIPLIER
+    handle_deprecated_config FP_IO_HTHICKNESS_MULT FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER
+    handle_deprecated_config BOTTOM_MARGIN_MULT BOTTOM_MARGIN_MULTIPLIER
+    handle_deprecated_config TOP_MARGIN_MULT TOP_MARGIN_MULTIPLIER
+    handle_deprecated_config LEFT_MARGIN_MULT LEFT_MARGIN_MULTIPLIER
+    handle_deprecated_config RIGHT_MARGIN_MULT RIGHT_MARGIN_MULTIPLIER
+    handle_deprecated_config FP_IO_HLAYER FP_IO_HORIZONTAL_LAYER
+    handle_deprecated_config FP_IO_VLAYER FP_IO_VERTICAL_LAYER
+
     handle_diode_insertion_strategy
 
     #
@@ -662,11 +680,11 @@ proc prep {args} {
     set ::env(TMP_DIR) 		"$::env(RUN_DIR)/tmp"
     set ::env(LOGS_DIR)     "$::env(RUN_DIR)/logs"
     set ::env(REPORTS_DIR) 	"$::env(RUN_DIR)/reports"
-    set ::env(GLB_CFG_FILE) "$::env(RUN_DIR)/config.tcl"
+    set ::env(GLB_CONFIG_FILE) "$::env(RUN_DIR)/config.tcl"
 
     puts_info "Run Directory: $::env(RUN_DIR)"
 
-    if { [file exists $::env(GLB_CFG_FILE)] } {
+    if { [file exists $::env(GLB_CONFIG_FILE)] } {
         if { [info exists flags_map(-overwrite)] } {
             puts_info "Removing existing $::env(RUN_DIR)..."
             after 1000
@@ -676,8 +694,8 @@ proc prep {args} {
                 puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
                 after 1000
             }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
-            source $::env(GLB_CFG_FILE)
+            puts_info "Sourcing $::env(GLB_CONFIG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
+            source $::env(GLB_CONFIG_FILE)
             if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
                 puts_info "Current ODB: $::env(CURRENT_ODB)"
                 puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
@@ -724,12 +742,12 @@ proc prep {args} {
 
     # Fill config file
     puts_verbose "Storing configs into config.tcl ..."
-    exec echo "# Run configs" > $::env(GLB_CFG_FILE)
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    exec echo "# Run configs" > $::env(GLB_CONFIG_FILE)
+    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CONFIG_FILE) 1
     foreach index [lsort [array names ::env]] {
         if { $index != "INIT_ENV_VAR_ARRAY" } {
             if { $index ni $::env(INIT_ENV_VAR_ARRAY) } {
-                set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
+                set_log ::env($index) $::env($index) $::env(GLB_CONFIG_FILE) 1
             }
         }
     }
@@ -837,43 +855,43 @@ proc prep {args} {
         } else {
             set ::env(SYNTH_MAX_TRAN) 0
         }
-        set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
+        set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CONFIG_FILE) 1
     }
     if { $::env(SYNTH_ELABORATE_ONLY) } {
-        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CFG_FILE) 0
+        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CONFIG_FILE) 0
     }
-    set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
+    set_log ::env(SYNTH_OPT) 0 $::env(GLB_CONFIG_FILE) 0
+    set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CONFIG_FILE) 0
+    set_log ::env(PL_IO_ITER) 5 $::env(GLB_CONFIG_FILE) 0
 
     if { ! [info exists ::env(CURRENT_INDEX)] } {
         set ::env(CURRENT_INDEX) 0
-        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_DEF)] } {
         set ::env(CURRENT_DEF) 0
-        set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_GUIDE)] } {
         set ::env(CURRENT_GUIDE) 0
-        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_NETLIST)] } {
         set ::env(CURRENT_NETLIST) 0
-        set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_POWERED_NETLIST)] } {
         set ::env(CURRENT_POWERED_NETLIST) 0
-        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { ! [info exists ::env(CURRENT_ODB)] } {
         set ::env(CURRENT_ODB) 0
-        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
+        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CONFIG_FILE) 1
     }
 
     if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {

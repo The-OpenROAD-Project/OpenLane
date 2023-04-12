@@ -414,7 +414,7 @@ class SoCFloorplanner(ttk.Frame):
         self.stdout = None
         self.stderr = None
 
-        self.keep_cfg = False
+        self.keep_config = False
         self.ef_format = False
         self.use_console = False
 
@@ -2368,7 +2368,7 @@ class SoCFloorplanner(ttk.Frame):
         # width *= 1.4
         # height *= 1.4
 
-        if self.keep_cfg == False or not os.path.exists(mag_path + "/padframe.cfg"):
+        if self.keep_config == False or not os.path.exists(mag_path + "/padframe.cfg"):
 
             if os.path.exists(mag_path + "/padframe.cfg"):
                 # Copy the previous padframe.cfg file to a backup.  In case something
@@ -2946,7 +2946,7 @@ if __name__ == "__main__":
     # the project space.
 
     app.ef_format = True if "-ef_format" in options else False
-    app.keep_cfg = True if "-cfg" in options else False
+    app.keep_config = True if "-cfg" in options else False
 
     app.padring_path = None
     app.magic_path = None

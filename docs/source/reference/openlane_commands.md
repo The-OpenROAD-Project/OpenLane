@@ -144,21 +144,21 @@ Most of the following commands' implementation exists in this [file][3]
 | `place_io_ol` | | Runs IO placement based on an input configuration file to place the pins in the orientation and order requiered by the user. |
 |    | `[-lef <lef_file>]` | LEF file to be used. It must also include the technology information. <br> Defaults to `::env(MERGED_LEF)`. |
 |    | `[-def <def_file>]` | DEF file to be used. <br> Defaults to `::env(CURRENT_DEF)`.       |
-|    | `[-cfg <cfg_file>]` | configuration file containing the list of desired pin order. An example could be found [here][14]. The file should contain `#orientation` followed by the pin names each in a new line in the desired order. Between each orientation section there should be a new empty line. <br> Defaults to `::env(FP_PIN_ORDER_CFG)`.       |
+|    | `[-cfg <cfg_file>]` | configuration file containing the list of desired pin order. An example could be found [here][14]. The file should contain `#orientation` followed by the pin names each in a new line in the desired order. Between each orientation section there should be a new empty line. <br> Defaults to `::env(FP_PIN_ORDER_CONFIG)`.       |
 |    | `[-horizontal_layer <val>]` |  The metal layer on which to place the io pins horizontally (top and bottom of the die). <br> Defaults to `::env(FP_IO_HMETAL)`.       |
 |    | `[-vertical_layer <val>]` |  The metal layer on which to place the io pins vertically (left and right of the die). <br> Defaults to `::env(FP_IO_VMETAL)`.       |
-|    | `[-vertical_mult <val>]` | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_VTHICKNESS_MULT)`.       |
-|    | `[-horizontal_mult <val>]` | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_HTHICKNESS_MULT)`.   |
-|    | `[-vertical_ext <val>]` |  Extends the vertical io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_VEXTEND)`.       |
-|    | `[-horizontal_ext <val>]` |  Extends the horizontal io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_HEXTEND)`.       |
-|    | `[-length <val>]` | IO length to be used. <br> Defaults to maximum of `::env(FP_IO_VLENGTH)` and `::env(FP_IO_HLENGTH)`.       |
+|    | `[-vertical_mult <val>]` | A multiplier for vertical pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER)`.       |
+|    | `[-horizontal_mult <val>]` | A multiplier for horizontal pin thickness. Base thickness is the pins layer minwidth. <br> Defaults to `::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER)`.   |
+|    | `[-vertical_ext <val>]` |  Extends the vertical io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_VERTICAL_EXTENSION)`.       |
+|    | `[-horizontal_ext <val>]` |  Extends the horizontal io pins outside of the die by the specified units. <br> Defaults to `::env(FP_IO_HORIZONTAL_EXTENSION)`.       |
+|    | `[-length <val>]` | IO length to be used. <br> Defaults to maximum of `::env(FP_IO_VERTICAL_LENGTH)` and `::env(FP_IO_HORIZONTAL_LENGTH)`.       |
 |    | `[-output_def <def_file>]` | output DEF file to be written. <br> Defaults to `<run_path>/tmp/floorplan/ioplacer.def`.       |
 | `place_contextualized_io` | | contextualizes io placement on a given macro (the processed design) with the context of the higher macro that contains it. This allows the io pins to be placed in location closer to what they will be connected with on the bigger macro. The resuls are saved under `/<run_path>/tmp/floorplan/` . |
 |    | `-lef <lef_file>` | LEF file needed to have a proper view of the top-level DEF |
 |    | `-def <def_file>` | DEF view of the top-level design where the macro is instantiated.       |
 | `tap_decap_or` | | Runs tap/decap placement on the design processed using the openroad app. The resulting file is under `/<run_path>/tmp/floorplan/` . |
 | `chip_floorplan` | | Runs floorplanning on a chip removing pins section and other empty sections from the def. The resulting file is under `/<run_path>/tmp/floorplan/` . |
-| `run_floorplan` | | Runs `init_floorplan`, followed by one of the io placement functions: if `::env(FP_PIN_ORDER_CFG)` is defined then `place_io_ol` is run; otherwise, if `::env(FP_CONTEXT_DEF)` and `::env(FP_CONTEXT_LEF)` are defined it runs `place_contextualized_io`, if nothing of those is defined then it runs the vanilla `place_io`. Then it runs `tap_decap_or` on the processed design. Finally, power grid is generated utilizing `::env(VDD_NETS)`, `::env(GND_NETS)`, and `::env(SYNTH_USE_PG_PINS_DEFINES)` if they are defined, otherwise vanilla  gen_pdn is used. The resulting files are under `/<run_path>/tmp/floorplan/` and `/<run_path>/results/floorplan/`. |
+| `run_floorplan` | | Runs `init_floorplan`, followed by one of the io placement functions: if `::env(FP_PIN_ORDER_CONFIG)` is defined then `place_io_ol` is run; otherwise, if `::env(FP_CONTEXT_DEF)` and `::env(FP_CONTEXT_LEF)` are defined it runs `place_contextualized_io`, if nothing of those is defined then it runs the vanilla `place_io`. Then it runs `tap_decap_or` on the processed design. Finally, power grid is generated utilizing `::env(VDD_NETS)`, `::env(GND_NETS)`, and `::env(SYNTH_USE_PG_PINS_DEFINES)` if they are defined, otherwise vanilla  gen_pdn is used. The resulting files are under `/<run_path>/tmp/floorplan/` and `/<run_path>/results/floorplan/`. |
 | `apply_def_template` | | Applies the DIE_AREA, pin names, and pin locations excluding power and ground pins from `::env(FP_DEF_TEMPLATE)` to the `::env(CURRENT_DEF)`. |
 
 ## Placement Commands

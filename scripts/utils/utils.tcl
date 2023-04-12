@@ -176,11 +176,11 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
 proc set_log {var val filepath log_flag} {
     set cmd "set ${var} \{${val}\}"
     uplevel #0 ${cmd}
-    set global_cfg_file [open $filepath a+]
+    set global_config_file [open $filepath a+]
     if { $log_flag } {
-        puts $global_cfg_file $cmd
+        puts $global_config_file $cmd
     }
-    close $global_cfg_file
+    close $global_config_file
 }
 
 proc try_exec {args} {
@@ -259,9 +259,9 @@ proc index_file {args} {
 
     set new_file_full_name "$file_path/$fbasename"
     set replace [string map {/ \\/} $::env(CURRENT_INDEX)]
-    if { [info exists ::env(GLB_CFG_FILE)]} {
-        exec sed -i.bak -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CFG_FILE)"
-        exec rm -f "$::env(GLB_CFG_FILE).bak"
+    if { [info exists ::env(GLB_CONFIG_FILE)]} {
+        exec sed -i.bak -e "s/\\(set ::env(CURRENT_INDEX)\\).*/\\1 $replace/" "$::env(GLB_CONFIG_FILE)"
+        exec rm -f "$::env(GLB_CONFIG_FILE).bak"
     }
     return $new_file_full_name
 }

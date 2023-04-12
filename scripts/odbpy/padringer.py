@@ -55,7 +55,7 @@ def diff_lists(l1, l2):
     return list(list(set(l1) - set(l2)) + list(set(l2) - set(l1)))
 
 
-def generate_cfg(north, east, south, west, corner_pads, width, height):
+def generate_config(north, east, south, west, corner_pads, width, height):
     cfg = []
     cfg.append(f"AREA {width} {height} ;")
     cfg.append("")
@@ -183,7 +183,7 @@ def padringer(
     lefs = input_lef
 
     working_def = f"{working_dir}/{design}.pf.def"
-    working_cfg = f"{working_dir}/{design}.pf.cfg"
+    working_config = f"{working_dir}/{design}.pf.cfg"
 
     for lef in lefs:
         assert os.path.exists(lef), lef + " doesn't exist"
@@ -333,7 +333,7 @@ def padringer(
         )
 
         print("User config verified")
-        working_cfg = config_file_name
+        working_config = config_file_name
     else:
         # TODO: get minimum width/height so that --width and --height aren't required
         assert width is not None, "--width is required"
@@ -344,18 +344,18 @@ def padringer(
         # TODO: after calssification, center power pads on each side
         north, east, south, west = chunker(used_pads, 4)
 
-        with open(working_cfg, "w") as f:
+        with open(working_config, "w") as f:
             f.write(
-                generate_cfg(north, east, south, west, used_corner_pads, width, height)
+                generate_config(north, east, south, west, used_corner_pads, width, height)
             )
 
     if not init_only:
-        invoke_padring(working_cfg, working_def, lefs)
+        invoke_padring(working_config, working_def, lefs)
     else:
         print(
             "Padframe config generated at",
-            working_cfg,
-            f"Modify it and re-run this program with the '-cfg {working_cfg}' option",
+            working_config,
+            f"Modify it and re-run this program with the '-cfg {working_config}' option",
         )
         sys.exit()
 

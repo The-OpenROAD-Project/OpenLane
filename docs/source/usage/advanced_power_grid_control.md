@@ -94,12 +94,12 @@ By simply adding these you should now have 8 core rings, 4 for power and 4 for g
 <td>
     
 ```json
-    "FP_PDN_CORE_RING_VWIDTH": 3,
-    "FP_PDN_CORE_RING_HWIDTH": "expr::$FP_PDN_CORE_RING_VWIDTH",
-    "FP_PDN_CORE_RING_VOFFSET": 14,
-    "FP_PDN_CORE_RING_HOFFSET" "expr::$FP_PDN_CORE_RING_VOFFSET",
-    "FP_PDN_CORE_RING_VSPACING": 1.7,
-    "FP_PDN_CORE_RING_HSPACING": "expr::$FP_PDN_CORE_RING_VSPACING"
+    "FP_PDN_CORE_RING_VERTICAL_WIDTH": 3,
+    "FP_PDN_CORE_RING_HORIZONTAL_WIDTH": "expr::$FP_PDN_CORE_RING_VERTICAL_WIDTH",
+    "FP_PDN_CORE_RING_VERTICAL_OFFSET": 14,
+    "FP_PDN_CORE_RING_HORIZONTAL_OFFSET" "expr::$FP_PDN_CORE_RING_VERTICAL_OFFSET",
+    "FP_PDN_CORE_RING_VERTICAL_SPACING": 1.7,
+    "FP_PDN_CORE_RING_HORIZONTAL_SPACING": "expr::$FP_PDN_CORE_RING_VERTICAL_SPACING"
 ```
 
 
@@ -107,12 +107,12 @@ By simply adding these you should now have 8 core rings, 4 for power and 4 for g
 <td>
 
 ```tcl
-set ::env(FP_PDN_CORE_RING_VWIDTH) 3 # The vertical sides width of the core rings
-set ::env(FP_PDN_CORE_RING_HWIDTH) $::env(FP_PDN_CORE_RING_VWIDTH) # The horizontal sides width of the core rings
-set ::env(FP_PDN_CORE_RING_VOFFSET) 14 # The vertical sides offset from the design boundaries for the core rings
-set ::env(FP_PDN_CORE_RING_HOFFSET) $::env(FP_PDN_CORE_RING_VOFFSET) # The horizontal sides offset from the design boundaries for the core rings
-set ::env(FP_PDN_CORE_RING_VSPACING) 1.7 # The vertical spacing between the core ring straps
-set ::env(FP_PDN_CORE_RING_HSPACING) $::env(FP_PDN_CORE_RING_VSPACING) # The horizontal spacing between the core ring straps
+set ::env(FP_PDN_CORE_RING_VERTICAL_WIDTH) 3 # The vertical sides width of the core rings
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_WIDTH) $::env(FP_PDN_CORE_RING_VERTICAL_WIDTH) # The horizontal sides width of the core rings
+set ::env(FP_PDN_CORE_RING_VERTICAL_OFFSET) 14 # The vertical sides offset from the design boundaries for the core rings
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_OFFSET) $::env(FP_PDN_CORE_RING_VERTICAL_OFFSET) # The horizontal sides offset from the design boundaries for the core rings
+set ::env(FP_PDN_CORE_RING_VERTICAL_SPACING) 1.7 # The vertical spacing between the core ring straps
+set ::env(FP_PDN_CORE_RING_HORIZONTAL_SPACING) $::env(FP_PDN_CORE_RING_VERTICAL_SPACING) # The horizontal spacing between the core ring straps
 ```
 
 </td>
@@ -129,8 +129,8 @@ The next values should be added as-is to control the starting point for looping 
 <td>
     
 ```json
-    "FP_PDN_VSPACING": "expr::5*$FP_PDN_CORE_RING_VWIDTH",
-    "FP_PDN_HSPACING": "expr::5*$FP_PDN_CORE_RING_HWIDTH",
+    "FP_PDN_VERTICAL_SPACING": "expr::5*$FP_PDN_CORE_RING_VERTICAL_WIDTH",
+    "FP_PDN_HORIZONTAL_SPACING": "expr::5*$FP_PDN_CORE_RING_HORIZONTAL_WIDTH",
 ```
 
 
@@ -138,8 +138,8 @@ The next values should be added as-is to control the starting point for looping 
 <td>
 
 ```tcl
-set ::env(FP_PDN_VSPACING) [expr 5*$::env(FP_PDN_CORE_RING_VWIDTH)]
-set ::env(FP_PDN_HSPACING) [expr 5*$::env(FP_PDN_CORE_RING_HWIDTH)]
+set ::env(FP_PDN_VERTICAL_SPACING) [expr 5*$::env(FP_PDN_CORE_RING_VERTICAL_WIDTH)]
+set ::env(FP_PDN_HORIZONTAL_SPACING) [expr 5*$::env(FP_PDN_CORE_RING_HORIZONTAL_WIDTH)]
 ```
 
 </td>
@@ -155,12 +155,12 @@ The next step is to control the internal power grid by changing the following va
 <td>
     
 ```json
-    "FP_PDN_VWIDTH": 3,
-    "FP_PDN_HWIDTH": 3,
-    "FP_PDN_VOFFSET": 0,
-    "FP_PDN_HOFFSET": "expr::$FP_PDN_VOFFSET",
-    "FP_PDN_VPITCH": 180,
-    "FP_PDN_HPITCH": "expr::$FP_PDN_VPITCH"
+    "FP_PDN_VERTICAL_WIDTH": 3,
+    "FP_PDN_HORIZONTAL_WIDTH": 3,
+    "FP_PDN_VERTICAL_OFFSET": 0,
+    "FP_PDN_HORIZONTAL_OFFSET": "expr::$FP_PDN_VERTICAL_OFFSET",
+    "FP_PDN_VERTICAL_PITCH": 180,
+    "FP_PDN_HORIZONTAL_PITCH": "expr::$FP_PDN_VERTICAL_PITCH"
 
 ```
 
@@ -169,12 +169,12 @@ The next step is to control the internal power grid by changing the following va
 <td>
 
 ```tcl
-set ::env(FP_PDN_VWIDTH) 3 # The width of the vertical straps
-set ::env(FP_PDN_HWIDTH) 3 # The width of the horizontal straps
-set ::env(FP_PDN_VOFFSET) 0 # The vertical offset for the straps
-set ::env(FP_PDN_HOFFSET) $::env(FP_PDN_VOFFSET) # The horizontal offset for the straps
-set ::env(FP_PDN_VPITCH) 180 # The pitch between the vertical straps
-set ::env(FP_PDN_HPITCH) $::env(FP_PDN_VPITCH) # The pitch between the horizontal straps
+set ::env(FP_PDN_VERTICAL_WIDTH) 3 # The width of the vertical straps
+set ::env(FP_PDN_HORIZONTAL_WIDTH) 3 # The width of the horizontal straps
+set ::env(FP_PDN_VERTICAL_OFFSET) 0 # The vertical offset for the straps
+set ::env(FP_PDN_HORIZONTAL_OFFSET) $::env(FP_PDN_VERTICAL_OFFSET) # The horizontal offset for the straps
+set ::env(FP_PDN_VERTICAL_PITCH) 180 # The pitch between the vertical straps
+set ::env(FP_PDN_HORIZONTAL_PITCH) $::env(FP_PDN_VERTICAL_PITCH) # The pitch between the horizontal straps
 ```
 
 </td>
@@ -259,7 +259,7 @@ This should also reflected in the module declaration in the RTL of that macro in
 
 These should match the names used in your core level. You do not need to use all the nets, the first two nets are used by default to power the digital cells. So you may want to only include a subset of these connections, this should be reflected in the configuration files as well as the RTL.
 
-- The height of each macro must be greater than or equal to the value of `$::env(FP_PDN_HPITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
+- The height of each macro must be greater than or equal to the value of `$::env(FP_PDN_HORIZONTAL_PITCH)` to allow at least two metal 5 straps on the core level to cross it and all the dropping of a via from met5 to met4 connecting the vertical straps of the macro to the horizontal straps of the core and so connect the power grid of the macro to the outer core ring.
 
 
 

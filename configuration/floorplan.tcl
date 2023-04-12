@@ -20,10 +20,10 @@ set ::env(FP_CORE_UTIL) 50
 # PL_TARGET_DENSITY default value set in all.tcl because of the order of sourcing.
 set ::env(FP_ASPECT_RATIO) 1
 
-set ::env(FP_PDN_VOFFSET) 16.32
-set ::env(FP_PDN_VPITCH) 153.6
-set ::env(FP_PDN_HOFFSET) 16.65
-set ::env(FP_PDN_HPITCH) 153.18
+set ::env(FP_PDN_VERTICAL_OFFSET) 16.32
+set ::env(FP_PDN_VERTICAL_PITCH) 153.6
+set ::env(FP_PDN_HORIZONTAL_OFFSET) 16.65
+set ::env(FP_PDN_HORIZONTAL_PITCH) 153.18
 
 set ::env(FP_PDN_SKIPTRIM) 0
 
@@ -36,19 +36,19 @@ set ::env(FP_PDN_CHECK_NODES) 1
 set ::env(FP_PDN_IRDROP) 1
 
 set ::env(FP_IO_MODE) 1; # 0 matching mode - 1 random equidistant mode
-set ::env(FP_IO_HLENGTH) 4
-set ::env(FP_IO_VLENGTH) 4
-set ::env(FP_IO_VEXTEND) 0
-set ::env(FP_IO_HEXTEND) 0
-set ::env(FP_IO_VTHICKNESS_MULT) 2
-set ::env(FP_IO_HTHICKNESS_MULT) 2
+set ::env(FP_IO_HORIZONTAL_LENGTH) 4
+set ::env(FP_IO_VERTICAL_LENGTH) 4
+set ::env(FP_IO_VERTICAL_EXTENSION) 0
+set ::env(FP_IO_HORIZONTAL_EXTENSION) 0
+set ::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER) 2
+set ::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER) 2
 set ::env(FP_IO_MIN_DISTANCE) 3
 set ::env(FP_IO_UNMATCHED_ERROR) 1
 
-set ::env(BOTTOM_MARGIN_MULT) 4
-set ::env(TOP_MARGIN_MULT) 4
-set ::env(LEFT_MARGIN_MULT) 12
-set ::env(RIGHT_MARGIN_MULT) 12
+set ::env(BOTTOM_MARGIN_MULTIPLIER) 4
+set ::env(TOP_MARGIN_MULTIPLIER) 4
+set ::env(LEFT_MARGIN_MULTIPLIER) 12
+set ::env(RIGHT_MARGIN_MULTIPLIER) 12
 
 set ::env(FP_PDN_HORIZONTAL_HALO) 10
 set ::env(FP_PDN_VERTICAL_HALO) $::env(FP_PDN_HORIZONTAL_HALO)

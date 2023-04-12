@@ -110,7 +110,7 @@ For IO placement, you currently have four options:
 
 1. Using a template DEF file and applying the same PIN locations and PIN names (they are copied over from the template DEF). Note that this will force the flow to apply the same exact DIE AREA and dimensions of the template DEF. To use that option set: `FP_DEF_TEMPLATE` to point to that DEF file.
 
-2. Manually setting the direction of each pin using a configuration file such as [this one][7]. Then you need to set `FP_PIN_ORDER_CFG` to point to that file.
+2. Manually setting the direction of each pin using a configuration file such as [this one][7]. Then you need to set `FP_PIN_ORDER_CONFIG` to point to that file.
 
 3. Using contextualized pin placement, which will automatically optimize the placement of the pins based on their context in the larger design that includes them. This relevant for macros since they will be included inside a core, and also relevant for the core since it will be part of a bigger chip. For this to happen, you need to point to the LEF and DEF of the container/parent design using these two variables: `FP_CONTEXT_DEF` and `FP_CONTEXT_LEF`. Note that currently this script can only handle the existance of a single instance of that macro.
 
@@ -154,7 +154,7 @@ You can read more about that [here][0].
 
 Most of the values for clock tree synthesis are (PDK,STD_CELL_LIBRARY) specific and you can read more about those [here][8].
 
-You can disable it by setting `CLOCK_TREE_SYNTH` to `0`.
+You can disable it by setting `RUN_CTS` to `0`.
 
 If you do not want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 

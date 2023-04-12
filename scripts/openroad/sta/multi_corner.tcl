@@ -137,15 +137,17 @@ if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
     puts "clock_skew_end"
 }
 
-puts "power_report"
-puts "\n==========================================================================="
-puts " report_power"
-puts "============================================================================"
-foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
-    report_power -corner [$corner name]
+if { $::env(STA_REPORT_POWER) } {
+    puts "power_report"
+    puts "\n==========================================================================="
+    puts " report_power"
+    puts "============================================================================"
+    foreach corner [sta::corners] {
+        puts "\n======================= [$corner name] Corner ===================================\n"
+        report_power -corner [$corner name]
+    }
+    puts "power_report_end"
 }
-puts "power_report_end"
 
 
 write -no_global_connect

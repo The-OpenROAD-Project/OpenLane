@@ -18,19 +18,19 @@ if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
 	read_lef $::env(placement_tmpfiles)/top_level.lef
 }
 
-if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
-	set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
-		-ver_length $::env(FP_IO_VLENGTH)
+if {$::env(FP_IO_HORIZONTAL_LENGTH) != "" && $::env(FP_IO_HORIZONTAL_LENGTH) != ""} {
+	set_pin_length -hor_length $::env(FP_IO_HORIZONTAL_LENGTH) \
+		-ver_length $::env(FP_IO_VERTICAL_LENGTH)
 }
 
-if {$::env(FP_IO_HEXTEND) != "0" && $::env(FP_IO_VEXTEND) != "0"} {
-	set_pin_length_extension -hor_extension $::env(FP_IO_HEXTEND) \
-		-ver_extension $::env(FP_IO_VEXTEND)
+if {$::env(FP_IO_HORIZONTAL_EXTENSION) != "0" && $::env(FP_IO_VERTICAL_EXTENSION) != "0"} {
+	set_pin_length_extension -hor_extension $::env(FP_IO_HORIZONTAL_EXTENSION) \
+		-ver_extension $::env(FP_IO_VERTICAL_EXTENSION)
 }
 
-if {$::env(FP_IO_VTHICKNESS_MULT) != "" && $::env(FP_IO_HTHICKNESS_MULT) != ""} {
-	set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HTHICKNESS_MULT) \
-		-ver_multiplier $::env(FP_IO_VTHICKNESS_MULT)
+if {$::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER) != "" && $::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER) != ""} {
+	set_pin_thick_multiplier -hor_multiplier $::env(FP_IO_HORIZONTAL_THICKNESS_MULTIPLIER) \
+		-ver_multiplier $::env(FP_IO_VERTICAL_THICKNESS_MULTIPLIER)
 }
 
 set arg_list [list]
@@ -42,8 +42,8 @@ if { $::env(FP_IO_MIN_DISTANCE) != "" } {
 	lappend arg_list -min_distance $::env(FP_IO_MIN_DISTANCE)
 }
 
-set HMETAL $::env(FP_IO_HLAYER)
-set VMETAL $::env(FP_IO_VLAYER)
+set HMETAL $::env(FP_IO_HORIZONTAL_LAYER)
+set VMETAL $::env(FP_IO_VERTICAL_LAYER)
 
 place_pins {*}$arg_list \
 	-random_seed 42 \

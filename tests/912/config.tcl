@@ -5,7 +5,7 @@ set ::env(DESIGN_NAME) def_test
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 
 # turn off clock
-set ::env(CLOCK_TREE_SYNTH) 0
+set ::env(RUN_CTS) 0
 set ::env(CLOCK_PORT) ""
 
 set ::env(PL_RANDOM_GLB_PLACEMENT) 1
