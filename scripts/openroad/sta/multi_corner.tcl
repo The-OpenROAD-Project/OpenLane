@@ -39,7 +39,7 @@ puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
 foreach corner [sta::corners] {
     puts "======================= [$corner name] Corner ===================================\n"
-    report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    report_checks -sort_by_slack -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
     puts ""
 }
 puts "min_report_end"
@@ -51,7 +51,7 @@ puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
 foreach corner [sta::corners] {
     puts "======================= [$corner name] Corner ===================================\n"
-    report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    report_checks -sort_by_slack -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
     puts ""
 }
 puts "max_report_end"

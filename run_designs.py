@@ -20,7 +20,6 @@ import click
 import queue
 import shutil
 import logging
-import pathlib
 import datetime
 import threading
 import subprocess
