@@ -17,4 +17,11 @@ read_spef $::env(CURRENT_SPEF)
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 
-analyze_power_grid -net $::env(VDD_NET) -outfile $::env(_tmp_save_rpt)
+set arg_list [list]
+lappend arg_list -net $::env(VDD_NET)
+lappend arg_list -outfile $::env(_tmp_save_rpt)
+if { [info exists ::env(VSRC_LOC_FILE)] } {
+    lappend arg_list -vsrc $::env(VSRC_LOC_FILE)
+}
+
+analyze_power_grid {*}$arg_list

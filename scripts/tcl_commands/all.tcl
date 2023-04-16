@@ -1217,6 +1217,10 @@ proc run_irdrop_report {args} {
     set log [index_file $::env(signoff_logs)/irdrop.log]
     puts_info "Creating IR Drop Report (log: [relpath . $log])..."
 
+    if { ![info exists ::env(VSRC_LOC_FILE)] } {
+        puts_warn "::env(VSRC_LOC_FILE) is not defined. The IR drop analysis will run, but the values may be useless."
+    }
+
     set rpt [index_file $::env(signoff_reports)/irdrop.rpt]
 
     set ::env(_tmp_save_rpt) $rpt

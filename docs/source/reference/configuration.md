@@ -248,6 +248,12 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `SPEF_WIRE_MODEL` | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
 | `SPEF_EDGE_CAP_FACTOR` | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
 
+### IR Drop Analysis
+
+|Variable|Description|
+|-|-|
+| `VSRC_LOC_FILE` | A PSM loc file: see [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/91b99508f32d5ba1b0c284c25bd778ab40c222fe/src/psm#commands) for more info.  |
+
 ### Magic
 |Variable|Description|
 |-|-|
