@@ -48,10 +48,6 @@ def get_design_name(config_file: str) -> str:
     return name
 
 
-def mkdirp(path):
-    return pathlib.Path(path).mkdir(parents=True, exist_ok=True)
-
-
 @click.command()
 @click.option(
     "-c",
@@ -201,7 +197,7 @@ def cli(
         store_dir = f"./regression_results/{tag}"
         report_file_name = f"{store_dir}/{tag}"
 
-        mkdirp(store_dir)
+        utils.mkdirp(store_dir)
 
     log = logging.getLogger("log")
     log_formatter = logging.Formatter("%(asctime)s | %(message)s", "%Y-%m-%d %H:%M")

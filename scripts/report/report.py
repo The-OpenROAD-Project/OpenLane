@@ -23,42 +23,13 @@ from typing import Iterable, Optional, Dict
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from .get_file_name import get_name  # noqa E402
-from utils.utils import get_run_path  # noqa E402
 from config.config import ConfigHandler  # noqa E402
+from utils.utils import get_run_path, mkdirp  # noqa E402
 
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
         print(*args, **kwargs, file=sys.stderr)
-
-
-def parse_to_report(
-    input_log: str, output_report: str, start: str, end: Optional[str] = None
-):
-    """
-    Parses a log in the format
-    START_MARKER
-    data
-    END_MARKER
-    to a report file.
-    """
-    if end is None:
-        end = f"{start}_end"
-
-    log_lines = open(input_log).read().split("\n")
-    with open(output_report, "w") as f:
-        started = False
-
-        for line in log_lines:
-            if line.strip() == end:
-                break
-            if started:
-                f.write(line + "\n")
-            if line.strip() == start:
-                started = True
-
-        if not started:
-            f.write("SKIPPED!")
 
 
 class Artifact(object):
@@ -99,25 +70,36 @@ class Artifact(object):
         # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
         return self.is_valid() and os.path.getsize(self.path) > 10
 
-    def log_to_report(self, report_name: str, start: str, end: Optional[str] = None):
+    def log_to_report(self, report_name: str, locus: str):
         report_path = os.path.join(self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
             debug(f"{self.step}:{self.filename} not found or empty.")
             return
-        parse_to_report(self.path, report_path, start, end)
+
+        debug(f"Writing '{report_path}'...")
+        start = locus
+        end = f"{locus}_end"
+        mkdirp(os.path.dirname(report_path))
+        with open(report_path, "w") as f:
+            started = False
+            for line in open(self.path):
+                if line.strip() == end:
+                    break
+                if started:
+                    print(line, end="", file=f)
+                if line.strip() == start:
+                    started = True
+
+            if not started:
+                f.write("SKIPPED!")
 
     def generate_reports(self, *args: Iterable[Iterable[str]]):
         if (self.index or "") == "":
             self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"
-            start = report[1]
-            end = None
-            try:
-                end = report[2]
-            except Exception:
-                pass
-            self.log_to_report(filename, start, end)
+            locus = report[1]
+            self.log_to_report(filename, locus)
 
 
 class Report(object):
@@ -250,14 +232,17 @@ class Report(object):
         ]
 
         for name, log in [
-            ("cts", Artifact(rp, "logs", "cts", "cts.log")),
-            ("gpl", Artifact(rp, "logs", "placement", "global.log")),
-            ("grt", Artifact(rp, "logs", "routing", "global.log")),
             ("syn", Artifact(rp, "logs", "synthesis", "sta.log")),
-            ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
-            ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
-            ("rt_rsz", Artifact(rp, "logs", "routing", "resizer.log")),
+            ("cts", Artifact(rp, "logs", "cts", "cts_sta.log")),
+            ("gpl", Artifact(rp, "logs", "placement", "gpl_sta.log")),
+            ("dpl", Artifact(rp, "logs", "placement", "dpl_sta.log")),
+            ("rsz_design", Artifact(rp, "logs", "routing", "rsz_design_sta.log")),
+            ("rsz_timing", Artifact(rp, "logs", "routing", "rsz_timing_sta.log")),
+            ("grt", Artifact(rp, "logs", "routing", "grt_sta.log")),
             ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
+            ("mca/rcx_nom", Artifact(rp, "logs", "signoff", "rcx_mcsta.nom.log")),
+            ("mca/rcx_min", Artifact(rp, "logs", "signoff", "rcx_mcsta.min.log")),
+            ("mca/rcx_max", Artifact(rp, "logs", "signoff", "rcx_mcsta.max.log")),
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)

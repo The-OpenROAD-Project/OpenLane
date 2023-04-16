@@ -406,7 +406,7 @@ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
 
 Take a look at some reports.
 
-Here's an excerpt from `designs/mem_1r1w_00/runs/full_guide/reports/signoff/30-rcx_mca_sta.summary.rpt`:
+Here's an excerpt from `designs/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
 
 ```
 ===========================================================================
@@ -420,7 +420,7 @@ report_worst_slack -min (Hold)
 worst slack 0.03
 ```
 
-Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/30-rcx_mca_sta.max.rpt`:
+Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/##-rcx_sta.max.rpt`:
 
 ```
 ===========================================================================

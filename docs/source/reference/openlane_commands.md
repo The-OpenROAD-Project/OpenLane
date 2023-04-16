@@ -73,7 +73,7 @@ Most of the following commands' implementation exists in this [file][0]
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)`, either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna_violators.rpt`|
-| `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
+| `save_state` | | Saves environment variables to  `<run_path>/config.tcl` |
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
 | `set_layer_tracks  ` | | **Removed:** sets the tracks on a layer to specific value.|
 |    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
