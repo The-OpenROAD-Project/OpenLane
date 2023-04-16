@@ -5,8 +5,6 @@ The following are the command-line arguments that can be passed to `flow.tcl`:
 | Argument | Description |
 | - | - |
 | `-design <folder path>`  <br>(Optional) | Specifies the design folder. A design folder should contain a `config.json` or `config.tcl` file defining the design parameters. <br> If the folder is not found, ./designs directory is searched, and if this parameter is omitted, the current working directory is treated as the design. |
-| `-from <stage>`  <br>(Optional) | Specifies stage to start flow execution from |
-| `-to <stage>`  <br>(Optional) | Specifies stage to stop flow execution at (included) |
 | `-config_file <file>`  <br>(Optional) | Specifies the design's configuration file for running the flow.  <br>For example, to run the flow using `./designs/spm/config2.tcl`  <br>Use run `./flow.tcl -design ./designs/spm -config_file ./designs/spm/config2.tcl`  <br>By default `config.tcl` is used, and if not found, `config.json` is used instead. |
 | `-override_env` <br> Optional | Allows you to override certain configuration environment variables for this run. Format: `-override_env KEY1=VALUE1,KEY2=VALUE2` |
 | `-expose_env` | Expose the following environment variables to `config.json` as configuration variables. Has no effect on config.tcl sourcing, which already has access to all environment variables. Format: `-expose_env KEY1,KEY2` |

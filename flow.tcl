@@ -155,6 +155,11 @@ proc run_non_interactive_mode {args} {
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
+    if { [info exists arg_values(-from) ] || [info exists arg_values(-to)] } {
+        puts_err "-from and -to are no longer supported."
+        exit -1
+    }
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
@@ -187,22 +192,15 @@ proc run_non_interactive_mode {args} {
         "cvc_rv" "run_erc_step"
     ]
 
-    if { [info exists arg_values(-from) ]} {
-        puts_info "Starting flow at $arg_values(-from)..."
-        set ::env(CURRENT_STEP) $arg_values(-from)
-    } elseif {  [info exists ::env(CURRENT_STEP) ] } {
-        puts_info "Resuming flow from $::env(CURRENT_STEP)..."
-    } else {
-        set ::env(CURRENT_STEP) "synthesis"
-    }
+    set ::env(CURRENT_STEP) "synthesis"
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc_rv"
+    set start_step $::env(CURRENT_STEP)
+    set end_step "cvc_rv"
 
     set failed 0;
     set exe 0;
     dict for {step_name step_exe} $steps {
-        if { [ string equal $arg_values(-from) $step_name ] } {
+        if { [ string equal $start_step $step_name ] } {
             set exe 1;
         }
 
@@ -219,7 +217,7 @@ proc run_non_interactive_mode {args} {
             }
         }
 
-        if { [ string equal $arg_values(-to) $step_name ] } {
+        if { [ string equal $end_step $step_name ] } {
             set exe 0:
             break;
         }
