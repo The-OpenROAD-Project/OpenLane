@@ -31,6 +31,13 @@ username = getpass.getuser()
 user = subprocess.check_output(["id", "-u", username]).decode("utf8")[:-1]
 group = subprocess.check_output(["id", "-g", username]).decode("utf8")[:-1]
 
+benchmark_args = []
+benchmarks_file = os.path.join(
+    "regression_results", "benchmark_results", gh.pdk, f"{gh.scl}.csv"
+)
+if os.path.exists(benchmarks_file):
+    benchmark_args = ["--benchmark", benchmarks_file]
+
 docker_command = [
     "docker",
     "run",
@@ -58,8 +65,9 @@ docker_command = [
             test_name,
             "--threads",
             str(threads_used),
-            "--benchmark",
-            os.path.join("regression_results", "benchmark_results", "SW_HD.csv"),
+        ]
+        + benchmark_args
+        + [
             "--show_output",
             "--config_file",
             "config",
@@ -83,19 +91,6 @@ def cat(x):
 
 results_folder = os.path.join(gh.root, "regression_results", test_name)
 
-print("Verbose differences within the benchmark:")
-for report in glob.glob(os.path.join(results_folder, f"{test_name}*.rpt")):
-    cat(report)
-
-design_test_report = os.path.join(results_folder, f"{test_name}.rpt.yml")
-if not os.path.exists(design_test_report):
-    print(f"Couldn't find final design test report at {design_test_report}.")
-    exit(-1)
-
-cat(design_test_report)
-
-dtr_str = open(design_test_report).read()
-dtr = yaml.safe_load(dtr_str)
 
 print("Tarballing run...")
 subprocess.check_call(
@@ -103,8 +98,21 @@ subprocess.check_call(
 )
 print("Created ./reproducible.tar.gz.")
 
-if not dtr[design]["pass"]:
-    print("Testing the design has failed.")
-    exit(-1)
+difference_reports = glob.glob(os.path.join(results_folder, f"{test_name}*.rpt"))
+if len(difference_reports):
+    print("Verbose differences within the benchmark:")
+    for report in difference_reports:
+        cat(report)
+
+design_test_report = os.path.join(results_folder, f"{test_name}.rpt.yml")
+if os.path.exists(design_test_report):
+    cat(design_test_report)
+
+    dtr_str = open(design_test_report).read()
+    dtr = yaml.safe_load(dtr_str)
+
+    if not dtr[design]["pass"]:
+        print("Testing the design has failed.")
+        exit(-1)
 
 print("Done.")

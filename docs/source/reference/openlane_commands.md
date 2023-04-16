@@ -195,9 +195,9 @@ Most of the following commands' implementation exists in this [file][8]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
-| `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `ins_diode_cells_4` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs on `CURRENT_DEF` and only if `DIODE_INSERTION_STRATEGY` is set to `2`.|
+| `ins_diode_cells_1` | | **Deprecated** |
+| `heuristic_diode_insertion` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `heal_antenna_violators`   | | **Deprecated** |
 
 
 ## PDN Generation Commands
@@ -319,7 +319,7 @@ Most of the following commands' implementation exists in these files: [deflef][1
 | `fake_display_buffer` | | Runs a fake display buffer for the pad generator. |
 | `kill_display_buffer` | | Kills the fake display buffer. |
 | `set_if_unset <var> <default_value>` | | If `<var>` doesn't exist/have a value, it will be set to `<default_value>`. |
-| `try_catch <command>` | | A minimal try_catch block to execute the `<command>`. |
+| `try_exec <command>` | | Attempts to execute the following command, printing the last couple of lines and either returning an error (most cases) or quitting (interactive scripts). |
 | `puts_err <text>` | | Prints `[ERROR]: ` followed by the `<text>` in red. |
 | `puts_success <text>` | | Prints `[SUCCESS]: ` followed by the `<text>` in green. |
 | `puts_warn <text>` | | Prints `[WARNING]: ` followed by the `<text>` in yellow. |

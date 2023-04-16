@@ -26,21 +26,35 @@ TEST_SETS_FILE = os.path.join(__dir__, "test_sets.yml")
 
 @click.command()
 @click.option(
-    "--pdk", "pdks", multiple=True, default=["sky130A"], help="Specify which PDK to use"
+    "--scl",
+    "scls",
+    multiple=True,
+    default=["sky130A/sky130_fd_sc_hd"],
+    help="Specify which PDK/SCL combination to use",
+)
+@click.option(
+    "--json/--plain",
+    "use_json",
+    default=True,
+    help="Print as plain text joined by whitespace instead of a JSON file. Omits PDKs.",
 )
 @click.argument("test_sets", nargs=-1)
-def main(pdks, test_sets):
+def main(scls, use_json, test_sets):
 
     data_str = open(TEST_SETS_FILE).read()
     data = yaml.safe_load(data_str)
-    test_set_data = filter(lambda e: e["pdk"] in pdks and e["name"] in test_sets, data)
+    test_set_data = filter(lambda e: e["scl"] in scls and e["name"] in test_sets, data)
 
     designs = list()
     for test_set in list(test_set_data):
+        pdk, scl = test_set["scl"].split("/")
         for design in test_set["designs"]:
-            designs.append({"name": design, "pdk": test_set["pdk"]})
+            designs.append({"name": design, "pdk": pdk, "scl": scl})
 
-    print(json.dumps({"design": designs}), end="")
+    if use_json:
+        print(json.dumps({"design": designs}), end="")
+    else:
+        print(" ".join([design["name"] for design in designs]), end="")
 
 
 if __name__ == "__main__":

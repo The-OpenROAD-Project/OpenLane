@@ -1,5 +1,4 @@
 # Copyright 2020-2022 Efabless Corporation
-# ECO Flow Copyright 2021 The University of Michigan
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -44,7 +43,7 @@ proc global_routing_fastroute {args} {
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
         -no_update_current
 
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
+    if { $::env(GRT_REPAIR_ANTENNAS) } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
         set iter 1
 
@@ -101,6 +100,7 @@ proc global_routing_fastroute {args} {
         -indexed_log [index_file $::env(routing_logs)/global_write_netlist.log]
 
     TIMER::timer_stop
+    run_sta -no_save -log $::env(routing_logs)/sta-groute.log
 
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - openroad"
 }
@@ -133,15 +133,15 @@ proc detailed_routing_tritonroute {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl\
         -indexed_log $log\
         -save "to=$::env(routing_results),noindex,def,odb,netlist,powered_netlist"
-    unset ::env(_tmp_drt_file_prefix)
-    unset ::env(_tmp_drt_rpt_prefix)
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(routing_reports)/drt.drc
 
-    quit_on_tr_drc
+    if { $::env(QUIT_ON_TR_DRC) } {
+        quit_on_tr_drc
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "detailed_routing - openroad"
@@ -215,37 +215,48 @@ proc power_routing {args} {
 
 
 proc ins_diode_cells_1 {args} {
-    increment_index
-    TIMER::timer_start
-    set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/diodes.tcl\
-        -indexed_log [index_file $::env(routing_logs)/diodes.log]\
-        -save "to=$::env(routing_tmpfiles),name=diodes,def,odb,netlist,powered_netlist"
-
-    TIMER::timer_stop
-
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openroad"
+    puts_err "ins_diode_cells_1 is no longer supported"
+    throw_error
 }
 
-proc ins_diode_cells_4 {args} {
+proc io_diode_insertion {args} {
+    increment_index
+    TIMER::timer_start
+    set log [index_file $::env(routing_logs)/io_diodes.log]
+    puts_info "Running I/O Diode Insertion (log: [relpath . $log])..."
+
+    # Custom script
+    set save_def [index_file $::env(routing_tmpfiles)/io_diodes.def]
+    set save_odb [index_file $::env(routing_tmpfiles)/io_diodes.odb]
+
+    manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py place\
+        -indexed_log [index_file $::env(routing_logs)/io_diodes.log]\
+        -output $save_odb\
+        -output_def $save_def\
+        --diode-cell $::env(DIODE_CELL)\
+        --diode-pin  $::env(DIODE_CELL_PIN)\
+        --threshold Infinity \
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect $::env(DIODE_ON_PORTS)
+
+    set_def $save_def
+    set_odb $save_odb
+
+    # Legalize
+    detailed_placement_or\
+        -outdir $::env(routing_tmpfiles)\
+        -log $::env(routing_logs)/io_diode_legalization.log\
+        -name [index_file io_diode_legalized]
+
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "io diode insertion - openlane"
+}
+
+proc heuristic_diode_insertion {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/diodes.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
-
-    # Select diode cell
-    if { $::env(DIODE_INSERTION_STRATEGY) == 5 } {
-        if { ! [info exists ::env(FAKEDIODE_CELL)] } {
-            puts_err "DIODE_INSERTION_STRATEGY $::env(DIODE_INSERTION_STRATEGY) is only valid when FAKEDIODE_CELL is defined."
-            puts_err "Please try a different strategy."
-            return -code error
-        }
-        set ::antenna_cell_name $::env(FAKEDIODE_CELL)
-    } else {
-        set ::antenna_cell_name $::env(DIODE_CELL)
-    }
+    puts_info "Running Heuristic Diode Insertion (log: [relpath . $log])..."
 
     # Custom script
     set save_def [index_file $::env(routing_tmpfiles)/diodes.def]
@@ -257,7 +268,9 @@ proc ins_diode_cells_4 {args} {
         -output_def $save_def\
         --diode-cell $::env(DIODE_CELL)\
         --diode-pin  $::env(DIODE_CELL_PIN)\
-        --fake-diode-cell $::antenna_cell_name
+        --threshold $::env(HEURISTIC_ANTENNA_THRESHOLD) \
+        --side-strategy $::env(HEURISTIC_ANTENNA_INSERTION_MODE) \
+        --port-protect none
 
     set_def $save_def
     set_odb $save_odb
@@ -266,17 +279,17 @@ proc ins_diode_cells_4 {args} {
     detailed_placement_or\
         -outdir $::env(routing_tmpfiles)\
         -log $::env(routing_logs)/diode_legalization.log\
-        -name diodes
+        -name [index_file diodes_legalized]
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "diode insertion - openlane"
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heuristic diode insertion - openlane"
 }
 
 proc apply_route_obs {args} {
     increment_index
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/obs.log]
-    puts_info "Running Diode Insertion (log: [relpath . $log])..."
+    puts_info "Applying Routing Obstructions (log: [relpath . $log])..."
 
     set save_def [file rootname $::env(CURRENT_DEF)].obs.def
     set save_db [file rootname $::env(CURRENT_DEF)].obs.odb
@@ -385,48 +398,29 @@ proc run_routing {args} {
     # |----------------   5. ROUTING ----------------------|
     # |----------------------------------------------------|
 
+    run_resizer_design_routing
     run_resizer_timing_routing
     if { $::env(RSZ_USE_OLD_REMOVER) == 1} {
         remove_buffers_from_nets
     }
 
     if { [info exists ::env(DIODE_CELL)] && ($::env(DIODE_CELL) ne "") } {
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 1) || ($::env(DIODE_INSERTION_STRATEGY) == 2) } {
-            ins_diode_cells_1
+        if { $::env(DIODE_ON_PORTS) ne "none" } {
+            io_diode_insertion
         }
-        if { ($::env(DIODE_INSERTION_STRATEGY) == 4) || ($::env(DIODE_INSERTION_STRATEGY) == 5) || ( $::env(DIODE_INSERTION_STRATEGY) == 6) } {
-            ins_diode_cells_4
+        if { $::env(RUN_HEURISTIC_DIODE_INSERTION) } {
+            heuristic_diode_insertion
         }
     }
 
     add_route_obs
 
     #legalize if not yet legalized
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 4) && ($::env(DIODE_INSERTION_STRATEGY) != 5) && ($::env(DIODE_INSERTION_STRATEGY) != 6) } {
-        detailed_placement_or\
-            -outdir $::env(routing_tmpfiles)\
-            -name diode\
-            -log $::env(routing_logs)/diode_legalization.log
-    }
-
-    # if diode insertion does *not* happen as part of global routing, then
-    # we can insert fill cells early on
-    if { ($::env(DIODE_INSERTION_STRATEGY) != 3) && ($::env(DIODE_INSERTION_STRATEGY) != 6) && ($::env(ECO_ENABLE) == 0) } {
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
-    }
 
     global_routing
 
-    if { (($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6)) && ($::env(ECO_ENABLE) == 0) } {
-        # Doing this here can be problematic and is something that needs to be
-        # addressed in FastRoute since fill cells *might* occupy some of the
-        # resources that were already used during global routing causing the
-        # detailed router to suffer later.
-        if {$::env(RUN_FILL_INSERTION)} {
-            ins_fill_cells
-        }
+    if { $::env(RUN_FILL_INSERTION) } {
+        ins_fill_cells
     }
 
     # Detailed Routing
@@ -444,20 +438,39 @@ proc run_routing {args} {
     set ::env(timer_routed) [clock seconds]
 }
 
+proc run_resizer_design_routing {args} {
+    if { $::env(GLB_RESIZER_DESIGN_OPTIMIZATIONS) == 1} {
+        increment_index
+        TIMER::timer_start
+        set log [index_file $::env(routing_logs)/resizer_design.log]
+        puts_info "Running Global Routing Resizer Design Optimizations (log: [relpath . $log])..."
+
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_design.tcl\
+            -indexed_log $log\
+            -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
+        run_sta -no_save -log $::env(routing_logs)/sta-resizer_design.log
+    } else {
+        puts_info "Skipping Global Routing Resizer Design Optimizations."
+    }
+}
+
 proc run_resizer_timing_routing {args} {
     if { $::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
         increment_index
         TIMER::timer_start
-        set log [index_file $::env(routing_logs)/resizer.log]
+        set log [index_file $::env(routing_logs)/resizer_timing.log]
         puts_info "Running Global Routing Resizer Timing Optimizations (log: [relpath . $log])..."
 
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl\
-            -indexed_log [index_file $::env(routing_logs)/resizer.log]\
+            -indexed_log $log\
             -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
-
+        run_sta -no_save -log $::env(routing_logs)/sta-resizer_timing.log
     } else {
         puts_info "Skipping Global Routing Resizer Timing Optimizations."
     }

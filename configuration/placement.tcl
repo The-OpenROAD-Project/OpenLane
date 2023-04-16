@@ -39,3 +39,4 @@ set ::env(PL_MAX_DISPLACEMENT_X) 500
 set ::env(PL_MAX_DISPLACEMENT_Y) 100
 set ::env(PL_MACRO_HALO) {0 0}
 set ::env(PL_MACRO_CHANNEL) {0 0}
+set ::env(PL_WIRELENGTH_COEF) 0.25

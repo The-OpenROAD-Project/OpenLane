@@ -1,4 +1,5 @@
 # Hierarchical chip design (with macros)
+
 This guide covers the creation of simple hierarchical chip level macro.
 
 Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip-level macros.
@@ -65,7 +66,7 @@ Modify the `config.json` to include following:
 
 More information on [configuration can be found here](../reference/configuration.md).
 
-:::{figure} ../../_static/digital_flow/ring_around_macro.png
+:::{figure} ../../\_static/digital_flow/ring_around_macro.png
 On the left `"FP_PDN_CORE_RING": true`, on the right `"FP_PDN_CORE_RING": false`
 :::
 
@@ -88,7 +89,7 @@ package require  openlane
 or_gui
 ```
 
-:::{figure} ../../_static/digital_flow/mem_1r1w_def.png
+:::{figure} ../../\_static/digital_flow/mem_1r1w_def.png
 :::
 
 ## Chip level integration
@@ -131,15 +132,15 @@ Then add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS` and `EXTRA_GDS_FILES` to the `co
 
 ```json
 {
-    "DESIGN_NAME": "regfile_2r1w",
-    "VERILOG_FILES": "dir::src/*.v",
-    "CLOCK_PORT": "clk",
-    "CLOCK_PERIOD": 10.0,
-    "DESIGN_IS_CORE": true,
+  "DESIGN_NAME": "regfile_2r1w",
+  "VERILOG_FILES": "dir::src/*.v",
+  "CLOCK_PORT": "clk",
+  "CLOCK_PERIOD": 10.0,
+  "DESIGN_IS_CORE": true,
 
-    "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-    "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+  "EXTRA_LEFS": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+  "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+  "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
 
@@ -204,7 +205,7 @@ package require  openlane
 or_gui
 ```
 
-:::{figure} ../../_static/digital_flow/broken_aspect_ratio.png
+:::{figure} ../../\_static/digital_flow/broken_aspect_ratio.png
 :::
 
 As can be observed in the image, the placement of the mem_1r1w instances failed.
@@ -254,7 +255,7 @@ or_gui
 # Empty newline to force above line to execute
 ```
 
-:::{figure} ../../_static/digital_flow/final_def.png
+:::{figure} ../../\_static/digital_flow/final_def.png
 OpenROAD GUI with loaded final DEF file
 :::
 
@@ -267,7 +268,7 @@ set_def designs/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
 or_gui
 ```
 
-:::{figure} ../../_static/digital_flow/floorplan_def_loaded.png
+:::{figure} ../../\_static/digital_flow/floorplan_def_loaded.png
 :::
 
 Each run has following structure:
@@ -275,7 +276,6 @@ Each run has following structure:
 ```
 ├── logs OR reports OR results OR tmp
 │   ├── cts
-│   ├── eco
 │   ├── floorplan
 │   ├── placement
 │   ├── routing
@@ -337,7 +337,6 @@ designs/regfile_2r1w/runs/full_guide/logs
 │   ├── 15-write_verilog.log
 │   ├── 16-resizer.log
 │   └── 17-write_verilog.log
-├── eco
 ├── floorplan
 │   ├── 3-initial_fp.log
 │   ├── 4-io.log
@@ -409,7 +408,6 @@ designs/regfile_2r1w/runs/full_guide/reports/
 │   ├── 16-cts_rsz_sta.tns.rpt
 │   ├── 16-cts_rsz_sta.wns.rpt
 │   └── 16-cts_rsz_sta.worst_slack.rpt
-├── eco
 ├── floorplan
 │   ├── 3-initial_fp_core_area.rpt
 │   └── 3-initial_fp_die_area.rpt
@@ -510,7 +508,7 @@ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
    ./designs/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
 ```
 
-:::{figure} ../../_static/digital_flow/final_gds.png
+:::{figure} ../../\_static/digital_flow/final_gds.png
 :::
 
 ### Exploring your designs
@@ -543,7 +541,7 @@ Startpoint: write_addr[1] (input port clocked by clk)
 Endpoint: _3436_ (rising edge-triggered flip-flop clocked by clk)
 Path Group: clk
 Path Type: max
-Corner: ss
+Corner: Slowest
 
 Fanout     Cap    Slew   Delay    Time   Description
 -----------------------------------------------------------------------------
@@ -691,7 +689,7 @@ set_def designs/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/r
 or_gui
 ```
 
-:::{figure} ../../_static/digital_flow/lvs_issue_comparison.png
+:::{figure} ../../\_static/digital_flow/lvs_issue_comparison.png
 Left picture is for working case. Right picture is the case with PDN issues
 :::
 

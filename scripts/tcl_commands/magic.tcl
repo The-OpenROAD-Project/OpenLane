@@ -51,7 +51,8 @@ proc run_magic {args} {
             -indexed_log $log
 
         # Only keep the properties section in the file
-        try_catch sed -i -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
+        try_exec sed -i.bak -n "/^<< properties >>/,/^<< end >>/p" $::env(signoff_tmpfiles)/gds_ptrs.mag
+        exec rm -f $::env(signoff_tmpfiles)/gds_ptrs.mag.bak
     }
 
     # If desired, copy GDS_* properties into the mag/ view
@@ -62,9 +63,11 @@ proc run_magic {args} {
     if { $::env(MAGIC_GENERATE_LEF) } {
         # Generate LEF view
         set ::env(MAGTYPE) maglef
+        set log [index_file $::env(signoff_logs)/lef.log]
+        puts_info "Generating lef with Magic ($log)..."
         run_magic_script\
-            -indexed_log [index_file $::env(signoff_logs)/lef.log]\
-            $::env(SCRIPTS_DIR)/magic/mag/lef.tcl
+            -indexed_log $log\
+            $::env(SCRIPTS_DIR)/magic/lef.tcl
 
         if { $::env(MAGIC_GENERATE_MAGLEF) } {
             # Generate MAGLEF view
@@ -96,20 +99,20 @@ proc run_magic_drc {args} {
         -indexed_log $log
 
     puts_info "Converting Magic DRC database to various tool-readable formats..."
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tcl\
         -o $::env(drc_prefix).tcl \
         $::env(drc_prefix).rpt
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_tr\
         -o $::env(drc_prefix).tr \
         $::env(drc_prefix).rpt
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout\
         -o $::env(drc_prefix).klayout.xml \
         --design-name $::env(DESIGN_NAME) \
         $::env(drc_prefix).tr
 
-    try_catch python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
+    try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py magic to_rdb\
         -o $::env(drc_prefix).rdb \
         $::env(drc_prefix).rpt
 
@@ -117,7 +120,9 @@ proc run_magic_drc {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - magic"
 
-    quit_on_magic_drc -log $::env(drc_prefix).tr
+    if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
+        quit_on_magic_drc -log $::env(drc_prefix).tr
+    }
 }
 
 proc run_magic_spice_export {args} {
@@ -158,7 +163,9 @@ proc run_magic_spice_export {args} {
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "$extract_type extraction - magic"
 
-    quit_on_illegal_overlaps -log $feedback_file
+    if { [info exists ::env(QUIT_ON_ILLEGAL_OVERLAPS)] && $::env(QUIT_ON_ILLEGAL_OVERLAPS) } {
+        quit_on_illegal_overlaps -log $feedback_file
+    }
 }
 
 proc export_magic_view {args} {
@@ -217,7 +224,7 @@ proc run_magic_antenna_check {args} {
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
 
     # process the log
-    try_catch awk "/Cell:/ {print \$2}" $log > $antenna_violators_rpt
+    try_exec awk "/Cell:/ {print \$2}" $log > $antenna_violators_rpt
 
     set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
 

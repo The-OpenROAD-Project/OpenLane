@@ -13,6 +13,7 @@
 // limitations under the License.
 // SPDX-License-Identifier: Apache-2.0
 
+/// sta-blackbox
 `default_nettype none
 /*
  *-------------------------------------------------------------

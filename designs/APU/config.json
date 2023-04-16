@@ -5,15 +5,16 @@
     "CLOCK_NET": "clk",
     "FP_CORE_UTIL": 35,
     "CLOCK_PERIOD": 17,
+    "pdk::sky130*": {
+        "SYNTH_MAX_FANOUT": 6
+    },
     "pdk::gf180mcu*": {
-        "DIODE_INSERTION_STRATEGY": "4",
+        "DIODE_INSERTION_STRATEGY": 4,
+        "GPL_CELL_PADDING": 4,
+        "DPL_CELL_PADDING": 4,
         "PL_RESIZER_HOLD_SLACK_MARGIN": 0.25,
         "FP_CORE_UTIL": 25,
         "PL_RESIZER_HOLD_MAX_BUFFER_PERCENT": 60,
-        "PL_TARGET_DENSITY": 0.31,
         "CLOCK_PERIOD": 75
-    },
-    "pdk::sky130*": {
-        "SYNTH_MAX_FANOUT": 6
     }
 }

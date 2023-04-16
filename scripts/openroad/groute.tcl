@@ -16,7 +16,7 @@ read
 
 set_propagated_clock [all_clocks]
 
-if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
+if { $::env(GRT_REPAIR_ANTENNAS) } {
     set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
 }
 
@@ -35,8 +35,8 @@ if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
 puts $arg_list
 global_route {*}$arg_list
 
-if { ($::env(DIODE_INSERTION_STRATEGY) == 3) || ($::env(DIODE_INSERTION_STRATEGY) == 6) } {
-    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS)
+if { $::env(GRT_REPAIR_ANTENNAS) } {
+    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
     check_placement
 }
 
@@ -48,9 +48,6 @@ if {[info exists ::env(CLOCK_PORT)]} {
         source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
         # estimate wire rc parasitics
         estimate_parasitics -global_routing
-
-        set ::env(RUN_STANDALONE) 0
-        source $::env(SCRIPTS_DIR)/openroad/sta.tcl
     }
 } else {
     puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

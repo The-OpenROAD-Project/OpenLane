@@ -13,7 +13,7 @@
 # limitations under the License.
 
 proc convert_pg_pins {lib_in lib_out} {
-    try_catch sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
+    try_exec sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
 }
 
 proc run_yosys {args} {
@@ -71,7 +71,8 @@ proc run_yosys {args} {
     if { [info exists ::env(SYNTH_EXPLORE)] && $::env(SYNTH_EXPLORE) } {
         puts_info "This is a Synthesis Exploration and so no need to remove the defparam lines."
     } else {
-        try_catch sed -i {/defparam/d} $::env(CURRENT_NETLIST)
+        try_exec sed -i.bak {/defparam/d} $arg_values(-output)
+        exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
 }
@@ -79,7 +80,7 @@ proc run_yosys {args} {
 proc run_synth_exploration {args} {
     if { $::env(SYNTH_NO_FLAT) } {
         puts_err "Cannot run synthesis exploration with SYNTH_NO_FLAT."
-        return -code error
+        throw_error
     }
 
     puts_info "Running Synthesis Exploration..."
@@ -92,7 +93,7 @@ proc run_synth_exploration {args} {
     set exploration_report [index_file $::env(synthesis_reports)/exploration_analysis.html]
 
     puts_info "Generating exploration report..."
-    try_catch python3 $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
+    try_exec python3 $::env(SCRIPTS_DIR)/synth_exp/analyze.py\
         --output $exploration_report\
         [index_file $::env(synthesis_logs)/synthesis.log]
 
@@ -118,9 +119,31 @@ proc run_synthesis {args} {
         set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
     } else {
         run_yosys -indexed_log $log
+        if { $::env(QUIT_ON_SYNTH_CHECKS) } {
+            set pre_synth_report $::env(synth_report_prefix)_pre_synth.chk.rpt
+            if { [info exists ::env(SYNTH_ELABORATE_ONLY)] \
+                && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
+                set pre_synth_report $::env(synth_report_prefix).chk.rpt
+            }
+        run_synthesis_checkers $log $pre_synth_report
+        }
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
+
+    if { $::env(QUIT_ON_ASSIGN_STATEMENTS) == 1 } {
+        check_assign_statements
+    }
+
+    if { $::env(QUIT_ON_UNMAPPED_CELLS) == 1 } {
+        set strategy_escaped [string map {" " _} $::env(SYNTH_STRATEGY)]
+        set final_stat_file $::env(synth_report_prefix).$strategy_escaped.stat.rpt
+        if { [info exists ::env(SYNTH_ELABORATE_ONLY)] \
+            && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
+            set final_stat_file $::env(synth_report_prefix).stat
+        }
+        check_unmapped_cells $final_stat_file
+    }
 
     run_sta\
         -log $::env(synthesis_logs)/sta.log \
@@ -129,14 +152,6 @@ proc run_synthesis {args} {
         -save_to $::env(synthesis_results)
 
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
-
-    if { $::env(CHECK_ASSIGN_STATEMENTS) == 1 } {
-        check_assign_statements
-    }
-
-    if { $::env(CHECK_UNMAPPED_CELLS) == 1 } {
-        check_synthesis_failure
-    }
 
     if { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
         puts_info "Creating a netlist with power/ground pins."
@@ -219,7 +234,7 @@ proc logic_equiv_check {args} {
         puts_err "$::env(LEC_LHS_NETLIST) is not logically equivalent to $::env(LEC_RHS_NETLIST)."
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
-        return -code error
+        throw_error
     }
 
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"

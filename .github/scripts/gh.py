@@ -140,6 +140,7 @@ gh = SimpleNamespace(
         "root": os.getenv("GITHUB_WORKSPACE"),
         "pdk_root": os.getenv("PDK_ROOT"),
         "pdk": os.getenv("PDK"),
+        "scl": os.getenv("STD_CELL_LIBRARY"),
         "tool": os.getenv("TOOL"),
         "event": SimpleNamespace(**{"name": os.getenv("GITHUB_EVENT_NAME")}),
         "export_env": export_env,

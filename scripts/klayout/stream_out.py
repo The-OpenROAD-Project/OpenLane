@@ -47,11 +47,12 @@
 
 
 import os
+import sys
 from typing import TYPE_CHECKING, Optional
 
-try:
+if "klayout" in os.path.basename(sys.executable):
     import pya
-except ImportError:
+else:
     import click
 
     @click.command()
@@ -59,61 +60,57 @@ except ImportError:
     @click.option(
         "-l",
         "--input-lef",
-        required=os.getenv("MERGED_LEF") is None,
-        default=os.getenv("MERGED_LEF"),
+        "input_lefs",
+        multiple=True,
     )
     @click.option(
         "-T",
-        "--tech-file",
-        "lyt",
-        required=os.getenv("KLAYOUT_TECH") is None,
-        default=os.getenv("KLAYOUT_TECH"),
+        "--lyt",
+        required=True,
         help="KLayout .lyt file",
     )
     @click.option(
         "-P",
-        "--props-file",
-        "lyp",
-        required=os.getenv("KLAYOUT_PROPERTIES") is None,
-        default=os.getenv("KLAYOUT_PROPERTIES"),
+        "--lyp",
+        required=True,
         help="KLayout .lyp file",
     )
+    @click.option(
+        "-M",
+        "--lym",
+        required=True,
+        help="KLayout .map (LEF/DEF layer map) file",
+    )
     @click.option("-w", "--with-gds-file", "input_gds_files", multiple=True, default=[])
-    @click.option("-s", "--seal-gds-file", default=None)
-    @click.option("-t", "--top", required=True, help="Name of the design/top module")
-    @click.argument("input_def")
-    def stream_out(
-        output,
-        input_lef,
-        lyt,
-        lyp,
-        input_gds_files,
-        seal_gds_file,
-        top,
-        input_def,
-    ):
+    @click.option("-s", "--seal-gds-file", "seal_gds", default=None)
+    @click.option(
+        "-t",
+        "--top",
+        "design_name",
+        required=True,
+        help="Name of the design/top module",
+    )
+    @click.argument("input")
+    def stream_out(**kwargs):
         args = [
             "klayout",
             "-b",
             "-rm",
             __file__,
-            "-rd",
-            f"out_gds={output}",
-            "-rd",
-            f"lef_file={input_lef}",
-            "-rd",
-            f"tech_file={lyt}",
-            "-rd",
-            f"props_file={lyp}",
-            "-rd",
-            f"design_name={top}",
-            "-rd",
-            f"in_def={input_def}",
-            "-rd",
-            f"in_gds={';'.join(list(input_gds_files))}",
-            "-rd",
-            f"seal_gds={seal_gds_file}",
         ]
+        for key, value in kwargs.items():
+            args.append("-rd")
+            if isinstance(value, tuple) or isinstance(value, list):
+                value = ";".join(value)
+            elif (
+                isinstance(value, str)
+                and os.path.exists(value)
+                and key != "design_name"
+            ):
+                value = os.path.abspath(value)
+
+            args.append(f"{key}={value or 'NULL'}")
+
         os.execlp("klayout", *args)
 
     if __name__ == "__main__":
@@ -122,56 +119,58 @@ except ImportError:
 
 if TYPE_CHECKING:
     # Dummy data for type-checking
-    in_def: str = ""
-    out_gds: str = ""
+    input: str = ""
+    output: str = ""
+    input_lefs: str = ""
+    lyp: str = ""
+    lyt: str = ""
+    lym: str = ""
     design_name: str = ""
-    tech_file: str = ""
-    props_file: str = ""
-    in_gds: str = ""
-    lef_file: str = ""
+    input_gds_files: str = ""
     seal_gds: Optional[str] = ""
 
-if seal_gds == "None":
+if seal_gds == "NULL":
     seal_gds = None
 
 
 try:
     # Load technology file
     tech = pya.Technology()
-    tech.load(tech_file)
+    tech.load(lyt)
     layout_options = tech.load_layout_options
     layout_options.lefdef_config.macro_resolution_mode = 1
     layout_options.lefdef_config.read_lef_with_def = False
-    layout_options.lefdef_config.lef_files = [lef_file]
+    layout_options.lefdef_config.lef_files = input_lefs.split(";")
+    layout_options.lefdef_config.map_file = lym
 
     # Load def file
     main_layout = pya.Layout()
     # main_layout.load_layer_props(props_file)
-    main_layout.read(in_def, layout_options)
+    main_layout.read(input, layout_options)
 
     # Clear cells
     top_cell_index = main_layout.cell(design_name).cell_index()
 
-    print("[INFO] Clearing cells...")
+    print("[INFO] Clearing cells…")
     for i in main_layout.each_cell():
         if i.cell_index() != top_cell_index:
             if not i.name.startswith("VIA"):
                 i.clear()
 
     # Load in the gds to merge
-    print("[INFO] Merging GDS files...")
-    for gds in in_gds.split(";"):
+    print("[INFO] Merging GDS files…")
+    for gds in input_gds_files.split(";"):
         print(f"\t{gds}")
         main_layout.read(gds)
 
     # Copy the top level only to a new layout
-    print(f"[INFO] Copying top level cell '{design_name}'...")
+    print(f"[INFO] Copying top level cell '{design_name}'…")
     top_only_layout = pya.Layout()
     top_only_layout.dbu = main_layout.dbu
     top = top_only_layout.create_cell(design_name)
     top.copy_tree(main_layout.cell(design_name))
 
-    print("[INFO] Checking for missing GDS...")
+    print("[INFO] Checking for missing GDS…")
     missing_gds = False
     for i in top_only_layout.each_cell():
         if i.is_empty():
@@ -186,19 +185,21 @@ try:
     if seal_gds is not None:
         top_cell = top_only_layout.top_cell()
 
-        print(f"[INFO] Reading seal GDS file '{seal_gds}'...")
+        print(f"[INFO] Reading seal GDS file '{seal_gds}'…")
         top_only_layout.read(seal_gds)
 
         for cell in top_only_layout.top_cells():
             if cell != top_cell:
-                print(f"[INFO] Merging '{cell.name}' as child of '{top_cell.name}'...")
+                print(f"[INFO] Merging '{cell.name}' as child of '{top_cell.name}'…")
                 top.insert(pya.CellInstArray(cell.cell_index(), pya.Trans()))
 
     # Write out the GDS
-    print(f"[INFO] Writing out GDS '{out_gds}'...")
-    top_only_layout.write(out_gds)
+    print(f"[INFO] Writing out GDS '{output}'…")
+    top_only_layout.write(output)
     print("[INFO] Done.")
+
     pya.Application.instance().exit(0)
 except Exception as e:
     print(e)
+
     pya.Application.instance().exit(1)

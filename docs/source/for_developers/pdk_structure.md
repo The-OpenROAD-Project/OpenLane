@@ -8,7 +8,6 @@ This is the expected folder structure for a PDK:
 	- libs.tech
 		- openlane
 			- config.tcl
-			- common_pdn.tcl
 			- `<standard cell library>`
 				- config.tcl
 				- tracks.info
@@ -21,14 +20,13 @@ This is the expected folder structure for a PDK:
 
 ## Configuration files
 - `config.tcl` PDK configuration file contains common information for all standard cell libraries under this PDK
-- `common_pdn.tcl` Pdn configuration file. Refer to PDN configuration [section](#pdn-configuration-file).
 - `<standard cell library>/config.tcl` standard cell library configuration file which contains information specific to that SCL. It can override PDK configuration file.
 - `<standard cell library>/tracks.info` Contains information about the metal layers offsets and pitches. Refer to tracks configuration file [section](#tracks-info-file)
 - `<standard cell library>/no_synth.cells` that should contain the list of newline-separated cell names to trim during synthesis (to not use them in synthesis). More in this [section](#no-synthesis-cells-file).
 
 
 ## PDK Variables
-This section defines the neccessary variables for PDK configuration file. Note that all examples given are for sky130A.
+This section defines the necessary variables for PDK configuration file. Note that all examples given are for sky130A.
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
@@ -44,6 +42,8 @@ This section defines the neccessary variables for PDK configuration file. Note t
 | `MAGIC_TECH_FILE` | Points to the magic tech file which mainly has drc rules. |
 | `KLAYOUT_TECH` | Points to the klayout tech file (.lyt). |
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
+| `KLAYOUT_DEF_LAYER_MAP` | Points to klayout deflef layer map file (.map). |
+| `KLAYOUT_XOR_IGNORE_LAYERS` | A space separated layers list to ignore during klayout xor check. |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `GPIO_PADS_PREFIX` | A list of pad cells name prefixes. |
@@ -95,8 +95,8 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
-| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. Using this is not strictly recommended as you can simply use the density control for global placement. <br> (Example: `0`) |
-| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells lef views with during detailed placement . The number will be integer divided by 2 and placed on both sides. <br> (Example: `4`) |
+| `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. <br> (Example: `2`) |
+| `DPL_CELL_PADDING` | Defines the number of sites to pad the cells with during detailed placement. This value should not be higher than `GPL_CELL_PADDING` unless you know what you're doing. <br> (Example: `2`) |
 | `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
@@ -118,13 +118,6 @@ The tracks files defines the metal layers pitches and offsets. This information 
 ```
 <layer name> X|Y <offset> <pitch>
 ```
-
-
-## PDN Configuration File
-
-A sample PDN configuration file exists [here](https://github.com/RTimothyEdwards/open_pdks/blob/master/sky130/openlane/common_pdn.tcl).
-
-More on the structure of the file [here](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md)
 
 ## No Synthesis Cells File
 

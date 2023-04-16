@@ -45,19 +45,15 @@ source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 estimate_parasitics -global_routing
 
 # Resize
-repair_timing -setup \
-    -setup_margin $::env(GLB_RESIZER_SETUP_SLACK_MARGIN) \
-    -max_buffer_percent $::env(GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT)
 
 set arg_list [list]
-lappend arg_list -hold
-lappend arg_list -setup_margin $::env(GLB_RESIZER_SETUP_SLACK_MARGIN)
-lappend arg_list -hold_margin $::env(GLB_RESIZER_HOLD_SLACK_MARGIN)
-lappend arg_list -max_buffer_percent $::env(GLB_RESIZER_HOLD_MAX_BUFFER_PERCENT)
-if { $::env(GLB_RESIZER_ALLOW_SETUP_VIOS) == 1 } {
-    lappend arg_list -allow_setup_violations
+lappend arg_list -slew_margin $::env(GLB_RESIZER_MAX_SLEW_MARGIN)
+lappend arg_list -cap_margin $::env(GLB_RESIZER_MAX_CAP_MARGIN)
+if { [info exists ::env(GLB_RESIZER_MAX_WIRE_LENGTH)] \
+    && $::env(GLB_RESIZER_MAX_WIRE_LENGTH) } {
+    lappend -max_wire_length $::env(GLB_RESIZER_MAX_WIRE_LENGTH)
 }
-repair_timing {*}$arg_list
+repair_design {*}$arg_list
 
 source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
 

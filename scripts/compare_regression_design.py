@@ -50,14 +50,14 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
         "general_tolerance": 1,
         "tritonRoute_violations": 2,
         "Magic_violations": 10,
-        "antenna_violations": 10,
+        "pin_antenna_violations": 10,
         "lvs_total_errors": 0,
     }
 
     critical_statistics = [
         "tritonRoute_violations",
         "Magic_violations",
-        "antenna_violations",
+        "pin_antenna_violations",
         "lvs_total_errors",
     ]
 
@@ -85,12 +85,13 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
                 return -1
 
         design_out = dict()
-        csv_opener = open(csv_file, "r")
+        csv_opener = open(csv_file, "r", encoding="utf8")
         csv_data = csv_opener.read().split("\n")
         header_info = csv_data[0].split(",")
         designPathIdx = get_csv_index(header_info, "design")
         if designPathIdx == -1:
-            print("invalid report. No design paths.")
+            print(f"invalid report {csv_file}. No design paths.")
+            exit(1)
         for i in range(1, len(csv_data)):
             if not len(csv_data[i]):
                 continue
@@ -182,9 +183,7 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
     current_yaml[design] = design_report
 
     current_yaml_str = yaml.safe_dump(current_yaml, sort_keys=False)
-    import sys
 
-    print(output_report_file, file=sys.stderr)
     with open(output_report_file, "w") as f:
         f.write(current_yaml_str)
 

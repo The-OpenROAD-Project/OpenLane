@@ -12,44 +12,104 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+proc check_synth_misc {report} {
+    if { ![file exists $report] } {
+        puts_info "Yosys synthesis checks not conducted- continuing."
+        return
+    }
+    set arg_list [list]
+    if { !$::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
+        lappend arg_list --tristate-okay
+    }
+    if { [catch {exec python3 $::env(SCRIPTS_DIR)/parse_yosys_check.py {*}$arg_list $report} err] } {
+        puts_err "Yosys checks have failed: $err"
+        puts_err "See the full report here: [relpath . $report]"
+        throw_error
+    }
+}
 
+proc check_latches {log} {
+    set match {\$LATCH}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. There are latches during synthesis."
+        throw_error
+    }
+}
+
+proc check_out_of_bound {log} {
+    set match {out of bounds on signal}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc check_resizing_cell_port {log} {
+    set match {Resizing cell port}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc run_synthesis_checkers {log report} {
+    check_latches $log
+    check_out_of_bound $log
+    check_resizing_cell_port $log
+    check_synth_misc $report
+}
 
 proc check_assign_statements {args} {
     set checker [count_matches assign $::env(synthesis_results).v]
 
     if { $checker != 0 } {
-        puts_err "There are assign statements in the netlist"
-        flow_fail
+        puts_err "There are assign statements in the netlist."
+        throw_error
     } else {
-        puts_info "No assign statement in netlist"
+        puts_verbose "No assign statement in netlist, continuing..."
     }
 }
 
-proc check_synthesis_failure {args} {
-    set checker [catch {exec grep "\\\$" [index_file $::env(synthesis_reports)/2.stat.rpt]}]
+proc check_unmapped_cells {stat_file} {
+    set match {\$}
+    set checker [exec bash -c "grep '$match' \
+        $stat_file || true"]
 
-    if { ! $checker } {
-        puts_err "Synthesis failed"
-        flow_fail
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. There are unmapped cells after synthesis."
+        throw_error
     }
 }
 
 proc check_timing_violations {args} {
+    set options {
+        {-quit_on_setup_vios optional}
+        {-quit_on_hold_vios optional}
+    }
+    parse_key_args "check_timing_violations" args arg_values $options
+
+    set_if_unset arg_values(-quit_on_setup_vios) 0
+    set_if_unset arg_values(-quit_on_hold_vios) 0
+
     if { [info exists ::env(LAST_TIMING_REPORT_TAG)] } {
         set hold_report $::env(LAST_TIMING_REPORT_TAG).min.rpt
         set setup_report $::env(LAST_TIMING_REPORT_TAG).max.rpt
         set slew_report $::env(LAST_TIMING_REPORT_TAG).slew.rpt
 
-        foreach file [ list $hold_report $setup_report $slew_report] {
-            if {![file exist $file]} {
-                puts_err "File $file doesn't exist."
-                flow_fail
-            }
-        }
+        assert_files_exist "$hold_report $setup_report $slew_report"
 
         check_slew_violations -report_file $slew_report -corner "typical"
-        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
-        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_HOLD_VIOLATIONS)]
+        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $arg_values(-quit_on_hold_vios)
+        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $arg_values(-quit_on_setup_vios)
     }
 }
 
@@ -70,7 +130,7 @@ proc check_hold_violations {args} {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            flow_fail
+            throw_error
         } else {
             puts_warn "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -96,7 +156,7 @@ proc check_setup_violations {args} {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
-            flow_fail
+            throw_error
         } else {
             puts_warn "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
         }
@@ -154,7 +214,7 @@ proc check_slew_violations {args} {
 
     if { $violated } {
         if { $quit_on_vios } {
-            flow_fail
+            throw_error
         }
     } else {
         puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
@@ -171,7 +231,7 @@ proc check_floorplan_missing_lef {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately"
-        flow_fail
+        throw_error
     }
 }
 
@@ -184,7 +244,7 @@ proc check_floorplan_missing_pins {args} {
             puts_err "$line in $::env(MERGED_LEF)"
         }
         puts_err "Check whether EXTRA_LEFS is set appropriately and if they have the referenced pins."
-        flow_fail
+        throw_error
     }
 }
 
@@ -195,7 +255,7 @@ proc check_cts_clock_nets {args} {
         puts_err "Clock Tree Synthesis failed"
         puts_err $error
         puts_err "TritonCTS failed to find clock nets and/or sinks in the design; check whether the synthesized netlist contains flip-flops."
-        flow_fail
+        throw_error
     }
 }
 
@@ -205,7 +265,7 @@ proc check_replace_divergence {args} {
     if { ! $checker } {
         puts_err "Global placement failed"
         puts_err $error
-        flow_fail
+        throw_error
     }
 }
 
@@ -215,92 +275,82 @@ proc check_macro_placer_num_solns {args} {
     if { ! $checker } {
         puts_err "Macro placement failed"
         puts_err "$error; you may need to adjust the HALO"
-        flow_fail
+        throw_error
     }
 }
 
 proc quit_on_tr_drc {args} {
-    if { $::env(QUIT_ON_TR_DRC) } {
-        set checker [count_matches violation $::env(routing_reports)/drt.drc]
+    set checker [count_matches violation $::env(routing_reports)/drt.drc]
 
-        if { $checker != 0 } {
-            puts_err "There are violations in the design after detailed routing."
-            puts_err "Total Number of violations is $checker"
-            flow_fail
-        } else {
-            puts_info "No DRC violations after detailed routing."
-        }
+    if { $checker != 0 } {
+        puts_err "There are violations in the design after detailed routing."
+        puts_err "Total Number of violations is $checker"
+        throw_error
+    } else {
+        puts_info "No DRC violations after detailed routing."
     }
 }
 
 proc quit_on_magic_drc {args} {
-    if { [info exists ::env(QUIT_ON_MAGIC_DRC)] && $::env(QUIT_ON_MAGIC_DRC) } {
-        set options {
-            {-log required}
-        }
-        parse_key_args "quit_on_magic_drc" args arg_values $options
+    set options {
+        {-log required}
+    }
+    parse_key_args "quit_on_magic_drc" args arg_values $options
 
-        set checker [count_matches violation $arg_values(-log)]
+    set checker [count_matches violation $arg_values(-log)]
 
-        if { $checker != 0 } {
-            puts_err "There are violations in the design after Magic DRC."
-            puts_err "Total Number of violations is $checker"
-            flow_fail
-        } else {
-            puts_info "No DRC violations after GDS streaming out."
-        }
+    if { $checker != 0 } {
+        puts_err "There are violations in the design after Magic DRC."
+        puts_err "Total Number of violations is $checker"
+        throw_error
+    } else {
+        puts_info "No DRC violations after GDS streaming out."
     }
 }
 
 proc quit_on_lvs_error {args} {
-    if { [info exists ::env(QUIT_ON_LVS_ERROR)] && $::env(QUIT_ON_LVS_ERROR) } {
-        set options {
-            {-rpt required}
-            {-log required}
-        }
-        parse_key_args "quit_on_lvs_error" args arg_values $options
-        set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-rpt)} error]
+    set options {
+        {-rpt required}
+        {-log required}
+    }
+    parse_key_args "quit_on_lvs_error" args arg_values $options
+    set checker [catch {exec grep -E -o "Total errors = 0" $arg_values(-rpt)} error]
 
-        if { $checker != 0 } {
-            set rpt_relative [relpath . $arg_values(-rpt)]
-            set log_relative [relpath . $arg_values(-log)]
-            puts_err "There are LVS errors in the design: See '$rpt_relative' for a summary and '$log_relative' for details."
-            flow_fail
-        }
+    if { $checker != 0 } {
+        set rpt_relative [relpath . $arg_values(-rpt)]
+        set log_relative [relpath . $arg_values(-log)]
+        puts_err "There are LVS errors in the design: See '$rpt_relative' for a summary and '$log_relative' for details."
+        throw_error
     }
 }
 
 proc quit_on_xor_error {args} {
-    if { [info exists ::env(QUIT_ON_XOR_ERROR)] && $::env(QUIT_ON_XOR_ERROR) } {
-        set options {
-            {-log required}
-        }
-        parse_key_args "quit_on_xor_error" args arg_values $options
-        set checker [catch {exec grep -E -o "Total XOR differences = 0" $arg_values(-log)} error]
+    set options {
+        {-log required}
+    }
+    parse_key_args "quit_on_xor_error" args arg_values $options
+    set checker [catch {exec grep -E -o "Total XOR differences = 0" $arg_values(-log)} error]
 
-        if { $checker != 0 } {
-            set log_relative [relpath . $arg_values(-log)]
-            puts_err "There are XOR differences in the design: See '$log_relative' for details."
-            flow_fail
-        } else {
-            puts_info "No XOR differences between KLayout and Magic gds."
-        }
+    if { $checker != 0 } {
+        set log_relative [relpath . $arg_values(-log)]
+        puts_err "There are XOR differences in the design: See '$log_relative' for details."
+        throw_error
+    } else {
+        puts_info "No XOR differences between KLayout and Magic gds."
     }
 }
 
 proc quit_on_illegal_overlaps {args} {
-    if { [info exists ::env(QUIT_ON_ILLEGAL_OVERLAPS)] && $::env(QUIT_ON_ILLEGAL_OVERLAPS) } {
-        set options {
-            {-log required}
-        }
-        parse_key_args "quit_on_illegal_overlaps" args arg_values $options
+    set options {
+        {-log required}
+    }
+    parse_key_args "quit_on_illegal_overlaps" args arg_values $options
 
-        set checker [catch {exec grep -E -o "Illegal overlap" $arg_values(-log)} error]
-        if { ! $checker } {
-            puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
-            puts_err "See $arg_values(-log) for more."
-            flow_fail
-        }
+    set checker [catch {exec grep -E -o "Illegal overlap" $arg_values(-log)} error]
+    if { ! $checker } {
+        puts_err "There are illegal overlaps (e.g., routes over obstructions) in your design."
+        puts_err "See $arg_values(-log) for more."
+        throw_error
     }
 }
 
@@ -313,7 +363,7 @@ proc quit_on_unconnected_pdn_nodes {args} {
         puts_err "You may need to adjust your macro placements or PDN \
             offsets/pitches to power all standard cell rails (or other PDN stripes) \
             in your design."
-        flow_fail
+        throw_error
     }
 }
 

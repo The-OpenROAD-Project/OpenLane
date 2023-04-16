@@ -16,10 +16,11 @@
 
 import odb
 
-import re
+import os
 import sys
 import click
 import random
+from decimal import Decimal
 
 from reader import click_odb
 
@@ -35,9 +36,8 @@ class DiodeInserter:
         block,
         diode_cell,
         diode_pin,
-        fake_diode_cell=None,
         side_strategy="source",
-        short_span=0,
+        threshold_microns=0,
         port_protect=[],
         verbose=False,
     ):
@@ -46,44 +46,14 @@ class DiodeInserter:
 
         self.diode_cell = diode_cell
         self.diode_pin = diode_pin
-        self.fake_diode_cell = fake_diode_cell
         self.side_strategy = side_strategy
-        self.short_span = short_span
+        self.threshold_microns = threshold_microns
         self.port_protect = port_protect
 
-        self.true_diode_master = block.getDataBase().findMaster(diode_cell)
-        self.fake_diode_master = (
-            block.getDataBase().findMaster(fake_diode_cell)
-            if (fake_diode_cell is not None)
-            else None
-        )
-        if not self.check():
-            raise RuntimeError("True and Fake diodes are inconsistent")
-
-        self.diode_master = self.fake_diode_master or self.true_diode_master
-        self.diode_site = self.true_diode_master.getSite().getConstName()
+        self.diode_master = block.getDataBase().findMaster(diode_cell)
+        self.diode_site = self.diode_master.getSite().getConstName()
 
         self.inserted = {}
-
-    def check(self):
-        if self.fake_diode_master is None:
-            return True
-
-        tm = self.true_diode_master
-        fm = self.fake_diode_master
-
-        if fm.getSite() is None:
-            self.error("[!] Fake diode cell missing SITE attribute")
-        else:
-            if fm.getSite().getConstName() != tm.getSite().getConstName():
-                return False
-
-        if fm.getWidth() != tm.getWidth():
-            return False
-        if fm.getHeight() != tm.getHeight():
-            return False
-
-        return True
 
     def debug(self, msg):
         if self.verbose:
@@ -130,7 +100,7 @@ class DiodeInserter:
         else:
             return False
 
-    def net_span(self, net):
+    def net_manhattan_distance(self, net):
         xs = []
         ys = []
 
@@ -230,7 +200,7 @@ class DiodeInserter:
 
         return best[1:]
 
-    def insert_diode(self, it, src_pos, force_true=False):
+    def insert_diode(self, it, src_pos):
         # Get information about the instance
         inst = it.getInst()
         inst_name = inst.getConstName()
@@ -251,7 +221,7 @@ class DiodeInserter:
 
         # Insert instance and wire it up
         diode_inst_name = "ANTENNA_" + inst_name + "_" + it.getMTerm().getConstName()
-        diode_master = self.true_diode_master if force_true else self.diode_master
+        diode_master = self.diode_master
 
         diode_inst = odb.dbInst_create(self.block, diode_master, diode_inst_name)
 
@@ -282,39 +252,42 @@ class DiodeInserter:
             src_pos = self.net_source(net)
 
             # Is this an IO we need to protect
-            io_protect = self.net_from_pin(net, io_types=self.port_protect)
-            if io_protect:
-                self.debug(
-                    f"[d] Forcing protection diode on net  {net.getConstName():s}"
-                )
+            io_protect = None
+            if self.net_from_pin(net, io_types=["INPUT", "OUTPUT"]):
+                io_protect = self.net_from_pin(net, io_types=self.port_protect)
+                if io_protect:
+                    self.debug(
+                        f"[d] Forcing protection diode on I/O net {net.getConstName():s}"
+                    )
+                else:
+                    self.debug(f"[d] Skipping I/O net {net.getConstName():s}")
+                    continue
 
             # Determine the span of the signal and skip small internal nets
-            span = self.net_span(net)
-            if (span < self.short_span) and not io_protect:
-                self.debug(f"[d] Skipping small net {net.getConstName():s} ({span:d})")
+            span = self.net_manhattan_distance(net) / self.block.getDbUnitsPerMicron()
+            if (span < self.threshold_microns) and not io_protect:
+                self.debug(f"[d] Skipping small net {net.getConstName():s} ({span:f})")
                 continue
 
             # Scan all internal terminals
             for it in net.getITerms():
                 if it.isInputSignal():
-                    self.insert_diode(it, src_pos, force_true=io_protect)
+                    self.insert_diode(it, src_pos)
 
 
 @click.command()
 @click.option(
-    "-v", "--verbose", default=False, is_flag=True, help="Verbose debug output"
+    "-v",
+    "--verbose",
+    default=os.getenv("DEBUG", "0") == "1",
+    is_flag=True,
+    help="Verbose debug output",
 )
 @click.option(
     "-c",
     "--diode-cell",
     default="sky130_fd_sc_hd__diode_2",
     help="Name of the cell to use as diode",
-)
-@click.option(
-    "-f",
-    "--fake-diode-cell",
-    required=True,
-    help="Name of the cell to use as fake diode",
 )
 @click.option(
     "-p", "--diode-pin", default="DIODE", help="Name of the pin to use on diode cells"
@@ -332,22 +305,22 @@ class DiodeInserter:
     help="Always place a true diode on nets connected to selected ports",
 )
 @click.option(
-    "-s",
-    "--short-span",
-    type=int,
-    default=90000,
-    help='Maximum span of a net to be considered "short" and not needing a diode',
+    "-t",
+    "--threshold",
+    "threshold_microns",
+    type=Decimal,
+    default=90,
+    help="Minimum manhattan distance of a net to be considered an antenna risk requiring a diode",
 )
 @click_odb
 def place(
     reader,
     verbose,
     diode_cell,
-    fake_diode_cell,
     diode_pin,
     side_strategy,
     port_protect,
-    short_span,
+    threshold_microns,
 ):
 
     print(f"Design name: {reader.name}")
@@ -363,9 +336,8 @@ def place(
         reader.block,
         diode_cell=diode_cell,
         diode_pin=diode_pin,
-        fake_diode_cell=fake_diode_cell,
         side_strategy=side_strategy,
-        short_span=short_span,
+        threshold_microns=threshold_microns,
         port_protect=pp_val[port_protect],
         verbose=verbose,
     )
@@ -376,39 +348,6 @@ def place(
 
 cli.add_command(place)
 
-
-@click.command("replace_fake")
-@click.option("-f", "--fake-diode", required=True, help="Name of the fake diode cell")
-@click.option("-t", "--true-diode", required=True, help="Name of the true diode")
-@click.option(
-    "-v",
-    "--violations-file",
-    required=True,
-    help="Text file with white space separated cells that cause antenna violations",
-)
-@click_odb
-def replace_fake(fake_diode, true_diode, violations_file, reader):
-    violations = open(violations_file).read().strip().split()
-
-    diode = [sc for sc in reader.block.getMasters() if sc.getName() == true_diode]
-
-    antenna_rx = re.compile(r"ANTENNA_(\s+)_.*")
-
-    instances = reader.block.getInsts()
-
-    for instance in instances:
-        name: str = instance.getName()
-        m = antenna_rx.match(name)
-        if m is None:
-            continue
-        if m[1] not in violations:
-            continue
-        master_name = instance.getMaster().getName()
-        if master_name == fake_diode:
-            instance.swapMasters(diode)
-
-
-cli.add_command(replace_fake)
 
 if __name__ == "__main__":
     cli()

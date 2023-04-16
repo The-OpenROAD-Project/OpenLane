@@ -19,7 +19,7 @@ proc extract_core_dims {args} {
 
     set out_tmp $::env(TMP_DIR)/dimensions.txt
 
-    try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
+    try_exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/defutil.py extract_core_dims\
         --output-data $out_tmp\
         --input-lef $::env(MERGED_LEF)\
         $::env(CURRENT_DEF)
@@ -75,7 +75,7 @@ proc init_floorplan {args} {
 
             set intermediate [index_file $::env(floorplan_tmpfiles)/minimized_pdn.txt]
 
-            try_catch $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
+            try_exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/snap_to_grid.py\
                 --output $intermediate\
                 --input-lef $::env(MERGED_LEF)\
                 [expr {$core_width/8.0}] [expr {$core_height/8.0}] [expr {$core_width/4.0}] [expr {$core_height/4.0}]
@@ -199,10 +199,7 @@ proc place_contextualized_io {args} {
     set flags {}
     parse_key_args "place_contextualized_io" args arg_values $options flags_map $flags
 
-    if { ![file exists $arg_values(-def)] || ![file exists $arg_values(-lef)]} {
-        puts_err "Contextual IO placement: def/lef files don't exist. This is a critical failure."
-        flow_fail
-    }
+    assert_files_exist "$arg_values(-def) $arg_values(-lef)"
 
     increment_index
     TIMER::timer_start
@@ -261,7 +258,7 @@ proc tap_decap_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
-        -save "to=$::env(floorplan_results),noindex,def,odb"
+        -save "to=$::env(floorplan_tmpfiles),name=tapcell,def,odb"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
 
@@ -307,7 +304,7 @@ proc gen_pdn {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/pdn.log] \
-        -save "to=$::env(floorplan_tmpfiles),name=pdn,def,odb"
+        -save "to=$::env(floorplan_results),noindex,def,odb"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
@@ -321,7 +318,7 @@ proc run_power_grid_generation {args} {
         # current assumption: they cannot have a common ground
         if { ! [info exists ::env(VDD_NETS)] || ! [info exists ::env(GND_NETS)] } {
             puts_err "VDD_NETS and GND_NETS must *both* either be defined or undefined"
-            return -code error
+            throw_error
         }
         # standard cell power and ground nets are assumed to be the first net
         set ::env(VDD_PIN) [lindex $::env(VDD_NETS) 0]
@@ -356,7 +353,7 @@ proc run_power_grid_generation {args} {
 
     if { [llength $::env(VDD_NETS)] != [llength $::env(GND_NETS)] } {
         puts_err "VDD_NETS and GND_NETS must be of equal lengths"
-        return -code error
+        throw_error
     }
 
     # check internal macros' power connection definitions
@@ -432,7 +429,7 @@ proc padframe_gen_batch {args} {
     }
 
     puts_info "Generating pad frame"
-    try_catch openroad -python -exit $::env(SCRIPTS_DIR)/odbpy/padringer.py\
+    try_exec openroad -python -exit $::env(SCRIPTS_DIR)/odbpy/padringer.py\
         --def-netlist $arg_values(-def) \
         {*}$prefix_argument \
         {*}$lefs_argument \

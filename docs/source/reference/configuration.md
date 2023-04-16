@@ -25,7 +25,7 @@ These variables are optional that can be specified in the design configuration f
 | `STD_CELL_LIBRARY` | Specifies the standard cell library to be used under the specified PDK. <br> (Default: `sky130_fd_sc_hd` )|
 | `STD_CELL_LIBRARY_OPT` | Specifies the standard cell library to be used during resizer optimizations. <br> (Default: `STD_CELL_LIBRARY` )|
 | `PDK_ROOT` | Specifies the folder path of the PDK. It searches for a `config.tcl` in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/` directory and at least have one standard cell library config defined in `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)`. |
-| `DIODE_PADDING` | Diode cell padding; increases the width of diode cells during placement checks. <br> (Default: `2` microns -- 2 sites)|
+| `DIODE_PADDING` | Number of sites to left pad `DIODE_CELL` during detailed placement. <br> (Default: `2` sites)|
 | `MERGED_LEF` | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
@@ -34,7 +34,7 @@ These variables are optional that can be specified in the design configuration f
 
 |Variable|Description|
 |-|-|
-| `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis. |
+| `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and opensta. `/// sta-blackbox` can be added to a file in order skip that file while doing sta. This will blackbox all the modules definied inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full sta. |
 | `EXTRA_LEFS` | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
@@ -71,6 +71,7 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable | Description |
 |-|-|
+| `EXTRA_SPEFS` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
 | `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
 ### Floorplanning
@@ -113,7 +114,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> Default: set to the value of `FP_PDN_HORIZONTAL_HALO` |
 | `DESIGN_IS_CORE` | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
-| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
+| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. `$<number>` i.e. `$1` can be used to place a virtual pin where `<number>` is the count of virtual pins. This can create separation between pins. You can also use `@min_distance=<number>` i.e. `@min_distance=0.8` to set preferred min distance between pins in a specific direction. See spm configuration file as an example.<br> (Default: NONE)|
 | `FP_CONTEXT_DEF` | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_LEF` | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_DEF_TEMPLATE` | Points to the DEF file to be used as a template when running `apply_def_template`. This will be used to exctract pin names, locations, shapes -excluding power and ground pins- as well as the die area and replicate all this information in the `CURRENT_DEF`. |
@@ -145,7 +146,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) +5 ) / 100.0`)|
+| `PL_TARGET_DENSITY` | The desired placement density of cells. It reflects how spread the cells would be on the core area. 1 = closely dense. 0 = widely spread <br> (Default: `($::env(FP_CORE_UTIL) + 10 + (5 * $::env(GPL_CELL_PADDING)) ) / 100.0`)|
 | `PL_TIME_DRIVEN` | Specifies whether the placer should use time driven placement. 0 = false, 1 = true <br> (Default: `1`)|
 | `PL_BASIC_PLACEMENT` | Specifies whether the placer should run basic placement. Basic placement is used for extremely simple, low-density designs of only a few dozens of gates, and should be disabled for most designs. 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_SKIP_INITIAL_PLACEMENT` | Specifies whether the placer should run initial placement or not. 0 = false, 1 = true <br> (Default: `0`) |
@@ -162,7 +163,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_RESIZER_HOLD_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix hold violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
-
+| `PL_WIRELENGTH_COEF` | Global placement initial wirelength coefficient. Decreasing the variable will modify the initial placement of the standard cells to reduce the wirelengths. <br> (Default: `0.25`).|
 | `DONT_USE_CELLS` | The list of cells to not use during resizer optimizations. <br> Default: the contents of `DRC_EXCLUDE_CELL_LIST`. |
 | `PL_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global placement using OpenROAD's estimate_parasitics -placement and generates reports under `logs/placement`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
@@ -206,6 +207,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RT_CLOCK_MIN_LAYER` | The name of lowest layer to be used in routing the clock net. <br> (Default: `RT_MIN_LAYER`)|
 | `RT_CLOCK_MAX_LAYER` | The name of highest layer to be used in routing the clock net. <br> (Default: `RT_MAX_LAYER`)|
 | `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
+| `GLB_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
 | `GLB_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
 | `GLB_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `10`)|
 | `GLB_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `10`)|
@@ -217,9 +219,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `GRT_ALLOW_CONGESTION` | Allow congestion in the resulting guides. 0 = false, 1 = true <br> (Default: `0`) 
 | `GRT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
-| `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available in `DIODE_INSERTION_STRATEGY` = `3`. <br> (Default: `3`) |
+| `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available when `GRT_REPAIR_ANETNNAS` is enabled. <br> (Default: `15`) |
+| `GRT_ANT_MARGIN` | The margin to over fix antenna violations in global routing as a percentage. This option is only available when `GRT_REPAIR_ANETNNAS` is enabled. <br> (Default: `10`) |
 | `GRT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in DIODE_INSERTION_STRATEGY = `3` and `6`.  <br> (Default: `1`) |
+| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in when `GRT_REPAIR_ANETNNAS` is enabled.  <br> (Default: `1`) |
 | `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
 | `GRT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
 | `GRT_MACRO_EXTENSION` | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
@@ -256,6 +259,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `MAGIC_WRITE_FULL_LEF` | A flag to specify whether or not the output LEF should include all shapes inside the macro or an abstracted view of the macro lef view via magic. 1 = Full View, 0 = Abstracted View  <br> (Default: `0` )|
 | `MAGIC_DRC_USE_GDS` | A flag to choose whether to run the magic DRC checks on GDS or not. If not, then the checks will be done on the DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
 | `MAGIC_EXT_USE_GDS` | A flag to choose whether to run the magic extractions on GDS or DEF/LEF. If GDS was used Device Level LVS will be run. Otherwise, blackbox LVS will be run. 1 = GDS, 0 = DEF/LEF  <br> (Default: `0` )|
+| `MAGIC_LEF_WRITE_USE_GDS` | A flag to choose whether to run the magic lef write on GDS or DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
 | `MAGIC_INCLUDE_GDS_POINTERS` | A flag to choose whether to include GDS pointers in the generated mag files or not. 1 = Enabled, 0 = Disabled  <br> (Default: `0` )|
 | `MAGIC_DISABLE_HIER_GDS` | A flag to disable cif hier and array during GDSII writing.* 1=Enabled `<so this hier gds will be disabled>`, 0=Disabled `<so this hier gds will be enabled>`. <br> (Default: `1` )|
 | `MAGIC_DEF_NO_BLOCKAGES` | A flag to choose whether blockages are read with DEF files or not (they are read as a sheet of metal by Magic). 1 = No Blockages, 0 = Blockages as Metal Sheets  <br> (Default: `1` )|
@@ -280,6 +284,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_HEURISTIC_DIODE_INSERTION` | Enables running heuristic antenna insertion script. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
@@ -299,14 +304,16 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
-| `DIODE_INSERTION_STRATEGY` | Specifies the insertion strategy of diodes to be used in the flow. |
+| `DIODE_INSERTION_STRATEGY` | **Deprecated** Specifies the insertion strategy of diodes to be used in the flow. |
 | | 0: No diode insertion. |
-| | 1: Spray diodes. |
-| | 2: Insert fake diodes and replace them with real diodes if needed. |
+| | 1: **removed** Spray diodes. |
+| | 2: **removed** Insert fake diodes and replace them with real diodes if needed. |
 | | (**Default**) 3: Use OpenROAD's Antenna Avoidance flow. |
 | | 4: Use Sylvain Minaut's custom script for diode insertion. |
-| | 5: A combination of strategies 2 and 4. |
+| | 5: **removed** A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
+| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
+| `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
@@ -320,8 +327,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `CHECK_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `CHECK_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `QUIT_ON_SYNTH_CHECKS` | Quit if any of the following conditions are met: (1) `check -assert` in yosys. This checks for combinational loops, conflicting drivers and wires with no drivers. (2) Using a signal that doesn't match a module port size in the RTL. For instance, given such a module `module example(x); input x; endmodule` it gets instantiated like that `example y(2'b11);` (3) Found Latches in the design. (4) Out of bound(range) errors in the RTL. e.g. `wire [10:0] x; assign x[13] = 1'b1`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `SYNTH_CHECKS_ALLOW_TRISTATE` | Allow tristate logic in `QUIT_ON_SYNTH_CHECKS`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_LONG_WIRE` | Exits the flow if any wire length exceeds the threshold set in the PDK. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_MAGIC_DRC` | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|

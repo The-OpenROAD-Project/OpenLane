@@ -18,7 +18,9 @@
         }
     },
     "pdk::gf180mcu*": {
-        "DIODE_INSERTION_STRATEGY": "6",
+        "DIODE_INSERTION_STRATEGY": 6,
+        "GPL_CELL_PADDING": 4,
+        "DPL_CELL_PADDING": 4,
         "PL_TARGET_DENSITY": 0.62
     }
 }

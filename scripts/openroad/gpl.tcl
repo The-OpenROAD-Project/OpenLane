@@ -66,6 +66,8 @@ set cell_pad_side [expr $::env(GPL_CELL_PADDING) / 2]
 lappend arg_list -pad_right $cell_pad_side
 lappend arg_list -pad_left $cell_pad_side
 
+lappend arg_list -init_wirelength_coef $::env(PL_WIRELENGTH_COEF)
+
 global_placement {*}$arg_list
 
 write
@@ -76,9 +78,6 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 		estimate_parasitics -placement
-
-		set ::env(RUN_STANDALONE) 0
-		source $::env(SCRIPTS_DIR)/openroad/sta.tcl
 	}
 } else {
 	puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
