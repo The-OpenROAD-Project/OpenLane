@@ -15,10 +15,5 @@
 set ::env(SPEF_EXTRACTOR) "openrcx"
 
 # OpenRCX Config Variables
-set ::env(RCX_CORNER_COUNT) 1
-set ::env(RCX_MAX_RESISTANCE) 50
-set ::env(RCX_COUPLING_THRESHOLD) 0.1
-set ::env(RCX_CC_MODEL) 10
-set ::env(RCX_CONTEXT_DEPTH) 5
 set ::env(RCX_MERGE_VIA_WIRE_RES) 1
 
