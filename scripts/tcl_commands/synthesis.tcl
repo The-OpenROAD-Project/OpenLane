@@ -120,7 +120,12 @@ proc run_synthesis {args} {
     } else {
         run_yosys -indexed_log $log
         if { $::env(QUIT_ON_SYNTH_CHECKS) } {
-            run_synthesis_checkers $log
+            set pre_synth_report $::env(synth_report_prefix)_pre_synth.chk.rpt
+            if { [info exists ::env(SYNTH_ELABORATE_ONLY)] \
+                && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
+                set pre_synth_report $::env(synth_report_prefix).chk.rpt
+            }
+        run_synthesis_checkers $log $pre_synth_report
         }
     }
     TIMER::timer_stop

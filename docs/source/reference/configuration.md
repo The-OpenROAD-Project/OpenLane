@@ -34,7 +34,7 @@ These variables are optional that can be specified in the design configuration f
 
 |Variable|Description|
 |-|-|
-| `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis. |
+| `VERILOG_FILES_BLACKBOX` | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and opensta. `/// sta-blackbox` can be added to a file in order skip that file while doing sta. This will blackbox all the modules definied inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full sta. |
 | `EXTRA_LEFS` | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
@@ -71,6 +71,7 @@ These variables are optional that can be specified in the design configuration f
 
 | Variable | Description |
 |-|-|
+| `EXTRA_SPEFS` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
 | `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
 ### Floorplanning
@@ -113,7 +114,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> Default: `10` |
 | `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> Default: set to the value of `FP_PDN_HORIZONTAL_HALO` |
 | `DESIGN_IS_CORE` | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
-| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
+| `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. `$<number>` i.e. `$1` can be used to place a virtual pin where `<number>` is the count of virtual pins. This can create separation between pins. You can also use `@min_distance=<number>` i.e. `@min_distance=0.8` to set preferred min distance between pins in a specific direction. See spm configuration file as an example.<br> (Default: NONE)|
 | `FP_CONTEXT_DEF` | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_CONTEXT_LEF` | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
 | `FP_DEF_TEMPLATE` | Points to the DEF file to be used as a template when running `apply_def_template`. This will be used to exctract pin names, locations, shapes -excluding power and ground pins- as well as the die area and replicate all this information in the `CURRENT_DEF`. |
@@ -258,6 +259,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `MAGIC_WRITE_FULL_LEF` | A flag to specify whether or not the output LEF should include all shapes inside the macro or an abstracted view of the macro lef view via magic. 1 = Full View, 0 = Abstracted View  <br> (Default: `0` )|
 | `MAGIC_DRC_USE_GDS` | A flag to choose whether to run the magic DRC checks on GDS or not. If not, then the checks will be done on the DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
 | `MAGIC_EXT_USE_GDS` | A flag to choose whether to run the magic extractions on GDS or DEF/LEF. If GDS was used Device Level LVS will be run. Otherwise, blackbox LVS will be run. 1 = GDS, 0 = DEF/LEF  <br> (Default: `0` )|
+| `MAGIC_LEF_WRITE_USE_GDS` | A flag to choose whether to run the magic lef write on GDS or DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
 | `MAGIC_INCLUDE_GDS_POINTERS` | A flag to choose whether to include GDS pointers in the generated mag files or not. 1 = Enabled, 0 = Disabled  <br> (Default: `0` )|
 | `MAGIC_DISABLE_HIER_GDS` | A flag to disable cif hier and array during GDSII writing.* 1=Enabled `<so this hier gds will be disabled>`, 0=Disabled `<so this hier gds will be enabled>`. <br> (Default: `1` )|
 | `MAGIC_DEF_NO_BLOCKAGES` | A flag to choose whether blockages are read with DEF files or not (they are read as a sheet of metal by Magic). 1 = No Blockages, 0 = Blockages as Metal Sheets  <br> (Default: `1` )|
@@ -282,7 +284,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_HEURISTIC_DIODE_INSERTION` | Enables running heuristic antenna insertion script. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_HEURISTIC_DIODE_INSERTION` | Enables running heuristic antenna insertion script. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
@@ -326,6 +328,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `QUIT_ON_SYNTH_CHECKS` | Quit if any of the following conditions are met: (1) `check -assert` in yosys. This checks for combinational loops, conflicting drivers and wires with no drivers. (2) Using a signal that doesn't match a module port size in the RTL. For instance, given such a module `module example(x); input x; endmodule` it gets instantiated like that `example y(2'b11);` (3) Found Latches in the design. (4) Out of bound(range) errors in the RTL. e.g. `wire [10:0] x; assign x[13] = 1'b1`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `SYNTH_CHECKS_ALLOW_TRISTATE` | Allow tristate logic in `QUIT_ON_SYNTH_CHECKS`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_UNMAPPED_CELLS` | Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_ASSIGN_STATEMENTS` | Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `QUIT_ON_TR_DRC` | Checks for DRC violations after routing and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|

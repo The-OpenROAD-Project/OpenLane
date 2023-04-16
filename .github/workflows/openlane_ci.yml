@@ -29,7 +29,7 @@ jobs:
           # Magic Build Dependencies
           sudo apt-get install -y tcsh tcl-dev tk-dev libcairo2-dev m4
           # GHR (Pushing)
-          go get -u github.com/tcnksm/ghr
+          go install github.com/tcnksm/ghr@latest
 
       - name: Build (or Get) PDK
         run: |
@@ -46,6 +46,7 @@ jobs:
           if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
               --pdk $PDK_FAMILY\
+              --build-magic\
               --also-push\
               --token ${{ secrets.MY_TOKEN }}\
               --owner ${{ vars.VOLARE_OWNER }}\
@@ -55,6 +56,7 @@ jobs:
           else
             volare enable_or_build\
               --pdk $PDK_FAMILY\
+              --build-magic\
               --token ${{ secrets.MY_TOKEN }}\
               -j$(nproc)\
               $OPDKS_VER

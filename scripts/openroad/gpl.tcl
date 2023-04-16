@@ -78,9 +78,6 @@ if {[info exists ::env(CLOCK_PORT)]} {
 		# set rc values
 		source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 		estimate_parasitics -placement
-
-		set ::env(RUN_STANDALONE) 0
-		source $::env(SCRIPTS_DIR)/openroad/sta.tcl
 	}
 } else {
 	puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."

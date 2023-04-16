@@ -221,8 +221,23 @@ proc run_openroad_script {args} {
     run_tcl_script -tool openroad -no_consume {*}$args
 }
 
+proc run_sta_script {args} {
+    run_tcl_script -tool sta -no_consume {*}$args
+}
+
 proc run_magic_script {args} {
-    run_tcl_script -tool magic -no_consume {*}$args
+    set options {
+        {-indexed_log required}
+    }
+    set flags {}
+    parse_key_args "run_magic_script" args arg_values $options flag_map $flags
+
+    set ::env(MAGIC_SCRIPT) [lindex $args 0]
+    if { ![file exists $::env(MAGIC_SCRIPT)] } {
+        puts_err "Magic script $::env(MAGIC_SCRIPT) doesn't exist"
+    }
+    run_tcl_script -tool magic -no_consume $::env(SCRIPTS_DIR)/magic/wrapper.tcl -indexed_log $arg_values(-indexed_log)
+    unset ::env(MAGIC_SCRIPT)
 }
 
 proc increment_index {args} {
@@ -611,8 +626,14 @@ proc run_tcl_script {args} {
         set args "magic -noconsole -dnull -rcfile $::env(MAGIC_MAGICRC) < $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
     } elseif { $arg_values(-tool) == "yosys" } {
         set args "$::env(SYNTH_BIN) -c $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+    } elseif { $arg_values(-tool) == "sta" } {
+        set args "sta -exit -no_init $script |& tee $::env(TERMINAL_OUTPUT) $arg_values(-indexed_log)"
+        foreach {element value} $save_list {
+            set cap [string toupper $element]
+            set ::env(SAVE_${cap}) $value
+        }
     } else {
-        puts_err "run_tcl_script only supports tools 'magic', 'yosys' or 'openroad' for now."
+        puts_err "run_tcl_script only supports tools 'magic', 'yosys', 'sta', or 'openroad' for now."
         throw_error
     }
 
@@ -675,6 +696,8 @@ proc run_tcl_script {args} {
             lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
         } elseif { $tool != "openroad" || [info exists flag_map(-def_in)]} {
             lappend or_issue_arg_list --input-type "def" $::env(CURRENT_DEF)
+        } elseif { $tool != "sta" } {
+            lappend or_issue_arg_list --input-type "netlist" $::env(CURRENT_NETLIST)
         } else {
             lappend or_issue_arg_list --input-type "odb" $::env(CURRENT_ODB)
         }
@@ -719,6 +742,5 @@ proc run_tcl_script {args} {
         }
     }
 }
-
 
 package provide openlane_utils 0.9

@@ -11,60 +11,80 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-if { $::env(RUN_STANDALONE) == 1 } {
-    source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-    if { $::env(CURRENT_ODB) != "0" } {
-        read
-    } else {
-        read_libs
-        read_lef $::env(MERGED_LEF)
-        read_netlist
-    }
+source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 
-    if { $::env(STA_PRE_CTS) == 1 } {
-        unset_propagated_clock [all_clocks]
-    } else {
-        set_propagated_clock [all_clocks]
-    }
+set arg_list [list]
+lappend arg_list -typical $::env(LIB_TYPICAL)
+if { $::env(STA_MULTICORNER) } {
+    lappend arg_list -fastest $::env(LIB_FASTEST)
+    lappend arg_list -slowest $::env(LIB_SLOWEST)
 }
+read_libs {*}$arg_list
+
+read_netlist -all
+read_spefs
+
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-if { [info exists ::env(CURRENT_SPEF)] } {
-    read_spef $::env(CURRENT_SPEF)
+if { $::env(STA_PRE_CTS) == 1 } {
+    unset_propagated_clock [all_clocks]
+} else {
+    set_propagated_clock [all_clocks]
 }
 
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
-report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts ""
+}
 puts "min_report_end"
+
 
 puts "max_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
-report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 5
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts ""
+}
 puts "max_report_end"
 
 
 puts "checks_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
-puts "============================================================================"
-report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded
+puts "==========================================================================="
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+    puts ""
+}
 
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
 puts "============================================================================"
-report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+    puts ""
+}
 
 puts "\n==========================================================================="
-puts "report_check_types -max_slew -max_cap -max_fanout -violators"
+puts " report_check_types -max_slew -max_cap -max_fanout -violators"
 puts "============================================================================"
-report_check_types -max_slew -max_capacitance -max_fanout -violators
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_check_types -max_slew -max_capacitance -max_fanout -violators -corner [$corner name]
+    puts ""
+}
 
 puts "\n==========================================================================="
 puts "report_parasitic_annotation -report_unannotated"
@@ -78,6 +98,18 @@ puts "max cap violation count [sta::max_capacitance_violation_count]"
 puts "============================================================================"
 puts "checks_report_end"
 
+
+
+puts "power_report"
+puts "\n==========================================================================="
+puts " report_power"
+puts "============================================================================"
+foreach corner [sta::corners] {
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_power -corner [$corner name]
+    puts ""
+}
+puts "power_report_end"
 
 # report clock skew if the clock port is defined
 # OR hangs if this command is run on clockless designs
@@ -112,18 +144,5 @@ puts "==========================================================================
 report_worst_slack -min
 puts "summary_report_end"
 
-puts "power_report"
-puts "\n==========================================================================="
-puts "report_power"
-puts "============================================================================"
-report_power
-puts "power_report_end"
 
-puts "area_report"
-puts "\n==========================================================================="
-puts " report_design_area"
-puts "============================================================================"
-report_design_area
-puts "area_report_end"
-
-write
+write -no_global_connect
