@@ -17,46 +17,19 @@ import os
 import re
 import sys
 import yaml
+import fnmatch
 from typing import Iterable, Optional, Dict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 from .get_file_name import get_name  # noqa E402
-from utils.utils import get_run_path  # noqa E402
+from config.config import ConfigHandler  # noqa E402
+from utils.utils import get_run_path, mkdirp  # noqa E402
 
 
 def debug(*args, **kwargs):
     if os.getenv("REPORT_INFRASTRUCTURE_VERBOSE") == "1":
         print(*args, **kwargs, file=sys.stderr)
-
-
-def parse_to_report(
-    input_log: str, output_report: str, start: str, end: Optional[str] = None
-):
-    """
-    Parses a log in the format
-    START_MARKER
-    data
-    END_MARKER
-    to a report file.
-    """
-    if end is None:
-        end = f"{start}_end"
-
-    log_lines = open(input_log).read().split("\n")
-    with open(output_report, "w") as f:
-        started = False
-
-        for line in log_lines:
-            if line.strip() == end:
-                break
-            if started:
-                f.write(line + "\n")
-            if line.strip() == start:
-                started = True
-
-        if not started:
-            f.write("SKIPPED!")
 
 
 class Artifact(object):
@@ -97,25 +70,36 @@ class Artifact(object):
         # >10 bytes is a magic number, yes. It was this way in the script I rewrote and I'm not a fan of shaking beehives.
         return self.is_valid() and os.path.getsize(self.path) > 10
 
-    def log_to_report(self, report_name: str, start: str, end: Optional[str] = None):
+    def log_to_report(self, report_name: str, locus: str):
         report_path = os.path.join(self.run_path, "reports", self.step, report_name)
         if not self.is_logtoreport_valid():
             debug(f"{self.step}:{self.filename} not found or empty.")
             return
-        parse_to_report(self.path, report_path, start, end)
+
+        debug(f"Writing '{report_path}'...")
+        start = locus
+        end = f"{locus}_end"
+        mkdirp(os.path.dirname(report_path))
+        with open(report_path, "w") as f:
+            started = False
+            for line in open(self.path):
+                if line.strip() == end:
+                    break
+                if started:
+                    print(line, end="", file=f)
+                if line.strip() == start:
+                    started = True
+
+            if not started:
+                f.write("SKIPPED!")
 
     def generate_reports(self, *args: Iterable[Iterable[str]]):
         if (self.index or "") == "":
             self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"
-            start = report[1]
-            end = None
-            try:
-                end = report[2]
-            except Exception:
-                pass
-            self.log_to_report(filename, start, end)
+            locus = report[1]
+            self.log_to_report(filename, locus)
 
 
 class Report(object):
@@ -135,6 +119,9 @@ class Report(object):
             run_path = get_run_path(design=design_path, tag=tag)
         self.run_path = run_path
         self.configuration = params.values()
+        self.configuration_full = ConfigHandler.get_config_for_run(
+            None, design_path, tag, full=True
+        )
         self.raw_report = None
         self.formatted_report = None
 
@@ -149,8 +136,9 @@ class Report(object):
             "DIEAREA_mm^2",
             "CellPer_mm^2",
             "OpenDP_Util",
+            "Final_Util",
             "Peak_Memory_Usage_MB",
-            "cell_count",
+            "synth_cell_count",
             "tritonRoute_violations",
             "Short_violations",
             "MetSpc_violations",
@@ -158,7 +146,8 @@ class Report(object):
             "MinHole_violations",
             "Other_violations",
             "Magic_violations",
-            "antenna_violations",
+            "pin_antenna_violations",
+            "net_antenna_violations",
             "lvs_total_errors",
             "cvc_total_errors",
             "klayout_violations",
@@ -203,10 +192,12 @@ class Report(object):
             "inputs",
             "outputs",
             "level",
-            "EndCaps",
-            "TapCells",
-            "Diodes",
-            "Total_Physical_Cells",
+            "DecapCells",
+            "WelltapCells",
+            "DiodeCells",
+            "FillCells",
+            "NonPhysCells",
+            "TotalCells",
         ]
         + [
             "CoreArea_um^2",
@@ -231,45 +222,31 @@ class Report(object):
     def reports_from_logs(self):
         rp = self.run_path
 
-        basic_set = [
-            ("_sta.rpt", "check_report"),
-            ("_sta.parasitics_check.rpt", "parastic_annotation_check"),
+        report_set = [
+            ("_sta.checks.rpt", "checks_report"),
             ("_sta.min.rpt", "min_report"),
             ("_sta.max.rpt", "max_report"),
-            ("_sta.wns.rpt", "wns_report"),
-            ("_sta.tns.rpt", "tns_report"),
-            ("_sta.clock_skew.rpt", "clock_skew"),
-        ]
-
-        additional_set = [
-            ("_sta.slew.rpt", "check_slew"),
-            ("_sta.worst_slack.rpt", "worst_slack"),
-            ("_sta.clock_skew.rpt", "clock_skew"),
+            ("_sta.skew.rpt", "skew_report"),
+            ("_sta.summary.rpt", "summary_report"),
             ("_sta.power.rpt", "power_report"),
-            ("_sta.area.rpt", "area_report"),
         ]
-
-        for name, log in [
-            ("cts", Artifact(rp, "logs", "cts", "cts.log")),
-            ("gpl", Artifact(rp, "logs", "placement", "global.log")),
-            ("grt", Artifact(rp, "logs", "routing", "global.log")),
-        ]:
-            generate_report_args = [
-                (name + report_postfix, report_locus)
-                for report_postfix, report_locus in basic_set
-            ]
-            log.generate_reports(*generate_report_args)
 
         for name, log in [
             ("syn", Artifact(rp, "logs", "synthesis", "sta.log")),
-            ("cts_rsz", Artifact(rp, "logs", "cts", "resizer.log")),
-            ("pl_rsz", Artifact(rp, "logs", "placement", "resizer.log")),
-            ("rt_rsz", Artifact(rp, "logs", "routing", "resizer.log")),
+            ("cts", Artifact(rp, "logs", "cts", "cts_sta.log")),
+            ("gpl", Artifact(rp, "logs", "placement", "gpl_sta.log")),
+            ("dpl", Artifact(rp, "logs", "placement", "dpl_sta.log")),
+            ("rsz_design", Artifact(rp, "logs", "routing", "rsz_design_sta.log")),
+            ("rsz_timing", Artifact(rp, "logs", "routing", "rsz_timing_sta.log")),
+            ("grt", Artifact(rp, "logs", "routing", "grt_sta.log")),
             ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
+            ("mca/rcx_nom", Artifact(rp, "logs", "signoff", "rcx_mcsta.nom.log")),
+            ("mca/rcx_min", Artifact(rp, "logs", "signoff", "rcx_mcsta.min.log")),
+            ("mca/rcx_max", Artifact(rp, "logs", "signoff", "rcx_mcsta.max.log")),
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)
-                for report_postfix, report_locus in (basic_set + additional_set)
+                for report_postfix, report_locus in report_set
             ]
             log.generate_reports(*generate_report_args)
 
@@ -306,13 +283,13 @@ class Report(object):
             )
 
         # Cell Count
-        cell_count = -1
+        synth_cell_count = -1
         yosys_report = Artifact(rp, "reports", "synthesis", ".stat.rpt", True)
         yosys_report_content = yosys_report.get_content()
         if yosys_report_content is not None:
             match = re.search(r"Number of cells:\s*(\d+)", yosys_report_content)
             if match is not None:
-                cell_count = int(match[1])
+                synth_cell_count = int(match[1])
 
         # Die Area
         die_area = -1
@@ -413,11 +390,6 @@ class Report(object):
             if end is not None:
                 critical_path_ns = end - start
 
-        # Cells per micrometer
-        cells_per_mm = -1
-        if cell_count != -1 and die_area != -1:
-            cells_per_mm = cell_count / die_area
-
         # OpenDP Utilization and HPWL
         utilization = -1
         hpwl = -1  # Half Perimeter Wire Length?
@@ -432,6 +404,17 @@ class Report(object):
             match = re_get_last_capture(r"HPWL:\s*([\d\.]+)", global_log_content)
             if match is not None:
                 hpwl = float(match)
+
+        final_utilization = -1
+        # ./reports/signoff/26-rcx_sta.area.rpt
+        final_utilization_report = Artifact(
+            rp, "reports", "signoff", "rcx_sta.area.rpt"
+        )
+        final_utilization_content = final_utilization_report.get_content()
+        if final_utilization_content is not None:
+            match = re.search(r"\s+([\d]+\.*[\d]*)%", final_utilization_content)
+            if match is not None:
+                final_utilization = float(match[1])
 
         # TritonRoute Logged Info Extraction
         tr_log = Artifact(rp, "logs", "routing", "detailed.log")
@@ -519,25 +502,18 @@ class Report(object):
         arc_antenna_report = Artifact(rp, "logs", "signoff", "antenna.log")
         aar_content = arc_antenna_report.get_content()
 
-        antenna_violations = -1
+        pin_antenna_violations = -1
+        net_antenna_violations = -1
         if aar_content is not None:
             net_violations = re.search(r"Found (\d+) net violations", aar_content)
             pin_violations = re.search(r"Found (\d+) pin violations", aar_content)
 
-            antenna_violations = (
-                0 if pin_violations or net_violations else antenna_violations
+            pin_antenna_violations = (
+                int(pin_violations[1]) if pin_violations is not None else 0
             )
-            antenna_violations = (
-                antenna_violations + int(pin_violations[1])
-                if pin_violations
-                else antenna_violations
+            net_antenna_violations = (
+                int(net_violations[1]) if net_violations is not None else 0
             )
-            antenna_violations = (
-                antenna_violations + int(net_violations[1])
-                if net_violations
-                else antenna_violations
-            )
-            print(antenna_violations)
         else:
             # Old Magic-Based Check: Just Count The Lines
             magic_antenna_report = Artifact(
@@ -546,7 +522,7 @@ class Report(object):
             mar_content = magic_antenna_report.get_content()
 
             if mar_content is not None:
-                antenna_violations = len(mar_content.split("\n"))
+                net_antenna_violations = len(mar_content.split("\n"))
 
         # STA Report Extractions
         def sta_report_extraction(
@@ -567,17 +543,17 @@ class Report(object):
                 debug(f"Can't find {kind}/{step}/{sta_report_filename}")
             return value
 
-        wns = sta_report_extraction("syn_sta.wns.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction("rcx_sta.wns.rpt", "wns", step="signoff")
-        opt_wns = sta_report_extraction("rt_rsz_sta.wns.rpt", "wns", step="routing")
+        wns = sta_report_extraction("syn_sta.summary.rpt", "wns", step="synthesis")
+        spef_wns = sta_report_extraction("rcx_sta.summary.rpt", "wns", step="signoff")
+        opt_wns = sta_report_extraction("rt_rsz_sta.summary.rpt", "wns", step="routing")
         pl_wns = sta_report_extraction(
             "global.log", "wns", kind="logs", step="placement"
         )
         fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
 
-        tns = sta_report_extraction("syn_sta.tns.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction("rcx_sta.tns.rpt", "tns", step="signoff")
-        opt_tns = sta_report_extraction("rt_rsz_sta.tns.rpt", "tns", step="routing")
+        tns = sta_report_extraction("syn_sta.summary.rpt", "tns", step="synthesis")
+        spef_tns = sta_report_extraction("rcx_sta.summary.rpt", "tns", step="signoff")
+        opt_tns = sta_report_extraction("rt_rsz_sta.summary.rpt", "tns", step="routing")
         pl_tns = sta_report_extraction(
             "global.log", "tns", kind="logs", step="placement"
         )
@@ -670,31 +646,49 @@ class Report(object):
 
         # Process Filler Cells
         # Also includes endcap info
-        tapcell_log = Artifact(rp, "logs", "floorplan", "tap.log")
-        tapcell_log_content = tapcell_log.get_content()
+        def count_cells(cell_wildcards, def_content):
+            def_content_split = def_content.split()
+            count = 0
+            for cell_wildcard in cell_wildcards:
+                count += len(fnmatch.filter(def_content_split, cell_wildcard))
 
-        diode_log = Artifact(rp, "logs", "routing", "diodes.log")
-        diode_log_content = diode_log.get_content()
+            return count
 
-        tapcells, endcaps, diodes = 0, 0, 0
-        if tapcell_log_content is not None:
-            match = re.search(r"Inserted (\d+) end\s*caps\.", tapcell_log_content)
+        design_netlist = Artifact(rp, "results", "final/def", f"{self.design_name}.def")
+        diode_count = -1
+        well_tap_count = -1
+        decap_count = -1
+        filler_count = -1
+        non_phys_count = -1
+        total_cells_count = -1
 
-            if match is not None:
-                endcaps = int(match[1])
+        design_netlist_content = design_netlist.get_content()
+        diode_cell_names = self.configuration_full["DIODE_CELL"].split()
+        fill_cell_names = self.configuration_full["FILL_CELL"].split()
+        well_tap_cell_names = self.configuration_full["FP_WELLTAP_CELL"].split()
+        decap_cell_names = self.configuration_full["DECAP_CELL"].split()
+        if design_netlist_content is not None:
+            diode_count = count_cells(diode_cell_names, design_netlist_content)
+            well_tap_count = count_cells(well_tap_cell_names, design_netlist_content)
+            decap_count = count_cells(decap_cell_names, design_netlist_content)
+            filler_count = count_cells(fill_cell_names, design_netlist_content)
+            all_cells_count_match = re.search(
+                r"COMPONENTS\s+([\d]+)\s+;", design_netlist_content
+            )
+            if all_cells_count_match is not None:
+                total_cells_count = int(all_cells_count_match[1])
+                non_phys_count = (
+                    total_cells_count
+                    - decap_count
+                    - well_tap_count
+                    - diode_count
+                    - filler_count
+                )
 
-            match = re.search(r"Inserted (\d+) tap\s*cells\.", tapcell_log_content)
-
-            if match is not None:
-                tapcells = int(match[1])
-
-        if diode_log_content is not None:
-            match = re.search(r"Inserted (\d+) diodes\.", diode_log_content)
-
-            if match is not None:
-                diodes = int(match[1])
-
-        filler_cells = tapcells + endcaps + diodes
+        # Cells per micrometer
+        cells_per_mm = -1
+        if non_phys_count != -1 and die_area != -1:
+            cells_per_mm = non_phys_count / die_area
 
         # LVS Total Errors
         lvs_report = Artifact(rp, "reports", "signoff", f"{self.design_name}.lvs.rpt")
@@ -724,8 +718,9 @@ class Report(object):
             die_area,
             cells_per_mm,
             utilization,
+            final_utilization,
             tr_memory_peak,
-            cell_count,
+            synth_cell_count,
             tr_violations,
             short_violations,
             metspc_violations,
@@ -733,7 +728,8 @@ class Report(object):
             minhole_violations,
             other_violations,
             magic_violations,
-            antenna_violations,
+            pin_antenna_violations,
+            net_antenna_violations,
             lvs_total_errors,
             cvc_total_errors,
             klayout_violations,
@@ -755,10 +751,12 @@ class Report(object):
             abc_i,
             abc_o,
             abc_level,
-            endcaps,
-            tapcells,
-            diodes,
-            filler_cells,
+            decap_count,
+            well_tap_count,
+            diode_count,
+            filler_count,
+            non_phys_count,
+            total_cells_count,
             core_area,
             *power_metrics_values,
             critical_path_ns,

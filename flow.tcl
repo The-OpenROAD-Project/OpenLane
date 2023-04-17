@@ -70,19 +70,6 @@ proc run_parasitics_sta_step {args} {
     }
 }
 
-proc run_diode_insertion_2_5_step {args} {
-    if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
-        set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(DIODE_INSERTION_CURRENT_DEF)
-    }
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-        run_antenna_check
-        heal_antenna_violators; # modifies the routed DEF
-    }
-
-}
-
 proc run_irdrop_report_step {args} {
     if { $::env(RUN_IRDROP_REPORT) } {
         run_irdrop_report
@@ -168,6 +155,11 @@ proc run_non_interactive_mode {args} {
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
+    if { [info exists arg_values(-from) ] || [info exists arg_values(-to)] } {
+        puts_err "-from and -to are no longer supported."
+        exit -1
+    }
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
@@ -192,33 +184,24 @@ proc run_non_interactive_mode {args} {
         "cts" "run_cts_step" \
         "routing" "run_routing_step" \
         "parasitics_sta" "run_parasitics_sta_step" \
-        "diode_insertion" "run_diode_insertion_2_5_step" \
         "irdrop" "run_irdrop_report_step" \
         "gds_magic" "run_magic_step" \
         "gds_klayout" "run_klayout_step" \
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
         "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc_rv" "run_erc_step" \
-        "timing_check" "run_timing_check_step"
+        "cvc_rv" "run_erc_step"
     ]
 
-    if { [info exists arg_values(-from) ]} {
-        puts_info "Starting flow at $arg_values(-from)..."
-        set ::env(CURRENT_STEP) $arg_values(-from)
-    } elseif {  [info exists ::env(CURRENT_STEP) ] } {
-        puts_info "Resuming flow from $::env(CURRENT_STEP)..."
-    } else {
-        set ::env(CURRENT_STEP) "verilator_lint"
-    }
+    set ::env(CURRENT_STEP) "synthesis"
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc_rv"
+    set start_step $::env(CURRENT_STEP)
+    set end_step "cvc_rv"
 
     set failed 0;
     set exe 0;
     dict for {step_name step_exe} $steps {
-        if { [ string equal $arg_values(-from) $step_name ] } {
+        if { [ string equal $start_step $step_name ] } {
             set exe 1;
         }
 
@@ -229,13 +212,14 @@ proc run_non_interactive_mode {args} {
             set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
+                puts_err "Step $::env(CURRENT_INDEX) ($step_name) failed with error:\n$err"
                 set exe 0;
                 puts $err
                 break;
             }
         }
 
-        if { [ string equal $arg_values(-to) $step_name ] } {
+        if { [ string equal $end_step $step_name ] } {
             set exe 0:
             break;
         }
@@ -263,6 +247,10 @@ proc run_non_interactive_mode {args} {
     calc_total_runtime
     save_state
     generate_final_summary_report
+
+    if { [catch run_timing_check_step] } {
+        flow_fail
+    }
 
     if { [info exists arg_values(-save_path)] && $arg_values(-save_path) != "" } {
         set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"

@@ -81,12 +81,8 @@ set B_factor  0.88
 set F_factor  0.00
 
 # Don't change these unless you know what you are doing
-set stat_ext    ".stat.rpt"
-set chk_ext    ".chk.rpt"
-set gl_ext      ".gl.v"
-set constr_ext  ".$clock_period.constr"
-set timing_ext  ".timing.txt"
-set abc_ext     ".abc"
+set STAT_EXT    "stat.rpt"
+set CHK_EXT    "chk.rpt"
 
 
 # Create SDC File
@@ -252,11 +248,48 @@ if { $adder_type == "RCA"} {
     }
 }
 
-if { $::env(SYNTH_NO_FLAT) } {
-    synth -top $vtop
-} else {
-    synth -top $vtop -flatten
+# taken from https://github.com/YosysHQ/yosys/blob/master/techlibs/common/synth.cc
+# <synth> split to run check -assert in the middle
+hierarchy -check -auto-top
+proc_clean
+proc_rmdead
+proc_prune
+proc_init
+proc_arst
+proc_rom
+proc_mux
+proc_dlatch
+proc_dff
+proc_memwr
+proc_clean
+opt_expr
+if { $::env(SYNTH_NO_FLAT) != 1 } {
+    flatten
 }
+opt_expr
+opt_clean
+tee -o "$::env(synth_report_prefix)_pre_synth.$CHK_EXT" check
+opt -nodffe -nosdff
+fsm
+opt
+wreduce
+peepopt
+opt_clean
+alumacc
+share
+opt
+memory -nomap
+opt_clean
+opt -fast -full
+memory_map
+opt -full
+techmap
+opt -fast
+abc -fast
+opt -fast
+hierarchy -check
+stat
+check
 
 if { $::env(SYNTH_EXTRA_MAPPING_FILE) ne "" } {
     if { [file exists $::env(SYNTH_EXTRA_MAPPING_FILE)] } {
@@ -342,8 +375,10 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
             set stat_libs "$stat_libs -liberty $stat_lib"
         }
     }
-    tee -o "$::env(synth_report_prefix).$strategy_escaped.chk.rpt" check
-    tee -o "$::env(synth_report_prefix).$strategy_escaped.stat.rpt" stat -top $::env(DESIGN_NAME) {*}$stat_libs
+    global CHK_EXT
+    global STAT_EXT
+    tee -o "$::env(synth_report_prefix).$strategy_escaped.$CHK_EXT" check
+    tee -o "$::env(synth_report_prefix).$strategy_escaped.$STAT_EXT" stat -top $::env(DESIGN_NAME) {*}$stat_libs
 
     if { [info exists ::env(SYNTH_AUTONAME)] && $::env(SYNTH_AUTONAME) } {
         # Generate public names for the various nets, resulting in very long names that include
@@ -361,10 +396,6 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
     }
 
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
-    if { $::env(QUIT_ON_SYNTH_CHECKS) == 1 } {
-        read_liberty -ignore_miss_func $::env(LIB_SYNTH)
-        check -assert $::env(DESIGN_NAME)
-    }
     design -reset
 }
 design -save checkpoint

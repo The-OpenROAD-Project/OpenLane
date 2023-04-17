@@ -14,6 +14,7 @@
 # limitations under the License.
 import os
 import csv
+import pathlib
 
 
 def get_design_path(design):
@@ -64,8 +65,15 @@ def add_computed_statistics(filename):
         rows.append(row)
     csv_file_in.close()
 
-    with open(filename, "w") as f:
-        writer = csv.DictWriter(f, csv_headers)
+    with open(filename, "w", encoding="utf8") as f:
+        writer = csv.DictWriter(
+            f,
+            csv_headers,
+        )
         writer.writeheader()
         for row in rows:
             writer.writerow(row)
+
+
+def mkdirp(path):
+    return pathlib.Path(path).mkdir(parents=True, exist_ok=True)

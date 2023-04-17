@@ -646,6 +646,8 @@ proc prep {args} {
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
 
+    handle_diode_insertion_strategy
+
     #
     ############################
     # Prep directories and files
@@ -887,6 +889,18 @@ proc prep {args} {
         assert_files_exist "$::env(EXTRA_GDS_FILES)"
     }
 
+    if { [info exists ::env(VERILOG_STA_NETLISTS)] } {
+        puts_verbose "Verifying existence of files defined in ::env(VERILOG_STA_NETLISTS)..."
+        assert_files_exist "$::env(VERILOG_STA_NETLISTS)"
+    }
+
+    if { [info exists ::env(EXTRA_SPEFS)] } {
+        if { [expr [llength $::env(EXTRA_SPEFS)] % 4] != 0 } {
+            puts_err "Please define EXTRA_SPEFS correctly. i.e. : <module1> <min1> <nom1> <max1> <module2> ..."
+            flow_fail
+        }
+    }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok
@@ -1049,8 +1063,8 @@ proc save_views {args} {
     if { [info exists arg_values(-mc_spef_dir)] } {
         set destination $path/spef/multicorner
         if { [file exists $arg_values(-mc_spef_dir)] } {
-            file delete -force $destination
-            file copy -force $arg_values(-mc_spef_dir) $destination
+            file mkdir $destination
+            file copy -force {*}[glob $arg_values(-mc_spef_dir)/*] $destination
         }
     }
 
@@ -1092,28 +1106,8 @@ proc save_views {args} {
 
 # to be done after detailed routing and run_magic_antenna_check
 proc heal_antenna_violators {args} {
-    # requires a pre-existing report containing a list of cells (-pins?)
-    # that need the real diode in place of the fake diode:
-    # => fixes the routed def
-    if { ($::env(DIODE_INSERTION_STRATEGY) == 2) || ($::env(DIODE_INSERTION_STRATEGY) == 5) } {
-        if { ![info exists ::env(ANTENNA_VIOLATOR_LIST)] } {
-            puts_err "Attempted to run heal_antenna_violators without running an antenna check first."
-            throw_error
-        }
-
-        increment_index
-        TIMER::timer_start
-        puts_info "Healing Antenna Violators..."
-
-        manipulate_layout $::env(SCRIPTS_DIR)/odbpy/diodes.py replace_fake\
-            -output_def $::env(CURRENT_DEF)\
-            --violations-file $::env(ANTENNA_VIOLATOR_LIST)\
-            --fake-diode $::env(FAKEDIODE_CELL)\
-            --true-diode $::env(DIODE_CELL)
-
-        TIMER::timer_stop
-        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "heal antenna violators - openlane"
-    }
+    puts_err "heal_antenna_violators is no longer supported"
+    throw_error
 }
 
 proc label_macro_pins {args} {
@@ -1297,11 +1291,11 @@ proc save_final_views {args} {
 
 proc run_post_run_hooks {} {
     if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
-        puts_info "Running post run hook"
+        puts_info "Running post run hook..."
         set result [exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py]
         puts_info "$result"
     } else {
-        puts_info "hooks/post_run.py not found, skipping"
+        puts_verbose "No post-run hook found, skipping..."
     }
 }
 

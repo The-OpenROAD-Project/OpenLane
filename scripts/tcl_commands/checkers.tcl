@@ -12,7 +12,61 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+proc check_synth_misc {report} {
+    if { ![file exists $report] } {
+        puts_info "Yosys synthesis checks not conducted- continuing."
+        return
+    }
+    set arg_list [list]
+    if { !$::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
+        lappend arg_list --tristate-okay
+    }
+    if { [catch {exec python3 $::env(SCRIPTS_DIR)/parse_yosys_check.py {*}$arg_list $report} err] } {
+        puts_err "Yosys checks have failed: $err"
+        puts_err "See the full report here: [relpath . $report]"
+        throw_error
+    }
+}
 
+proc check_latches {log} {
+    set match {\$LATCH}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. There are latches during synthesis."
+        throw_error
+    }
+}
+
+proc check_out_of_bound {log} {
+    set match {out of bounds on signal}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc check_resizing_cell_port {log} {
+    set match {Resizing cell port}
+    set checker [exec bash -c "grep '$match' \
+        $log || true"]
+
+    if { $checker ne "" } {
+        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in $log"
+        throw_error
+    }
+}
+
+proc run_synthesis_checkers {log report} {
+    check_latches $log
+    check_out_of_bound $log
+    check_resizing_cell_port $log
+    check_synth_misc $report
+}
 
 proc check_assign_statements {args} {
     set checker [count_matches assign $::env(synthesis_results).v]
@@ -49,13 +103,15 @@ proc check_timing_violations {args} {
     if { [info exists ::env(LAST_TIMING_REPORT_TAG)] } {
         set hold_report $::env(LAST_TIMING_REPORT_TAG).min.rpt
         set setup_report $::env(LAST_TIMING_REPORT_TAG).max.rpt
-        set slew_report $::env(LAST_TIMING_REPORT_TAG).slew.rpt
+        set misc_report $::env(LAST_TIMING_REPORT_TAG).checks.rpt
 
-        assert_files_exist "$hold_report $setup_report $slew_report"
+        assert_files_exist "$hold_report $setup_report $misc_report"
 
-        check_slew_violations -report_file $slew_report -corner "typical"
+        check_misc_violations -report_file $misc_report -corner "typical"
         check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $arg_values(-quit_on_hold_vios)
         check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $arg_values(-quit_on_setup_vios)
+    } else {
+        puts_warn "::env(LAST_TIMING_REPORT_TAG) not found."
     }
 }
 
@@ -111,14 +167,14 @@ proc check_setup_violations {args} {
     }
 }
 
-proc check_slew_violations {args} {
+proc check_misc_violations {args} {
     # Perhaps counterintuitively, this also checks max fanout and max capacitance.
     set options {
         {-report_file required}
         {-corner required}
         {-quit_on_vios optional}
     }
-    parse_key_args "check_slew_violations" args arg_values $options
+    parse_key_args "check_misc_violations" args arg_values $options
     set_if_unset arg_values(-quit_on_vios) 0
     set report_file $arg_values(-report_file)
     set quit_on_vios $arg_values(-quit_on_vios)
@@ -165,6 +221,10 @@ proc check_slew_violations {args} {
     } else {
         puts_info "There are no max slew, max fanout or max capacitance violations in the design at the $corner corner."
     }
+}
+
+proc check_slew_violations {args} {
+    handle_deprecated_command check_misc_violations
 }
 
 proc check_floorplan_missing_lef {args} {

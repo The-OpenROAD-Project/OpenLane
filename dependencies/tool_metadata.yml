@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 58c6a32a6ca954cbdf2943f4a3f64f1ecc385557
+  commit: 1d8fcca09bdbfad1066b78c3a6ac9742043f7d13
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -53,7 +53,7 @@
     make install
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
-  commit: f109fa3d4c56fe33bc626c298e04d45ae510dd0e
+  commit: 101075611fc5698739180017bf96b1abf140c8e7
   build: |
     make clean
     make PREFIX=$PREFIX config-gcc
@@ -73,6 +73,6 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: 12df12e2e74145e31c5a13de02f9a1e176b56e67
+  commit: 0c37b7c76527929abfbdbd214df4bffcd260bf50
   in_install: false
   pdk: true

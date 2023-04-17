@@ -73,7 +73,7 @@ Most of the following commands' implementation exists in this [file][0]
 | `run_spef_extraction` | | Runs SPEF extraction on the `::env(CURRENT_DEF)` file followed by Static Timing Analysis using OpenSTA. The results are reported under `<run_path>/reports/<step>/opensta_spef_*`. |
 | `run_antenna_check` | | Runs antenna checks based on the value of `::env(USE_ARC_ANTENNA_CHECK)`, either calling `run_or_antenna_check` or `run_magic_antenna_check`. |
 | `run_or_antenna_check` | | Runs antenna checks using OpenROAD's Antenna Rule Checker on the `::env(CURRENT_DEF)`, the result is saved in `<run_path>/reports/signoff/antenna_violators.rpt`|
-| `save_state` | | Saves environment variables to  `<run_path>/config.tcl`, needed for -from -to|
+| `save_state` | | Saves environment variables to  `<run_path>/config.tcl` |
 | `run_sta` | | Runs OpenSTA timing analysis on the current design, and produces a log under `/<run_path>/logs/<step>/` and timing reports under `/<run_path>/reports/<step>/`. |
 | `set_layer_tracks  ` | | **Removed:** sets the tracks on a layer to specific value.|
 |    | `-defFile <def_file>` |  DEF view of the design in which to edit the tracks values.|
@@ -195,9 +195,9 @@ Most of the following commands' implementation exists in this [file][8]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `ins_fill_cells` | | Runs fill insertion on the processed design using the openroad app. The resulting file is under `/<run_path>/tmp/routing/`.  |
-| `ins_diode_cells_1` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 1 and 2. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `ins_diode_cells_4` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
-| `heal_antenna_violators`   | | Replaces the not needed diodes with fake diodes based on the magic antenna report. Therefore, magic antenna check should be run before this step (`run_magic_antenna_check`). <br> Runs on `CURRENT_DEF` and only if `DIODE_INSERTION_STRATEGY` is set to `2`.|
+| `ins_diode_cells_1` | | **Deprecated** |
+| `heuristic_diode_insertion` | | Runs diode insertion on the processed design using an opendb custom script following diode insertion strategies 4 and 5. The resulting file is under `/<run_path>/tmp/placement/` . It also generates a the updated netlist using yosys and stores the results under `/<run_path>/results/synthesis` and runs yosys logic verification if enabled. |
+| `heal_antenna_violators`   | | **Deprecated** |
 
 
 ## PDN Generation Commands

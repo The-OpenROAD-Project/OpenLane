@@ -123,7 +123,7 @@ mount:
 
 .PHONY: pdk
 pdk: venv/created
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
 	./venv/bin/volare enable --pdk $(PDK_FAMILY)
 
 .PHONY: survey
@@ -144,8 +144,8 @@ venv: venv/created
 venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
 	rm -rf ./venv
 	$(PYTHON_BIN) -m venv ./venv
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
-	./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
 	touch $@
 
 DLTAG=custom_design_List

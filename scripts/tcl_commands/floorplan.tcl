@@ -258,7 +258,7 @@ proc tap_decap_or {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/tapcell.tcl\
         -indexed_log [index_file $::env(floorplan_logs)/tap.log]\
-        -save "to=$::env(floorplan_results),noindex,def,odb"
+        -save "to=$::env(floorplan_tmpfiles),name=tapcell,def,odb"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "tap/decap insertion - openroad"
 
@@ -304,7 +304,7 @@ proc gen_pdn {args} {
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
         -indexed_log [index_file $::env(floorplan_logs)/pdn.log] \
-        -save "to=$::env(floorplan_tmpfiles),name=pdn,def,odb"
+        -save "to=$::env(floorplan_results),noindex,def,odb"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"

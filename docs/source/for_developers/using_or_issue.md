@@ -38,14 +38,14 @@ You'll have to extract three key elements from the **verbose** logs (i.e. ./flow
 As a practical example, for this log from openlane.log:
 
 ```
-[INFO]: Changing layout to designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def
+[INFO]: Changing layout to designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.odb
 [...]
 [INFO]: Running Detailed Routing...
 [INFO]: Running OpenROAD script scripts/openroad/droute.tcl...
 ```
 
 The three elements would be:
-* input:    `designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def`
+* input:    `designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.odb`
 * script:   `scripts/openroad/droute.tcl`
 * run_path: `designs/spm/runs/RUN_2022.03.01_19.21.10`
 
@@ -54,8 +54,8 @@ Then you'd want to run this script as follows, from the root of the OpenLane Rep
     python3 ./scripts/or_issue.py\
         --tool openroad\
         --script ./scripts/openroad/droute.tcl\
-        designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.def
-        # run path is implicitly specified by input def
+        designs/spm/runs/RUN_2022.03.01_19.21.10/tmp/routing/17-fill.odb
+        # run path is implicitly specified by input odb
 ```
 
 Which will create a folder called `_build`, with a single subfolder. Ensure that you inspect this folder manually and the output of this script. This script only attempts a best effort, and it is very likely that it might miss something, in which case, feel free to file an issue.

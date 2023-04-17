@@ -334,9 +334,9 @@ To mitigate this, the SRAM instance was moved down.
 During the run it was clear that the clock period of `10.0` was too low:
 
 ```
-[WARNING]: There are max slew violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
-[WARNING]: There are max fanout violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
-[WARNING]: There are max capacitance violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.slew.rpt'.
+[WARNING]: There are max slew violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.checks.rpt'.
+[WARNING]: There are max fanout violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.checks.rpt'.
+[WARNING]: There are max capacitance violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.checks.rpt'.
 [INFO]: There are no hold violations in the design at the typical corner.
 [ERROR]: There are setup violations in the design at the typical corner. Please refer to 'designs/test_sram_macro/runs/full_guide_libs_3/reports/signoff/32-rcx_sta.max.rpt'.
 ```

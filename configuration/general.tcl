@@ -36,8 +36,6 @@ set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_IRDROP_REPORT) 1
 
-# See documentation for the various strategies.
-set ::env(DIODE_INSERTION_STRATEGY) {3}
 
 ## Signoff
 set ::env(RUN_CVC) 1
@@ -59,6 +57,7 @@ set ::env(MAGIC_GENERATE_MAGLEF) 1
 set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
 set ::env(MAGIC_EXT_USE_GDS) 0
+set ::env(MAGIC_LEF_WRITE_USE_GDS) 1
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1

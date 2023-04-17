@@ -8,7 +8,6 @@ This is the expected folder structure for a PDK:
 	- libs.tech
 		- openlane
 			- config.tcl
-			- common_pdn.tcl
 			- `<standard cell library>`
 				- config.tcl
 				- tracks.info
@@ -21,14 +20,13 @@ This is the expected folder structure for a PDK:
 
 ## Configuration files
 - `config.tcl` PDK configuration file contains common information for all standard cell libraries under this PDK
-- `common_pdn.tcl` Pdn configuration file. Refer to PDN configuration [section](#pdn-configuration-file).
 - `<standard cell library>/config.tcl` standard cell library configuration file which contains information specific to that SCL. It can override PDK configuration file.
 - `<standard cell library>/tracks.info` Contains information about the metal layers offsets and pitches. Refer to tracks configuration file [section](#tracks-info-file)
 - `<standard cell library>/no_synth.cells` that should contain the list of newline-separated cell names to trim during synthesis (to not use them in synthesis). More in this [section](#no-synthesis-cells-file).
 
 
 ## PDK Variables
-This section defines the neccessary variables for PDK configuration file. Note that all examples given are for sky130A.
+This section defines the necessary variables for PDK configuration file. Note that all examples given are for sky130A.
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
@@ -120,13 +118,6 @@ The tracks files defines the metal layers pitches and offsets. This information 
 ```
 <layer name> X|Y <offset> <pitch>
 ```
-
-
-## PDN Configuration File
-
-A sample PDN configuration file exists [here](https://github.com/RTimothyEdwards/open_pdks/blob/master/sky130/openlane/common_pdn.tcl).
-
-More on the structure of the file [here](https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md)
 
 ## No Synthesis Cells File
 

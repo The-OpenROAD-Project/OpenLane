@@ -119,6 +119,14 @@ proc run_synthesis {args} {
         set_netlist $::env(synthesis_results)/$::env(DESIGN_NAME).v
     } else {
         run_yosys -indexed_log $log
+        if { $::env(QUIT_ON_SYNTH_CHECKS) } {
+            set pre_synth_report $::env(synth_report_prefix)_pre_synth.chk.rpt
+            if { [info exists ::env(SYNTH_ELABORATE_ONLY)] \
+                && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
+                set pre_synth_report $::env(synth_report_prefix).chk.rpt
+            }
+        run_synthesis_checkers $log $pre_synth_report
+        }
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
