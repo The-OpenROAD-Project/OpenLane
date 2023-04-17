@@ -214,7 +214,6 @@ proc run_non_interactive_mode {args} {
                 set failed 1;
                 puts_err "Step $::env(CURRENT_INDEX) ($step_name) failed with error:\n$err"
                 set exe 0;
-                puts $err
                 break;
             }
         }
