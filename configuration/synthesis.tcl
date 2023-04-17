@@ -36,3 +36,4 @@ set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
 
 set ::env(QUIT_ON_VERILATOR_WARNINGS) 0
 set ::env(QUIT_ON_VERILATOR_ERRORS) 1
+set ::env(VERILATOR_VERIFIED_PDKS) "sky130A sky130B"

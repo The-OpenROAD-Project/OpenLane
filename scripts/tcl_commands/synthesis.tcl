@@ -235,6 +235,12 @@ proc logic_equiv_check {args} {
 }
 
 proc run_verilator {} {
+    if { [string match *$::env(PDK)* $::env(VERILATOR_VERIFIED_PDKS)] == 0 } {
+        puts_warn "$::env(PDK) is not known to work properly with verilator"
+        puts_warn "Some of the errors/warnings bellow belong to the pdk itself"
+        set ::env(QUIT_ON_VERILATOR_ERRORS) 0
+        set ::env(QUIT_ON_VERILATOR_WARNINGS) 0
+    }
     set log $::env(synthesis_logs)/verilator.log
     puts_info "Running Verilator (log: [relpath . $log])..."
     set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
@@ -262,22 +268,22 @@ proc run_verilator {} {
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
     if { [expr $errors_count > 0] } {
         if { $::env(QUIT_ON_VERILATOR_ERRORS) } {
-            puts_err "$errors_count errors found from Verilator"
+            puts_err "$errors_count errors found by Verilator"
             throw_error
         }
-        puts_warn "$errors_count errors found from Verilator"
+        puts_warn "$errors_count errors found by Verilator"
     } else {
-        puts_info "$errors_count errors found from Verilator"
+        puts_info "$errors_count errors found by Verilator"
     }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
     if { [expr $warnings_count > 0] } {
         if { $::env(QUIT_ON_VERILATOR_WARNINGS) } {
-            puts_err "$warnings_count warnings found from Verilator"
+            puts_err "$warnings_count warnings found by Verilator"
             throw_error
         }
-        puts_warn "$warnings_count warnings found from Verilator"
+        puts_warn "$warnings_count warnings found by Verilator"
     } else {
-        puts_info "$warnings_count warnings found from Verilator"
+        puts_info "$warnings_count warnings found by Verilator"
     }
 }
 
