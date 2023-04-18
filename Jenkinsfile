@@ -72,7 +72,7 @@ pipeline {
                                 stage("${DESIGN} - Install PDK") {
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir pip';
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir volare';
-                                    sh 'PDK_ROOT=$(pwd)/pdks ~/.local/bin/volare enable_or_build -t NULL -j$(nproc) $(python3 ./dependencies/tool.py open_pdks -f commit)';
+                                    sh 'make pdk';
                                 }
                                 stage("${DESIGN} - Import Docker image") {
                                     unstash "data";
