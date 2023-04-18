@@ -46,7 +46,7 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_AUTONAME` | Add a synthesis step to generate names for instances. This results in instance names that can be very long, but may be more useful than the internal names that are six digit numbers. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_BIN` | The yosys binary used in the flow. <br> (Default: `yosys`) |
 | `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `33.5` ff)|
-| `SYNTH_DEFINES` | Specifies verilog defines. Variable should be provided as a json/tcl list . <br> (Default: NONE) |
+| `SYNTH_DEFINES` | Specifies verilog defines. Variable should be provided as a json/tcl list. <br> (Default: NONE) |
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `10` cells) |
 | `SYNTH_MAX_TRAN` | The max transition time (slew) from high to low or low to high on cell inputs in ns. Used in synthesis <br> (Default: Calculated at runtime as `10%` of the provided clock period, unless this exceeds a set DEFAULT_MAX_TRAN, in which case it will be used as is). |
 | `SYNTH_CLOCK_UNCERTAINTY`  | Specifies a value for the clock uncertainty/jitter for timing analysis. <br> (Default: `0.25`) |

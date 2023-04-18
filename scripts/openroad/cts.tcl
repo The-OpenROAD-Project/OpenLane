@@ -49,7 +49,7 @@ if { $::env(CTS_DISABLE_POST_PROCESSING) } {
     lappend arg_list -post_cts_disable
 }
 
-RUN_CTSesis {*}$arg_list
+clock_tree_synthesis {*}$arg_list
 
 set_propagated_clock [all_clocks]
 
