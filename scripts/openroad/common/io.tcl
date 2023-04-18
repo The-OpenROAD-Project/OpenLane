@@ -236,9 +236,8 @@ proc read_spefs {} {
     }
 
     if { [info exists ::env(EXTRA_SPEFS)] } {
-        foreach {module_name spef_file_min spef_file_nom spef_file_max} \
-            "$::env(EXTRA_SPEFS)" {
-                set matched 0
+        foreach {module_name spef_file_min spef_file_nom spef_file_max} "$::env(EXTRA_SPEFS)" {
+            set matched 0
             foreach cell [get_cells *] {
                 if { "[get_property $cell ref_name]" eq "$module_name" && !$matched } {
                     puts "Matched [get_property $cell name] with $module_name"
