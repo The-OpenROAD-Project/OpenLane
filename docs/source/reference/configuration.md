@@ -315,6 +315,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
 | `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
+| `RUN_VERILATOR` | Enable Verilator <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
