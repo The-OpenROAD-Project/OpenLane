@@ -264,6 +264,9 @@ proc run_verilator {} {
         lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
     }
     lappend arg_list -Wno-fatal
+    if { $::env(VERILATOR_RELATIVE_INCLUDES) } {
+        lappend arg_list "--relative-includes"
+    }
 
     set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
     lappend arg_list {*}$arg
