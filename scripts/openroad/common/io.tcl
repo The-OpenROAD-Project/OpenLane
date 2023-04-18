@@ -15,10 +15,7 @@
 source $::env(SCRIPTS_DIR)/openroad/common/set_global_connections.tcl
 
 proc is_blackbox {file_path blackbox_wildcard} {
-    set not_found [catch {
-        exec bash -c "grep '$blackbox_wildcard' \
-            $file_path"
-    }]
+    set not_found [catch { exec bash -c "grep '$blackbox_wildcard' $file_path" }]
     return [expr !$not_found]
 }
 
@@ -26,12 +23,13 @@ proc read_netlist {args} {
     sta::parse_key_args "read_netlists" args \
         keys {}\
         flags {-powered -all}
+
     set netlist $::env(CURRENT_NETLIST)
     if { [info exists flags(-powered)] } {
         set netlist $::env(CURRENT_POWERED_NETLIST)
     }
 
-    puts "Reading netlist $netlist ..."
+    puts "Reading netlist '$netlist'…"
 
     if {[catch {read_verilog $netlist} errmsg]} {
         puts stderr $errmsg
@@ -43,7 +41,7 @@ proc read_netlist {args} {
         if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
             foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
                 if { [is_blackbox $verilog_file $blackbox_wildcard] } {
-                    puts "Found $blackbox_wildcard in $verilog_file skipping..."
+                    puts "Found '$blackbox_wildcard' in '$verilog_file', skipping…"
                 } elseif { [catch {read_verilog $verilog_file} err] } {
                     puts "Error while reading $verilog_file:"
                     puts "Make sure that this a gate-level netlist not an RTL file"
@@ -54,6 +52,7 @@ proc read_netlist {args} {
             }
         }
     }
+
     link_design $::env(DESIGN_NAME)
 
     if { [info exists ::env(CURRENT_SDC)] } {
@@ -110,7 +109,7 @@ proc read {args} {
             exit 1
         }
     } else {
-        puts "\[INFO\]: Reading ODB at '$::env(CURRENT_ODB)'..."
+        puts "\[INFO\]: Reading ODB at '$::env(CURRENT_ODB)'…"
         if { [ catch {read_db $::env(CURRENT_ODB)} errmsg ]} {
             puts stderr $errmsg
             exit 1
@@ -148,61 +147,61 @@ proc write {args} {
         flags {-no_global_connect}
 
     if { [info exists ::env(VDD_NET)] \
-            && ![info exist flags(-no_global_connect)] } {
-        puts "Setting global connections for newly added cells..."
+        && ![info exist flags(-no_global_connect)] } {
+        puts "Setting global connections for newly added cells…"
         set_global_connections
     }
 
     if { [info exists ::env(SAVE_ODB)] } {
-        puts "Writing OpenROAD database to $::env(SAVE_ODB)..."
+        puts "Writing OpenROAD database to '$::env(SAVE_ODB)'…"
         write_db $::env(SAVE_ODB)
     } else {
         puts "\[WARNING\] Did not save OpenROAD database!"
     }
 
     if { [info exists ::env(SAVE_NETLIST)] } {
-        puts "Writing netlist to $::env(SAVE_NETLIST)..."
+        puts "Writing netlist to '$::env(SAVE_NETLIST)'…"
         write_verilog $::env(SAVE_NETLIST)
     }
 
     if { [info exists ::env(SAVE_POWERED_NETLIST)] } {
-        puts "Writing powered netlist to $::env(SAVE_POWERED_NETLIST)..."
+        puts "Writing powered netlist to '$::env(SAVE_POWERED_NETLIST)'…"
         write_verilog -include_pwr_gnd $::env(SAVE_POWERED_NETLIST)
     }
 
     if { [info exists ::env(SAVE_DEF)] } {
-        puts "Writing layout to $::env(SAVE_DEF)..."
+        puts "Writing layout to '$::env(SAVE_DEF)'…"
         write_def $::env(SAVE_DEF)
     }
 
     if { [info exists ::env(SAVE_SDC)] } {
-        puts "Writing timing constraints to $::env(SAVE_SDC)..."
+        puts "Writing timing constraints to '$::env(SAVE_SDC)'…"
         write_sdc $::env(SAVE_SDC)
     }
 
     if { [info exists ::env(SAVE_SPEF)] } {
-        puts "Writing extracted parasitics to $::env(SAVE_SPEF)..."
+        puts "Writing extracted parasitics to '$::env(SAVE_SPEF)'…"
         write_spef $::env(SAVE_SPEF)
     }
 
     if { [info exists ::env(SAVE_GUIDE)] } {
-        puts "Writing routing guides to $::env(SAVE_GUIDE)..."
+        puts "Writing routing guides to '$::env(SAVE_GUIDE)'…"
         write_guides $::env(SAVE_GUIDE)
     }
 
     if { [info exists ::env(SAVE_SDF)] } {
         set corners [sta::corners]
         if { [llength $corners] > 1 } {
-            puts "Writing SDF files for all corners..."
+            puts "Writing SDF files for all corners…"
             set prefix [file rootname $::env(SAVE_SDF)]
             foreach corner $corners {
                 set corner_name [$corner name]
                 set target $prefix.$corner_name.sdf
-                puts "Writing SDF for the $corner_name corner to $target..."
+                puts "Writing SDF for the $corner_name corner to $target…"
                 write_sdf -include_typ -divider . -corner $corner_name $target
             }
         } else {
-            puts "Writing SDF to $::env(SAVE_SDF)..."
+            puts "Writing SDF to '$::env(SAVE_SDF)'…"
             write_sdf -include_typ -divider . $::env(SAVE_SDF)
         }
     }
@@ -210,16 +209,16 @@ proc write {args} {
     if { [info exists ::env(SAVE_LIB)] && !$::env(STA_PRE_CTS)} {
         set corners [sta::corners]
         if { [llength $corners] > 1 } {
-            puts "Writing timing models for all corners..."
+            puts "Writing timing models for all corners…"
             set prefix [file rootname $::env(SAVE_LIB)]
             foreach corner $corners {
                 set corner_name [$corner name]
                 set target $prefix.$corner_name.lib
-                puts "Writing timing models for the $corner_name corner to $target..."
+                puts "Writing timing models for the $corner_name corner to $target…"
                 write_timing_model -corner $corner_name $target
             }
         } else {
-            puts "Writing timing model to $::env(SAVE_LIB)..."
+            puts "Writing timing model to '$::env(SAVE_LIB)'…"
             write_timing_model $::env(SAVE_LIB)
         }
     }
@@ -230,16 +229,16 @@ proc read_spefs {} {
     set corners [sta::corners]
     if { [info exists ::env(CURRENT_SPEF)] } {
         foreach corner $corners {
-        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
-        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
-        read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+            read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+            read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+            read_spef -corner [$corner name] $::env(CURRENT_SPEF)
         }
     }
 
     if { [info exists ::env(EXTRA_SPEFS)] } {
         foreach {module_name spef_file_min spef_file_nom spef_file_max} \
             "$::env(EXTRA_SPEFS)" {
-            set matched 0
+                set matched 0
             foreach cell [get_cells *] {
                 if { "[get_property $cell ref_name]" eq "$module_name" && !$matched } {
                     puts "Matched [get_property $cell name] with $module_name"
