@@ -144,6 +144,12 @@ proc run_timing_check_step {args} {
         -quit_on_setup_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_SETUP_VIOLATIONS)]
 }
 
+proc run_verilator_step {} {
+    if { $::env(RUN_VERILATOR) } {
+        run_verilator
+    }
+}
+
 proc run_non_interactive_mode {args} {
     set options {
         {-design optional}
@@ -177,7 +183,7 @@ proc run_non_interactive_mode {args} {
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
     set steps [dict create \
-        "verilator_lint" "run_verilator" \
+        "verilator_lint_check" "run_verilator_step" \
         "synthesis" "run_synthesis" \
         "floorplan" "run_floorplan" \
         "placement" "run_placement_step" \
@@ -193,7 +199,7 @@ proc run_non_interactive_mode {args} {
         "cvc_rv" "run_erc_step"
     ]
 
-    set ::env(CURRENT_STEP) "synthesis"
+    set ::env(CURRENT_STEP) "verilator_lint_check"
 
     set start_step $::env(CURRENT_STEP)
     set end_step "cvc_rv"

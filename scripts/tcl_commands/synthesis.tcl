@@ -243,9 +243,10 @@ proc logic_equiv_check {args} {
 }
 
 proc run_verilator {} {
-    if { [string match *$::env(PDK)* $::env(VERILATOR_VERIFIED_PDKS)] == 0 } {
-        puts_warn "$::env(PDK) is not known to work properly with verilator"
-        puts_warn "Some of the errors/warnings bellow belong to the pdk itself"
+    set verilator_verified_pdks "sky130A sky130B"
+    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 } {
+        puts_warn "PDK: $::env(PDK) is not known to work properly with verilator"
+        puts_warn "Some of the errors/warnings reported below belong to the pdk itself"
         set ::env(QUIT_ON_VERILATOR_ERRORS) 0
         set ::env(QUIT_ON_VERILATOR_WARNINGS) 0
     }
