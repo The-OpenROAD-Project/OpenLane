@@ -74,9 +74,6 @@ RUN curl -L ${OPENROAD_APP_REPO}/tarball/${OPENROAD_APP_COMMIT} | tar -xzC . --s
 COPY ./utils.py .
 RUN python3 ./utils.py fetch-submodules-from-tarballs ${OPENROAD_APP_REPO} ${OPENROAD_APP_COMMIT}
 
-# liberty missing template seg fault fix for sky130 ff lib
-RUN cd src/sta && curl -L https://github.com/jjcherry56/OpenSTA/commit/974d9f43e7ba15a56f8534b36d7a107ef690602d.diff | patch --strip=1
-
 # Build OpenROAD
 RUN sed -i "s/GITDIR-NOTFOUND/${OPENROAD_APP_COMMIT}/" cmake/GetGitRevisionDescription.cmake
 RUN sed -i "s/-m64//" src/par/CMakeLists.txt
