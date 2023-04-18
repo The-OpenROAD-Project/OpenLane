@@ -96,6 +96,11 @@ puts "max slew violation count [sta::max_slew_violation_count]"
 puts "max fanout violation count [sta::max_fanout_violation_count]"
 puts "max cap violation count [sta::max_capacitance_violation_count]"
 puts "============================================================================"
+
+puts "\n==========================================================================="
+puts "check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks"
+puts "==========================================================================="
+check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks
 puts "checks_report_end"
 
 
