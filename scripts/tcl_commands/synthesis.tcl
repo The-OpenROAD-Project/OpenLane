@@ -244,19 +244,18 @@ proc logic_equiv_check {args} {
 
 proc run_verilator {} {
     set verilator_verified_pdks "sky130A sky130B"
+    set includes ""
     if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 } {
-        puts_warn "PDK: $::env(PDK) is not known to work properly with verilator"
-        puts_warn "Some of the errors/warnings reported below belong to the pdk itself"
-        set ::env(QUIT_ON_VERILATOR_ERRORS) 0
-        set ::env(QUIT_ON_VERILATOR_WARNINGS) 0
+        puts_warn "PDK '$::env(PDK)' will generate errors with instantiated stdcells in the design."
+        puts_warn "Either disable QUIT_ON_VERILATOR_ERRORS or remove the instantiated cells."
+    } else {
+        set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
+        foreach model $pdk_verilog_models {
+            set includes "$includes -I $model"
+        }
     }
     set log $::env(synthesis_logs)/verilator.log
     puts_info "Running Verilator (log: [relpath . $log])..."
-    set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
-    set includes ""
-    foreach model $pdk_verilog_models {
-        set includes "$includes -I $model"
-    }
     set arg_list [list]
     lappend arg_list {*}$includes
     lappend arg_list {*}$::env(VERILOG_FILES)
