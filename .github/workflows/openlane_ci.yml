@@ -43,6 +43,7 @@ jobs:
 
           python3 -m pip install --upgrade --no-cache-dir volare
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
+          export OPDKS_REPO_OWNER=kareefardi
           if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
               --pdk $PDK_FAMILY\
