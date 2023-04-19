@@ -242,4 +242,60 @@ proc logic_equiv_check {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 }
 
+proc run_verilator {} {
+    set verilator_verified_pdks "sky130A sky130B"
+    set includes ""
+    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 } {
+        puts_warn "PDK '$::env(PDK)' will generate errors with instantiated stdcells in the design."
+        puts_warn "Either disable QUIT_ON_VERILATOR_ERRORS or remove the instantiated cells."
+    } else {
+        set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
+        foreach model $pdk_verilog_models {
+            set includes "$includes -I $model"
+        }
+    }
+    set log $::env(synthesis_logs)/verilator.log
+    puts_info "Running Verilator (log: [relpath . $log])..."
+    set arg_list [list]
+    lappend arg_list {*}$includes
+    lappend arg_list {*}$::env(VERILOG_FILES)
+    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+        lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
+    }
+    lappend arg_list -Wno-fatal
+    if { $::env(VERILATOR_RELATIVE_INCLUDES) } {
+        lappend arg_list "--relative-includes"
+    }
+
+    set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
+    lappend arg_list {*}$arg
+    try_exec bash -c "verilator \
+        --lint-only \
+        -Wall \
+        --Wno-DECLFILENAME \
+        --top-module $::env(DESIGN_NAME) \
+        $arg_list"
+
+    set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
+    if { [expr $errors_count > 0] } {
+        if { $::env(QUIT_ON_VERILATOR_ERRORS) } {
+            puts_err "$errors_count errors found by Verilator"
+            throw_error
+        }
+        puts_warn "$errors_count errors found by Verilator"
+    } else {
+        puts_info "$errors_count errors found by Verilator"
+    }
+    set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
+    if { [expr $warnings_count > 0] } {
+        if { $::env(QUIT_ON_VERILATOR_WARNINGS) } {
+            puts_err "$warnings_count warnings found by Verilator"
+            throw_error
+        }
+        puts_warn "$warnings_count warnings found by Verilator"
+    } else {
+        puts_info "$warnings_count warnings found by Verilator"
+    }
+}
+
 package provide openlane 0.9

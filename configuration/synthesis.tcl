@@ -33,3 +33,4 @@ set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
 
 set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
+
