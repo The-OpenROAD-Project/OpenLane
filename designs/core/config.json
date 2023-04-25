@@ -9,8 +9,10 @@
     "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "FP_PDN_SKIPTRIM": true,
 	"FP_PDN_AUTO_ADJUST": true,
-	"DIE_AREA": "0 0 2920 3520",
-	"FP_SIZING": "absolute",
+	"FP_SIZING": "relative",
+	"PL_RESIZER_ALLOW_SETUP_VIOS": 1,
+	"GLB_RESIZER_ALLOW_SETUP_VIOS":1,
+	
 	
 	
     "pdk::sky130*": {
