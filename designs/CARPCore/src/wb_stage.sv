@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 `include "pipe_regs.svh"
 `include "defs.svh"
 

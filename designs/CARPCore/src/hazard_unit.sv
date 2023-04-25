@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 `include "pipe_regs.svh"
 
 module hazard_unit #(parameter DEPTH = 5,       // number of pipeline stages
@@ -7,15 +8,17 @@ module hazard_unit #(parameter DEPTH = 5,       // number of pipeline stages
             input rst_ni,
 
             // Hazard signals
-            input                          mem_acc_stall_i,
-            input                          mem_read_stall_i,
-            input pc_src_e                 pc_src_i,
-            input                          csr_mret_i,
-            input                          csr_flush_i,
-            input                          load_use_stall_i,
+            input          imem_gnt_i,
+            input          imem_rvalid_i,
+            input          dmem_gnt_i,
+            input          dmem_rvalid_i,
+            input pc_src_e pc_src_i,
+            input          csr_mret_i,
+            input          csr_flush_i,
+            input          load_use_stall_i,
 
             // Stage Controls
-            output stage_ctrl_t[DEPTH-1:0] stage_ctrl_ao
+            output stage_ctrl_t[4:0] stage_ctrl_ao
 );
     logic [DEPTH-1:0] flush_mask;
     logic [DEPTH-1:0] next_flush_mask;
@@ -55,12 +58,20 @@ module hazard_unit #(parameter DEPTH = 5,       // number of pipeline stages
         for (int i = 0; i < EX_STAGE + 1; i = i + 1)
             stage_ctrl_ao[i].stall = flush_mask[i] | pre_mask_stall[i];
 
-        // Cache Miss: stalls every stage
-        // Circular Dependency!
-        if (mem_acc_stall_i || mem_read_stall_i) begin
-            // for (int i = 0; i < DEPTH; i = i + 1)
-            //     stage_ctrl_ao[i].stall = 'b1;
+        // dmem Memory Miss: stall whole pipeline
+        if (!dmem_gnt_i || dmem_rvalid_i) begin
+            for (int i = 0; i < DEPTH; i = i + 1)
+                 stage_ctrl_ao[i].stall = 'b1;
         end
+
+        // imem Memory Miss: Stall all stages before execute and squash prior stage
+        if (!imem_gnt_i || !imem_rvalid_i) begin
+            for (int i = 0; i < EX_STAGE; i = i + 1)
+                pre_mask_stall[i] = 'b1;
+            
+            stage_ctrl_ao[EX_STAGE-1].squash = 'b1;
+        end
+
     end
 
     //////////////////////////////

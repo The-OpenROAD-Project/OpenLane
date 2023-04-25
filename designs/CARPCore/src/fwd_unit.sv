@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 `include "pipe_regs.svh"
 
 module fwd_unit #(parameter N_STAGES = 2,
@@ -9,8 +10,8 @@ module fwd_unit #(parameter N_STAGES = 2,
 );
 
     // Explicitly named intermediate nets
-    logic [MEM_READ_STAGE-1:0] lus_1;
-    logic [MEM_READ_STAGE-1:0] lus_2;
+    logic lus_1;
+    logic lus_2;
 
 
     always_comb begin
@@ -26,7 +27,7 @@ module fwd_unit #(parameter N_STAGES = 2,
                 data_fwd_i[i].valid) begin
                 // RAW and Load Use Hazard handling. Either stall or forward
                 if (i < MEM_READ_STAGE && data_fwd_i[i].mem_read)
-                    lus_1[i] = '1;
+                    lus_1 = '1;
                 else
                     dest_meta_o.rs1_data = data_fwd_i[i].rd_data;
             end
@@ -37,7 +38,7 @@ module fwd_unit #(parameter N_STAGES = 2,
                 data_fwd_i[i].valid) begin
                 // RAW and Load Use Hazard handling. Either stall or forward
                 if (i < MEM_READ_STAGE && data_fwd_i[i].mem_read)
-                    lus_2[i] = '1;
+                    lus_2 = '1;
                 else
                     dest_meta_o.rs2_data = data_fwd_i[i].rd_data;
             end

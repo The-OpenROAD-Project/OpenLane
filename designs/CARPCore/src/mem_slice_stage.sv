@@ -22,7 +22,7 @@ module mem_slice_stage (
     input stage_ctrl_t stage_ctrl_i,
 
 	// Memory result port
-	input 		 mem_req_complete_i,
+	input 		 dmem_rvalid_i,
 	input [31:0] dmem_rdata_i,
 	// TODO: More signals?
 
@@ -50,7 +50,7 @@ module mem_slice_stage (
         valid_i
     );
 
-    assign mem_readwait_oa = mem_read_active && !mem_req_complete_i;
+    assign mem_readwait_oa = mem_read_active && !dmem_rvalid_i;
 
     // Splits
     logic [7:0]  bytes [0:3];

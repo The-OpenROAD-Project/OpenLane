@@ -1,3 +1,4 @@
+`timescale 1ns/1ps
 `include "defs.svh"
 
 module branch_gen ( 

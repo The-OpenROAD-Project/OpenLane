@@ -24,9 +24,6 @@ module exec_stage (
     // To Forwarding
     output data_fwd_t data_fwd_o,
 
-    // To Hazard
-    output logic mem_acc_stall_ao,
-
     // To Program Counter
     output logic        target_sel_o,
     output logic [31:0] target_addr_o,
@@ -37,7 +34,6 @@ module exec_stage (
     output reg_meta_t   reg_meta_o,
 
     // Memory Access
-    input  logic        mem_ready_i,
     output logic        mem_read_ao,
     output logic        mem_write_ao,
     output logic [3:0]  mem_strb_ao,
@@ -138,16 +134,13 @@ module exec_stage (
     assign mem_addr_ao  = mem_addr;
     assign mem_data_ao  = mem_wdata;
 
-    // Hazard Signals (Memory not ready for access)
-    assign mem_acc_stall_ao = !mem_ready_i;
-
     //////////////////////////////
     // EX/MEM Pipeline Register //
     //////////////////////////////
     logic valid;
     assign valid = valid_i & ~stage_ctrl_i.squash;
 
-    always_ff @(posedge clk_i or negedge rst_ni) begin
+    always_ff @(posedge clk_i) begin
         if (!rst_ni) begin
             valid_o      <= 0;
             exec_state_o <= '0;
@@ -191,7 +184,7 @@ module exec_stage (
 
 `ifdef RVFI
 
-    always_ff @(posedge clk_i or negedge rst_ni) begin
+    always_ff @(posedge clk_i) begin
         if (!rst_ni) begin
             rvfi_o <= '0;
         end else if (!stage_ctrl_i.stall) begin
