@@ -72,6 +72,13 @@ ws = re.compile(r"\s+")
     help="Name of odb file to be generated [default: ./out.odb]",
 )
 @click.option(
+    "--output-netlist",
+    "-O",
+    "save_netlist",
+    default="./out.v",
+    help="Name of verilog netlist to be generated [default: ./out.v]",
+)
+@click.option(
     "--verbose/--not-verbose",
     default=False,
     help="Verbose output of all found environment variables.",
@@ -95,6 +102,7 @@ def issue(
     run_path,
     save_def,
     save_odb,
+    save_netlist,
     verbose,
     input_type,
     output_dir,
@@ -128,7 +136,7 @@ def issue(
         file=sys.stderr,
     )
 
-    scripts_path = join(openlane_path, "scripts", tool)
+    script_abs_path = abspath(script)
     if run_path is not None:
         run_path = abspath(run_path)
     else:
@@ -152,13 +160,6 @@ def issue(
         print(f"[ERR] {input_file} not found.", file=sys.stderr)
         exit(os.EX_NOINPUT)
 
-    if not script.startswith(scripts_path):
-        print(
-            f"[ERR] The {tool} script {script} does not appear to be in {scripts_path}.",
-            file=sys.stderr,
-        )
-        exit(os.EX_CONFIG)
-
     if not os.path.exists(run_path) and os.path.isdir(run_path):
         print(f"[ERR] The run path {run_path} is not a valid folder.", file=sys.stderr)
         exit(os.EX_CONFIG)
@@ -172,20 +173,22 @@ def issue(
     env = read_tcl_env(run_config)
 
     # Cannot be reliably read from config.tcl
-    env["SAVE_DEF"] = save_def
-    input_key = "CURRENT_DEF"
+    input_key = "CURRENT_NOTHING"
+    if input_type == "def":
+        input_key = "CURRENT_DEF"
+        env["SAVE_DEF"] = save_def
     if input_type == "odb":
         input_key = "CURRENT_ODB"
         env["SAVE_ODB"] = save_odb
-    elif input_type == "netlist":
+        env["SAVE_DEF"] = save_def
+    if input_type == "netlist":
         input_key = "CURRENT_NETLIST"
-    elif input_type == "n/a":
-        input_key = "CURRENT_NOTHING"
+        env["SAVE_NETLIST"] = save_netlist
 
     env[input_key] = input_file
 
     # Phase 2: Set up destination folder
-    script_basename = basename(script)[:-4]
+    script_basename = basename(script_abs_path)[:-4]
     destination_folder = output_dir or abspath(
         join(".", "_build", f"{run_name}_{script_basename}_packaged")
     )
@@ -202,7 +205,7 @@ def issue(
     mkdirp(destination_folder)
 
     # Phase 3: Process TCL Scripts To Find Full List Of Files
-    tcls_to_process = deque([script])
+    tcls_to_process = deque([script_abs_path])
 
     def shift(deque):
         try:
@@ -229,7 +232,7 @@ def issue(
         env[env_key] = current
 
         try:
-            script = open(current).read()
+            script_abs_path = open(current).read()
             if verbose:
                 print(f"Processing {current}...", file=sys.stderr)
 
@@ -237,7 +240,7 @@ def issue(
                 key_accessor = re.compile(
                     rf"((\$::env\({re.escape(key)}\))([/\-\w\.]*))"
                 )
-                for use in key_accessor.findall(script):
+                for use in key_accessor.findall(script_abs_path):
                     use: List[str]
                     full, accessor, extra = use
                     env_keys_used.add(key)

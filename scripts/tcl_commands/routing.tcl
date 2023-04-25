@@ -100,7 +100,7 @@ proc global_routing_fastroute {args} {
         -indexed_log [index_file $::env(routing_logs)/global_write_netlist.log]
 
     TIMER::timer_stop
-    run_sta -no_save -log $::env(routing_logs)/sta-groute.log
+    run_sta -no_save -log $::env(routing_logs)/grt_sta.log
 
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "global routing - openroad"
 }
@@ -133,8 +133,6 @@ proc detailed_routing_tritonroute {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/droute.tcl\
         -indexed_log $log\
         -save "to=$::env(routing_results),noindex,def,odb,netlist,powered_netlist"
-    unset ::env(_tmp_drt_file_prefix)
-    unset ::env(_tmp_drt_rpt_prefix)
 
     try_exec python3 $::env(SCRIPTS_DIR)/drc_rosetta.py tr to_klayout \
         -o $::env(routing_reports)/drt.klayout.xml \
@@ -453,7 +451,7 @@ proc run_resizer_design_routing {args} {
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
-        run_sta -no_save -log $::env(routing_logs)/sta-resizer_design.log
+        run_sta -no_save -log $::env(routing_logs)/rsz_design_sta.log
     } else {
         puts_info "Skipping Global Routing Resizer Design Optimizations."
     }
@@ -472,7 +470,7 @@ proc run_resizer_timing_routing {args} {
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer timing optimizations - openroad"
-        run_sta -no_save -log $::env(routing_logs)/sta-resizer_timing.log
+        run_sta -no_save -log $::env(routing_logs)/rsz_timing_sta.log
     } else {
         puts_info "Skipping Global Routing Resizer Timing Optimizations."
     }

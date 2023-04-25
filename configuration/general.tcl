@@ -22,6 +22,7 @@ set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(RUN_FILL_INSERTION) 1
 set ::env(RUN_TAP_DECAP_INSERTION) 1
+set ::env(RUN_VERILATOR) 1
 
 ## Intentionally Undocumented
 set ::env(RSZ_USE_OLD_REMOVER) 0
@@ -57,6 +58,7 @@ set ::env(MAGIC_GENERATE_MAGLEF) 1
 set ::env(MAGIC_WRITE_FULL_LEF) 0
 set ::env(MAGIC_DRC_USE_GDS) 1
 set ::env(MAGIC_EXT_USE_GDS) 0
+set ::env(MAGIC_LEF_WRITE_USE_GDS) 1
 set ::env(MAGIC_INCLUDE_GDS_POINTERS) 0
 set ::env(MAGIC_DISABLE_HIER_GDS) 1
 set ::env(MAGIC_CONVERT_DRC_TO_RDB) 1

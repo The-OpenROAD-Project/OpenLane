@@ -72,11 +72,7 @@ module user_proj_example #(
     wire clk;
     wire rst;
 
-    wire [`MPRJ_IO_PADS-1:0] io_in;
-    wire [`MPRJ_IO_PADS-1:0] io_out;
-    wire [`MPRJ_IO_PADS-1:0] io_oeb;
-
-    wire [31:0] rdata; 
+    wire [31:0] rdata;
     wire [31:0] wdata;
     wire [BITS-1:0] count;
 
@@ -132,13 +128,10 @@ module counter #(
     input [BITS-1:0] wdata,
     input [BITS-1:0] la_write,
     input [BITS-1:0] la_input,
-    output ready,
-    output [BITS-1:0] rdata,
-    output [BITS-1:0] count
+    output reg ready,
+    output reg [BITS-1:0] rdata,
+    output reg [BITS-1:0] count
 );
-    reg ready;
-    reg [BITS-1:0] count;
-    reg [BITS-1:0] rdata;
 
     always @(posedge clk) begin
         if (reset) begin

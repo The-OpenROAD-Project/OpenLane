@@ -387,118 +387,9 @@ designs/regfile_2r1w/runs/full_guide/logs
     └── 2-sta.log
 ```
 
-Directory `reports` contains all of the reports from the corresponding stage. For example content of the `reports/synthesis`
+Directory `reports` contains all of the reports from the corresponding stage.
 
-```
-designs/regfile_2r1w/runs/full_guide/reports/
-├── cts
-│   ├── 14-cts_sta.clock_skew.rpt
-│   ├── 14-cts_sta.max.rpt
-│   ├── 14-cts_sta.min.rpt
-│   ├── 14-cts_sta.rpt
-│   ├── 14-cts_sta.tns.rpt
-│   ├── 14-cts_sta.wns.rpt
-│   ├── 16-cts_rsz_sta.area.rpt
-│   ├── 16-cts_rsz_sta.clock_skew.rpt
-│   ├── 16-cts_rsz_sta.max.rpt
-│   ├── 16-cts_rsz_sta.min.rpt
-│   ├── 16-cts_rsz_sta.power.rpt
-│   ├── 16-cts_rsz_sta.rpt
-│   ├── 16-cts_rsz_sta.slew.rpt
-│   ├── 16-cts_rsz_sta.tns.rpt
-│   ├── 16-cts_rsz_sta.wns.rpt
-│   └── 16-cts_rsz_sta.worst_slack.rpt
-├── floorplan
-│   ├── 3-initial_fp_core_area.rpt
-│   └── 3-initial_fp_die_area.rpt
-├── manufacturability.rpt
-├── metrics.csv
-├── placement
-│   ├── 10-pl_rsz_sta.area.rpt
-│   ├── 10-pl_rsz_sta.clock_skew.rpt
-│   ├── 10-pl_rsz_sta.max.rpt
-│   ├── 10-pl_rsz_sta.min.rpt
-│   ├── 10-pl_rsz_sta.power.rpt
-│   ├── 10-pl_rsz_sta.rpt
-│   ├── 10-pl_rsz_sta.slew.rpt
-│   ├── 10-pl_rsz_sta.tns.rpt
-│   ├── 10-pl_rsz_sta.wns.rpt
-│   ├── 10-pl_rsz_sta.worst_slack.rpt
-│   ├── 9-gpl_sta.clock_skew.rpt
-│   ├── 9-gpl_sta.max.rpt
-│   ├── 9-gpl_sta.min.rpt
-│   ├── 9-gpl_sta.rpt
-│   ├── 9-gpl_sta.tns.rpt
-│   └── 9-gpl_sta.wns.rpt
-├── routing
-│   ├── 18-rt_rsz_sta.area.rpt
-│   ├── 18-rt_rsz_sta.clock_skew.rpt
-│   ├── 18-rt_rsz_sta.max.rpt
-│   ├── 18-rt_rsz_sta.min.rpt
-│   ├── 18-rt_rsz_sta.power.rpt
-│   ├── 18-rt_rsz_sta.rpt
-│   ├── 18-rt_rsz_sta.slew.rpt
-│   ├── 18-rt_rsz_sta.tns.rpt
-│   ├── 18-rt_rsz_sta.wns.rpt
-│   ├── 18-rt_rsz_sta.worst_slack.rpt
-│   ├── 21-grt_sta.clock_skew.rpt
-│   ├── 21-grt_sta.max.rpt
-│   ├── 21-grt_sta.min.rpt
-│   ├── 21-grt_sta.rpt
-│   ├── 21-grt_sta.tns.rpt
-│   ├── 21-grt_sta.wns.rpt
-│   ├── drt.drc
-│   └── drt.klayout.xml
-├── signoff
-│   ├── 31-rcx_sta.area.rpt
-│   ├── 31-rcx_sta.clock_skew.rpt
-│   ├── 31-rcx_sta.max.rpt
-│   ├── 31-rcx_sta.min.rpt
-│   ├── 31-rcx_sta.power.rpt
-│   ├── 31-rcx_sta.rpt
-│   ├── 31-rcx_sta.slew.rpt
-│   ├── 31-rcx_sta.tns.rpt
-│   ├── 31-rcx_sta.wns.rpt
-│   ├── 31-rcx_sta.worst_slack.rpt
-│   ├── 32-rcx_mca_sta.area.rpt
-│   ├── 32-rcx_mca_sta.clock_skew.rpt
-│   ├── 32-rcx_mca_sta.max.rpt
-│   ├── 32-rcx_mca_sta.min.rpt
-│   ├── 32-rcx_mca_sta.power.rpt
-│   ├── 32-rcx_mca_sta.rpt
-│   ├── 32-rcx_mca_sta.slew.rpt
-│   ├── 32-rcx_mca_sta.tns.rpt
-│   ├── 32-rcx_mca_sta.wns.rpt
-│   ├── 32-rcx_mca_sta.worst_slack.rpt
-│   ├── 33-irdrop.rpt
-│   ├── 36-xor.rpt
-│   ├── 42-antenna_violators.rpt
-│   ├── drc.klayout.xml
-│   ├── drc.rdb
-│   ├── drc.rpt
-│   ├── drc.tcl
-│   ├── drc.tr
-│   ├── regfile_2r1w.xor.gds
-│   └── regfile_2r1w.xor.xml
-└── synthesis
-    ├── 1-synthesis.AREA_0.chk.rpt
-    ├── 1-synthesis.AREA_0.stat.rpt
-    ├── 1-synthesis_dff.stat
-    ├── 1-synthesis_pre.stat
-    ├── 2-syn_sta.area.rpt
-    ├── 2-syn_sta.clock_skew.rpt
-    ├── 2-syn_sta.max.rpt
-    ├── 2-syn_sta.min.rpt
-    ├── 2-syn_sta.power.rpt
-    ├── 2-syn_sta.rpt
-    ├── 2-syn_sta.slew.rpt
-    ├── 2-syn_sta.tns.rpt
-    ├── 2-syn_sta.wns.rpt
-    └── 2-syn_sta.worst_slack.rpt
-```
-
-It is recommended to check the reports for power, timings, etc.
-This allows getting a better understanding of the underlying flow.
+It is recommended to check the reports for power, timings, etc. This allows getting a better understanding of the underlying flow.
 
 Finally, open the final layout.
 
@@ -514,7 +405,8 @@ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
 ### Exploring your designs
 
 Take a look at some reports.
-Content of `designs/mem_1r1w_00/runs/full_guide/reports/signoff/30-rcx_mca_sta.worst_slack.rpt`:
+
+Here's an excerpt from `designs/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
 
 ```
 ===========================================================================
@@ -528,7 +420,7 @@ report_worst_slack -min (Hold)
 worst slack 0.03
 ```
 
-Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/30-rcx_mca_sta.max.rpt`:
+Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/##-rcx_sta.max.rpt`:
 
 ```
 ===========================================================================
