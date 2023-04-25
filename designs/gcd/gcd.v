@@ -6,7 +6,6 @@
 // friendly to OpenROAD tools
 //
 // dump-vcd: False
-// verilator-xinit: zeros
 //module GcdUnit
 module gcd
 (
@@ -105,7 +104,6 @@ endmodule // GcdUnit
 // GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
 //-----------------------------------------------------------------------------
 // dump-vcd: False
-// verilator-xinit: zeros
 module GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
 (
   output reg  [   1:0] a_mux_sel,
@@ -325,7 +323,6 @@ endmodule // GcdUnitCtrlRTL_0x4d0fc71ead8d3d9e
 // dtype: 2
 // reset_value: 0
 // dump-vcd: False
-// verilator-xinit: zeros
 module RegRst_0x9f365fdf6c8998a
 (
   input  wire [   0:0] clk,
@@ -365,7 +362,6 @@ endmodule // RegRst_0x9f365fdf6c8998a
 // GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
 //-----------------------------------------------------------------------------
 // dump-vcd: False
-// verilator-xinit: zeros
 module GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
 (
   input  wire [   1:0] a_mux_sel,
@@ -548,7 +544,6 @@ endmodule // GcdUnitDpathRTL_0x4d0fc71ead8d3d9e
 //-----------------------------------------------------------------------------
 // dtype: 16
 // dump-vcd: False
-// verilator-xinit: zeros
 module RegEn_0x68db79c4ec1d6e5b
 (
   input  wire [   0:0] clk,
@@ -584,7 +579,6 @@ endmodule // RegEn_0x68db79c4ec1d6e5b
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
-// verilator-xinit: zeros
 module LtComparator_0x422b1f52edd46a85
 (
   input  wire [   0:0] clk,
@@ -615,7 +609,6 @@ endmodule // LtComparator_0x422b1f52edd46a85
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
-// verilator-xinit: zeros
 module ZeroComparator_0x422b1f52edd46a85
 (
   input  wire [   0:0] clk,
@@ -646,7 +639,6 @@ endmodule // ZeroComparator_0x422b1f52edd46a85
 // dtype: 16
 // nports: 3
 // dump-vcd: False
-// verilator-xinit: zeros
 module Mux_0x683fa1a418b072c9
 (
   input  wire [   0:0] clk,
@@ -689,7 +681,6 @@ endmodule // Mux_0x683fa1a418b072c9
 // dtype: 16
 // nports: 2
 // dump-vcd: False
-// verilator-xinit: zeros
 module Mux_0xdd6473406d1a99a
 (
   input  wire [   0:0] clk,
@@ -729,7 +720,6 @@ endmodule // Mux_0xdd6473406d1a99a
 //-----------------------------------------------------------------------------
 // nbits: 16
 // dump-vcd: False
-// verilator-xinit: zeros
 module Subtractor_0x422b1f52edd46a85
 (
   input  wire [   0:0] clk,

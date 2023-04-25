@@ -38,8 +38,9 @@ puts "\n========================================================================
 puts "report_checks -path_delay min (Hold)"
 puts "============================================================================"
 foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
-    report_checks -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -sort_by_slack -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts ""
 }
 puts "min_report_end"
 
@@ -49,103 +50,104 @@ puts "\n========================================================================
 puts "report_checks -path_delay max (Setup)"
 puts "============================================================================"
 foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
-    report_checks -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts "======================= [$corner name] Corner ===================================\n"
+    report_checks -sort_by_slack -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
+    puts ""
 }
 puts "max_report_end"
 
 
-puts "check_report"
+puts "checks_report"
 puts "\n==========================================================================="
 puts "report_checks -unconstrained"
+puts "==========================================================================="
 foreach corner [sta::corners] {
-puts "\n======================= [$corner name] Corner ===================================\n"
+    puts "======================= [$corner name] Corner ===================================\n"
     report_checks -unconstrained -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+    puts ""
 }
+
 
 puts "\n==========================================================================="
 puts "report_checks --slack_max -0.01"
 puts "============================================================================"
 foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
+    puts "======================= [$corner name] Corner ===================================\n"
     report_checks -slack_max -0.01 -fields {slew cap input nets fanout} -format full_clock_expanded -corner [$corner name]
+    puts ""
 }
-puts "check_report_end"
 
-puts "parastic_annotation_check"
-puts "\n==========================================================================="
-puts "report_parasitic_annotation -report_unannotated"
-puts "============================================================================"
-report_parasitic_annotation -report_unannotated
-puts "parastic_annotation_check_end"
-
-puts "check_slew"
 puts "\n==========================================================================="
 puts " report_check_types -max_slew -max_cap -max_fanout -violators"
 puts "============================================================================"
 foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
+    puts "======================= [$corner name] Corner ===================================\n"
     report_check_types -max_slew -max_capacitance -max_fanout -violators -corner [$corner name]
+    puts ""
 }
+
+puts "\n==========================================================================="
+puts "report_parasitic_annotation -report_unannotated"
+puts "============================================================================"
+report_parasitic_annotation -report_unannotated
 
 puts "\n==========================================================================="
 puts "max slew violation count [sta::max_slew_violation_count]"
 puts "max fanout violation count [sta::max_fanout_violation_count]"
 puts "max cap violation count [sta::max_capacitance_violation_count]"
 puts "============================================================================"
-puts "check_slew_end"
-
-puts "tns_report"
-puts "\n==========================================================================="
-puts " report_tns"
-puts "============================================================================"
-report_tns
-puts "tns_report_end"
-
-puts "wns_report"
-puts "\n==========================================================================="
-puts " report_wns"
-puts "============================================================================"
-report_wns
-puts "wns_report_end"
-
-
-puts "worst_slack"
-puts "\n==========================================================================="
-puts " report_worst_slack -max (Setup)"
-puts "============================================================================"
-report_worst_slack -max
 
 puts "\n==========================================================================="
-puts " report_worst_slack -min (Hold)"
-puts "============================================================================"
-report_worst_slack -min
-puts "worst_slack_end"
+puts "check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks"
+puts "==========================================================================="
+check_setup -verbose -unconstrained_endpoints -multiple_clock -no_clock -no_input_delay -loops -generated_clocks
+puts "checks_report_end"
 
 
-# report clock skew if the clock port is defined
-# OR hangs if this command is run on clockless designs
-if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
-    puts "clock_skew"
-    puts "\n==========================================================================="
-    puts " report_clock_skew"
-    puts "============================================================================"
-    foreach corner [sta::corners] {
-        puts "\n======================= [$corner name] Corner ===================================\n"
-        report_clock_skew -corner [$corner name]
-    }
-    puts "clock_skew_end"
-}
 
 puts "power_report"
 puts "\n==========================================================================="
 puts " report_power"
 puts "============================================================================"
 foreach corner [sta::corners] {
-    puts "\n======================= [$corner name] Corner ===================================\n"
+    puts "======================= [$corner name] Corner ===================================\n"
     report_power -corner [$corner name]
+    puts ""
 }
 puts "power_report_end"
+
+# report clock skew if the clock port is defined
+# OR hangs if this command is run on clockless designs
+if { $::env(CLOCK_PORT) != "__VIRTUAL_CLK__" && $::env(CLOCK_PORT) != "" } {
+    puts "skew_report"
+    puts "\n==========================================================================="
+    puts "report_clock_skew"
+    puts "============================================================================"
+    report_clock_skew
+    puts "skew_report_end"
+}
+
+puts "summary_report"
+puts "\n==========================================================================="
+puts "report_tns"
+puts "============================================================================"
+report_tns
+
+puts "\n==========================================================================="
+puts "report_wns"
+puts "============================================================================"
+report_wns
+
+puts "\n==========================================================================="
+puts "report_worst_slack -max (Setup)"
+puts "============================================================================"
+report_worst_slack -max
+
+puts "\n==========================================================================="
+puts "report_worst_slack -min (Hold)"
+puts "============================================================================"
+report_worst_slack -min
+puts "summary_report_end"
 
 
 write -no_global_connect

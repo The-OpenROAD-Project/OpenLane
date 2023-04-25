@@ -43,6 +43,14 @@
     make clean
     make -j$(nproc) vlog2Verilog
     cp vlog2Verilog $PREFIX/bin
+- name: verilator
+  repo: https://github.com/verilator/verilator
+  commit: 947402bc57625106e1387255772fdb5d850a6c65
+  build: |
+    autoconf
+    ./configure --prefix=$PREFIX
+    make
+    make install
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: 101075611fc5698739180017bf96b1abf140c8e7
@@ -57,7 +65,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 6840b7481d49c83870f79646cf979e66f22f6833
+  commit: b3db49ea3301a7e590bf24126d409bd40199b4af
   in_install: false
 - name: git
   repo: https://github.com/git/git
