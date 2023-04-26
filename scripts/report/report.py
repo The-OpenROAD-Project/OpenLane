@@ -120,7 +120,7 @@ class Report(object):
         self.run_path = run_path
         self.configuration = params.values()
         self.configuration_full = ConfigHandler.get_config_for_run(
-            None, design_path, tag, full=True
+            run_path, design_path, tag, full=True
         )
         self.raw_report = None
         self.formatted_report = None
