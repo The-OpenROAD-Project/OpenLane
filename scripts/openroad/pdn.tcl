@@ -16,7 +16,7 @@ source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
 
 # load the grid definitions
-if {[catch {source $::env(PDN_CFG)} errmsg]} {
+if {[catch {source $::env(FP_PDN_CFG)} errmsg]} {
     puts stderr $errmsg
     exit 1
 }

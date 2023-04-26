@@ -25,13 +25,10 @@ proc handle_deprecated_config {old new} {
     if { [info exists ::env($old)] } {
         puts_warn "$old is now deprecated; use $new instead."
 
-        if { ! [info exists ::env($new)] } {
-            set ::env($new) $::env($old)
+        if { [info exists ::env($new)] } {
+            puts_warn "Overwriting ::env($new) with $::env($old)"
         }
-        if { $::env($new) != $::env($old) } {
-            puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
-            throw_error
-        }
+        set ::env($new) $::env($old)
     }
 }
 

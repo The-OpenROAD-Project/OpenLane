@@ -578,8 +578,8 @@ proc prep {args} {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
 
-    if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
+    if {![info exists ::env(FP_PDN_CFG)]} {
+        set ::env(FP_PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
     }
 
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
@@ -650,6 +650,7 @@ proc prep {args} {
     handle_deprecated_config FP_PDN_RAILS_LAYER FP_PDN_RAIL_LAYER
     handle_deprecated_config FP_PDN_UPPER_LAYER FP_PDN_HORIZONTAL_LAYER
     handle_deprecated_config FP_PDN_LOWER_LAYER FP_PDN_VERTICAL_LAYER
+    handle_deprecated_config PDN_CFG FP_PDN_CFG
 
     handle_diode_insertion_strategy
 
