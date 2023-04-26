@@ -271,6 +271,9 @@ proc run_verilator {} {
     lappend arg_list {*}$arg
     try_exec bash -c "verilator \
         --lint-only \
+        --no-timing \
+        +define+SYNTHESIS=1 \
+        +define+SYNTHESIS_VERILATOR_LINT_ONLY=1 \
         -Wall \
         --Wno-DECLFILENAME \
         --top-module $::env(DESIGN_NAME) \
