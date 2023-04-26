@@ -19,10 +19,10 @@ proc run_cts {args} {
     if { ! [info exists ::env(CLOCK_PORT)] && ! [info exists ::env(CLOCK_NET)] } {
         puts_info "::env(CLOCK_PORT) is not set"
         puts_warn "Skipping CTS..."
-        set ::env(CLOCK_TREE_SYNTH) 0
+        set ::env(RUN_CTS) 0
     }
 
-    if {$::env(CLOCK_TREE_SYNTH)} {
+    if {$::env(RUN_CTS)} {
         increment_index
         TIMER::timer_start
         set log [index_file $::env(cts_logs)/cts.log]

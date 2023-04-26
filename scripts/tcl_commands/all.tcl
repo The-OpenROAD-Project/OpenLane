@@ -646,6 +646,11 @@ proc prep {args} {
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
 
+    handle_deprecated_config CLOCK_TREE_SYNTH RUN_CTS
+    handle_deprecated_config FP_PDN_RAILS_LAYER FP_PDN_RAIL_LAYER
+    handle_deprecated_config FP_PDN_UPPER_LAYER FP_PDN_HORIZONTAL_LAYER
+    handle_deprecated_config FP_PDN_LOWER_LAYER FP_PDN_VERTICAL_LAYER
+
     handle_diode_insertion_strategy
 
     #

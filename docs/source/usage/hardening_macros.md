@@ -154,7 +154,7 @@ You can read more about that [here][0].
 
 Most of the values for clock tree synthesis are (PDK,STD_CELL_LIBRARY) specific and you can read more about those [here][8].
 
-You can disable it by setting `CLOCK_TREE_SYNTH` to `0`.
+You can disable it by setting `RUN_CTS` to `0`.
 
 If you do not want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 

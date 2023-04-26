@@ -163,11 +163,6 @@ proc run_placement {args} {
     # |----------------   3. PLACEMENT   ------------------|
     # |----------------------------------------------------|
 
-    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
-        set old_pl_target_density $::env(PL_TARGET_DENSITY)
-        set ::env(PL_TARGET_DENSITY) $::env(PL_TARGET_DENSITY_CELLS)
-    }
-
     if { $::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING) } {
         puts_warn "DPL_CELL_PADDING is set higher than GPL_CELL_PADDING ($::env(DPL_CELL_PADDING) > $::env(GPL_CELL_PADDING)). This may result in inconsistent behavior."
     }
@@ -177,10 +172,6 @@ proc run_placement {args} {
         random_global_placement
     } else {
         global_placement_or
-    }
-
-    if { [info exists ::env(PL_TARGET_DENSITY_CELLS)] } {
-        set ::env(PL_TARGET_DENSITY) $old_pl_target_density
     }
 
     run_resizer_design

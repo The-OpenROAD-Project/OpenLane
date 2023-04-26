@@ -1,7 +1,7 @@
 {
     "DESIGN_NAME": "inverter",
     "VERILOG_FILES": "dir::src/*.v",
-    "CLOCK_TREE_SYNTH": false,
+    "RUN_CTS": false,
     "CLOCK_PORT": null,
     "PL_RANDOM_GLB_PLACEMENT": true,
     "FP_SIZING": "absolute",

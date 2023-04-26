@@ -14,7 +14,7 @@
     "DPL_CELL_PADDING": 0,
     "CLOCK_PERIOD": 100,
     "CLOCK_PORT": "clk1 clk2",
-    "CLOCK_TREE_SYNTH": false,
+    "RUN_CTS": false,
     "DIODE_INSERTION_STRATEGY": 0,
     "GLB_RESIZER_TIMING_OPTIMIZATIONS": false,
     "VERILOG_FILES": "dir::src/*.v",
