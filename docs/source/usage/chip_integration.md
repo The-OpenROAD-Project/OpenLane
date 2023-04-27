@@ -115,7 +115,7 @@ It should have an `stdcell` section that includes a `core_ring` on met4 and met5
 </tr>
 </table>
 
-You can automate the power routing process in the core and macro level by reading [this documentation][10]. Otherwise, refer to [this][3] for more details about the syntax. In case you needed to create your own `pdn.tcl` then point to it using `PDN_CFG`.
+You can automate the power routing process in the core and macro level by reading [this documentation][10]. Otherwise, refer to [this][3] for more details about the syntax. In case you needed to create your own `pdn.tcl` then point to it using `FP_PDN_CFG`.
 
 When you use the `power_routing` command in the chip interactive script, the power pads will be connected to the core ring, and thus the whole chip would be powered.
 
