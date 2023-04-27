@@ -1,6 +1,6 @@
 {
         "DESIGN_NAME": "core",
-        "VERILOG_FILES": "dir::src/*.v",
+        "VERILOG_FILES": "dir::src/*.sv",
     
 	"CLOCK_PORT": "clk_i",
 	"CLOCK_PERIOD": 10,
@@ -9,10 +9,10 @@
         "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
         "FP_PDN_SKIPTRIM": true,
 	"FP_PDN_AUTO_ADJUST": true,
-	"FP_SIZING": "relative",
+	"FP_SIZING": "absolute",
+	"DIE_AREA": "0 0 400 500",
 	"PL_RESIZER_ALLOW_SETUP_VIOS": 1,
 	"GLB_RESIZER_ALLOW_SETUP_VIOS":1,
-	
 	
     "pdk::sky130*": {
         "FP_CORE_UTIL": 50,
