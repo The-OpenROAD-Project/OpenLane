@@ -1,0 +1,35 @@
+Usage: run_designs.py [OPTIONS] [DESIGNS]...
+
+  Run multiple designs in parallel, for testing or exploration.
+
+Options:
+  -c, --config_file TEXT          (Base) configuration filename. Must inside
+                                  the design directory. If an extension is
+                                  omitted, both JSON and Tcl will be tried.
+  -m, --matrix TEXT               Path to configuration matrix JSON file
+  -t, --tag TEXT                  Tag for the log file
+  -j, --threads INTEGER           Number of designs in parallel
+  -p, --configuration_parameters TEXT
+                                  File containing configuration parameters to
+                                  append to report: You can also put 'all' to
+                                  report all possible configurations
+  -e, --excluded_designs TEXT     Exclude the following
+                                  comma,delimited,designs from the run
+  -b, --benchmark TEXT            Benchmark report file to compare with.
+  -p, --print_rem INTEGER         If provided with a number >0, a list of
+                                  remaining designs is printed every
+                                  <print_rem> seconds.
+  --enable_timestamp / --disable_timestamp
+                                  Enables or disables appending the timestamp
+                                  to the file names and tags.
+  --append_configurations / --dont_append_configurations
+                                  Append configuration parameters provided to
+                                  the existing default printed configurations
+  --delete / --retain             Delete the entire run directory upon
+                                  completion, leaving only the
+                                  final_report.txt file.
+  --show_output / --hide_output   Enables showing the output from flow
+                                  invocations into stdout. Will be forced to
+                                  be false if more than one design is
+                                  specified.
+  --help                          Show this message and exit.

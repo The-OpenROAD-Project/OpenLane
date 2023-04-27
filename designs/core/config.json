@@ -1,12 +1,12 @@
 {
     "DESIGN_NAME": "core",
-    "VERILOG_FILES": "/openlane/designs/core/src/*.v",
+    "VERILOG_FILES": "dir::src/*.v",
     
 	"CLOCK_PORT": "clk_i",
 	"CLOCK_PERIOD": 10,
 	"GRT_ESTIMATE_PARASITICS": 1,
 	"CLOCK_NET": "ref::$CLOCK_PORT",
-    "FP_PIN_ORDER_CFG": "/openlane/designs/core/pin_order.cfg",
+    "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
     "FP_PDN_SKIPTRIM": true,
 	"FP_PDN_AUTO_ADJUST": true,
 	"FP_SIZING": "relative",
