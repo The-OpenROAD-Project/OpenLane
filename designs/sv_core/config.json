@@ -3,7 +3,7 @@
         "VERILOG_FILES": "dir::src/*.sv",
     
 	"CLOCK_PORT": "clk_i",
-	"CLOCK_PERIOD": 10,
+	"CLOCK_PERIOD": 12,
 	"GRT_ESTIMATE_PARASITICS": 1,
 	"CLOCK_NET": "ref::$CLOCK_PORT",
         "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
@@ -13,24 +13,30 @@
 	"DIE_AREA": "0 0 400 500",
 	"PL_RESIZER_ALLOW_SETUP_VIOS": 1,
 	"GLB_RESIZER_ALLOW_SETUP_VIOS":1,
+	"ROUTING_CORES": 1,
+        "GLB_RESIZER_MAX_WIRE_LENGTH": 1000,
+        "PL_RESIZER_MAX_WIRE_LENGTH": 1000,
+        "PL_WIRELENGTH_COEF": 0.2,
+	"SYNTH_MAX_FANOUT": 30,
+	"CLOCK_BUFFER_FANOUT": 30,
 	
     "pdk::sky130*": {
         "FP_CORE_UTIL": 50,
         "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": 10
+            "CLOCK_PERIOD": 12
         },
         "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": 10
+            "CLOCK_PERIOD": 12
         },
         "scl::sky130_fd_sc_hs": {
-            "CLOCK_PERIOD": 8
+            "CLOCK_PERIOD": 12
         },
         "scl::sky130_fd_sc_ls": {
-            "CLOCK_PERIOD": 10,
+            "CLOCK_PERIOD": 12,
             "SYNTH_MAX_FANOUT": 5
         },
         "scl::sky130_fd_sc_ms": {
-            "CLOCK_PERIOD": 10
+            "CLOCK_PERIOD": 12
         }
     },
     "pdk::gf180mcuC": {

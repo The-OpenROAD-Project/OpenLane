@@ -58,6 +58,8 @@ module hazard_unit (
 
     logic [2:0] PS, NS;
 
+    assign NS = (!rst_ni)?'0:(csr_flush_i?3'b010:(PS << 1));
+    /*
     always_ff @( posedge clk_i or negedge rst_ni ) begin : NS_decoder
         if (!rst_ni) 
             NS <= '0;
@@ -67,7 +69,7 @@ module hazard_unit (
             NS <= PS << 1;
         
     end
-
+    */
     always_ff @( posedge clk_i or negedge rst_ni ) begin : PS_reg
         if (!rst_ni)
             PS <= '0;
