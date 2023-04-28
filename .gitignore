@@ -12,7 +12,6 @@ lefRWarning.log
 run.param
 macrocell.list
 default.cvcrc
-*.log
 *.tar.gz
 
 # Python cache
