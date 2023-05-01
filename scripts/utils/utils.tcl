@@ -172,14 +172,19 @@ proc parse_key_args {cmd arg_var key_var options {flag_var ""} {flags {}} {consu
     return -code ok
 }
 
-# puts a variable in a log file
-proc set_log {var val filepath log_flag} {
-    set cmd "set ${var} \{${val}\}"
+# Sets a variable in a certain scope,
+# but also logs it to the global configuration file.
+proc set_and_log {var val} {
+    set val_escaped [string map {"\\" "\\\\"} $val]
+    set val_escaped [string map {"\$" "\\\$"} $val_escaped]
+    set val_escaped [string map {"\"" "\\\""} $val_escaped]
+    set val_escaped [string map {"\[" "\\\["} $val_escaped]
+
+    set cmd "set ${var} \"${val_escaped}\""
     uplevel #0 ${cmd}
-    set global_cfg_file [open $filepath a+]
-    if { $log_flag } {
-        puts $global_cfg_file $cmd
-    }
+
+    set global_cfg_file [open $::env(GLB_CFG_FILE) a+]
+    puts $global_cfg_file $cmd
     close $global_cfg_file
 }
 
@@ -272,7 +277,7 @@ proc flow_fail {args} {
         calc_total_runtime -status "flow failed"
         save_final_views
         generate_final_summary_report
-        save_state
+        save_state "Fail State"
         puts_err "Flow failed."
         show_warnings "The failure may have been because of the following warnings:"
         exit -1
