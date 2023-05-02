@@ -25,13 +25,13 @@ import glob
 import shutil
 import pathlib
 import textwrap
-from typing import List, Dict
+from typing import Callable, List, Dict
 from collections import deque
 from os.path import join, abspath, dirname, basename, isdir, relpath
 
 import click
 
-from config.tcl import read_tcl_env
+from config.tcl import read_tcl_env, escape_quoted_string
 
 openlane_path = abspath(dirname(dirname(__file__)))
 
@@ -352,10 +352,11 @@ def issue(
         format_string: str = "{key}={value}",
         env: Dict[str, str] = final_env,
         indent: int = 0,
+        value_process: Callable[[str], str] = lambda x: x,
     ) -> str:
         array = []
         for key, value in sorted(env.items()):
-            array.append(format_string.format(key=key, value=value))
+            array.append(format_string.format(key=key, value=value_process(value)))
         value = f"\n{'    ' * indent}".join(array)
         return value
 
@@ -391,7 +392,7 @@ def issue(
                 textwrap.dedent(
                     f"""\
                     #!/usr/bin/env openroad
-                    {env_list('set ::env({key}) {{{value}}};', indent=5)}
+                    {env_list('set ::env({key}) "{value}";', indent=5, value_process=escape_quoted_string)}
                     source $::env(PACKAGED_SCRIPT_0)
                     """
                 )

@@ -15,15 +15,18 @@
 package require json
 package require openlane_utils
 
-proc save_state {args} {
-    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
+# Initial Copy
+foreach key [array names ::env] {
+    set ::initial_env($key) $::env($key)
+}
+
+proc save_state {{start_comment "Saved State"}} {
     puts_info "Saving runtime environment..."
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    set_and_log ::env(PDK_ROOT) $::env(PDK_ROOT)
+    exec echo "# $start_comment" > $::env(GLB_CFG_FILE)
     foreach index [lsort [array names ::env]] {
-        if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
-            set escaped_env_var [string map {\" \\\"} $::env($index)]
-            set escaped_env_var [string map {\$ \\\$} $escaped_env_var]
-            set_log ::env($index) $escaped_env_var $::env(GLB_CFG_FILE) 1
+        if { ![info exists ::initial_env($index)] || $index == "PDK" || $index == "STD_CELL_LIBRARY" } {
+            set_and_log ::env($index) $::env($index)
         }
     }
 }
@@ -477,9 +480,6 @@ proc prep {args} {
         exit -1
     }
 
-    # Storing the current state of environment variables
-    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-
     # Output
     set_if_unset arg_values(-verbose) "0"
     set_verbose $arg_values(-verbose)
@@ -729,16 +729,7 @@ proc prep {args} {
     set density $::env(PL_TARGET_DENSITY)
 
     # Fill config file
-    puts_verbose "Storing configs into config.tcl ..."
-    exec echo "# Run configs" > $::env(GLB_CFG_FILE)
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
-    foreach index [lsort [array names ::env]] {
-        if { $index != "INIT_ENV_VAR_ARRAY" } {
-            if { $index ni $::env(INIT_ENV_VAR_ARRAY) } {
-                set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
-            }
-        }
-    }
+    save_state "Initial Config"
 
     # Process LEFs and LIB files
     if { ! $skip_basic_prep } {
@@ -843,43 +834,37 @@ proc prep {args} {
         } else {
             set ::env(SYNTH_MAX_TRAN) 0
         }
-        set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN)
     }
     if { $::env(SYNTH_ELABORATE_ONLY) } {
-        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CFG_FILE) 0
+        set_and_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl"
     }
-    set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
+    set_and_log ::env(SYNTH_OPT) 0
+    set_and_log ::env(PL_INIT_COEFF) 0.00002
+    set_and_log ::env(PL_IO_ITER) 5
 
     if { ! [info exists ::env(CURRENT_INDEX)] } {
-        set ::env(CURRENT_INDEX) 0
-        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_INDEX) 0
     }
 
     if { ! [info exists ::env(CURRENT_DEF)] } {
-        set ::env(CURRENT_DEF) 0
-        set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_DEF) 0
     }
 
     if { ! [info exists ::env(CURRENT_GUIDE)] } {
-        set ::env(CURRENT_GUIDE) 0
-        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_GUIDE) 0
     }
 
     if { ! [info exists ::env(CURRENT_NETLIST)] } {
-        set ::env(CURRENT_NETLIST) 0
-        set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_NETLIST) 0
     }
 
     if { ! [info exists ::env(CURRENT_POWERED_NETLIST)] } {
-        set ::env(CURRENT_POWERED_NETLIST) 0
-        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_POWERED_NETLIST) 0
     }
 
     if { ! [info exists ::env(CURRENT_ODB)] } {
-        set ::env(CURRENT_ODB) 0
-        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_ODB) 0
     }
 
     if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
