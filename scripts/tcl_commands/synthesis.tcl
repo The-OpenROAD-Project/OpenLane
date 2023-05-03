@@ -275,7 +275,6 @@ proc run_verilator {} {
     try_exec bash -c "verilator \
         --lint-only \
         -Wall \
-        --bbox-unsup \
         --Wno-DECLFILENAME \
         --top-module $::env(DESIGN_NAME) \
         $arg_list"

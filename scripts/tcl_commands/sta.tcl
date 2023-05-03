@@ -72,10 +72,10 @@ proc run_sta {args} {
     if { [info exists flags_map(-netlist_in)] } {
         lappend arg_list -netlist_in
     }
-    if { [info exists arg_values(-estimate_global)] } {
+    if { [info exists arg_values(-estimate_global)] && $::env(GRT_ESTIMATE_PARASITICS) } {
         set ::env(ESTIMATE_PARASITICS) -global
     }
-    if { [info exists arg_values(-estimate_placement)] } {
+    if { [info exists arg_values(-estimate_placement)] && $::env(PL_ESTIMATE_PARASITICS) } {
         set ::env(ESTIMATE_PARASITICS) -placement
     }
 
