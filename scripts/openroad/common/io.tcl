@@ -67,7 +67,7 @@ proc read_netlist {args} {
 proc read_libs {args} {
     sta::parse_key_args "read_libs" args \
         keys {-typical -slowest -fastest}\
-        flags {-multi_corner_libs}
+        flags {-no_extra}
 
     if { ![info exists keys(-typical)] } {
         puts "read_libs -typical is required"
@@ -86,9 +86,11 @@ proc read_libs {args} {
     foreach corner_name [array name corner] {
         puts "read_liberty -corner $corner_name $corner($corner_name)"
         read_liberty -corner $corner_name $corner($corner_name)
-        if { [info exists ::env(EXTRA_LIBS) ] } {
-            foreach lib $::env(EXTRA_LIBS) {
-                read_liberty -corner $corner_name $lib
+        if { [info exists flags(-no_extra)] } {
+            if { [info exists ::env(EXTRA_LIBS) ] } {
+                foreach lib $::env(EXTRA_LIBS) {
+                    read_liberty -corner $corner_name $lib
+                }
             }
         }
     }
@@ -132,6 +134,12 @@ proc read {args} {
 
     if { [info exists ::env(CURRENT_SDC)] } {
         if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    }
+    if { [info exists ::env(CURRENT_SPEF)] } {
+        if {[catch {read_spef $::env(CURRENT_SPEF)} errmsg]} {
             puts stderr $errmsg
             exit 1
         }
