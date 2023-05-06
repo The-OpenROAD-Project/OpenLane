@@ -1,0 +1,43 @@
+{
+        "DESIGN_NAME": "reg_file",
+        "VERILOG_FILES": "dir::src/*.sv",
+    
+	"CLOCK_PORT": "clk_i",
+	"CLOCK_PERIOD": 10,
+	"GRT_ESTIMATE_PARASITICS": 1,
+	"CLOCK_NET": "ref::$CLOCK_PORT",
+        "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+        "FP_PDN_SKIPTRIM": true,
+	"FP_PDN_AUTO_ADJUST": true,
+	"PL_RESIZER_ALLOW_SETUP_VIOS": 1,
+	"GLB_RESIZER_ALLOW_SETUP_VIOS":1,
+	"ROUTING_CORES": 1,
+	"SYNTH_MAX_FANOUT": 30,
+	"CLOCK_BUFFER_FANOUT": 30,
+	
+    "pdk::sky130*": {
+        "FP_CORE_UTIL": 50,
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": 10
+        },
+        "scl::sky130_fd_sc_hdll": {
+            "CLOCK_PERIOD": 10
+        },
+        "scl::sky130_fd_sc_hs": {
+            "CLOCK_PERIOD": 10
+        },
+        "scl::sky130_fd_sc_ls": {
+            "CLOCK_PERIOD": 10,
+            "SYNTH_MAX_FANOUT": 5
+        },
+        "scl::sky130_fd_sc_ms": {
+            "CLOCK_PERIOD": 10
+        }
+    },
+    "pdk::gf180mcuC": {
+        "CLOCK_PERIOD": 24.0,
+        "FP_CORE_UTIL": 40,
+        "SYNTH_MAX_FANOUT": 4,
+        "PL_TARGET_DENSITY": 0.5
+    }
+}

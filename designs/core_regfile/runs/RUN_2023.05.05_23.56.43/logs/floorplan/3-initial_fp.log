@@ -1,0 +1,30 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+define_corners Typical
+read_liberty -corner Typical /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+[INFO ODB-0222] Reading LEF file: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef
+[WARNING ODB-0220] WARNING (LEFPARS-2036): SOURCE statement is obsolete in version 5.6 and later.
+The LEF parser will ignore this statement.
+To avoid this warning in the future, remove this statement from the LEF file with version 5.6 or later. See file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef at line 930.
+
+[INFO ODB-0223]     Created 13 technology layers
+[INFO ODB-0224]     Created 25 technology vias
+[INFO ODB-0225]     Created 441 library cells
+[INFO ODB-0226] Finished LEF file:  /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef
+Reading netlist '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/synthesis/reg_file.v'…
+[INFO]: Setting output delay to: 2.0
+[INFO]: Setting input delay to: 2.0
+[INFO]: Setting load to: 0.033442
+[INFO]: Setting clock uncertainty to: 0.25
+[INFO]: Setting clock transition to: 0.15
+[INFO]: Setting timing derate to: 0.5 %
+[INFO IFP-0001] Added 126 rows of 748 site unithd with height 1.
+[INFO IFP-0030] Inserted 0 tiecells using sky130_fd_sc_hd__conb_1/LO.
+[INFO IFP-0030] Inserted 0 tiecells using sky130_fd_sc_hd__conb_1/HI.
+[INFO] Extracting DIE_AREA and CORE_AREA from the floorplan
+[INFO] Floorplanned on a die area of 0.0 0.0 355.225 365.945 (microns). Saving to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/floorplan/3-initial_fp_die_area.rpt.
+[INFO] Floorplanned on a core area of 5.52 10.88 349.6 353.6 (microns). Saving to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/floorplan/3-initial_fp_core_area.rpt.
+Writing OpenROAD database to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/floorplan/3-initial_fp.odb'…
+Writing layout to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/floorplan/3-initial_fp.def'…
+Writing timing constraints to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/floorplan/3-initial_fp.sdc'…

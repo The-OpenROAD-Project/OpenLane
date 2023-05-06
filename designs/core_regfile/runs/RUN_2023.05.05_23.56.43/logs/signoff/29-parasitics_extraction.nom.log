@@ -1,0 +1,42 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO ODB-0222] Reading LEF file: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef
+[WARNING ODB-0220] WARNING (LEFPARS-2036): SOURCE statement is obsolete in version 5.6 and later.
+The LEF parser will ignore this statement.
+To avoid this warning in the future, remove this statement from the LEF file with version 5.6 or later. See file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef at line 930.
+
+[INFO ODB-0223]     Created 13 technology layers
+[INFO ODB-0224]     Created 25 technology vias
+[INFO ODB-0225]     Created 441 library cells
+[INFO ODB-0226] Finished LEF file:  /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/merged.nom.lef
+[INFO ODB-0127] Reading DEF file: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/reg_file.def
+[INFO ODB-0128] Design: reg_file
+[INFO ODB-0130]     Created 115 pins.
+[INFO ODB-0131]     Created 14823 components and 74773 component-terminals.
+[INFO ODB-0132]     Created 2 special nets and 55964 connections.
+[INFO ODB-0133]     Created 5932 nets and 18809 connections.
+[INFO ODB-0134] Finished DEF file: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/reg_file.def
+define_corners Typical
+read_liberty -corner Typical /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+Using RCX ruleset '/Users/timothylee/.volare/sky130A/libs.tech/openlane/rules.openrcx.sky130A.nom.calibre'...
+[INFO RCX-0431] Defined process_corner X with ext_model_index 0
+[INFO RCX-0029] Defined extraction corner X
+[INFO RCX-0008] extracting parasitics of reg_file ...
+[INFO RCX-0435] Reading extraction model file /Users/timothylee/.volare/sky130A/libs.tech/openlane/rules.openrcx.sky130A.nom.calibre ...
+[INFO RCX-0436] RC segment generation reg_file (max_merge_res 50.0) ...
+[INFO RCX-0040] Final 22111 rc segments
+[INFO RCX-0439] Coupling Cap extraction reg_file ...
+[INFO RCX-0440] Coupling threshhold is 0.1000 fF, coupling capacitance less than 0.1000 fF will be grounded.
+[INFO RCX-0043] 49355 wires to be extracted
+[INFO RCX-0442] 51% completion -- 25571 wires have been extracted
+[INFO RCX-0442] 100% completion -- 49355 wires have been extracted
+[INFO RCX-0045] Extract 5932 nets, 28043 rsegs, 28043 caps, 62726 ccs
+[INFO RCX-0015] Finished extracting reg_file.
+Writing result to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/mca/process_corner_nom/reg_file.spef...
+Setting global connections for newly added cells…
+[WARNING] Did not save OpenROAD database!
+Writing extracted parasitics to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/mca/process_corner_nom/reg_file.spef'…
+[INFO RCX-0016] Writing SPEF ...
+[INFO RCX-0443] 5932 nets finished
+[INFO RCX-0017] Finished writing SPEF ...

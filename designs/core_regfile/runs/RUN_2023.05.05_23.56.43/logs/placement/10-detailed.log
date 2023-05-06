@@ -1,0 +1,24 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.odb'…
+define_corners Typical
+read_liberty -corner Typical /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+Placement Analysis
+---------------------------------
+total displacement          0.0 u
+average displacement        0.0 u
+max displacement            0.0 u
+original HPWL          193053.8 u
+legalized HPWL         196320.2 u
+delta HPWL                    2 %
+
+[INFO DPL-0020] Mirrored 1375 instances
+[INFO DPL-0021] HPWL before          196320.2 u
+[INFO DPL-0022] HPWL after           193053.8 u
+[INFO DPL-0023] HPWL delta               -1.7 %
+Setting global connections for newly added cells…
+Writing OpenROAD database to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/placement/reg_file.odb'…
+Writing netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/placement/reg_file.nl.v'…
+Writing powered netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/placement/reg_file.pnl.v'…
+Writing layout to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/placement/reg_file.def'…

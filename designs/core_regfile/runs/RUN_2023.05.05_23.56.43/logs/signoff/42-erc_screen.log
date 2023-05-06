@@ -1,0 +1,54 @@
+CVC: Circuit Validation Check  Version 1.1.4
+CVC: Log output to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/signoff/reg_file.rpt
+CVC: Error output to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/signoff/reg_file.rpt.error.gz
+CVC: Debug output to /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/signoff/reg_file.rpt.debug.gz
+CVC: Start: Sat May  6 00:19:23 2023
+
+Using the following parameters for CVC (Circuit Validation Check) from /Users/timothylee/.volare/sky130A/libs.tech/openlane/cvc/cvcrc
+CVC_TOP = 'reg_file'
+CVC_NETLIST = '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/signoff/reg_file.cdl'
+CVC_MODE = 'reg_file'
+CVC_MODEL_FILE = '/Users/timothylee/.volare/sky130A/libs.tech/openlane/cvc/models'
+CVC_POWER_FILE = '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/signoff/reg_file.power'
+CVC_FUSE_FILE = ''
+CVC_REPORT_FILE = '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/signoff/reg_file.rpt'
+CVC_REPORT_TITLE = 'CVC $CVC_TOP'
+CVC_CIRCUIT_ERROR_LIMIT = '100'
+CVC_SEARCH_LIMIT = '100'
+CVC_LEAK_LIMIT = '0.0002'
+CVC_SOI = 'false'
+CVC_SCRC = 'false'
+CVC_VTH_GATES = 'false'
+CVC_MIN_VTH_GATES = 'false'
+CVC_IGNORE_VTH_FLOATING = 'false'
+CVC_IGNORE_NO_LEAK_FLOATING = 'false'
+CVC_LEAK_OVERVOLTAGE = 'true'
+CVC_LOGIC_DIODES = 'false'
+CVC_ANALOG_GATES = 'true'
+CVC_BACKUP_RESULTS = 'false'
+CVC_MOS_DIODE_ERROR_THRESHOLD = '0'
+CVC_SHORT_ERROR_THRESHOLD = '0'
+CVC_BIAS_ERROR_THRESHOLD = '0'
+CVC_FORWARD_ERROR_THRESHOLD = '0'
+CVC_FLOATING_ERROR_THRESHOLD = '0'
+CVC_GATE_ERROR_THRESHOLD = '0'
+CVC_LEAK?_ERROR_THRESHOLD = '0'
+CVC_EXPECTED_ERROR_THRESHOLD = '0'
+CVC_OVERVOLTAGE_ERROR_THRESHOLD = '0'
+CVC_PARALLEL_CIRCUIT_PORT_LIMIT = '0'
+CVC_CELL_ERROR_LIMIT_FILE = ''
+CVC_CELL_CHECKSUM_FILE = ''
+CVC_LARGE_CIRCUIT_SIZE = '10000000'
+CVC_NET_CHECK_FILE = ''
+CVC_MODEL_CHECK_FILE = ''
+End of parameters
+
+CVC: Reading device model settings...
+CVC: Reading power settings...
+CVC: Parsing netlist /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/signoff/reg_file.cdl
+
+Cdl fixed data size 253948
+Usage CDL: Time: 0  Memory: 95588  I/O: 0  Swap: 0
+CVC: Counting and linking...
+Fatal error:could not find subcircuit: XFILLER_104_477(sky130_ef_sc_hd__decap_12) in reg_file
+

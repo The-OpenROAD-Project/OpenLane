@@ -1,0 +1,23 @@
+Design Name: reg_file
+Run Directory: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43
+----------------------------------------
+
+Magic DRC Summary:
+Source: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/reports/signoff/drc.rpt
+Violation Message "poly overlap of poly contact < 0.08um in one direction (licon.8a) "found 26 Times.
+Violation Message "N-Diffusion overhang of nFET < 0.25um (poly.7) "found 283390 Times.
+Violation Message "poly spacing < 0.21um (poly.2) "found 80875 Times.
+Violation Message "poly overhang of transistor < 0.13um (poly.8) "found 250515 Times.
+Total Magic DRC violations is 614806
+----------------------------------------
+
+LVS Summary:
+Source: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/logs/signoff/39-reg_file.lef.lvs.log
+Number of nets: 5934                       |Number of nets: 5934                       
+Design is LVS clean.
+----------------------------------------
+
+Antenna Summary:
+Source: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/logs/signoff/41-antenna.log
+Pin violations: 0
+Net violations: 0

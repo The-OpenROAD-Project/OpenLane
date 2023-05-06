@@ -1,0 +1,2 @@
+Warning: /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/15-reg_file.nl.v line 24315, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_252.
+[WARNING] Did not save OpenROAD database!
