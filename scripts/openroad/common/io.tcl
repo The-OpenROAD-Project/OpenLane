@@ -238,8 +238,6 @@ proc read_spefs {} {
     if { [info exists ::env(CURRENT_SPEF)] } {
         foreach corner $corners {
             read_spef -corner [$corner name] $::env(CURRENT_SPEF)
-            read_spef -corner [$corner name] $::env(CURRENT_SPEF)
-            read_spef -corner [$corner name] $::env(CURRENT_SPEF)
         }
     }
 
@@ -251,9 +249,13 @@ proc read_spefs {} {
                     puts "Matched [get_property $cell name] with $module_name"
                     set matched 1
                     foreach corner $corners {
-                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_min
-                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_nom
-                        read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_max
+                        if { $::env(PROCESS_CORNER) eq "nom" } {
+                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_nom
+                        } elseif { $::env(PROCESS_CORNER) eq "min" } {
+                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_min
+                        } elseif { $::env(PROCESS_CORNER) eq "max" } {
+                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_max
+                        }
                     }
                 }
             }

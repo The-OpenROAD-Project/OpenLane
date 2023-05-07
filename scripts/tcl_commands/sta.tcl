@@ -48,9 +48,11 @@ proc run_sta {args} {
         set corner_prefix "Multi-Corner"
     }
 
+    set ::env(PROCESS_CORNER) nom
     set process_corner_postfix ""
     if { [info exists arg_values(-process_corner)]} {
         set process_corner_postfix " at the $arg_values(-process_corner) process corner"
+        set ::env(PROCESS_CORNER) $arg_values(-process_corner)
     }
 
     increment_index
