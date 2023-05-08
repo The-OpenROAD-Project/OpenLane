@@ -173,5 +173,13 @@ puts "==========================================================================
 report_worst_slack -min
 puts "summary_report_end"
 
+if { [file tail [info nameofexecutable]] == "openroad" } {
+    puts "area_report"
+    puts "\n==========================================================================="
+    puts "report_design_area"
+    puts "============================================================================"
+    report_design_area
+    puts "area_report_end"
+}
 
 write -no_global_connect
