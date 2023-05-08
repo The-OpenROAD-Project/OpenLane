@@ -216,6 +216,7 @@ if { [info exists ::env(SYNTH_PARAMETERS) ] } {
     foreach define $::env(SYNTH_PARAMETERS) {
         set param_and_value [split $define "="]
         lassign $param_and_value param value
+        puts "chparam -set $param $value $vtop"
         chparam -set $param $value $vtop
     }
 }

@@ -276,6 +276,8 @@ proc run_verilator {} {
         --lint-only \
         -Wall \
         --Wno-DECLFILENAME \
+        --bbox-unsup \
+        +define+USE_POWER_PINS \
         --top-module $::env(DESIGN_NAME) \
         $arg_list"
 
