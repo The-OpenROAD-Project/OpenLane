@@ -1,0 +1,18 @@
+
+Magic 8.3 revision 389 - Compiled on Mon Apr 10 12:34:20 UTC 2023.
+Starting magic under Tcl interpreter
+Using the terminal as the console.
+Using NULL graphics device.
+Processing system .magicrc file
+Sourcing design .magicrc for technology sky130A ...
+2 Magic internal units = 1 Lambda
+Input style sky130(): scaleFactor=2, multiplier=2
+The following types are not handled by extraction and will be treated as non-electrical types:
+    ubm 
+Scaled tech values by 2 / 1 to match internal grid scaling
+Loading sky130A Device Generator Menu ...
+Using technology "sky130A", version 1.0.406-0-g0c37b7c
+Reading LEF data from file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/signoff/reg_file.lef.
+This action cannot be undone.
+LEF read: Processed 912 lines.
+[INFO]: DONE GENERATING MAGLEF VIEW

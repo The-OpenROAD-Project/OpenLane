@@ -1,0 +1,20 @@
+Fri May 05 23:51:35 UTC 2023 - Executing "openroad -exit -no_init -python /openlane/scripts/odbpy/lefutil.py get_metal_layers -o /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/layers.list /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef"
+
+Fri May 05 23:51:35 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/merged.nom.lef -i /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef {/Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef} |& tee /dev/null"
+
+Fri May 05 23:51:35 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/merged.min.lef -i /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__min.tlef {/Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef} |& tee /dev/null"
+
+Fri May 05 23:51:36 UTC 2023 - Executing "/openlane/scripts/mergeLef.py -o /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/merged.max.lef -i /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__max.tlef {/Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_ef_sc_hd.lef /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lef/sky130_fd_sc_hd.lef} |& tee /dev/null"
+
+Fri May 05 23:51:36 UTC 2023 - Executing "python3 /openlane/scripts/mergeLib.py --output /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/synthesis/merged.lib --name sky130A_merged /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+
+Fri May 05 23:51:37 UTC 2023 - Executing "python3 /openlane/scripts/libtrim.py --cell-file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/synthesis/trimmed.lib.exclude.list --output /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/synthesis/trimmed.lib /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/synthesis/merged.lib"
+
+Fri May 05 23:51:41 UTC 2023 - Executing "python3 /openlane/scripts/libtrim.py --cell-file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/cts/cts.lib.exclude.list --output /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/cts/cts.lib /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
+
+Fri May 05 23:51:43 UTC 2023 - Executing "python3 /openlane/scripts/new_tracks.py -i /Users/timothylee/.volare/sky130A/libs.tech/openlane/sky130_fd_sc_hd/tracks.info -o /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/tmp/routing/config.tracks"
+
+Fri May 05 23:51:43 UTC 2023 - Executing "echo {OpenLane 0ba45946293bd017b2fd6fb1a26687261d18014e} > /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/OPENLANE_VERSION"
+
+Fri May 05 23:51:43 UTC 2023 - Executing "bash -c {verilator  --lint-only  -Wall  --Wno-DECLFILENAME  --top-module reg_filee  -I /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v -I /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v /openlane/designs/core_regfile/src/reg_file.sv -Wno-fatal --relative-includes |& tee /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.51.33/logs/synthesis/verilator.log /dev/null}"
+

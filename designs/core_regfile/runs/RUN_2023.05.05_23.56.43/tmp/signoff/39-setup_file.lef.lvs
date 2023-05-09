@@ -1,0 +1,1 @@
+lvs {/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/signoff/reg_file.spice reg_file} {/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/signoff/36-reg_file.pnl.v reg_file} /Users/timothylee/.volare/sky130A/libs.tech/netgen/sky130A_setup.tcl /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/logs/signoff/39-reg_file.lef.lvs.log -json

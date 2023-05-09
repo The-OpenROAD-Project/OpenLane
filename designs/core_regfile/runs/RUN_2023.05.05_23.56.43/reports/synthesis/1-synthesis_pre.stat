@@ -1,0 +1,23 @@
+
+47. Printing statistics.
+
+=== reg_file ===
+
+   Number of wires:               2119
+   Number of wire bits:           3216
+   Number of public wires:          40
+   Number of public wire bits:    1137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3167
+     $_ANDNOT_                      99
+     $_AND_                          1
+     $_DFFE_NP_                   1024
+     $_MUX_                       1984
+     $_NAND_                         2
+     $_NOR_                          2
+     $_NOT_                          3
+     $_ORNOT_                        4
+     $_OR_                          48
+

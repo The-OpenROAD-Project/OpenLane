@@ -1,0 +1,81 @@
+
+Magic 8.3 revision 389 - Compiled on Mon Apr 10 12:34:20 UTC 2023.
+Starting magic under Tcl interpreter
+Using the terminal as the console.
+Using NULL graphics device.
+Processing system .magicrc file
+Sourcing design .magicrc for technology sky130A ...
+2 Magic internal units = 1 Lambda
+Input style sky130(): scaleFactor=2, multiplier=2
+The following types are not handled by extraction and will be treated as non-electrical types:
+    ubm 
+Scaled tech values by 2 / 1 to match internal grid scaling
+Loading sky130A Device Generator Menu ...
+Using technology "sky130A", version 1.0.406-0-g0c37b7c
+Warning: Calma reading is not undoable!  I hope that's OK.
+Library written using GDS-II Release 3.0
+Library name: reg_file
+Reading "sky130_ef_sc_hd__decap_12".
+Reading "sky130_fd_sc_hd__fill_1".
+Reading "sky130_fd_sc_hd__decap_3".
+Reading "sky130_fd_sc_hd__clkbuf_4".
+Reading "sky130_fd_sc_hd__clkbuf_1".
+Reading "sky130_fd_sc_hd__decap_8".
+Reading "sky130_fd_sc_hd__tapvpwrvgnd_1".
+Reading "sky130_fd_sc_hd__buf_4".
+Reading "sky130_fd_sc_hd__decap_4".
+Reading "sky130_fd_sc_hd__decap_6".
+Reading "sky130_fd_sc_hd__fill_2".
+Reading "sky130_fd_sc_hd__buf_8".
+Reading "sky130_fd_sc_hd__dlymetal6s2s_1".
+Reading "sky130_fd_sc_hd__inv_2".
+Reading "sky130_fd_sc_hd__mux2_1".
+Reading "sky130_fd_sc_hd__dfxtp_1".
+Reading "sky130_fd_sc_hd__buf_12".
+Reading "sky130_fd_sc_hd__clkbuf_16".
+Reading "sky130_fd_sc_hd__clkbuf_2".
+Reading "sky130_fd_sc_hd__buf_2".
+Reading "sky130_fd_sc_hd__mux4_1".
+Reading "sky130_fd_sc_hd__clkbuf_8".
+Reading "sky130_fd_sc_hd__buf_1".
+Reading "sky130_fd_sc_hd__mux4_2".
+Reading "sky130_fd_sc_hd__or2_1".
+Reading "sky130_fd_sc_hd__a31o_2".
+Reading "sky130_fd_sc_hd__a31o_1".
+Reading "sky130_fd_sc_hd__and3b_2".
+Reading "sky130_fd_sc_hd__or2_4".
+Reading "sky130_fd_sc_hd__or3b_4".
+Reading "sky130_fd_sc_hd__nand2_4".
+Reading "sky130_fd_sc_hd__nand2_2".
+Reading "sky130_fd_sc_hd__nor2_4".
+Reading "sky130_fd_sc_hd__and3_4".
+Reading "sky130_fd_sc_hd__nand3_4".
+Reading "sky130_fd_sc_hd__and2_1".
+Reading "sky130_fd_sc_hd__nor2_8".
+Reading "sky130_fd_sc_hd__a221o_1".
+Reading "sky130_fd_sc_hd__o21a_1".
+Reading "sky130_fd_sc_hd__dfxtp_2".
+Reading "sky130_fd_sc_hd__o211a_1".
+Reading "sky130_fd_sc_hd__a221o_4".
+Reading "sky130_fd_sc_hd__a32o_1".
+Reading "sky130_fd_sc_hd__a221o_2".
+Reading "sky130_fd_sc_hd__clkinv_4".
+Reading "sky130_fd_sc_hd__buf_6".
+Reading "sky130_fd_sc_hd__or3_1".
+Reading "sky130_fd_sc_hd__inv_4".
+Reading "sky130_fd_sc_hd__o211a_4".
+Reading "sky130_fd_sc_hd__and3b_4".
+Reading "sky130_fd_sc_hd__or3_4".
+Reading "sky130_fd_sc_hd__o211a_2".
+Reading "sky130_fd_sc_hd__or2_2".
+Reading "sky130_fd_sc_hd__a32o_2".
+Reading "sky130_fd_sc_hd__and3_1".
+Reading "reg_file".
+    5000 uses
+    10000 uses
+[INFO]: Writing abstract LEF
+Generating LEF output /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/signoff/reg_file.lef for cell reg_file:
+Diagnostic:  Write LEF header for cell reg_file
+Diagnostic:  Writing LEF output for cell reg_file
+Diagnostic:  Scale value is 0.005000
+[INFO]: LEF Write Complete

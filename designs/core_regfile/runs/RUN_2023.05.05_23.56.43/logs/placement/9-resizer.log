@@ -1,0 +1,30 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/7-global.odb'…
+define_corners Typical
+read_liberty -corner Typical /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/resizer_sky130_fd_sc_hd__tt_025C_1v80.lib
+[INFO]: Setting RC values...
+[INFO RSZ-0027] Inserted 48 input buffers.
+[INFO RSZ-0028] Inserted 64 output buffers.
+[INFO RSZ-0058] Using max wire length 3048um.
+[INFO RSZ-0039] Resized 4499 instances.
+Placement Analysis
+---------------------------------
+total displacement      13612.6 u
+average displacement        1.8 u
+max displacement           11.8 u
+original HPWL          182619.0 u
+legalized HPWL         196320.2 u
+delta HPWL                    8 %
+
+[INFO DPL-0020] Mirrored 1375 instances
+[INFO DPL-0021] HPWL before          196320.2 u
+[INFO DPL-0022] HPWL after           193053.8 u
+[INFO DPL-0023] HPWL delta               -1.7 %
+Setting global connections for newly added cells…
+Writing OpenROAD database to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.odb'…
+Writing netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.nl.v'…
+Writing powered netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.pnl.v'…
+Writing layout to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.def'…
+Writing timing constraints to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/placement/9-resizer.sdc'…

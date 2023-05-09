@@ -1,0 +1,283 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/15-reg_file.odb'…
+define_corners Typical
+read_liberty -corner Typical /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/resizer_sky130_fd_sc_hd__tt_025C_1v80.lib
+[INFO]: Setting signal min routing layer to: met1 and clock min routing layer to met1. 
+[INFO]: Setting signal max routing layer to: met5 and clock max routing layer to met5. 
+-congestion_iterations 50 -verbose
+[INFO GRT-0020] Min routing layer: met1
+[INFO GRT-0021] Max routing layer: met5
+[INFO GRT-0022] Global adjustment: 30%
+[INFO GRT-0023] Grid origin: (0, 0)
+[INFO GRT-0043] No OR_DEFAULT vias defined.
+[INFO GRT-0088] Layer li1     Track-Pitch = 0.4600  line-2-Via Pitch: 0.3400
+[INFO GRT-0088] Layer met1    Track-Pitch = 0.3400  line-2-Via Pitch: 0.3400
+[INFO GRT-0088] Layer met2    Track-Pitch = 0.4600  line-2-Via Pitch: 0.3500
+[INFO GRT-0088] Layer met3    Track-Pitch = 0.6800  line-2-Via Pitch: 0.6150
+[INFO GRT-0088] Layer met4    Track-Pitch = 0.9200  line-2-Via Pitch: 1.0400
+[INFO GRT-0088] Layer met5    Track-Pitch = 3.4000  line-2-Via Pitch: 3.1100
+[INFO GRT-0019] Found 1265 clock nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0003] Macros: 0
+[INFO GRT-0004] Blockages: 25003
+
+[INFO GRT-0053] Routing resources analysis:
+          Routing      Original      Derated      Resource
+Layer     Direction    Resources     Resources    Reduction (%)
+---------------------------------------------------------------
+li1        Vertical            0             0          0.00%
+met1       Horizontal      54060         25636          52.58%
+met2       Vertical        40545         27065          33.25%
+met3       Horizontal      27030         18615          31.13%
+met4       Vertical        16218         10422          35.74%
+met5       Horizontal       5406          2500          53.76%
+---------------------------------------------------------------
+
+[INFO GRT-0101] Running extra iterations to remove overflow.
+[INFO GRT-0197] Via related to pin nodes: 25416
+[INFO GRT-0198] Via related Steiner nodes: 1152
+[INFO GRT-0199] Via filling finished.
+[INFO GRT-0111] Final number of vias: 30219
+[INFO GRT-0112] Final usage 3D: 128692
+
+[INFO GRT-0096] Final congestion report:
+Layer         Resource        Demand        Usage (%)    Max H / Max V / Total Overflow
+---------------------------------------------------------------------------------------
+li1                  0             0            0.00%             0 /  0 /  0
+met1             25636         13633           53.18%             0 /  0 /  0
+met2             27065         14851           54.87%             0 /  0 /  0
+met3             18615          5671           30.46%             0 /  0 /  0
+met4             10422          3520           33.77%             0 /  0 /  0
+met5              2500           360           14.40%             0 /  0 /  0
+---------------------------------------------------------------------------------------
+Total            84238         38035           45.15%             0 /  0 /  0
+
+[INFO GRT-0018] Total wirelength: 365465 um
+[INFO GRT-0014] Routed nets: 5932
+[INFO]: Setting RC values...
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 13
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 13
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2147483647
+[INFO GRT-0002] Maximum degree: 1
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 5 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 30
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 31
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 5 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 20
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 4
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 4 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 15
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 7 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 23
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO GRT-0009] rerouting 3 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 4
+[INFO GRT-0009] rerouting 2 nets.
+[INFO GRT-0001] Minimum degree: 2
+[INFO GRT-0002] Maximum degree: 2
+[INFO RSZ-0041] Resized 67 instances.
+[WARNING RSZ-0062] Unable to repair all setup violations.
+[INFO RSZ-0033] No hold violations found.
+Placement Analysis
+---------------------------------
+total displacement         37.5 u
+average displacement        0.0 u
+max displacement            7.4 u
+original HPWL          200947.7 u
+legalized HPWL         205896.1 u
+delta HPWL                    2 %
+
+[INFO DPL-0020] Mirrored 1986 instances
+[INFO DPL-0021] HPWL before          205896.1 u
+[INFO DPL-0022] HPWL after           200942.4 u
+[INFO DPL-0023] HPWL delta               -2.4 %
+Setting global connections for newly added cells…
+Writing OpenROAD database to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/17-reg_file.odb'…
+Writing netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/17-reg_file.nl.v'…
+Writing powered netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/17-reg_file.pnl.v'…
+Writing layout to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/17-reg_file.def'…
+Writing timing constraints to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/17-reg_file.sdc'…

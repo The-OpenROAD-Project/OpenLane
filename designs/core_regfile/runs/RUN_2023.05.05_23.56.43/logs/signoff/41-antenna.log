@@ -1,0 +1,8 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/reg_file.odb'…
+define_corners Typical
+read_liberty -corner Typical /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+[INFO ANT-0002] Found 0 net violations.
+[INFO ANT-0001] Found 0 pin violations.

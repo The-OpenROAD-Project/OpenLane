@@ -1,0 +1,12 @@
+[ERROR]: 2 errors found by Verilator
+[ERROR]: Step 0 (verilator_lint_check) failed with error:
+-code 1 -level 0 -errorcode NONE -errorinfo {
+    while executing
+"throw_error"
+    (procedure "run_verilator" line 34)
+    invoked from within
+"run_verilator"
+    (procedure "run_verilator_step" line 3)
+    invoked from within
+"run_verilator_step"} -errorline 1
+[ERROR]: Flow failed.

@@ -1,0 +1,29 @@
+OpenROAD b3db49ea3301a7e590bf24126d409bd40199b4af 
+This program is licensed under the BSD-3 license. See the LICENSE file for details.
+Components of this program may be licensed under more restrictive licenses which must be honored.
+[INFO]: Reading ODB at '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/cts/reg_file.odb'…
+define_corners Typical
+read_liberty -corner Typical /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/resizer_sky130_fd_sc_hd__tt_025C_1v80.lib
+[INFO]: Setting RC values...
+[INFO RSZ-0041] Resized 59 instances.
+[WARNING RSZ-0062] Unable to repair all setup violations.
+[INFO RSZ-0033] No hold violations found.
+Placement Analysis
+---------------------------------
+total displacement         51.4 u
+average displacement        0.0 u
+max displacement            4.1 u
+original HPWL          200725.0 u
+legalized HPWL         205613.1 u
+delta HPWL                    2 %
+
+[INFO DPL-0020] Mirrored 1982 instances
+[INFO DPL-0021] HPWL before          205613.1 u
+[INFO DPL-0022] HPWL after           200741.1 u
+[INFO DPL-0023] HPWL delta               -2.4 %
+Setting global connections for newly added cells…
+Writing OpenROAD database to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/cts/14-reg_file.resized.odb'…
+Writing netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/cts/14-reg_file.resized.nl.v'…
+Writing powered netlist to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/cts/14-reg_file.resized.pnl.v'…
+Writing layout to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/cts/14-reg_file.resized.def'…
+Writing timing constraints to '/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/cts/14-reg_file.resized.sdc'…

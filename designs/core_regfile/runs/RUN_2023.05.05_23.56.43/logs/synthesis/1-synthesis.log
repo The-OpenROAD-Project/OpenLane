@@ -1,0 +1,1056 @@
+
+ /----------------------------------------------------------------------------\
+ |                                                                            |
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |                                                                            |
+ |  Copyright (C) 2012 - 2020  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |                                                                            |
+ |  Permission to use, copy, modify, and/or distribute this software for any  |
+ |  purpose with or without fee is hereby granted, provided that the above    |
+ |  copyright notice and this permission notice appear in all copies.         |
+ |                                                                            |
+ |  THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES  |
+ |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF          |
+ |  MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR   |
+ |  ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES    |
+ |  WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN     |
+ |  ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF   |
+ |  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.            |
+ |                                                                            |
+ \----------------------------------------------------------------------------/
+
+ Yosys 0.27+30 (git sha1 101075611fc, gcc 8.3.1 -fPIC -Os)
+
+[TCL: yosys -import] Command name collision: found pre-existing command `cd' -> skip.
+[TCL: yosys -import] Command name collision: found pre-existing command `eval' -> skip.
+[TCL: yosys -import] Command name collision: found pre-existing command `exec' -> skip.
+[TCL: yosys -import] Command name collision: found pre-existing command `read' -> skip.
+[TCL: yosys -import] Command name collision: found pre-existing command `trace' -> skip.
+
+1. Executing Verilog-2005 frontend: /openlane/designs/core_regfile/src/reg_file.sv
+Parsing SystemVerilog input from `/openlane/designs/core_regfile/src/reg_file.sv' to AST representation.
+Generating RTLIL representation for module `\reg_file'.
+Successfully finished Verilog frontend.
+
+2. Generating Graphviz representation of design.
+Writing dot description to `/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/hierarchy.dot'.
+Dumping module reg_file to page 1.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \reg_file
+
+3.2. Analyzing design hierarchy..
+Top module:  \reg_file
+Removed 0 unused modules.
+
+4. Executing TRIBUF pass.
+
+5. Executing HIERARCHY pass (managing design hierarchy).
+
+5.1. Analyzing design hierarchy..
+Top module:  \reg_file
+
+5.2. Analyzing design hierarchy..
+Top module:  \reg_file
+Removed 0 unused modules.
+
+6. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+7. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 1 switch rules as full_case in process $proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8 in module reg_file.
+Marked 1 switch rules as full_case in process $proc$/openlane/designs/core_regfile/src/reg_file.sv:0$5 in module reg_file.
+Marked 1 switch rules as full_case in process $proc$/openlane/designs/core_regfile/src/reg_file.sv:0$2 in module reg_file.
+Removed a total of 0 dead cases.
+
+8. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 0 redundant assignments.
+Promoted 5 assignments to connections.
+
+9. Executing PROC_INIT pass (extract init attributes).
+
+10. Executing PROC_ARST pass (detect async resets in processes).
+
+11. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~3 debug messages>
+
+12. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+     1/3: $1$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$16
+     2/3: $1$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_DATA[31:0]$15
+     3/3: $1$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_ADDR[4:0]$14
+Creating decoders for process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$5'.
+     1/1: $1\port2_data_o[31:0]
+Creating decoders for process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$2'.
+     1/1: $1\port1_data_o[31:0]
+
+13. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\reg_file.\port2_data_o' from process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$5'.
+No latch inferred for signal `\reg_file.\port1_data_o' from process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$2'.
+
+14. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\reg_file.$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_ADDR' using process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+  created $dff cell `$procdff$32' with negative edge clock.
+Creating register for signal `\reg_file.$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_DATA' using process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+  created $dff cell `$procdff$33' with negative edge clock.
+Creating register for signal `\reg_file.$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN' using process `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+  created $dff cell `$procdff$34' with negative edge clock.
+
+15. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+16. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Found and cleaned up 1 empty switch in `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+Removing empty process `reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:55$8'.
+Found and cleaned up 1 empty switch in `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$5'.
+Removing empty process `reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$5'.
+Found and cleaned up 1 empty switch in `\reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$2'.
+Removing empty process `reg_file.$proc$/openlane/designs/core_regfile/src/reg_file.sv:0$2'.
+Cleaned up 3 empty switches.
+
+17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+<suppressed ~3 debug messages>
+
+18. Executing FLATTEN pass (flatten design).
+
+19. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+20. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 3 unused cells and 20 unused wires.
+<suppressed ~4 debug messages>
+
+21. Executing CHECK pass (checking for obvious problems).
+Checking module reg_file...
+Found and reported 0 problems.
+
+22. Executing OPT pass (performing simple optimizations).
+
+22.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+22.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+22.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+22.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+    Consolidated identical input bits for $mux cell $procmux$18:
+      Old ports: A=0, B=32'11111111111111111111111111111111, Y=$0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11
+      New ports: A=1'0, B=1'1, Y=$0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0]
+      New connections: $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [31:1] = { $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] $0$memwr$\rf$/openlane/designs/core_regfile/src/reg_file.sv:56$1_EN[31:0]$11 [0] }
+  Optimizing cells in module \reg_file.
+Performed a total of 1 changes.
+
+22.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+22.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+22.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+22.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+22.9. Rerunning OPT passes. (Maybe there is more to do..)
+
+22.10. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+22.11. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+22.12. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+22.13. Executing OPT_DFF pass (perform DFF optimizations).
+
+22.14. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+22.15. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+22.16. Finished OPT passes. (There is nothing left to do.)
+
+23. Executing FSM pass (extract and optimize FSM).
+
+23.1. Executing FSM_DETECT pass (finding FSMs in design).
+
+23.2. Executing FSM_EXTRACT pass (extracting FSM from design).
+
+23.3. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+23.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+23.5. Executing FSM_OPT pass (simple optimizations of FSMs).
+
+23.6. Executing FSM_RECODE pass (re-assigning FSM state encoding).
+
+23.7. Executing FSM_INFO pass (dumping all available information on FSM cells).
+
+23.8. Executing FSM_MAP pass (mapping FSMs to basic logic).
+
+24. Executing OPT pass (performing simple optimizations).
+
+24.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+24.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+24.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+24.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+24.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+24.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+24.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+24.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+24.9. Finished OPT passes. (There is nothing left to do.)
+
+25. Executing WREDUCE pass (reducing word size of cells).
+
+26. Executing PEEPOPT pass (run peephole optimizers).
+
+27. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+28. Executing ALUMACC pass (create $alu and $macc cells).
+Extracting $alu and $macc cells in module reg_file:
+  created 0 $alu and 0 $macc cells.
+
+29. Executing SHARE pass (SAT-based resource sharing).
+Found 2 cells in module reg_file that may be considered for resource sharing.
+  Analyzing resource sharing options for $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:51$7 ($memrd):
+    Found 1 activation_patterns using ctrl signal $eq$/openlane/designs/core_regfile/src/reg_file.sv:50$6_Y.
+    Found 1 candidates: $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:45$4
+    Analyzing resource sharing with $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:45$4 ($memrd):
+      Found 1 activation_patterns using ctrl signal $eq$/openlane/designs/core_regfile/src/reg_file.sv:44$3_Y.
+      Activation pattern for cell $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:51$7: $eq$/openlane/designs/core_regfile/src/reg_file.sv:50$6_Y = 1'0
+      Activation pattern for cell $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:45$4: $eq$/openlane/designs/core_regfile/src/reg_file.sv:44$3_Y = 1'0
+      Size of SAT problem: 0 cells, 27 variables, 51 clauses
+      According to the SAT solver this pair of cells can not be shared.
+      Model from SAT solver: { $eq$/openlane/designs/core_regfile/src/reg_file.sv:50$6_Y $eq$/openlane/designs/core_regfile/src/reg_file.sv:44$3_Y } = 2'00
+  Analyzing resource sharing options for $memrd$\rf$/openlane/designs/core_regfile/src/reg_file.sv:45$4 ($memrd):
+    Found 1 activation_patterns using ctrl signal $eq$/openlane/designs/core_regfile/src/reg_file.sv:44$3_Y.
+    No candidates found.
+
+30. Executing OPT pass (performing simple optimizations).
+
+30.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+30.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+30.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~5 debug messages>
+
+30.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+30.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+30.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+30.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+30.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+30.9. Finished OPT passes. (There is nothing left to do.)
+
+31. Executing MEMORY pass.
+
+31.1. Executing OPT_MEM pass (optimize memories).
+Performed a total of 0 transformations.
+
+31.2. Executing OPT_MEM_PRIORITY pass (removing unnecessary memory write priority relations).
+Performed a total of 0 transformations.
+
+31.3. Executing OPT_MEM_FEEDBACK pass (finding memory read-to-write feedback paths).
+  Analyzing reg_file.rf write port 0.
+
+31.4. Executing MEMORY_BMUX2ROM pass (converting muxes to ROMs).
+
+31.5. Executing MEMORY_DFF pass (merging $dff cells to $memrd).
+Checking read port `\rf'[0] in module `\reg_file': no output FF found.
+Checking read port `\rf'[1] in module `\reg_file': no output FF found.
+Checking read port address `\rf'[0] in module `\reg_file': no address FF found.
+Checking read port address `\rf'[1] in module `\reg_file': no address FF found.
+
+31.6. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+31.7. Executing MEMORY_SHARE pass (consolidating $memrd/$memwr cells).
+Consolidating read ports of memory reg_file.rf by address:
+
+31.8. Executing OPT_MEM_WIDEN pass (optimize memories where all ports are wide).
+Performed a total of 0 transformations.
+
+31.9. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+31.10. Executing MEMORY_COLLECT pass (generating $mem cells).
+
+32. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+33. Executing OPT pass (performing simple optimizations).
+
+33.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+<suppressed ~3 debug messages>
+
+33.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+33.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+33.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 0 unused cells and 3 unused wires.
+<suppressed ~1 debug messages>
+
+33.5. Finished fast OPT passes.
+
+34. Executing MEMORY_MAP pass (converting memories to logic and flip-flops).
+Mapping memory \rf in module \reg_file:
+  created 32 $dff cells and 0 static cells of width 32.
+  read interface: 0 $dff and 62 $mux cells.
+  write interface: 32 write mux blocks.
+
+35. Executing OPT pass (performing simple optimizations).
+
+35.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+<suppressed ~10 debug messages>
+
+35.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+35.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~34 debug messages>
+
+35.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+35.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+35.6. Executing OPT_SHARE pass.
+
+35.7. Executing OPT_DFF pass (perform DFF optimizations).
+
+35.8. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 0 unused cells and 101 unused wires.
+<suppressed ~1 debug messages>
+
+35.9. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+35.10. Rerunning OPT passes. (Maybe there is more to do..)
+
+35.11. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~34 debug messages>
+
+35.12. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+35.13. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+35.14. Executing OPT_SHARE pass.
+
+35.15. Executing OPT_DFF pass (perform DFF optimizations).
+Adding EN signal on $memory\rf[9]$58 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[9]).
+Adding EN signal on $memory\rf[8]$56 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[8]).
+Adding EN signal on $memory\rf[7]$54 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[7]).
+Adding EN signal on $memory\rf[6]$52 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[6]).
+Adding EN signal on $memory\rf[5]$50 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[5]).
+Adding EN signal on $memory\rf[4]$48 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[4]).
+Adding EN signal on $memory\rf[3]$46 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[3]).
+Adding EN signal on $memory\rf[31]$102 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[31]).
+Adding EN signal on $memory\rf[30]$100 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[30]).
+Adding EN signal on $memory\rf[2]$44 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[2]).
+Adding EN signal on $memory\rf[29]$98 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[29]).
+Adding EN signal on $memory\rf[28]$96 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[28]).
+Adding EN signal on $memory\rf[27]$94 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[27]).
+Adding EN signal on $memory\rf[26]$92 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[26]).
+Adding EN signal on $memory\rf[25]$90 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[25]).
+Adding EN signal on $memory\rf[24]$88 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[24]).
+Adding EN signal on $memory\rf[23]$86 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[23]).
+Adding EN signal on $memory\rf[22]$84 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[22]).
+Adding EN signal on $memory\rf[21]$82 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[21]).
+Adding EN signal on $memory\rf[20]$80 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[20]).
+Adding EN signal on $memory\rf[1]$42 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[1]).
+Adding EN signal on $memory\rf[19]$78 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[19]).
+Adding EN signal on $memory\rf[18]$76 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[18]).
+Adding EN signal on $memory\rf[17]$74 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[17]).
+Adding EN signal on $memory\rf[16]$72 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[16]).
+Adding EN signal on $memory\rf[15]$70 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[15]).
+Adding EN signal on $memory\rf[14]$68 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[14]).
+Adding EN signal on $memory\rf[13]$66 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[13]).
+Adding EN signal on $memory\rf[12]$64 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[12]).
+Adding EN signal on $memory\rf[11]$62 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[11]).
+Adding EN signal on $memory\rf[10]$60 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[10]).
+Adding EN signal on $memory\rf[0]$40 ($dff) from module reg_file (D = \wr_data_i, Q = \rf[0]).
+
+35.16. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 32 unused cells and 32 unused wires.
+<suppressed ~33 debug messages>
+
+35.17. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+35.18. Rerunning OPT passes. (Maybe there is more to do..)
+
+35.19. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  Evaluating internal representation of mux trees.
+  Analyzing evaluation results.
+Removed 0 multiplexer ports.
+<suppressed ~2 debug messages>
+
+35.20. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+35.21. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+35.22. Executing OPT_SHARE pass.
+
+35.23. Executing OPT_DFF pass (perform DFF optimizations).
+
+35.24. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+35.25. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+35.26. Finished OPT passes. (There is nothing left to do.)
+
+36. Executing TECHMAP pass (map to technology primitives).
+
+36.1. Executing Verilog-2005 frontend: /build/bin/../share/yosys/techmap.v
+Parsing Verilog input from `/build/bin/../share/yosys/techmap.v' to AST representation.
+Generating RTLIL representation for module `\_90_simplemap_bool_ops'.
+Generating RTLIL representation for module `\_90_simplemap_reduce_ops'.
+Generating RTLIL representation for module `\_90_simplemap_logic_ops'.
+Generating RTLIL representation for module `\_90_simplemap_compare_ops'.
+Generating RTLIL representation for module `\_90_simplemap_various'.
+Generating RTLIL representation for module `\_90_simplemap_registers'.
+Generating RTLIL representation for module `\_90_shift_ops_shr_shl_sshl_sshr'.
+Generating RTLIL representation for module `\_90_shift_shiftx'.
+Generating RTLIL representation for module `\_90_fa'.
+Generating RTLIL representation for module `\_90_lcu'.
+Generating RTLIL representation for module `\_90_alu'.
+Generating RTLIL representation for module `\_90_macc'.
+Generating RTLIL representation for module `\_90_alumacc'.
+Generating RTLIL representation for module `\$__div_mod_u'.
+Generating RTLIL representation for module `\$__div_mod_trunc'.
+Generating RTLIL representation for module `\_90_div'.
+Generating RTLIL representation for module `\_90_mod'.
+Generating RTLIL representation for module `\$__div_mod_floor'.
+Generating RTLIL representation for module `\_90_divfloor'.
+Generating RTLIL representation for module `\_90_modfloor'.
+Generating RTLIL representation for module `\_90_pow'.
+Generating RTLIL representation for module `\_90_pmux'.
+Generating RTLIL representation for module `\_90_demux'.
+Generating RTLIL representation for module `\_90_lut'.
+Successfully finished Verilog frontend.
+
+36.2. Continuing TECHMAP pass.
+Using extmapper simplemap for cells of type $dffe.
+Using extmapper simplemap for cells of type $logic_not.
+Using extmapper simplemap for cells of type $reduce_bool.
+Using extmapper simplemap for cells of type $logic_and.
+Using extmapper simplemap for cells of type $mux.
+Using extmapper simplemap for cells of type $not.
+Using extmapper simplemap for cells of type $and.
+No more expansions possible.
+<suppressed ~258 debug messages>
+
+37. Executing OPT pass (performing simple optimizations).
+
+37.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+<suppressed ~64 debug messages>
+
+37.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+37.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+37.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 2 unused cells and 3 unused wires.
+<suppressed ~3 debug messages>
+
+37.5. Finished fast OPT passes.
+
+38. Executing ABC pass (technology mapping using ABC).
+
+38.1. Extracting gate netlist of module `\reg_file' to `<abc-temp-dir>/input.blif'..
+Extracted 2146 gates and 3187 wires to a netlist network with 1040 inputs and 96 outputs.
+
+38.1.1. Executing ABC.
+Running ABC command: "<yosys-exe-dir>/yosys-abc" -s -f <abc-temp-dir>/abc.script 2>&1
+ABC: ABC command line: "source <abc-temp-dir>/abc.script".
+ABC: 
+ABC: + read_blif <abc-temp-dir>/input.blif 
+ABC: + read_library <abc-temp-dir>/stdcells.genlib 
+ABC: Entered genlib library with 13 gates from file "<abc-temp-dir>/stdcells.genlib".
+ABC: + strash 
+ABC: + dretime 
+ABC: + map 
+ABC: + write_blif <abc-temp-dir>/output.blif 
+
+38.1.2. Re-integrating ABC results.
+ABC RESULTS:               MUX cells:     1984
+ABC RESULTS:               NOR cells:        2
+ABC RESULTS:               AND cells:        1
+ABC RESULTS:               NOT cells:        9
+ABC RESULTS:             ORNOT cells:        4
+ABC RESULTS:              NAND cells:        2
+ABC RESULTS:                OR cells:       48
+ABC RESULTS:            ANDNOT cells:       99
+ABC RESULTS:        internal signals:     2051
+ABC RESULTS:           input signals:     1040
+ABC RESULTS:          output signals:       96
+Removing temp directory.
+
+39. Executing OPT pass (performing simple optimizations).
+
+39.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+<suppressed ~960 debug messages>
+
+39.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+39.3. Executing OPT_DFF pass (perform DFF optimizations).
+
+39.4. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 6 unused cells and 1267 unused wires.
+<suppressed ~7 debug messages>
+
+39.5. Finished fast OPT passes.
+
+40. Executing HIERARCHY pass (managing design hierarchy).
+
+40.1. Analyzing design hierarchy..
+Top module:  \reg_file
+
+40.2. Analyzing design hierarchy..
+Top module:  \reg_file
+Removed 0 unused modules.
+
+41. Printing statistics.
+
+=== reg_file ===
+
+   Number of wires:               2119
+   Number of wire bits:           3216
+   Number of public wires:          40
+   Number of public wire bits:    1137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3167
+     $_ANDNOT_                      99
+     $_AND_                          1
+     $_DFFE_NP_                   1024
+     $_MUX_                       1984
+     $_NAND_                         2
+     $_NOR_                          2
+     $_NOT_                          3
+     $_ORNOT_                        4
+     $_OR_                          48
+
+42. Executing CHECK pass (checking for obvious problems).
+Checking module reg_file...
+Found and reported 0 problems.
+
+43. Generating Graphviz representation of design.
+Writing dot description to `/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/post_techmap.dot'.
+Dumping module reg_file to page 1.
+
+44. Executing SHARE pass (SAT-based resource sharing).
+
+45. Executing OPT pass (performing simple optimizations).
+
+45.1. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+45.2. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+45.3. Executing OPT_MUXTREE pass (detect dead branches in mux trees).
+Running muxtree optimizer on module \reg_file..
+  Creating internal representation of mux trees.
+  No muxes found in this module.
+Removed 0 multiplexer ports.
+
+45.4. Executing OPT_REDUCE pass (consolidate $*mux and $reduce_* inputs).
+  Optimizing cells in module \reg_file.
+Performed a total of 0 changes.
+
+45.5. Executing OPT_MERGE pass (detect identical cells).
+Finding identical cells in module `\reg_file'.
+Removed a total of 0 cells.
+
+45.6. Executing OPT_DFF pass (perform DFF optimizations).
+
+45.7. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+45.8. Executing OPT_EXPR pass (perform const folding).
+Optimizing module reg_file.
+
+45.9. Finished OPT passes. (There is nothing left to do.)
+
+46. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+
+47. Printing statistics.
+
+=== reg_file ===
+
+   Number of wires:               2119
+   Number of wire bits:           3216
+   Number of public wires:          40
+   Number of public wire bits:    1137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3167
+     $_ANDNOT_                      99
+     $_AND_                          1
+     $_DFFE_NP_                   1024
+     $_MUX_                       1984
+     $_NAND_                         2
+     $_NOR_                          2
+     $_NOT_                          3
+     $_ORNOT_                        4
+     $_OR_                          48
+
+mapping tbuf
+
+48. Executing TECHMAP pass (map to technology primitives).
+
+48.1. Executing Verilog-2005 frontend: /Users/timothylee/.volare/sky130A/libs.tech/openlane/sky130_fd_sc_hd/tribuff_map.v
+Parsing Verilog input from `/Users/timothylee/.volare/sky130A/libs.tech/openlane/sky130_fd_sc_hd/tribuff_map.v' to AST representation.
+Generating RTLIL representation for module `\$_TBUF_'.
+Successfully finished Verilog frontend.
+
+48.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~3 debug messages>
+
+49. Executing SIMPLEMAP pass (map simple cells to gate primitives).
+
+50. Executing TECHMAP pass (map to technology primitives).
+
+50.1. Executing Verilog-2005 frontend: /Users/timothylee/.volare/sky130A/libs.tech/openlane/sky130_fd_sc_hd/latch_map.v
+Parsing Verilog input from `/Users/timothylee/.volare/sky130A/libs.tech/openlane/sky130_fd_sc_hd/latch_map.v' to AST representation.
+Generating RTLIL representation for module `\$_DLATCH_P_'.
+Generating RTLIL representation for module `\$_DLATCH_N_'.
+Successfully finished Verilog frontend.
+
+50.2. Continuing TECHMAP pass.
+No more expansions possible.
+<suppressed ~4 debug messages>
+
+51. Executing SIMPLEMAP pass (map simple cells to gate primitives).
+
+52. Executing DFFLIBMAP pass (mapping DFF cells to sequential cells from liberty file).
+  cell sky130_fd_sc_hd__dfxtp_2 (noninv, pins=3, area=21.27) is a direct match for cell type $_DFF_P_.
+  cell sky130_fd_sc_hd__dfrtp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN0_.
+  cell sky130_fd_sc_hd__dfstp_2 (noninv, pins=4, area=26.28) is a direct match for cell type $_DFF_PN1_.
+  cell sky130_fd_sc_hd__dfbbn_2 (noninv, pins=6, area=35.03) is a direct match for cell type $_DFFSR_NNN_.
+  final dff cell mappings:
+    unmapped dff cell: $_DFF_N_
+    \sky130_fd_sc_hd__dfxtp_2 _DFF_P_ (.CLK( C), .D( D), .Q( Q));
+    unmapped dff cell: $_DFF_NN0_
+    unmapped dff cell: $_DFF_NN1_
+    unmapped dff cell: $_DFF_NP0_
+    unmapped dff cell: $_DFF_NP1_
+    \sky130_fd_sc_hd__dfrtp_2 _DFF_PN0_ (.CLK( C), .D( D), .Q( Q), .RESET_B( R));
+    \sky130_fd_sc_hd__dfstp_2 _DFF_PN1_ (.CLK( C), .D( D), .Q( Q), .SET_B( R));
+    unmapped dff cell: $_DFF_PP0_
+    unmapped dff cell: $_DFF_PP1_
+    \sky130_fd_sc_hd__dfbbn_2 _DFFSR_NNN_ (.CLK_N( C), .D( D), .Q( Q), .Q_N(~Q), .RESET_B( R), .SET_B( S));
+    unmapped dff cell: $_DFFSR_NNP_
+    unmapped dff cell: $_DFFSR_NPN_
+    unmapped dff cell: $_DFFSR_NPP_
+    unmapped dff cell: $_DFFSR_PNN_
+    unmapped dff cell: $_DFFSR_PNP_
+    unmapped dff cell: $_DFFSR_PPN_
+    unmapped dff cell: $_DFFSR_PPP_
+
+52.1. Executing DFFLEGALIZE pass (convert FFs to types supported by the target).
+Mapping DFF cells in module `\reg_file':
+  mapped 1024 $_DFF_P_ cells to \sky130_fd_sc_hd__dfxtp_2 cells.
+
+53. Printing statistics.
+
+=== reg_file ===
+
+   Number of wires:               4167
+   Number of wire bits:           5264
+   Number of public wires:          40
+   Number of public wire bits:    1137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               5215
+     $_ANDNOT_                      99
+     $_AND_                          1
+     $_MUX_                       3008
+     $_NAND_                         2
+     $_NOR_                          2
+     $_NOT_                       1027
+     $_ORNOT_                        4
+     $_OR_                          48
+     sky130_fd_sc_hd__dfxtp_2     1024
+
+[INFO]: USING STRATEGY AREA 0
+
+54. Executing ABC pass (technology mapping using ABC).
+
+54.1. Extracting gate netlist of module `\reg_file' to `/tmp/yosys-abc-xOi7HI/input.blif'..
+Extracted 4191 gates and 5264 wires to a netlist network with 1073 inputs and 2112 outputs.
+
+54.1.1. Executing ABC.
+Running ABC command: "/build/bin/yosys-abc" -s -f /tmp/yosys-abc-xOi7HI/abc.script 2>&1
+ABC: ABC command line: "source /tmp/yosys-abc-xOi7HI/abc.script".
+ABC: 
+ABC: + read_blif /tmp/yosys-abc-xOi7HI/input.blif 
+ABC: + read_lib -w /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/trimmed.lib 
+ABC: Parsing finished successfully.  Parsing time =     0.05 sec
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfbbn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfrtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfsbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfstp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxbp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dfxtp_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_1".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_2".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtn_4".
+ABC: Scl_LibertyReadGenlib() skipped sequential cell "sky130_fd_sc_hd__dlxtp_1".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_2".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_4".
+ABC: Scl_LibertyReadGenlib() skipped three-state cell "sky130_fd_sc_hd__ebufn_8".
+ABC: Library "sky130A_merged" from "/openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/trimmed.lib" has 175 cells (17 skipped: 14 seq; 3 tri-state; 0 no func; 0 dont_use).  Time =     0.08 sec
+ABC: Memory =    9.54 MB. Time =     0.08 sec
+ABC: Warning: Detected 2 multi-output gates (for example, "sky130_fd_sc_hd__fa_1").
+ABC: + read_constr -v /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/synthesis.sdc 
+ABC: Setting driving cell to be "sky130_fd_sc_hd__inv_2".
+ABC: Setting output load to be 33.442001.
+ABC: + read_constr /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/tmp/synthesis/synthesis.sdc 
+ABC: + fx 
+ABC: + mfs 
+ABC: + strash 
+ABC: + refactor 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + refactor 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + refactor -z 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + retime -D -D 10000 -M 5 
+ABC: + scleanup 
+ABC: Error: The network is combinational.
+ABC: + fraig_store 
+ABC: + balance 
+ABC: + fraig_store 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + refactor 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + refactor -z 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + fraig_store 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + refactor 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + refactor -z 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + fraig_store 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + refactor 
+ABC: + balance 
+ABC: + rewrite 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + refactor -z 
+ABC: + rewrite -z 
+ABC: + balance 
+ABC: + fraig_store 
+ABC: + fraig_restore 
+ABC: + amap -m -Q 0.1 -F 20 -A 20 -C 5000 
+ABC: + retime -D -D 10000 
+ABC: + &get -n 
+ABC: + &st 
+ABC: + &dch 
+ABC: + &nf 
+ABC: + &put 
+ABC: + buffer -N 30 -S 750.0 
+ABC: + upsize -D 10000 
+ABC: Current delay (1788.86 ps) does not exceed the target delay (10000.00 ps). Upsizing is not performed.
+ABC: + dnsize -D 10000 
+ABC: + stime -p 
+ABC: WireLoad = "none"  Gates =   4567 ( 50.5 %)   Cap = 17.3 ff ( 15.4 %)   Area =    37450.92 ( 38.3 %)   Delay =  3582.97 ps  (  8.2 %)               
+ABC: Path  0 --    1058 : 0    1 pi                       A =   0.00  Df =   8.2   -5.1 ps  S =  17.7 ps  Cin =  0.0 ff  Cout =   2.2 ff  Cmax =   0.0 ff  G =    0  
+ABC: Path  1 --    5351 : 1    9 sky130_fd_sc_hd__buf_1   A =   3.75  Df = 213.0  -71.2 ps  S = 239.0 ps  Cin =  2.1 ff  Cout =  19.7 ff  Cmax = 130.0 ff  G =  899  
+ABC: Path  2 --    5352 : 1   21 sky130_fd_sc_hd__buf_1   A =   3.75  Df =1204.0 -531.7 ps  S =1306.0 ps  Cin =  2.1 ff  Cout = 113.4 ff  Cmax = 130.0 ff  G = 5104  
+ABC: Path  3 --    5353 : 1   22 sky130_fd_sc_hd__buf_1   A =   3.75  Df =2342.7 -962.1 ps  S =1459.5 ps  Cin =  2.1 ff  Cout = 126.9 ff  Cmax = 130.0 ff  G = 5705  
+ABC: Path  4 --    5476 : 6    1 sky130_fd_sc_hd__mux4_2  A =  22.52  Df =3071.9-1028.7 ps  S =  77.8 ps  Cin =  2.6 ff  Cout =   2.6 ff  Cmax = 301.2 ff  G =   91  
+ABC: Path  5 --    5477 : 3    1 sky130_fd_sc_hd__o21a_2  A =   8.76  Df =3182.8 -943.6 ps  S =  46.1 ps  Cin =  2.4 ff  Cout =   2.7 ff  Cmax = 294.8 ff  G =  103  
+ABC: Path  6 --    5478 : 5    1 sky130_fd_sc_hd__a32o_2  A =  11.26  Df =3293.8 -828.9 ps  S =  57.0 ps  Cin =  2.3 ff  Cout =   2.5 ff  Cmax = 264.6 ff  G =   99  
+ABC: Path  7 --    5488 : 4    1 sky130_fd_sc_hd__o211a_2 A =  10.01  Df =3583.0 -801.7 ps  S = 207.9 ps  Cin =  2.4 ff  Cout =  33.4 ff  Cmax = 268.3 ff  G = 1415  
+ABC: Start-point = pi1057 (\port1_reg_i [0]).  End-point = po1028 (\port1_data_o [17]).
+ABC: + print_stats -m 
+ABC: netlist                       : i/o = 1073/ 2112  lat =    0  nd =  4567  edge =  10586  area =37442.72  delay = 7.00  lev = 7
+ABC: + write_blif /tmp/yosys-abc-xOi7HI/output.blif 
+
+54.1.2. Re-integrating ABC results.
+ABC RESULTS:   sky130_fd_sc_hd__nand3_2 cells:        1
+ABC RESULTS:   sky130_fd_sc_hd__or3b_2 cells:        4
+ABC RESULTS:   sky130_fd_sc_hd__and3b_2 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__and2_2 cells:        3
+ABC RESULTS:   sky130_fd_sc_hd__nor2_2 cells:       17
+ABC RESULTS:   sky130_fd_sc_hd__nand2_2 cells:       15
+ABC RESULTS:   sky130_fd_sc_hd__mux2_2 cells:      992
+ABC RESULTS:   sky130_fd_sc_hd__or3_2 cells:        5
+ABC RESULTS:   sky130_fd_sc_hd__and3_2 cells:       18
+ABC RESULTS:   sky130_fd_sc_hd__a32o_2 cells:       17
+ABC RESULTS:   sky130_fd_sc_hd__a31o_2 cells:       31
+ABC RESULTS:   sky130_fd_sc_hd__or2_2 cells:      306
+ABC RESULTS:   sky130_fd_sc_hd__mux4_2 cells:      512
+ABC RESULTS:   sky130_fd_sc_hd__o21a_2 cells:      177
+ABC RESULTS:   sky130_fd_sc_hd__a221o_2 cells:       80
+ABC RESULTS:   sky130_fd_sc_hd__o211a_2 cells:       79
+ABC RESULTS:   sky130_fd_sc_hd__buf_1 cells:     1276
+ABC RESULTS:   sky130_fd_sc_hd__inv_2 cells:     1031
+ABC RESULTS:        internal signals:     2079
+ABC RESULTS:           input signals:     1073
+ABC RESULTS:          output signals:     2112
+Removing temp directory.
+
+55. Executing SETUNDEF pass (replace undef values with defined constants).
+
+56. Executing HILOMAP pass (mapping to constant drivers).
+
+57. Executing SPLITNETS pass (splitting up multi-bit signals).
+
+58. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \reg_file..
+Removed 0 unused cells and 5264 unused wires.
+<suppressed ~1 debug messages>
+
+59. Executing INSBUF pass (insert buffer cells for connected wires).
+
+60. Executing CHECK pass (checking for obvious problems).
+Checking module reg_file...
+Warning: Wire reg_file.\port2_data_o [31] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [30] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [29] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [28] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [27] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [26] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [25] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [24] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [23] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [22] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [21] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [20] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [19] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [18] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [17] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [16] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [15] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [14] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [13] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [12] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [11] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [10] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [9] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [8] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [7] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [6] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [5] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [4] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [3] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [2] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [1] is used but has no driver.
+Warning: Wire reg_file.\port2_data_o [0] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [31] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [30] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [29] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [28] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [27] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [26] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [25] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [24] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [23] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [22] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [21] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [20] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [19] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [18] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [17] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [16] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [15] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [14] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [13] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [12] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [11] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [10] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [9] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [8] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [7] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [6] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [5] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [4] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [3] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [2] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [1] is used but has no driver.
+Warning: Wire reg_file.\port1_data_o [0] is used but has no driver.
+Found and reported 64 problems.
+
+61. Printing statistics.
+
+=== reg_file ===
+
+   Number of wires:               5535
+   Number of wire bits:           5640
+   Number of public wires:        1032
+   Number of public wire bits:    1137
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               5591
+     sky130_fd_sc_hd__a221o_2       80
+     sky130_fd_sc_hd__a31o_2        31
+     sky130_fd_sc_hd__a32o_2        17
+     sky130_fd_sc_hd__and2_2         3
+     sky130_fd_sc_hd__and3_2        18
+     sky130_fd_sc_hd__and3b_2        3
+     sky130_fd_sc_hd__buf_1       1276
+     sky130_fd_sc_hd__dfxtp_2     1024
+     sky130_fd_sc_hd__inv_2       1031
+     sky130_fd_sc_hd__mux2_2       992
+     sky130_fd_sc_hd__mux4_2       512
+     sky130_fd_sc_hd__nand2_2       15
+     sky130_fd_sc_hd__nand3_2        1
+     sky130_fd_sc_hd__nor2_2        17
+     sky130_fd_sc_hd__o211a_2       79
+     sky130_fd_sc_hd__o21a_2       177
+     sky130_fd_sc_hd__or2_2        306
+     sky130_fd_sc_hd__or3_2          5
+     sky130_fd_sc_hd__or3b_2         4
+
+   Chip area for module '\reg_file': 59231.808000
+
+62. Executing Verilog backend.
+Dumping module `\reg_file'.
+
+Warnings: 64 unique messages, 64 total
+End of script. Logfile hash: 96884b9cce, CPU: user 1.64s system 0.21s, MEM: 43.03 MB peak
+Yosys 0.27+30 (git sha1 101075611fc, gcc 8.3.1 -fPIC -Os)
+Time spent: 74% 2x abc (4 sec), 8% 2x write_verilog (0 sec), ...

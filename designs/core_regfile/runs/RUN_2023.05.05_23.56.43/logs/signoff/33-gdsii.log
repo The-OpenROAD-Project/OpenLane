@@ -1,0 +1,486 @@
+
+Magic 8.3 revision 389 - Compiled on Mon Apr 10 12:34:20 UTC 2023.
+Starting magic under Tcl interpreter
+Using the terminal as the console.
+Using NULL graphics device.
+Processing system .magicrc file
+Sourcing design .magicrc for technology sky130A ...
+2 Magic internal units = 1 Lambda
+Input style sky130(): scaleFactor=2, multiplier=2
+The following types are not handled by extraction and will be treated as non-electrical types:
+    ubm 
+Scaled tech values by 2 / 1 to match internal grid scaling
+Loading sky130A Device Generator Menu ...
+Using technology "sky130A", version 1.0.406-0-g0c37b7c
+Reading LEF data from file /Users/timothylee/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef.
+This action cannot be undone.
+LEF read, Line 78 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 79 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 112 (Message): Unknown keyword "MINENCLOSEDAREA" in LEF file; ignoring.
+LEF read, Line 114 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 115 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 121 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 122 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 123 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 156 (Message): Unknown keyword "MINENCLOSEDAREA" in LEF file; ignoring.
+LEF read, Line 164 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 165 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 167 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 168 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 169 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 206 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 207 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 209 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 210 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 211 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 248 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 249 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 251 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 252 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 253 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 290 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 291 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read: Processed 797 lines.
+Reading DEF data from file /openlane/designs/core_regfile/runs/RUN_2023.05.05_23.56.43/results/routing/reg_file.def.
+This action cannot be undone.
+  Processed 4 vias total.
+  Processed 14823 subcell instances total.
+  Processed 115 pins total.
+  Processed 2 special nets total.
+  Processed 5932 nets total.
+DEF read: Processed 116919 lines.
+Moving label "_01029_" from metal1 to via1 in cell reg_file.
+Moving label "_01030_" from metal1 to via1 in cell reg_file.
+Moving label "_01031_" from metal1 to via1 in cell reg_file.
+Moving label "_01034_" from metal1 to via1 in cell reg_file.
+Moving label "_01036_" from metal1 to via1 in cell reg_file.
+Moving label "_01045_" from metal1 to via1 in cell reg_file.
+Moving label "_01059_" from metal1 to via1 in cell reg_file.
+Moving label "_01060_" from metal1 to via1 in cell reg_file.
+Moving label "_01064_" from metal1 to via1 in cell reg_file.
+Moving label "_01071_" from metal1 to via1 in cell reg_file.
+Moving label "_01087_" from metal1 to via1 in cell reg_file.
+Moving label "_01094_" from metal1 to via1 in cell reg_file.
+Moving label "_01114_" from metal1 to via1 in cell reg_file.
+Moving label "_01120_" from metal1 to via1 in cell reg_file.
+Moving label "_01142_" from metal1 to via1 in cell reg_file.
+Moving label "_01144_" from metal1 to via1 in cell reg_file.
+Moving label "_01146_" from metal1 to via1 in cell reg_file.
+Moving label "_01147_" from metal1 to via1 in cell reg_file.
+Moving label "_01162_" from metal1 to via1 in cell reg_file.
+Moving label "_01163_" from metal1 to via1 in cell reg_file.
+Moving label "_01164_" from metal1 to via1 in cell reg_file.
+Moving label "_01173_" from metal1 to via1 in cell reg_file.
+Moving label "_01179_" from metal1 to via1 in cell reg_file.
+Moving label "_01188_" from metal1 to via1 in cell reg_file.
+Moving label "_01195_" from metal1 to via1 in cell reg_file.
+Moving label "_01211_" from metal1 to via1 in cell reg_file.
+Moving label "_01215_" from metal1 to via1 in cell reg_file.
+Moving label "_01216_" from metal1 to via1 in cell reg_file.
+Moving label "_01225_" from metal1 to via1 in cell reg_file.
+Moving label "_01230_" from metal1 to via1 in cell reg_file.
+Moving label "_01234_" from metal1 to via1 in cell reg_file.
+Moving label "_01237_" from metal1 to via1 in cell reg_file.
+Moving label "_01253_" from metal1 to via1 in cell reg_file.
+Moving label "_01265_" from metal1 to via1 in cell reg_file.
+Moving label "_01274_" from metal1 to via1 in cell reg_file.
+Moving label "_01278_" from metal1 to via1 in cell reg_file.
+Moving label "_01296_" from metal1 to via1 in cell reg_file.
+Moving label "_01308_" from metal1 to viali in cell reg_file.
+Moving label "_01311_" from metal1 to via1 in cell reg_file.
+Moving label "_01315_" from metal1 to via1 in cell reg_file.
+Moving label "_01316_" from metal1 to via1 in cell reg_file.
+Moving label "_01318_" from metal1 to via1 in cell reg_file.
+Moving label "_01349_" from metal1 to via1 in cell reg_file.
+Moving label "_01354_" from metal1 to via1 in cell reg_file.
+Moving label "_01356_" from metal1 to via1 in cell reg_file.
+Moving label "_01359_" from metal1 to via1 in cell reg_file.
+Moving label "_01366_" from metal1 to via1 in cell reg_file.
+Moving label "_01372_" from metal1 to via1 in cell reg_file.
+Moving label "_01374_" from metal1 to via1 in cell reg_file.
+Moving label "_01375_" from metal1 to via1 in cell reg_file.
+Moving label "_01380_" from metal1 to via1 in cell reg_file.
+Moving label "_01383_" from metal1 to via1 in cell reg_file.
+Moving label "_01389_" from metal1 to via1 in cell reg_file.
+Moving label "_01391_" from metal1 to via1 in cell reg_file.
+Moving label "_01392_" from metal1 to viali in cell reg_file.
+Moving label "_01394_" from metal1 to via1 in cell reg_file.
+Moving label "_01406_" from metal1 to via1 in cell reg_file.
+Moving label "_01424_" from metal1 to via1 in cell reg_file.
+Moving label "_01431_" from metal1 to via1 in cell reg_file.
+Moving label "_01434_" from metal1 to via1 in cell reg_file.
+Moving label "_01440_" from metal1 to via1 in cell reg_file.
+Moving label "_01455_" from metal1 to via1 in cell reg_file.
+Moving label "_01456_" from metal1 to via1 in cell reg_file.
+Moving label "_01459_" from metal1 to via1 in cell reg_file.
+Moving label "_01488_" from metal1 to via1 in cell reg_file.
+Moving label "_01491_" from metal1 to via1 in cell reg_file.
+Moving label "_01492_" from metal1 to via1 in cell reg_file.
+Moving label "_01521_" from metal1 to via1 in cell reg_file.
+Moving label "_01523_" from metal1 to via1 in cell reg_file.
+Moving label "_01524_" from metal1 to viali in cell reg_file.
+Moving label "_01536_" from metal1 to via1 in cell reg_file.
+Moving label "_01537_" from metal1 to via1 in cell reg_file.
+Moving label "_01539_" from metal1 to via1 in cell reg_file.
+Moving label "_01550_" from metal1 to via1 in cell reg_file.
+Moving label "_01567_" from metal1 to via1 in cell reg_file.
+Moving label "_01587_" from metal1 to viali in cell reg_file.
+Moving label "_01594_" from metal1 to via1 in cell reg_file.
+Moving label "_01615_" from metal1 to via1 in cell reg_file.
+Moving label "_01642_" from metal1 to via1 in cell reg_file.
+Moving label "_01643_" from metal1 to via1 in cell reg_file.
+Moving label "_01646_" from metal1 to via1 in cell reg_file.
+Moving label "_01650_" from metal1 to via1 in cell reg_file.
+Moving label "_01656_" from metal1 to via1 in cell reg_file.
+Moving label "_01664_" from metal1 to via1 in cell reg_file.
+Moving label "_01667_" from metal1 to via1 in cell reg_file.
+Moving label "_01684_" from metal1 to viali in cell reg_file.
+Moving label "_01686_" from metal1 to via1 in cell reg_file.
+Moving label "_01687_" from metal1 to via1 in cell reg_file.
+Moving label "_01689_" from metal1 to via1 in cell reg_file.
+Moving label "_01696_" from metal1 to via1 in cell reg_file.
+Moving label "_01700_" from metal1 to via1 in cell reg_file.
+Moving label "_01704_" from metal1 to via1 in cell reg_file.
+Moving label "_01715_" from metal1 to via1 in cell reg_file.
+Moving label "_01721_" from metal1 to via1 in cell reg_file.
+Moving label "_01733_" from metal1 to via1 in cell reg_file.
+Moving label "_01739_" from metal1 to via1 in cell reg_file.
+Moving label "_01748_" from metal1 to via1 in cell reg_file.
+Moving label "_01749_" from metal1 to via1 in cell reg_file.
+Moving label "_01757_" from metal1 to via1 in cell reg_file.
+Moving label "_01761_" from metal1 to via1 in cell reg_file.
+Moving label "_01764_" from metal1 to via1 in cell reg_file.
+Moving label "_01769_" from metal1 to via1 in cell reg_file.
+Moving label "_01780_" from metal1 to viali in cell reg_file.
+Moving label "_01787_" from metal1 to via1 in cell reg_file.
+Moving label "_01788_" from metal1 to via1 in cell reg_file.
+Moving label "_01789_" from metal1 to via1 in cell reg_file.
+Moving label "_01793_" from metal1 to via1 in cell reg_file.
+Moving label "_01795_" from metal1 to viali in cell reg_file.
+Moving label "_01804_" from metal1 to via1 in cell reg_file.
+Moving label "_01807_" from metal1 to via1 in cell reg_file.
+Moving label "_01808_" from metal1 to via1 in cell reg_file.
+Moving label "_01809_" from metal1 to via1 in cell reg_file.
+Moving label "_01811_" from metal1 to via1 in cell reg_file.
+Moving label "_01814_" from metal1 to via1 in cell reg_file.
+Moving label "_01815_" from metal1 to via1 in cell reg_file.
+Moving label "_01817_" from metal1 to via1 in cell reg_file.
+Moving label "_01829_" from metal1 to via1 in cell reg_file.
+Moving label "_01833_" from metal1 to via1 in cell reg_file.
+Moving label "_01834_" from metal1 to via1 in cell reg_file.
+Moving label "_01836_" from metal1 to via1 in cell reg_file.
+Moving label "_01842_" from metal1 to via1 in cell reg_file.
+Moving label "_01843_" from metal1 to via1 in cell reg_file.
+Moving label "_01852_" from metal1 to via1 in cell reg_file.
+Moving label "_01853_" from metal1 to via1 in cell reg_file.
+Moving label "_01854_" from metal1 to via1 in cell reg_file.
+Moving label "_01855_" from metal1 to via1 in cell reg_file.
+Moving label "_01859_" from metal1 to via1 in cell reg_file.
+Moving label "_01881_" from metal1 to via1 in cell reg_file.
+Moving label "_01888_" from metal1 to via1 in cell reg_file.
+Moving label "_01891_" from metal1 to via1 in cell reg_file.
+Moving label "_01898_" from metal1 to via1 in cell reg_file.
+Moving label "_01913_" from metal1 to via1 in cell reg_file.
+Moving label "_01914_" from metal1 to via1 in cell reg_file.
+Moving label "_01917_" from metal1 to via1 in cell reg_file.
+Moving label "_01920_" from metal1 to via1 in cell reg_file.
+Moving label "_01924_" from metal1 to via1 in cell reg_file.
+Moving label "_01929_" from metal1 to via1 in cell reg_file.
+Moving label "_01943_" from metal1 to via1 in cell reg_file.
+Moving label "_01953_" from metal1 to via1 in cell reg_file.
+Moving label "_01957_" from metal1 to via1 in cell reg_file.
+Moving label "_01959_" from metal1 to via1 in cell reg_file.
+Moving label "_01964_" from metal1 to via1 in cell reg_file.
+Moving label "_01975_" from metal1 to via1 in cell reg_file.
+Moving label "_01995_" from metal1 to via1 in cell reg_file.
+Moving label "_02005_" from metal1 to via1 in cell reg_file.
+Moving label "_02012_" from metal1 to via1 in cell reg_file.
+Moving label "_02020_" from metal1 to via1 in cell reg_file.
+Moving label "_02033_" from metal1 to via1 in cell reg_file.
+Moving label "_02046_" from metal1 to via1 in cell reg_file.
+Moving label "_02050_" from metal2 to via2 in cell reg_file.
+Moving label "_02086_" from metal2 to via1 in cell reg_file.
+Moving label "_02092_" from metal2 to via2 in cell reg_file.
+Moving label "_02249_" from metal1 to via1 in cell reg_file.
+Moving label "_02462_" from metal1 to viali in cell reg_file.
+Moving label "_02479_" from metal1 to viali in cell reg_file.
+Moving label "_02501_" from metal2 to via2 in cell reg_file.
+Moving label "_02523_" from metal1 to viali in cell reg_file.
+Moving label "_02619_" from metal1 to viali in cell reg_file.
+Moving label "_02766_" from metal1 to viali in cell reg_file.
+Moving label "_02942_" from metal1 to viali in cell reg_file.
+Moving label "_02995_" from metal1 to via1 in cell reg_file.
+Moving label "_03162_" from metal1 to viali in cell reg_file.
+Moving label "_03200_" from metal2 to via2 in cell reg_file.
+Moving label "_03234_" from metal2 to via2 in cell reg_file.
+Moving label "_03245_" from metal2 to via2 in cell reg_file.
+Moving label "_03281_" from metal2 to via2 in cell reg_file.
+Moving label "_03309_" from metal1 to via1 in cell reg_file.
+Moving label "_03321_" from metal3 to via3 in cell reg_file.
+Moving label "_03328_" from metal2 to via2 in cell reg_file.
+Moving label "_03335_" from metal2 to via2 in cell reg_file.
+Moving label "_03355_" from metal2 to via2 in cell reg_file.
+Moving label "_03362_" from metal2 to via2 in cell reg_file.
+Moving label "_03371_" from metal1 to via1 in cell reg_file.
+Moving label "_03400_" from metal2 to via2 in cell reg_file.
+Moving label "_03402_" from metal2 to via2 in cell reg_file.
+Moving label "_03430_" from metal2 to via2 in cell reg_file.
+Moving label "_03446_" from metal3 to via3 in cell reg_file.
+Moving label "_03455_" from metal2 to via2 in cell reg_file.
+Moving label "_03457_" from metal2 to via2 in cell reg_file.
+Moving label "_03460_" from metal2 to via2 in cell reg_file.
+Moving label "_03464_" from metal2 to via2 in cell reg_file.
+Moving label "_03466_" from metal1 to via1 in cell reg_file.
+Moving label "_03489_" from metal2 to via2 in cell reg_file.
+Moving label "_03492_" from metal2 to via2 in cell reg_file.
+Moving label "_03494_" from metal2 to via2 in cell reg_file.
+Moving label "_03507_" from metal2 to via2 in cell reg_file.
+Moving label "_03512_" from metal2 to via2 in cell reg_file.
+Moving label "_03524_" from metal3 to via2 in cell reg_file.
+Moving label "_03531_" from metal2 to via2 in cell reg_file.
+Moving label "_03533_" from metal2 to via2 in cell reg_file.
+Moving label "_03535_" from metal1 to via1 in cell reg_file.
+Moving label "_03550_" from metal2 to via2 in cell reg_file.
+Moving label "_03554_" from metal1 to viali in cell reg_file.
+Moving label "_03578_" from metal2 to via2 in cell reg_file.
+Moving label "_03582_" from metal2 to via2 in cell reg_file.
+Moving label "_03584_" from metal2 to via1 in cell reg_file.
+Moving label "_03596_" from metal2 to via2 in cell reg_file.
+Moving label "_03621_" from metal1 to via1 in cell reg_file.
+Moving label "_03643_" from metal1 to via1 in cell reg_file.
+Moving label "_03664_" from metal1 to via1 in cell reg_file.
+Moving label "_03668_" from metal1 to viali in cell reg_file.
+Moving label "_03673_" from metal2 to via2 in cell reg_file.
+Moving label "_03675_" from metal1 to viali in cell reg_file.
+Moving label "_03684_" from metal2 to via2 in cell reg_file.
+Moving label "_03689_" from metal2 to via2 in cell reg_file.
+Moving label "_03716_" from metal2 to via2 in cell reg_file.
+Moving label "_03726_" from metal3 to via3 in cell reg_file.
+Moving label "_03737_" from metal2 to via2 in cell reg_file.
+Moving label "_03770_" from metal2 to via2 in cell reg_file.
+Moving label "_03781_" from metal2 to via2 in cell reg_file.
+Moving label "_03784_" from metal1 to viali in cell reg_file.
+Moving label "_03791_" from metal1 to viali in cell reg_file.
+Moving label "_03797_" from metal3 to via3 in cell reg_file.
+Moving label "_03808_" from metal2 to via2 in cell reg_file.
+Moving label "_03836_" from metal2 to via1 in cell reg_file.
+Moving label "_03846_" from metal1 to via1 in cell reg_file.
+Moving label "_03852_" from metal2 to via2 in cell reg_file.
+Moving label "_03853_" from metal1 to via1 in cell reg_file.
+Moving label "_03857_" from metal1 to viali in cell reg_file.
+Moving label "_03862_" from metal2 to via2 in cell reg_file.
+Moving label "_03868_" from metal2 to via2 in cell reg_file.
+Moving label "_03882_" from metal1 to via1 in cell reg_file.
+Moving label "_03888_" from metal3 to via3 in cell reg_file.
+Moving label "_03901_" from metal2 to via2 in cell reg_file.
+Moving label "_03905_" from metal2 to via2 in cell reg_file.
+Moving label "_03956_" from metal1 to viali in cell reg_file.
+Moving label "_03957_" from metal2 to via2 in cell reg_file.
+Moving label "_03964_" from metal2 to via2 in cell reg_file.
+Moving label "_03970_" from metal1 to viali in cell reg_file.
+Moving label "_03974_" from metal1 to viali in cell reg_file.
+Moving label "_03985_" from metal1 to via1 in cell reg_file.
+Moving label "_03990_" from metal1 to via1 in cell reg_file.
+Moving label "_03998_" from metal2 to via2 in cell reg_file.
+Moving label "_03999_" from metal1 to via1 in cell reg_file.
+Moving label "_04003_" from metal1 to via1 in cell reg_file.
+Moving label "_04009_" from metal2 to via2 in cell reg_file.
+Moving label "_04064_" from metal2 to via2 in cell reg_file.
+Moving label "_04083_" from metal1 to via1 in cell reg_file.
+Moving label "_04090_" from metal1 to via1 in cell reg_file.
+Moving label "_04093_" from metal2 to via2 in cell reg_file.
+Moving label "_04099_" from metal1 to via1 in cell reg_file.
+Moving label "_04102_" from metal2 to via2 in cell reg_file.
+Moving label "_04111_" from metal2 to via2 in cell reg_file.
+Moving label "_04112_" from metal1 to via1 in cell reg_file.
+Moving label "_04114_" from metal2 to via2 in cell reg_file.
+Moving label "_04121_" from metal2 to via2 in cell reg_file.
+Moving label "_04122_" from metal2 to via2 in cell reg_file.
+Moving label "_04126_" from metal2 to via2 in cell reg_file.
+Moving label "_04127_" from metal1 to via1 in cell reg_file.
+Moving label "_04155_" from metal2 to via2 in cell reg_file.
+Moving label "_04170_" from metal2 to via2 in cell reg_file.
+Moving label "_04204_" from metal1 to via1 in cell reg_file.
+Moving label "_04207_" from metal2 to via2 in cell reg_file.
+Moving label "_04219_" from metal3 to via3 in cell reg_file.
+Moving label "_04234_" from metal2 to via2 in cell reg_file.
+Moving label "_04249_" from metal2 to via2 in cell reg_file.
+Moving label "_04260_" from metal3 to via3 in cell reg_file.
+Moving label "_04262_" from metal2 to via2 in cell reg_file.
+Moving label "_04293_" from metal3 to via3 in cell reg_file.
+Moving label "_04299_" from metal2 to via2 in cell reg_file.
+Moving label "_04313_" from metal1 to via1 in cell reg_file.
+Moving label "_04315_" from metal3 to via3 in cell reg_file.
+Moving label "_04324_" from metal2 to via2 in cell reg_file.
+Moving label "_04338_" from metal2 to via2 in cell reg_file.
+Moving label "_04339_" from metal1 to via1 in cell reg_file.
+Moving label "_04358_" from metal3 to via3 in cell reg_file.
+Moving label "_04360_" from metal2 to via2 in cell reg_file.
+Moving label "_04362_" from metal2 to via2 in cell reg_file.
+Moving label "_04379_" from metal2 to via2 in cell reg_file.
+Moving label "_04380_" from metal2 to via2 in cell reg_file.
+Moving label "_04384_" from metal2 to via2 in cell reg_file.
+Moving label "_04394_" from metal1 to viali in cell reg_file.
+Moving label "_04401_" from metal3 to via3 in cell reg_file.
+Moving label "_04408_" from metal2 to via2 in cell reg_file.
+Moving label "_04419_" from metal1 to via1 in cell reg_file.
+Moving label "_04422_" from metal2 to via2 in cell reg_file.
+Moving label "_04423_" from metal1 to viali in cell reg_file.
+Moving label "_04436_" from metal2 to via2 in cell reg_file.
+Moving label "_04437_" from metal1 to via1 in cell reg_file.
+Moving label "clknet_0__04468_" from metal2 to via2 in cell reg_file.
+Moving label "clknet_0__04474_" from metal2 to via2 in cell reg_file.
+Moving label "clknet_0__04492_" from metal1 to via1 in cell reg_file.
+Moving label "clknet_1_1__leaf__04457_" from metal2 to via1 in cell reg_file.
+Moving label "net102" from metal3 to via3 in cell reg_file.
+Moving label "net108" from metal2 to via2 in cell reg_file.
+Moving label "net378" from metal2 to via1 in cell reg_file.
+Moving label "net49" from metal2 to via2 in cell reg_file.
+Moving label "net50" from metal2 to via2 in cell reg_file.
+Moving label "net518" from metal1 to viali in cell reg_file.
+Moving label "net52" from metal2 to via2 in cell reg_file.
+Moving label "net54" from metal2 to via2 in cell reg_file.
+Moving label "net56" from metal2 to via2 in cell reg_file.
+Moving label "net59" from metal2 to via2 in cell reg_file.
+Moving label "net634" from metal2 to via1 in cell reg_file.
+Moving label "net77" from metal2 to via2 in cell reg_file.
+Moving label "net774" from metal1 to viali in cell reg_file.
+Moving label "net78" from metal2 to via2 in cell reg_file.
+Moving label "net80" from metal2 to via2 in cell reg_file.
+Moving label "net800" from metal2 to via1 in cell reg_file.
+Moving label "net82" from metal2 to via2 in cell reg_file.
+Moving label "net85" from metal2 to via2 in cell reg_file.
+Moving label "rf\[0\]\[0\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[0\]\[13\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[10\]\[11\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[10\]\[17\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[10\]\[20\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[10\]\[3\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[10\]\[9\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[11\]\[4\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[13\]\[23\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[14\]\[10\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[11\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[12\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[14\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[1\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[21\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[25\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[30\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[6\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[14\]\[7\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[0\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[10\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[12\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[19\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[1\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[20\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[21\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[26\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[30\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[18\]\[6\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[19\]\[0\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[19\]\[17\]" from metal2 to via1 in cell reg_file.
+Moving label "rf\[19\]\[1\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[20\]\[27\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[22\]\[14\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[22\]\[17\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[22\]\[24\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[22\]\[4\]" from metal1 to viali in cell reg_file.
+Moving label "rf\[23\]\[25\]" from metal2 to via1 in cell reg_file.
+Moving label "rf\[26\]\[0\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[18\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[21\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[22\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[26\]\[23\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[24\]" from metal2 to via1 in cell reg_file.
+Moving label "rf\[26\]\[26\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[4\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[7\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[26\]\[8\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[28\]\[5\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[29\]\[27\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[2\]\[17\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[2\]\[19\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[2\]\[22\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[2\]\[23\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[2\]\[30\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[2\]\[8\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[0\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[18\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[27\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[29\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[6\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[30\]\[9\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[3\]\[17\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[3\]\[26\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[3\]\[5\]" from metal2 to via2 in cell reg_file.
+Moving label "rf\[4\]\[21\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[6\]\[12\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[6\]\[23\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[6\]\[27\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[6\]\[4\]" from metal1 to via1 in cell reg_file.
+Moving label "rf\[9\]\[16\]" from metal1 to via1 in cell reg_file.
+Root cell box:
+           width x height  (   llx,  lly  ), (   urx,  ury  )  area (units^2)
+
+microns:  355.225 x 365.945  ( 0.000,  0.000), ( 355.225,  365.945)  129992.797
+lambda:   35522.50 x 36594.50  (  0.00,  0.00 ), ( 35522.50,  36594.50)  1299928064.00
+internal:  71045 x 73189   (     0,  0    ), ( 71045,  73189)  5199712505
+   Generating output for cell sky130_ef_sc_hd__decap_12
+   Generating output for cell sky130_fd_sc_hd__fill_1
+   Generating output for cell sky130_fd_sc_hd__decap_3
+   Generating output for cell sky130_fd_sc_hd__clkbuf_4
+   Generating output for cell sky130_fd_sc_hd__clkbuf_1
+   Generating output for cell sky130_fd_sc_hd__decap_8
+   Generating output for cell sky130_fd_sc_hd__tapvpwrvgnd_1
+   Generating output for cell sky130_fd_sc_hd__buf_4
+   Generating output for cell sky130_fd_sc_hd__decap_4
+   Generating output for cell sky130_fd_sc_hd__decap_6
+   Generating output for cell sky130_fd_sc_hd__fill_2
+   Generating output for cell sky130_fd_sc_hd__buf_8
+   Generating output for cell sky130_fd_sc_hd__dlymetal6s2s_1
+   Generating output for cell sky130_fd_sc_hd__inv_2
+   Generating output for cell sky130_fd_sc_hd__mux2_1
+   Generating output for cell sky130_fd_sc_hd__dfxtp_1
+   Generating output for cell sky130_fd_sc_hd__buf_12
+   Generating output for cell sky130_fd_sc_hd__clkbuf_16
+   Generating output for cell sky130_fd_sc_hd__clkbuf_2
+   Generating output for cell sky130_fd_sc_hd__buf_2
+   Generating output for cell sky130_fd_sc_hd__mux4_1
+   Generating output for cell sky130_fd_sc_hd__clkbuf_8
+   Generating output for cell sky130_fd_sc_hd__buf_1
+   Generating output for cell sky130_fd_sc_hd__mux4_2
+   Generating output for cell sky130_fd_sc_hd__or2_1
+   Generating output for cell sky130_fd_sc_hd__a31o_2
+   Generating output for cell sky130_fd_sc_hd__a31o_1
+   Generating output for cell sky130_fd_sc_hd__and3b_2
+   Generating output for cell sky130_fd_sc_hd__or2_4
+   Generating output for cell sky130_fd_sc_hd__or3b_4
+   Generating output for cell sky130_fd_sc_hd__nand2_4
+   Generating output for cell sky130_fd_sc_hd__nand2_2
+   Generating output for cell sky130_fd_sc_hd__nor2_4
+   Generating output for cell sky130_fd_sc_hd__and3_4
+   Generating output for cell sky130_fd_sc_hd__nand3_4
+   Generating output for cell sky130_fd_sc_hd__and2_1
+   Generating output for cell sky130_fd_sc_hd__nor2_8
+   Generating output for cell sky130_fd_sc_hd__a221o_1
+   Generating output for cell sky130_fd_sc_hd__o21a_1
+   Generating output for cell sky130_fd_sc_hd__dfxtp_2
+   Generating output for cell sky130_fd_sc_hd__o211a_1
+   Generating output for cell sky130_fd_sc_hd__a221o_4
+   Generating output for cell sky130_fd_sc_hd__a32o_1
+   Generating output for cell sky130_fd_sc_hd__a221o_2
+   Generating output for cell sky130_fd_sc_hd__clkinv_4
+   Generating output for cell sky130_fd_sc_hd__buf_6
+   Generating output for cell sky130_fd_sc_hd__or3_1
+   Generating output for cell sky130_fd_sc_hd__inv_4
+   Generating output for cell sky130_fd_sc_hd__o211a_4
+   Generating output for cell sky130_fd_sc_hd__and3b_4
+   Generating output for cell sky130_fd_sc_hd__or3_4
+   Generating output for cell sky130_fd_sc_hd__o211a_2
+   Generating output for cell sky130_fd_sc_hd__or2_2
+   Generating output for cell sky130_fd_sc_hd__a32o_2
+   Generating output for cell sky130_fd_sc_hd__and3_1
+   Generating output for cell reg_file
+[INFO]: GDS Write Complete
