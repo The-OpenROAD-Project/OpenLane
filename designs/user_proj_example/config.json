@@ -1,0 +1,63 @@
+{
+    "DESIGN_NAME": "user_proj_example",
+    "DESIGN_IS_CORE": 0,
+    "VERILOG_FILES": [
+        "dir::defines.v",
+        "dir::user_proj_example.v"
+    ],
+    "CLOCK_PERIOD": 25,
+    "CLOCK_PORT": "wb_clk_i",
+    "CLOCK_NET": "counter.clk",
+    "FP_SIZING": "absolute",
+    "DIE_AREA": "0 0 2800 1760",
+    "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+    "NO_SYNTH_CELL_LIST": "dir::no_synth.cells",
+    "DRC_EXCLUDE_CELL_LIST": "dir::drc_exclude.cells",
+    "PL_TARGET_DENSITY": 0.4,
+    "PL_RESIZER_SETUP_SLACK_MARGIN": 0.4,
+    "PL_RESIZER_MAX_SLEW_MARGIN": 50,
+    "GLB_RESIZER_MAX_SLEW_MARGIN": 50,
+    "GLB_RESIZER_SETUP_SLACK_MARGIN": 0.2,
+    "GRT_MAX_DIODE_INS_ITERS": 5,
+    "GRT_ANT_ITERS": 5,
+    "MAGIC_DEF_LABELS": 0,
+    "SYNTH_BUFFERING": 0,
+    "VDD_NETS": [
+        "vccd1"
+    ],
+    "GND_NETS": [
+        "vssd1"
+    ],
+    "IO_SYNC": 0,
+    "BASE_SDC_FILE": "dir::base_user_proj_example.sdc",
+    "DIODE_INSERTION_STRATEGY": 3,
+    "RUN_CVC": 1,
+    "pdk::sky130*": {
+        "FP_CORE_UTIL": 45,
+        "RT_MAX_LAYER": "met4",
+        "scl::sky130_fd_sc_hd": {
+            "CLOCK_PERIOD": 25
+        },
+        "scl::sky130_fd_sc_hdll": {
+            "CLOCK_PERIOD": 10
+        },
+        "scl::sky130_fd_sc_hs": {
+            "CLOCK_PERIOD": 8
+        },
+        "scl::sky130_fd_sc_ls": {
+            "CLOCK_PERIOD": 10,
+            "SYNTH_MAX_FANOUT": 5
+        },
+        "scl::sky130_fd_sc_ms": {
+            "CLOCK_PERIOD": 10
+        }
+    },
+    "pdk::gf180mcuC": {
+        "STD_CELL_LIBRARY": "gf180mcu_fd_sc_mcu7t5v0",
+        "CLOCK_PERIOD": 24.0,
+        "FP_CORE_UTIL": 40,
+        "RT_MAX_LAYER": "Metal4",
+        "SYNTH_MAX_FANOUT": 4,
+        "PL_TARGET_DENSITY": 0.45
+    }
+}
