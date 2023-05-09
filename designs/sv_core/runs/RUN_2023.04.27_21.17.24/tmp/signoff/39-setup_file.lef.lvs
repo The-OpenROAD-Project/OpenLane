@@ -1,1 +1,0 @@
-lvs {/openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/results/signoff/core.spice core} {/openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/tmp/signoff/36-core.pnl.v core} /home/ubuntu/.volare/sky130A/libs.tech/netgen/sky130A_setup.tcl /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/logs/signoff/39-core.lef.lvs.log -json

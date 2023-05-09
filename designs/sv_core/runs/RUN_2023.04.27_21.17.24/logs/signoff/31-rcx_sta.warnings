@@ -1,6 +1,0 @@
-Warning: /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/results/routing/core.nl.v line 14889, module sky130_fd_sc_hd__tapvpwrvgnd_1 not found. Creating black box for TAP_350.
-Warning: /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/results/routing/core.nl.v line 18371, module sky130_ef_sc_hd__decap_12 not found. Creating black box for FILLER_0_3.
-Warning: /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/results/routing/core.nl.v line 18373, module sky130_fd_sc_hd__fill_1 not found. Creating black box for FILLER_0_27.
-Warning: /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/results/routing/core.nl.v line 21097, module sky130_fd_sc_hd__fill_2 not found. Creating black box for FILLER_30_93.
-Warning: There are 40 unconstrained endpoints.
-[WARNING] Did not save OpenROAD database!

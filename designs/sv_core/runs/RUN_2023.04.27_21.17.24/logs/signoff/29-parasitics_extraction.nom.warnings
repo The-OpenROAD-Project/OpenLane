@@ -1,3 +1,0 @@
-[WARNING ODB-0220] WARNING (LEFPARS-2036): SOURCE statement is obsolete in version 5.6 and later.
-To avoid this warning in the future, remove this statement from the LEF file with version 5.6 or later. See file /openlane/designs/sv_core/runs/RUN_2023.04.27_21.17.24/tmp/merged.nom.lef at line 67040.
-[WARNING] Did not save OpenROAD database!
