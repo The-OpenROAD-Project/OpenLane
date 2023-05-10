@@ -18,7 +18,7 @@ if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
 	read_lef $::env(placement_tmpfiles)/top_level.lef
 }
 
-if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_HLENGTH) != ""} {
+if {$::env(FP_IO_HLENGTH) != "" && $::env(FP_IO_VLENGTH) != ""} {
 	set_pin_length -hor_length $::env(FP_IO_HLENGTH) \
 		-ver_length $::env(FP_IO_VLENGTH)
 }
