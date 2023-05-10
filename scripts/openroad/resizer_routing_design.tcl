@@ -74,3 +74,10 @@ write
 
 # Run post timing optimizations STA
 estimate_parasitics -global_routing
+
+puts "area_report"
+puts "\n==========================================================================="
+puts "report_design_area"
+puts "============================================================================"
+report_design_area
+puts "area_report_end"

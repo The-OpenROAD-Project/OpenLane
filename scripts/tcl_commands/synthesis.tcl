@@ -149,7 +149,8 @@ proc run_synthesis {args} {
         -log $::env(synthesis_logs)/sta.log \
         -netlist_in \
         -pre_cts \
-        -save_to $::env(synthesis_results)
+        -save_to $::env(synthesis_results) \
+        -tool sta
 
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
 
@@ -244,9 +245,11 @@ proc logic_equiv_check {args} {
 
 proc run_verilator {} {
     set verilator_verified_pdks "sky130A sky130B"
+    set verilator_verified_scl "sky130_fd_sc_hd"
     set includes ""
-    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 } {
-        puts_warn "PDK '$::env(PDK)' will generate errors with instantiated stdcells in the design."
+    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
+            [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
+        puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
         puts_warn "Either disable QUIT_ON_VERILATOR_ERRORS or remove the instantiated cells."
     } else {
         set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
