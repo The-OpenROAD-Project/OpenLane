@@ -101,6 +101,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_MIN_BUF_PORT` | Defines the buffer, followed by its input port and output port to be used by `ins_buf` statements by yosys. It inserts buffer cells into the design for directly connected wires. <br> (Example: `sky130_fd_sc_hd__buf_2 A X`  )|
 | `SYNTH_TIEHI_PORT` | Defines the tie high cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 HI`)|
 | `SYNTH_TIELO_PORT` | Defines the tie low cell followed by the port that implements the tie high functionality. Used in synthesis. <br> (Example: `sky130_fd_sc_hd__conb_1 LO`)|
+| `TRISTATE_CELL_PREFIX` | Prefix of tristate cells. Used with SYNTH_CHECKS_ALLOW_TRISTATE. <br> Example `sky130_fd_sc_hd__ebuf` |
 | `FILL_CELL` | Defines the fill cell. Used in fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DECAP_CELL` | Defines the decap cell used for fill insertion. Can use a wild card to define a class of cells. Example `sky130_fd_sc_hd__fill_*` |
 | `DIODE_CELL_PIN` | Defines the `DIODE_CELL` pin. This is required if `DIODE_CELL` is defined |
