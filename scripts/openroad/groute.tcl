@@ -41,14 +41,3 @@ if { $::env(GRT_REPAIR_ANTENNAS) } {
 }
 
 write
-
-if {[info exists ::env(CLOCK_PORT)]} {
-    if { $::env(GRT_ESTIMATE_PARASITICS) == 1 } {
-        # set rc values
-        source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
-        # estimate wire rc parasitics
-        estimate_parasitics -global_routing
-    }
-} else {
-    puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
-}
