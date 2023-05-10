@@ -54,7 +54,7 @@ proc set_dont_touch_list {object_list} {
     }
 }
 
-proc uset_dont_touch_list {object_list} {
+proc unset_dont_touch_list {object_list} {
     foreach object $object_list {
         uset_dont_touch $object
     }
