@@ -663,10 +663,10 @@ class Report(object):
         total_cells_count = -1
 
         design_netlist_content = design_netlist.get_content()
-        diode_cell_names = self.configuration_full["DIODE_CELL"].split()
-        fill_cell_names = self.configuration_full["FILL_CELL"].split()
-        well_tap_cell_names = self.configuration_full["FP_WELLTAP_CELL"].split()
-        decap_cell_names = self.configuration_full["DECAP_CELL"].split()
+        diode_cell_names = self.configuration_full.get("DIODE_CELL", "").split()
+        fill_cell_names = self.configuration_full.get("FILL_CELL", "").split()
+        well_tap_cell_names = self.configuration_full.get("FP_WELLTAP_CELL", "").split()
+        decap_cell_names = self.configuration_full.get("DECAP_CELL", "").split()
         if design_netlist_content is not None:
             diode_count = count_cells(diode_cell_names, design_netlist_content)
             well_tap_count = count_cells(well_tap_cell_names, design_netlist_content)
