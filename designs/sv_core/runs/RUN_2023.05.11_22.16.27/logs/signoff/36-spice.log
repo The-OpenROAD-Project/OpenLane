@@ -1,0 +1,331 @@
+
+Magic 8.3 revision 389 - Compiled on Mon Apr 10 12:34:20 UTC 2023.
+Starting magic under Tcl interpreter
+Using the terminal as the console.
+Using NULL graphics device.
+Processing system .magicrc file
+Sourcing design .magicrc for technology sky130A ...
+2 Magic internal units = 1 Lambda
+Input style sky130(): scaleFactor=2, multiplier=2
+The following types are not handled by extraction and will be treated as non-electrical types:
+    ubm 
+Scaled tech values by 2 / 1 to match internal grid scaling
+Loading sky130A Device Generator Menu ...
+Using technology "sky130A", version 1.0.406-0-g0c37b7c
+Reading LEF data from file /home/ubuntu/.volare/sky130A/libs.ref/sky130_fd_sc_hd/techlef/sky130_fd_sc_hd__nom.tlef.
+This action cannot be undone.
+LEF read, Line 78 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 79 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 112 (Message): Unknown keyword "MINENCLOSEDAREA" in LEF file; ignoring.
+LEF read, Line 114 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 115 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 121 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 122 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 123 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 156 (Message): Unknown keyword "MINENCLOSEDAREA" in LEF file; ignoring.
+LEF read, Line 164 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 165 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 167 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 168 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 169 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 206 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 207 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 209 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 210 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 211 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 248 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 249 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read, Line 251 (Message): Unknown keyword "MAXIMUMDENSITY" in LEF file; ignoring.
+LEF read, Line 252 (Message): Unknown keyword "DENSITYCHECKWINDOW" in LEF file; ignoring.
+LEF read, Line 253 (Message): Unknown keyword "DENSITYCHECKSTEP" in LEF file; ignoring.
+LEF read, Line 290 (Message): Unknown keyword "ANTENNAMODEL" in LEF file; ignoring.
+LEF read, Line 291 (Message): Unknown keyword "ANTENNADIFFSIDEAREARATIO" in LEF file; ignoring.
+LEF read: Processed 797 lines.
+Reading DEF data from file /openlane/designs/sv_core/runs/RUN_2023.05.11_22.16.27/results/routing/core.def.
+This action cannot be undone.
+  Processed 4 vias total.
+  Processed 20546 subcell instances total.
+  Processed 324 pins total.
+  Processed 2 special nets total.
+  Processed 3559 nets total.
+DEF read: Processed 84303 lines.
+Moving label "_0220_" from metal1 to via1 in cell core.
+Moving label "_0265_" from metal1 to via1 in cell core.
+Moving label "_0266_" from metal1 to via1 in cell core.
+Moving label "_0269_" from metal1 to via1 in cell core.
+Moving label "_0271_" from metal1 to via1 in cell core.
+Moving label "_0272_" from metal1 to via1 in cell core.
+Moving label "_0273_" from metal1 to via1 in cell core.
+Moving label "_0278_" from metal1 to via1 in cell core.
+Moving label "_0284_" from metal1 to via1 in cell core.
+Moving label "_0289_" from metal1 to via1 in cell core.
+Moving label "_0292_" from metal1 to via1 in cell core.
+Moving label "_0302_" from metal1 to via1 in cell core.
+Moving label "_0304_" from metal1 to viali in cell core.
+Moving label "_0381_" from metal2 to via2 in cell core.
+Moving label "_0480_" from metal2 to via2 in cell core.
+Moving label "_0509_" from metal2 to via2 in cell core.
+Moving label "_0528_" from metal2 to via2 in cell core.
+Moving label "_0543_" from metal2 to via2 in cell core.
+Moving label "_0565_" from metal2 to via2 in cell core.
+Moving label "_0608_" from metal2 to via1 in cell core.
+Moving label "_0612_" from metal3 to via3 in cell core.
+Moving label "_0640_" from metal2 to via1 in cell core.
+Moving label "_0644_" from metal3 to via3 in cell core.
+Moving label "_0651_" from metal2 to via2 in cell core.
+Moving label "_0665_" from metal1 to via1 in cell core.
+Moving label "_0689_" from metal2 to via2 in cell core.
+Moving label "_0752_" from metal2 to via2 in cell core.
+Moving label "_0764_" from metal1 to via1 in cell core.
+Moving label "_0794_" from metal2 to via2 in cell core.
+Moving label "_1025_" from metal1 to via1 in cell core.
+Moving label "_1054_" from metal1 to via1 in cell core.
+Moving label "_1060_" from metal3 to via3 in cell core.
+Moving label "_1065_" from metal1 to via1 in cell core.
+Moving label "_1075_" from metal1 to via1 in cell core.
+Moving label "_1085_" from metal1 to via1 in cell core.
+Moving label "_1141_" from metal2 to via2 in cell core.
+Moving label "_1172_" from metal2 to via1 in cell core.
+Moving label "_1175_" from metal1 to via1 in cell core.
+Moving label "_1223_" from metal3 to via3 in cell core.
+Moving label "_1273_" from metal2 to via1 in cell core.
+Moving label "_1275_" from metal2 to via2 in cell core.
+Moving label "_1279_" from metal2 to via2 in cell core.
+Moving label "_1287_" from metal2 to via2 in cell core.
+Moving label "_1330_" from metal1 to via1 in cell core.
+Moving label "_1332_" from metal1 to via1 in cell core.
+Moving label "_1346_" from metal1 to viali in cell core.
+Moving label "_1364_" from metal1 to viali in cell core.
+Moving label "_1368_" from metal1 to via1 in cell core.
+Moving label "_1404_" from metal1 to viali in cell core.
+Moving label "_1406_" from metal2 to via2 in cell core.
+Moving label "_1436_" from metal3 to via3 in cell core.
+Moving label "_1437_" from metal1 to viali in cell core.
+Moving label "_1454_" from metal3 to via3 in cell core.
+Moving label "_1476_" from metal2 to via2 in cell core.
+Moving label "_1523_" from metal3 to via3 in cell core.
+Moving label "_1539_" from metal1 to viali in cell core.
+Moving label "_1553_" from metal2 to via1 in cell core.
+Moving label "_1568_" from metal1 to via1 in cell core.
+Moving label "_1573_" from metal3 to via3 in cell core.
+Moving label "_1602_" from metal1 to via1 in cell core.
+Moving label "_1627_" from metal1 to via1 in cell core.
+Moving label "_1644_" from metal1 to via1 in cell core.
+Moving label "_1687_" from metal1 to via1 in cell core.
+Moving label "_1706_" from metal2 to via2 in cell core.
+Moving label "_1764_" from metal1 to via1 in cell core.
+Moving label "_1780_" from metal3 to via3 in cell core.
+Moving label "_1807_" from metal1 to via1 in cell core.
+Moving label "_1821_" from metal1 to via1 in cell core.
+Moving label "_1823_" from metal2 to via1 in cell core.
+Moving label "_1829_" from metal2 to via1 in cell core.
+Moving label "_1830_" from metal1 to via1 in cell core.
+Moving label "_1861_" from metal1 to viali in cell core.
+Moving label "_1869_" from metal1 to via1 in cell core.
+Moving label "_1899_" from metal1 to viali in cell core.
+Moving label "_1941_" from metal1 to via1 in cell core.
+Moving label "_2097_" from metal1 to via1 in cell core.
+Moving label "_2099_" from metal1 to viali in cell core.
+Moving label "_2131_" from metal1 to via1 in cell core.
+Moving label "clknet_2_0__leaf_clk_i" from metal2 to via2 in cell core.
+Moving label "i_decode_stage.decode_state_o\[118\]" from metal3 to via3 in cell core.
+Moving label "i_decode_stage.decode_state_o\[134\]" from metal2 to via2 in cell core.
+Moving label "i_decode_stage.fetch_state_i\[39\]" from metal2 to via1 in cell core.
+Moving label "i_exec_stage.exec_state_o\[5\]" from metal2 to via2 in cell core.
+Moving label "i_exec_stage.exec_state_o\[8\]" from metal1 to viali in cell core.
+Moving label "i_mem_slice_stage.mem_state_o\[102\]" from metal2 to via2 in cell core.
+Moving label "i_mem_slice_stage.mem_state_o\[18\]" from metal2 to via2 in cell core.
+Moving label "i_mem_slice_stage.mem_state_o\[74\]" from metal2 to via2 in cell core.
+Moving label "i_mem_slice_stage.mem_state_o\[77\]" from metal2 to via2 in cell core.
+Moving label "i_mem_slice_stage.mem_state_o\[78\]" from metal2 to via1 in cell core.
+Moving label "imem_addr_o[11]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[13]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[15]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[17]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[19]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[1]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[21]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[23]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[25]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[29]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[31]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[3]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[7]" from metal2 to via2 in cell core.
+Moving label "imem_addr_o[9]" from metal2 to via2 in cell core.
+Moving label "net1" from metal2 to via1 in cell core.
+Moving label "net121" from metal2 to via2 in cell core.
+Moving label "net13" from metal2 to via2 in cell core.
+Moving label "net135" from metal2 to via2 in cell core.
+Moving label "net169" from metal2 to via2 in cell core.
+Moving label "net184" from metal2 to via2 in cell core.
+Moving label "net186" from metal2 to via2 in cell core.
+Moving label "net187" from metal2 to via2 in cell core.
+Moving label "net193" from metal2 to via2 in cell core.
+Moving label "net24" from metal2 to via1 in cell core.
+Moving label "net248" from metal1 to via1 in cell core.
+Moving label "net294" from metal2 to via1 in cell core.
+Moving label "net300" from metal2 to via2 in cell core.
+Moving label "net304" from metal2 to via2 in cell core.
+Moving label "net308" from metal2 to via2 in cell core.
+Moving label "net312" from metal2 to via2 in cell core.
+Moving label "net320" from metal2 to via2 in cell core.
+Moving label "net324" from metal2 to via2 in cell core.
+Moving label "net328" from metal2 to via2 in cell core.
+Moving label "net332" from metal2 to via2 in cell core.
+Moving label "net340" from metal1 to via1 in cell core.
+Moving label "net341" from metal1 to via1 in cell core.
+Moving label "net343" from metal1 to via1 in cell core.
+Moving label "net39" from metal2 to via2 in cell core.
+Moving label "net46" from metal2 to via2 in cell core.
+Moving label "net64" from metal2 to via2 in cell core.
+Processing core
+Extracting sky130_ef_sc_hd__decap_12 into sky130_ef_sc_hd__decap_12.ext:
+Extracting sky130_fd_sc_hd__decap_3 into sky130_fd_sc_hd__decap_3.ext:
+Extracting sky130_fd_sc_hd__fill_1 into sky130_fd_sc_hd__fill_1.ext:
+Extracting sky130_fd_sc_hd__tapvpwrvgnd_1 into sky130_fd_sc_hd__tapvpwrvgnd_1.ext:
+Extracting sky130_fd_sc_hd__decap_4 into sky130_fd_sc_hd__decap_4.ext:
+Extracting sky130_fd_sc_hd__decap_6 into sky130_fd_sc_hd__decap_6.ext:
+Extracting sky130_fd_sc_hd__conb_1 into sky130_fd_sc_hd__conb_1.ext:
+Extracting sky130_fd_sc_hd__decap_8 into sky130_fd_sc_hd__decap_8.ext:
+Extracting sky130_fd_sc_hd__clkbuf_4 into sky130_fd_sc_hd__clkbuf_4.ext:
+Extracting sky130_fd_sc_hd__buf_2 into sky130_fd_sc_hd__buf_2.ext:
+Extracting sky130_fd_sc_hd__clkbuf_1 into sky130_fd_sc_hd__clkbuf_1.ext:
+Extracting sky130_fd_sc_hd__fill_2 into sky130_fd_sc_hd__fill_2.ext:
+Extracting sky130_fd_sc_hd__nor2_1 into sky130_fd_sc_hd__nor2_1.ext:
+Extracting sky130_fd_sc_hd__mux2_1 into sky130_fd_sc_hd__mux2_1.ext:
+Extracting sky130_fd_sc_hd__dfrtp_1 into sky130_fd_sc_hd__dfrtp_1.ext:
+Extracting sky130_fd_sc_hd__or2_1 into sky130_fd_sc_hd__or2_1.ext:
+Extracting sky130_fd_sc_hd__xor2_1 into sky130_fd_sc_hd__xor2_1.ext:
+Extracting sky130_fd_sc_hd__and3_1 into sky130_fd_sc_hd__and3_1.ext:
+Extracting sky130_fd_sc_hd__a21oi_1 into sky130_fd_sc_hd__a21oi_1.ext:
+Extracting sky130_fd_sc_hd__clkdlybuf4s25_1 into sky130_fd_sc_hd__clkdlybuf4s25_1.ext:
+Extracting sky130_fd_sc_hd__dfrtp_4 into sky130_fd_sc_hd__dfrtp_4.ext:
+Extracting sky130_fd_sc_hd__and4_1 into sky130_fd_sc_hd__and4_1.ext:
+Extracting sky130_fd_sc_hd__o221a_1 into sky130_fd_sc_hd__o221a_1.ext:
+Extracting sky130_fd_sc_hd__and2_1 into sky130_fd_sc_hd__and2_1.ext:
+Extracting sky130_fd_sc_hd__nand2_1 into sky130_fd_sc_hd__nand2_1.ext:
+Extracting sky130_fd_sc_hd__xnor2_1 into sky130_fd_sc_hd__xnor2_1.ext:
+Extracting sky130_fd_sc_hd__a31o_1 into sky130_fd_sc_hd__a31o_1.ext:
+Extracting sky130_fd_sc_hd__and2b_1 into sky130_fd_sc_hd__and2b_1.ext:
+Extracting sky130_fd_sc_hd__clkbuf_16 into sky130_fd_sc_hd__clkbuf_16.ext:
+Extracting sky130_fd_sc_hd__dfrtp_2 into sky130_fd_sc_hd__dfrtp_2.ext:
+Extracting sky130_fd_sc_hd__a221o_1 into sky130_fd_sc_hd__a221o_1.ext:
+Extracting sky130_fd_sc_hd__inv_2 into sky130_fd_sc_hd__inv_2.ext:
+Extracting sky130_fd_sc_hd__buf_12 into sky130_fd_sc_hd__buf_12.ext:
+Extracting sky130_fd_sc_hd__clkdlybuf4s50_1 into sky130_fd_sc_hd__clkdlybuf4s50_1.ext:
+Extracting sky130_fd_sc_hd__a22o_1 into sky130_fd_sc_hd__a22o_1.ext:
+Extracting sky130_fd_sc_hd__buf_6 into sky130_fd_sc_hd__buf_6.ext:
+Extracting sky130_fd_sc_hd__or2b_1 into sky130_fd_sc_hd__or2b_1.ext:
+Extracting sky130_fd_sc_hd__o21a_1 into sky130_fd_sc_hd__o21a_1.ext:
+Extracting sky130_fd_sc_hd__clkinv_4 into sky130_fd_sc_hd__clkinv_4.ext:
+Extracting sky130_fd_sc_hd__a22oi_4 into sky130_fd_sc_hd__a22oi_4.ext:
+Extracting sky130_fd_sc_hd__nand4_1 into sky130_fd_sc_hd__nand4_1.ext:
+Extracting sky130_fd_sc_hd__nand4_4 into sky130_fd_sc_hd__nand4_4.ext:
+Extracting sky130_fd_sc_hd__o31a_1 into sky130_fd_sc_hd__o31a_1.ext:
+Extracting sky130_fd_sc_hd__nand3_1 into sky130_fd_sc_hd__nand3_1.ext:
+Extracting sky130_fd_sc_hd__a21o_1 into sky130_fd_sc_hd__a21o_1.ext:
+Extracting sky130_fd_sc_hd__nor4_2 into sky130_fd_sc_hd__nor4_2.ext:
+Extracting sky130_fd_sc_hd__dfxtp_1 into sky130_fd_sc_hd__dfxtp_1.ext:
+Extracting sky130_fd_sc_hd__xnor2_2 into sky130_fd_sc_hd__xnor2_2.ext:
+Extracting sky130_fd_sc_hd__nand3_4 into sky130_fd_sc_hd__nand3_4.ext:
+Extracting sky130_fd_sc_hd__clkbuf_8 into sky130_fd_sc_hd__clkbuf_8.ext:
+Extracting sky130_fd_sc_hd__a21bo_1 into sky130_fd_sc_hd__a21bo_1.ext:
+Extracting sky130_fd_sc_hd__a211oi_1 into sky130_fd_sc_hd__a211oi_1.ext:
+Extracting sky130_fd_sc_hd__o22a_1 into sky130_fd_sc_hd__o22a_1.ext:
+Extracting sky130_fd_sc_hd__or3_1 into sky130_fd_sc_hd__or3_1.ext:
+Extracting sky130_fd_sc_hd__nand2_4 into sky130_fd_sc_hd__nand2_4.ext:
+Extracting sky130_fd_sc_hd__a41o_1 into sky130_fd_sc_hd__a41o_1.ext:
+Extracting sky130_fd_sc_hd__dfxtp_2 into sky130_fd_sc_hd__dfxtp_2.ext:
+Extracting sky130_fd_sc_hd__and3b_1 into sky130_fd_sc_hd__and3b_1.ext:
+Extracting sky130_fd_sc_hd__a31oi_2 into sky130_fd_sc_hd__a31oi_2.ext:
+Extracting sky130_fd_sc_hd__or4_1 into sky130_fd_sc_hd__or4_1.ext:
+Extracting sky130_fd_sc_hd__a21boi_1 into sky130_fd_sc_hd__a21boi_1.ext:
+Extracting sky130_fd_sc_hd__mux2_2 into sky130_fd_sc_hd__mux2_2.ext:
+Extracting sky130_fd_sc_hd__o31ai_4 into sky130_fd_sc_hd__o31ai_4.ext:
+Extracting sky130_fd_sc_hd__inv_1 into sky130_fd_sc_hd__inv_1.ext:
+Extracting sky130_fd_sc_hd__o31a_2 into sky130_fd_sc_hd__o31a_2.ext:
+Extracting sky130_fd_sc_hd__xor2_4 into sky130_fd_sc_hd__xor2_4.ext:
+Extracting sky130_fd_sc_hd__nor3_4 into sky130_fd_sc_hd__nor3_4.ext:
+Extracting sky130_fd_sc_hd__or3_2 into sky130_fd_sc_hd__or3_2.ext:
+Extracting sky130_fd_sc_hd__nor2_8 into sky130_fd_sc_hd__nor2_8.ext:
+Extracting sky130_fd_sc_hd__a221o_4 into sky130_fd_sc_hd__a221o_4.ext:
+Extracting sky130_fd_sc_hd__o2111ai_4 into sky130_fd_sc_hd__o2111ai_4.ext:
+Extracting sky130_fd_sc_hd__xor2_2 into sky130_fd_sc_hd__xor2_2.ext:
+Extracting sky130_fd_sc_hd__nor4b_4 into sky130_fd_sc_hd__nor4b_4.ext:
+Extracting sky130_fd_sc_hd__buf_4 into sky130_fd_sc_hd__buf_4.ext:
+Extracting sky130_fd_sc_hd__a22o_2 into sky130_fd_sc_hd__a22o_2.ext:
+Extracting sky130_fd_sc_hd__or4_2 into sky130_fd_sc_hd__or4_2.ext:
+Extracting sky130_fd_sc_hd__or4b_1 into sky130_fd_sc_hd__or4b_1.ext:
+Extracting sky130_fd_sc_hd__a31oi_4 into sky130_fd_sc_hd__a31oi_4.ext:
+Extracting sky130_fd_sc_hd__and4b_1 into sky130_fd_sc_hd__and4b_1.ext:
+Extracting sky130_fd_sc_hd__nand4_2 into sky130_fd_sc_hd__nand4_2.ext:
+Extracting sky130_fd_sc_hd__and4_2 into sky130_fd_sc_hd__and4_2.ext:
+Extracting sky130_fd_sc_hd__nand2_8 into sky130_fd_sc_hd__nand2_8.ext:
+Extracting sky130_fd_sc_hd__inv_4 into sky130_fd_sc_hd__inv_4.ext:
+Extracting sky130_fd_sc_hd__o21ai_2 into sky130_fd_sc_hd__o21ai_2.ext:
+Extracting sky130_fd_sc_hd__dlymetal6s2s_1 into sky130_fd_sc_hd__dlymetal6s2s_1.ext:
+Extracting sky130_fd_sc_hd__or3b_2 into sky130_fd_sc_hd__or3b_2.ext:
+Extracting sky130_fd_sc_hd__o31ai_2 into sky130_fd_sc_hd__o31ai_2.ext:
+Extracting sky130_fd_sc_hd__o21bai_1 into sky130_fd_sc_hd__o21bai_1.ext:
+Extracting sky130_fd_sc_hd__a211o_1 into sky130_fd_sc_hd__a211o_1.ext:
+Extracting sky130_fd_sc_hd__a2bb2o_1 into sky130_fd_sc_hd__a2bb2o_1.ext:
+Extracting sky130_fd_sc_hd__buf_8 into sky130_fd_sc_hd__buf_8.ext:
+Extracting sky130_fd_sc_hd__and4bb_1 into sky130_fd_sc_hd__and4bb_1.ext:
+Extracting sky130_fd_sc_hd__nor3_1 into sky130_fd_sc_hd__nor3_1.ext:
+Extracting sky130_fd_sc_hd__clkbuf_2 into sky130_fd_sc_hd__clkbuf_2.ext:
+Extracting sky130_fd_sc_hd__o21ai_4 into sky130_fd_sc_hd__o21ai_4.ext:
+Extracting sky130_fd_sc_hd__o221ai_2 into sky130_fd_sc_hd__o221ai_2.ext:
+Extracting sky130_fd_sc_hd__and2_2 into sky130_fd_sc_hd__and2_2.ext:
+Extracting sky130_fd_sc_hd__a21oi_4 into sky130_fd_sc_hd__a21oi_4.ext:
+Extracting sky130_fd_sc_hd__a21oi_2 into sky130_fd_sc_hd__a21oi_2.ext:
+Extracting sky130_fd_sc_hd__or3b_1 into sky130_fd_sc_hd__or3b_1.ext:
+Extracting sky130_fd_sc_hd__nor2_2 into sky130_fd_sc_hd__nor2_2.ext:
+Extracting sky130_fd_sc_hd__a21o_2 into sky130_fd_sc_hd__a21o_2.ext:
+Extracting sky130_fd_sc_hd__o2bb2a_1 into sky130_fd_sc_hd__o2bb2a_1.ext:
+Extracting sky130_fd_sc_hd__a31o_2 into sky130_fd_sc_hd__a31o_2.ext:
+Extracting sky130_fd_sc_hd__o211ai_1 into sky130_fd_sc_hd__o211ai_1.ext:
+Extracting sky130_fd_sc_hd__nand2_2 into sky130_fd_sc_hd__nand2_2.ext:
+Extracting sky130_fd_sc_hd__or4bb_2 into sky130_fd_sc_hd__or4bb_2.ext:
+Extracting sky130_fd_sc_hd__o22ai_1 into sky130_fd_sc_hd__o22ai_1.ext:
+Extracting sky130_fd_sc_hd__mux4_2 into sky130_fd_sc_hd__mux4_2.ext:
+Extracting sky130_fd_sc_hd__a22oi_1 into sky130_fd_sc_hd__a22oi_1.ext:
+Extracting sky130_fd_sc_hd__o21a_2 into sky130_fd_sc_hd__o21a_2.ext:
+Extracting sky130_fd_sc_hd__o32a_1 into sky130_fd_sc_hd__o32a_1.ext:
+Extracting sky130_fd_sc_hd__o21a_4 into sky130_fd_sc_hd__o21a_4.ext:
+Extracting sky130_fd_sc_hd__a2bb2o_4 into sky130_fd_sc_hd__a2bb2o_4.ext:
+Extracting sky130_fd_sc_hd__o21ai_1 into sky130_fd_sc_hd__o21ai_1.ext:
+Extracting sky130_fd_sc_hd__a221o_2 into sky130_fd_sc_hd__a221o_2.ext:
+Extracting sky130_fd_sc_hd__or4bb_1 into sky130_fd_sc_hd__or4bb_1.ext:
+Extracting sky130_fd_sc_hd__o21ba_1 into sky130_fd_sc_hd__o21ba_1.ext:
+Extracting sky130_fd_sc_hd__nand2b_2 into sky130_fd_sc_hd__nand2b_2.ext:
+Extracting sky130_fd_sc_hd__o221ai_4 into sky130_fd_sc_hd__o221ai_4.ext:
+Extracting sky130_fd_sc_hd__or2_2 into sky130_fd_sc_hd__or2_2.ext:
+Extracting sky130_fd_sc_hd__o211a_1 into sky130_fd_sc_hd__o211a_1.ext:
+Extracting sky130_fd_sc_hd__a31o_4 into sky130_fd_sc_hd__a31o_4.ext:
+Extracting sky130_fd_sc_hd__a32oi_4 into sky130_fd_sc_hd__a32oi_4.ext:
+Extracting sky130_fd_sc_hd__nor2_4 into sky130_fd_sc_hd__nor2_4.ext:
+Extracting sky130_fd_sc_hd__xnor2_4 into sky130_fd_sc_hd__xnor2_4.ext:
+Extracting sky130_fd_sc_hd__a211o_4 into sky130_fd_sc_hd__a211o_4.ext:
+Extracting sky130_fd_sc_hd__o311a_1 into sky130_fd_sc_hd__o311a_1.ext:
+Extracting sky130_fd_sc_hd__a221oi_2 into sky130_fd_sc_hd__a221oi_2.ext:
+Extracting sky130_fd_sc_hd__clkinv_2 into sky130_fd_sc_hd__clkinv_2.ext:
+Extracting sky130_fd_sc_hd__nand4b_1 into sky130_fd_sc_hd__nand4b_1.ext:
+Extracting sky130_fd_sc_hd__a311o_4 into sky130_fd_sc_hd__a311o_4.ext:
+Extracting sky130_fd_sc_hd__a21o_4 into sky130_fd_sc_hd__a21o_4.ext:
+Extracting sky130_fd_sc_hd__a31oi_1 into sky130_fd_sc_hd__a31oi_1.ext:
+Extracting sky130_fd_sc_hd__nor2b_2 into sky130_fd_sc_hd__nor2b_2.ext:
+Extracting sky130_fd_sc_hd__o2111a_1 into sky130_fd_sc_hd__o2111a_1.ext:
+Extracting sky130_fd_sc_hd__and3_2 into sky130_fd_sc_hd__and3_2.ext:
+Extracting sky130_fd_sc_hd__a32o_1 into sky130_fd_sc_hd__a32o_1.ext:
+Extracting sky130_fd_sc_hd__and3_4 into sky130_fd_sc_hd__and3_4.ext:
+Extracting sky130_fd_sc_hd__or4bb_4 into sky130_fd_sc_hd__or4bb_4.ext:
+Extracting sky130_fd_sc_hd__and4bb_4 into sky130_fd_sc_hd__and4bb_4.ext:
+Extracting sky130_fd_sc_hd__a311o_1 into sky130_fd_sc_hd__a311o_1.ext:
+Extracting sky130_fd_sc_hd__nor2b_4 into sky130_fd_sc_hd__nor2b_4.ext:
+Extracting sky130_fd_sc_hd__nor3_2 into sky130_fd_sc_hd__nor3_2.ext:
+Extracting sky130_fd_sc_hd__o22ai_2 into sky130_fd_sc_hd__o22ai_2.ext:
+Extracting sky130_fd_sc_hd__inv_6 into sky130_fd_sc_hd__inv_6.ext:
+Extracting core into core.ext:
+core: 32368 errors
+Total of 32368 errors (check feedback entries).
+exttospice finished.

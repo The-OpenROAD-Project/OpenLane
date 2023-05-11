@@ -1,0 +1,13 @@
+VPWR power 1.8
+VGND power 0.0
+#define std_input min@VGND max@VPWR
+clk_i input std_input
+dmem_gnt_i input std_input
+dmem_rvalid_i input std_input
+imem_gnt_i input std_input
+imem_rvalid_i input std_input
+rst_ni input std_input
+dmem_rdata_i[31:0] input std_input
+imem_rdata_i[31:0] input std_input
+rf_rs1_i[31:0] input std_input
+rf_rs2_i[31:0] input std_input

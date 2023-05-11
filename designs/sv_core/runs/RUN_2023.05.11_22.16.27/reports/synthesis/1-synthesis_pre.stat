@@ -1,0 +1,28 @@
+
+62. Printing statistics.
+
+=== core ===
+
+   Number of wires:               2860
+   Number of wire bits:           4014
+   Number of public wires:          60
+   Number of public wire bits:    1214
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3506
+     $_ANDNOT_                    1083
+     $_AND_                         56
+     $_DFFE_PN0N_                  233
+     $_DFFE_PN0P_                   32
+     $_DFFE_PP_                     41
+     $_DFF_PN0_                    181
+     $_MUX_                        620
+     $_NAND_                        63
+     $_NOR_                        160
+     $_NOT_                        240
+     $_ORNOT_                      152
+     $_OR_                         468
+     $_XNOR_                        39
+     $_XOR_                        138
+
