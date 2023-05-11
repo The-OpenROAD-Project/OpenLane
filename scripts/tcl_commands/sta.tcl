@@ -22,6 +22,9 @@ proc run_sta {args} {
         {-log required}
         {-process_corner optional}
         {-save_to optional}
+        {-tool optional}
+        {-estimate_global optional}
+        {-estimate_placement optional}
     }
     set flags {
         -multi_corner
@@ -33,6 +36,7 @@ proc run_sta {args} {
     parse_key_args "run_sta" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-save_to) "$::env(signoff_results)"
+    set_if_unset arg_values(-tool) "openroad"
 
     set multi_corner [info exists flags_map(-multi_corner)]
     set pre_cts [info exists flags_map(-pre_cts)]
@@ -44,9 +48,11 @@ proc run_sta {args} {
         set corner_prefix "Multi-Corner"
     }
 
+    set ::env(PROCESS_CORNER) nom
     set process_corner_postfix ""
     if { [info exists arg_values(-process_corner)]} {
         set process_corner_postfix " at the $arg_values(-process_corner) process corner"
+        set ::env(PROCESS_CORNER) $arg_values(-process_corner)
     }
 
     increment_index
@@ -68,6 +74,12 @@ proc run_sta {args} {
     if { [info exists flags_map(-netlist_in)] } {
         lappend arg_list -netlist_in
     }
+    if { [info exists arg_values(-estimate_global)] && $::env(GRT_ESTIMATE_PARASITICS) } {
+        set ::env(ESTIMATE_PARASITICS) -global
+    }
+    if { [info exists arg_values(-estimate_placement)] && $::env(PL_ESTIMATE_PARASITICS) } {
+        set ::env(ESTIMATE_PARASITICS) -placement
+    }
 
     proc blackbox_modules_check {file_path} {
         set fp [open $file_path r]
@@ -83,7 +95,7 @@ proc run_sta {args} {
     set ::env(STA_MULTICORNER) 0
     if { $multi_corner == 1 } {
         set ::env(STA_MULTICORNER) 1
-        run_sta_script $::env(SCRIPTS_DIR)/openroad/sta/multi_corner.tcl \
+        run_$arg_values(-tool)_script $::env(SCRIPTS_DIR)/openroad/sta/multi_corner.tcl \
             -no_update_current\
             {*}$arg_list
 
@@ -92,12 +104,13 @@ proc run_sta {args} {
         }
         unset ::env(SAVE_SDF)
     } else {
-        run_sta_script $::env(SCRIPTS_DIR)/openroad/sta/multi_corner.tcl {*}$arg_list
+        run_$arg_values(-tool)_script $::env(SCRIPTS_DIR)/openroad/sta/multi_corner.tcl {*}$arg_list
         if { [info exists flags_map(-blackbox_check)] } {
             blackbox_modules_check $log
         }
     }
     unset ::env(STA_MULTICORNER)
+    unset -nocomplain ::env(ESTIMATE_PARASITICS)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
 }
@@ -153,14 +166,16 @@ proc run_parasitics_sta {args} {
                 -log $log_name\
                 -process_corner $process_corner\
                 -multi_corner \
-                -save_to $directory
+                -save_to $directory \
+                -tool sta
 
             if { $process_corner == "nom" } {
                 run_sta\
                     -log $::env(signoff_logs)/rcx_sta.log\
                     -process_corner $process_corner\
                     -save_to $directory \
-                    -blackbox_check
+                    -blackbox_check \
+                    -tool sta
 
                 set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
             }
