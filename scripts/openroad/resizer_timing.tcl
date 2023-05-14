@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -override_libs "$::env(RSZ_LIB)"
+read -multi_corner_libs -override_libs "$::env(RSZ_LIB)"
 
 set_propagated_clock [all_clocks]
 
