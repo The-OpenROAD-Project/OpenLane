@@ -65,7 +65,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 9f09183daeee711a13b01122b11358b935ade288
+  commit: 7f6c37aa57467242807155c654deb350022d75c1
   in_install: false
 - name: git
   repo: https://github.com/git/git
@@ -73,6 +73,6 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: a694f1c5a58b197ee3800e33539b654a69be182e
+  commit: af3485525297d5cbe93c129ea853da2d588fac41
   in_install: false
   pdk: true

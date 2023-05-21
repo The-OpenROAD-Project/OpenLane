@@ -19,19 +19,43 @@ if { $::env(STA_MULTICORNER) } {
     lappend arg_list -fastest $::env(LIB_FASTEST)
     lappend arg_list -slowest $::env(LIB_SLOWEST)
 }
-read_libs {*}$arg_list
 
-read_netlist -all
-read_spefs
+if { [file tail [info nameofexecutable]] == "sta" } {
+    # OpenSTA
+    if { $::env(STA_MULTICORNER_READ_LIBS) } {
+        read_libs {*}$arg_list
+        read_netlist ;# also reads sdc
+    } else {
+        read_libs -no_extra {*}$arg_list
+        read_netlist -all ;# also reads sdc
+        read_spefs
+    }
+} else {
+    # OpenROAD
+    read ;# also reads sdc, spef and libs
+}
 
+if { [info exists ::env(DEBUG)] && $::env(DEBUG) } {
+    puts "sta_bin [file tail [info nameofexecutable]]"
+}
+
+if { [info exists ::env(ESTIMATE_PARASITICS)]} {
+    source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
+    if { [info exists ::env(DEBUG)] && $::env(DEBUG) } {
+        puts "estimating parasitics $::env(ESTIMATE_PARASITICS)"
+    }
+    estimate_parasitics {*}$::env(ESTIMATE_PARASITICS)
+}
+
+if { $::env(STA_PRE_CTS) } {
+    if { [info exists ::env(DEBUG)] && $::env(DEBUG) } {
+        puts "sta pre cts"
+    }
+    unset_propagated_clock [all_clocks]
+}
 
 set_cmd_units -time ns -capacitance pF -current mA -voltage V -resistance kOhm -distance um
 
-if { $::env(STA_PRE_CTS) == 1 } {
-    unset_propagated_clock [all_clocks]
-} else {
-    set_propagated_clock [all_clocks]
-}
 
 puts "min_report"
 puts "\n==========================================================================="
@@ -149,5 +173,13 @@ puts "==========================================================================
 report_worst_slack -min
 puts "summary_report_end"
 
+if { [file tail [info nameofexecutable]] == "openroad" } {
+    puts "area_report"
+    puts "\n==========================================================================="
+    puts "report_design_area"
+    puts "============================================================================"
+    report_design_area
+    puts "area_report_end"
+}
 
 write -no_global_connect

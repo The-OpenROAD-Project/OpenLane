@@ -76,3 +76,10 @@ write
 
 # Run post design optimizations STA
 estimate_parasitics -placement
+
+puts "area_report"
+puts "\n==========================================================================="
+puts "report_design_area"
+puts "============================================================================"
+report_design_area
+puts "area_report_end"
