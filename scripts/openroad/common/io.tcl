@@ -175,13 +175,11 @@ proc write {args} {
     if { [info exists ::env(SAVE_NETLIST)] } {
         puts "Writing netlist to '$::env(SAVE_NETLIST)'…"
         write_verilog $::env(SAVE_NETLIST)
-        exec sed -i "/clknet_11111111/d" $::env(SAVE_NETLIST)
     }
 
     if { [info exists ::env(SAVE_POWERED_NETLIST)] } {
         puts "Writing powered netlist to '$::env(SAVE_POWERED_NETLIST)'…"
         write_verilog -include_pwr_gnd $::env(SAVE_POWERED_NETLIST)
-        exec sed -i "/clknet_11111111/d" $::env(SAVE_POWERED_NETLIST)
     }
 
     if { [info exists ::env(SAVE_DEF)] } {
