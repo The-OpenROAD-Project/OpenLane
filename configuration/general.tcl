@@ -16,6 +16,7 @@
 set ::env(CLOCK_PERIOD) "10.0"
 set ::env(USE_GPIO_PADS) 0
 set ::env(RSZ_DONT_TOUCH_RX) "$^"
+set ::env(RSZ_MULTICORNER_LIB) 1
 
 # Flow Controls
 set ::env(LEC_ENABLE) 0

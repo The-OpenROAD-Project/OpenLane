@@ -12,7 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -multi_corner_libs -override_libs "$::env(RSZ_LIB)"
+set read_args [list]
+if { $::env(RSZ_MULTICORNER_LIB) } {
+    lappend read_args -lib_fastest $::env(RSZ_LIB_FASTEST)
+    lappend read_args -lib_slowest $::env(RSZ_LIB_SLOWEST)
+}
+lappend read_args -lib_typical $::env(RSZ_LIB)
+read {*}$read_args
+puts "$read_args"
+exit 1
 
 unset_propagated_clock [all_clocks]
 
