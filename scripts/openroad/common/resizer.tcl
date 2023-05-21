@@ -26,8 +26,8 @@ proc set_dont_touch_wrapper {} {
                 set_dont_touch "$net_name"
             }
         }
-        for instance $odb_instances {
-            set instance_name [odb::dbInst_getInst $instance]
+        foreach instance $odb_instances {
+            set instance_name [odb::dbInst_getName $instance]
             if { [regexp "$pattern" $instance_name full] } {
                 puts "\[INFO\] Instance '$instance_name' matched don't touch regular expression, setting as don't touch..."
                 set_dont_touch "$instance_name"
@@ -44,13 +44,20 @@ proc unset_dont_touch_wrapper {} {
     if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && \
         ($::env(RSZ_USE_OLD_REMOVER) != 1 || $net_pattern != {^$}) } {
 
+        set pattern $::env(RSZ_DONT_TOUCH_RX)
         variable odb_block [[[::ord::get_db] getChip] getBlock]
         set odb_nets [odb::dbBlock_getNets $::odb_block]
         set odb_instances [odb::dbBlock_getInsts $odb_block]
         foreach net $odb_nets {
             set net_name [odb::dbNet_getName $net]
-            if { [regexp "$net_pattern" $net_name full] } {
+            if { [regexp "$pattern" $net_name full] } {
                 unset_dont_touch "$net_name"
+            }
+        }
+        foreach instance $odb_instances {
+            set instance_name [odb::dbInst_getName $instance]
+            if { [regexp "$pattern" $instance_name full] } {
+                unset_dont_touch "$instance_name"
             }
         }
     }
