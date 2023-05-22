@@ -20,6 +20,8 @@ foreach key [array names ::env] {
     set ::initial_env($key) $::env($key)
 }
 
+set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
+
 proc save_state {{start_comment "Saved State"}} {
     puts_info "Saving runtime environment..."
     set_and_log ::env(PDK_ROOT) $::env(PDK_ROOT)
