@@ -86,9 +86,10 @@ proc read_libs {args} {
     foreach corner_name [array name corner] {
         puts "read_liberty -corner $corner_name $corner($corner_name)"
         read_liberty -corner $corner_name $corner($corner_name)
-        if { [info exists flags(-no_extra)] } {
+        if { ![info exists flags(-no_extra)] } {
             if { [info exists ::env(EXTRA_LIBS) ] } {
                 foreach lib $::env(EXTRA_LIBS) {
+                    puts "read_liberty -corner $corner_name $lib"
                     read_liberty -corner $corner_name $lib
                 }
             }
