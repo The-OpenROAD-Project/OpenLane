@@ -140,7 +140,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `RSZ_LIB` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
-| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
+| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets or instances as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
+| `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> Default: Empty. |
 | `LIB_RESIZER_OPT` | **Deprecated: use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
 
 ### Placement
