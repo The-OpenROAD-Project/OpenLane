@@ -23,6 +23,11 @@ class NoGitException(Exception):
     pass
 
 
+# Slashes are not allowed in the container tag
+def canon(ref: str) -> str:
+    return ref.replace("/", "-")
+
+
 def get_tag() -> str:
     try:
         if os.path.exists("/git_version"):
@@ -51,7 +56,7 @@ def get_tag() -> str:
         branch_name = branch_name_data.stdout.decode("utf8").strip()
         if branch_name not in ["", "HEAD"]:
             if branch_name not in ["main", "master"]:
-                return f"{branch_name}-dev"
+                return canon(f"{branch_name}-dev")
 
         process_data: subprocess.CompletedProcess = subprocess.run(
             ["git", "rev-parse", "HEAD"],
@@ -62,7 +67,7 @@ def get_tag() -> str:
             raise NoGitException(
                 f"Failed to get commit.  Please specify OPENLANE_IMAGE_NAME manually.\nFull output: {process_data.stderr.decode('utf8').strip()}"
             )
-        return process_data.stdout.decode("utf8").strip()
+        return canon(process_data.stdout.decode("utf8").strip())
     except NoGitException as e:
         raise e
     except Exception as e:

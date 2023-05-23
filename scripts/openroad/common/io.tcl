@@ -88,9 +88,10 @@ proc read_libs {args} {
             puts "read_liberty -corner $corner_name $lib"
             read_liberty -corner $corner_name $lib
         }
-        if { [info exists flags(-no_extra)] } {
+        if { ![info exists flags(-no_extra)] } {
             if { [info exists ::env(EXTRA_LIBS) ] } {
                 foreach lib $::env(EXTRA_LIBS) {
+                    puts "read_liberty -corner $corner_name $lib"
                     read_liberty -corner $corner_name $lib
                 }
             }
@@ -250,7 +251,7 @@ proc read_spefs {} {
         foreach {module_name spef_file_min spef_file_nom spef_file_max} "$::env(EXTRA_SPEFS)" {
             set matched 0
             foreach cell [get_cells *] {
-                if { "[get_property $cell ref_name]" eq "$module_name" && !$matched } {
+                if { "[get_property $cell ref_name]" eq "$module_name"} {
                     puts "Matched [get_property $cell name] with $module_name"
                     set matched 1
                     foreach corner $corners {
