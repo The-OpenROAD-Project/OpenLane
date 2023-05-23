@@ -19,7 +19,6 @@ if { $::env(RSZ_MULTICORNER_LIB) } {
 }
 lappend read_args -lib_typical $::env(RSZ_LIB)
 read {*}$read_args
-puts "$read_args"
 
 unset_propagated_clock [all_clocks]
 
