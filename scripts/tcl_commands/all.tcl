@@ -785,6 +785,22 @@ proc prep {args} {
                 -drc_exclude_only
         }
 
+        if { ! [info exists ::env(LIB_CTS_FASTEST) ] } {
+            set ::env(LIB_CTS_FASTEST) $::env(cts_tmpfiles)/cts-fastest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_FASTEST)\
+                -input $::env(LIB_FASTEST)\
+                -drc_exclude_only
+        }
+
+        if { ! [info exists ::env(LIB_CTS_SLOWEST) ] } {
+            set ::env(LIB_CTS_SLOWEST) $::env(cts_tmpfiles)/cts-slowest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_SLOWEST)\
+                -input $::env(LIB_SLOWEST)\
+                -drc_exclude_only
+        }
+
         if { ! [info exists ::env(DONT_USE_CELLS)] } {
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
                 set drc_exclude_list "$::env(DRC_EXCLUDE_CELL_LIST) $::env(DRC_EXCLUDE_CELL_LIST_OPT)"
