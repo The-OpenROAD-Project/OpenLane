@@ -144,6 +144,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RSZ_LIB_SLOWEST` | Points to one or more lib files, corresponding to the slowest corner, that is used during resizer optimizations. <br> Default: `LIB_SLOWEST`. |
 | `RSZ_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during resizer optimizations. <br> Default: `1` |
 | `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
+| `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> Default: Empty. |
 | `LIB_RESIZER_OPT` | **Deprecated: use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
 
 ### Placement

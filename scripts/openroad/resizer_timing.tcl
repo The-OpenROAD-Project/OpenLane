@@ -24,7 +24,7 @@ set_propagated_clock [all_clocks]
 
 # set don't touch nets
 source $::env(SCRIPTS_DIR)/openroad/common/resizer.tcl
-set_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
+set_dont_touch_wrapper
 
 # set don't use cells
 if { [info exists ::env(DONT_USE_CELLS)] } {
@@ -65,7 +65,7 @@ if { [catch {check_placement -verbose} errmsg] } {
     exit 1
 }
 
-unset_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
+unset_dont_touch_wrapper
 
 write
 
