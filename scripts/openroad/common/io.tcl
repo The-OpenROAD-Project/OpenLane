@@ -84,8 +84,10 @@ proc read_libs {args} {
     define_corners {*}[array name corner]
 
     foreach corner_name [array name corner] {
-        puts "read_liberty -corner $corner_name $corner($corner_name)"
-        read_liberty -corner $corner_name $corner($corner_name)
+        foreach lib $corner($corner_name) {
+            puts "read_liberty -corner $corner_name $lib"
+            read_liberty -corner $corner_name $lib
+        }
         if { ![info exists flags(-no_extra)] } {
             if { [info exists ::env(EXTRA_LIBS) ] } {
                 foreach lib $::env(EXTRA_LIBS) {
@@ -99,8 +101,8 @@ proc read_libs {args} {
 
 proc read {args} {
     sta::parse_key_args "read" args \
-        keys {-override_libs}\
-        flags {-multi_corner_libs}
+        keys {-lib_fastest -lib_typical -lib_slowest} \
+        flags {}
 
     if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
         if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
@@ -121,14 +123,17 @@ proc read {args} {
 
     set read_libs_args [list]
 
-    if { [info exists keys(-override_libs)]} {
-        lappend read_libs_args -typical $keys(-override_libs)
+    if { [info exists keys(-lib_typical)]} {
+        lappend read_libs_args -typical "$keys(-lib_typical)"
     } else {
-        lappend read_libs_args -typical $::env(LIB_TYPICAL)
+        lappend read_libs_args -typical "$::env(LIB_TYPICAL)"
     }
 
-    if { [info exists flags(-multi_corner_libs)] } {
-        lappend read_libs_args -fastest $::env(LIB_FASTEST) -slowest $::env(LIB_SLOWEST)
+    if { [info exists keys(-lib_fastest)] } {
+        lappend read_libs_args -fastest "$keys(-lib_fastest)"
+    }
+    if { [info exists keys(-lib_slowest)] } {
+        lappend read_libs_args -slowest "$keys(-lib_slowest)"
     }
 
     read_libs {*}$read_libs_args

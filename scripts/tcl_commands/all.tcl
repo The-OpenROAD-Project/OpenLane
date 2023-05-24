@@ -758,24 +758,24 @@ proc prep {args} {
             -output $::env(LIB_SYNTH)\
             -input $::env(LIB_SYNTH_MERGED)
 
-        # trim resizer library
+        # set resizer library
+        # trimming behavior is done using DONT_USE_CELLS
         if { ! [info exists ::env(RSZ_LIB) ] } {
             set ::env(RSZ_LIB) [list]
-            foreach lib $::env(LIB_SYNTH_COMPLETE) {
-                set fbasename [file rootname [file tail $lib]]
-                set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
-                file copy -force $lib $lib_resizer
-                lappend ::env(RSZ_LIB) $lib_resizer
-            }
-
+            lappend ::env(RSZ_LIB) $::env(LIB_SYNTH_COMPLETE)
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                foreach lib $::env(LIB_SYNTH_OPT) {
-                    set fbasename [file rootname [file tail $lib]]
-                    set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
-                    file copy -force $lib $lib_resizer
-                    lappend ::env(RSZ_LIB) $lib_resizer
-                }
+                lappend ::env(RSZ_LIB) $::env(LIB_SYNTH_OPT)
             }
+        }
+
+        if { ! [info exists ::env(RSZ_LIB_FASTEST] } {
+            set ::env(RSZ_LIB_FASTEST) [list]
+            lappend ::env(RSZ_LIB_FASTEST) $::env(LIB_FASTEST)
+        }
+
+        if { ! [info exists ::env(RSZ_LIB_SLOWEST)] } {
+            set ::env(RSZ_LIB_SLOWEST) [list]
+            lappend ::env(RSZ_LIB_SLOWEST) $::env(LIB_SLOWEST)
         }
 
         # trim the lib for CTS to only exclude cells with drc errors
@@ -784,6 +784,22 @@ proc prep {args} {
             trim_lib\
                 -output $::env(LIB_CTS)\
                 -input $::env(LIB_SYNTH_COMPLETE)\
+                -drc_exclude_only
+        }
+
+        if { ! [info exists ::env(LIB_CTS_FASTEST) ] } {
+            set ::env(LIB_CTS_FASTEST) $::env(cts_tmpfiles)/cts-fastest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_FASTEST)\
+                -input $::env(LIB_FASTEST)\
+                -drc_exclude_only
+        }
+
+        if { ! [info exists ::env(LIB_CTS_SLOWEST) ] } {
+            set ::env(LIB_CTS_SLOWEST) $::env(cts_tmpfiles)/cts-slowest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_SLOWEST)\
+                -input $::env(LIB_SLOWEST)\
                 -drc_exclude_only
         }
 

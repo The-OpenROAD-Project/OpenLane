@@ -139,8 +139,11 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `RSZ_LIB` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
-| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets or instances as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
+| `RSZ_LIB` | Points to one or more lib files, corresponding to the typical corner, that is used during resizer optimizations. <br> Default: `LIB_SYNTH_COMPLETE`. |
+| `RSZ_LIB_FASTEST` | Points to one or more lib files, corresponding to the fastest corner, that is used during resizer optimizations. <br> Default: `LIB_FASTEST`. |
+| `RSZ_LIB_SLOWEST` | Points to one or more lib files, corresponding to the slowest corner, that is used during resizer optimizations. <br> Default: `LIB_SLOWEST`. |
+| `RSZ_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during resizer optimizations. <br> Default: `1` |
+| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
 | `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> Default: Empty. |
 | `LIB_RESIZER_OPT` | **Deprecated: use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
 
@@ -194,7 +197,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
 | `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
-| `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `LIB_CTS` | The liberty file used for CTS for typical corner. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `LIB_CTS_SLOWEST` | The liberty file used for CTS for slowest corner. By default, this is the `LIB_SLOWEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-slowest.lib`) |
+| `LIB_CTS_FASTEST` | The liberty file used for CTS for fastest corner. By default, this is the `LIB_FASTEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-fastest.lib`) |
+| `CTS_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during CTS. <br> (Default: `1`) |
 | `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
