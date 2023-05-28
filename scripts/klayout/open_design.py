@@ -97,7 +97,6 @@ try:
 
     cell_view = main_window.load_layout(input, layout_options, 0)
 
-    pya.Application.instance().exit(0)
 except Exception as e:
     print(e, file=sys.stderr)
 

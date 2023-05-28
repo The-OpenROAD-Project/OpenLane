@@ -102,7 +102,7 @@ proc read_libs {args} {
 proc read {args} {
     sta::parse_key_args "read" args \
         keys {-lib_fastest -lib_typical -lib_slowest} \
-        flags {}
+        flags {-no_spefs}
 
     if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
         if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
@@ -144,10 +144,13 @@ proc read {args} {
             exit 1
         }
     }
-    if { [info exists ::env(CURRENT_SPEF)] } {
-        if {[catch {read_spef $::env(CURRENT_SPEF)} errmsg]} {
-            puts stderr $errmsg
-            exit 1
+
+    if { ![info exist flags(-no_spefs)] } {
+        if { [info exists ::env(CURRENT_SPEF)] } {
+            if {[catch {read_spef $::env(CURRENT_SPEF)} errmsg]} {
+                puts stderr $errmsg
+                exit 1
+            }
         }
     }
 }
