@@ -29,9 +29,8 @@ proc are_insts_placed {} {
 if { [info exists ::env(GUI_PARASITICS)] } {
     if { [are_insts_placed] } {
         if { [grt::have_routes] } {
-            puts "Have routes"
             if { [info exists ::env(CURRENT_SPEF)] } {
-                puts "Reading '$::env(CURRENT_SPEF)' ..."
+                puts "Reading spefs ..."
                 read_spefs
             } else {
                 puts "Estimating global parastics ..."
