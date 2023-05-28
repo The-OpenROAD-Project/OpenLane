@@ -86,4 +86,5 @@ def gui(viewer, format, run_dir, stage):
         )
 
 
-gui()
+if __name__ == "__main__":
+    gui()
