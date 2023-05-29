@@ -26,7 +26,7 @@ def err(msg):
     default="odb",
     help="Layout format to view",
     show_default=True,
-    type=click.Choice(["def", "odb"]),
+    type=click.Choice(["def", "odb", "gds"]),
 )
 @click.option(
     "-s",
@@ -37,6 +37,10 @@ def err(msg):
 @click.argument("run_dir")
 def gui(viewer, format, run_dir, stage):
     """View specified layout from run_dir using supported viewers"""
+    if format == "gds":
+        err(
+            "OpenROAD does not support gds. Please use --format odb or --format def instead."
+        )
 
     run_config_file = os.path.join(run_dir, "config.tcl")
     if not os.path.exists(run_config_file):
@@ -66,9 +70,16 @@ def gui(viewer, format, run_dir, stage):
 
     elif viewer == "klayout":
         if format == "odb":
-            err("Klayout does not support odb. Please use --format def instead.")
+            err("KLayout does not support odb. Please use --format def instead.")
 
-        def_file = run_config["CURRENT_DEF"]
+        layout = run_config["CURRENT_{format.upper()}"]
+        if stage is not None:
+            matches = glob.glob(os.path.join(run_dir, "results", stage, f"*.{format}"))
+            if matches is []:
+                err(f"No {format} found for stage {stage}")
+            else:
+                layout = matches[0]
+
         subprocess.check_call(
             [
                 "python3",
@@ -81,7 +92,7 @@ def gui(viewer, format, run_dir, stage):
                 run_config["KLAYOUT_PROPERTIES"],
                 "--lym",
                 run_config["KLAYOUT_DEF_LAYER_MAP"],
-                def_file,
+                layout,
             ]
         )
 

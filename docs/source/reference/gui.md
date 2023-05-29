@@ -35,6 +35,6 @@ KLayout only supports def format.
 | Argument | Description |
 | - | - |
 | `--viewer <viewer>`<br>(Optional) | The layout viewer, or tool, to display the layout. Available viewers are OpenROAD and KLayout.<br>Default: OpenROAD. |
-| `--format <layout_format>`<br>(Optional) | The layout format to use. Available are `def` and `odb`. For KLayout, only `def` can be used.<br>Default: `def`. |
+| `--format <layout_format>`<br>(Optional) | The layout format to use. Available formats are `gds`, `def` and `odb`. `odb` is only supported by OpenROAD. `gds` is only supported by KLayout.<br>Default: `odb`. |
 | `--stage <stage>`<br>(Optional) | The flow stage to fetch the layout from. `cts`, `floorplan`, `placement`, `routing` and `signoff`.<br>Default: Latest layout produced by the flow. |
 
