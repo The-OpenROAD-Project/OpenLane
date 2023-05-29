@@ -40,7 +40,7 @@ def gui(viewer, format, run_dir, stage):
 
     run_config_file = os.path.join(run_dir, "config.tcl")
     if not os.path.exists(run_config_file):
-        err(f"Run config file does not exist.")
+        err("Run config file does not exist.")
 
     run_config = read_tcl_env(run_config_file)
 
