@@ -27,7 +27,7 @@ python3 gui.py --format def --viewer openroad --stage floorplan ./designs/spm/ru
 ```
 
 :::{note}
-KLayout only supports def view.
+KLayout only supports def format.
 :::
 
 ## Command-line interface (CLI)

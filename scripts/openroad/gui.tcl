@@ -27,7 +27,7 @@ proc are_insts_placed {} {
 }
 
 if { [info exists ::env(GUI_PARASITICS)] } {
-    if { [are_insts_placed] } {
+    if { [are_insts_placed] } { ;# grt::have_routes causes an error with results from floorplan so check if cells are placed
         if { [grt::have_routes] } {
             if { [info exists ::env(CURRENT_SPEF)] } {
                 puts "Reading spefs ..."
