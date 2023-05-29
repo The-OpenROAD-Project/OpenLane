@@ -768,7 +768,7 @@ proc prep {args} {
             }
         }
 
-        if { ! [info exists ::env(RSZ_LIB_FASTEST] } {
+        if { ! [info exists ::env(RSZ_LIB_FASTEST)] } {
             set ::env(RSZ_LIB_FASTEST) [list]
             lappend ::env(RSZ_LIB_FASTEST) $::env(LIB_FASTEST)
         }
@@ -841,19 +841,6 @@ proc prep {args} {
         set ::env(BASIC_PREP_COMPLETE) {1}
     }
 
-    # Fill config file with special cases
-    if { ! [info exists ::env(SYNTH_MAX_TRAN)] } {
-        if { [info exists ::env(CLOCK_PERIOD)] } {
-            if { [info exists ::env(DEFAULT_MAX_TRAN)] } {
-                set ::env(SYNTH_MAX_TRAN) [expr min([expr {0.1*$::env(CLOCK_PERIOD)}], $::env(DEFAULT_MAX_TRAN))]
-            } else {
-                set ::env(SYNTH_MAX_TRAN) [expr {0.1*$::env(CLOCK_PERIOD)}]
-            }
-        } else {
-            set ::env(SYNTH_MAX_TRAN) 0
-        }
-        set_and_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN)
-    }
     if { $::env(SYNTH_ELABORATE_ONLY) } {
         set_and_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl"
     }

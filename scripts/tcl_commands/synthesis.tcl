@@ -125,7 +125,7 @@ proc run_synthesis {args} {
                 && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
                 set pre_synth_report $::env(synth_report_prefix).chk.rpt
             }
-        run_synthesis_checkers $log $pre_synth_report
+            run_synthesis_checkers $log $pre_synth_report
         }
     }
     TIMER::timer_stop
@@ -248,7 +248,7 @@ proc run_verilator {} {
     set verilator_verified_scl "sky130_fd_sc_hd"
     set includes ""
     if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
-            [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
+        [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
         puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
         puts_warn "Either disable QUIT_ON_VERILATOR_ERRORS or remove the instantiated cells."
     } else {
