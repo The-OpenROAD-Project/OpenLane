@@ -61,7 +61,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 
 
 # ns expected (in sdc as well)
-set clock_period [expr {$::env(CLOCK_PERIOD)*1000}]
+set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
 
 set driver  $::env(SYNTH_DRIVING_CELL)
 set cload   $::env(SYNTH_CAP_LOAD)
@@ -129,7 +129,7 @@ set abc_map_new_area  	"amap,-m,-Q,0.1,-F,20,-A,20,-C,5000"
 if {$buffering==1} {
     set max_tr_arg ""
     if { $max_TR != 0 } {
-        set max_tr_arg = ",-S,${max_TR}"
+        set max_tr_arg ",-S,${max_TR}"
     }
     set abc_fine_tune		"buffer,-N,${max_FO}${max_tr_arg};upsize,{D};dnsize,{D}"
 } elseif {$sizing} {
