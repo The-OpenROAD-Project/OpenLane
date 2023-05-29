@@ -38,6 +38,7 @@ proc global_routing_fastroute {args} {
     set initial_guide [index_file $::env(routing_tmpfiles)/global.guide]
     set initial_odb [index_file $::env(routing_tmpfiles)/global.odb]
 
+    set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/groute-congestion.rpt
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
         -indexed_log $log\
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
@@ -445,6 +446,7 @@ proc run_resizer_design_routing {args} {
         set log [index_file $::env(routing_logs)/resizer_design.log]
         puts_info "Running Global Routing Resizer Design Optimizations (log: [relpath . $log])..."
 
+        set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/resizer-routing-design-congestion.rpt
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_design.tcl\
             -indexed_log $log\
             -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
@@ -464,6 +466,7 @@ proc run_resizer_timing_routing {args} {
         set log [index_file $::env(routing_logs)/resizer_timing.log]
         puts_info "Running Global Routing Resizer Timing Optimizations (log: [relpath . $log])..."
 
+        set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/resizer-routing-timing-congestion.rpt
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/resizer_routing_timing.tcl\
             -indexed_log $log\
             -save "dir=$::env(routing_tmpfiles),def,sdc,odb,netlist,powered_netlist"
