@@ -9,4 +9,5 @@ Reference Manual
    openlane_commands
    interactive_mode
    datapoint_definitions
+   gui
 

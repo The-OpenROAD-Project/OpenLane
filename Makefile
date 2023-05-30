@@ -91,6 +91,7 @@ endif
 ENV_START = docker run --rm\
 	-v $(OPENLANE_DIR):/openlane\
 	-v $(OPENLANE_DIR)/designs:/openlane/install\
+	-v $(HOME):$(HOME)\
 	$(PDK_OPTS)\
 	$(STD_CELL_OPTS)\
 	$(DOCKER_OPTIONS)

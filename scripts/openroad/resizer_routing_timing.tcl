@@ -38,6 +38,7 @@ source $::env(SCRIPTS_DIR)/openroad/common/set_layer_adjustments.tcl
 set arg_list [list]
 lappend arg_list -congestion_iterations $::env(GRT_OVERFLOW_ITERS)
 lappend arg_list -verbose
+lappend arg_list -congestion_report_file $::env(GRT_CONGESTION_REPORT_FILE)
 if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
     lappend arg_list -allow_congestion
 }
