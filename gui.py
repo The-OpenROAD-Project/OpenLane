@@ -1,3 +1,18 @@
+#!/usr/bin/env python3
+# Copyright 2023 Efabless Corporation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import click
 
 import os
@@ -23,9 +38,8 @@ def err(msg):
 @click.option(
     "-f",
     "--format",
-    default="odb",
-    help="Layout format to view",
-    show_default=True,
+    default=None,
+    help="Layout format to view [default: per-tool]",
     type=click.Choice(["def", "odb", "gds"]),
 )
 @click.option(
@@ -37,10 +51,6 @@ def err(msg):
 @click.argument("run_dir")
 def gui(viewer, format, run_dir, stage):
     """View specified layout from run_dir using supported viewers"""
-    if format == "gds":
-        err(
-            "OpenROAD does not support gds. Please use --format odb or --format def instead."
-        )
 
     run_config_file = os.path.join(run_dir, "config.tcl")
     if not os.path.exists(run_config_file):
@@ -49,6 +59,9 @@ def gui(viewer, format, run_dir, stage):
     run_config = read_tcl_env(run_config_file)
 
     if viewer == "openroad":
+        format = format or "odb"
+        if format in ["gds"]:
+            err(f"OpenROAD does not support {format}.")
         extra_config = {}
         if stage is not None:
             matches = glob.glob(os.path.join(run_dir, "results", stage, f"*.{format}"))
@@ -69,14 +82,15 @@ def gui(viewer, format, run_dir, stage):
         )
 
     elif viewer == "klayout":
-        if format == "odb":
-            err("KLayout does not support odb. Please use --format def instead.")
+        format = format or "gds"
+        if format in ["odb"]:
+            err(f"KLayout does not support {format}.")
 
-        layout = run_config["CURRENT_{format.upper()}"]
+        layout = run_config[f"CURRENT_{format.upper()}"]
         if stage is not None:
             matches = glob.glob(os.path.join(run_dir, "results", stage, f"*.{format}"))
-            if matches is []:
-                err(f"No {format} found for stage {stage}")
+            if len(matches) == 0:
+                err(f"No {format} found for stage {stage}: see --help for more formats")
             else:
                 layout = matches[0]
 
