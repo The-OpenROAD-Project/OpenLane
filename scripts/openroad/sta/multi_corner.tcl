@@ -25,6 +25,13 @@ if { [file tail [info nameofexecutable]] == "sta" } {
     if { $::env(STA_MULTICORNER_READ_LIBS) } {
         read_libs {*}$arg_list
         read_netlist ;# also reads sdc
+        set corners [sta::corners]
+        if { [info exists ::env(CURRENT_SPEF)] } {
+            foreach corner $corners {
+                puts "read_spef -corner [$corner name] $::env(CURRENT_SPEF)"
+                read_spef -corner [$corner name] $::env(CURRENT_SPEF)
+            }
+        }
     } else {
         read_libs -no_extra {*}$arg_list
         read_netlist -all ;# also reads sdc
