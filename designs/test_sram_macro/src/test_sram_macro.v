@@ -41,9 +41,9 @@ sky130_sram_1kbyte_1rw1r_32x256_8 sram0(
     .din0(datain[31:0]),
     .dout0(dataout_int[31:0]),
 
-    .clk1(0),
-    .csb1(1),
-    .addr1(0),
+    .clk1(1'b0),
+    .csb1(1'b1),
+    .addr1(1'b0),
     .dout1(dout1[31:0])
 );
 
@@ -56,9 +56,9 @@ sky130_sram_1kbyte_1rw1r_32x256_8 sram1(
     .din0(datain[63:32]),
     .dout0(dataout_int[63:32]),
 
-    .clk1(0),
-    .csb1(1),
-    .addr1(0),
+    .clk1(1'b0),
+    .csb1(1'b1),
+    .addr1(1'b0),
     .dout1(dout1[63:32])
 );
 

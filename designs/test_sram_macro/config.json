@@ -7,12 +7,16 @@
 
     "FP_SIZING": "absolute",
     "DIE_AREA": "0 0 750 1250",
-    "PL_TARGET_DENSITY": 0.5,
+    "PL_TARGET_DENSITY": 0.25,
+    "GRT_ADJUSTMEJT": 0.25,
 
     "VDD_NETS": "vccd1",
     "GND_NETS": "vssd1",
 
     "FP_PDN_MACRO_HOOKS": "submodule.sram0 vccd1 vssd1 vccd1 vssd1, submodule.sram1 vccd1 vssd1 vccd1 vssd1",
+    "PL_MACRO_HALO": "25 25",
+    "FP_PDN_HORIZONTAL_HALO": 25,
+    "FP_PDN_VERTICAL_HALO": 25,
     
     "MACRO_PLACEMENT_CFG": "dir::macro_placement.cfg",
 
