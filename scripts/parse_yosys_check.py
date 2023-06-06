@@ -66,9 +66,9 @@ def parse_yosys_check(
     >>> rpt = io.StringIO(MULTIPLE_FAILURES); parse_yosys_check(rpt, True, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
     True
     >>> rpt = io.StringIO(NO_TRISTATE); parse_yosys_check(rpt, True, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
-    False
+    True
     >>> rpt = io.StringIO(NO_TRISTATE); parse_yosys_check(rpt, False, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
-    False
+    True
     >>> rpt = io.StringIO(TRISTATE_ONLY); parse_yosys_check(rpt, True, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
     False
     >>> rpt = io.StringIO(TRISTATE_ONLY); parse_yosys_check(rpt, False, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
@@ -78,7 +78,7 @@ def parse_yosys_check(
     error_encountered = False
     current_warning = None
     for line in report:
-        if line.startswith("Warning:"):
+        if line.startswith("Warning:") or line.startswith("Found and reported"):
             if current_warning is not None:
                 if tristate_okay and "tribuf" in current_warning:
                     log("Ignoring tristate-related error:")
