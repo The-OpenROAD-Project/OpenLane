@@ -273,6 +273,7 @@ proc run_verilator {} {
     set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
     lappend arg_list {*}$arg
     try_exec bash -c "verilator \
+        --timing \
         --lint-only \
         -Wall \
         --Wno-DECLFILENAME \
