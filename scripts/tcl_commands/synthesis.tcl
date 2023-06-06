@@ -257,10 +257,12 @@ proc run_verilator {} {
             set includes "$includes $model"
         }
     }
-    set log $::env(synthesis_logs)/verilator.log
+    set log $::env(synthesis_logs)/linter.log
     puts_info "Running Linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
-    lappend arg_list {*}$includes
+    if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
+        lappend arg_list {*}$includes
+    }
     lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
         lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
@@ -269,6 +271,26 @@ proc run_verilator {} {
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
     }
+    if { $::env(LINTER_TIMING_CONSTRUCTS) } {
+        lappend arg_list "--timing"
+    } else {
+        lappend arg_list "--no-timing"
+    }
+
+    set defines ""
+    if { [info exists ::env(LINTER_DEFINES)] } {
+        foreach override $::env(LINTER_DEFINES) {
+            if { [string first = $override] != -1 } {
+                set kva [split $override '=']
+                set key [lindex $kva 0]
+                set value [lindex $kva 1]
+                set defines "$defines +define+$key=$value"
+            } else {
+                set defines "$defines +define+$override"
+            }
+        }
+    }
+    lappend arg_list {*}$defines
 
     set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
     lappend arg_list {*}$arg
@@ -276,6 +298,7 @@ proc run_verilator {} {
         --lint-only \
         -Wall \
         --Wno-DECLFILENAME \
+        --dump-defines \
         --top-module $::env(DESIGN_NAME) \
         $arg_list"
 
