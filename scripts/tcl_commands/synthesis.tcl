@@ -298,7 +298,6 @@ proc run_verilator {} {
         --lint-only \
         -Wall \
         --Wno-DECLFILENAME \
-        --dump-defines \
         --top-module $::env(DESIGN_NAME) \
         $arg_list"
 
