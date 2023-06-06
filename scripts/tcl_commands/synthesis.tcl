@@ -250,15 +250,15 @@ proc run_verilator {} {
     if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
         [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
         puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
-        puts_warn "Either disable QUIT_ON_VERILATOR_ERRORS or remove the instantiated cells."
+        puts_warn "Either disable QUIT_ON_LINTER_ERRORS or remove the instantiated cells."
     } else {
         set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
         foreach model $pdk_verilog_models {
-            set includes "$includes -I $model"
+            set includes "$includes $model"
         }
     }
     set log $::env(synthesis_logs)/verilator.log
-    puts_info "Running Verilator (log: [relpath . $log])..."
+    puts_info "Running Linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
     lappend arg_list {*}$includes
     lappend arg_list {*}$::env(VERILOG_FILES)
@@ -266,7 +266,7 @@ proc run_verilator {} {
         lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
     }
     lappend arg_list -Wno-fatal
-    if { $::env(VERILATOR_RELATIVE_INCLUDES) } {
+    if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
     }
 
@@ -281,23 +281,23 @@ proc run_verilator {} {
 
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
     if { [expr $errors_count > 0] } {
-        if { $::env(QUIT_ON_VERILATOR_ERRORS) } {
-            puts_err "$errors_count errors found by Verilator"
+        if { $::env(QUIT_ON_LINTER_ERRORS) } {
+            puts_err "$errors_count errors found by Linter"
             throw_error
         }
-        puts_warn "$errors_count errors found by Verilator"
+        puts_warn "$errors_count errors found by Linter"
     } else {
-        puts_info "$errors_count errors found by Verilator"
+        puts_info "$errors_count errors found by Linter"
     }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
     if { [expr $warnings_count > 0] } {
-        if { $::env(QUIT_ON_VERILATOR_WARNINGS) } {
-            puts_err "$warnings_count warnings found by Verilator"
+        if { $::env(QUIT_ON_LINTER_WARNINGS) } {
+            puts_err "$warnings_count warnings found by Linter"
             throw_error
         }
-        puts_warn "$warnings_count warnings found by Verilator"
+        puts_warn "$warnings_count warnings found by Linter"
     } else {
-        puts_info "$warnings_count warnings found by Verilator"
+        puts_info "$warnings_count warnings found by Linter"
     }
 }
 
