@@ -674,27 +674,10 @@ proc prep {args} {
 
     puts_info "Run Directory: $::env(RUN_DIR)"
 
-    if { [file exists $::env(GLB_CFG_FILE)] } {
-        if { [info exists flags_map(-overwrite)] } {
-            puts_info "Removing existing $::env(RUN_DIR)..."
-            after 1000
-            file delete -force $::env(RUN_DIR)
-        } else {
-            if { ![info exists flags_map(-last_run)] } {
-                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-                after 1000
-            }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
-            source $::env(GLB_CFG_FILE)
-            if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
-                puts_info "Current ODB: $::env(CURRENT_ODB)"
-                puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
-            }
-            after 1000
-            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
-                set skip_basic_prep 1
-            }
-        }
+    if { [file exists $::env(RUN_DIR)] } {
+        puts_info "Removing existing $::env(RUN_DIR)..."
+        after 1000
+        file delete -force $::env(RUN_DIR)
     }
 
     # file mkdir works like shell mkdir -p, i.e., its OK if it already exists
