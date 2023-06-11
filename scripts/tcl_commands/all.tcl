@@ -674,10 +674,15 @@ proc prep {args} {
 
     puts_info "Run Directory: $::env(RUN_DIR)"
 
-    if { [file exists $::env(RUN_DIR)] } {
-        puts_info "Removing existing $::env(RUN_DIR)..."
-        after 1000
-        file delete -force $::env(RUN_DIR)
+    if { [file exists $::env(GLB_CFG_FILE)] } {
+        if { [info exists flags_map(-overwrite)] } {
+            puts_info "Removing existing $::env(RUN_DIR)..."
+            after 1000
+            file delete -force $::env(RUN_DIR)
+        } else {
+            puts_err "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
+            after 1000
+        }
     }
 
     # file mkdir works like shell mkdir -p, i.e., its OK if it already exists

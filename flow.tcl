@@ -157,7 +157,7 @@ proc run_non_interactive_mode {args} {
         {-save_path optional}
         {-override_env optional}
     }
-    set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui -overwrite}
+    set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
     if { [info exists arg_values(-from) ] || [info exists arg_values(-to)] } {
@@ -167,12 +167,6 @@ proc run_non_interactive_mode {args} {
 
     if { [info exists flags_map(-gui)] } {
         puts_warn "Flag -gui is now deprecated. Refer to https://openlane.readthedocs.io/en/latest/reference/gui.html to view files graphically.
-Please rerun without it."
-        return
-    }
-
-    if { [info exists flags_map(-overwrite)] } {
-        puts_warn "Flag -overwrite is now deprecated. The default behaviour now is removing the run. Please file an issue if you think there is a value for the flag.
 Please rerun without it."
         return
     }
