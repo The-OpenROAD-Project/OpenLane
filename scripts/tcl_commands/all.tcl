@@ -681,7 +681,6 @@ proc prep {args} {
             file delete -force $::env(RUN_DIR)
         } else {
             puts_err "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it or use a different tag"
-            after 1000
             throw_error
         }
     }

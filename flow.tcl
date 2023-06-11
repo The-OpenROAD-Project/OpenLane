@@ -166,8 +166,7 @@ proc run_non_interactive_mode {args} {
     }
 
     if { [info exists flags_map(-gui)] } {
-        puts_warn "Flag -gui is now deprecated. Refer to https://openlane.readthedocs.io/en/latest/reference/gui.html to view files graphically.
-Please rerun without it."
+        puts_warn "Flag -gui is now deprecated. Refer to https://openlane.readthedocs.io/en/latest/reference/gui.html to view files graphically."
         return
     }
 
