@@ -271,11 +271,6 @@ proc run_verilator {} {
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
     }
-    if { $::env(LINTER_TIMING_CONSTRUCTS) } {
-        lappend arg_list "--timing"
-    } else {
-        lappend arg_list "--no-timing"
-    }
 
     set defines ""
     if { [info exists ::env(LINTER_DEFINES)] } {
@@ -301,25 +296,35 @@ proc run_verilator {} {
         --top-module $::env(DESIGN_NAME) \
         $arg_list"
 
+    set timing_errors [exec bash -c "grep -i 'Error-NEEDTIMINGOPT' $log || true"]
+    if { $timing_errors ne "" } {
+        set msg "Timing constructs found in the RTL. Please remove them or wrap them around an ifdef. It heavily unrecommended to rely on timing constructs for synthesis."
+        if { $::env(QUIT_ON_LINTER_ERRORS) } {
+            puts_err $msg
+        } else {
+            puts_warn $msg
+        }
+    }
+
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
     if { [expr $errors_count > 0] } {
         if { $::env(QUIT_ON_LINTER_ERRORS) } {
-            puts_err "$errors_count errors found by Linter"
+            puts_err "$errors_count errors found by then Linter"
             throw_error
         }
-        puts_warn "$errors_count errors found by Linter"
+        puts_warn "$errors_count errors found by then Linter"
     } else {
-        puts_info "$errors_count errors found by Linter"
+        puts_info "$errors_count errors found by then Linter"
     }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
     if { [expr $warnings_count > 0] } {
         if { $::env(QUIT_ON_LINTER_WARNINGS) } {
-            puts_err "$warnings_count warnings found by Linter"
+            puts_err "$warnings_count warnings found by then Linter"
             throw_error
         }
-        puts_warn "$warnings_count warnings found by Linter"
+        puts_warn "$warnings_count warnings found by then Linter"
     } else {
-        puts_info "$warnings_count warnings found by Linter"
+        puts_info "$warnings_count warnings found by then Linter"
     }
 }
 
