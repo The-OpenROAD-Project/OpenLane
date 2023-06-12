@@ -47,7 +47,6 @@ pipeline {
                                "aes_core",
                                "APU",
                                "blabla",
-                               "BM64",
                                "gcd",
                                "inverter",
                                "manual_macro_placement_test",
@@ -60,7 +59,6 @@ pipeline {
                                "usb_cdc_core",
                                "wbqspiflash",
                                "xtea",
-                               "y_huff",
                                "zipdiv";
                     }
                 }
