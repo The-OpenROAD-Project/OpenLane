@@ -47,6 +47,7 @@ pipeline {
                                "aes_core",
                                "APU",
                                "blabla",
+                               "'BM64 -override_env QUIT_ON_VERILATOR_ERRORS=0'",
                                "gcd",
                                "inverter",
                                "manual_macro_placement_test",
@@ -59,6 +60,7 @@ pipeline {
                                "usb_cdc_core",
                                "wbqspiflash",
                                "xtea",
+                               "'y_huff -override_env QUIT_ON_SYNTH_CHECKS=0'",
                                "zipdiv";
                     }
                 }
