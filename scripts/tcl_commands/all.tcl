@@ -1144,7 +1144,7 @@ proc write_verilog {args} {
         {-indexed_log optional}
         {-powered_to optional}
     }
-    set flags {}
+    set flags {-no_global_connect}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
@@ -1161,6 +1161,10 @@ proc write_verilog {args} {
         set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
 
+    if { [info exists flags_map(-no_global_connect)] } {
+        set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 1
+    }
+
     set arg_list [list]
     lappend arg_list -indexed_log $arg_values(-indexed_log)
     lappend arg_list -save $save_arg
@@ -1174,6 +1178,10 @@ proc write_verilog {args} {
         {*}$arg_list
 
     set $::env(CURRENT_DEF) $current_def_backup
+
+    if { [info exists flags_map(-no_global_connect)] } {
+        set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 0
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"

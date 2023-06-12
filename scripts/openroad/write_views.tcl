@@ -13,4 +13,8 @@
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
-write
+if { $::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) } {
+    write -no_global_connect
+} else {
+    write
+}
