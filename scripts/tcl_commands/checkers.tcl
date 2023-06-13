@@ -18,8 +18,12 @@ proc check_synth_misc {report} {
         return
     }
     set arg_list [list]
-    if { !$::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
+    if { $::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
         lappend arg_list --tristate-okay
+    }
+    if { [info exists $::env(TRISTATE_CELL_PREFIX)] } {
+        lappend arg_list "--tristate-cell-prefix"
+        lappend arg_list "$::env(TRISTATE_CELL_PREFIX)"
     }
     if { [catch {exec python3 $::env(SCRIPTS_DIR)/parse_yosys_check.py {*}$arg_list $report} err] } {
         puts_err "Yosys checks have failed: $err"

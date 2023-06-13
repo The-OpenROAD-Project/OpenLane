@@ -59,6 +59,7 @@ def parse_yosys_check(
     report: io.TextIOBase,
     tristate_okay: bool = False,
     quiet: bool = False,
+    tristate_cell_prefix: str = "",
 ) -> bool:
     """
     >>> rpt = io.StringIO(MULTIPLE_FAILURES); parse_yosys_check(rpt, False, True) #doctest: +REPORT_NDIFF +NORMALIZE_WHITESPACE
@@ -80,7 +81,10 @@ def parse_yosys_check(
     for line in report:
         if line.startswith("Warning:") or line.startswith("Found and reported"):
             if current_warning is not None:
-                if tristate_okay and "tribuf" in current_warning:
+                if tristate_okay and (
+                    "tribuf" in current_warning
+                    or tristate_cell_prefix in current_warning
+                ):
                     log("Ignoring tristate-related error:")
                     log(current_warning)
                 else:
@@ -101,16 +105,17 @@ def parse_yosys_check(
     default=False,
     help="Ignore check warnings related to use of tri-state buffers.",
 )
+@click.option("--tristate-cell-prefix", default="", help="Prefix of tristate cell")
 @click.argument(
     "report",
     required=True,
 )
-def cli(tristate_okay, report):
+def cli(tristate_okay, report, tristate_cell_prefix):
     """
     Takes output of yosys check command, generated using tee -o <report> check.
     Then checks if the warnings generated belong to tristate buffers only
     """
-    if parse_yosys_check(open(report), tristate_okay):
+    if parse_yosys_check(open(report), tristate_okay, tristate_cell_prefix):
         exit(2)
     else:
         exit(0)
