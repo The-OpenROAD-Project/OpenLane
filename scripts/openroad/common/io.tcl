@@ -273,7 +273,5 @@ proc read_spefs {} {
                 exit 1
             }
         }
-    } else {
-        puts "Extra spefs not defined"
     }
 }
