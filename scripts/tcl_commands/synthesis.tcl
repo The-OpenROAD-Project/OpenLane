@@ -274,15 +274,12 @@ proc run_verilator {} {
 
     set defines ""
     if { [info exists ::env(LINTER_DEFINES)] } {
-        foreach override $::env(LINTER_DEFINES) {
-            if { [string first = $override] != -1 } {
-                set kva [split $override '=']
-                set key [lindex $kva 0]
-                set value [lindex $kva 1]
-                set defines "$defines +define+$key=$value"
-            } else {
-                set defines "$defines +define+$override"
-            }
+        foreach define $::env(LINTER_DEFINES) {
+            set defines "$defines +define+$override"
+        }
+    } elseif { [info exists ::env(SYNTH_DEFINES)] } {
+        foreach define $::env(SYNTH_DEFINES) {
+            set defines "$defines +define+$override"
         }
     }
     lappend arg_list {*}$defines
