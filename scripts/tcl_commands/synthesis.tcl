@@ -301,6 +301,7 @@ proc run_verilator {} {
         set msg "Timing constructs found in the RTL. Please remove them or wrap them around an ifdef. It heavily unrecommended to rely on timing constructs for synthesis."
         if { $::env(QUIT_ON_LINTER_ERRORS) } {
             puts_err $msg
+            throw_error
         } else {
             puts_warn $msg
         }
