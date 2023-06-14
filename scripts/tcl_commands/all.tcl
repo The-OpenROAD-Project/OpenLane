@@ -680,20 +680,8 @@ proc prep {args} {
             after 1000
             file delete -force $::env(RUN_DIR)
         } else {
-            if { ![info exists flags_map(-last_run)] } {
-                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-                after 1000
-            }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
-            source $::env(GLB_CFG_FILE)
-            if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
-                puts_info "Current ODB: $::env(CURRENT_ODB)"
-                puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
-            }
-            after 1000
-            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
-                set skip_basic_prep 1
-            }
+            puts_err "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it or use a different tag"
+            throw_error
         }
     }
 

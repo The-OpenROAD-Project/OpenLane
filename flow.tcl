@@ -165,13 +165,14 @@ proc run_non_interactive_mode {args} {
         exit -1
     }
 
+    if { [info exists flags_map(-gui)] } {
+        puts_err "Flag -gui is now deprecated. Refer to https://openlane.readthedocs.io/en/latest/reference/gui.html to view files graphically."
+        throw_error
+    }
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
-    if { [info exists flags_map(-gui)] } {
-        or_gui
-        return
-    }
     if { [info exists arg_values(-override_env)] } {
         load_overrides $arg_values(-override_env)
     }
