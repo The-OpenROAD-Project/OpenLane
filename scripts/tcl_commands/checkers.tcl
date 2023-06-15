@@ -21,7 +21,7 @@ proc check_synth_misc {report} {
     if { $::env(SYNTH_CHECKS_ALLOW_TRISTATE) } {
         lappend arg_list --tristate-okay
     }
-    if { [info exists $::env(TRISTATE_CELL_PREFIX)] } {
+    if { [info exists ::env(TRISTATE_CELL_PREFIX)] } {
         lappend arg_list "--tristate-cell-prefix"
         lappend arg_list "$::env(TRISTATE_CELL_PREFIX)"
     }
