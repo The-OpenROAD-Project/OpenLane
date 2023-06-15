@@ -13,6 +13,7 @@
     - spm
     - gcd
     - caravel_upw
+    - aes_user_project_wrapper
 - scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
   designs:
