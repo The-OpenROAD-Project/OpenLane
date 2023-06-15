@@ -82,8 +82,11 @@ def parse_yosys_check(
         if line.startswith("Warning:") or line.startswith("Found and reported"):
             if current_warning is not None:
                 if tristate_okay and (
-                    "tribuf" in current_warning
-                    or tristate_cell_prefix in current_warning
+                    ("tribuf" in current_warning)
+                    or (
+                        tristate_cell_prefix != ""
+                        and tristate_cell_prefix in current_warning
+                    )
                 ):
                     log("Ignoring tristate-related error:")
                     log(current_warning)
@@ -115,7 +118,9 @@ def cli(tristate_okay, report, tristate_cell_prefix):
     Takes output of yosys check command, generated using tee -o <report> check.
     Then checks if the warnings generated belong to tristate buffers only
     """
-    if parse_yosys_check(open(report), tristate_okay, tristate_cell_prefix):
+    if parse_yosys_check(
+        open(report), tristate_okay, tristate_cell_prefix=tristate_cell_prefix
+    ):
         exit(2)
     else:
         exit(0)
