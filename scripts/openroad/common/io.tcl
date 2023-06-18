@@ -253,17 +253,17 @@ proc read_spefs {} {
     if { [info exists ::env(EXTRA_SPEFS)] } {
         foreach {module_name spef_file_min spef_file_nom spef_file_max} "$::env(EXTRA_SPEFS)" {
             set matched 0
-            foreach cell [get_cells *] {
+            foreach cell [get_cells * -hierarchical] {
                 if { "[get_property $cell ref_name]" eq "$module_name"} {
-                    puts "Matched [get_property $cell name] with $module_name"
+                    puts "Matched [get_property $cell full_name] with $module_name"
                     set matched 1
                     foreach corner $corners {
                         if { $::env(PROCESS_CORNER) eq "nom" } {
-                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_nom
+                            read_spef -path [get_property $cell full_name] -corner [$corner name] $spef_file_nom
                         } elseif { $::env(PROCESS_CORNER) eq "min" } {
-                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_min
+                            read_spef -path [get_property $cell full_name] -corner [$corner name] $spef_file_min
                         } elseif { $::env(PROCESS_CORNER) eq "max" } {
-                            read_spef -path [get_property $cell name] -corner [$corner name] $spef_file_max
+                            read_spef -path [get_property $cell full_name] -corner [$corner name] $spef_file_max
                         }
                     }
                 }
