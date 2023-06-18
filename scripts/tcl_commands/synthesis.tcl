@@ -258,7 +258,7 @@ proc run_verilator {} {
         }
     }
     set log $::env(synthesis_logs)/linter.log
-    puts_info "Running Linter (Verilator) (log: [relpath . $log])..."
+    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
     if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
         lappend arg_list {*}$includes
@@ -307,22 +307,22 @@ proc run_verilator {} {
     set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
     if { [expr $errors_count > 0] } {
         if { $::env(QUIT_ON_LINTER_ERRORS) } {
-            puts_err "$errors_count errors found by then Linter"
+            puts_err "$errors_count errors found by linter"
             throw_error
         }
-        puts_warn "$errors_count errors found by then Linter"
+        puts_warn "$errors_count errors found by linter"
     } else {
-        puts_info "$errors_count errors found by then Linter"
+        puts_info "$errors_count errors found by linter"
     }
     set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
     if { [expr $warnings_count > 0] } {
         if { $::env(QUIT_ON_LINTER_WARNINGS) } {
-            puts_err "$warnings_count warnings found by then Linter"
+            puts_err "$warnings_count warnings found by linter"
             throw_error
         }
-        puts_warn "$warnings_count warnings found by then Linter"
+        puts_warn "$warnings_count warnings found by linter"
     } else {
-        puts_info "$warnings_count warnings found by then Linter"
+        puts_info "$warnings_count warnings found by linter"
     }
 }
 
