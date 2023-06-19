@@ -364,9 +364,14 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
 
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-    splitnets
-    opt_clean -purge
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+    if { $::env(SYNTH_SPLITNETS) } {
+        splitnets
+        opt_clean -purge
+    }
+
+    if { $::env(SYNTH_BUFFER_DIRECT_WIRES) } {
+        insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+    }
 
     set stat_libs ""
     foreach stat_lib "$::env(LIB_SYNTH_NO_PG)" {

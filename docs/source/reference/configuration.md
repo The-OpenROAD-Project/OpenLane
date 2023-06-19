@@ -67,6 +67,9 @@ These variables are optional that can be specified in the design configuration f
 | `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
 | `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0` )|
 | `IO_PCT` | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
+| `SYNTH_BUFFER_DIRECT_WIRES` | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
+| `SYNTH_SPLITNETS` | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
+
 
 ### STA
 
