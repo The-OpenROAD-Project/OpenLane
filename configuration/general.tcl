@@ -24,7 +24,7 @@ set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(RUN_FILL_INSERTION) 1
 set ::env(RUN_TAP_DECAP_INSERTION) 1
-set ::env(RUN_VERILATOR) 1
+set ::env(RUN_LINTER) 1
 
 ## Intentionally Undocumented
 set ::env(RSZ_USE_OLD_REMOVER) 0
