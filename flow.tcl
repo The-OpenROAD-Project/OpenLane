@@ -144,7 +144,7 @@ proc run_timing_check_step {args} {
 }
 
 proc run_verilator_step {} {
-    if { $::env(RUN_VERILATOR) } {
+    if { $::env(RUN_LINTER) } {
         run_verilator
     }
 }

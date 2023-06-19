@@ -653,6 +653,10 @@ proc prep {args} {
     handle_deprecated_config FP_PDN_UPPER_LAYER FP_PDN_HORIZONTAL_LAYER
     handle_deprecated_config FP_PDN_LOWER_LAYER FP_PDN_VERTICAL_LAYER
     handle_deprecated_config PDN_CFG FP_PDN_CFG
+    handle_deprecated_config QUIT_ON_VERILATOR_WARNINGS QUIT_ON_LINTER_WARNINGS
+    handle_deprecated_config QUIT_ON_VERILATOR_ERRORS QUIT_ON_LINTER_ERRORS
+    handle_deprecated_config RUN_VERILATOR RUN_LINTER
+    handle_deprecated_config VERILATOR_RELATIVE_INCLUDES LINTER_RELATIVE_INCLUDES
 
     handle_diode_insertion_strategy
 
