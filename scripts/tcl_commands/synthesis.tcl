@@ -275,11 +275,11 @@ proc run_verilator {} {
     set defines ""
     if { [info exists ::env(LINTER_DEFINES)] } {
         foreach define $::env(LINTER_DEFINES) {
-            set defines "$defines +define+$override"
+            set defines "$defines +define+$define"
         }
     } elseif { [info exists ::env(SYNTH_DEFINES)] } {
         foreach define $::env(SYNTH_DEFINES) {
-            set defines "$defines +define+$override"
+            set defines "$defines +define+$define"
         }
     }
     lappend arg_list {*}$defines
