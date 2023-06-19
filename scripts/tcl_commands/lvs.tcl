@@ -106,6 +106,7 @@ proc write_powered_verilog {args} {
         $arg_values(-output_nl)\
         -powered_to $arg_values(-output_pnl)\
         -def $arg_values(-output_def)\
+        -no_global_connect \
         -indexed_log $log
 
     TIMER::timer_stop

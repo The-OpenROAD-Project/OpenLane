@@ -21,6 +21,8 @@ set ::env(SYNTH_CLOCK_TRANSITION) 0.15
 set ::env(SYNTH_TIMING_DERATE) 0.05
 set ::env(SYNTH_SHARE_RESOURCES) 1
 set ::env(SYNTH_BUFFERING) 1
+set ::env(SYNTH_SPLITNETS) 1
+set ::env(SYNTH_BUFFER_DIRECT_WIRES) 1
 set ::env(SYNTH_SIZING) 0
 set ::env(SYNTH_MAX_FANOUT) 10
 set ::env(SYNTH_STRATEGY) "AREA 0"
@@ -33,3 +35,4 @@ set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
 
 set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
+

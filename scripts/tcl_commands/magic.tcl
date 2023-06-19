@@ -60,8 +60,12 @@ proc run_magic {args} {
         copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).mag
     }
 
+    TIMER::timer_stop
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
+
     if { $::env(MAGIC_GENERATE_LEF) } {
         # Generate LEF view
+        TIMER::timer_start
         set ::env(MAGTYPE) maglef
         set log [index_file $::env(signoff_logs)/lef.log]
         puts_info "Generating lef with Magic ($log)..."
@@ -80,9 +84,9 @@ proc run_magic {args} {
             # By default, copy the GDS properties into the maglef/ view
             copy_gds_properties $::env(signoff_tmpfiles)/gds_ptrs.mag $::env(signoff_results)/$::env(DESIGN_NAME).lef.mag
         }
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "lef - magic"
     }
-    TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - magic"
 }
 
 proc run_magic_drc {args} {

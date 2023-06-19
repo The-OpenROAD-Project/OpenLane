@@ -125,7 +125,7 @@ proc run_synthesis {args} {
                 && $::env(SYNTH_ELABORATE_ONLY) == 1 } {
                 set pre_synth_report $::env(synth_report_prefix).chk.rpt
             }
-        run_synthesis_checkers $log $pre_synth_report
+            run_synthesis_checkers $log $pre_synth_report
         }
     }
     TIMER::timer_stop
@@ -149,7 +149,8 @@ proc run_synthesis {args} {
         -log $::env(synthesis_logs)/sta.log \
         -netlist_in \
         -pre_cts \
-        -save_to $::env(synthesis_results)
+        -save_to $::env(synthesis_results) \
+        -tool sta
 
     set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(synthesis_reports)/syn_sta]
 
@@ -240,6 +241,89 @@ proc logic_equiv_check {args} {
     puts_info "$::env(LEC_LHS_NETLIST) and $::env(LEC_RHS_NETLIST) are proven equivalent"
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
+}
+
+proc run_verilator {} {
+    set verilator_verified_pdks "sky130A sky130B"
+    set verilator_verified_scl "sky130_fd_sc_hd"
+    set includes ""
+    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
+        [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
+        puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
+        puts_warn "Either disable QUIT_ON_LINTER_ERRORS or remove the instantiated cells."
+    } else {
+        set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
+        foreach model $pdk_verilog_models {
+            set includes "$includes $model"
+        }
+    }
+    set log $::env(synthesis_logs)/linter.log
+    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
+    set arg_list [list]
+    if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
+        lappend arg_list {*}$includes
+    }
+    lappend arg_list {*}$::env(VERILOG_FILES)
+    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+        lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
+    }
+    lappend arg_list -Wno-fatal
+    if { $::env(LINTER_RELATIVE_INCLUDES) } {
+        lappend arg_list "--relative-includes"
+    }
+
+    set defines ""
+    if { [info exists ::env(LINTER_DEFINES)] } {
+        foreach define $::env(LINTER_DEFINES) {
+            set defines "$defines +define+$define"
+        }
+    } elseif { [info exists ::env(SYNTH_DEFINES)] } {
+        foreach define $::env(SYNTH_DEFINES) {
+            set defines "$defines +define+$define"
+        }
+    }
+    lappend arg_list {*}$defines
+
+    set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
+    lappend arg_list {*}$arg
+    try_exec bash -c "verilator \
+        --lint-only \
+        -Wall \
+        --Wno-DECLFILENAME \
+        --top-module $::env(DESIGN_NAME) \
+        $arg_list"
+
+    set timing_errors [exec bash -c "grep -i 'Error-NEEDTIMINGOPT' $log || true"]
+    if { $timing_errors ne "" } {
+        set msg "Timing constructs found in the RTL. Please remove them or wrap them around an ifdef. It heavily unrecommended to rely on timing constructs for synthesis."
+        if { $::env(QUIT_ON_LINTER_ERRORS) } {
+            puts_err $msg
+            throw_error
+        } else {
+            puts_warn $msg
+        }
+    }
+
+    set errors_count [exec bash -c "grep -i '%Error' $log | wc -l"]
+    if { [expr $errors_count > 0] } {
+        if { $::env(QUIT_ON_LINTER_ERRORS) } {
+            puts_err "$errors_count errors found by linter"
+            throw_error
+        }
+        puts_warn "$errors_count errors found by linter"
+    } else {
+        puts_info "$errors_count errors found by linter"
+    }
+    set warnings_count [exec bash -c "grep -i '%Warning' $log | wc -l"]
+    if { [expr $warnings_count > 0] } {
+        if { $::env(QUIT_ON_LINTER_WARNINGS) } {
+            puts_err "$warnings_count warnings found by linter"
+            throw_error
+        }
+        puts_warn "$warnings_count warnings found by linter"
+    } else {
+        puts_info "$warnings_count warnings found by linter"
+    }
 }
 
 package provide openlane 0.9

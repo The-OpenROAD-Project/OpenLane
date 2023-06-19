@@ -15,15 +15,20 @@
 package require json
 package require openlane_utils
 
-proc save_state {args} {
-    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
+# Initial Copy
+foreach key [array names ::env] {
+    set ::initial_env($key) $::env($key)
+}
+
+set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
+
+proc save_state {{start_comment "Saved State"}} {
     puts_info "Saving runtime environment..."
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
+    set_and_log ::env(PDK_ROOT) $::env(PDK_ROOT)
+    exec echo "# $start_comment" > $::env(GLB_CFG_FILE)
     foreach index [lsort [array names ::env]] {
-        if { $index != "INIT_ENV_VAR_ARRAY" && $index != "PS1" } {
-            set escaped_env_var [string map {\" \\\"} $::env($index)]
-            set escaped_env_var [string map {\$ \\\$} $escaped_env_var]
-            set_log ::env($index) $escaped_env_var $::env(GLB_CFG_FILE) 1
+        if { ![info exists ::initial_env($index)] || $index == "PDK" || $index == "STD_CELL_LIBRARY" } {
+            set_and_log ::env($index) $::env($index)
         }
     }
 }
@@ -477,9 +482,6 @@ proc prep {args} {
         exit -1
     }
 
-    # Storing the current state of environment variables
-    set ::env(INIT_ENV_VAR_ARRAY) [split [array names ::env] " "]
-
     # Output
     set_if_unset arg_values(-verbose) "0"
     set_verbose $arg_values(-verbose)
@@ -578,8 +580,8 @@ proc prep {args} {
         puts_info "Optimization Standard Cell Library: $::env(STD_CELL_LIBRARY_OPT)"
     }
 
-    if {![info exists ::env(PDN_CFG)]} {
-        set ::env(PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
+    if {![info exists ::env(FP_PDN_CFG)]} {
+        set ::env(FP_PDN_CFG) $::env(SCRIPTS_DIR)/openroad/common/pdn_cfg.tcl
     }
 
     set scl_config $::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/config.tcl
@@ -646,6 +648,16 @@ proc prep {args} {
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
 
+    handle_deprecated_config CLOCK_TREE_SYNTH RUN_CTS
+    handle_deprecated_config FP_PDN_RAILS_LAYER FP_PDN_RAIL_LAYER
+    handle_deprecated_config FP_PDN_UPPER_LAYER FP_PDN_HORIZONTAL_LAYER
+    handle_deprecated_config FP_PDN_LOWER_LAYER FP_PDN_VERTICAL_LAYER
+    handle_deprecated_config PDN_CFG FP_PDN_CFG
+    handle_deprecated_config QUIT_ON_VERILATOR_WARNINGS QUIT_ON_LINTER_WARNINGS
+    handle_deprecated_config QUIT_ON_VERILATOR_ERRORS QUIT_ON_LINTER_ERRORS
+    handle_deprecated_config RUN_VERILATOR RUN_LINTER
+    handle_deprecated_config VERILATOR_RELATIVE_INCLUDES LINTER_RELATIVE_INCLUDES
+
     handle_diode_insertion_strategy
 
     #
@@ -672,20 +684,8 @@ proc prep {args} {
             after 1000
             file delete -force $::env(RUN_DIR)
         } else {
-            if { ![info exists flags_map(-last_run)] } {
-                puts_warn "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it."
-                after 1000
-            }
-            puts_info "Sourcing $::env(GLB_CFG_FILE). Note that any changes to the DESIGN config file will NOT be applied."
-            source $::env(GLB_CFG_FILE)
-            if { [info exists ::env(CURRENT_ODB)] && $::env(CURRENT_ODB) != 0 } {
-                puts_info "Current ODB: $::env(CURRENT_ODB)"
-                puts_info "Use 'set_odb file_name.odb' if you'd like to change it."
-            }
-            after 1000
-            if { [info exists ::env(BASIC_PREP_COMPLETE)] && "$::env(BASIC_PREP_COMPLETE)" == "1"} {
-                set skip_basic_prep 1
-            }
+            puts_err "A run for $::env(DESIGN_NAME) with tag '$tag' already exists. Pass the -overwrite option to overwrite it or use a different tag"
+            throw_error
         }
     }
 
@@ -723,16 +723,7 @@ proc prep {args} {
     set density $::env(PL_TARGET_DENSITY)
 
     # Fill config file
-    puts_verbose "Storing configs into config.tcl ..."
-    exec echo "# Run configs" > $::env(GLB_CFG_FILE)
-    set_log ::env(PDK_ROOT) $::env(PDK_ROOT) $::env(GLB_CFG_FILE) 1
-    foreach index [lsort [array names ::env]] {
-        if { $index != "INIT_ENV_VAR_ARRAY" } {
-            if { $index ni $::env(INIT_ENV_VAR_ARRAY) } {
-                set_log ::env($index) $::env($index) $::env(GLB_CFG_FILE) 1
-            }
-        }
-    }
+    save_state "Initial Config"
 
     # Process LEFs and LIB files
     if { ! $skip_basic_prep } {
@@ -759,24 +750,24 @@ proc prep {args} {
             -output $::env(LIB_SYNTH)\
             -input $::env(LIB_SYNTH_MERGED)
 
-        # trim resizer library
+        # set resizer library
+        # trimming behavior is done using DONT_USE_CELLS
         if { ! [info exists ::env(RSZ_LIB) ] } {
             set ::env(RSZ_LIB) [list]
-            foreach lib $::env(LIB_SYNTH_COMPLETE) {
-                set fbasename [file rootname [file tail $lib]]
-                set lib_resizer $::env(synthesis_tmpfiles)/resizer_$fbasename.lib
-                file copy -force $lib $lib_resizer
-                lappend ::env(RSZ_LIB) $lib_resizer
-            }
-
+            lappend ::env(RSZ_LIB) $::env(LIB_SYNTH_COMPLETE)
             if { $::env(STD_CELL_LIBRARY_OPT) != $::env(STD_CELL_LIBRARY) } {
-                foreach lib $::env(LIB_SYNTH_OPT) {
-                    set fbasename [file rootname [file tail $lib]]
-                    set lib_resizer $::env(synthesis_tmpfiles)/resizer_opt_$fbasename.lib
-                    file copy -force $lib $lib_resizer
-                    lappend ::env(RSZ_LIB) $lib_resizer
-                }
+                lappend ::env(RSZ_LIB) $::env(LIB_SYNTH_OPT)
             }
+        }
+
+        if { ! [info exists ::env(RSZ_LIB_FASTEST)] } {
+            set ::env(RSZ_LIB_FASTEST) [list]
+            lappend ::env(RSZ_LIB_FASTEST) $::env(LIB_FASTEST)
+        }
+
+        if { ! [info exists ::env(RSZ_LIB_SLOWEST)] } {
+            set ::env(RSZ_LIB_SLOWEST) [list]
+            lappend ::env(RSZ_LIB_SLOWEST) $::env(LIB_SLOWEST)
         }
 
         # trim the lib for CTS to only exclude cells with drc errors
@@ -785,6 +776,22 @@ proc prep {args} {
             trim_lib\
                 -output $::env(LIB_CTS)\
                 -input $::env(LIB_SYNTH_COMPLETE)\
+                -drc_exclude_only
+        }
+
+        if { ! [info exists ::env(LIB_CTS_FASTEST) ] } {
+            set ::env(LIB_CTS_FASTEST) $::env(cts_tmpfiles)/cts-fastest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_FASTEST)\
+                -input $::env(LIB_FASTEST)\
+                -drc_exclude_only
+        }
+
+        if { ! [info exists ::env(LIB_CTS_SLOWEST) ] } {
+            set ::env(LIB_CTS_SLOWEST) $::env(cts_tmpfiles)/cts-slowest.lib
+            trim_lib\
+                -output $::env(LIB_CTS_SLOWEST)\
+                -input $::env(LIB_SLOWEST)\
                 -drc_exclude_only
         }
 
@@ -826,54 +833,35 @@ proc prep {args} {
         set ::env(BASIC_PREP_COMPLETE) {1}
     }
 
-    # Fill config file with special cases
-    if { ! [info exists ::env(SYNTH_MAX_TRAN)] } {
-        if { [info exists ::env(CLOCK_PERIOD)] } {
-            if { [info exists ::env(DEFAULT_MAX_TRAN)] } {
-                set ::env(SYNTH_MAX_TRAN) [expr min([expr {0.1*$::env(CLOCK_PERIOD)}], $::env(DEFAULT_MAX_TRAN))]
-            } else {
-                set ::env(SYNTH_MAX_TRAN) [expr {0.1*$::env(CLOCK_PERIOD)}]
-            }
-        } else {
-            set ::env(SYNTH_MAX_TRAN) 0
-        }
-        set_log ::env(SYNTH_MAX_TRAN) $::env(SYNTH_MAX_TRAN) $::env(GLB_CFG_FILE) 1
-    }
     if { $::env(SYNTH_ELABORATE_ONLY) } {
-        set_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl" $::env(GLB_CFG_FILE) 0
+        set_and_log ::env(SYNTH_SCRIPT) "$::env(SCRIPTS_DIR)/yosys/elaborate.tcl"
     }
-    set_log ::env(SYNTH_OPT) 0 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_INIT_COEFF) 0.00002 $::env(GLB_CFG_FILE) 0
-    set_log ::env(PL_IO_ITER) 5 $::env(GLB_CFG_FILE) 0
+    set_and_log ::env(SYNTH_OPT) 0
+    set_and_log ::env(PL_INIT_COEFF) 0.00002
+    set_and_log ::env(PL_IO_ITER) 5
 
     if { ! [info exists ::env(CURRENT_INDEX)] } {
-        set ::env(CURRENT_INDEX) 0
-        set_log ::env(CURRENT_INDEX) $::env(CURRENT_INDEX) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_INDEX) 0
     }
 
     if { ! [info exists ::env(CURRENT_DEF)] } {
-        set ::env(CURRENT_DEF) 0
-        set_log ::env(CURRENT_DEF) $::env(CURRENT_DEF) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_DEF) 0
     }
 
     if { ! [info exists ::env(CURRENT_GUIDE)] } {
-        set ::env(CURRENT_GUIDE) 0
-        set_log ::env(CURRENT_GUIDE) $::env(CURRENT_GUIDE) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_GUIDE) 0
     }
 
     if { ! [info exists ::env(CURRENT_NETLIST)] } {
-        set ::env(CURRENT_NETLIST) 0
-        set_log ::env(CURRENT_NETLIST) $::env(CURRENT_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_NETLIST) 0
     }
 
     if { ! [info exists ::env(CURRENT_POWERED_NETLIST)] } {
-        set ::env(CURRENT_POWERED_NETLIST) 0
-        set_log ::env(CURRENT_POWERED_NETLIST) $::env(CURRENT_POWERED_NETLIST) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_POWERED_NETLIST) 0
     }
 
     if { ! [info exists ::env(CURRENT_ODB)] } {
-        set ::env(CURRENT_ODB) 0
-        set_log ::env(CURRENT_ODB) $::env(CURRENT_ODB) $::env(GLB_CFG_FILE) 1
+        set_and_log ::env(CURRENT_ODB) 0
     }
 
     if { [file exists $::env(PDK_ROOT)/$::env(PDK)/SOURCES] } {
@@ -1148,7 +1136,7 @@ proc write_verilog {args} {
         {-indexed_log optional}
         {-powered_to optional}
     }
-    set flags {}
+    set flags {-no_global_connect}
     parse_key_args "write_verilog" args arg_values $options flags_map $flags
 
     set_if_unset arg_values(-indexed_log) /dev/null
@@ -1165,6 +1153,10 @@ proc write_verilog {args} {
         set save_arg "$save_arg,powered_netlist=$arg_values(-powered_to)"
     }
 
+    if { [info exists flags_map(-no_global_connect)] } {
+        set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 1
+    }
+
     set arg_list [list]
     lappend arg_list -indexed_log $arg_values(-indexed_log)
     lappend arg_list -save $save_arg
@@ -1178,6 +1170,10 @@ proc write_verilog {args} {
         {*}$arg_list
 
     set $::env(CURRENT_DEF) $current_def_backup
+
+    if { [info exists flags_map(-no_global_connect)] } {
+        set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 0
+    }
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "write verilog - openroad"

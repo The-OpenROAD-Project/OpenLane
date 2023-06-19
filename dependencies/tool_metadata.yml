@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 1d8fcca09bdbfad1066b78c3a6ac9742043f7d13
+  commit: 482d7534a27c51d0d1c8a466494680d185d334ee
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -43,6 +43,14 @@
     make clean
     make -j$(nproc) vlog2Verilog
     cp vlog2Verilog $PREFIX/bin
+- name: verilator
+  repo: https://github.com/verilator/verilator
+  commit: 947402bc57625106e1387255772fdb5d850a6c65
+  build: |
+    autoconf
+    ./configure --prefix=$PREFIX
+    make
+    make install
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
   commit: 101075611fc5698739180017bf96b1abf140c8e7
@@ -57,7 +65,7 @@
   in_install: false
 - name: openroad_app
   repo: https://github.com/The-OpenROAD-Project/OpenROAD
-  commit: 6840b7481d49c83870f79646cf979e66f22f6833
+  commit: 8d56294a54f42e0844ddf36cf7847f371bdb792a
   in_install: false
 - name: git
   repo: https://github.com/git/git
@@ -65,6 +73,6 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: 0c37b7c76527929abfbdbd214df4bffcd260bf50
+  commit: af3485525297d5cbe93c129ea853da2d588fac41
   in_install: false
   pdk: true

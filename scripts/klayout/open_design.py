@@ -96,8 +96,9 @@ try:
     layout_options.lefdef_config.map_file = lym
 
     cell_view = main_window.load_layout(input, layout_options, 0)
+    layout_view = cell_view.view()
+    layout_view.load_layer_props(lyp)
 
-    pya.Application.instance().exit(0)
 except Exception as e:
     print(e, file=sys.stderr)
 

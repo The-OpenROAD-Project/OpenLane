@@ -1,7 +1,7 @@
 {
     "DESIGN_NAME": "inverter",
     "VERILOG_FILES": "dir::src/*.v",
-    "CLOCK_TREE_SYNTH": false,
+    "RUN_CTS": false,
     "CLOCK_PORT": null,
     "PL_RANDOM_GLB_PLACEMENT": true,
     "CLOCK_PERIOD": 1,
@@ -15,7 +15,9 @@
     "FP_PDN_AUTO_ADJUST": false,
     "TEST_FLOAT_REF": "expr::$CLOCK_PERIOD",
     "TEST_FLOAT_CALC": "expr::2 * $CLOCK_PERIOD",
-    "TEST_POTENTIALLY_MALICIOUS_VARIABLE": "\t\\};puts hi;{\"\"\"''''",
+    "TEST_MALICIOUS_VAR_0": "\t\\};puts hi;[puts hi];{\"\"\"''''",
+    "TEST_MALICIOUS_VAR_1": "\n\nputs hi;\n\n\u0010potato\n",
     "TEST_INTERNAL_GLOB": "dir::../1506/src/*",
-    "TEST_EXTERNAL_GLOB": "dir::../*"
+    "TEST_EXTERNAL_GLOB": "dir::../*",
+    "TEST_REGEX": "x\\.y"
 }

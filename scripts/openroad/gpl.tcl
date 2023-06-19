@@ -71,14 +71,3 @@ lappend arg_list -init_wirelength_coef $::env(PL_WIRELENGTH_COEF)
 global_placement {*}$arg_list
 
 write
-
-if {[info exists ::env(CLOCK_PORT)]} {
-	if { $::env(PL_ESTIMATE_PARASITICS) == 1 } {
-		unset_propagated_clock [all_clocks]
-		# set rc values
-		source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
-		estimate_parasitics -placement
-	}
-} else {
-	puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
-}

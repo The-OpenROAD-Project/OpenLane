@@ -12,13 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -override_libs "$::env(RSZ_LIB)"
+set read_args [list]
+if { $::env(RSZ_MULTICORNER_LIB) } {
+    lappend read_args -lib_fastest $::env(RSZ_LIB_FASTEST)
+    lappend read_args -lib_slowest $::env(RSZ_LIB_SLOWEST)
+}
+lappend read_args -lib_typical $::env(RSZ_LIB)
+read {*}$read_args
 
 set_propagated_clock [all_clocks]
 
 # set don't touch nets
 source $::env(SCRIPTS_DIR)/openroad/common/resizer.tcl
-set_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
+set_dont_touch_wrapper
 
 # set don't use cells
 if { [info exists ::env(DONT_USE_CELLS)] } {
@@ -59,9 +65,16 @@ if { [catch {check_placement -verbose} errmsg] } {
     exit 1
 }
 
-unset_dont_touch_rx "$::env(RSZ_DONT_TOUCH_RX)"
+unset_dont_touch_wrapper
 
 write
 
 # Run post timing optimizations STA
 estimate_parasitics -placement
+
+puts "area_report"
+puts "\n==========================================================================="
+puts "report_design_area"
+puts "============================================================================"
+report_design_area
+puts "area_report_end"

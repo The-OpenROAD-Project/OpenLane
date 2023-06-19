@@ -19,10 +19,10 @@ proc run_cts {args} {
     if { ! [info exists ::env(CLOCK_PORT)] && ! [info exists ::env(CLOCK_NET)] } {
         puts_info "::env(CLOCK_PORT) is not set"
         puts_warn "Skipping CTS..."
-        set ::env(CLOCK_TREE_SYNTH) 0
+        set ::env(RUN_CTS) 0
     }
 
-    if {$::env(CLOCK_TREE_SYNTH)} {
+    if {$::env(RUN_CTS)} {
         increment_index
         TIMER::timer_start
         set log [index_file $::env(cts_logs)/cts.log]
@@ -48,7 +48,7 @@ proc run_cts {args} {
         scrot_klayout -layout $::env(CURRENT_DEF) -log $::env(cts_logs)/screenshot.log
 
         if { [info exists ::env(CTS_REPORT_TIMING)] && $::env(CTS_REPORT_TIMING) } {
-            run_sta -no_save $::env(cts_results) -log $::env(cts_logs)/sta.log
+            run_sta -estimate_placement -no_save $::env(cts_results) -log $::env(cts_logs)/cts_sta.log
         }
     }
 }

@@ -61,18 +61,16 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 
 
 # ns expected (in sdc as well)
-set clock_period [expr {$::env(CLOCK_PERIOD)*1000}]
+set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
 
 set driver  $::env(SYNTH_DRIVING_CELL)
 set cload   $::env(SYNTH_CAP_LOAD)
 # input pin cap of IN_3VX8
 set max_FO $::env(SYNTH_MAX_FANOUT)
-if {![info exist ::env(SYNTH_MAX_TRAN)]} {
-    set ::env(SYNTH_MAX_TRAN) [expr {0.1*$clock_period}]
-} else {
-    set ::env(SYNTH_MAX_TRAN) [expr {$::env(SYNTH_MAX_TRAN) * 1000}]
+set max_TR 0
+if { [info exist ::env(SYNTH_MAX_TRAN)]} {
+    set max_TR [expr {$::env(SYNTH_MAX_TRAN) * 1000}]; # ns -> ps
 }
-set max_Tran $::env(SYNTH_MAX_TRAN)
 
 
 # Mapping parameters
@@ -129,7 +127,11 @@ set abc_retime_dly    	"retime,-D,{D},-M,6"
 set abc_map_new_area  	"amap,-m,-Q,0.1,-F,20,-A,20,-C,5000"
 
 if {$buffering==1} {
-    set abc_fine_tune		"buffer,-N,${max_FO},-S,${max_Tran};upsize,{D};dnsize,{D}"
+    set max_tr_arg ""
+    if { $max_TR != 0 } {
+        set max_tr_arg ",-S,${max_TR}"
+    }
+    set abc_fine_tune		"buffer,-N,${max_FO}${max_tr_arg};upsize,{D};dnsize,{D}"
 } elseif {$sizing} {
     set abc_fine_tune       "upsize,{D};dnsize,{D}"
 } else {
@@ -362,9 +364,14 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
 
     hilomap -hicell {*}$::env(SYNTH_TIEHI_PORT) -locell {*}$::env(SYNTH_TIELO_PORT)
 
-    splitnets
-    opt_clean -purge
-    insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+    if { $::env(SYNTH_SPLITNETS) } {
+        splitnets
+        opt_clean -purge
+    }
+
+    if { $::env(SYNTH_BUFFER_DIRECT_WIRES) } {
+        insbuf -buf {*}$::env(SYNTH_MIN_BUF_PORT)
+    }
 
     set stat_libs ""
     foreach stat_lib "$::env(LIB_SYNTH_NO_PG)" {

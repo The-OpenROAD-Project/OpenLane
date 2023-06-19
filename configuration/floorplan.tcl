@@ -20,11 +20,6 @@ set ::env(FP_CORE_UTIL) 50
 # PL_TARGET_DENSITY default value set in all.tcl because of the order of sourcing.
 set ::env(FP_ASPECT_RATIO) 1
 
-set ::env(FP_PDN_VOFFSET) 16.32
-set ::env(FP_PDN_VPITCH) 153.6
-set ::env(FP_PDN_HOFFSET) 16.65
-set ::env(FP_PDN_HPITCH) 153.18
-
 set ::env(FP_PDN_SKIPTRIM) 0
 
 set ::env(FP_PDN_AUTO_ADJUST) 1

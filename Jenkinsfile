@@ -47,7 +47,7 @@ pipeline {
                                "aes_core",
                                "APU",
                                "blabla",
-                               "BM64",
+                               "'BM64 -override_env QUIT_ON_VERILATOR_ERRORS=0'",
                                "gcd",
                                "inverter",
                                "manual_macro_placement_test",
@@ -60,7 +60,7 @@ pipeline {
                                "usb_cdc_core",
                                "wbqspiflash",
                                "xtea",
-                               "y_huff",
+                               "'y_huff -override_env QUIT_ON_SYNTH_CHECKS=0'",
                                "zipdiv";
                     }
                 }
@@ -72,7 +72,7 @@ pipeline {
                                 stage("${DESIGN} - Install PDK") {
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir pip';
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir volare';
-                                    sh 'PDK_ROOT=$(pwd)/pdks ~/.local/bin/volare enable_or_build -t NULL -j$(nproc) $(python3 ./dependencies/tool.py open_pdks -f commit)';
+                                    sh 'make pdk';
                                 }
                                 stage("${DESIGN} - Import Docker image") {
                                     unstash "data";

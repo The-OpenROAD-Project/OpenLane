@@ -46,8 +46,9 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_AUTONAME` | Add a synthesis step to generate names for instances. This results in instance names that can be very long, but may be more useful than the internal names that are six digit numbers. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_BIN` | The yosys binary used in the flow. <br> (Default: `yosys`) |
 | `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `33.5` ff)|
+| `SYNTH_DEFINES` | Specifies verilog defines. Variable should be provided as a json/tcl list. <br> (Default: NONE) |
 | `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `10` cells) |
-| `SYNTH_MAX_TRAN` | The max transition time (slew) from high to low or low to high on cell inputs in ns. Used in synthesis <br> (Default: Calculated at runtime as `10%` of the provided clock period, unless this exceeds a set DEFAULT_MAX_TRAN, in which case it will be used as is). |
+| `SYNTH_MAX_TRAN` | The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
 | `SYNTH_CLOCK_UNCERTAINTY`  | Specifies a value for the clock uncertainty/jitter for timing analysis. <br> (Default: `0.25`) |
 | `SYNTH_CLOCK_TRANSITION`  |  Specifies a value for the clock transition /slew for timing analysis. <br> (Default: `0.15`) |
 | `SYNTH_TIMING_DERATE`  | Specifies a derating factor to multiply the path delays with. It specifies the upper and lower ranges of timing. <br> (Default: `+5%/-5%`) |
@@ -66,11 +67,15 @@ These variables are optional that can be specified in the design configuration f
 | `VERILOG_INCLUDE_DIRS` | Specifies the verilog includes directories. <br> Optional. |
 | `SYNTH_FLAT_TOP` | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0` )|
 | `IO_PCT` | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
+| `SYNTH_BUFFER_DIRECT_WIRES` | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
+| `SYNTH_SPLITNETS` | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
+
 
 ### STA
 
 | Variable | Description |
 |-|-|
+| `STA_REPORT_POWER` | Enables reporting power in sta. <br> (Default: `1`) |
 | `EXTRA_SPEFS` | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
 | `STA_WRITE_LIB` | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
@@ -86,10 +91,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_MODE`  | Decides the mode of the random IO placement option. 0=matching mode, 1=random equidistant mode <br> (Default: `1`)|
 | `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. |
 | `FP_ENDCAP_CELL`  | The name of the endcap cell during endcap insertion. |
-| `FP_PDN_VOFFSET`  | The offset of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `16.32`) |
-| `FP_PDN_VPITCH`  | The pitch of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `153.6`) |
-| `FP_PDN_HOFFSET`  | The offset of the horizontal power stripes on the metal layer 5 in the power distribution network <br> (Default: `16.65`) |
-| `FP_PDN_HPITCH`  | The pitch of the horizontal power stripes on the metal layer 5 in the power distribution network <br> (Default: `153.18`) |
+| `FP_PDN_CFG` | Points to a pdn configuration file that describes how to construct the pdn in detail.  <br> (Default: `scripts/openroad/common/pdn_cfg.tcl`) |
 | `FP_PDN_AUTO_ADJUST` | Decides whether or not the flow should attempt to re-adjust the power grid, in order for it to fit inside the core area of the design, if needed. <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_PDN_SKIPTRIM` | Enables `-skip_trim` option during pdngen which skips the metal trim step, which attempts to remove metal stubs <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_TAPCELL_DIST`  | The horizontal distance between two tapcell columns <br> (Default: `14`) |
@@ -105,6 +107,7 @@ These variables are optional that can be specified in the design configuration f
 | `LEFT_MARGIN_MULT`       | The core margin, in multiples of site widths, from the left boundary. If `FP_SIZING` is absolute and `CORE_AREA` is set, this variable has no effect.  <br> (Default: `12`) |
 | `RIGHT_MARGIN_MULT`      | The core margin, in multiples of site widths, from the right boundary. If `FP_SIZING` is absolute and `CORE_AREA` is set, this variable has no effect.   <br> (Default: `12`) |
 | `FP_PDN_CORE_RING` | Enables adding a core ring around the design. More details on the control variables in the pdk configurations documentation. 0=Disable 1=Enable. <br> (Default: `0`) |
+| `FP_PDN_ENABLE_GLOBAL_CONNECTIONS`  | Enables power connection to std cells. It is rare that this variable needs to be disabled <br> (Default: `1`) |
 | `FP_PDN_ENABLE_RAILS` | Enables the creation of rails in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_PDN_ENABLE_MACROS_GRID` | Enables the connection of macros to the top level power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. As a comma-delimited ([warning](#on-comma-delimited-variables)) list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>`  |
@@ -138,8 +141,12 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `RSZ_LIB` | Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
+| `RSZ_LIB` | Points to one or more lib files, corresponding to the typical corner, that is used during resizer optimizations. <br> Default: `LIB_SYNTH_COMPLETE`. |
+| `RSZ_LIB_FASTEST` | Points to one or more lib files, corresponding to the fastest corner, that is used during resizer optimizations. <br> Default: `LIB_FASTEST`. |
+| `RSZ_LIB_SLOWEST` | Points to one or more lib files, corresponding to the slowest corner, that is used during resizer optimizations. <br> Default: `LIB_SLOWEST`. |
+| `RSZ_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during resizer optimizations. <br> Default: `1` |
 | `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
+| `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> Default: Empty. |
 | `LIB_RESIZER_OPT` | **Deprecated: use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
 
 ### Placement
@@ -153,6 +160,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_RANDOM_GLB_PLACEMENT` | Specifies whether the placer should run random placement or not. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_RANDOM_INITIAL_PLACEMENT` | Specifies whether the placer should run random placement or not followed by replace's initial placement. This is useful if the design is tiny (less than 100 cells). 0 = false, 1 = true <br> (Default: `0`) |
 | `PL_ROUTABILITY_DRIVEN` | Specifies whether the placer should use routability driven placement. 0 = false, 1 = true <br> (Default: `1`) |
+| `PL_RESIZER_TIE_SEPERATION` | Distance between load and an inserted tie cell in microns. <br> (Default: `0`)|
 | `PL_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed or not. 0 = false, 1 = true <br> (Default: `1`) |
 | `PL_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
@@ -183,7 +191,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `200`ps)|
-| `CLOCK_TREE_SYNTH` | Enable clock tree synthesis. <br> (Default: `1`)|
+| `RUN_CTS` | Enable clock tree synthesis. <br> (Default: `1`)|
 | `CTS_TOLERANCE` | An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 | `CTS_SINK_CLUSTERING_SIZE` | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
@@ -191,7 +199,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
 | `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
-| `LIB_CTS` | The liberty file used for CTS. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `LIB_CTS` | The liberty file used for CTS for typical corner. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `LIB_CTS_SLOWEST` | The liberty file used for CTS for slowest corner. By default, this is the `LIB_SLOWEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-slowest.lib`) |
+| `LIB_CTS_FASTEST` | The liberty file used for CTS for fastest corner. By default, this is the `LIB_FASTEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-fastest.lib`) |
+| `CTS_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during CTS. <br> (Default: `1`) |
 | `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
@@ -265,7 +276,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `MAGIC_WRITE_FULL_LEF` | A flag to specify whether or not the output LEF should include all shapes inside the macro or an abstracted view of the macro lef view via magic. 1 = Full View, 0 = Abstracted View  <br> (Default: `0` )|
 | `MAGIC_DRC_USE_GDS` | A flag to choose whether to run the magic DRC checks on GDS or not. If not, then the checks will be done on the DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
 | `MAGIC_EXT_USE_GDS` | A flag to choose whether to run the magic extractions on GDS or DEF/LEF. If GDS was used Device Level LVS will be run. Otherwise, blackbox LVS will be run. 1 = GDS, 0 = DEF/LEF  <br> (Default: `0` )|
-| `MAGIC_LEF_WRITE_USE_GDS` | A flag to choose whether to run the magic lef write on GDS or DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `1` )|
+| `MAGIC_LEF_WRITE_USE_GDS` | A flag to choose whether to run the magic lef write on GDS or DEF/LEF. 1 = GDS, 0 = DEF/LEF  <br> (Default: `0` )|
 | `MAGIC_INCLUDE_GDS_POINTERS` | A flag to choose whether to include GDS pointers in the generated mag files or not. 1 = Enabled, 0 = Disabled  <br> (Default: `0` )|
 | `MAGIC_DISABLE_HIER_GDS` | A flag to disable cif hier and array during GDSII writing.* 1=Enabled `<so this hier gds will be disabled>`, 0=Disabled `<so this hier gds will be enabled>`. <br> (Default: `1` )|
 | `MAGIC_DEF_NO_BLOCKAGES` | A flag to choose whether blockages are read with DEF files or not (they are read as a sheet of metal by Magic). 1 = No Blockages, 0 = Blockages as Metal Sheets  <br> (Default: `1` )|
@@ -321,6 +332,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
 | `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
+| `RUN_LINTER` | Enable linter (currently Verilator) <br> (Default: `1`)
 | `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
 | `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
@@ -342,6 +354,14 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_MAGIC_DRC` | Checks for DRC violations after magic DRC is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_ILLEGAL_OVERLAPS` | Checks for illegal overlaps during magic extraction. In some cases, these imply existing undetected shorts in the design. It also exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `QUIT_ON_LVS_ERROR` | Checks for LVS errors after netgen LVS is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `QUIT_ON_HOLD_VIOLATIONS ` | Exits the flow on hold violations at the typical corner <br> (Default: `1`)|
+| `QUIT_ON_SETUP_VIOLATIONS ` | Exits the flow on setup violations at the typical corner <br> (Default: `1`)|
+| `QUIT_ON_TIMING_VIOLATIONS ` | Controls `QUIT_ON_HOLD_VIOLATIONS` and `QUIT_ON_SETUP_VIOLATIONS` <br> (Default: `1`)|
+| `QUIT_ON_LINTER_WARNINGS` | Quit on warnings generated by linter (currently Verilator) <br> (Default: `0`)|
+| `QUIT_ON_LINTER_ERRORS` | Quit on errors generated by linter (currently Verilator) <br> (Default: `1`)|
+| `LINTER_RELATIVE_INCLUDES` | When a file references an include file, resolve the filename relative to the path of the referencing file, instead of relative to the current directory. <br> (Default: `1`) |
+| `LINTER_INCLUDE_PDK_MODELS` | Enables including verilog models of the pdk with the linter. This is useful when the design has hand instantiated macros. This variable has no effect if the PDK/STD_CELL_LIBRARY aren't supported. Currently, sky130A/sky130_fd_sc_hd and sky130B/sky130_fd_sc_hd are the only ones supported <br> (Default: `1`) |
+| `LINTER_DEFINES` | A list of defines that are passed to the linter. The syntax for each item in the list is as follows `<define>(=<value>)`. `(=value)` is optional. Both `PnR=1` or `PnR` are accepted <br> (Default: `SYNTH_DEFINES`) |
 
 
 ### On comma-delimited variables

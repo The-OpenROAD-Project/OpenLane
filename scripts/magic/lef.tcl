@@ -11,13 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+drc off
 if { $::env(MAGIC_LEF_WRITE_USE_GDS) } {
     gds read $::env(CURRENT_GDS)
 } else {
     source $::env(SCRIPTS_DIR)/magic/def/read.tcl
 }
 
-cellname filepath $::env(DESIGN_NAME) $::env(signoff_results)
+lef nocheck $::env(VDD_NETS) $::env(GND_NETS)
 
 # Write LEF
 if { $::env(MAGIC_WRITE_FULL_LEF) } {

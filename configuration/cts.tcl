@@ -13,7 +13,8 @@
 # limitations under the License.
 
 # cts defaults
-set ::env(CLOCK_TREE_SYNTH) 1
+set ::env(RUN_CTS) 1
+set ::env(CTS_MULTICORNER_LIB) 1
 set ::env(CTS_TARGET_SKEW) 200
 set ::env(CTS_TOLERANCE) 100
 set ::env(CTS_SINK_CLUSTERING_SIZE) 25

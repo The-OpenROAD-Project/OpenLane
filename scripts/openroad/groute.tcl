@@ -29,6 +29,7 @@ source $::env(SCRIPTS_DIR)/openroad/common/set_layer_adjustments.tcl
 set arg_list [list]
 lappend arg_list -congestion_iterations $::env(GRT_OVERFLOW_ITERS)
 lappend arg_list -verbose
+lappend arg_list -congestion_report_file $::env(GRT_CONGESTION_REPORT_FILE)
 if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
     lappend arg_list -allow_congestion
 }
@@ -41,14 +42,3 @@ if { $::env(GRT_REPAIR_ANTENNAS) } {
 }
 
 write
-
-if {[info exists ::env(CLOCK_PORT)]} {
-    if { $::env(GRT_ESTIMATE_PARASITICS) == 1 } {
-        # set rc values
-        source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
-        # estimate wire rc parasitics
-        estimate_parasitics -global_routing
-    }
-} else {
-    puts "\[WARN\]: No CLOCK_PORT found. Skipping STA..."
-}

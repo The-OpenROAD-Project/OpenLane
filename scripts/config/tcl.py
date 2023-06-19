@@ -363,14 +363,30 @@ def read_tcl_env(config_path: str, input_env: Dict[str, str] = {}) -> Dict[str, 
     return env
 
 
-def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, str]):
-    character_rx = re.compile(r"([\\{}])")
+translation = str.maketrans(
+    {
+        "$": "\\$",
+        "\\": "\\\\",
+        '"': '\\"',
+        "[": "\\[",
+        "\t": "\\t",
+        "\n": "\\n",
+    }
+)
+control_character = re.compile(r"([\u0000-\u001F])")
+
+
+def escape_quoted_string(str_in: str) -> str:
+    str_out = str_in.translate(translation)
+    return control_character.sub("", str_out)
+
+
+def write_key_value_pairs(file_in: TextIOWrapper, key_value_pairs: Dict[str, Any]):
     for key, value in key_value_pairs.items():
         if value is None:
             continue
-        if isinstance(value, str):
-            value = character_rx.sub(r"\\\1", value)
-        print(f"set ::env({key}) {{{value}}}", file=file_in)
+        value = str(value)
+        print(f'set ::env({key}) "{escape_quoted_string(value)}"', file=file_in)
 
 
 def extract_process_vars(config_in: Dict[str, str]) -> Dict[str, str]:

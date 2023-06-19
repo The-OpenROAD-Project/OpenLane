@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
-set ::env(SCRIPTS_DIR) "$::env(OPENLANE_ROOT)/scripts"
 
 if { [file exists $::env(OPENLANE_ROOT)/install/env.tcl ] } {
     source $::env(OPENLANE_ROOT)/install/env.tcl
@@ -144,6 +143,12 @@ proc run_timing_check_step {args} {
         -quit_on_setup_vios [expr $::env(QUIT_ON_TIMING_VIOLATIONS) && $::env(QUIT_ON_SETUP_VIOLATIONS)]
 }
 
+proc run_verilator_step {} {
+    if { $::env(RUN_LINTER) } {
+        run_verilator
+    }
+}
+
 proc run_non_interactive_mode {args} {
     set options {
         {-design optional}
@@ -155,13 +160,19 @@ proc run_non_interactive_mode {args} {
     set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck -gui}
     parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 
+    if { [info exists arg_values(-from) ] || [info exists arg_values(-to)] } {
+        puts_err "-from and -to are no longer supported."
+        exit -1
+    }
+
+    if { [info exists flags_map(-gui)] } {
+        puts_err "Flag -gui is now deprecated. Refer to https://openlane.readthedocs.io/en/latest/reference/gui.html to view files graphically."
+        throw_error
+    }
+
     prep {*}$args
     # signal trap SIGINT save_state;
 
-    if { [info exists flags_map(-gui)] } {
-        or_gui
-        return
-    }
     if { [info exists arg_values(-override_env)] } {
         load_overrides $arg_values(-override_env)
     }
@@ -172,6 +183,7 @@ proc run_non_interactive_mode {args} {
     set ANTENNACHECK_ENABLED [expr ![info exists flags_map(-no_antennacheck)] ]
 
     set steps [dict create \
+        "verilator_lint_check" "run_verilator_step" \
         "synthesis" "run_synthesis" \
         "floorplan" "run_floorplan" \
         "placement" "run_placement_step" \
@@ -187,22 +199,15 @@ proc run_non_interactive_mode {args} {
         "cvc_rv" "run_erc_step"
     ]
 
-    if { [info exists arg_values(-from) ]} {
-        puts_info "Starting flow at $arg_values(-from)..."
-        set ::env(CURRENT_STEP) $arg_values(-from)
-    } elseif {  [info exists ::env(CURRENT_STEP) ] } {
-        puts_info "Resuming flow from $::env(CURRENT_STEP)..."
-    } else {
-        set ::env(CURRENT_STEP) "synthesis"
-    }
+    set ::env(CURRENT_STEP) "verilator_lint_check"
 
-    set_if_unset arg_values(-from) $::env(CURRENT_STEP)
-    set_if_unset arg_values(-to) "cvc_rv"
+    set start_step $::env(CURRENT_STEP)
+    set end_step "cvc_rv"
 
     set failed 0;
     set exe 0;
     dict for {step_name step_exe} $steps {
-        if { [ string equal $arg_values(-from) $step_name ] } {
+        if { [ string equal $start_step $step_name ] } {
             set exe 1;
         }
 
@@ -213,13 +218,13 @@ proc run_non_interactive_mode {args} {
             set step_result [catch [lindex $step_exe 0] [lindex $step_exe 1] err];
             if { $step_result } {
                 set failed 1;
-                puts_err "Step($::env(CURRENT_INDEX):$step_name) failed with error:\n$err"
+                puts_err "Step $::env(CURRENT_INDEX) ($step_name) failed with error:\n$err"
                 set exe 0;
                 break;
             }
         }
 
-        if { [ string equal $arg_values(-to) $step_name ] } {
+        if { [ string equal $end_step $step_name ] } {
             set exe 0:
             break;
         }
