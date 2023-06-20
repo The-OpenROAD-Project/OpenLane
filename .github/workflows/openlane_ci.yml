@@ -20,8 +20,6 @@ jobs:
         pdk: [sky130A, gf180mcuC]
     steps:
       - uses: actions/checkout@v3
-        with:
-          submodules: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -181,6 +179,8 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.design_matrix) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
