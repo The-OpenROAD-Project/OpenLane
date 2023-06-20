@@ -889,6 +889,13 @@ proc prep {args} {
         }
     }
 
+    if { [info exists ::env(VSRC_LOC_FILES)] } {
+        if { [expr [llength $::env(VSRC_LOC_FILES)] % 2] != 0 } {
+            puts_err "Please define VSRC_LOC_FILES correctly. i.e. : net1 file1 net2 file2 ..."
+            flow_fail
+        }
+    }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok
@@ -1217,11 +1224,11 @@ proc run_irdrop_report {args} {
         puts_warn "::env(VSRC_LOC_FILE) is not defined. The IR drop analysis will run, but the values may be useless."
     }
 
-    set rpt [index_file $::env(signoff_reports)/irdrop.rpt]
+    set rpt [index_file $::env(signoff_reports)/irdrop]
 
-    set ::env(_tmp_save_rpt) $rpt
+    set ::env(_tmp_save_rpt_prefix) $rpt
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/irdrop.tcl -indexed_log $log
-    unset ::env(_tmp_save_rpt)
+    unset ::env(_tmp_save_rpt_prefix)
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ir drop report - openroad"

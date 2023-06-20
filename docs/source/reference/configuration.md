@@ -263,7 +263,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `VSRC_LOC_FILE` | A PSM loc file: see [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/91b99508f32d5ba1b0c284c25bd778ab40c222fe/src/psm#commands) for more info.  |
+| `VSRC_LOC_FILES` | PSM loc file for power and ground nets. Variable should be provided as a json/tcl list or a space delimited tcl string as follows: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/91b99508f32d5ba1b0c284c25bd778ab40c222fe/src/psm#commands) for more info.<br> (Default: NONE)  |
 
 ### Magic
 |Variable|Description|
@@ -329,7 +329,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | | 4: Use Sylvain Minaut's custom script for diode insertion. |
 | | 5: **removed** A combination of strategies 2 and 4. |
 | | 6: A combination of strategies 3 and 4. | 
-| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
+| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: NONE) |
 | `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_LINTER` | Enable linter (currently Verilator) <br> (Default: `1`)
