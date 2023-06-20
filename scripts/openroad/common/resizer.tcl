@@ -63,6 +63,6 @@ proc unset_dont_touch_wrapper {} {
     }
 
     if { [info exists ::env(RSZ_DONT_TOUCH_LIST)] } {
-        uset_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
+        unset_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
     }
 }
