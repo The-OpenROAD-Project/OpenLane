@@ -22,19 +22,24 @@ pipeline {
             }
         }
 
-        stage('Build OpenROAD Docker image with master branch') {
-            steps {
-                sh 'PDK_ROOT=$(pwd)/pdks OPENLANE_IMAGE_NAME=efabless/openlane python3 .github/scripts/update_tools.py openroad_app';
-                sh 'make -C docker build-openroad_app';
-                script { NEW_SHA  = sh (returnStdout: true, script: "python3 dependencies/tool.py -f commit openroad_app").trim(); }
-            }
-        }
-
         stage('Build Docker OpenLane image with openroad_app master') {
             steps {
-                sh 'make -C docker openlane OPENLANE_IMAGE_NAME=current:latest';
-                sh 'docker save current:latest-amd64 | gzip > openlane-current.tar.gz';
-                stash name: 'data', includes: 'openlane-current.tar.gz';
+                script {
+                    retry(3) {
+                        try {
+                            sh 'PDK_ROOT=$(pwd)/pdks OPENLANE_IMAGE_NAME=efabless/openlane python3 .github/scripts/update_tools.py openroad_app';
+                            sh 'make -C docker build-openroad_app';
+                            script { NEW_SHA  = sh (returnStdout: true, script: "python3 dependencies/tool.py -f commit openroad_app").trim(); }
+                            sh 'make -C docker openlane OPENLANE_IMAGE_NAME=current:latest';
+                            sh 'docker save current:latest-amd64 | gzip > openlane-current.tar.gz';
+                            stash name: 'data', includes: 'openlane-current.tar.gz';
+                        }
+                        catch (e) {
+                            sleep(60);
+                            sh 'exit 1';
+                        }
+                    }
+                }
             }
         }
 
