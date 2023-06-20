@@ -52,7 +52,7 @@ pipeline {
                                "aes_core",
                                "APU",
                                "blabla",
-                               "'BM64 -override_env QUIT_ON_VERILATOR_ERRORS=0'",
+                               "'BM64 -override_env QUIT_ON_LINTER_ERRORS=0'",
                                "gcd",
                                "inverter",
                                "manual_macro_placement_test",
