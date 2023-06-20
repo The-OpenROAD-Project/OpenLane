@@ -1,0 +1,4 @@
+[submodule "designs/aes_user_project_wrapper"]
+	path = designs/aes_user_project_wrapper
+	url = git@github.com:kareefardi/openlane-aes_user_project_wrapper.git
+	shallow = true

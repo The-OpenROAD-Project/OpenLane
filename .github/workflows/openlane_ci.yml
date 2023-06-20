@@ -20,6 +20,8 @@ jobs:
         pdk: [sky130A, gf180mcuC]
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
