@@ -263,7 +263,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `VSRC_LOC_FILES` | PSM loc file for power and ground nets. Variable should be provided as a json/tcl list or a space delimited tcl string as follows: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/91b99508f32d5ba1b0c284c25bd778ab40c222fe/src/psm#commands) for more info.<br> (Default: NONE)  |
+| `VSRC_LOC_FILES` | PSM loc file for power and ground nets. Variable should be provided as a json/tcl list or a space delimited tcl string as follows: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/psm#commands) for more info.<br> (Default: NONE)  |
 
 ### Magic
 |Variable|Description|
