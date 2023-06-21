@@ -107,7 +107,10 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
 
     def critical_mismatch(benchmark, regression_result):
         if len(benchmark) == 0:
-            return True, "The design is not benchmarked. Make sure --design and 'design' field in benchmark are the identical"
+            return (
+                True,
+                "The design is not benchmarked. Make sure --design and 'design' field in benchmark are the identical",
+            )
         for stat in critical_statistics:
             if compare_vals(benchmark[stat], regression_result[stat], stat):
                 continue
