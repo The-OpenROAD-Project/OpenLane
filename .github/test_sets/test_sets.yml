@@ -28,7 +28,7 @@
 - scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: fastest_test_set
   designs:
-    - spm
+    - ./designs/ci/spm
     - APU
     - usb
     # - usb_cdc_core
