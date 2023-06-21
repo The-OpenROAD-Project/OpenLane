@@ -1,2 +1,0 @@
-set ::env(PL_TARGET_DENSITY) 0.62
-set ::env(DIODE_PADDING) 0
