@@ -21,7 +21,6 @@ module spm(clk, rst, x, y, p);
 
     wire[size-1:1] pp;
     wire[size-1:0] xy;
-    wire p;
 
     genvar i;
 
@@ -63,9 +62,6 @@ module CSADD(clk, rst, x, y, sum);
 
     // Half Adders logic
     wire hsum1, hco1;
-`ifdef bla
-    assign #1 hsum1 = y ^ sc;
-`endif
     assign hsum1 = y ^ sc;
     assign hco1 = y & sc;
 
