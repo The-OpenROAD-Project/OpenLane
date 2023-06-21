@@ -10,7 +10,7 @@
     - usb
     - usb_cdc_core
     - manual_macro_placement_test
-    - spm
+    - ./design/ci/spm
     - gcd
     - caravel_upw
     - ./designs/ci/aes_user_project_wrapper
