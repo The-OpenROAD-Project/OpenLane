@@ -1,4 +1,4 @@
 [submodule "designs/ci"]
 	path = designs/ci
-	url = git@github.com:kareefardi/openlane-designs.git
+	url = git@github.com:efabless/openlane-ci-designs.git
 	shallow = true
