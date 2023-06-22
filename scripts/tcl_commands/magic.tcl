@@ -66,12 +66,13 @@ proc run_magic {args} {
     if { $::env(MAGIC_GENERATE_LEF) } {
         # Generate LEF view
         TIMER::timer_start
-        set ::env(MAGTYPE) maglef
+        set ::env(MAGTYPE) mag
         set log [index_file $::env(signoff_logs)/lef.log]
         puts_info "Generating lef with Magic ($log)..."
         run_magic_script\
             -indexed_log $log\
             $::env(SCRIPTS_DIR)/magic/lef.tcl
+        unset ::env(MAGTYPE)
 
         if { $::env(MAGIC_GENERATE_MAGLEF) } {
             # Generate MAGLEF view

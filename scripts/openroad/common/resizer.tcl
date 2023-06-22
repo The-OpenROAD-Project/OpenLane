@@ -13,7 +13,7 @@
 # limitations under the License.
 proc set_dont_touch_wrapper {} {
     if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && \
-        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $net_pattern != {^$}) } {
+        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $::env(RSZ_DONT_TOUCH_RX) != {^$}) } {
 
         set pattern $::env(RSZ_DONT_TOUCH_RX)
         variable odb_block [[[::ord::get_db] getChip] getBlock]
@@ -42,7 +42,7 @@ proc set_dont_touch_wrapper {} {
 
 proc unset_dont_touch_wrapper {} {
     if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && \
-        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $net_pattern != {^$}) } {
+        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $::env(RSZ_DONT_TOUCH_RX) != {^$}) } {
 
         set pattern $::env(RSZ_DONT_TOUCH_RX)
         variable odb_block [[[::ord::get_db] getChip] getBlock]
