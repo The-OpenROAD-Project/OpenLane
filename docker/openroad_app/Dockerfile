@@ -33,7 +33,7 @@ RUN curl -L https://gitlab.com/libeigen/eigen/-/archive/3.3/eigen-3.3.tar.gz | t
 
 # Build Lemon
 WORKDIR /lemon
-RUN curl -L http://lemon.cs.elte.hu/pub/sources/lemon-1.3.1.tar.gz | tar --strip-components=1 -xzC . && \
+RUN curl -L https://github.com/The-OpenROAD-Project/lemon-graph/archive/refs/tags/1.3.1.tar.gz | tar --strip-components=1 -xzC . && \
     cmake -B build . && \
     cmake --build build -j $(nproc) --target install
 
