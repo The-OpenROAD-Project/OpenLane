@@ -347,11 +347,11 @@ reg     [((2*N) + 3):0] Prod;           // Double Length Product w/ guards
 always @(posedge Clk)
 begin
     if(Rst)
-        Cntr <= #1 0;
+        Cntr <=  0;
     else if(Ld)
-        Cntr <= #1 pNumCycles;
+        Cntr <=  pNumCycles;
     else if(|Cntr)
-        Cntr <= #1 (Cntr - 1);
+        Cntr <=  (Cntr - 1);
 end
 
 //  Multiplicand Register
@@ -361,9 +361,9 @@ end
 always @(posedge Clk)
 begin
     if(Rst)
-        A <= #1 0;
+        A <=  0;
     else if(Ld)
-        A <= #1 {{4{M[(N - 1)]}}, M};
+        A <=  {{4{M[(N - 1)]}}, M};
 end
 
 assign Mx8 = {A, 3'b0};
@@ -499,21 +499,21 @@ assign S =  T + C + Ci_C;
 always @(posedge Clk)
 begin
     if(Rst)
-        Prod <= #1 0;
+        Prod <=  0;
     else if(Ld)
-        Prod <= #1 R;
+        Prod <=  R;
     else if(|Cntr)  // Shift right four bits
-        Prod <= #1 {{4{S[(N + 3)]}}, S, Prod[(N - 1):4]};
+        Prod <=  {{4{S[(N + 3)]}}, S, Prod[(N - 1):4]};
 end
 
 always @(posedge Clk)
 begin
     if(Rst)
-        Guard <= #1 0;
+        Guard <=  0;
     else if(Ld)
-        Guard <= #1 0;
+        Guard <=  0;
     else if(|Cntr)
-        Guard <= #1 Prod[3];
+        Guard <=  Prod[3];
 end
 
 //  Assign the product less the four guard bits to the output port
@@ -523,9 +523,9 @@ end
 always @(posedge Clk)
 begin
     if(Rst)
-        P <= #1 0;
+        P <=  0;
     else if(Cntr == 1)
-        P <= #1 {S, Prod[(N - 1):4]};
+        P <=  {S, Prod[(N - 1):4]};
 end
 
 //  Count the number of shifts
@@ -535,9 +535,9 @@ end
 always @(posedge Clk)
 begin
     if(Rst)
-        Valid <= #1 0;
+        Valid <=  0;
     else
-        Valid <= #1 (Cntr == 1);
+        Valid <=  (Cntr == 1);
 end
 
 endmodule
