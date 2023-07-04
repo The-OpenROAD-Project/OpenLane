@@ -104,6 +104,7 @@ subprocess.check_call(
 print("Created ./reproducible.tar.gz.")
 
 if run_return_code != 0:
+    print("Run failed")
     raise run_exception
 
 difference_reports = glob.glob(os.path.join(results_folder, f"{test_name}*.rpt"))

@@ -12,7 +12,6 @@
     - manual_macro_placement_test
     - spm
     - gcd
-    - y_huff
     - caravel_upw
 - scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
@@ -23,6 +22,7 @@
     - blabla
     - picorv32a
     - PPU
+    - y_huff
     - aes
 - scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: fastest_test_set
@@ -30,7 +30,6 @@
     - spm
     - APU
     - usb
-    - y_huff
     # - usb_cdc_core
     # - zipdiv
     # - wbqspiflash
@@ -39,3 +38,4 @@
   designs:
     - picorv32a
     - PPU
+    - y_huff
