@@ -264,13 +264,13 @@ proc_dlatch
 proc_dff
 proc_memwr
 proc_clean
+tee -o "$::env(synth_report_prefix)_pre_synth.$CHK_EXT" check
 opt_expr
 if { $::env(SYNTH_NO_FLAT) != 1 } {
     flatten
 }
 opt_expr
 opt_clean
-tee -o "$::env(synth_report_prefix)_pre_synth.$CHK_EXT" check
 opt -nodffe -nosdff
 fsm
 opt
