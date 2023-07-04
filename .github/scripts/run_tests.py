@@ -81,6 +81,7 @@ print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
 try:
     subprocess.run(docker_command, check=True)
 except subprocess.CalledProcessError as e:
+    print("subprocess error code", e.returncode)
     if e.returncode != 2:
         raise e
 
