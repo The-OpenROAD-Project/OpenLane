@@ -78,11 +78,15 @@ docker_command = [
 
 print(f"Running {shlex.join(docker_command)} in {os.getenv('PWD')}…")
 
+run_return_code = 0
+run_exception = Exception
 try:
     subprocess.run(docker_command, check=True)
 except subprocess.CalledProcessError as e:
     print("subprocess error code", e.returncode)
-    if e.returncode != 2:
+    run_exception = e
+    run_return_code = e.returncode
+    if run_return_code != 2:
         raise e
 
 
@@ -98,6 +102,9 @@ subprocess.check_call(
     ["tar", "-czf", "./reproducible.tar.gz", os.path.join("designs", design, "runs")]
 )
 print("Created ./reproducible.tar.gz.")
+
+if run_return_code != 0:
+    raise run_exception
 
 difference_reports = glob.glob(os.path.join(results_folder, f"{test_name}*.rpt"))
 if len(difference_reports):
