@@ -28,7 +28,7 @@ if { [info exists ::env(VSRC_LOC_FILES)] } {
 } else {
     foreach net "$::env(VDD_NETS) $::env(GND_NETS)" {
         set arg_list [list]
-        lappend arg_list -net $::env(VDD_NET)
+        lappend arg_list -net $net
         lappend arg_list -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
         analyze_power_grid {*}$arg_list
     }
