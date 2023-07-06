@@ -20,15 +20,15 @@ source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
 if { [info exists ::env(VSRC_LOC_FILES)] } {
     foreach {net vsrc_file} "$::env(VSRC_LOC_FILES)" {
         set arg_list [list]
-        lappend -net $net
-        lappend -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
-        lappend -vsrc $vsrc_file
+        lappend arg_list -net $net
+        lappend arg_list -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
+        lappend arg_list -vsrc $vsrc_file
         analyze_power_grid {*}$arg_list
     }
 } else {
     foreach net "$::env(VDD_NETS) $::env(GND_NETS)" {
         set arg_list [list]
-        lappend arg_list -net $::env(VDD_NET)
+        lappend arg_list -net $net
         lappend arg_list -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
         analyze_power_grid {*}$arg_list
     }
