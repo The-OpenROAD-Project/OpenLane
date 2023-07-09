@@ -15,6 +15,6 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v2
       - name: Install Ripgrep
-        run: apt install -y rg
+        run: sudo apt install -y rg
       - name: Check for missing documentation
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/variables_documentation.py
