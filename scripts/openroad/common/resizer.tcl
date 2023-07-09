@@ -35,8 +35,8 @@ proc set_dont_touch_wrapper {} {
         }
     }
 
-    if { [info exists ::env(RSZ_DONT_TOUCH_LIST)] } {
-        set_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
+    if { [info exists ::env(RSZ_DONT_TOUCH)] } {
+        set_dont_touch $::env(RSZ_DONT_TOUCH)
     }
 }
 
@@ -62,7 +62,7 @@ proc unset_dont_touch_wrapper {} {
         }
     }
 
-    if { [info exists ::env(RSZ_DONT_TOUCH_LIST)] } {
-        unset_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
+    if { [info exists ::env(RSZ_DONT_TOUCH)] } {
+        unset_dont_touch $::env(RSZ_DONT_TOUCH)
     }
 }
