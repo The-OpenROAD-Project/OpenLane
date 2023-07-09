@@ -127,6 +127,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_MIN_DISTANCE`  | The minmimum distance between the IOs in microns. <br> (Default: `3`) |
 | `FP_PADFRAME_CFG`  | A configuration file passed to padringer, a padframe generator. <br> (Default: NONE) |
 | `FP_PDN_IRDROP` | **Removed: worthless** Enable calculation of power grid IR drop during PDN generation. <br> (Default: `1`)|
+| `PDN_CFG` | **Deprecated use `FP_PDN_CFG`** Points to a pdn configuration file that describes how to construct the pdn in detail.  <br> (Default: `scripts/openroad/common/pdn_cfg.tcl`) |
 
 #### Deprecated I/O Layer variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be used, but it's recommended to update your configuration to use `FP_IO_HLAYER` and `FP_IO_VLAYER`, which are defined in the PDK.
