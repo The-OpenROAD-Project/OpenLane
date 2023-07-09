@@ -159,7 +159,7 @@ docs_variables = (
     subprocess.check_output(
         [
             "rg",
-            "\\| *`([A-Z]\\S+) *` *\\|",
+            "\\| *`([A-Z]\\S+) *` *‡*  *\\|",
             "-r",
             "$1",
             "-o",
@@ -179,7 +179,7 @@ deprecated_docs_variables = (
     subprocess.check_output(
         [
             "rg",
-            "\\| *`([A-Z]\\S+) *` *\\|.*(Deprecated|Removed)",
+            "\\| *`([A-Z]\\S+) *` *‡*  *\\|.*(Deprecated|Removed)",
             "-r",
             "$1",
             "-o",
