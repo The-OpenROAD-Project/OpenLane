@@ -82,18 +82,15 @@ included values should be considered "defaults."
 
 | Variable      | Description                                                   |
 |---------------|---------------------------------------------------------------|
-| `MAX_SLEW` | Defines the maximum slew (transition) value in ns. |
-| `MAX_FANOUT` | Defines the maximum fanout for a single output in the design. |
-| `MAX_CAP` | Defines the maximum capacitance allowed in the design in fF. |
+| `MAX_TRANSITION_CONSTRAINT` | Defines the maximum slew (transition) value in ns. |
+| `MAX_FANOUT_CONSTRAINT` | Defines the maximum fanout for a single output in the design. |
 | `OUTPUT_CAP_LOAD` | Defines the capacitive load on the output ports in fF. |
+| `CTS_MAX_CAP` | Defines the maximum capacitance for clock tree synthesis in the design in fF. |
 | `GPL_CELL_PADDING` | Cell padding value (in sites) for global placement. <br> (Example: `2`) |
 | `DPL_CELL_PADDING` | Defines the number of sites to pad the cells with during detailed placement. This value should not be higher than `GPL_CELL_PADDING` unless you know what you're doing. <br> (Example: `2`) |
 | `CELL_PAD_EXCLUDE` | Defines the cells to exclude from padding for both detailed placement. |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. See [this section](#no-synthesis-cells-file) for more information. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. See [this section](#drc-exclude-cells-file) for more information. |
-| `CTS_MAX_CAP` | **Deprecated: Use `MAX_CAP`**: Defines the maximum capacitance, used in CTS. |
-| `SYNTH_CAP_LOAD` | **Deprecated: Use `OUTPUT_CAP_LOAD`**: Defines the capacitive load on the output ports in fF. |
-| `DEFAULT_MAX_TRAN` | **Removed: Use `MAX_SLEW`**: Defines the maximum slew (transition) value in ns. |
 | `FP_PDN_HORIZONTAL_LAYER` | Defines the upper layer used in PDN. |
 | `FP_PDN_VERTICAL_LAYER` | Defines the lower layer used in PDN. |
 | `FP_PDN_RAIL_LAYER` | Defines the rail layer used in PDN. |
@@ -103,6 +100,9 @@ included values should be considered "defaults."
 | `CARRY_SELECT_ADDER_MAP` | A pointer for the file containing the carry-select adder mapping for Yosys. (Optional) |
 | `RIPPLE_CARRY_ADDER_MAP` | A pointer for the file containing the ripple-carry adder mapping for Yosys. (Optional) |
 | `FULL_ADDER_MAP` | A pointer for the file containing the full adder mapping for Yosys. (Optional) |
+| `CTS_MAX_CAP` | **Deprecated: Use `MAX_CAP`**: Defines the maximum capacitance, used in CTS. |
+| `SYNTH_CAP_LOAD` | **Deprecated: Use `OUTPUT_CAP_LOAD`**: Defines the capacitive load on the output ports in fF. |
+| `DEFAULT_MAX_TRAN` | **Removed: Use `MAX_TRANSITION_CONSTRAINT`**: Defines the maximum slew (transition) value in ns. |
 
 
 ### SCL-static

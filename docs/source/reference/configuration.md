@@ -87,8 +87,8 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_BUFFER_DIRECT_WIRES` | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
 | `SYNTH_SPLITNETS` | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
 | `SYNTH_TOP_LEVEL` | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
-| `SYNTH_MAX_FANOUT`  | **Deprecated: Use the PDK's `MAX_FANOUT` value**: The max load that the output ports can drive. |
-| `SYNTH_MAX_TRAN` |  **Deprecated: Use the PDK's `MAX_SLEW` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
+| `SYNTH_MAX_FANOUT`  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
+| `SYNTH_MAX_TRAN` |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
 
 ### STA
 

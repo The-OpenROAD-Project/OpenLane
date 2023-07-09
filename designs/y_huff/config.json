@@ -10,7 +10,7 @@
         "FP_SIZING": "absolute",
         "DIE_AREA": "0 0 700 700",
         "CLOCK_PERIOD": 11.35,
-        "MAX_FANOUT": 6
+        "MAX_FANOUT_CONSTRAINT": 6
     },
     "pdk::gf180mcu*": {
         "DIODE_INSERTION_STRATEGY": 3

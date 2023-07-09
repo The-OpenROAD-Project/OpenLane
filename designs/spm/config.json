@@ -21,7 +21,7 @@
         },
         "scl::sky130_fd_sc_ls": {
             "CLOCK_PERIOD": 10,
-            "MAX_FANOUT": 5
+            "MAX_FANOUT_CONSTRAINT": 5
         },
         "scl::sky130_fd_sc_ms": {
             "CLOCK_PERIOD": 10
@@ -30,7 +30,7 @@
     "pdk::gf180mcu*": {
         "CLOCK_PERIOD": 24.0,
         "FP_CORE_UTIL": 40,
-        "MAX_FANOUT": 4,
+        "MAX_FANOUT_CONSTRAINT": 4,
         "PL_TARGET_DENSITY": 0.5
     }
 }

@@ -10,9 +10,9 @@ set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
 puts "\[INFO\]: Setting input delay to: $input_delay_value"
 
-set_max_fanout $::env(MAX_FANOUT) [current_design]
-if { [info exists ::env(MAX_SLEW)] } {
-    set_max_transition $::env(MAX_SLEW) [current_design]
+set_max_fanout $::env(MAX_FANOUT_CONSTRAINT) [current_design]
+if { [info exists ::env(MAX_TRANSITION_CONSTRAINT)] } {
+    set_max_transition $::env(MAX_TRANSITION_CONSTRAINT) [current_design]
 }
 
 set clk_input [get_port $::env(CLOCK_PORT)]

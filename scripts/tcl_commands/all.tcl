@@ -618,9 +618,8 @@ proc prep {args} {
 
     # DEPRECATED CONFIGS
     ## PDK
-    handle_deprecated_pdk_config SYNTH_MAX_TRAN MAX_SLEW
-    handle_deprecated_pdk_config SYNTH_MAX_FANOUT MAX_FANOUT
-    handle_deprecated_pdk_config CTS_MAX_CAP MAX_CAP
+    handle_deprecated_pdk_config SYNTH_MAX_TRAN MAX_TRANSITION_CONSTRAINT
+    handle_deprecated_pdk_config SYNTH_MAX_FANOUT MAX_FANOUT_CONSTRAINT
     handle_deprecated_pdk_config SYNTH_CAP_LOAD OUTPUT_CAP_LOAD
 
     ## Flow

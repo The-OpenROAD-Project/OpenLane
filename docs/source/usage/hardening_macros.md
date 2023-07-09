@@ -55,7 +55,7 @@ These configurations should get you through the flow with the all other configur
 
 The first decision in synthesis is determining the optimal synthesis strategy `SYNTH_STRATEGY` for your design. For that purpose there is a flag in the `flow.tcl` script, `-synth_explore` that runs a synthesis strategy exploration and reports the results in a table under `<run_path>/reports/`.
 
-Then you need to consider the best values for the `MAX_FANOUT`.
+Then you need to consider the best values for the `MAX_FANOUT_CONSTRAINT`.
 
 If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1` (Tcl)/`true` (JSON), which will postpone the flattening of the design during synthesis until the very end.
 
