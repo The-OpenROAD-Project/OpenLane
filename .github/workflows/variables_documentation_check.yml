@@ -1,0 +1,20 @@
+name: Check Documentation of Variables
+on:
+  # Runs on all pushes to branches
+  push:
+  # Runs on all PRs
+  pull_request:
+  # Manual Dispatch
+  workflow_dispatch:
+
+jobs:
+  check_variables:
+    name: Check Documentation of Variables
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Install Ripgrep
+        run: apt install -y rg
+      - name: Check for missing documentation
+        run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/variables_documentation.py
