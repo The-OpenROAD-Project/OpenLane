@@ -15,8 +15,8 @@ Check the sidebar to the left to get started.
    flow_overview
    usage/index
    tutorials/index
-   for_developers/index
    reference/index
    additional_material
    authors
+   for_developers/index
 
