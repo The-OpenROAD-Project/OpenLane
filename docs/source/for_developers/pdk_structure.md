@@ -112,6 +112,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `CTS_ROOT_BUFFER` | Defines the cell inserted at the root of the clock tree. Used in CTS. |
 | `CTS_CLK_BUFFER_LIST` | Defines the list of clock buffers to be used in CTS. |
 | `CTS_MAX_CAP` | Defines the maximum capacitance, used in CTS. |
+| `STD_CELL_POWER_PINS` | Defines power pins of stdcells. Used in PDN. |
 | `STD_CELL_GROUND_PINS` | Defines ground pins of stdcells. Used in PDN. |
 | `FP_PDN_HORIZONTAL_LAYER` | Defines the upper layer used in PDN. |
 | `FP_PDN_VERTICAL_LAYER` | Defines the lower layer used in PDN. |
@@ -120,6 +121,7 @@ This section defines the necessary variables to configure a standard cell librar
 | `SYNTH_LATCH_MAP` | A pointer for the file containing the latch mapping for yosys. (Optional) |
 | `TRISTATE_BUFFER_MAP` | A pointer for the file containing the tri-state buffer mapping for yosys. (Optional) |
 | `CARRY_SELECT_ADDER_MAP` | A pointer for the file containing the carry-select adder mapping for Yosys. (Optional) |
+| `RIPPLE_CARRY_ADDER_MAP` | A pointer for the file containing the ripple-carry adder mapping for Yosys. (Optional) |
 | `FULL_ADDER_MAP` | A pointer for the file containing the full adder mapping for Yosys. (Optional) |
 | `NO_SYNTH_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
