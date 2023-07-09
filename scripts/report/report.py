@@ -499,7 +499,7 @@ class Report(object):
                     klayout_violations += 1
 
         # Antenna Violations
-        arc_antenna_report = Artifact(rp, "logs", "signoff", "antenna.log")
+        arc_antenna_report = Artifact(rp, "logs", "signoff", "arc.log")
         aar_content = arc_antenna_report.get_content()
 
         pin_antenna_violations = -1

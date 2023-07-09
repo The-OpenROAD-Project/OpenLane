@@ -617,48 +617,52 @@ proc prep {args} {
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
+    ## Flow
+    handle_diode_insertion_strategy
+
     handle_deprecated_config SYNTH_TOP_LEVEL SYNTH_ELABORATE_ONLY;
-    handle_deprecated_config LIB_MIN LIB_FASTEST;
-    handle_deprecated_config LIB_MAX LIB_SLOWEST;
+
+    handle_deprecated_config VERILATOR_RELATIVE_INCLUDES LINTER_RELATIVE_INCLUDES
 
     handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
     handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
 
-    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE;
+    handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB
+    handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX
 
-    handle_deprecated_config GLB_RT_ALLOW_CONGESTION GRT_ALLOW_CONGESTION;
-    handle_deprecated_config GLB_RT_OVERFLOW_ITERS GRT_OVERFLOW_ITERS;
-    handle_deprecated_config GLB_RT_ANT_ITERS GRT_ANT_ITERS;
-    handle_deprecated_config GLB_RT_ESTIMATE_PARASITICS GRT_ESTIMATE_PARASITICS;
-    handle_deprecated_config GLB_RT_MAX_DIODE_INS_ITERS GRT_MAX_DIODE_INS_ITERS;
-    handle_deprecated_config GLB_RT_OBS GRT_OBS;
-    handle_deprecated_config GLB_RT_ADJUSTMENT GRT_ADJUSTMENT;
-    handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION;
-    handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS;
-
-    handle_deprecated_config TAP_DECAP_INSERTION RUN_TAP_DECAP_INSERTION;
-    handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT; # Why the hell is this even an option?
-    handle_deprecated_config FILL_INSERTION RUN_FILL_INSERTION;
-
-    handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY;
-
-    handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB;
-    handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX;
-
+    ### Checkers/Quitting
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
+    handle_deprecated_config QUIT_ON_VERILATOR_WARNINGS QUIT_ON_LINTER_WARNINGS
+    handle_deprecated_config QUIT_ON_VERILATOR_ERRORS QUIT_ON_LINTER_ERRORS
 
+    ### Flow Control
     handle_deprecated_config CLOCK_TREE_SYNTH RUN_CTS
+    handle_deprecated_config TAP_DECAP_INSERTION RUN_TAP_DECAP_INSERTION
+    handle_deprecated_config RUN_ROUTING_DETAILED RUN_DRT
+    handle_deprecated_config FILL_INSERTION RUN_FILL_INSERTION
+    handle_deprecated_config RUN_VERILATOR RUN_LINTER
+
+    ### PDN
     handle_deprecated_config FP_PDN_RAILS_LAYER FP_PDN_RAIL_LAYER
     handle_deprecated_config FP_PDN_UPPER_LAYER FP_PDN_HORIZONTAL_LAYER
     handle_deprecated_config FP_PDN_LOWER_LAYER FP_PDN_VERTICAL_LAYER
     handle_deprecated_config PDN_CFG FP_PDN_CFG
-    handle_deprecated_config QUIT_ON_VERILATOR_WARNINGS QUIT_ON_LINTER_WARNINGS
-    handle_deprecated_config QUIT_ON_VERILATOR_ERRORS QUIT_ON_LINTER_ERRORS
-    handle_deprecated_config RUN_VERILATOR RUN_LINTER
-    handle_deprecated_config VERILATOR_RELATIVE_INCLUDES LINTER_RELATIVE_INCLUDES
 
-    handle_diode_insertion_strategy
+    ### GLB_RT -> GRT (Document using ‡)
+    handle_deprecated_config GLB_RT_ALLOW_CONGESTION GRT_ALLOW_CONGESTION
+    handle_deprecated_config GLB_RT_OVERFLOW_ITERS GRT_OVERFLOW_ITERS
+    handle_deprecated_config GLB_RT_ANT_ITERS GRT_ANT_ITERS
+    handle_deprecated_config GLB_RT_ESTIMATE_PARASITICS GRT_ESTIMATE_PARASITICS
+    handle_deprecated_config GLB_RT_MAX_DIODE_INS_ITERS GRT_MAX_DIODE_INS_ITERS
+    handle_deprecated_config GLB_RT_OBS GRT_OBS
+    handle_deprecated_config GLB_RT_ADJUSTMENT GRT_ADJUSTMENT
+    handle_deprecated_config GLB_RT_MACRO_EXTENSION GRT_MACRO_EXTENSION
+    handle_deprecated_config GLB_RT_LAYER_ADJUSTMENTS GRT_LAYER_ADJUSTMENTS
+
+    ### Spelling (No need to document)
+    handle_deprecated_config CELL_PAD_EXECLUDE CELL_PAD_EXCLUDE
+    handle_deprecated_config SYNTH_CLOCK_UNCERTAINITY SYNTH_CLOCK_UNCERTAINTY
 
     #
     ############################
@@ -1189,7 +1193,7 @@ proc write_verilog {args} {
 proc run_or_antenna_check {args} {
     increment_index
     TIMER::timer_start
-    set log [index_file $::env(signoff_logs)/antenna.log]
+    set log [index_file $::env(signoff_logs)/arc.log]
 
     puts_info "Running OpenROAD Antenna Rule Checker (log: [relpath . $log])..."
 
