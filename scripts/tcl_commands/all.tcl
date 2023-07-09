@@ -617,15 +617,21 @@ proc prep {args} {
     set ::env(OPENLANE_VERBOSE) $arg_values(-verbose)
 
     # DEPRECATED CONFIGS
+    ## PDK
+    handle_deprecated_pdk_config SYNTH_MAX_TRAN MAX_SLEW
+    handle_deprecated_pdk_config SYNTH_MAX_FANOUT MAX_FANOUT
+    handle_deprecated_pdk_config CTS_MAX_CAP MAX_CAP
+    handle_deprecated_pdk_config SYNTH_CAP_LOAD OUTPUT_CAP_LOAD
+
     ## Flow
     handle_diode_insertion_strategy
 
-    handle_deprecated_config SYNTH_TOP_LEVEL SYNTH_ELABORATE_ONLY;
+    handle_deprecated_config SYNTH_TOP_LEVEL SYNTH_ELABORATE_ONLY
 
     handle_deprecated_config VERILATOR_RELATIVE_INCLUDES LINTER_RELATIVE_INCLUDES
 
-    handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO;
-    handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO;
+    handle_deprecated_config FP_HORIZONTAL_HALO FP_PDN_HORIZONTAL_HALO
+    handle_deprecated_config FP_VERTICAL_HALO FP_PDN_VERTICAL_HALO
 
     handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX

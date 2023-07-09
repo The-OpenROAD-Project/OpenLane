@@ -9,7 +9,7 @@
     "CLOCK_PERIOD": 24,
     "FP_CORE_UTIL": 35,
     "pdk::sky130*": {
-        "SYNTH_MAX_FANOUT": 6,
+        "MAX_FANOUT": 6,
         "scl::sky130_fd_sc_ms": {
             "FP_CORE_UTIL": 30
         }

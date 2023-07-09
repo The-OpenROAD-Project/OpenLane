@@ -67,7 +67,7 @@ An minimal demonstrative configuration file would look as follows:
     "CLOCK_PORT": "clk",
     "CLOCK_PERIOD": 100,
     "pdk::sky130A": {
-        "SYNTH_MAX_FANOUT": 6,
+        "MAX_FANOUT": 6,
         "FP_CORE_UTIL": 40,
         "PL_TARGET_DENSITY": "expr::($FP_CORE_UTIL + 5.0) / 100.0",
         "scl::sky130_fd_sc_hd": {

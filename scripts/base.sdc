@@ -10,9 +10,9 @@ set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
 puts "\[INFO\]: Setting input delay to: $input_delay_value"
 
-set_max_fanout $::env(SYNTH_MAX_FANOUT) [current_design]
-if { [info exists ::env(SYNTH_MAX_TRAN)] } {
-    set_max_transition $::env(SYNTH_MAX_TRAN) [current_design]
+set_max_fanout $::env(MAX_FANOUT) [current_design]
+if { [info exists ::env(MAX_SLEW)] } {
+    set_max_transition $::env(MAX_SLEW) [current_design]
 }
 
 set clk_input [get_port $::env(CLOCK_PORT)]
@@ -40,7 +40,7 @@ if { ![info exists ::env(SYNTH_CLK_DRIVING_CELL_PIN)] } {
 set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) $all_inputs_wo_clk_rst
 set_driving_cell -lib_cell $::env(SYNTH_CLK_DRIVING_CELL) -pin $::env(SYNTH_CLK_DRIVING_CELL_PIN) $clk_input
 
-set cap_load [expr $::env(SYNTH_CAP_LOAD) / 1000.0]
+set cap_load [expr $::env(OUTPUT_CAP_LOAD) / 1000.0]
 puts "\[INFO\]: Setting load to: $cap_load"
 set_load  $cap_load [all_outputs]
 

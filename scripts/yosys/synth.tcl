@@ -64,12 +64,12 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
 
 set driver  $::env(SYNTH_DRIVING_CELL)
-set cload   $::env(SYNTH_CAP_LOAD)
+set cload   $::env(OUTPUT_CAP_LOAD)
 # input pin cap of IN_3VX8
-set max_FO $::env(SYNTH_MAX_FANOUT)
+set max_FO $::env(MAX_FANOUT)
 set max_TR 0
-if { [info exist ::env(SYNTH_MAX_TRAN)]} {
-    set max_TR [expr {$::env(SYNTH_MAX_TRAN) * 1000}]; # ns -> ps
+if { [info exist ::env(MAX_SLEW)]} {
+    set max_TR [expr {$::env(MAX_SLEW) * 1000}]; # ns -> ps
 }
 
 

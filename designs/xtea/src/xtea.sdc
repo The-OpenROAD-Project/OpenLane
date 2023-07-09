@@ -5,7 +5,7 @@ set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
 puts "\[INFO\]: Setting input delay to: $input_delay_value"
 
-set_max_fanout $::env(SYNTH_MAX_FANOUT) [current_design]
+set_max_fanout $::env(MAX_FANOUT) [current_design]
 
 set clk_indx [lsearch [all_inputs] [get_port $::env(CLOCK_PORT)]]
 set all_inputs_wo_clk [lreplace [all_inputs] $clk_indx $clk_indx]
@@ -16,7 +16,7 @@ set_output_delay $output_delay_value  -clock [get_clocks $::env(CLOCK_PORT)] [al
 
 # TODO set this as parameter
 set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) [all_inputs]
-set cap_load [expr $::env(SYNTH_CAP_LOAD) / 1000.0]
+set cap_load [expr $::env(OUTPUT_CAP_LOAD) / 1000.0]
 puts "\[INFO\]: Setting load to: $cap_load"
 set_load  $cap_load [all_outputs]
 

@@ -89,7 +89,7 @@
 |---------------|-------------------------------------------------------|
 | `CLOCK_PERIOD`  | The clock period for the design in ns       |
 | `SYNTH_STRATEGY` | Strategies for abc logic synthesis and technology mapping <br> Possible values are "DELAY|AREA 0-3|0-2"; the first part refers to the optimization target of the synthesis strategy (area vs. delay) and the second one is an index. <br> (Default: `AREA 0`)|
-| `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `5` cells) |
+| `MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `5` cells) |
 | `FP_CORE_UTIL`  | The core utilization percentage. <br> (Default: `50` percent)|
 | `FP_ASPECT_RATIO`  | The core's aspect ratio (height / width). <br> (Default: `1`)|
 | `FP_PDN_VPITCH`  | The pitch of the vertical power stripes on the metal layer 4 in the power distribution network <br> (Default: `153.6`) |

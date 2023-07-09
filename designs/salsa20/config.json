@@ -8,7 +8,7 @@
     "DPL_CELL_PADDING": 4,
     "FP_CORE_UTIL": 20,
     "pdk::sky130*": {
-        "SYNTH_MAX_FANOUT": 6,
+        "MAX_FANOUT": 6,
         "CLOCK_PERIOD": 36.73,
         "scl::sky130_fd_sc_hd": {
             "CLOCK_PERIOD": 38,
