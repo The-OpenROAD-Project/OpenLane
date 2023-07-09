@@ -210,7 +210,7 @@ proc export_magic_view {args} {
 proc run_magic_antenna_check {args} {
     increment_index
     TIMER::timer_start
-    set log [index_file $::env(signoff_logs)/antenna.log]
+    set log [index_file $::env(signoff_logs)/magic_antenna.log]
     puts_info "Running Magic Antenna Checks (log: [relpath . $log])..."
 
     set feedback_file [index_file $::env(signoff_reports)/antenna.feedback.txt]

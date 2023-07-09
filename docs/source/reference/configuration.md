@@ -1,5 +1,15 @@
-# Configuration Variables
-This page describes user-configurable variables and their default values.
+# Flow Configuration Variables
+This page describes user-configurable flow variables and their default values.
+
+```{note}
+Variables that are defined by the PDK configuration support files and not the
+flow itself are listed [in this chapter](./pdk_configuration.md).
+```
+
+```{note}
+Deprecated variables are automatically translated to their new names for at least
+6 months. Removed variables will be entirely ignored by the flow.
+```
 
 ## Load Order
 The default configuration files in this folder are loaded in the order described in `load_order.txt`.
@@ -39,6 +49,16 @@ These variables are optional that can be specified in the design configuration f
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
 
+### Linting
+
+|Variable|Description|
+|-|-|
+| `LINTER_RELATIVE_INCLUDES`‡ | When a file references an include file, resolve the filename relative to the path of the referencing file, instead of relative to the current directory. <br> (Default: `1`) |
+| `LINTER_DEFINES` | A list of defines that are passed to the linter. The syntax for each item in the list is as follows `<define>(=<value>)`. `(=value)` is optional. Both `PnR=1` or `PnR` are accepted <br> (Default: `SYNTH_DEFINES`) |
+| `LINTER_INCLUDE_PDK_MODELS` | Enables including verilog models of the pdk with the linter. This is useful when the design has hand instantiated macros. This variable has no effect if the PDK/STD_CELL_LIBRARY aren't supported. Currently, sky130A/sky130_fd_sc_hd and sky130B/sky130_fd_sc_hd are the only ones supported <br> (Default: `1`) |
+
+> **‡** Variable previously prefixed `VERILATOR_` have had their prefix changed to `LINTER_`. The replaced variable is deprecated and will be translated to its new form automatically by the flow.
+
 ### Synthesis
 
 |Variable|Description|
@@ -69,6 +89,7 @@ These variables are optional that can be specified in the design configuration f
 | `IO_PCT` | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
 | `SYNTH_BUFFER_DIRECT_WIRES` | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
 | `SYNTH_SPLITNETS` | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
+| `SYNTH_TOP_LEVEL` | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
 
 
 ### STA
@@ -91,7 +112,7 @@ These variables are optional that can be specified in the design configuration f
 | `FP_IO_MODE`  | Decides the mode of the random IO placement option. 0=matching mode, 1=random equidistant mode <br> (Default: `1`)|
 | `FP_WELLTAP_CELL`  | The name of the welltap cell during welltap insertion. |
 | `FP_ENDCAP_CELL`  | The name of the endcap cell during endcap insertion. |
-| `FP_PDN_CFG` | Points to a pdn configuration file that describes how to construct the pdn in detail.  <br> (Default: `scripts/openroad/common/pdn_cfg.tcl`) |
+| `FP_PDN_CFG` | Points to a PDN configuration file that describes how to construct the PDN in detail. <br> (Default: `scripts/openroad/common/pdn_cfg.tcl`) |
 | `FP_PDN_AUTO_ADJUST` | Decides whether or not the flow should attempt to re-adjust the power grid, in order for it to fit inside the core area of the design, if needed. <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_PDN_SKIPTRIM` | Enables `-skip_trim` option during pdngen which skips the metal trim step, which attempts to remove metal stubs <br> 1=enabled, 0 =disabled (Default: `1`) |
 | `FP_TAPCELL_DIST`  | The horizontal distance between two tapcell columns <br> (Default: `14`) |
@@ -112,10 +133,10 @@ These variables are optional that can be specified in the design configuration f
 | `FP_PDN_ENABLE_MACROS_GRID` | Enables the connection of macros to the top level power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
 | `FP_PDN_MACRO_HOOKS` | Specifies explicit power connections of internal macros to the top level power grid. As a comma-delimited ([warning](#on-comma-delimited-variables)) list of macro instance names, power domain vdd and ground net names, and macro vdd and ground pin names: `<instance_name> <vdd_net> <gnd_net> <vdd_pin> <gnd_pin>`  |
 | `FP_PDN_CHECK_NODES` | Enables checking for unconnected nodes in the power grid. 0=Disable 1=Enable. <br> (Default: `1`) |
-| `FP_TAP_HORIZONTAL_HALO` | Specify the horizontal halo size around macros during tap insertion. The value provided is in microns. <br> Default: `10` |
-| `FP_TAP_VERTICAL_HALO` | Specify the vertical halo size around macros during tap insertion. The value provided is in microns. <br> Default: set to the value of `FP_TAP_HORIZONTAL_HALO` |
-| `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> Default: `10` |
-| `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> Default: set to the value of `FP_PDN_HORIZONTAL_HALO` |
+| `FP_TAP_HORIZONTAL_HALO` | Specify the horizontal halo size around macros during tap insertion. The value provided is in microns. <br> (Default: `10`) |
+| `FP_TAP_VERTICAL_HALO` | Specify the vertical halo size around macros during tap insertion. The value provided is in microns. <br> (Default: set to the value of `FP_TAP_HORIZONTAL_HALO`) |
+| `FP_PDN_HORIZONTAL_HALO` | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> (Default: `10`) |
+| `FP_PDN_VERTICAL_HALO` | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> (Default: set to the value of `FP_PDN_HORIZONTAL_HALO`) |
 | `DESIGN_IS_CORE` | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
 | `FP_PIN_ORDER_CFG` | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. `$<number>` i.e. `$1` can be used to place a virtual pin where `<number>` is the count of virtual pins. This can create separation between pins. You can also use `@min_distance=<number>` i.e. `@min_distance=0.8` to set preferred min distance between pins in a specific direction. See spm configuration file as an example.<br> (Default: NONE)|
 | `FP_CONTEXT_DEF` | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
@@ -126,7 +147,10 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_USE_PG_PINS_DEFINES` | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
 | `FP_IO_MIN_DISTANCE`  | The minmimum distance between the IOs in microns. <br> (Default: `3`) |
 | `FP_PADFRAME_CFG`  | A configuration file passed to padringer, a padframe generator. <br> (Default: NONE) |
-| `FP_PDN_IRDROP` | **Removed: worthless** Enable calculation of power grid IR drop during PDN generation. <br> (Default: `1`)|
+| `PDN_CFG` | **Deprecated: Use `FP_PDN_CFG`**: Points to a PDN configuration file that describes how to construct the PDN in detail. |
+| `FP_HORIZONTAL_HALO` | **Deprecated: Use `FP_PDN_HORIZONTAL_HALO`**: Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns.|
+| `FP_PDN_VERTICAL_HALO` | **Deprecated: Use `FP_PDN_VERTICAL_HALO`**: Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. |
+| `FP_PDN_IRDROP` | **Removed: No point running it this early in the flow**: Enable calculation of power grid IR drop during PDN generation. |
 
 #### Deprecated I/O Layer variables
 These variables worked initially, but they were too sky130 specific and will be removed. Currently, if you define them in your design, they'll be used, but it's recommended to update your configuration to use `FP_IO_HLAYER` and `FP_IO_VLAYER`, which are defined in the PDK.
@@ -141,13 +165,13 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `RSZ_LIB` | Points to one or more lib files, corresponding to the typical corner, that is used during resizer optimizations. <br> Default: `LIB_SYNTH_COMPLETE`. |
-| `RSZ_LIB_FASTEST` | Points to one or more lib files, corresponding to the fastest corner, that is used during resizer optimizations. <br> Default: `LIB_FASTEST`. |
-| `RSZ_LIB_SLOWEST` | Points to one or more lib files, corresponding to the slowest corner, that is used during resizer optimizations. <br> Default: `LIB_SLOWEST`. |
-| `RSZ_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during resizer optimizations. <br> Default: `1` |
-| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> Default: `$^` (matches nothing.) |
-| `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> Default: Empty. |
-| `LIB_RESIZER_OPT` | **Deprecated: use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH_COMPLETE`. <br> Default: automatically generated in `$::env(synthesis_tmpfiles)/resizer_<library-name>.lib` |
+| `RSZ_LIB` | Points to one or more lib files, corresponding to the typical corner, that is used during resizer optimizations. <br> (Default: set to the value of PDK's `LIB_SYNTH`) |
+| `RSZ_LIB_FASTEST` | Points to one or more lib files, corresponding to the fastest corner, that is used during resizer optimizations. <br> (Default: set to the value of PDK's `LIB_FASTEST`) |
+| `RSZ_LIB_SLOWEST` | Points to one or more lib files, corresponding to the slowest corner, that is used during resizer optimizations. <br> (Default: set to the value of PDK's `LIB_SLOWEST`) |
+| `RSZ_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during resizer optimizations. <br> (Default: `1`) |
+| `RSZ_DONT_TOUCH_RX` | A single regular expression designating nets as "don't touch" by resizer optimizations. <br> (Default: `$^` (matches nothing)) |
+| `RSZ_DONT_TOUCH` | A list of nets or instances to set as "don't touch". <br> (Default: Empty) |
+| `LIB_RESIZER_OPT` | **Deprecated: Use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH`.|
 
 ### Placement
 
@@ -172,7 +196,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `PL_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
 | `PL_WIRELENGTH_COEF` | Global placement initial wirelength coefficient. Decreasing the variable will modify the initial placement of the standard cells to reduce the wirelengths. <br> (Default: `0.25`).|
-| `DONT_USE_CELLS` | The list of cells to not use during resizer optimizations. <br> Default: the contents of `DRC_EXCLUDE_CELL_LIST`. |
+| `DONT_USE_CELLS` | The list of cells to not use during resizer optimizations. <br> (Default: the contents of `DRC_EXCLUDE_CELL_LIST`) |
 | `PL_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global placement using OpenROAD's estimate_parasitics -placement and generates reports under `logs/placement`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `PL_RESIZER_BUFFER_INPUT_PORTS` | Specifies whether or not to insert buffers on input ports whenever resizer optimizations are run. For this to be used, `PL_RESIZER_DESIGN_OPTIMIZATIONS` must be set to 1. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
@@ -183,14 +207,13 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MACRO_HALO` | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
 | `PL_MACRO_CHANNEL` | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
 | `MACRO_PLACEMENT_CFG` | Specifies the path a file specifying how openlane should place certain macros |
-| `UNBUFFER_NETS` | **Deprecated: Use `RSZ_DONT_TOUCH_RX`** A regular expression used to match nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. <br> (Default: `^$`, matches nothing.) |
-| `DONT_BUFFER_PORTS` | **Removed: Use `RSZ_DONT_TOUCH_RX`.** Semicolon;delimited list of nets from which to remove buffers. <br> (Default: Empty) |
+| `UNBUFFER_NETS` | **Deprecated: Use `RSZ_DONT_TOUCH_RX`**: A regular expression used to match nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. |
+| `DONT_BUFFER_PORTS` | **Removed: Use `RSZ_DONT_TOUCH_RX`**: Semicolon;delimited list of nets from which to remove buffers. |
 
 ### CTS
 
 |Variable|Description|
 |-|-|
-| `CTS_TARGET_SKEW` | The target clock skew in picoseconds. <br> (Default: `200`ps)|
 | `RUN_CTS` | Enable clock tree synthesis. <br> (Default: `1`)|
 | `CTS_TOLERANCE` | An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 | `CTS_SINK_CLUSTERING_SIZE` | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
@@ -199,16 +222,16 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CTS_CLK_MAX_WIRE_LENGTH` | Specifies the maximum wire length on the clock net. Value in microns. <br> (Default: `0`) |
 | `CTS_DISABLE_POST_PROCESSING` | Specifies whether or not to disable post cts processing for outlier sinks. <br> (Default: `0`) |
 | `CTS_DISTANCE_BETWEEN_BUFFERS` | Specifies the distance (in microns) between buffers when creating the clock tree (Default: `0`) |
-| `LIB_CTS` | The liberty file used for CTS for typical corner. By default, this is the `LIB_SYNTH_COMPLETE` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
+| `LIB_CTS` | The liberty file used for CTS for typical corner. By default, this is the `LIB_SYNTH` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts.lib`) |
 | `LIB_CTS_SLOWEST` | The liberty file used for CTS for slowest corner. By default, this is the `LIB_SLOWEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-slowest.lib`) |
 | `LIB_CTS_FASTEST` | The liberty file used for CTS for fastest corner. By default, this is the `LIB_FASTEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-fastest.lib`) |
 | `CTS_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during CTS. <br> (Default: `1`) |
-| `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `CLOCK_TREE_SYNTH` | **Deprecated: Use `RUN_CTS`**: Enable clock tree synthesis. 1 = Enabled, 0 = Disabled. |
+| `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`**: Enables fill cells insertion after CTS. 1 = Enabled, 0 = Disabled. |
+| `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Run an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled. |
+| `CTS_TARGET_SKEW` | **Removed: No longer supported by underlying utility.** The target clock skew in picoseconds. <br> (Default: `200`ps)|
 
-### Routing
-
-> **Note:** All variables previously prefixed GLB_RT_ have had their prefix changed to GRT_.
+### Routing 
 
 |Variable|Description|
 |-|-|
@@ -217,8 +240,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `ROUTING_CORES` | Specifies the number of threads to be used in TritonRoute. Can be overriden via environment variable. <br> (Default: `2`) |
 | `RT_CLOCK_MIN_LAYER` | The name of lowest layer to be used in routing the clock net. <br> (Default: `RT_MIN_LAYER`)|
 | `RT_CLOCK_MAX_LAYER` | The name of highest layer to be used in routing the clock net. <br> (Default: `RT_MAX_LAYER`)|
-| `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
-| `GLB_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed after global routing or not. 0 = false, 1 = true <br> (Default: `1`)
+| `GLB_RESIZER_TIMING_OPTIMIZATIONS` | Specifies whether resizer timing optimizations should be performed after global routing or not. 1 = Enabled, 0 = Disabled. <br> (Default: `1`)
+| `GLB_RESIZER_DESIGN_OPTIMIZATIONS` | Specifies whether resizer design optimizations should be performed after global routing or not. 1 = Enabled, 0 = Disabled. <br> (Default: `1`)
 | `GLB_RESIZER_MAX_WIRE_LENGTH` | Specifies the maximum wire length cap used by resizer to insert buffers. If set to 0, no buffers will be inserted. Value in microns. <br> (Default: `0`)|
 | `GLB_RESIZER_MAX_SLEW_MARGIN` | Specifies a margin for the slews. <br> (Default: `10`)|
 | `GLB_RESIZER_MAX_CAP_MARGIN` | Specifies a margin for the capacitances. <br> (Default: `10`)|
@@ -228,27 +251,29 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GLB_RESIZER_SETUP_MAX_BUFFER_PERCENT` | Specifies a max number of buffers to insert to fix setup violations. This number is calculated as a percentage of the number of instances in the design. <br> (Default: `50`)|
 | `GLB_RESIZER_ALLOW_SETUP_VIOS` | Allows setup violations when fixing hold. <br> (Default: `0`)|
 | `GLB_OPTIMIZE_MIRRORING` | Specifies whether or not to run an optimize_mirroring pass whenever detailed placement happens after Routing timing optimization. This pass will mirror the cells whenever possible to optimize the design. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `GRT_ALLOW_CONGESTION` | Allow congestion in the resulting guides. 0 = false, 1 = true <br> (Default: `0`) 
-| `GRT_OVERFLOW_ITERS` | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
-| `GRT_ANT_ITERS` | The maximum number of iterations for global router repair_antenna. This option is only available when `GRT_REPAIR_ANTENNAS` is enabled. <br> (Default: `15`) |
-| `GRT_ANT_MARGIN` | The margin to over fix antenna violations in global routing as a percentage. This option is only available when `GRT_REPAIR_ANTENNAS` is enabled. <br> (Default: `10`) |
-| `GRT_ESTIMATE_PARASITICS` | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `GRT_MAX_DIODE_INS_ITERS` | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in when `GRT_REPAIR_ANTENNAS` is enabled.  <br> (Default: `1`) |
-| `GRT_REPAIR_ANTENNAS` | Enables OpenROAD's antenna avoidance flow. <br> (Default: `1`) |
-| `GRT_OBS` | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
-| `GRT_ADJUSTMENT` | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
-| `GRT_MACRO_EXTENSION` | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
+| `GRT_ALLOW_CONGESTION`‡ | Allow congestion in the resulting guides. 0 = false, 1 = true <br> (Default: `0`) 
+| `GRT_OVERFLOW_ITERS`‡ | The maximum number of iterations waiting for the overflow to reach the desired value. <br> (Default: `50`) |
+| `GRT_ANT_ITERS`‡ | The maximum number of iterations for global router repair_antenna. This option is only available when `GRT_REPAIR_ANTENNAS` is enabled. <br> (Default: `15`) |
+| `GRT_ANT_MARGIN`‡ | The margin to over fix antenna violations in global routing as a percentage. This option is only available when `GRT_REPAIR_ANTENNAS` is enabled. <br> (Default: `10`) |
+| `GRT_ESTIMATE_PARASITICS`‡ | Specifies whether or not to run STA after global routing using OpenROAD's estimate_parasitics -global_routing and generates reports under `logs/routing`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `GRT_MAX_DIODE_INS_ITERS`‡ | Controls the maximum number of iterations at which re-running Fastroute for diode insertion stops. Each iteration ARC detects the violations and FastRoute fixes them by inserting diodes, then producing the new DEF. The number of antenna violations is compared with the previous iteration and if they are equal or the number is greater the iterations stop and the DEF from the previous iteration is used in the rest of the flow. If the current antenna violations reach zero, the current def will be used and the iterations will not continue. This option is only available in when `GRT_REPAIR_ANTENNAS` is enabled.  <br> (Default: `1`) |
+| `GRT_REPAIR_ANTENNAS`‡ | Enables OpenROAD's antenna avoidance flow. <br> (Default: `1`) |
+| `GRT_OBS`‡ | Specifies custom obstruction to be added prior to global routing. Comma-delimited ([warning](#on-comma-delimited-variables)) list of layer and coordinates: `layer llx lly urx ury`, where `ll` and `ur` stand for "lower left" and "upper right" respectively.<br> (Example: `li1 0 100 1000 300, met5 0 0 1000 500`)  <br> (Default: unset) |
+| `GRT_ADJUSTMENT`‡ | Reduction in the routing capacity of the edges between the cells in the global routing graph. Values range from 0 to 1. <br> 1 = most reduction, 0 = least reduction  <br> (Default: `0.3`)|
+| `GRT_MACRO_EXTENSION`‡ | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
 | `DRT_MAX_LAYER` | An optional override to the highest layer used in detailed routing. <br> (Default: `RT_MAX_LAYER`)|
 | `DRT_OPT_ITERS` | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
-| `ROUTING_OPT_ITERS` |**Removed: Use DRT_OPT_ITERS**: Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
-| `GLB_RT_MINLAYER` | **Removed: Use RT_MIN_LAYER**: The number of lowest layer to be used in routing. <br> (Default: `1`)|
-| `GLB_RT_MAXLAYER` | **Removed: Use RT_MAX_LAYER**: The number of highest layer to be used in routing. <br> (Default: `6`)|
-| `GLB_RT_CLOCK_MINLAYER` | **Removed: Use RT_CLOCK_MIN_LAYER**: The number of lowest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MINLAYER`)|
-| `GLB_RT_CLOCK_MAXLAYER` | **Removed: Use RT_CLOCK_MIN_LAYER**: The number of highest layer to be used in routing the clock net. <br> (Default: `GLB_RT_MAXLAYER`)|
+| `ROUTING_OPT_ITERS` |**Removed: Use `DRT_OPT_ITERS`**: Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute.|
+| `GLB_RT_MINLAYER` | **Removed: Use `RT_MIN_LAYER`**: The number of lowest layer to be used in routing.|
+| `GLB_RT_MAXLAYER` | **Removed: Use `RT_MAX_LAYER`**: The number of highest layer to be used in routing.|
+| `GLB_RT_CLOCK_MINLAYER` | **Removed: Use `RT_CLOCK_MIN_LAYER`**: The number of lowest layer to be used in routing the clock net.|
+| `GLB_RT_CLOCK_MAXLAYER` | **Removed: Use `RT_CLOCK_MIN_LAYER`**: The number of highest layer to be used in routing the clock net.|
 | `GLB_RT_L{1/2/3/4/5/6}_ADJUSTMENT` | **Removed: See PDK variable `GRT_LAYER_ADJUSTMENTS` instead**: Reduction in the routing capacity of the edges between the cells in the global routing graph but specific to a metal layer in sky130A. Values ranged from 0 to 1 |
-| `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 0 = false, 1 = true <br> (Default: `1`) |
-| `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. <br> (Default: `15`) |
+| `GLB_RT_UNIDIRECTIONAL` | **Removed**: Allow unidirectional routing. 1 = Enabled, 0 = Disabled. |
+| `GLB_RT_TILES` | **Removed**: The size of the GCELL used by Fastroute during global routing. |
+
+> **‡** Variable previously prefixed `GLB_RT_` have had its prefix changed to `GRT_`. The replaced variable is deprecated and will be translated to its new form automatically by the flow.
 
 ### RC Extraction
 
@@ -257,8 +282,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `SPEF_EXTRACTOR` | Specifies which spef extractor to use. Values: `openrcx` or (**removed:** `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
 | `RCX_SDC_FILE` | Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
-| `SPEF_WIRE_MODEL` | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi`  <br> (Default: `L`) |
-| `SPEF_EDGE_CAP_FACTOR` | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 <br> (Default: `1`) |
+| `SPEF_WIRE_MODEL` | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi` |
+| `SPEF_EDGE_CAP_FACTOR` | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 |
 
 ### IR Drop Analysis
 
@@ -290,8 +315,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `LVS_INSERT_POWER_PINS` |  Enables power pins insertion before running lvs. 1 = Enabled, 0 = Disabled <br> (Default: `1` )|
-| `LVS_CONNECT_BY_LABEL` | Enables connections by label in LVS by skipping `extract unique` in magic extractions. <br> Default: `0` |
+| `LVS_INSERT_POWER_PINS` |  Enables power pins insertion before running lvs. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `LVS_CONNECT_BY_LABEL` | Enables connections by label in LVS by skipping `extract unique` in magic extractions. <br> (Default: `0`) |
 | `YOSYS_REWRITE_VERILOG` | Enables yosys to rewrite the verilog before LVS producing a canonical verilog netlist with verbose wire declarations. 1 = Enabled, 0 = Disabled <br> (Default: `0` ) |
 
 ### Flow control
@@ -302,44 +327,45 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_DRT` | Enables detailed routing. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_LVS` | Enables running LVS. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_HEURISTIC_DIODE_INSERTION` | Enables running heuristic antenna insertion script. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `RUN_HEURISTIC_DIODE_INSERTION` | Runs a script by [Sylvain Munaut](https://github.com/smunaut) that inserts diodes heuristically based on . 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_MAGIC` | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_MAGIC_DRC` | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT` | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT_DRC` | Enables running KLayout DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `RUN_KLAYOUT_XOR` | Enables running KLayout XOR on 2 GDSIIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> Default: `1` |
-| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1=Enabled, 0=Disabled. <br> Default: `1` |
-| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1=Enabled, 0=Disabled. <br> Default: `0` |
+| `RUN_SPEF_EXTRACTION` | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> (Default: `1`) |
+| `RUN_CVC` | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `RUN_IRDROP_REPORT` | Creates an IR Drop report using OpenROAD PSM. 1 = Enabled, 0 = Disabled. <br> (Default: `0`) |
 | `RUN_TAP_DECAP_INSERTION` | Enables tap and decap cells insertion after floorplanning. 1 = Enabled, 0 = Disabled <br> (Default: `1`) |
 | `RUN_FILL_INSERTION` | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_DRC_KLAYOUT_GDS` | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1=enabled 0=disabled <br> Default: `1` |
+| `GENERATE_FINAL_SUMMARY_REPORT` | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `LEC_ENABLE` | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
-| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1=Enabled, 0=Disabled. <br> (Default: `0`) |
+| `USE_GPIO_PADS` | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1 = Enabled, 0 = Disabled. <br> (Default: `0`) |
 | `PRIMARY_SIGNOFF_TOOL` | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `KLAYOUT_XOR_GDS` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_XOR_XML` | If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
-| `DIODE_INSERTION_STRATEGY` | **Deprecated** Specifies the insertion strategy of diodes to be used in the flow. |
-| | 0: No diode insertion. |
-| | 1: **removed** Spray diodes. |
-| | 2: **removed** Insert fake diodes and replace them with real diodes if needed. |
-| | (**Default**) 3: Use OpenROAD's Antenna Avoidance flow. |
-| | 4: Use Sylvain Minaut's custom script for diode insertion. |
-| | 5: **removed** A combination of strategies 2 and 4. |
-| | 6: A combination of strategies 3 and 4. | 
-| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: NONE) |
+| `DIODE_ON_PORTS` | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
 | `HEURISTIC_ANTENNA_THRESHOLD` | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `USE_ARC_ANTENNA_CHECK` | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_LINTER` | Enable linter (currently Verilator) <br> (Default: `1`)
-| `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`** Enables tap and decap cells insertion after floorplanning (if enabled) .1 = Enabled, 0 = Disabled <br> (Default: `1`) |
-| `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run** Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1=enabled 0=disabled <br> Default: `1`|
-| `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`** Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check.<br> (Default: `all`) |
-| `QUIT_ON_MISMATCHES` | **Removed: See `./flow.tcl -ignore_mismatches`** Whether to halt the flow execution or not if mismatches are found. (Default: `1`) |
-| `KLAYOUT_XOR_GDS` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `KLAYOUT_XOR_XML` | **Removed: XML always generated** If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `TAP_DECAP_INSERTION` | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`**: Enables tap and decap cells insertion after floorplanning. 1 = Enabled, 0 = Disabled. |
+| `RUN_ROUTING_DETAILED` | **Deprecated: Use `RUN_DRT`**: Enables detailed routing. 1 = Enabled, 0 = Disabled. <br> (Default: `1`)|
+| `DIODE_INSERTION_STRATEGY` | **Deprecated: Update replacement variables `GRT_REPAIR_ANTENNAS` and `RUN_HEURISTIC_DIODE_INSERTION` as per the instructions below**: Specifies the insertion strategy of diodes to be used in the flow. |
+| | 0: No diode insertion. Equivalent to replacement variables being set to `0`. |
+| | 1: **Removed**: Spray diodes. |
+| | 2: **Removed**: Insert fake diodes and replace them with real diodes if needed. |
+| | 3: Use OpenROAD's Antenna Avoidance flow. Equivalent to replacement variables being set to `1` and `0` respectively. |
+| | 4: Use Sylvain Minaut's custom script for diode insertion. Equivalent to replacement variables being set to `0` and `1` respectively. |
+| | 5: **Removed**: A combination of strategies 2 and 4. |
+| | 6: A combination of strategies 3 and 4. Equivalent to replacement variables being set to `1`. |
+| `MAGIC_CONVERT_DRC_TO_RDB` | **Removed: Will always run**: Specifies whether or not generate a Calibre RDB out of the magic.drc report. Result is saved in `<run_path>/results/magic/`. 1 = Enabled, 0 = Disabled. |
+| `TEST_MISMATCHES` | **Removed: See `./flow.tcl -test_mismatches`**: Test for mismatches between the OpenLane tool versions and the current environment. `all` tests all mismatches. `tools` tests all except the PDK. `pdk` only tests the PDK. `none` disables the check. |
+| `QUIT_ON_MISMATCHES` | **Removed: See `./flow.tcl -ignore_mismatches`**: Whether to halt the flow execution or not if `TEST_MISMATCHES` is enabled and any mismatches are found. |
+| `KLAYOUT_XOR_GDS` | **Removed: XML always generated**: If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled.|
+| `KLAYOUT_XOR_XML` | **Removed: XML always generated**: If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled. |
 
 
 ### Checkers
@@ -360,10 +386,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_TIMING_VIOLATIONS ` | Controls `QUIT_ON_HOLD_VIOLATIONS` and `QUIT_ON_SETUP_VIOLATIONS` <br> (Default: `1`)|
 | `QUIT_ON_LINTER_WARNINGS` | Quit on warnings generated by linter (currently Verilator) <br> (Default: `0`)|
 | `QUIT_ON_LINTER_ERRORS` | Quit on errors generated by linter (currently Verilator) <br> (Default: `1`)|
-| `LINTER_RELATIVE_INCLUDES` | When a file references an include file, resolve the filename relative to the path of the referencing file, instead of relative to the current directory. <br> (Default: `1`) |
-| `LINTER_INCLUDE_PDK_MODELS` | Enables including verilog models of the pdk with the linter. This is useful when the design has hand instantiated macros. This variable has no effect if the PDK/STD_CELL_LIBRARY aren't supported. Currently, sky130A/sky130_fd_sc_hd and sky130B/sky130_fd_sc_hd are the only ones supported <br> (Default: `1`) |
-| `LINTER_DEFINES` | A list of defines that are passed to the linter. The syntax for each item in the list is as follows `<define>(=<value>)`. `(=value)` is optional. Both `PnR=1` or `PnR` are accepted <br> (Default: `SYNTH_DEFINES`) |
-
 
 ### On comma-delimited variables
 :::{warning}
