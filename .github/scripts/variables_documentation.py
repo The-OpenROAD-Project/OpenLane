@@ -220,7 +220,7 @@ undocumented = sorted(
     used_variables_set - docs_variables_set - deprecated_docs_variables_set - white_list
 )
 if undocumented:
-    print("ERROR: found the following undocumented variables.")
+    print("[ERROR]: found the following undocumented variables.")
     for var in undocumented:
         print(var)
     exit(1)
