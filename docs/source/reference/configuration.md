@@ -203,6 +203,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `LIB_CTS_SLOWEST` | The liberty file used for CTS for slowest corner. By default, this is the `LIB_SLOWEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-slowest.lib`) |
 | `LIB_CTS_FASTEST` | The liberty file used for CTS for fastest corner. By default, this is the `LIB_FASTEST` minus the cells with drc errors as specified by the drc exclude list. <br> (Default: `$::env(cts_tmpfiles)/cts-fastest.lib`) |
 | `CTS_MULTICORNER_LIB` | A flag for reading fastest and slowest corner during CTS. <br> (Default: `1`) |
+| `CLOCK_TREE_SYNTH` | **Deprecated: Use `RUN_CTS`**: Enable clock tree synthesis. <br> (Default: `1`)|
 | `FILL_INSERTION` | **Removed: Use `RUN_FILL_INSERTION`** Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_SIMPLE_CTS` | **Removed: TritonCTS is always run**: Runs an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
