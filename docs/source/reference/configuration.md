@@ -365,6 +365,8 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `LINTER_RELATIVE_INCLUDES` | When a file references an include file, resolve the filename relative to the path of the referencing file, instead of relative to the current directory. <br> (Default: `1`) |
 | `LINTER_INCLUDE_PDK_MODELS` | Enables including verilog models of the pdk with the linter. This is useful when the design has hand instantiated macros. This variable has no effect if the PDK/STD_CELL_LIBRARY aren't supported. Currently, sky130A/sky130_fd_sc_hd and sky130B/sky130_fd_sc_hd are the only ones supported <br> (Default: `1`) |
 | `LINTER_DEFINES` | A list of defines that are passed to the linter. The syntax for each item in the list is as follows `<define>(=<value>)`. `(=value)` is optional. Both `PnR=1` or `PnR` are accepted <br> (Default: `SYNTH_DEFINES`) |
+| `CHECK_ASSIGN_STATEMENTS` | **Deprecated: use `QUIT_ON_ASSIGN_STATEMENTS`** Checks for assign statement in the generated gate level netlist and aborts of any was found.1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `CHECK_UNMAPPED_CELLS` | **Deprecated: used `QUIT_ON_UNMAPPED_CELLS`** Checks if there are unmapped cells after synthesis and aborts if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 
 ### On comma-delimited variables
