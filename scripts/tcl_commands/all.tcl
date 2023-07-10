@@ -1200,8 +1200,11 @@ proc run_or_antenna_check {args} {
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/antenna_check.tcl -indexed_log $log
 
     set antenna_violators_rpt [index_file $::env(signoff_reports)/antenna_violators.rpt]
+    set antenna_violators_plain [index_file $::env(signoff_reports)/antenna_violators.txt]
+
     try_exec python3 $::env(SCRIPTS_DIR)/extract_antenna_violators.py\
         --output $antenna_violators_rpt\
+        --plain-out $antenna_violators_plain\
         $log
 
     set ::env(ANTENNA_VIOLATOR_LIST) $antenna_violators_rpt
