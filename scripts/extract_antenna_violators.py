@@ -34,8 +34,9 @@ class AntennaViolation:
 
 @click.command()
 @click.option("-o", "--output", required=True, help="Output file to store results.")
+@click.option("--plain-out", default=False, help="Only outputs a list of violating pins")
 @click.argument("report", nargs=1)
-def extract_antenna_violators(output, report):
+def extract_antenna_violators(output, report, plain_out):
     """
     Usage: extract_antenna_violators.py -o <output text file> <input ARC report>
     Extracts the list of violating nets from an ARC report file"
@@ -90,8 +91,12 @@ def extract_antenna_violators(output, report):
     violations.sort(reverse=True)
     with open(output, "w") as f:
         for violation in violations:
-            print(f"{violation}")
-            f.write(f"{violation}\n")
+            if plain_out:
+                print(violation.pin)
+                f.write(f"{violation.pin}\n")
+            else:
+                print(violation)
+                f.write(f"{violation}\n")
 
 
 if __name__ == "__main__":
