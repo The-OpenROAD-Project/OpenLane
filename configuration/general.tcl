@@ -32,6 +32,8 @@ set ::env(RSZ_USE_OLD_REMOVER) 0
 ## STA
 set ::env(STA_REPORT_POWER) {1}
 set ::env(STA_WRITE_LIB) {1}
+
+### Private: Not granular enough, not going to be compatible with OL2
 set ::env(STA_MULTICORNER_READ_LIBS) 0
 
 ## Routing
