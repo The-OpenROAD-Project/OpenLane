@@ -5,6 +5,15 @@ if {[info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != ""} {
     set ::env(CLOCK_PORT) __VIRTUAL_CLK__
 }
 
+set_units\
+    -time ns\
+    -capacitance pF\
+    -current mA\
+    -voltage V\
+    -power mW\
+    -resistance ohm\
+    -altitude meters
+
 set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
@@ -40,7 +49,8 @@ if { ![info exists ::env(SYNTH_CLK_DRIVING_CELL_PIN)] } {
 set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) $all_inputs_wo_clk_rst
 set_driving_cell -lib_cell $::env(SYNTH_CLK_DRIVING_CELL) -pin $::env(SYNTH_CLK_DRIVING_CELL_PIN) $clk_input
 
-set cap_load [expr $::env(OUTPUT_CAP_LOAD) / 1000.0]
+# fF -> pF
+set cap_load [expr $::env(OUTPUT_CAP_LOAD) / 1000.0] 
 puts "\[INFO\]: Setting load to: $cap_load"
 set_load  $cap_load [all_outputs]
 
