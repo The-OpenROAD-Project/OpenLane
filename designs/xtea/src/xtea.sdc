@@ -4,8 +4,7 @@ set_units\
     -current mA\
     -voltage V\
     -power mW\
-    -resistance ohm\
-    -altitude meters
+    -resistance ohm
 
 create_clock [get_ports $::env(CLOCK_PORT)]  -name $::env(CLOCK_PORT)  -period $::env(CLOCK_PERIOD)
 set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]

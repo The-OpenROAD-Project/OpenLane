@@ -11,8 +11,7 @@ set_units\
     -current mA\
     -voltage V\
     -power mW\
-    -resistance ohm\
-    -altitude meters
+    -resistance ohm
 
 set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
