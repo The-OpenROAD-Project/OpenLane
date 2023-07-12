@@ -65,10 +65,7 @@ These variables are optional that can be specified in the design configuration f
 |-|-|
 | `SYNTH_AUTONAME` | Add a synthesis step to generate names for instances. This results in instance names that can be very long, but may be more useful than the internal names that are six digit numbers. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_BIN` | The yosys binary used in the flow. <br> (Default: `yosys`) |
-| `SYNTH_CAP_LOAD` | The capacitive load on the output ports in femtofarads. <br> (Default: `33.5` ff)|
 | `SYNTH_DEFINES` | Specifies verilog defines. Variable should be provided as a json/tcl list. <br> (Default: NONE) |
-| `SYNTH_MAX_FANOUT`  | The max load that the output ports can drive. <br> (Default: `10` cells) |
-| `SYNTH_MAX_TRAN` | The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
 | `SYNTH_CLOCK_UNCERTAINTY`  | Specifies a value for the clock uncertainty/jitter for timing analysis. <br> (Default: `0.25`) |
 | `SYNTH_CLOCK_TRANSITION`  |  Specifies a value for the clock transition /slew for timing analysis. <br> (Default: `0.15`) |
 | `SYNTH_TIMING_DERATE`  | Specifies a derating factor to multiply the path delays with. It specifies the upper and lower ranges of timing. <br> (Default: `+5%/-5%`) |
@@ -90,7 +87,8 @@ These variables are optional that can be specified in the design configuration f
 | `SYNTH_BUFFER_DIRECT_WIRES` | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
 | `SYNTH_SPLITNETS` | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
 | `SYNTH_TOP_LEVEL` | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
-
+| `SYNTH_MAX_FANOUT`  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
+| `SYNTH_MAX_TRAN` |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
 
 ### STA
 

@@ -5,7 +5,7 @@
     "CLOCK_NET": "i_clk",
     "pdk::sky130*": {
         "CLOCK_PERIOD": 20,
-        "SYNTH_MAX_FANOUT": 6,
+        "MAX_FANOUT_CONSTRAINT": 6,
         "FP_CORE_UTIL": 40,
         "scl::sky130_fd_sc_hd": {
             "SYNTH_STRATEGY": "DELAY 2"

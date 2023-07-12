@@ -9,7 +9,7 @@
     make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 482d7534a27c51d0d1c8a466494680d185d334ee
+  commit: 8b3bb1ae771da1673ac148987466ff31c63513cd
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -18,7 +18,7 @@
     make install
 - name: netgen
   repo: https://github.com/rtimothyedwards/netgen
-  commit: 28a29504390d53cd3748ff2636be112ef299da0b
+  commit: 87d8759a6980d297edcb9be6f8661867e4726f9a
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
@@ -73,6 +73,6 @@
   in_install: false
 - name: open_pdks
   repo: https://github.com/RTimothyEdwards/open_pdks
-  commit: 3df14f84ab167baf757134739bb1d2c5c044849c
+  commit: 78b7bc32ddb4b6f14f76883c2e2dc5b5de9d1cbc
   in_install: false
   pdk: true

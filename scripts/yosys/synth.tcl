@@ -64,12 +64,15 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
 
 set driver  $::env(SYNTH_DRIVING_CELL)
-set cload   $::env(SYNTH_CAP_LOAD)
+
+# fF -> pF
+set cap_load $::env(OUTPUT_CAP_LOAD)
+
 # input pin cap of IN_3VX8
-set max_FO $::env(SYNTH_MAX_FANOUT)
+set max_FO $::env(MAX_FANOUT_CONSTRAINT)
 set max_TR 0
-if { [info exist ::env(SYNTH_MAX_TRAN)]} {
-    set max_TR [expr {$::env(SYNTH_MAX_TRAN) * 1000}]; # ns -> ps
+if { [info exist ::env(MAX_TRANSITION_CONSTRAINT)]} {
+    set max_TR [expr {$::env(MAX_TRANSITION_CONSTRAINT) * 1000}]; # ns -> ps
 }
 
 
@@ -87,7 +90,7 @@ set CHK_EXT    "chk.rpt"
 set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
 puts $outfile "set_driving_cell ${driver}"
-puts $outfile "set_load ${cload}"
+puts $outfile "set_load ${cap_load}"
 close $outfile
 
 

@@ -31,8 +31,8 @@ repair_clock_inverters
 puts "\[INFO\]: Configuring cts characterization..."
 set cts_characterization_args [list]
 lappend -max_cap [expr {$::env(CTS_MAX_CAP) * 1e-12}]; # pF -> F
-if { [info exists ::env(SYNTH_MAX_TRAN)] } {
-    lappend -max_slew [expr {$::env(SYNTH_MAX_TRAN) * 1e-9}]; # ns -> S
+if { [info exists ::env(MAX_TRANSITION_CONSTRAINT)] } {
+    lappend -max_slew [expr {$::env(MAX_TRANSITION_CONSTRAINT) * 1e-9}]; # ns -> S
 }
 configure_cts_characterization {*}$cts_characterization_args
 
