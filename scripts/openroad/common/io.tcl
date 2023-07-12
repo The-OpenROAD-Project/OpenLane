@@ -96,6 +96,22 @@ proc read_netlist {args} {
 
 }
 
+
+proc print_units {args} {
+    foreach {unit} {
+        capacitance
+        resistance
+        time
+        voltage
+        current
+        power
+        distance
+    } {
+        set scale [sta::unit_scale $unit]
+        puts "Using [format %.0e $scale] for $unit..."
+    }
+}
+
 proc read_libs {args} {
     sta::parse_key_args "read_libs" args \
         keys {-typical -slowest -fastest}\
@@ -129,6 +145,8 @@ proc read_libs {args} {
             }
         }
     }
+
+    print_units
 }
 
 proc read {args} {

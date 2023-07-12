@@ -5,14 +5,6 @@ if {[info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != ""} {
     set ::env(CLOCK_PORT) __VIRTUAL_CLK__
 }
 
-set_units\
-    -time ns\
-    -capacitance pF\
-    -current mA\
-    -voltage V\
-    -power mW\
-    -resistance ohm
-
 set input_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 set output_delay_value [expr $::env(CLOCK_PERIOD) * $::env(IO_PCT)]
 puts "\[INFO\]: Setting output delay to: $output_delay_value"
