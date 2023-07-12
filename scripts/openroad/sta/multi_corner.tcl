@@ -61,16 +61,6 @@ if { $::env(STA_PRE_CTS) } {
     unset_propagated_clock [all_clocks]
 }
 
-# Only changes output
-set_cmd_units\
-    -capacitance pF \
-    -resistance ohm \
-    -time ns \
-    -voltage V \
-    -current uA \
-    -power mW \
-    -distance um
-
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"

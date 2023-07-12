@@ -66,7 +66,7 @@ set clock_period [expr {$::env(CLOCK_PERIOD) * 1000}]; # ns -> ps
 set driver  $::env(SYNTH_DRIVING_CELL)
 
 # fF -> pF
-set cap_load [expr $::env(OUTPUT_CAP_LOAD) / 1000.0]
+set cap_load $::env(OUTPUT_CAP_LOAD)
 
 # input pin cap of IN_3VX8
 set max_FO $::env(MAX_FANOUT_CONSTRAINT)
@@ -90,7 +90,6 @@ set CHK_EXT    "chk.rpt"
 set sdc_file $::env(synthesis_tmpfiles)/synthesis.sdc
 set outfile [open ${sdc_file} w]
 puts $outfile "set_driving_cell ${driver}"
-puts $outfile "set_unit -capacitance pF"
 puts $outfile "set_load ${cap_load}"
 close $outfile
 
