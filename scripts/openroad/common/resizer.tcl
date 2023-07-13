@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 proc set_dont_touch_wrapper {} {
-    if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && \
-        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $::env(RSZ_DONT_TOUCH_RX) != {^$}) } {
+    if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && $::env(RSZ_DONT_TOUCH_RX) != {^$} } {
 
         set pattern $::env(RSZ_DONT_TOUCH_RX)
         variable odb_block [[[::ord::get_db] getChip] getBlock]
@@ -35,15 +34,13 @@ proc set_dont_touch_wrapper {} {
         }
     }
 
-    if { [info exists ::env(RSZ_DONT_TOUCH_LIST)] } {
-        set_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
+    if { [info exists ::env(RSZ_DONT_TOUCH)] } {
+        set_dont_touch $::env(RSZ_DONT_TOUCH)
     }
 }
 
 proc unset_dont_touch_wrapper {} {
-    if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && \
-        ($::env(RSZ_USE_OLD_REMOVER) != 1 || $::env(RSZ_DONT_TOUCH_RX) != {^$}) } {
-
+    if { [info exists ::env(RSZ_DONT_TOUCH_RX)] && $::env(RSZ_DONT_TOUCH_RX) != {^$} } {
         set pattern $::env(RSZ_DONT_TOUCH_RX)
         variable odb_block [[[::ord::get_db] getChip] getBlock]
         set odb_nets [odb::dbBlock_getNets $::odb_block]
@@ -62,7 +59,7 @@ proc unset_dont_touch_wrapper {} {
         }
     }
 
-    if { [info exists ::env(RSZ_DONT_TOUCH_LIST)] } {
-        unset_dont_touch $::env(RSZ_DONT_TOUCH_LIST)
+    if { [info exists ::env(RSZ_DONT_TOUCH)] } {
+        unset_dont_touch $::env(RSZ_DONT_TOUCH)
     }
 }

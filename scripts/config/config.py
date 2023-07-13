@@ -29,7 +29,7 @@ class ConfigHandler:
     configuration_values = [
         "CLOCK_PERIOD",
         "SYNTH_STRATEGY",
-        "SYNTH_MAX_FANOUT",
+        "MAX_FANOUT_CONSTRAINT",
         "FP_CORE_UTIL",
         "FP_ASPECT_RATIO",
         "FP_PDN_VPITCH",

@@ -35,6 +35,15 @@ proc handle_deprecated_config {old new} {
     }
 }
 
+proc handle_deprecated_pdk_config {old new} {
+    if { [info exists ::env($old)] } {
+        puts_warn "$old is now deprecated; use $new instead."
+        set ::env($new) $::env($old)
+        return 1
+    }
+    return 0
+}
+
 proc handle_diode_insertion_strategy {} {
     if { [info exists ::env(DIODE_INSERTION_STRATEGY)] } {
         puts_warn "DIODE_INSERTION_STRATEGY is now deprecated; use GRT_REPAIR_ANTENNAS, DIODE_ON_PORTS and RUN_HEURISTIC_DIODE_INSERTION instead."

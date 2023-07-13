@@ -19,6 +19,41 @@ proc is_blackbox {file_path blackbox_wildcard} {
     return [expr !$not_found]
 }
 
+proc string_in_file {file_path substring} {
+    set f [open $file_path r]
+    set data [read $f]
+    close $f
+
+    if { [string first $substring $data] != -1} {
+        return 1
+    }
+    return 0
+}
+
+proc env_var_used {file var} {
+    return [string_in_file $file "\$::env($var)"]
+}
+
+proc read_current_sdc {} {
+    if { ![info exists ::env(CURRENT_SDC)]} {
+        puts "\[INFO] CURRENT_SDC not found. Not reading an SDC file."
+        return
+    }
+
+    set ::env(SYNTH_MAX_FANOUT) $::env(MAX_FANOUT_CONSTRAINT)
+    set ::env(SYNTH_CAP_LOAD) $::env(OUTPUT_CAP_LOAD)
+    if { [info exists ::env(MAX_TRANSITION_CONSTRAINT)] } {
+        set ::env(SYNTH_MAX_TRAN) $::env(MAX_TRANSITION_CONSTRAINT)
+    }
+
+    puts "Reading design constraints file at '$::env(CURRENT_SDC)'…"
+    if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
+        puts stderr $errmsg
+        exit 1
+    }
+}
+
+
 proc read_netlist {args} {
     sta::parse_key_args "read_netlists" args \
         keys {}\
@@ -56,12 +91,25 @@ proc read_netlist {args} {
     link_design $::env(DESIGN_NAME)
 
     if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
-            puts stderr $errmsg
-            exit 1
-        }
+        read_current_sdc
     }
 
+}
+
+
+proc print_units {args} {
+    foreach {unit} {
+        capacitance
+        resistance
+        time
+        voltage
+        current
+        power
+        distance
+    } {
+        set scale [sta::unit_scale $unit]
+        puts "Using [format %.0e $scale] for $unit..."
+    }
 }
 
 proc read_libs {args} {
@@ -97,6 +145,8 @@ proc read_libs {args} {
             }
         }
     }
+
+    print_units
 }
 
 proc read {args} {
@@ -139,10 +189,7 @@ proc read {args} {
     read_libs {*}$read_libs_args
 
     if { [info exists ::env(CURRENT_SDC)] } {
-        if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
-            puts stderr $errmsg
-            exit 1
-        }
+        read_current_sdc
     }
 
     if { ![info exist flags(-no_spefs)] } {
