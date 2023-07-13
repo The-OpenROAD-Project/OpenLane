@@ -15,6 +15,7 @@
 import os
 import yaml
 import click
+import sys
 
 
 @click.command()
@@ -105,8 +106,11 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
         return design_out
 
     def critical_mismatch(benchmark, regression_result):
-        if len(benchmark):
-            return False, "The design is not benchmarked"
+        if len(benchmark) == 0:
+            return (
+                True,
+                "The design is not benchmarked. Make sure --design and 'design' field in benchmark are the identical",
+            )
         for stat in critical_statistics:
             if compare_vals(benchmark[stat], regression_result[stat], stat):
                 continue
@@ -186,6 +190,10 @@ def cli(benchmark_file, design, run_path, output_report_file, regression_results
 
     with open(output_report_file, "w") as f:
         f.write(current_yaml_str)
+
+    if not did_pass:
+        print(notes, file=sys.stderr)
+        exit(1)
 
 
 if __name__ == "__main__":

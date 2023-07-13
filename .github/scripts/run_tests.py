@@ -98,8 +98,9 @@ results_folder = os.path.join(gh.root, "regression_results", test_name)
 
 
 print("Tarballing run...")
+design_dir = design if os.path.exists(design) else os.path.join("designs", design)
 subprocess.check_call(
-    ["tar", "-czf", "./reproducible.tar.gz", os.path.join("designs", design, "runs")]
+    ["tar", "-czf", "./reproducible.tar.gz", os.path.join(design_dir, "runs")]
 )
 print("Created ./reproducible.tar.gz.")
 

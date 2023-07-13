@@ -9,7 +9,7 @@ This guide covers the RTL-to-GDS flow using [OpenRAM](https://openram.org/) cell
 Create a new design using the following command:
 
 ```
-./flow.tcl -design test_sram_macro -init_design_config -add_to_designs
+./flow.tcl -design ./designs/ci/test_sram_macro -init_design_config -add_to_designs
 ```
 
 ## Create the Verilog files
@@ -108,7 +108,7 @@ The instance names need to be fetched from the synthesis netlist.
 For this purpose run the design until the synthesis stage using the following command:
 
 ```
-./flow.tcl -design test_sram_macro -tag synthesis_only -to synthesis -overwrite
+./flow.tcl -design ./designs/ci/test_sram_macro -tag synthesis_only -to synthesis -overwrite
 ```
 
 Open the following file `designs/test_sram_macro/runs/synthesis_only/results/synthesis/test_sram_macro.v`.
@@ -148,13 +148,13 @@ If these configuration is missing then power/ground will not be connected.
 Try removing the parameter and running:
 
 ```
-./flow.tcl -design test_sram_macro -tag full_guide_pdn_macrohooks -overwrite
+./flow.tcl -design ./designs/ci/test_sram_macro -tag full_guide_pdn_macrohooks -overwrite
 ```
 
 Open an interactive session:
 
 ```
-./flow.tcl -design test_sram_macro -tag full_guide_pdn_macrohooks -interactive
+./flow.tcl -design ./designs/ci/test_sram_macro -tag full_guide_pdn_macrohooks -interactive
 package require openlane
 set_def designs/test_sram_macro/runs/full_guide_pdn_macrohooks/results/final/def/test_sram_macro.def
 or_gui
@@ -172,7 +172,7 @@ Notice that the PDN straps are not connected to ring of SRAM:
 Run the flow until the floorplanning stage:
 
 ```
-./flow.tcl -design test_sram_macro -tag floorplan -overwrite -to floorplan
+./flow.tcl -design ./designs/ci/test_sram_macro -tag floorplan -overwrite -to floorplan
 ```
 
 You will get the following output:
@@ -187,7 +187,7 @@ You will get the following output:
 To view the output of the floorplan stage, run the following command:
 
 ```
-./flow.tcl -design test_sram_macro -tag floorplan -interactive
+./flow.tcl -design ./designs/ci/test_sram_macro -tag floorplan -interactive
 package require openlane
 set_def designs/test_sram_macro/runs/floorplan/results/floorplan/test_sram_macro.def
 or_gui
@@ -263,13 +263,13 @@ Next, modify the `config.json` to reference this file.
 ```
 
 ```
-./flow.tcl -design test_sram_macro -tag floorplan_v2 -overwrite -to floorplan
+./flow.tcl -design ./designs/ci/test_sram_macro -tag floorplan_v2 -overwrite -to floorplan
 ```
 
 To view the output of the floorplan stage, run the following command:
 
 ```
-./flow.tcl -design test_sram_macro -tag floorplan_v2 -interactive
+./flow.tcl -design ./designs/ci/test_sram_macro -tag floorplan_v2 -interactive
 package require openlane
 set_def designs/test_sram_macro/runs/floorplan_v2/results/floorplan/test_sram_macro.def
 or_gui
@@ -416,13 +416,13 @@ Final `config.json` looks like this:
 Finally, harden the macroblock by running the following command:
 
 ```
-./flow.tcl -design test_sram_macro -tag full_guide -overwrite
+./flow.tcl -design ./designs/ci/test_sram_macro -tag full_guide -overwrite
 ```
 
 To view the output of the floorplan stage, run the following command:
 
 ```
-./flow.tcl -design test_sram_macro -tag full_guide -interactive
+./flow.tcl -design ./designs/ci/test_sram_macro -tag full_guide -interactive
 package require openlane
 set_def designs/test_sram_macro/runs/full_guide/results/final/def/test_sram_macro.def
 or_gui

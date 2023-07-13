@@ -179,6 +179,8 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.design_matrix) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -220,11 +222,17 @@ jobs:
           OPENLANE_IMAGE_NAME=$OPENLANE_IMAGE_NAME-amd64\
             python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design.name }}
 
+      - name: Escape Design Name
+        run: |
+          design_name=${{ matrix.design.name }}
+          escaped_design_name=${design_name//\//_}
+          echo "ESCAPED_DESIGN_NAME=$escaped_design_name" >> $GITHUB_ENV
+
       - name: Upload Run Tarball
         if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.design.name }}-${{ matrix.design.pdk }}
+          name: ${{ env.ESCAPED_DESIGN_NAME }}-${{ matrix.design.pdk }}
           path: ./reproducible.tar.gz
 
   cleanup_and_deploy:

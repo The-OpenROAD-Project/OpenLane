@@ -16,7 +16,7 @@ Keep in mind that these designs are not ready for production and are just used t
 Let us create the design. The following command will create a directory `design/mem_1r1w/` and one file `config.json` that will be mostly empty.
 
 ```
-./flow.tcl -design mem_1r1w -init_design_config -add_to_designs
+./flow.tcl -design ./designs/ci/mem_1r1w -init_design_config -add_to_designs
 ```
 
 One of the common mistakes people make is copying existing designs,
@@ -76,7 +76,7 @@ Finally, run OpenLane. `flow.tcl` is the entry point for OpenLane.
 The command needs to be run from inside the environment of OpenLane as described in quickstart.
 
 ```
-./flow.tcl -design mem_1r1w -tag full_guide -overwrite
+./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -overwrite
 ```
 
 ### Analyzing the flow-generated files
@@ -84,7 +84,7 @@ The command needs to be run from inside the environment of OpenLane as described
 You can open the interactive view using the following commands:
 
 ```
-./flow.tcl -design mem_1r1w -tag full_guide -interactive
+./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -interactive
 package require  openlane
 or_gui
 ```

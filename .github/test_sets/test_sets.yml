@@ -1,41 +1,42 @@
 - scl: sky130A/sky130_fd_sc_hd
   name: fastest_test_set
   designs:
-    - inverter
-    - wbqspiflash
-    - APU
-    - s44
-    - zipdiv
-    - xtea
-    - usb
-    - usb_cdc_core
-    - manual_macro_placement_test
+    - ./designs/ci/inverter
+    - ./designs/ci/wbqspiflash
+    - ./designs/ci/APU
+    - ./designs/ci/s44
+    - ./designs/ci/zipdiv
+    - ./designs/ci/xtea
+    - ./designs/ci/usb
+    - ./designs/ci/usb_cdc_core
+    - ./designs/ci/manual_macro_placement_test
     - spm
-    - gcd
-    - caravel_upw
+    - ./designs/ci/gcd
+    - ./designs/ci/caravel_upw
+    - ./designs/ci/aes_user_project_wrapper
 - scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
   designs:
-    - BM64
-    - salsa20
-    - aes_core
-    - blabla
-    - picorv32a
-    - PPU
-    - y_huff
-    - aes
+    - ./designs/ci/BM64
+    - ./designs/ci/salsa20
+    - ./designs/ci/aes_core
+    - ./designs/ci/blabla
+    - ./designs/ci/picorv32a
+    - ./designs/ci/PPU
+    - ./designs/ci/y_huff
+    - ./designs/ci/aes
 - scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: fastest_test_set
   designs:
     - spm
-    - APU
-    - usb
+    - ./designs/ci/APU
+    - ./designs/ci/usb
     # - usb_cdc_core
     # - zipdiv
     # - wbqspiflash
 - scl: gf180mcuC/gf180mcu_fd_sc_mcu7t5v0
   name: extended_test_set
   designs:
-    - picorv32a
-    - PPU
-    - y_huff
+    - ./designs/ci/picorv32a
+    - ./designs/ci/PPU
+    - ./designs/ci/y_huff
