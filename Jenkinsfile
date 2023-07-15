@@ -48,25 +48,28 @@ pipeline {
                 axes {
                     axis {
                         name 'DESIGN';
-                        values "aes",
-                               "aes_core",
-                               "APU",
-                               "blabla",
-                               "'BM64 -override_env QUIT_ON_LINTER_ERRORS=0'",
-                               "gcd",
-                               "inverter",
-                               "manual_macro_placement_test",
-                               "picorv32a",
-                               "PPU",
-                               "s44",
-                               "salsa20",
-                               "spm",
-                               "usb",
-                               "usb_cdc_core",
-                               "wbqspiflash",
-                               "xtea",
-                               "'y_huff -override_env QUIT_ON_SYNTH_CHECKS=0'",
-                               "zipdiv";
+                        values "ci/aes",
+                               "ci/aes_core",
+                               "ci/APU",
+                               "ci/blabla",
+                               "'ci/BM64 -override_env QUIT_ON_LINTER_ERRORS=0'",
+                               "ci/gcd",
+                               "ci/inverter",
+                               "ci/manual_macro_placement_test",
+                               "ci/picorv32a",
+                               "ci/PPU",
+                               "ci/s44",
+                               "ci/salsa20",
+                               "ci/usb",
+                               "ci/usb_cdc_core",
+                               "ci/wbqspiflash",
+                               "ci/xtea",
+                               "'ci/y_huff -override_env QUIT_ON_SYNTH_CHECKS=0'",
+                               "ci/zipdiv",
+                               "ci/aes_user_project_wrapper",
+                               "ci/caravel_upw",
+                               "ci/mem_1r1w",
+                               "spm";
                     }
                 }
                 stages {
