@@ -16,8 +16,6 @@ read_libs -typical "$::env(LIB_SYNTH_COMPLETE)"
 read_lef $::env(MERGED_LEF)
 read_netlist
 
-unset_propagated_clock [all_clocks]
-
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]
 set left_margin [expr $::env(PLACE_SITE_WIDTH) * $::env(LEFT_MARGIN_MULT)]
