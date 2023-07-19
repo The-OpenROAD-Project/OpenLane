@@ -54,13 +54,6 @@ if { [info exists ::env(ESTIMATE_PARASITICS)]} {
     estimate_parasitics {*}$::env(ESTIMATE_PARASITICS)
 }
 
-if { $::env(STA_PRE_CTS) } {
-    if { [info exists ::env(DEBUG)] && $::env(DEBUG) } {
-        puts "sta pre cts"
-    }
-    unset_propagated_clock [all_clocks]
-}
-
 puts "min_report"
 puts "\n==========================================================================="
 puts "report_checks -path_delay min (Hold)"
