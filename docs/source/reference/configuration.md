@@ -90,7 +90,6 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_EXTRA_MAPPING_FILE` <a id="SYNTH_EXTRA_MAPPING_FILE"></a> | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
 | `SYNTH_PARAMETERS` <a id="SYNTH_PARAMETERS"></a> | Whitespace-delimited key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
 | `SYNTH_ELABORATE_ONLY` <a id="SYNTH_ELABORATE_ONLY"></a> | "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. <br> (Default: `0`) |
-| `CLOCK_BUFFER_FANOUT` <a id="CLOCK_BUFFER_FANOUT"></a> | Fanout of clock tree buffers. <br> (Default: `16`) |
 | `BASE_SDC_FILE` <a id="BASE_SDC_FILE"></a> | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 | `VERILOG_INCLUDE_DIRS` <a id="VERILOG_INCLUDE_DIRS"></a> | Specifies the verilog includes directories. <br> Optional. |
 | `SYNTH_FLAT_TOP` <a id="SYNTH_FLAT_TOP"></a> | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0`)|
@@ -101,7 +100,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_MAX_FANOUT` <a id="SYNTH_MAX_FANOUT"></a>  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
 | `SYNTH_MAX_TRAN` <a id="SYNTH_MAX_TRAN"></a> |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
 
-## STA
+## Static Timing Analysis (STA)
 
 | Variable | Description |
 |-|-|
@@ -109,7 +108,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `EXTRA_SPEFS` <a id="EXTRA_SPEFS"></a> | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
 | `STA_WRITE_LIB` <a id="STA_WRITE_LIB"></a> | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
-## Floorplanning
+## Floorplanning (FP)
 
 |Variable|Description|
 |-|-|
@@ -171,7 +170,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `FP_IO_VMETAL` <a id="FP_IO_VMETAL"></a>  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Default: `3`)|
 
 
-## Resizer (Common)
+## All Resizer (RSZ) Steps
 
 |Variable|Description|
 |-|-|
@@ -183,7 +182,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RSZ_DONT_TOUCH` <a id="RSZ_DONT_TOUCH"></a> | A list of nets or instances to set as "don't touch". <br> (Default: Empty) |
 | `LIB_RESIZER_OPT` <a id="LIB_RESIZER_OPT"></a> | **Deprecated: Use `RSZ_LIB`**: Points to the lib file, corresponding to the typical corner, that is used during resizer optimizations. This is copy of `LIB_SYNTH`.|
 
-## Placement
+## Global and Detailed Placement (GPL/DPL)
 
 |Variable|Description|
 |-|-|
@@ -220,7 +219,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `UNBUFFER_NETS` <a id="UNBUFFER_NETS"></a> | **Deprecated: Use `RSZ_DONT_TOUCH_RX`**: A regular expression used to match nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. |
 | `DONT_BUFFER_PORTS` <a id="DONT_BUFFER_PORTS"></a> | **Removed: Use `RSZ_DONT_TOUCH_RX`**: Semicolon;delimited list of nets from which to remove buffers. |
 
-## CTS
+## Clock Tree Synthesis (CTS)
 
 |Variable|Description|
 |-|-|
@@ -241,8 +240,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `FILL_INSERTION` <a id="FILL_INSERTION"></a> | **Removed: Use `RUN_FILL_INSERTION`**: Enables fill cells insertion after CTS. 1 = Enabled, 0 = Disabled. |
 | `RUN_SIMPLE_CTS` <a id="RUN_SIMPLE_CTS"></a> | **Removed: TritonCTS is always run**: Run an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled. |
 | `CTS_TARGET_SKEW` <a id="CTS_TARGET_SKEW"></a> | **Removed: No longer supported by underlying utility.** The target clock skew in picoseconds. <br> (Default: `200`ps)|
+| `CLOCK_BUFFER_FANOUT` <a id="CLOCK_BUFFER_FANOUT"></a> | **Removed: Unused** Fanout of clock tree buffers. <br> (Default: `16`) |
 
-## Routing 
+
+## Global and Detailed Routing (GRT/DRT) 
 
 |Variable|Description|
 |-|-|
@@ -295,7 +296,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `HEURISTIC_ANTENNA_THRESHOLD` <a id="HEURISTIC_ANTENNA_THRESHOLD"></a> | Minimum manhattan distance of a net to insert a diode in microns. Only applicable for `RUN_HEURISTIC_DIODE_INSERTION` is enabled. <br> (Default: `90`)
 | `DIODE_ON_PORTS` <a id="DIODE_ON_PORTS"></a> | Insert diodes on ports with the specified polarities. Available options are `none`, `in`, `out` and `both`. <br> (Default: `none`) |
 
-## RC Extraction
+## Parasitic Resistance/Capacitance Extraction (RCX)
 
 |Variable|Description|
 |-|-|
@@ -357,7 +358,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `TAKE_LAYOUT_SCROT` <a id="TAKE_LAYOUT_SCROT"></a> | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
 
-## LVS
+## Layout vs. Schematic (LVS)
 
 |Variable|Description|
 |-|-|
