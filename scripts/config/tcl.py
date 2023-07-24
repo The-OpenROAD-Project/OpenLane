@@ -266,6 +266,9 @@ def process_string(value: str, state: State) -> str:
     return value
 
 
+whitespace_rx = re.compile(r"\w")
+
+
 def process_scalar(key: str, value: Scalar, state: State) -> Scalar:
     if isinstance(value, str):
         value = process_string(value, state)
@@ -307,16 +310,26 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                     raise InvalidConfig(f"Invalid value type {type(value)}'.")
             elif isinstance(value, list):
                 valid = True
+                whitespace_found = False
+                comma_found = False
                 processed = []
                 for (i, item) in enumerate(value):
                     current_key = f"{key}[{i}]"
-                    processed.append(f"{process_scalar(current_key, item, state)}")
+                    result = process_scalar(current_key, item, state)
+                    if whitespace_rx.search(result):
+                        whitespace_found = True
+                    if "," in result:
+                        comma_found = True
+                    processed.append(f"{result}")
 
                 if not valid:
                     raise InvalidConfig(
                         "Invalid value: Arrays must consist only of strings."
                     )
-                value = " ".join(processed)
+                if whitespace_found and not comma_found:
+                    value = ",".join(processed)
+                else:
+                    value = " ".join(processed)
             else:
                 value = process_scalar(key, value, state)
         except InvalidConfig as e:

@@ -39,7 +39,6 @@ set ::env(USE_ARC_ANTENNA_CHECK) 1
 set ::env(RUN_SPEF_EXTRACTION) 1
 set ::env(RUN_IRDROP_REPORT) 1
 
-
 ## Signoff
 set ::env(RUN_CVC) 1
 set ::env(PRIMARY_SIGNOFF_TOOL) magic
@@ -72,8 +71,6 @@ set ::env(MAGIC_GDS_POLYGON_SUBCELLS) 0
 ### Klayout-Specific
 set ::env(RUN_KLAYOUT) 1
 set ::env(RUN_KLAYOUT_DRC) 0
-set ::env(KLAYOUT_XOR_GDS) 1
-set ::env(KLAYOUT_XOR_XML) 1
 set ::env(KLAYOUT_XOR_THREADS) 1
 set ::env(KLAYOUT_XOR_IGNORE_LAYERS) ""
 set ::env(TAKE_LAYOUT_SCROT) 0

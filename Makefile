@@ -137,6 +137,11 @@ lint: venv/created
 	./venv/bin/black --check .
 	./venv/bin/flake8 .
 
+.PHONY: docs
+docs: venv/created
+	$(MAKE) -C docs install
+	$(MAKE) -C docs html
+
 .PHONY: start-build-env
 start-build-env: venv/created
 	bash -c "bash --rcfile <(cat ~/.bashrc ./venv/bin/activate)"

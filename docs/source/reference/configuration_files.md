@@ -52,7 +52,7 @@ cd ./openlane/SuccessiveApproximationRegister
 ## JSON
 The JSON files are simple key-value pairs.
 
-<a name="scalars"></a>
+<a id="scalars"></a>
 
 The values can be scalars (strings, numbers, booleans, and `null`s), *one-dimensional lists of scalars*, and, in special cases, a dictionary.
 

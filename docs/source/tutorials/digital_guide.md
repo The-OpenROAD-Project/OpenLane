@@ -37,7 +37,7 @@ Then we need to create/copy the RTL files. The recommended location for files is
 
 Create `design/mem_1r1w/src/mem_1r1w.v` file and put following content:
 
-```{literalinclude} ../../../designs/mem_1r1w/src/mem_1r1w.v
+```{literalinclude} ../../../designs/ci/mem_1r1w/src/mem_1r1w.v
 :language: verilog
 ```
 
@@ -54,7 +54,7 @@ For this, set the `FP_SIZING` to absolute and configure `DIE_AREA` to be bigger 
 
 Modify the `config.json` to include following:
 
-```{literalinclude} ../../../designs/mem_1r1w/config.json
+```{literalinclude} ../../../designs/ci/mem_1r1w/config.json
 :language: json
 ```
 
@@ -124,7 +124,7 @@ because this may cause behavior mismatches between RTL and the final GDS.
 
 Create the verilog blackbox:
 
-```{literalinclude} ../../../designs/regfile_2r1w/bb/mem_1r1w.bb.v
+```{literalinclude} ../../../designs/ci/regfile_2r1w/bb/mem_1r1w.bb.v
 :language: verilog
 ```
 
@@ -138,8 +138,8 @@ Then add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS` and `EXTRA_GDS_FILES` to the `co
   "CLOCK_PERIOD": 10.0,
   "DESIGN_IS_CORE": true,
 
-  "EXTRA_LEFS": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-  "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+  "EXTRA_LEFS": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+  "EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
   "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
@@ -162,9 +162,9 @@ If it is set to `false` then VIAs will be missing and you will get LVS issues.
 ### Verilog files
 
 Create the RTL files for the macroblock `regfile_2r1w`.
-The file is located in newly created design path `designs/regfile_2r1w/src/regfile_2r1w.v` and has following content:
+The file is located in newly created design path `designs/ci/regfile_2r1w/src/regfile_2r1w.v` and has following content:
 
-```{literalinclude} ../../../designs/regfile_2r1w/src/regfile_2r1w.v
+```{literalinclude} ../../../designs/ci/regfile_2r1w/src/regfile_2r1w.v
 :language: verilog
 ```
 
@@ -183,7 +183,7 @@ Flow is expected to fail.
 ```
 [ERROR]: during executing openroad script /openlane/scripts/openroad/replace.tcl
 [ERROR]: Exit code: 1
-[ERROR]: full log: designs/regfile_2r1w/runs/full_guide/logs/placement/9-global.log
+[ERROR]: full log: designs/ci/regfile_2r1w/runs/full_guide/logs/placement/9-global.log
 [ERROR]: Last 10 lines:
 [INFO GPL-0015] CoreAreaUxUy: 489440 495040
 [INFO GPL-0016] CoreArea: 234294707200
@@ -220,7 +220,7 @@ More information regarding floorplanning is available [Hardening Macros guide](.
 
 `config.json` should look like this:
 
-```{literalinclude} ../../../designs/regfile_2r1w/config.json
+```{literalinclude} ../../../designs/ci/regfile_2r1w/config.json
 :language: json
 ```
 
@@ -250,7 +250,7 @@ Open OpenROAD GUI to view the results of the flow.
 
 # in interactive session:
 package require openlane
-set_def designs/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
+set_def designs/ci/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
 or_gui
 # Empty newline to force above line to execute
 ```
@@ -264,7 +264,7 @@ If you want to load different DEF file use `set_def` command. For example:
 ```
 ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
 package require openlane
-set_def designs/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
+set_def designs/ci/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
 or_gui
 ```
 
@@ -291,7 +291,7 @@ In each of these directories, there are multiple directories. Directories are na
 Directory `results` contain the results (outputs) of each step. For example content of the `results/cts`:
 
 ```
-designs/regfile_2r1w/runs/full_guide/results/cts
+designs/ci/regfile_2r1w/runs/full_guide/results/cts
 ├── regfile_2r1w.def
 ├── regfile_2r1w.resized.v
 ├── regfile_2r1w.sdc
@@ -300,10 +300,10 @@ designs/regfile_2r1w/runs/full_guide/results/cts
 
 DEF files can be loaded using the steps provided above.
 
-Finally output of OpenLane can be found in `designs/regfile_2r1w/runs/full_guide/results/final`:
+Finally output of OpenLane can be found in `designs/ci/regfile_2r1w/runs/full_guide/results/final`:
 
 ```
-designs/regfile_2r1w/runs/full_guide/results/final
+designs/ci/regfile_2r1w/runs/full_guide/results/final
 ├── def
 │   └── regfile_2r1w.def
 ├── gds
@@ -331,7 +331,7 @@ designs/regfile_2r1w/runs/full_guide/results/final
 Directory `logs` contain log files of each step. Steps are enumerated. For example content of the `logs/`:
 
 ```
-designs/regfile_2r1w/runs/full_guide/logs
+designs/ci/regfile_2r1w/runs/full_guide/logs
 ├── cts
 │   ├── 14-cts.log
 │   ├── 15-write_verilog.log
@@ -396,7 +396,7 @@ Finally, open the final layout.
 ```
 klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
    -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp \
-   ./designs/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
+   ./designs/ci/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
 ```
 
 :::{figure} ../../\_static/digital_flow/final_gds.png
@@ -406,7 +406,7 @@ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
 
 Take a look at some reports.
 
-Here's an excerpt from `designs/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
+Here's an excerpt from `designs/ci/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
 
 ```
 ===========================================================================
@@ -420,7 +420,7 @@ report_worst_slack -min (Hold)
 worst slack 0.03
 ```
 
-Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/##-rcx_sta.max.rpt`:
+Detailed setup (max) timing path reports. Content of `designs/ci/mem_1r1w/runs/full_guide/reports/signoff/##-rcx_sta.max.rpt`:
 
 ```
 ===========================================================================
@@ -504,8 +504,8 @@ Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `DESI
     "DESIGN_IS_CORE": false,
 
     "FP_ASPECT_RATIO": 2,
-    "EXTRA_LEFS":      "/openlane/designs/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-    "EXTRA_GDS_FILES": "/openlane/designs/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+    "EXTRA_LEFS":      "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+    "EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
     "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
@@ -520,18 +520,18 @@ The following error is expected:
 
 ```
 [STEP 39]
-[INFO]: Running Magic Spice Export from LEF (log: designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/39-spice.log)...
+[INFO]: Running Magic Spice Export from LEF (log: designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/39-spice.log)...
 [STEP 40]
 [INFO]: Writing Powered Verilog (log: ../dev/null)...
 [STEP 41]
 [INFO]: Writing Verilog...
 [STEP 42]
 [INFO]: Running LEF LVS...
-[ERROR]: There are LVS errors in the design: See 'designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log' for details.
-[INFO]: Saving current set of views in 'designs/regfile_2r1w_design_not_core/runs/full_guide/results/final'...
+[ERROR]: There are LVS errors in the design: See 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log' for details.
+[INFO]: Saving current set of views in 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final'...
 [INFO]: Generating final set of reports...
-[INFO]: Created manufacturability report at 'designs/regfile_2r1w_design_not_core/runs/full_guide/reports/manufacturability.rpt'.
-[INFO]: Created metrics report at 'designs/regfile_2r1w_design_not_core/runs/full_guide/reports/metrics.csv'.
+[INFO]: Created manufacturability report at 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/reports/manufacturability.rpt'.
+[INFO]: Created metrics report at 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/reports/metrics.csv'.
 [INFO]: Saving runtime environment...
 [ERROR]: Flow failed.
 
@@ -556,7 +556,7 @@ The following error is expected:
     (file "./flow.tcl" line 401)
 ```
 
-Check the log `designs/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log`.
+Check the log `designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log`.
 
 ```
 LVS reports:
@@ -577,7 +577,7 @@ Use `or_gui` to help debug this issue.
 ```
 ./flow.tcl -design regfile_2r1w_design_not_core -interactive -tag full_guide
 package require openlane
-set_def designs/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
+set_def designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
 or_gui
 ```
 

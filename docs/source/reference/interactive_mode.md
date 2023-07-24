@@ -1,19 +1,19 @@
 # Interactive Mode
 You may run the flow interactively by using the `-interactive` option:
 
-```
+```sh
 ./flow.tcl -interactive
 ```
 
 A tcl shell will be opened where the openlane package is automatically sourced:
-```
-% package require openlane
+```tcl
+package require openlane
 ```
 
 Then, you should be able to run the following main commands:
 
 0. Any **valid** Tcl code.
-1. `prep -design <design> -tag <tag> -config <config> -init_design_config -overwrite` similar to the command line arguments, design is required and the rest is optional
+1. `prep -design <design> [-tag TAG] [-config CONFIG] [-init_design_config] [-overwrite]`
 2. `run_synthesis`
 3. `run_floorplan`
 4. `run_placement`
@@ -26,20 +26,19 @@ Then, you should be able to run the following main commands:
 11. `run_lvs`
 12. `run_antenna_check`
 
+```{note}
+The commands should all be run in this order- skipping any may lead to
+unexpected behavior.
 
-The above commands can also be written in a file and passed to `flow.tcl`:
-
+You are free however to add any intermediate commands to achieve more complex
+functionality.
 ```
+
+The above commands can also be written in a file and passed to `flow.tcl` as shown:
+
+```sh
 ./flow.tcl -interactive -file <file>
 ```
 
-A more detailed list of all the commands supported by openlane could be found [here][0].
-
-**Note 1:** Currently, configuration variables have higher priority over the above commands so if `RUN_MAGIC` is 0, command `run_magic` will have no effect.
-
-**Note 2:** Currently, most of these commands must be run in the flow sequence and no steps should be skipped.
-
-**Note 3:** You can pass the -design, -tag, etc.. flags to ```./flow.tcl -interactive``` directly without the need of entering the interactive mode and then executing the prep command.
-
-[0]:./openlane_commands.md
-
+A comprehensive list of commands supported by OpenLane can be found
+[here](./openlane_commands.md).

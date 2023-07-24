@@ -37,7 +37,7 @@ included values should be considered "defaults."
 | `RT_MAX_LAYER`  | The highest metal layer to route on. <br> (Example: `met5`) |
 | `WIRE_LENGTH_THRESHOLD` | A value in microns above which wire lengths generate warnings, and, if `QUIT_ON_LONG_WIRE` is set, the flow will error out. If a PDK does not set this value, the value is considered to be infinite. (Optional) |
 
-## PDK-Static
+## Static
 
 These variables should really not be modified unless you absolutely know what
 you're doing.
@@ -75,7 +75,7 @@ you're doing.
 
 This section defines the necessary variables to configure a standard cell library for use with OpenLane.
 
-### User-modifiable
+### Modifiable
 
 These values may be modified by the user configuration and the
 included values should be considered "defaults."
@@ -104,7 +104,7 @@ included values should be considered "defaults."
 | `DEFAULT_MAX_TRAN` | **Removed: Use `MAX_TRANSITION_CONSTRAINT`**: Defines the maximum slew (transition) value in ns. |
 
 
-### SCL-static
+### Static
 
 These variables should really not be modified unless you absolutely know what
 you're doing.
@@ -139,8 +139,8 @@ you're doing.
 | `STD_CELL_GROUND_PINS` | Defines ground pins of stdcells. Used in PDN. |
 | `CVC_SCRIPTS_DIR` | A directory of Circuit Validity Checker (CVC) scripts for the relevant PDK. Must contain the following set of files: `cvcrc`, an initialization file, `cdl.awk`, an awk script to remove black box definitions from SPICE files, `models`, cell models, and finally `power.awk`, an awk script that adds power information to the verilog netlists. |
 | `STD_CELL_LIBRARY_CDL` | A pointer for the cdl view of the SCL. |
-| `LAYERS_RC` | A comma separated list specifying capacitance and resistance per layer. Variable should be provided in the following format. `<layer_name> <capacitance> <resistance>, <layer_name> ...` ([warning](../configuration.md#on-comma-delimited-variables)) (Optional) |
-| `VIAS_RC` | A comma separated list specifying capacitance -only- of vias. Variable should be provided in the following format. `<layer_name> <capacitance> , <layer_name> ...` ([warning](../configuration.md#on-comma-delimited-variables)) (Optional) |
+| `LAYERS_RC` | A comma separated list specifying capacitance and resistance per layer. Variable should be provided in the following format. `<layer_name> <capacitance> <resistance>, <layer_name> ...` In JSON, override it as an array of strings, and in Tcl, use commas as a delimiter. (Optional) |
+| `VIAS_RC` | A comma separated list specifying capacitance -only- of vias. Variable should be provided in the following format. `<layer_name> <capacitance> , <layer_name> ...` In JSON, override it as an array of strings, and in Tcl, use commas as a delimiter. (Optional) |
 
 ## Tracks Info File
 

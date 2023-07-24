@@ -1,25 +1,27 @@
 # Hardening Macros
-Using OpenLane, you can produce a GDSII from an RTL for macros, and then use these macros to create your chip. Check [this][4] for more details about chip integration.
+Using OpenLane, you can produce a GDSII from an RTL for macros, and then use
+these macros to create your chip. Check [this](./chip_integration.md) for more
+details about chip integration.
 
-In this document we will go through the hardening steps and discuss in some detail what considerations should be made when hardening your macro.
+In this document we will go through the hardening steps and discuss in some
+detail what considerations should be made when hardening your macro.
 
-> **NOTE:** For all the configurations mentioned in this documentation and any other OpenLane configurations, you can use the exploration script `run_designs.py` to find the optimal value for each configuration for your design. Read more [here][6].
-
-## Base Requirements
+## Configuration Variables
 
 You should start by setting the basic configuration file for your design. Check [this][5] for how to add your new design.
 
-The basic configuration `config.json` or `config.tcl` file should at least contain these variables:
+The basic configuration `config.json` or `config.tcl` file should in the vast
+majority of cases at least contain these variables:
 
-| Key | Description |
-|-|-|
-| `DESIGN_NAME` | The Verilog module name of your design. |
-| `VERILOG_FILES` | Space-delimited list of Verilog files used in your design*. |
-| `CLOCK_PORT` | List of clock ports used in your design. If your design is purely combinational, you can set this value to `""` (Tcl) or `null` (JSON). |
-| `DESIGN_IS_CORE` | `1/0` (Tcl), `true/false` (JSON): Whether your design is a core or a reusable macro: for macros, you want to set this to `0`/`false`<sup>**</sup>. |
-> \* The ``` `include ``` directive is not supported.
->
-> \** If you are hardening the chip core, check [this][4] for more details about chip integration.
+```{tip}
+Click on any variable name listed in this document to get its usage information.
+```
+
+* [`DESIGN_NAME`](../reference/configuration.md#DESIGN_NAME)
+* [`VERILOG_FILES`](../reference/configuration.md#VERILOG_FILES)
+* [`CLOCK_PORT`](../reference/configuration.md#CLOCK_PORT)
+* [`CLOCK_PERIOD`](../reference/configuration.md#CLOCK_PERIOD)
+* [`DESIGN_IS_CORE`](../reference/configuration.md#DESIGN_IS_CORE) (You may leave it empty if true)
 
 So, for example:
 
@@ -31,7 +33,7 @@ So, for example:
 ```json
     "DESIGN_NAME": "spm",
     "VERILOG_FILES": "dir::src/*.v",
-    "DESIGN_IS_CORE": false
+    "CLOCK_PERIOD": 10.0
 ```
 
 </td>
@@ -49,9 +51,8 @@ set ::env(DESIGN_IS_CORE) {0}
 </tr>
 </table>
 
-These configurations should get you through the flow with the all other configurations using OpenLane default values, read about those [here][0]. However, in the coming sections we will take a closer look on how to determine the best values for most of the other configurations.
 
-## Synthesis
+### Synthesis
 
 The first decision in synthesis is determining the optimal synthesis strategy `SYNTH_STRATEGY` for your design. For that purpose there is a flag in the `flow.tcl` script, `-synth_explore` that runs a synthesis strategy exploration and reports the results in a table under `<run_path>/reports/`.
 
@@ -59,7 +60,7 @@ Then you need to consider the best values for the `MAX_FANOUT_CONSTRAINT`.
 
 If your macro is huge (200k+ cells), then you might want to try setting `SYNTH_NO_FLAT` to `1` (Tcl)/`true` (JSON), which will postpone the flattening of the design during synthesis until the very end.
 
-Other configurations like `SYNTH_SIZING`, `SYNTH_BUFFERING`, and other synthesis configurations do not have to be changed. However, the advanced user can check [this][0] documentation for more details about those configurations and their values.
+For all variables, check [this](../reference/configuration.md#synthesis) documentation for more details about those configurations and their values.
 
 ## Static Timing Analysis
 
@@ -69,11 +70,11 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 2. The clock period that you prefer the design to run with. This could be set using `CLOCK_PERIOD` and the unit is ns. It is important to note that the flow will use this value to calculate the worst and total negative slack, also if timing optimizations are enabled, it will try to optimize for it and give suggested clock period at the end of the run in `<run-path>/reports/metrics.csv` This value should be used in the future to speed up the optimization process and it will be the estimated value at which the design should run.
 
-3. The IO delay percentage from the clock period `IO_PCT`. More about that [here][0].
+3. The IO delay percentage from the clock period `IO_PCT`. More about that [here](../reference/configuration.md).
 
-4. You may want to write a custom SDC file to be used in STA and CTS. The default SDC file in the flow is [this file][11]. However, you can change that by pointing to a new file with the environment variable `BASE_SDC_FILE`. More about that [here][0].
+4. You may want to write a custom SDC file to be used in STA and CTS. The default SDC file in the flow is as follows. However, you can change that by pointing to a new file with the environment variable `BASE_SDC_FILE`. More about that [here](../reference/configuration.md).
 
-Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here][0].
+Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here](../reference/configuration.md).
 
 Static Timing Analysis are done after:
 
@@ -89,7 +90,7 @@ Static Timing Analysis are done after:
 
 For SPEF extraction, you can control the wire model and the edge capacitance factor through these variables `SPEF_WIRE_MODEL` and `SPEF_EDGE_CAP_FACTOR`.
 
-More about that [here][0].
+More about that [here](../reference/configuration.md).
 
 ## Floorplan
 
@@ -101,24 +102,30 @@ During Floor plan, you have one of three options:
 
 3. Use a template DEF and apply the same DIE AREA and dimensions of that DEF. Note that this option will also force the flow to use the same PIN locations and PIN names (they are copied over from the template DEF). To use this option set: `FP_DEF_TEMPLATE` to point to that DEF file.
 
-You can read more about how to control these variables [here][0].
+You can read more about how to control these variables [here](../reference/configuration.md).
 
 
 ## IO Placement
 
 For IO placement, you currently have four options:
 
-1. Using a template DEF file and applying the same PIN locations and PIN names (they are copied over from the template DEF). Note that this will force the flow to apply the same exact DIE AREA and dimensions of the template DEF. To use that option set: `FP_DEF_TEMPLATE` to point to that DEF file.
+1. By default, just OpenLane's floorplanning utility randomly assign IOs
+   using a "random equidistant" mode.
 
-2. Manually setting the direction of each pin using a configuration file such as [this one][7]. Then you need to set `FP_PIN_ORDER_CFG` to point to that file.
+2. Set `FP_PIN_ORDER_CFG` to a file in the format shown below
 
-3. Using contextualized pin placement, which will automatically optimize the placement of the pins based on their context in the larger design that includes them. This relevant for macros since they will be included inside a core, and also relevant for the core since it will be part of a bigger chip. For this to happen, you need to point to the LEF and DEF of the container/parent design using these two variables: `FP_CONTEXT_DEF` and `FP_CONTEXT_LEF`. Note that currently this script can only handle the existance of a single instance of that macro.
+```{literalinclude} ../../../designs/spm/pin_order.cfg
+---
+language: cfg
+---
+```
 
-4. To let the tool randomly assign IOs using the random equidistant mode. This is the default way.
+3. Using a template DEF file and applying the same PIN locations and PIN names
+   (they are copied over from the template DEF). Note that this will force the
+   flow to apply the same exact DIE AREA and dimensions of the template DEF.
+   To use that option set: `FP_DEF_TEMPLATE` to point to that DEF file.
 
 The options are prioritized based on the order mentioned above. This means that if you set a value for `FP_DEF_TEMPLATE` it will be used and the rest - if they exist - will be ignored.
-
-You can read more about those configurations [here][0].
 
 ## Placement
 
@@ -130,9 +137,9 @@ For Global Placement, the most important value would be `PL_TARGET_DENSITY` whic
 
 - If your design is not a tiny design, then `PL_TARGET_DENSITY` should have a value that is `FP_CORE_UTIL` + 1~5%. Note that `FP_CORE_UTIL` has a value from 0 to 100, while `PL_TARGET_DENSITY` has a value from 0 to 1.0.
 
-- If your design is a tiny design, then you may need to set `PL_RANDOM_GLB_PLACEMENT` to `1` or `PL_RANDOM_INITIAL_PLACEMENT` to 1. Also, `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5). In very tiny designs (i.e. 1 std cell designs), the approximated DIE AREA in the floorplan stage may not leave enough room to insert tap cells in the design. Thus, it is recommended to use `FP_SIZING` as `absolute` and manually setting an appropriate `DIE_AREA`, check [the floorplan section](#floorplan) for more details. You may also want to reduce the values for `FP_PDN_HORIZONTAL_HALO` and `FP_PDN_VERTICAL_HALO`. You can read more about those [here][0].
+- If your design is a tiny design, then you may need to set `PL_RANDOM_GLB_PLACEMENT` to `1` or `PL_RANDOM_INITIAL_PLACEMENT` to 1. Also, `PL_TARGET_DENSITY` should have high value, while `FP_CORE_UTIL` should have a low value. (i.e `PL_TARGET_DENSITY` set to 0.5 and `FP_CORE_UTIL` set to 5). In very tiny designs (i.e. 1 std cell designs), the approximated DIE AREA in the floorplan stage may not leave enough room to insert tap cells in the design. Thus, it is recommended to use `FP_SIZING` as `absolute` and manually setting an appropriate `DIE_AREA`, check [the floorplan section](#floorplan) for more details. You may also want to reduce the values for `FP_PDN_HORIZONTAL_HALO` and `FP_PDN_VERTICAL_HALO`. You can read more about those [here](../reference/configuration.md).
 
-Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here][0].
+Other values to be considered are `PL_BASIC_PLACEMENT` and `PL_SKIP_INITIAL_PLACEMENT`, you can read more about those [here](../reference/configuration.md).
 
 ### Optimizations
 
@@ -148,18 +155,20 @@ However, you can enable that by setting `PL_RESIZER_OVERBUFFER` to `1` and then 
 
 The only value to consider here is the `DPL_CELL_PADDING` which is usually selected for each (PDK,STD_CELL_LIBRARY) and should mostly be left as is. However, typically for the skywater libraries the value should be 4~6.
 
-You can read more about that [here][0].
+You can read more about that [here](../reference/configuration.md).
+
+test
 
 ## Clock Tree Synthesis
 
-Most of the values for clock tree synthesis are (PDK,STD_CELL_LIBRARY) specific and you can read more about those [here][8].
+Most of the values for clock tree synthesis are (PDK,STD_CELL_LIBRARY) specific and you can read more about those in [**PDK configuration variables**](../reference/pdk_configuration.md).
 
 You can disable it by setting `RUN_CTS` to `0`.
 
 If you do not want all the clock ports to be used in clock tree synthesis, then you can use set `CLOCK_NET` to specify those ports. Otherwise, `CLOCK_NET` will be defaulted to the value of `CLOCK_PORT`.
 
 ## Power Grid/Power Distribution Network
-See [here][9].
+See [here](./advanced_power_grid_control.md).
 
 ## Diode Insertion
 
@@ -177,17 +186,17 @@ Here, you have four options to choose from and they are controlled by setting `D
 
 5. A variant of 2 utilizing the script used in strategy 4.
 
-You can read more about those configurations [here][0].
+You can read more about those configurations [here](../reference/configuration.md).
 
 ## Routing
 
-The configurations here were optimized based on a large design set and are best left as is, however the advanced user could refer to [this documentation][0] to learn more about each used configuration and how to change it.
+The configurations here were optimized based on a large design set and are best left as is, however the advanced user could refer to [this documentation](../reference/configuration.md) to learn more about each used configuration and how to change it.
 
 You are advised to change `ROUTING_CORES` based on your CPU capacity to specify the number of threads that TritonRoute can run with to perform Detailed Routing in the least runtime possible.
 
 ## GDS Streaming
 
-The configurations here were selected based on a large design test set and the consulation of the magic sources; therefore they are best left as is. However, for the curious user, refer to [this documentation][0] to learn more about each used configuration and how to change it.
+The configurations here were selected based on a large design test set and the consulation of the magic sources; therefore they are best left as is. However, for the curious user, refer to [this documentation](../reference/configuration.md) to learn more about each used configuration and how to change it.
 
 ## Final Reports and Checks
 
@@ -201,7 +210,7 @@ You can control whether LVS should be run down to the device level or the cell l
 
 You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
 
-A final summary report is produced by default as `<run-path>/reports/metrics.csv`, for more details about the contents of the report check [this documentation][10].
+A final summary report is produced by default as `<run-path>/reports/metrics.csv`, for more details about the contents of the report check [**Datapoint Definitions**](../reference/datapoint_definitions.md).
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.
 
@@ -209,17 +218,11 @@ The final GDSII file can be found under `<run-path>/results/final/gds`.
 
 To integrate that macro into a core or a chip, check this [documentation on chip integration][4].
 
-If you want to create further tweaks in the flow that the abundant configurations do not allow, make sure to check [this][2] for more details about the interactive mode of the OpenLane flow.
+If you want to create further tweaks in the flow that the abundant configuration
+variables do not allow, you can use [**interactive mode**](../reference/interactive_mode.md),
+which allows you to write a Tcl-based script to directly call functions in OpenLane and/or
+write your own.
 
-[0]: ../reference/configuration.md
-[1]: ../reference/openlane_commands.md
-[2]: ../reference/interactive_mode.md
-[3]: https://github.com/The-OpenROAD-Project/OpenROAD/blob/master/src/pdn/doc/PDN.md
 [4]: ./chip_integration.md
 [5]: ./designs.md
-[6]: ./exploration_script.md
-[7]: https://github.com/The-OpenROAD-Project/openlane/blob/master/designs/spm/pin_order.cfg
-[8]: ../for_developers/pdk_structure.md
-[9]: ./advanced_power_grid_control.md
-[10]: ../reference/datapoint_definitions.md
 [11]: ./../../../scripts/base.sdc
