@@ -266,7 +266,7 @@ def process_string(value: str, state: State) -> str:
     return value
 
 
-whitespace_rx = re.compile(r"\w")
+whitespace_rx = re.compile(r"\s")
 
 
 def process_scalar(key: str, value: Scalar, state: State) -> Scalar:
@@ -316,7 +316,7 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                 for (i, item) in enumerate(value):
                     current_key = f"{key}[{i}]"
                     result = process_scalar(current_key, item, state)
-                    if whitespace_rx.search(result):
+                    if whitespace_rx.search(result) is not None:
                         whitespace_found = True
                     if "," in result:
                         comma_found = True
