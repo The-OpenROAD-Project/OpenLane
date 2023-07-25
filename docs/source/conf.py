@@ -39,8 +39,6 @@ branch = "master"
 # ones.
 extensions = [
     "sphinx.ext.todo",
-    "markdown_code_links",  # CUSTOM
-    "markdown_cross_doc_section_links",  # CUSTOM
     "sphinx.ext.autosectionlabel",
     "image_links",  # CUSTOM
     "myst_parser",
@@ -107,29 +105,15 @@ html_static_path = ["../_static"]
 
 todo_include_todos = True
 numfig = True
-
-markdown_code_links_githubrepo = repo
-markdown_code_links_githubbranch = f"blob/{branch}"
-markdown_code_links_codefileextensions = [
-    ".tcl",
-    ".sh",
-    ".cfg",
-    ".gds",
-    ".sdc",
-    "/",
-    ".json",
-    "Makefile",
-]
 autosectionlabel_prefix_document = True
 
 suppress_warnings = ["misc.highlighting_failure"]  # supress json highlight warnings
 
 myst_heading_anchors = 3
 
-
 myst_enable_extensions = [
     "colon_fence",
+    "attrs_block",
 ]
-
 
 root_doc = "index"

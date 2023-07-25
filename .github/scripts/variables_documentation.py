@@ -158,14 +158,15 @@ docs_variables = (
     subprocess.check_output(
         [
             "rg",
-            "\\| *`([A-Z]\\S+) *` *‡*  *\\|",
+            r"^\s*\|\s*`([A-Z_]+)`",
             "-r",
             "$1",
             "-o",
             "-N",
             "-I",
             "--no-ignore",
-            "docs",
+            "docs/source/reference/configuration.md",
+            "docs/source/reference/pdk_configuration.md",
         ]
     )
     .decode("utf-8")
@@ -174,32 +175,11 @@ docs_variables = (
 docs_variables = [var for var in docs_variables if var.isupper()]
 docs_variables_set = set(docs_variables)
 
-deprecated_docs_variables = (
-    subprocess.check_output(
-        [
-            "rg",
-            "\\| *`([A-Z]\\S+) *` *‡*  *\\|.*(Deprecated|Removed)",
-            "-r",
-            "$1",
-            "-o",
-            "-N",
-            "-I",
-            "--no-ignore",
-            "docs",
-        ]
-    )
-    .decode("utf-8")
-    .split()
-)
-depreacted_docs_variables = [var for var in deprecated_docs_variables if var.isupper()]
-deprecated_docs_variables_set = set(deprecated_docs_variables)
-
-
 used_variables = (
     subprocess.check_output(
         [
             "rg",
-            "\\$::env\\(([A-Z]\\S+?)\\)",
+            r"\$::env\(\s*([A-Z_]+?)\s*\)",
             "-r",
             "$1",
             "-o",
@@ -215,9 +195,27 @@ used_variables = (
 )
 used_variables_set = set(used_variables)
 
-undocumented = sorted(
-    used_variables_set - docs_variables_set - deprecated_docs_variables_set - white_list
+translated_deprecated_variables = (
+    subprocess.check_output(
+        [
+            "rg",
+            r"handle_deprecated_config\s+([A-Z_]+)",
+            "-r",
+            "$1",
+            "-o",
+            "-N",
+            "-I",
+            "--no-ignore",
+            "scripts",
+            "flow.tcl",
+        ]
+    )
+    .decode("utf-8")
+    .split()
 )
+translated_deprecated_variables_set = set(translated_deprecated_variables)
+
+undocumented = sorted(used_variables_set - docs_variables_set - white_list)
 if undocumented:
     print("[ERROR]: found the following undocumented variables.")
     for var in undocumented:
@@ -225,3 +223,8 @@ if undocumented:
     exit(1)
 else:
     print("Pass")
+
+# unused = sorted(
+#     docs_variables_set - used_variables_set - translated_deprecated_variables_set
+# )
+# print(unused)

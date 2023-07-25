@@ -6,21 +6,16 @@ Also, it can be used for testing the flow by running the flow against several de
 ```
 python3 run_designs.py --tag test --threads 3 spm xtea des aes256 
 ```
+
 ## Default Test Set Results
 
 You can view the results of the run against some designs (more [here](#usage)) against any of the 5 sky130 standard cell libraries through these sheets:
 
-- [sky130_fd_sc_hd](https://github.com/The-OpenROAD-Project/openlane/blob/master/regression_results/benchmark_results/SW_HD.csv)
-- [sky130_fd_sc_hs](https://github.com/The-OpenROAD-Project/openlane/blob/master/regression_results/benchmark_results/SW_HS.csv)
-- [sky130_fd_sc_ms](https://github.com/The-OpenROAD-Project/openlane/blob/master/regression_results/benchmark_results/SW_MS.csv)
-- [sky130_fd_sc_ls](https://github.com/The-OpenROAD-Project/openlane/blob/master/regression_results/benchmark_results/SW_LS.csv)
-- [sky130_fd_sc_hdll](https://github.com/The-OpenROAD-Project/openlane/blob/master/regression_results/benchmark_results/SW_HDLL.csv)
-
-**Note**: `flow_failed` under `flow_status` implies that the run had failed.
+- [sky130_fd_sc_hd](https://github.com/The-OpenROAD-Project/OpenLane/blob/master/regression_results/benchmark_results/sky130A/sky130_fd_sc_hd.csv)
 
 ## Usage
 
-- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [columns_defintions.md](../reference/datapoint_definitions.md) for more details on the reported configuration parameters.
+- The list of flags that could be used with run_designs.py is described here [Command line arguments](#command-line-arguments). Check [**Datapoint Definitions**](../reference/datapoint_definitions.md) for more details on the reported configuration parameters.
 
 The script can be used in two ways
 
@@ -30,7 +25,8 @@ The script can be used in two ways
     python3 run_designs.py --threads 4 spm xtea PPU APU
     ```
 
-    You can run the default test set consisting of all designs under [designs](../../../designs/) through running the following command along with any of the flags:
+    You can also run the default test set consisting of all designs under the `designs/` top level folder through running the following command with any appropriate
+    flags.
     
     ```bash
     python3 run_designs.py --defaultTestSet
@@ -49,7 +45,7 @@ The script can be used in two ways
         * The matrix file shall be a ECMA404-compliant JSON file with:
             * One key called `"preload"`: the value of which being a dictionary of configuration variables in a similar manner to the OpenLane JSON configuration file spec. 
             * N keys named for the configuration variable the user wishes to run multiple combinations of. The values for said keys shall be arrays of any valid values in the OpenLane JSON configuration file spec.
-            * You can review the OpenLane JSON configuration file spec for values [here](../reference/configuration_files.md#scalars).
+            * You can review the OpenLane JSON configuration file spec for values [here](../reference/configuration_files.md#scalars) .
         * The script will generate all possible combinations of the N keys.
             * This means the total number of combinations is |variable<sub>0</sub>| * |variable<sub>1</sub>| * ... * |variable<sub>n-1</sub>|
             * For each combination:
