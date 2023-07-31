@@ -98,7 +98,6 @@ class Artifact(object):
             self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"
-            print(filename, report)
             locus = report[1]
             self.log_to_report(filename, locus)
 
