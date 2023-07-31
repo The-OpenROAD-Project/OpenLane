@@ -98,6 +98,7 @@ class Artifact(object):
             self.index = "X"
         for report in args:
             filename = f"{self.index}-{report[0]}"
+            print(filename, report)
             locus = report[1]
             self.log_to_report(filename, locus)
 
@@ -240,9 +241,9 @@ class Report(object):
             ("rsz_timing", Artifact(rp, "logs", "routing", "rsz_timing_sta.log")),
             ("grt", Artifact(rp, "logs", "routing", "grt_sta.log")),
             ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
-            ("mca/rcx_nom", Artifact(rp, "logs", "signoff", "rcx_mcsta.nom.log")),
-            ("mca/rcx_min", Artifact(rp, "logs", "signoff", "rcx_mcsta.min.log")),
-            ("mca/rcx_max", Artifact(rp, "logs", "signoff", "rcx_mcsta.max.log")),
+            ("sta-rcx_nom/signoff", Artifact(rp, "logs", "signoff", "rcx_mcsta.nom.log")),
+            ("sta-rcx_min/signoff", Artifact(rp, "logs", "signoff", "rcx_mcsta.min.log")),
+            ("sta-rcx_max/signoff", Artifact(rp, "logs", "signoff", "rcx_mcsta.max.log")),
         ]:
             generate_report_args = [
                 (name + report_postfix, report_locus)
