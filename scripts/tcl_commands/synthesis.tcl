@@ -250,6 +250,7 @@ proc generate_blackbox_verilog {input output {defines ""}} {
     foreach define $defines {
         set defines_flag "$defines_flag -D$define"
     }
+    puts_warn "Please make sure that there are no undefined macros in $input"
     lappend args "read_verilog $defines_flag $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
     lappend args |& tee $::env(TERMINAL_OUTPUT)
     try_exec yosys -p {*}$args
@@ -289,7 +290,11 @@ proc run_verilator {} {
         set generated_blackbox_files [list]
         foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
             set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $verilog_file]]-bb.v"
-            generate_blackbox_verilog $verilog_file $output_file
+            if { [info exists ::env(LINTER_DEFINES)] } {
+                generate_blackbox_verilog $verilog_file $output_file "$::env(LINTER_DEFINES)"
+            } else {
+                generate_blackbox_verilog $verilog_file $output_file
+            }
             set generated_blackbox_files "$generated_blackbox_files $output_file"
         }
         lappend arg_list {*}$generated_blackbox_files
