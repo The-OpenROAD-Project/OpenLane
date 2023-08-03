@@ -34,7 +34,7 @@ class OdbReader(object):
             for lef in lef_in:
                 odb.read_lef(self.db, lef)
             if def_in is not None:
-                odb.read_def(self.db, def_in)
+                odb.read_def(self.db.getTech(), def_in)
 
         self.tech = self.db.getTech()
         self.chip = self.db.getChip()
