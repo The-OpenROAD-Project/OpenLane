@@ -244,9 +244,13 @@ proc logic_equiv_check {args} {
 }
 
 
-proc generate_blackbox_verilog {input output} {
+proc generate_blackbox_verilog {input output {defines ""}} {
     set output_files ""
-    lappend args "read_verilog $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
+    set defines_flag ""
+    foreach define $defines {
+        set defines_flag "$defines_flag -D$define"
+    }
+    lappend args "read_verilog $defines_flag $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
     lappend args |& tee $::env(TERMINAL_OUTPUT)
     try_exec yosys -p {*}$args
     puts_info "Generated blackbox verilog for $input"
@@ -256,22 +260,29 @@ proc generate_blackbox_verilog {input output} {
 proc run_verilator {} {
     set verilator_verified_pdks "sky130A sky130B"
     set verilator_verified_scl "sky130_fd_sc_hd"
-    set includes ""
-    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
-        [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
-        puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
-        puts_warn "Either disable QUIT_ON_LINTER_ERRORS or remove the instantiated cells."
-    } else {
-        set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
-        foreach model $pdk_verilog_models {
-            set includes "$includes $model"
-        }
+    set pdk_model_blackbox ""
+    if { ([string eq $::env(PDK) sky130A] || [string eq $::env(PDK) sky130B]) && \
+        $::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hd" } {
+        set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
+        set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model]]-bb.v"
+        generate_blackbox_verilog $pdk_model $output_file
+        set pdk_model_blackbox $output_file
+    }
+    if { ([string eq $::env(PDK) gf180mcuC] || [string eq $::env(PDK) gf180mcuA] || [string eq $::env(PDK) gf180mcuB]) && \
+        $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" } {
+        set pdk_model_original "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
+        set pdk_model_patched "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-patched.v"
+        # remove not yosys friendly lines similar to "abc(x, y, z);" or "abc(x, y) bbb(z, f);"
+        exec bash -c "sed -E '/^\\s+\\S+\\s*\\(.*\\).*;.*/d' $pdk_model_original > $pdk_model_patched"
+        set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-bb.v"
+        generate_blackbox_verilog $pdk_model_patched $output_file FUNCTIONAL
+        set pdk_model_blackbox $output_file
     }
     set log $::env(synthesis_logs)/linter.log
     puts_info "Running linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
     if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
-        lappend arg_list {*}$includes
+        lappend arg_list {*}$pdk_model_blackbox
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
