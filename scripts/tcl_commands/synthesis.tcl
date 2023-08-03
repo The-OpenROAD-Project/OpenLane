@@ -243,6 +243,16 @@ proc logic_equiv_check {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 }
 
+
+proc generate_blackbox_verilog {input output} {
+    set output_files ""
+    lappend args "read_verilog $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
+    lappend args |& tee $::env(TERMINAL_OUTPUT)
+    try_exec yosys -p {*}$args
+    puts_info "Generated blackbox verilog for $input"
+}
+
+
 proc run_verilator {} {
     set verilator_verified_pdks "sky130A sky130B"
     set verilator_verified_scl "sky130_fd_sc_hd"
@@ -265,7 +275,13 @@ proc run_verilator {} {
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-        lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
+        set generated_blackbox_files [list]
+        foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
+            set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $verilog_file]]-bb.v"
+            generate_blackbox_verilog $verilog_file $output_file
+            set generated_blackbox_files "$generated_blackbox_files $output_file"
+        }
+        lappend arg_list {*}$generated_blackbox_files
     }
     lappend arg_list -Wno-fatal
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
