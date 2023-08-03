@@ -225,7 +225,6 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_CTS` <a id="RUN_CTS"></a> | Enable clock tree synthesis. <br> (Default: `1`)|
 | `RUN_FILL_INSERTION` <a id="RUN_FILL_INSERTION"></a> | Enables fill cells insertion after cts (if enabled). 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `CTS_TOLERANCE` <a id="CTS_TOLERANCE"></a> | An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 | `CTS_SINK_CLUSTERING_SIZE` <a id="CTS_SINK_CLUSTERING_SIZE"></a> | Specifies the maximum number of sinks per cluster. <br> (Default: `25`) |
 | `CTS_SINK_CLUSTERING_MAX_DIAMETER` <a id="CTS_SINK_CLUSTERING_MAX_DIAMETER"></a> | Specifies maximum diameter (in micron) of sink cluster. <br> (Default: `50`) |
 | `CTS_REPORT_TIMING` <a id="CTS_REPORT_TIMING"></a> | Specifies whether or not to run STA after clock tree synthesis using OpenROAD's estimate_parasitics -placement and generates reports under `logs/cts`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
@@ -239,8 +238,9 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `CLOCK_TREE_SYNTH` <a id="CLOCK_TREE_SYNTH"></a> | **Deprecated: Use `RUN_CTS`**: Enable clock tree synthesis. 1 = Enabled, 0 = Disabled. |
 | `FILL_INSERTION` <a id="FILL_INSERTION"></a> | **Removed: Use `RUN_FILL_INSERTION`**: Enables fill cells insertion after CTS. 1 = Enabled, 0 = Disabled. |
 | `RUN_SIMPLE_CTS` <a id="RUN_SIMPLE_CTS"></a> | **Removed: TritonCTS is always run**: Run an alternative simple clock tree synthesis after synthesis instead of TritonCTS. 1 = Enabled, 0 = Disabled. |
-| `CTS_TARGET_SKEW` <a id="CTS_TARGET_SKEW"></a> | **Removed: No longer supported by underlying utility.** The target clock skew in picoseconds. <br> (Default: `200`ps)|
-| `CLOCK_BUFFER_FANOUT` <a id="CLOCK_BUFFER_FANOUT"></a> | **Removed: Unused** Fanout of clock tree buffers. <br> (Default: `16`) |
+| `CTS_TARGET_SKEW` <a id="CTS_TARGET_SKEW"></a> | **Removed: No longer supported by underlying utility**: The target clock skew in picoseconds. <br> (Default: `200`ps)|
+| `CLOCK_BUFFER_FANOUT` <a id="CLOCK_BUFFER_FANOUT"></a> | **Removed: Unused**: Fanout of clock tree buffers. <br> (Default: `16`) |
+| `CTS_TOLERANCE` <a id="CTS_TOLERANCE"></a> | **Removed: Unused**: An integer value that represents a tradeoff of QoR and runtime. Higher values will produce smaller runtime but worse QoR <br> (Default: `100`) |
 
 
 ## Global and Detailed Routing (GRT/DRT) 
