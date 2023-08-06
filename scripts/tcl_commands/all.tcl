@@ -908,6 +908,10 @@ proc prep {args} {
         }
     }
 
+    if { $::env(IMPLEMENTATION_SDC_FILE) == $::env(IMPLEMENTATION_SDC_FILE_DEFAULT) } {
+        puts_warn "Using default sdc file $::env(IMPLEMENTATION_SDC_FILE). It is recommended to provide a custom sdc file made by the designer."
+    }
+
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok
