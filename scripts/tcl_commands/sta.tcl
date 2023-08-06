@@ -124,12 +124,12 @@ proc run_parasitics_sta {args} {
     # * CURRENT_SPEF is the nom SPEF after the loop is done
     # * CURRENT_LIB is the nom/nom LIB after the loop is done
     # * CURRENT_SDF is the nom/nom SDF after the loop is done
-    if { ![info exists ::env(RCX_SDC_FILE)] } {
-        set ::env(RCX_SDC_FILE) $::env(CURRENT_SDC)
+    if { ![info exists ::env(SIGNOFF_SDC_FILE)] } {
+        set ::env(SIGNOFF_SDC_FILE) $::env(CURRENT_SDC)
     }
 
     set backup_sdc_variable $::env(CURRENT_SDC)
-    set ::env(CURRENT_SDC) $::env(RCX_SDC_FILE)
+    set ::env(CURRENT_SDC) $::env(SIGNOFF_SDC_FILE)
 
     set mca_results_dir "$arg_values(-out_directory)/mca"
     set ::env(MC_SPEF_DIR) "$mca_results_dir/spef"
@@ -147,6 +147,7 @@ proc run_parasitics_sta {args} {
             set directory "$mca_results_dir/process_corner_$process_corner"
             file mkdir $directory
 
+            # Note that sdc used here is different than the rest of the flow. The question is whether this would impact rcx extraction or not.
             run_spef_extraction\
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\

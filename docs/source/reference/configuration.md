@@ -303,7 +303,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RUN_SPEF_EXTRACTION` <a id="RUN_SPEF_EXTRACTION"></a> | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> (Default: `1`) |
 | `SPEF_EXTRACTOR` <a id="SPEF_EXTRACTOR"></a> | Specifies which spef extractor to use. Values: `openrcx` or (**removed:** `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` <a id="RCX_MERGE_VIA_WIRE_RES"></a> | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
-| `RCX_SDC_FILE` <a id="RCX_SDC_FILE"></a> | Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
+| `RCX_SDC_FILE` <a id="RCX_SDC_FILE"></a> | **Deprecated: Use SIGNOFF_SDC_FILE.**: Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
 | `SPEF_WIRE_MODEL` <a id="SPEF_WIRE_MODEL"></a> | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi` |
 | `SPEF_EDGE_CAP_FACTOR` <a id="SPEF_EDGE_CAP_FACTOR"></a> | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 |
 
@@ -322,6 +322,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PRIMARY_SIGNOFF_TOOL` <a id="PRIMARY_SIGNOFF_TOOL"></a> | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `USE_ARC_ANTENNA_CHECK` <a id="USE_ARC_ANTENNA_CHECK"></a> | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_CVC` <a id="RUN_CVC"></a> | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
+| `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
 
 ### Magic
 |Variable|Description|
