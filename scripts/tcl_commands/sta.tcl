@@ -126,6 +126,7 @@ proc run_parasitics_sta {args} {
     # * CURRENT_SDF is the nom/nom SDF after the loop is done
     if { ![info exists ::env(SIGNOFF_SDC_FILE)] } {
         set ::env(SIGNOFF_SDC_FILE) $::env(CURRENT_SDC)
+        set ::env(SIGNOFF_SDC_FILE) $::env(SDC_IN)
     }
 
     set backup_sdc_variable $::env(CURRENT_SDC)
