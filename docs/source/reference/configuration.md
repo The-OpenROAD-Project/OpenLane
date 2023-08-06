@@ -40,6 +40,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `MERGED_LEF` <a id="MERGED_LEF"></a> | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` <a id="NO_SYNTH_CELL_LIST"></a> | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` <a id="DRC_EXCLUDE_CELL_LIST"></a> | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
+| `IMPLEMENTATION_SDC_FILE` <a id="IMPLEMENTATION_SDC_FILE"></a> | Specifies the sdc file used during all implementation stages (synthesis, optimizations, CTS, etc.) in the flow and during sta done at these stages. It is *not* used during signoff stage. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 
 ### Macros/Chip Integration
 
@@ -90,7 +91,6 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_EXTRA_MAPPING_FILE` <a id="SYNTH_EXTRA_MAPPING_FILE"></a> | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
 | `SYNTH_PARAMETERS` <a id="SYNTH_PARAMETERS"></a> | Whitespace-delimited key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
 | `SYNTH_ELABORATE_ONLY` <a id="SYNTH_ELABORATE_ONLY"></a> | "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. <br> (Default: `0`) |
-| `BASE_SDC_FILE` <a id="BASE_SDC_FILE"></a> | Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 | `VERILOG_INCLUDE_DIRS` <a id="VERILOG_INCLUDE_DIRS"></a> | Specifies the verilog includes directories. <br> Optional. |
 | `SYNTH_FLAT_TOP` <a id="SYNTH_FLAT_TOP"></a> | Specifies whether or not the top level should be flattened during elaboration. 1 = True, 0= False <br> (Default: `0`)|
 | `IO_PCT` <a id="IO_PCT"></a> | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
@@ -99,6 +99,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_TOP_LEVEL` <a id="SYNTH_TOP_LEVEL"></a> | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
 | `SYNTH_MAX_FANOUT` <a id="SYNTH_MAX_FANOUT"></a>  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
 | `SYNTH_MAX_TRAN` <a id="SYNTH_MAX_TRAN"></a> |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
+| `BASE_SDC_FILE` <a id="BASE_SDC_FILE"></a> | **Deprecated: Use IMPLEMENTATION_SDC_FILE**: Specifies the base sdc file to source before running Static Timing Analysis. <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
 
 ## Static Timing Analysis (STA)
 
@@ -322,7 +323,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PRIMARY_SIGNOFF_TOOL` <a id="PRIMARY_SIGNOFF_TOOL"></a> | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `USE_ARC_ANTENNA_CHECK` <a id="USE_ARC_ANTENNA_CHECK"></a> | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_CVC` <a id="RUN_CVC"></a> | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
+| `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file to be used for multicorner STA during signoff stage, which can be different from the one used for implementation. <br> (Default: `IMPLEMENTATION_SDC_FILE`) |
 
 ### Magic
 |Variable|Description|
