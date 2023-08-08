@@ -250,7 +250,6 @@ proc generate_blackbox_verilog {input output {defines ""}} {
     foreach define $defines {
         set defines_flag "$defines_flag -D$define"
     }
-    puts_warn "Please make sure that there are no undefined macros in $input"
     lappend args "read_verilog $defines_flag $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
     lappend args |& tee $::env(TERMINAL_OUTPUT)
     try_exec yosys -p {*}$args
@@ -259,18 +258,18 @@ proc generate_blackbox_verilog {input output {defines ""}} {
 
 
 proc run_verilator {} {
-    set verilator_verified_pdks "sky130A sky130B"
-    set verilator_verified_scl "sky130_fd_sc_hd"
+    # New open_pdks now include blackbox models of sky130.
+    # We should use these after updating the PDK
     set pdk_model_blackbox ""
-    if { ([string eq $::env(PDK) sky130A] || [string eq $::env(PDK) sky130B]) && \
-        $::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hd" } {
+    if { ($::env(PDK) == "sky130A" ||$::env(PDK) == "sky130B") && \
+        ($::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hd" || $::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hvl") } {
         set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
         set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model]]-bb.v"
         generate_blackbox_verilog $pdk_model $output_file
         set pdk_model_blackbox $output_file
     }
-    if { ([string eq $::env(PDK) gf180mcuC] || [string eq $::env(PDK) gf180mcuA] || [string eq $::env(PDK) gf180mcuB]) && \
-        $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" } {
+    if { ($::env(PDK) == "gf180mcuC" || $::env(PDK) == "gf180mcuA" || $::env(PDK) == "gf180mcuB") && \
+        ($::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" || $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu9t5v0"} {
         set pdk_model_original "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
         set pdk_model_patched "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-patched.v"
         # remove not yosys friendly lines similar to "abc(x, y, z);" or "abc(x, y) bbb(z, f);"
@@ -287,15 +286,19 @@ proc run_verilator {} {
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+        puts_warn "Please make sure that there are no undefined macros in files defined in VERILOG_FILES_BLACKBOX"
+        puts_warn "If so, refer to ./designs/ci/caravel_upw/src/user_proj_example.v for a way to deal with them"
         set generated_blackbox_files [list]
+        set counter 0
         foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-            set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $verilog_file]]-bb.v"
+            set output_file "$::env(synthesis_tmpfiles)/$counter-[file rootname [file tail $verilog_file]]-bb.v"
             if { [info exists ::env(LINTER_DEFINES)] } {
                 generate_blackbox_verilog $verilog_file $output_file "$::env(LINTER_DEFINES)"
             } else {
                 generate_blackbox_verilog $verilog_file $output_file
             }
             set generated_blackbox_files "$generated_blackbox_files $output_file"
+            set counter "[expr $counter + 1]"
         }
         lappend arg_list {*}$generated_blackbox_files
     }
