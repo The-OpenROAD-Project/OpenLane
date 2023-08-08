@@ -269,7 +269,7 @@ proc run_verilator {} {
         set pdk_model_blackbox $output_file
     }
     if { ($::env(PDK) == "gf180mcuC" || $::env(PDK) == "gf180mcuA" || $::env(PDK) == "gf180mcuB") && \
-        ($::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" || $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu9t5v0"} {
+        ($::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" || $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu9t5v0")} {
         set pdk_model_original "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
         set pdk_model_patched "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-patched.v"
         # remove not yosys friendly lines similar to "abc(x, y, z);" or "abc(x, y) bbb(z, f);"
