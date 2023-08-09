@@ -63,8 +63,8 @@ you're doing.
 | `GPIO_PADS_PREFIX` | A list of pad cells name prefixes. |
 | `NETGEN_SETUP_FILE` | Points to the setup file for netgen(lvs), that can exclude certain cells etc.. |
 | `FP_TAPCELL_DIST` | The distance between tapcell columns. Used in floorplanning in tapcell insertion. |
-| `CLOCK_WIRE_RC_LAYER` | The metal layer used in estimate parastics for clock signals`set_wire_rc`. <br> (Example: `met1`) |
-| `DATA_WIRE_RC_LAYER` | The metal layer used in estimate parastics for data (non-clock) signals`set_wire_rc`. <br> (Example: `met1`) |
+| `CLOCK_WIRE_RC_LAYER` | The metal layer used in estimate parastics for clock signals. <br> (Example: `met1`) |
+| `DATA_WIRE_RC_LAYER` | The metal layer used in estimate parastics for data (non-clock) signals. <br> (Example: `met1`) |
 | `FP_IO_HLAYER`  | The metal layer on which to place the io pins horizontally (top and bottom of the die). <br>(Example: `met3`)|
 | `FP_IO_VLAYER`  | The metal layer on which to place the io pins vertically (sides of the die) <br> (Example: `met2`)|
 | `FP_TAPCELL_DIST`  | The horizontal distance between two tapcell columns <br> (Default: `14`) |
