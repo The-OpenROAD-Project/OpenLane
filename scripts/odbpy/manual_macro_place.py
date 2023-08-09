@@ -94,7 +94,9 @@ def manual_macro_place(reader, config, fixed):
             line_number += 1
             if not line:
                 continue
-            validate_syntax(line, f"[ERROR]: MACRO_PLACEMENT_CFG file line {line_number}: ")
+            validate_syntax(
+                line, f"[ERROR]: MACRO_PLACEMENT_CFG file line {line_number}: "
+            )
             line = line.split()
             macros[line[0]] = [
                 str(int(float(line[1]) * db_units_per_micron)),
