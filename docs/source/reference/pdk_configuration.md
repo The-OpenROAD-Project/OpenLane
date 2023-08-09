@@ -71,7 +71,7 @@ you're doing.
 | `RCX_RULES_MIN` | OpenRCX rules at the minimum corner. (Optional) |
 | `RCX_RULES` | OpenRCX rules at the nominal corner. |
 | `RCX_RULES_MAX` | OpenRCX rules at the maximum corner. (Optional) |
-| `WIRE_RC_LAYER` | **Depreacted: Use DATA_WIRE_RC_LAYER and CLOCK_WIRE_RC_LAYER instead**: The metal layer used in estimate parastics `set_wire_rc`. <br> (Example: `met1`) |
+| `WIRE_RC_LAYER` | **Deprecated: Use `DATA_WIRE_RC_LAYER` and `CLOCK_WIRE_RC_LAYER` **: The metal layer used in estimate parastics `set_wire_rc`. <br> (Example: `met1`) |
 
 ## SCL-specific variables
 
