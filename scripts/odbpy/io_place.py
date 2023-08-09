@@ -345,7 +345,11 @@ def io_place(
                             )
                             pin_distance[side] = pin_distance_min[side]
                     else:
-                        raise(ValueError(f"[ERROR]: Expected min_distance. Found '{variable[0]}'"))
+                        raise (
+                            ValueError(
+                                f"[ERROR]: Expected min_distance. Found '{variable[0]}'"
+                            )
+                        )
                 except ValueError as e:
                     error = e
                     if "could not convert" in str(e):
