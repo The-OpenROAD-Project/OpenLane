@@ -50,17 +50,17 @@ def validate_syntax(line, error_prefix):
     error = ""
 
     if len(line) != 4:
-        error = f"{error_prefix}Expected 4 elements found {len(line)}"
+        error = f"{error_prefix}Expected 4 elements. Found {len(line)}"
     try:
         float(line[1])
     except ValueError:
-        error = print(f"{error_prefix}Expected an x coordinate found '{line[1]}'")
+        error = print(f"{error_prefix}Expected an x coordinate. Found '{line[1]}'")
     try:
         float(line[2])
     except ValueError:
-        error = print(f"{error_prefix}Expected a y coordinate found '{line[2]}'")
+        error = print(f"{error_prefix}Expected a y coordinate. Found '{line[2]}'")
     if line[3] not in list(LEF2OA_MAP.keys()) + list(LEF2OA_MAP.values()):
-        error = f"{error_prefix}Expected an orientation found '{line[3]}'"
+        error = f"{error_prefix}Expected an orientation. Found '{line[3]}'"
 
     if error != "":
         print(error)
@@ -128,7 +128,7 @@ def manual_macro_place(reader, config, fixed):
                 inst.setPlacementStatus("PLACED")
             del macros[inst_name]
 
-    assert not macros, ("Macros not found:", macros)
+    assert not macros, ("[ERROR]: Macros not found:", macros)
 
     print(f"Successfully placed {macros_cnt} instances.")
 
