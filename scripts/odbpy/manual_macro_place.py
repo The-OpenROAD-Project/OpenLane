@@ -88,9 +88,6 @@ def manual_macro_place(reader, config, fixed):
     macros = {}
     line_number = 0
     with open(config, "r") as config_file:
-        # validating the line should be simple
-        # required syntax is straight forward
-        # we can validate <alphanumberic> <number> <number> <N|S|W|E>
         for line in config_file:
             # Discard comments and empty lines
             line = line.split("#")[0].strip()
