@@ -259,8 +259,6 @@ proc generate_blackbox_verilog {inputs output {defines ""}} {
 
 
 proc run_verilator {} {
-    # New open_pdks now include blackbox models of sky130.
-    # We should use these after updating the PDK
     set pdk_model_blackbox ""
     if { $::env(PDK) == "sky130A" ||$::env(PDK) == "sky130B" } {
         set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY)__blackbox.v"
