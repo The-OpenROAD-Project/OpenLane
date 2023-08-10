@@ -244,16 +244,16 @@ proc logic_equiv_check {args} {
 }
 
 
-proc generate_blackbox_verilog {input output {defines ""}} {
+proc generate_blackbox_verilog {inputs output {defines ""}} {
     set output_files ""
     set defines_flag ""
-    foreach define $defines {
-        set defines_flag "$defines_flag -D$define"
+    set ::env(YOSYS_IN) $inputs
+    set ::env(YOSYS_OUT) $output
+    if { $defines != "" } {
+        set ::env(YOSYS_DEFINES) $defines
     }
-    lappend args "read_verilog $defines_flag $input; blackbox *; write_verilog -noattr -noexpr -nohex -nodec -defparam -blackboxes $output"
-    lappend args |& tee $::env(TERMINAL_OUTPUT)
-    try_exec yosys -p {*}$args
-    puts_info "Generated blackbox verilog for $input"
+    try_exec yosys -c $::env(SCRIPTS_DIR)/yosys/blackbox.tcl
+    puts_info "Generated blackbox verilog ($output) from ($inputs)"
 }
 
 
@@ -261,12 +261,19 @@ proc run_verilator {} {
     # New open_pdks now include blackbox models of sky130.
     # We should use these after updating the PDK
     set pdk_model_blackbox ""
-    if { ($::env(PDK) == "sky130A" ||$::env(PDK) == "sky130B") && \
-        ($::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hd" || $::env(STD_CELL_LIBRARY) == "sky130_fd_sc_hvl") } {
-        set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
+    if { $::env(PDK) == "sky130A" ||$::env(PDK) == "sky130B" } {
+        set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY)__blackbox.v"
         set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model]]-bb.v"
         generate_blackbox_verilog $pdk_model $output_file
-        set pdk_model_blackbox $output_file
+
+        exec echo "\n/* verilator lint_off UNDRIVEN */\n" | cat - $output_file > $output_file.tmp
+        file rename -force $output_file.tmp $output_file
+        exec echo "\n/* verilator lint_off UNUSEDSIGNAL */\n" | cat - $output_file > $output_file.tmp
+        file rename -force $output_file.tmp $output_file
+        exec echo "\n/* verilator lint_on UNUSEDSIGNAL */\n" >> $output_file
+        exec echo "\n/* verilator lint_on UNDRIVEN */\n" >> $output_file
+
+        set pdk_model_blackbox "$pdk_model_blackbox $output_file"
     }
     if { ($::env(PDK) == "gf180mcuC" || $::env(PDK) == "gf180mcuA" || $::env(PDK) == "gf180mcuB") && \
         ($::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" || $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu9t5v0")} {
@@ -276,31 +283,30 @@ proc run_verilator {} {
         exec bash -c "sed -E '/^\\s+\\S+\\s*\\(.*\\).*;.*/d' $pdk_model_original > $pdk_model_patched"
         set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-bb.v"
         generate_blackbox_verilog $pdk_model_patched $output_file FUNCTIONAL
-        set pdk_model_blackbox $output_file
+
+        exec echo "\n/* verilator lint_off UNDRIVEN */\n" | cat - $output_file > $output_file.tmp
+        file rename -force $output_file.tmp $output_file
+        exec echo "\n/* verilator lint_off UNUSEDSIGNAL */\n" | cat - $output_file > $output_file.tmp
+        file rename -force $output_file.tmp $output_file
+        exec echo "\n/* verilator lint_on UNUSEDSIGNAL */\n" >> $output_file
+        exec echo "\n/* verilator lint_on UNDRIVEN */\n" >> $output_file
+
+        set pdk_model_blackbox "$pdk_model_blackbox $output_file"
     }
     set log $::env(synthesis_logs)/linter.log
-    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
     if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
         lappend arg_list {*}$pdk_model_blackbox
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-        puts_warn "Please make sure that there are no undefined macros in files defined in VERILOG_FILES_BLACKBOX"
-        puts_warn "If so, refer to ./designs/ci/caravel_upw/src/user_proj_example.v for a way to deal with them"
-        set generated_blackbox_files [list]
-        set counter 0
-        foreach verilog_file $::env(VERILOG_FILES_BLACKBOX) {
-            set output_file "$::env(synthesis_tmpfiles)/$counter-[file rootname [file tail $verilog_file]]-bb.v"
-            if { [info exists ::env(LINTER_DEFINES)] } {
-                generate_blackbox_verilog $verilog_file $output_file "$::env(LINTER_DEFINES)"
-            } else {
-                generate_blackbox_verilog $verilog_file $output_file
-            }
-            set generated_blackbox_files "$generated_blackbox_files $output_file"
-            set counter "[expr $counter + 1]"
+        set output_file "$::env(synthesis_tmpfiles)/bb.v"
+        if { [info exists ::env(LINTER_DEFINES)] } {
+            generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file "$::env(LINTER_DEFINES)"
+        } else {
+            generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file
         }
-        lappend arg_list {*}$generated_blackbox_files
+        lappend arg_list {*}$output_file
     }
     lappend arg_list -Wno-fatal
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
@@ -319,6 +325,7 @@ proc run_verilator {} {
     }
     lappend arg_list {*}$defines
 
+    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
     set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
     lappend arg_list {*}$arg
     try_exec bash -c "verilator \
