@@ -332,17 +332,33 @@ def io_place(
                     virtual_pins_count = int(regex[1:])
                     pin_placement[side].append(virtual_pins_count)
                 except ValueError:
-                    print("You provided invalid values for virtual pins")
+                    print("[ERROR]: You provided invalid values for virtual pins")
                     sys.exit(1)
             elif regex[0] == "@":
                 variable = regex[1:].split("=")
-                if variable[0] == "min_distance":
-                    pin_distance[side] = float(variable[1]) * reader.dbunits
-                    if pin_distance[side] < pin_distance_min[side]:
-                        print(
-                            f"Warning: Using min_distance {pin_distance_min[side] / reader.dbunits} for {side} pins to avoid overlap"
+                try:
+                    if variable[0] == "min_distance":
+                        pin_distance[side] = float(variable[1]) * reader.dbunits
+                        if pin_distance[side] < pin_distance_min[side]:
+                            print(
+                                f"[WARNING]: Using min_distance {pin_distance_min[side] / reader.dbunits} for {side} pins to avoid overlap"
+                            )
+                            pin_distance[side] = pin_distance_min[side]
+                    else:
+                        raise (
+                            ValueError(
+                                f"[ERROR]: Expected min_distance. Found '{variable[0]}'"
+                            )
                         )
-                        pin_distance[side] = pin_distance_min[side]
+                except ValueError as e:
+                    error = e
+                    if "could not convert" in str(e):
+                        error = f"[ERROR]: Expected float in @min_distance command. Found '{variable[1]}'"
+                    print(error)
+                    sys.exit(-1)
+                except IndexError:
+                    print(f"[ERROR]: Expected @min_distance=<number>. Found '{regex}'")
+                    sys.exit(-1)
             else:
                 regex += "$"  # anchor
                 for bterm in bterms:
@@ -353,7 +369,7 @@ def io_place(
                     if re.match(regex, pin_name) is not None:
                         if bterm in bterm_regex_map:
                             print(
-                                f"Error: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}"
+                                f"[ERROR]: Multiple regexes matched {pin_name}. Those are {bterm_regex_map[bterm]} and {regex}"
                             )
                             sys.exit(os.EX_DATAERR)
                         bterm_regex_map[bterm] = regex
@@ -362,7 +378,7 @@ def io_place(
     unmatched_bterms = [bterm for bterm in bterms if bterm not in bterm_regex_map]
 
     if len(unmatched_bterms) > 0:
-        print("Warning: Some pins weren't matched by the config file")
+        print("[WARNING]: Some pins weren't matched by the config file")
         print("Those are:", [bterm.getName() for bterm in unmatched_bterms])
         if unmatched_error_flag:
             print("Treating unmatched pins as errors. Exiting..")
@@ -425,7 +441,7 @@ def io_place(
             pin_name = bterm.getName()
             pins = bterm.getBPins()
             if len(pins) > 0:
-                print(f"Warning: {pin_name} already has shapes. Modifying them")
+                print(f"[WARNING]: {pin_name} already has shapes. Modifying them")
                 assert len(pins) == 1
                 pin_bpin = pins[0]
             else:
