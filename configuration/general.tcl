@@ -80,3 +80,9 @@ set ::env(RUN_KLAYOUT_XOR) 1
 set ::env(GENERATE_FINAL_SUMMARY_REPORT) {1}
 
 set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 0
+
+
+set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
+set ::env(DEFAULT_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
+set ::env(PNR_SDC_FILE) $:::env(BASE_SDC_FILE)
+set ::env(SIGNOFF_SDC_FILE) $:::env(BASE_SDC_FILE)

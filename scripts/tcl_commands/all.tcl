@@ -636,7 +636,6 @@ proc prep {args} {
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX
 
     handle_deprecated_config RCX_SDC_FILE SIGNOFF_SDC_FILE
-    handle_deprecated_config BASE_SDC_FILE IMPLEMENTATION_SDC_FILE
 
     ### Checkers/Quitting
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
@@ -908,8 +907,11 @@ proc prep {args} {
         }
     }
 
-    if { $::env(IMPLEMENTATION_SDC_FILE) == $::env(IMPLEMENTATION_SDC_FILE_DEFAULT) } {
-        puts_warn "Using default sdc file $::env(IMPLEMENTATION_SDC_FILE). It is recommended to provide a custom sdc file made by the designer."
+    if { $::env(PNR_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
+        puts_warn "PNR_SDC_FILE is not set. It is recommended to provide a custom sdc file made by the designer. Defaulting to BASE_SDC_FILE"
+    }
+    if { $::env(SIGNOFF_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
+        puts_warn "SIGNOFF_SDC_FILE is not set. It is recommended to provide a custom sdc file made by the designer. Defaulting to BASE_SDC_FILE"
     }
 
     TIMER::timer_stop
