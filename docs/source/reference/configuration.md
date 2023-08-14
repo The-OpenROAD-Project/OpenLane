@@ -323,7 +323,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PRIMARY_SIGNOFF_TOOL` <a id="PRIMARY_SIGNOFF_TOOL"></a> | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `USE_ARC_ANTENNA_CHECK` <a id="USE_ARC_ANTENNA_CHECK"></a> | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_CVC` <a id="RUN_CVC"></a> | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file to be used for multicorner STA during signoff stage, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
+| `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file used by multicorner STA during signoff stage, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
 
 ### Magic
 |Variable|Description|
