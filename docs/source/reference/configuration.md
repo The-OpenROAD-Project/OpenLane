@@ -40,8 +40,8 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `MERGED_LEF` <a id="MERGED_LEF"></a> | Points to `merged.lef`, which is a merger of various LEF files, including the technology lef, cells lef, any custom lefs, and IO lefs. |
 | `NO_SYNTH_CELL_LIST` <a id="NO_SYNTH_CELL_LIST"></a> | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/no_synth.cells` and if it's not found, then the original liberty will be used as is. |
 | `DRC_EXCLUDE_CELL_LIST` <a id="DRC_EXCLUDE_CELL_LIST"></a> | Specifies the file that contains the don't-use-cell-list to be excluded from the liberty file during synthesis and timing optimizations. If it's not defined, this path is searched `$::env(PDK_ROOT)/$::env(PDK)/libs.tech/openlane/$::env(STD_CELL_LIBRARY)/drc_exclude.cells` and if it's not found, then the original liberty will be used as is. In other words, `DRC_EXCLUDE_CELL_LIST` contain the only excluded cell list in timing optimizations. |
-| `BASE_SDC_FILE` <a id="BASE_SDC_FILE"></a> | Specifies the base sdc file using during the flow. It is the default sdc file used for `PNR_SDC_FILE` and `SIGNOFF_SDC_FILE` <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.sdc`) |
-| `PNR_SDC_FILE` <a id="PNR_SDC_FILE"></a> | Specifies the sdc file used during all implementation (PnR) stages. It is used by tools in the flow and during sta done at these stages. It is *not* used during signoff stage. <br> (Default: `$::env(BASE_SDC_FILE)`) |
+| `BASE_SDC_FILE` <a id="BASE_SDC_FILE"></a> | Specifies the base SDC file using during the flow. It is the default SDC file used for `PNR_SDC_FILE` and `SIGNOFF_SDC_FILE` <br> (Default: `$::env(OPENLANE_ROOT)/scripts/base.SDC`) |
+| `PNR_SDC_FILE` <a id="PNR_SDC_FILE"></a> | Specifies the SDC file used during all implementation (PnR) stages. It is used by tools in the flow and during STA done at these stages. It is *not* used during signoff stage. <br> (Default: `$::env(BASE_SDC_FILE)`) |
 
 ### Macros/Chip Integration
 
