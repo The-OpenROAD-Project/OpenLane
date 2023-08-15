@@ -635,9 +635,6 @@ proc prep {args} {
     handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX
 
-    handle_deprecated_config RCX_SDC_FILE SIGNOFF_SDC_FILE
-    handle_deprecated_config BASE_SDC_FILE IMPLEMENTATION_SDC_FILE
-
     ### Checkers/Quitting
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
@@ -906,10 +903,6 @@ proc prep {args} {
             puts_err "Please define VSRC_LOC_FILES correctly. i.e. : net1 file1 net2 file2 ..."
             flow_fail
         }
-    }
-
-    if { $::env(IMPLEMENTATION_SDC_FILE) == $::env(IMPLEMENTATION_SDC_FILE_DEFAULT) } {
-        puts_warn "Using default sdc file $::env(IMPLEMENTATION_SDC_FILE). It is recommended to provide a custom sdc file made by the designer."
     }
 
     TIMER::timer_stop

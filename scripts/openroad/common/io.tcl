@@ -35,8 +35,8 @@ proc env_var_used {file var} {
 }
 
 proc read_current_sdc {} {
-    if { ![info exists ::env(SDC_IN)]} {
-        puts "\[INFO] SDC_IN not found. Not reading an SDC file."
+    if { ![info exists ::env(CURRENT_SDC)]} {
+        puts "\[INFO] CURRENT_SDC not found. Not reading an SDC file."
         return
     }
 
@@ -46,8 +46,8 @@ proc read_current_sdc {} {
         set ::env(SYNTH_MAX_TRAN) $::env(MAX_TRANSITION_CONSTRAINT)
     }
 
-    puts "Reading design constraints file at '$::env(SDC_IN)'…"
-    if {[catch {read_sdc $::env(SDC_IN)} errmsg]} {
+    puts "Reading design constraints file at '$::env(CURRENT_SDC)'…"
+    if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
@@ -90,7 +90,9 @@ proc read_netlist {args} {
 
     link_design $::env(DESIGN_NAME)
 
-    read_current_sdc
+    if { [info exists ::env(CURRENT_SDC)] } {
+        read_current_sdc
+    }
 
 }
 
@@ -186,7 +188,9 @@ proc read {args} {
 
     read_libs {*}$read_libs_args
 
-    read_current_sdc
+    if { [info exists ::env(CURRENT_SDC)] } {
+        read_current_sdc
+    }
 
     if { ![info exist flags(-no_spefs)] } {
         if { [info exists ::env(CURRENT_SPEF)] } {
