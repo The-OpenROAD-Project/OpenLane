@@ -49,7 +49,7 @@ jobs:
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
 
-          python3 -m pip install --upgrade --no-cache-dir volare
+          python3 -m pip install --upgrade --no-cache-dir volare>=0.12.3
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
             volare enable_or_build\
