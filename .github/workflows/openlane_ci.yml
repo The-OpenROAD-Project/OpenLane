@@ -24,6 +24,10 @@ jobs:
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
 
+      - name: Set up GITHUB_TOKEN
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
       - name: Get Volare Build/Push Dependencies
         run: |
           # Magic Build Dependencies
@@ -48,7 +52,6 @@ jobs:
               --pdk $PDK_FAMILY\
               --build-magic\
               --also-push\
-              --token ${{ secrets.MY_TOKEN }}\
               --owner ${{ vars.VOLARE_OWNER }}\
               --repository ${{ vars.VOLARE_REPO }}\
               -j$(nproc)\
@@ -57,7 +60,6 @@ jobs:
             volare enable_or_build\
               --pdk $PDK_FAMILY\
               --build-magic\
-              --token ${{ secrets.MY_TOKEN }}\
               -j$(nproc)\
               $OPDKS_VER
           fi
