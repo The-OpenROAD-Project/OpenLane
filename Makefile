@@ -124,7 +124,7 @@ mount:
 
 .PHONY: pdk
 pdk: venv/created
-	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare>=0.12.3
 	./venv/bin/volare enable --pdk $(PDK_FAMILY)
 
 .PHONY: survey
