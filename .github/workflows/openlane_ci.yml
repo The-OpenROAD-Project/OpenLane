@@ -29,7 +29,15 @@ jobs:
           # Magic Build Dependencies
           sudo apt-get install -y tcsh tcl-dev tk-dev libcairo2-dev m4
           # GHR (Pushing)
-          go install github.com/tcnksm/ghr@latest
+          go install github.com/tcnksm/ghr@latest'
+
+      - name: Set GITHUB_TOKEN
+        run: |
+          if [ "${{ secrets.MY_TOKEN }}" != "" ]; then
+            echo "GITHUB_TOKEN=${{ secrets.MY_TOKEN }}" >> $GITHUB_ENV
+          else
+            echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          fi
 
       - name: Build (or Get) PDK
         run: |
@@ -48,7 +56,6 @@ jobs:
               --pdk $PDK_FAMILY\
               --build-magic\
               --also-push\
-              --token ${{ secrets.MY_TOKEN }}\
               --owner ${{ vars.VOLARE_OWNER }}\
               --repository ${{ vars.VOLARE_REPO }}\
               -j$(nproc)\
@@ -57,7 +64,6 @@ jobs:
             volare enable_or_build\
               --pdk $PDK_FAMILY\
               --build-magic\
-              --token ${{ secrets.MY_TOKEN }}\
               -j$(nproc)\
               $OPDKS_VER
           fi
