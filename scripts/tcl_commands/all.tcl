@@ -905,6 +905,25 @@ proc prep {args} {
         }
     }
 
+    set libs "\
+        $::env(LIB_SLOWEST) \
+        $::env(LIB_FASTEST) \
+        $::env(LIB_TYPICAL) \
+        $::env(LIB_CTS) \
+        $::env(LIB_CTS_SLOWEST) \
+        $::env(LIB_CTS_FASTEST) \
+        $::env(RSZ_LIB_SLOWEST) \
+        $::env(RSZ_LIB_SLOWEST) \
+        $::env(RSZ_LIB)"
+
+    set ::env(OPERATING_CONDITIONS_MAP) $::env(TMP_DIR)/operating_conditions_mapping.json
+    set done ""
+    foreach lib $libs {
+        if {[string first $lib $done] == -1} {
+            set condition [get_default_liberty_conditions $lib]
+            exec python3 $::env(SCRIPTS_DIR)/utils/operating_conditions.py save $condition $lib $::env(OPERATING_CONDITIONS_MAP)
+        }
+    }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "openlane design prep"
     return -code ok

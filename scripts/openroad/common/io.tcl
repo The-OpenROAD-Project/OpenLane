@@ -135,6 +135,9 @@ proc read_libs {args} {
         foreach lib $corner($corner_name) {
             puts "read_liberty -corner $corner_name $lib"
             read_liberty -corner $corner_name $lib
+            if { [info exists ::env(OPERATING_CONDITIONS_MAP)] } {
+                set_operating_conditions [fetch_operating_conditions $lib]
+            }
         }
         if { ![info exists flags(-no_extra)] } {
             if { [info exists ::env(EXTRA_LIBS) ] } {
@@ -321,4 +324,8 @@ proc read_spefs {} {
             }
         }
     }
+}
+
+proc fetch_operating_conditions {lib} {
+    exec python3 $::env(SCRIPTS_DIR)/utils/operating_conditions.py find_condition $lib $::env(OPERATING_CONDITIONS_MAP)
 }
