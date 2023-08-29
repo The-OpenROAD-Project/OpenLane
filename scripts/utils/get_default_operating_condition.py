@@ -38,7 +38,9 @@ def get_default_operating_condition(liberty):
     if len(default_operating_conditions) < 1:
         operating_conditions = library.get_groups("operating_conditions")
         if len(operating_conditions) > 1:
-            print_error(f"Liberty {library.args[0]} has more than one operating_conditions. User has to explicitly set the default")
+            print_error(
+                f"Liberty {library.args[0]} has more than one operating_conditions. User has to explicitly set the default"
+            )
             sys.exit(1)
         if len(operating_conditions) == 0:
             print_error(f"Liberty {library.args[0]} has no operating_conditions.")
@@ -50,5 +52,5 @@ def get_default_operating_condition(liberty):
         print(default_operating_conditions[0].value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     get_default_operating_condition()
