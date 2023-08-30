@@ -34,10 +34,11 @@ proc env_var_used {file var} {
     return [string_in_file $file "\$::env($var)"]
 }
 
-proc read_current_sdc {} {
-    if { ![info exists ::env(SDC_IN)]} {
-        puts "\[INFO] SDC_IN not found. Not reading an SDC file."
-        return
+proc read_sdc_wrapper {} {
+    if { [info exists ::env(STA_MULTICORNER)] && $::env(STA_MULTICORNER) == 1 } {
+        set sdc_in $::env(SIGNOFF_SDC_FILE)
+    } else {
+        set sdc_in $::env(PNR_SDC_FILE)
     }
 
     set ::env(SYNTH_MAX_FANOUT) $::env(MAX_FANOUT_CONSTRAINT)
@@ -46,8 +47,8 @@ proc read_current_sdc {} {
         set ::env(SYNTH_MAX_TRAN) $::env(MAX_TRANSITION_CONSTRAINT)
     }
 
-    puts "Reading design constraints file at '$::env(SDC_IN)'…"
-    if {[catch {read_sdc $::env(SDC_IN)} errmsg]} {
+    puts "Reading design constraints file at '$sdc_in'…"
+    if {[catch {read_sdc $sdc_in} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
@@ -90,7 +91,7 @@ proc read_netlist {args} {
 
     link_design $::env(DESIGN_NAME)
 
-    read_current_sdc
+    read_sdc_wrapper
 
 }
 
@@ -186,7 +187,7 @@ proc read {args} {
 
     read_libs {*}$read_libs_args
 
-    read_current_sdc
+    read_sdc_wrapper
 
     if { ![info exist flags(-no_spefs)] } {
         if { [info exists ::env(CURRENT_SPEF)] } {

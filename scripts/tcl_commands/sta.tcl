@@ -141,7 +141,6 @@ proc run_parasitics_sta {args} {
             set directory "$mca_results_dir/process_corner_$process_corner"
             file mkdir $directory
 
-            set ::env(SDC_IN) $::env(PNR_SDC_FILE)
             run_spef_extraction\
                 -log $::env(signoff_logs)/parasitics_extraction.$process_corner.log\
                 -rcx_lib $::env(LIB_SYNTH_COMPLETE)\
@@ -163,7 +162,6 @@ proc run_parasitics_sta {args} {
                 lappend sta_flags -blackbox_check
             }
 
-            set ::env(SDC_IN) $::env(SIGNOFF_SDC_FILE)
             run_sta {*}$sta_flags
 
             if { $process_corner == "nom" } {

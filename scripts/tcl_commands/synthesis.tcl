@@ -113,7 +113,6 @@ proc run_synthesis {args} {
     puts_info "Running Synthesis (log: [relpath . $log])..."
 
     set ::env(CURRENT_SDC) $::env(BASE_SDC_FILE)
-    set ::env(SDC_IN) $::env(BASE_SDC_FILE)
     # in-place insertion
     if { [file exists $::env(synthesis_results)/$::env(DESIGN_NAME).v] } {
         puts_warn "A netlist at $::env(synthesis_results)/$::env(DESIGN_NAME).v already exists. Synthesis will be skipped."
