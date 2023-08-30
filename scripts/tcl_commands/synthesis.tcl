@@ -326,7 +326,7 @@ proc run_verilator {} {
     lappend arg_list {*}$defines
 
     puts_info "Running linter (Verilator) (log: [relpath . $log])..."
-    try_exec verilator \
+    catch_exec verilator \
         -Wall \
         --lint-only \
         --Wno-DECLFILENAME \
@@ -335,7 +335,7 @@ proc run_verilator {} {
 
     set timing_errors [exec bash -c "grep -i 'Error-NEEDTIMINGOPT' $log || true"]
     if { $timing_errors ne "" } {
-        set msg "Timing constructs found in the RTL. Please remove them or wrap them around an ifdef. It heavily unrecommended to rely on timing constructs for synthesis."
+        set msg "Timing constructs found in the RTL. Please remove them or add a preprocessor guard. It is heavily discouraged to rely on timing constructs in synthesis."
         if { $::env(QUIT_ON_LINTER_ERRORS) } {
             puts_err $msg
             throw_error
