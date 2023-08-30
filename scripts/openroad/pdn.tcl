@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read -sdc $::env(PNR_SDC_FILE)
 
 # load the grid definitions
 if {[catch {source $::env(FP_PDN_CFG)} errmsg]} {

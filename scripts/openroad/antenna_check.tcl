@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read -sdc $::env(PNR_SDC_FILE)
 
 # start checking antennas and generate a detail report
 check_antennas -verbose

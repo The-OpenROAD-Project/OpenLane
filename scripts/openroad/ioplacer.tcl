@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read -sdc $::env(PNR_SDC_FILE)
 
 if { [info exists ::env(CONTEXTUAL_IO_FLAG)] } {
 	read_lef $::env(placement_tmpfiles)/top_level.lef

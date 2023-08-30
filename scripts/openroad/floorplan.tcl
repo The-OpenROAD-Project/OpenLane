@@ -14,7 +14,7 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read_libs -typical "$::env(LIB_SYNTH_COMPLETE)"
 read_lef $::env(MERGED_LEF)
-read_netlist
+read_netlist -sdc $::env(PNR_SDC_FILE)
 
 set bottom_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(BOTTOM_MARGIN_MULT)]
 set top_margin  [expr $::env(PLACE_SITE_HEIGHT) * $::env(TOP_MARGIN_MULT)]

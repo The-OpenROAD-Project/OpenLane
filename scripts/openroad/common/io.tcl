@@ -34,11 +34,9 @@ proc env_var_used {file var} {
     return [string_in_file $file "\$::env($var)"]
 }
 
-proc read_current_sdc {} {
-    if { ![info exists ::env(SDC_IN)]} {
-        puts "\[INFO] SDC_IN not found. Not reading an SDC file."
-        return
-    }
+proc read_sdc_wrapper {args} {
+    sta::parse_key_args "read_sdc_wrapper" args \
+        keys {-sdc} \
 
     set ::env(SYNTH_MAX_FANOUT) $::env(MAX_FANOUT_CONSTRAINT)
     set ::env(SYNTH_CAP_LOAD) $::env(OUTPUT_CAP_LOAD)
@@ -46,8 +44,8 @@ proc read_current_sdc {} {
         set ::env(SYNTH_MAX_TRAN) $::env(MAX_TRANSITION_CONSTRAINT)
     }
 
-    puts "Reading design constraints file at '$::env(SDC_IN)'…"
-    if {[catch {read_sdc $::env(SDC_IN)} errmsg]} {
+    puts "Reading design constraints file at $keys(-sdc)…"
+    if {[catch {read_sdc $keys(-sdc)} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
@@ -56,7 +54,7 @@ proc read_current_sdc {} {
 
 proc read_netlist {args} {
     sta::parse_key_args "read_netlists" args \
-        keys {}\
+        keys {-sdc}\
         flags {-powered -all}
 
     set netlist $::env(CURRENT_NETLIST)
@@ -90,7 +88,15 @@ proc read_netlist {args} {
 
     link_design $::env(DESIGN_NAME)
 
-    read_current_sdc
+    if { [info exists keys(-sdc)] } {
+        read_sdc_wrapper -sdc $keys(-sdc)
+    } else {
+        if { [info exists ::env(CURRENT_SDC)] } {
+            read_sdc_wrapper -sdc $::env(CURRENT_SDC)
+        } else {
+            puts "CURRENT_SDC is not set. Not reading an SDC file"
+        }
+    }
 
 }
 
@@ -149,8 +155,8 @@ proc read_libs {args} {
 
 proc read {args} {
     sta::parse_key_args "read" args \
-        keys {-lib_fastest -lib_typical -lib_slowest} \
-        flags {-no_spefs}
+        keys {-sdc -lib_fastest -lib_typical -lib_slowest} \
+        flags {-no_spefs -pnr -signoff}
 
     if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
         if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
@@ -186,7 +192,15 @@ proc read {args} {
 
     read_libs {*}$read_libs_args
 
-    read_current_sdc
+    if { [info exists keys(-sdc)] } {
+        read_sdc_wrapper -sdc $keys(-sdc)
+    } else {
+        if { [info exists ::env(CURRENT_SDC)] } {
+            read_sdc_wrapper -sdc $::env(CURRENT_SDC)
+        } else {
+            puts "CURRENT_SDC is not set. Not reading an SDC file"
+        }
+    }
 
     if { ![info exist flags(-no_spefs)] } {
         if { [info exists ::env(CURRENT_SPEF)] } {

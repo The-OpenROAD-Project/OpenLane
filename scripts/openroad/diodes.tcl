@@ -15,7 +15,7 @@
 # NORMAL MODE: inserts diode cells
 # OPTIMIZED MODE: inserts a fake diode, to be replaced later with a real diode if necessary
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read -sdc $::env(PNR_SDC_FILE)
 
 set ::PREFIX ANTENNA
 set ::VERBOSE 0

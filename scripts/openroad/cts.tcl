@@ -18,6 +18,7 @@ if { $::env(CTS_MULTICORNER_LIB) } {
     lappend read_args -lib_slowest $::env(LIB_CTS_SLOWEST)
 }
 lappend read_args -lib_typical $::env(LIB_CTS)
+lappend read_args -sdc $::env(PNR_SDC_FILE)
 read {*}$read_args
 
 # set rc values
