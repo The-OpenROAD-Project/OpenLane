@@ -35,7 +35,9 @@ if { [info exist ::env(LAYERS_RC)] } {
     }
 }
 
-if { [info exist ::env(WIRE_RC_LAYER)] } {
-    set_wire_rc -signal -layer $::env(WIRE_RC_LAYER)
-    set_wire_rc -clock -layer $::env(WIRE_RC_LAYER)
+if { [info exist ::env(DATA_WIRE_RC_LAYER)] } {
+    set_wire_rc -signal -layer $::env(DATA_WIRE_RC_LAYER)
+}
+if { [info exist ::env(CLOCK_WIRE_RC_LAYER)] } {
+    set_wire_rc -clock -layer $::env(CLOCK_WIRE_RC_LAYER)
 }

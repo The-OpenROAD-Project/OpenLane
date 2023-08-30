@@ -196,7 +196,7 @@ def cli(
         store_dir = f"./regression_results/{tag}"
         report_file_name = f"{store_dir}/{tag}"
 
-        utils.mkdirp(store_dir)
+    utils.mkdirp(store_dir)
 
     log = logging.getLogger("log")
     log_formatter = logging.Formatter("%(asctime)s | %(message)s", "%Y-%m-%d %H:%M")
