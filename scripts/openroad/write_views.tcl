@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read -sdc $::env(PNR_SDC_FILE)
+read
 if { $::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) } {
     write -no_global_connect
 } else {

@@ -19,18 +19,12 @@ if { $::env(STA_MULTICORNER) } {
     lappend arg_list -fastest $::env(LIB_FASTEST)
     lappend arg_list -slowest $::env(LIB_SLOWEST)
 }
-set sdc_in [list]
-if { $::env(STA_MULTICORNER) } {
-    lappend sdc_in -sdc $::env(SIGNOFF_SDC_FILE)
-} else {
-    lappend sdc_in -sdc $::env(PNR_SDC_FILE)
-}
 
 if { [file tail [info nameofexecutable]] == "sta" } {
     # OpenSTA
     if { $::env(STA_MULTICORNER_READ_LIBS) } {
         read_libs {*}$arg_list
-        read_netlist {*}$sdc_in
+        read_netlist ;# also reads sdc
         set corners [sta::corners]
         if { [info exists ::env(CURRENT_SPEF)] } {
             foreach corner $corners {
@@ -40,12 +34,12 @@ if { [file tail [info nameofexecutable]] == "sta" } {
         }
     } else {
         read_libs -no_extra {*}$arg_list
-        read_netlist -all {*}$sdc_in
+        read_netlist -all ;# also reads sdc
         read_spefs
     }
 } else {
     # OpenROAD
-    read {*}$sdc_in ;# also reads sdc, spef and libs
+    read ;# also reads sdc, spef and libs
 }
 
 if { [info exists ::env(DEBUG)] && $::env(DEBUG) } {

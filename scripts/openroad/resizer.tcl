@@ -18,7 +18,6 @@ if { $::env(RSZ_MULTICORNER_LIB) } {
     lappend read_args -lib_slowest $::env(RSZ_LIB_SLOWEST)
 }
 lappend read_args -lib_typical $::env(RSZ_LIB)
-lappend read_args -sdc $::env(PNR_SDC_FILE)
 read {*}$read_args
 
 # set rc values

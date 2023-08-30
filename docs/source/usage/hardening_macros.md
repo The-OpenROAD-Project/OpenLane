@@ -72,7 +72,7 @@ Static Timing Analysis happens multiple times during the flow. However, they all
 
 3. The IO delay percentage from the clock period `IO_PCT`. More about that [here](../reference/configuration.md).
 
-4. You may want to write a custom SDC file to be used in STA and CTS. The default SDC file in the flow is as follows. However, you can change that by pointing to a new file with the environment variable `PNR_SDC_FILE`. More about that [here](../reference/configuration.md).
+4. You may want to write a custom SDC file to be used in STA and CTS. The default SDC file in the flow is as follows. However, you can change that by pointing to a new file with the environment variable `IMPLEMENTATION_SDC_FILE`. More about that [here](../reference/configuration.md).
 
 Other values are set based on the (PDK, STD_CELL_LIBRARY) used. You can read more about those configurations [here](../reference/configuration.md).
 
