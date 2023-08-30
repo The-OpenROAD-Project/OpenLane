@@ -304,7 +304,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RUN_SPEF_EXTRACTION` <a id="RUN_SPEF_EXTRACTION"></a> | Specifies whether or not to run SPEF extraction on the routed DEF. 1=enabled 0=disabled <br> (Default: `1`) |
 | `SPEF_EXTRACTOR` <a id="SPEF_EXTRACTOR"></a> | Specifies which spef extractor to use. Values: `openrcx` or (**removed:** `def2spef`). <br> (Default: `openrcx`) |
 | `RCX_MERGE_VIA_WIRE_RES` <a id="RCX_MERGE_VIA_WIRE_RES"></a> | Specifies whether to merge the via resistance with the wire resistance or separate it from the wire resistance. 1 = Merge via resistance, 0 = Separate via resistance <br> (Default: `1`)|
-| `RCX_SDC_FILE` <a id="RCX_SDC_FILE"></a> | **Deprecated: Use SIGNOFF_SDC_FILE.**: Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
+| `RCX_SDC_FILE` <a id="RCX_SDC_FILE"></a> | **Deprecated: Use `SIGNOFF_SDC_FILE`**: Specifies SDC file to be used for RCX-based STA, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
 | `SPEF_WIRE_MODEL` <a id="SPEF_WIRE_MODEL"></a> | **Removed:** Specifies the wire model used in SPEF extraction. Options are `L` or `Pi` |
 | `SPEF_EDGE_CAP_FACTOR` <a id="SPEF_EDGE_CAP_FACTOR"></a> | **Removed:** Specifies the edge capacitance factor used in SPEF extraction. Ranges from 0 to 1 |
 
