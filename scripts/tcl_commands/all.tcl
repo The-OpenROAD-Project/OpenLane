@@ -621,6 +621,8 @@ proc prep {args} {
     handle_deprecated_pdk_config SYNTH_MAX_TRAN MAX_TRANSITION_CONSTRAINT
     handle_deprecated_pdk_config SYNTH_MAX_FANOUT MAX_FANOUT_CONSTRAINT
     handle_deprecated_pdk_config SYNTH_CAP_LOAD OUTPUT_CAP_LOAD
+    handle_deprecated_pdk_config WIRE_RC_LAYER DATA_WIRE_RC_LAYER
+    handle_deprecated_pdk_config WIRE_RC_LAYER CLOCK_WIRE_RC_LAYER
 
     ## Flow
     handle_diode_insertion_strategy
