@@ -311,7 +311,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 
 |Variable|Description|
 |-|-|
-| `RUN_IRDROP_REPORT` <a id="RUN_IRDROP_REPORT"></a> | Creates an IR Drop report using OpenROAD PSM. 1 = Enabled, 0 = Disabled. <br> (Default: `0`) |
+| `RUN_IRDROP_REPORT` <a id="RUN_IRDROP_REPORT"></a> | Creates an IR Drop report using OpenROAD PSM. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `VSRC_LOC_FILES` <a id="VSRC_LOC_FILES"></a> | PSM loc file for power and ground nets. Variable should be provided as a json/tcl list or a space delimited tcl string as follows: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/psm#commands) for more info.<br> (Default: NONE)  |
 
 ## Signoff
