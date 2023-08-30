@@ -206,11 +206,18 @@ proc log_exec {args} {
 }
 
 proc catch_exec {args} {
+    # Logs invocation to command log.
+    # Emplaces an array, "exec_result", in the calling context.
+    # The array has two keys, exit_code and out.
+    upvar exec_result exec_result
     log_exec $args
-    catch {eval exec $args}
+    set exec_result(exit_code) [catch {eval exec $args} exec_result(out)]
 }
 
 proc try_exec {args} {
+    # Logs invocation to command log.
+    # Fails on non-zero exit codes: prints the last 10 lines and throws an error.
+    # Returns nothing on success.
     log_exec $args
     set exit_code [catch {eval exec $args} error_msg]
     if { $exit_code } {
@@ -314,9 +321,10 @@ proc calc_total_runtime {args} {
         set_if_unset arg_values(-report) $::env(REPORTS_DIR)/total_runtime.txt
         set_if_unset arg_values(-status) "flow completed"
 
-        if {[catch {exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)} err]} {
+        catch_exec python3 $::env(SCRIPTS_DIR)/write_runtime.py --conclude --seconds --time-in $::env(timer_end) $arg_values(-status)
+        if { $exec_result(exit_code) } {
             puts_err "Failed to calculate total runtime:"
-            puts_err "$err"
+            puts_err "$exec_result(out)"
         }
     }
 }
@@ -410,16 +418,17 @@ proc generate_final_summary_report {args} {
     set_if_unset arg_values(-output) $::env(REPORTS_DIR)/metrics.csv
     set_if_unset arg_values(-man_report) $::env(REPORTS_DIR)/manufacturability.rpt
 
-    if {
-        [catch {exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py -d $::env(DESIGN_DIR) \
-            --design_name $::env(DESIGN_NAME) \
-                --tag $::env(RUN_TAG) \
-                --output_file $arg_values(-output) \
-                --man_report $arg_values(-man_report) \
-                --run_path $::env(RUN_DIR)} err]
-        } {
+    catch_exec python3 $::env(OPENLANE_ROOT)/scripts/generate_reports.py \
+        -d $::env(DESIGN_DIR) \
+        --design_name $::env(DESIGN_NAME) \
+        --tag $::env(RUN_TAG) \
+        --output_file $arg_values(-output) \
+        --man_report $arg_values(-man_report) \
+        --run_path $::env(RUN_DIR)
+
+    if { $exec_result(exit_code) } {
         puts_err "Failed to create manufacturability and metric reports:"
-        puts_err "$err"
+        puts_err "$exec_result(out)"
     } else {
 
         set man_report_rel [relpath . $arg_values(-man_report)]
@@ -675,15 +684,14 @@ proc run_tcl_script {args} {
     } else {
         puts_verbose "Executing $tool with Tcl script '$script_relative'..."
 
-        set exit_code [catch {exec {*}$args} error_msg]
-
-        if { $exit_code } {
+        catch_exec {*}$args
+        if { $exec_result(exit_code) } {
             set print_error_msg "during executing $tool script $script"
             set log_relpath [relpath $::env(PWD) $arg_values(-indexed_log)]
 
             puts_err "$print_error_msg"
             puts_err "Log: $log_relpath"
-            puts_err "Last 10 lines:\n[exec tail -10 << $error_msg]\n"
+            puts_err "Last 10 lines:\n[exec tail -10 << $exec_result(out)]\n"
 
             set create_reproducible 1
             puts_err "Creating issue reproducible..."
