@@ -197,16 +197,21 @@ proc set_and_log {var val} {
     close $global_cfg_file
 }
 
-proc catch_exec {args} {
+proc log_exec {args} {
     if { ! [catch { set cmd_log_file [open $::env(RUN_DIR)/cmds.log a+] } ]} {
         set timestamp [clock format [clock seconds]]
         puts $cmd_log_file "$timestamp - Executing \"$args\"\n"
         close $cmd_log_file
     }
+}
+
+proc catch_exec {args} {
+    log_exec $args
     catch {eval exec $args}
 }
 
 proc try_exec {args} {
+    log_exec $args
     set exit_code [catch {eval exec $args} error_msg]
     if { $exit_code } {
         set tool [string range $args 0 [string first " " $args]]
