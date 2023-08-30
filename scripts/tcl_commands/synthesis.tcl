@@ -243,9 +243,7 @@ proc logic_equiv_check {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 }
 
-
 proc generate_blackbox_verilog {inputs output {defines ""}} {
-    set output_files ""
     set defines_flag ""
     set ::env(YOSYS_IN) $inputs
     set ::env(YOSYS_OUT) $output
@@ -253,59 +251,63 @@ proc generate_blackbox_verilog {inputs output {defines ""}} {
         set ::env(YOSYS_DEFINES) $defines
     }
     try_exec yosys -c $::env(SCRIPTS_DIR)/yosys/blackbox.tcl
-    puts_info "Generated blackbox verilog ($output) from ($inputs)"
+
+    set out_str [cat $output]
+    set f [open $output w]
+    puts $f "/* verilator lint_off UNDRIVEN */\n/* verilator lint_off UNUSEDSIGNAL */\n$out_str\n/* verilator lint_on UNUSEDSIGNAL */\n/* verilator lint_on UNDRIVEN */\n"
+    close $f
+
+    set inputs_rel [list]
+    foreach input $inputs {
+        lappend inputs_rel [relpath . $input]
+    }
+
+    puts_verbose "Generated black-box model ([relpath . $output]) from ($inputs_rel)."
 }
 
-
 proc run_verilator {} {
-    set pdk_model_blackbox ""
-    if { $::env(PDK) == "sky130A" ||$::env(PDK) == "sky130B" } {
-        set pdk_model "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY)__blackbox.v"
-        set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model]]-bb.v"
-        generate_blackbox_verilog $pdk_model $output_file
+    set bb_dir $::env(synthesis_tmpfiles)/blackbox
+    file mkdir $bb_dir
 
-        exec echo "\n/* verilator lint_off UNDRIVEN */\n" | cat - $output_file > $output_file.tmp
-        file rename -force $output_file.tmp $output_file
-        exec echo "\n/* verilator lint_off UNUSEDSIGNAL */\n" | cat - $output_file > $output_file.tmp
-        file rename -force $output_file.tmp $output_file
-        exec echo "\n/* verilator lint_on UNUSEDSIGNAL */\n" >> $output_file
-        exec echo "\n/* verilator lint_on UNDRIVEN */\n" >> $output_file
+    set pdk_model_blackbox [list]
+    set included_blackbox_models [glob -nocomplain "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/*__blackbox.v"]
+    if { [llength $included_blackbox_models]} {
+        foreach model $included_blackbox_models {
+            set output_file "$bb_dir/[file rootname [file tail $model]].v"
+            generate_blackbox_verilog $model $output_file
+            lappend pdk_model_blackbox $output_file
+        }
+    } else {
+        # No black-box model in PDK: gotta try our best here
+        set pdk_models [glob -nocomplain "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/*.v"]
+        foreach model $pdk_models {
+            set output_file "$bb_dir/[file rootname [file tail $model]].v"
 
-        set pdk_model_blackbox "$pdk_model_blackbox $output_file"
-    }
-    if { ($::env(PDK) == "gf180mcuC" || $::env(PDK) == "gf180mcuA" || $::env(PDK) == "gf180mcuB") && \
-        ($::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu7t5v0" || $::env(STD_CELL_LIBRARY) == "gf180mcu_fd_sc_mcu9t5v0")} {
-        set pdk_model_original "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/$::env(STD_CELL_LIBRARY).v"
-        set pdk_model_patched "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-patched.v"
-        # remove not yosys friendly lines similar to "abc(x, y, z);" or "abc(x, y) bbb(z, f);"
-        exec bash -c "sed -E '/^\\s+\\S+\\s*\\(.*\\).*;.*/d' $pdk_model_original > $pdk_model_patched"
-        set output_file "$::env(synthesis_tmpfiles)/[file rootname [file tail $pdk_model_original]]-bb.v"
-        generate_blackbox_verilog $pdk_model_patched $output_file FUNCTIONAL
+            set patched_file "$bb_dir/[file rootname [file tail $model]].patched.v"
+            try_exec python3 $::env(SCRIPTS_DIR)/clean_models.py\
+                --output $patched_file\
+                $model
 
-        exec echo "\n/* verilator lint_off UNDRIVEN */\n" | cat - $output_file > $output_file.tmp
-        file rename -force $output_file.tmp $output_file
-        exec echo "\n/* verilator lint_off UNUSEDSIGNAL */\n" | cat - $output_file > $output_file.tmp
-        file rename -force $output_file.tmp $output_file
-        exec echo "\n/* verilator lint_on UNUSEDSIGNAL */\n" >> $output_file
-        exec echo "\n/* verilator lint_on UNDRIVEN */\n" >> $output_file
-
-        set pdk_model_blackbox "$pdk_model_blackbox $output_file"
+            generate_blackbox_verilog $patched_file $output_file FUNCTIONAL
+            lappend pdk_model_blackbox $output_file
+        }
     }
     set log $::env(synthesis_logs)/linter.log
     set arg_list [list]
     if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
         lappend arg_list {*}$pdk_model_blackbox
     }
-    lappend arg_list {*}$::env(VERILOG_FILES)
     if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-        set output_file "$::env(synthesis_tmpfiles)/bb.v"
+        set output_file "$bb_dir/extra.v"
         if { [info exists ::env(LINTER_DEFINES)] } {
             generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file "$::env(LINTER_DEFINES)"
         } else {
             generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file
         }
+
         lappend arg_list {*}$output_file
     }
+    lappend arg_list {*}$::env(VERILOG_FILES)
     lappend arg_list -Wno-fatal
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
@@ -324,14 +326,12 @@ proc run_verilator {} {
     lappend arg_list {*}$defines
 
     puts_info "Running linter (Verilator) (log: [relpath . $log])..."
-    set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
-    lappend arg_list {*}$arg
-    try_exec bash -c "verilator \
-        --lint-only \
+    try_exec verilator \
         -Wall \
+        --lint-only \
         --Wno-DECLFILENAME \
         --top-module $::env(DESIGN_NAME) \
-        $arg_list"
+        {*}$arg_list |& tee $log $::env(TERMINAL_OUTPUT)
 
     set timing_errors [exec bash -c "grep -i 'Error-NEEDTIMINGOPT' $log || true"]
     if { $timing_errors ne "" } {
