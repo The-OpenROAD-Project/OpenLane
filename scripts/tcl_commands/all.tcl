@@ -908,10 +908,10 @@ proc prep {args} {
     }
 
     if { $::env(PNR_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
-        puts_warn "PNR_SDC_FILE is not set. It is recommended to provide a custom sdc file made by the designer. Defaulting to BASE_SDC_FILE"
+        puts_warn "PNR_SDC_FILE is not set. It is recommended to write a custom SDC file for the design. Defaulting to BASE_SDC_FILE"
     }
     if { $::env(SIGNOFF_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
-        puts_warn "SIGNOFF_SDC_FILE is not set. It is recommended to provide a custom sdc file made by the designer. Defaulting to BASE_SDC_FILE"
+        puts_warn "SIGNOFF_SDC_FILE is not set. It is recommended to write a custom SDC file for the design. Defaulting to BASE_SDC_FILE"
     }
 
     TIMER::timer_stop

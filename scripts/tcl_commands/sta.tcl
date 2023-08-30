@@ -152,23 +152,22 @@ proc run_parasitics_sta {args} {
 
             set log_name $::env(signoff_logs)/rcx_mcsta.$process_corner.log
 
-            set ::env(SDC_IN) $::env(SIGNOFF_SDC_FILE)
-            run_sta\
-                -log $log_name\
-                -process_corner $process_corner\
-                -multi_corner \
-                -save_to $directory \
-                -tool sta
+            set sta_flags [list]
+            lappend sta_flags -log $log_name
+            lappend sta_flags -process_corner $process_corner
+            lappend sta_flags -multi_corner
+            lappend sta_flags -save_to $directory
+            lappend sta_flags -tool sta
 
             if { $process_corner == "nom" } {
-                run_sta\
-                    -log $::env(signoff_logs)/rcx_sta.log\
-                    -process_corner $process_corner\
-                    -save_to $directory \
-                    -blackbox_check \
-                    -tool sta
+                lappend sta_flags -blackbox_check
+            }
 
-                set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
+            set ::env(SDC_IN) $::env(SIGNOFF_SDC_FILE)
+            run_sta {*}$sta_flags
+
+            if { $process_corner == "nom" } {
+                set ::env(LAST_TIMING_REPORT_TAG) "[index_file $::env(signoff_reports)/sta-rcx_$process_corner]/multi_corner_sta"
             }
 
             file mkdir $::env(MC_SPEF_DIR)
