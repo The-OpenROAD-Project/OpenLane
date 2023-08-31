@@ -408,6 +408,7 @@ proc run_routing {args} {
         }
         if { $::env(RUN_HEURISTIC_DIODE_INSERTION) } {
             heuristic_diode_insertion
+            detailed_placement_or
         }
     }
 
