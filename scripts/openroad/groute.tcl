@@ -40,15 +40,6 @@ global_route {*}$arg_list
 if { $::env(GRT_REPAIR_ANTENNAS) } {
     repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
 
-    remove_fillers
-
-    detailed_placement\
-        -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]
-
-    if { $::env(PL_OPTIMIZE_MIRRORING) } {
-        optimize_mirroring
-    }
-
     check_placement
 }
 

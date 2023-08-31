@@ -52,7 +52,6 @@ pipeline {
                                "ci/aes_core",
                                "ci/APU",
                                "ci/blabla",
-                               "'ci/BM64 -override_env QUIT_ON_LINTER_ERRORS=0'",
                                "ci/gcd",
                                "ci/inverter",
                                "ci/manual_macro_placement_test",

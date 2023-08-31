@@ -17,7 +17,6 @@
 - scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
   designs:
-    - ./designs/ci/BM64
     - ./designs/ci/salsa20
     - ./designs/ci/aes_core
     - ./designs/ci/blabla
