@@ -16,10 +16,7 @@ read
 
 set_propagated_clock [all_clocks]
 
-if { $::env(GRT_REPAIR_ANTENNAS) } {
-    source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
-    set_placement_padding -masters $::env(DIODE_CELL) -left $::env(DIODE_PADDING)
-}
+source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_routing_layers.tcl
 
@@ -40,6 +37,12 @@ global_route {*}$arg_list
 if { $::env(GRT_REPAIR_ANTENNAS) } {
     repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
 
+    source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
+    detailed_placement\
+        -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]
+    if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
+        optimize_mirroring
+    }
     check_placement
 }
 
