@@ -243,30 +243,71 @@ proc logic_equiv_check {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "logic equivalence check - yosys"
 }
 
+proc generate_blackbox_verilog {inputs output {defines ""}} {
+    set defines_flag ""
+    set ::env(YOSYS_IN) $inputs
+    set ::env(YOSYS_OUT) $output
+    if { $defines != "" } {
+        set ::env(YOSYS_DEFINES) $defines
+    }
+    try_exec yosys -c $::env(SCRIPTS_DIR)/yosys/blackbox.tcl
+
+    set out_str [cat $output]
+    set f [open $output w]
+    puts $f "/* verilator lint_off UNDRIVEN */\n/* verilator lint_off UNUSEDSIGNAL */\n$out_str\n/* verilator lint_on UNUSEDSIGNAL */\n/* verilator lint_on UNDRIVEN */\n"
+    close $f
+
+    set inputs_rel [list]
+    foreach input $inputs {
+        lappend inputs_rel [relpath . $input]
+    }
+
+    puts_verbose "Generated black-box model ([relpath . $output]) from ($inputs_rel)."
+}
+
 proc run_verilator {} {
-    set verilator_verified_pdks "sky130A sky130B"
-    set verilator_verified_scl "sky130_fd_sc_hd"
-    set includes ""
-    if { [string match *$::env(PDK)* $verilator_verified_pdks] == 0 || \
-        [string match *$::env(STD_CELL_LIBRARY)* $verilator_verified_scl] == 0} {
-        puts_warn "PDK '$::env(PDK)', SCL '$::env(STD_CELL_LIBRARY)' will generate errors with instantiated stdcells in the design."
-        puts_warn "Either disable QUIT_ON_LINTER_ERRORS or remove the instantiated cells."
+    set bb_dir $::env(synthesis_tmpfiles)/blackbox
+    file mkdir $bb_dir
+
+    set pdk_model_blackbox [list]
+    set included_blackbox_models [glob -nocomplain "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/*__blackbox.v"]
+    if { [llength $included_blackbox_models]} {
+        foreach model $included_blackbox_models {
+            set output_file "$bb_dir/[file rootname [file tail $model]].v"
+            generate_blackbox_verilog $model $output_file
+            lappend pdk_model_blackbox $output_file
+        }
     } else {
-        set pdk_verilog_models [glob $::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY_OPT)/verilog/*.v]
-        foreach model $pdk_verilog_models {
-            set includes "$includes $model"
+        # No black-box model in PDK: gotta try our best here
+        set pdk_models [glob -nocomplain "$::env(PDK_ROOT)/$::env(PDK)/libs.ref/$::env(STD_CELL_LIBRARY)/verilog/*.v"]
+        foreach model $pdk_models {
+            set output_file "$bb_dir/[file rootname [file tail $model]].v"
+
+            set patched_file "$bb_dir/[file rootname [file tail $model]].patched.v"
+            try_exec python3 $::env(SCRIPTS_DIR)/clean_models.py\
+                --output $patched_file\
+                $model
+
+            generate_blackbox_verilog $patched_file $output_file FUNCTIONAL
+            lappend pdk_model_blackbox $output_file
         }
     }
     set log $::env(synthesis_logs)/linter.log
-    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
     set arg_list [list]
     if { $::env(LINTER_INCLUDE_PDK_MODELS) } {
-        lappend arg_list {*}$includes
+        lappend arg_list {*}$pdk_model_blackbox
+    }
+    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
+        set output_file "$bb_dir/extra.v"
+        if { [info exists ::env(LINTER_DEFINES)] } {
+            generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file "$::env(LINTER_DEFINES)"
+        } else {
+            generate_blackbox_verilog $::env(VERILOG_FILES_BLACKBOX) $output_file
+        }
+
+        lappend arg_list {*}$output_file
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
-    if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
-        lappend arg_list {*}$::env(VERILOG_FILES_BLACKBOX)
-    }
     lappend arg_list -Wno-fatal
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
@@ -284,18 +325,17 @@ proc run_verilator {} {
     }
     lappend arg_list {*}$defines
 
-    set arg "|& tee $log $::env(TERMINAL_OUTPUT)"
-    lappend arg_list {*}$arg
-    try_exec bash -c "verilator \
-        --lint-only \
+    puts_info "Running linter (Verilator) (log: [relpath . $log])..."
+    catch_exec verilator \
         -Wall \
+        --lint-only \
         --Wno-DECLFILENAME \
         --top-module $::env(DESIGN_NAME) \
-        $arg_list"
+        {*}$arg_list |& tee $log $::env(TERMINAL_OUTPUT)
 
     set timing_errors [exec bash -c "grep -i 'Error-NEEDTIMINGOPT' $log || true"]
     if { $timing_errors ne "" } {
-        set msg "Timing constructs found in the RTL. Please remove them or wrap them around an ifdef. It heavily unrecommended to rely on timing constructs for synthesis."
+        set msg "Timing constructs found in the RTL. Please remove them or add a preprocessor guard. It is heavily discouraged to rely on timing constructs in synthesis."
         if { $::env(QUIT_ON_LINTER_ERRORS) } {
             puts_err $msg
             throw_error
