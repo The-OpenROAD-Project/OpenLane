@@ -18,32 +18,6 @@ set_propagated_clock [all_clocks]
 
 source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
 
-source $::env(SCRIPTS_DIR)/openroad/common/set_routing_layers.tcl
-
-set_macro_extension $::env(GRT_MACRO_EXTENSION)
-
-source $::env(SCRIPTS_DIR)/openroad/common/set_layer_adjustments.tcl
-
-set arg_list [list]
-lappend arg_list -congestion_iterations $::env(GRT_OVERFLOW_ITERS)
-lappend arg_list -verbose
-lappend arg_list -congestion_report_file $::env(GRT_CONGESTION_REPORT_FILE)
-if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
-    lappend arg_list -allow_congestion
-}
-puts $arg_list
-global_route {*}$arg_list
-
-if { $::env(GRT_REPAIR_ANTENNAS) } {
-    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
-
-    source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl
-    detailed_placement\
-        -max_displacement [subst { $::env(PL_MAX_DISPLACEMENT_X) $::env(PL_MAX_DISPLACEMENT_Y) }]
-    if { [info exists ::env(PL_OPTIMIZE_MIRRORING)] && $::env(PL_OPTIMIZE_MIRRORING) } {
-        optimize_mirroring
-    }
-    check_placement
-}
+source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
 
 write
