@@ -12,6 +12,12 @@ OpenLane is an automated RTL to GDSII flow based on several components including
 
 You can check out the documentation, including in-depth guides and reference manuals at [ReadTheDocs](https://openlane.readthedocs.io/).
 
+<p align="center">
+    <a href="https://github.com/efabless/openlane2">
+        <img src="./docs/_static/ol2_banner.svg" alt="Banner promoting OpenLane 2"/>
+    </a>
+</p>
+
 ## Quick-start Guide
 If you just want to try OpenLane out, try [this Colaboratory](https://colab.research.google.com/github/chipsalliance/silicon-notebooks/blob/main/digital-inverter-openlane.ipynb) by our friends at Google and ChipsAlliance. It's an online Python-based utility, and the best part is, *you don't need to install anything.*
 
