@@ -36,5 +36,5 @@ extract
 
 ext2spice lvs
 ext2spice -o $::env(EXT_NETLIST) $::env(DESIGN_NAME).ext
-feedback save $::env(_tmp_magic_feedback_file)
+feedback save $::env(signoff_reports)/$::env(_tmp_magic_extract_type).feedback.txt
 # exec cp $::env(DESIGN_NAME).spice $::env(signoff_results)/$::env(DESIGN_NAME).spice
