@@ -132,7 +132,11 @@ proc check_hold_violations {args} {
     set corner $arg_values(-corner)
 
     set worst_slack [exec sed -n "s/worst slack corner $corner: \\(.*\\)/\\1/p" $report_file]
-    set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    if { $worst_slack == "INF" } {
+        set checker 0
+    } else {
+        set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    }
     if { $checker } {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
@@ -159,7 +163,11 @@ proc check_setup_violations {args} {
     set corner $arg_values(-corner)
 
     set worst_slack [exec sed -n "s/worst slack corner $corner: \\(.*\\)/\\1/p" $report_file]
-    set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    if { $worst_slack == "INF" } {
+        set checker 0
+    } else {
+        set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    }
     if { $checker } {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
