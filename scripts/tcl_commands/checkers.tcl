@@ -49,7 +49,7 @@ proc check_out_of_bound {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in $log"
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in '[relpath . $log]'"
         throw_error
     }
 }
@@ -60,7 +60,7 @@ proc check_resizing_cell_port {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in $log"
+        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in '[relpath . $log]'"
         throw_error
     }
 }
