@@ -29,7 +29,7 @@ CI_ARCHITECTURES = {"amd64", "arm64v8"}
 SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
 
 
-def test_manifest_exists(repository, tag) -> str:
+def test_manifest_exists(repository, tag) -> bool:
     url = f"https://registry.hub.docker.com/v2/repositories/{repository}/tags/{tag}"
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     status = None
@@ -303,6 +303,9 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
 
     for name, submodule in submodules_by_name.items():
         submodule["commit"] = shas_by_path.get(submodule["path"])
+        if submodule["url"].startswith(tuple(["./", "../"])):
+            submodule["url"] = urllib.parse.urljoin(repository, submodule["url"])
+
         if submodule["url"].endswith(".git"):
             submodule["url"] = submodule["url"][:-4]
 

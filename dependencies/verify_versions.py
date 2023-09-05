@@ -55,7 +55,6 @@ def verify_versions(
     manifest_names_by_SOURCES_name = {
         "open_pdks": "open_pdks",
         "skywater": "sky130",
-        "magic": "magic",
     }
     pdk_manifest_names = set(manifest_names_by_SOURCES_name.values())
 
@@ -131,6 +130,7 @@ def verify_versions(
                     )
 
                 for name, commit in tool_versions:
+                    print(name, commit)
                     manifest_commit = manifest_dict[name]["commit"]
 
                     if commit != manifest_commit:

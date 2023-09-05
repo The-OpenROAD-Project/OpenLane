@@ -124,12 +124,6 @@ proc run_parasitics_sta {args} {
     # * CURRENT_SPEF is the nom SPEF after the loop is done
     # * CURRENT_LIB is the nom/nom LIB after the loop is done
     # * CURRENT_SDF is the nom/nom SDF after the loop is done
-    if { ![info exists ::env(RCX_SDC_FILE)] } {
-        set ::env(RCX_SDC_FILE) $::env(CURRENT_SDC)
-    }
-
-    set backup_sdc_variable $::env(CURRENT_SDC)
-    set ::env(CURRENT_SDC) $::env(RCX_SDC_FILE)
 
     set mca_results_dir "$arg_values(-out_directory)/mca"
     set ::env(MC_SPEF_DIR) "$mca_results_dir/spef"
@@ -157,22 +151,21 @@ proc run_parasitics_sta {args} {
 
             set log_name $::env(signoff_logs)/rcx_mcsta.$process_corner.log
 
-            run_sta\
-                -log $log_name\
-                -process_corner $process_corner\
-                -multi_corner \
-                -save_to $directory \
-                -tool sta
+            set sta_flags [list]
+            lappend sta_flags -log $log_name
+            lappend sta_flags -process_corner $process_corner
+            lappend sta_flags -multi_corner
+            lappend sta_flags -save_to $directory
+            lappend sta_flags -tool sta
 
             if { $process_corner == "nom" } {
-                run_sta\
-                    -log $::env(signoff_logs)/rcx_sta.log\
-                    -process_corner $process_corner\
-                    -save_to $directory \
-                    -blackbox_check \
-                    -tool sta
+                lappend sta_flags -blackbox_check
+            }
 
-                set ::env(LAST_TIMING_REPORT_TAG) [index_file $::env(signoff_reports)/rcx_sta]
+            run_sta {*}$sta_flags
+
+            if { $process_corner == "nom" } {
+                set ::env(LAST_TIMING_REPORT_TAG) "[index_file $::env(signoff_reports)/sta-rcx_$process_corner]/multi_corner_sta"
             }
 
             file mkdir $::env(MC_SPEF_DIR)
@@ -183,8 +176,6 @@ proc run_parasitics_sta {args} {
             file copy -force {*}[glob $directory/$::env(DESIGN_NAME).*.sdf] $sdf_folder
         }
     }
-
-    set ::env(CURRENT_SDC) $backup_sdc_variable
 }
 
 package provide openlane 0.9

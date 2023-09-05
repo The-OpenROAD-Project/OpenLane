@@ -399,7 +399,7 @@ proc show_warnings {msg} {
         set warnings_file [open $::env(RUN_DIR)/warnings.log "r"]
         set warnings [read $warnings_file]
         close $warnings_file
-        puts $warnings
+        puts "[color_text 3 "$warnings"]"
     }
 }
 

@@ -62,7 +62,10 @@ foreach corner [sta::corners] {
     puts "======================= [$corner name] Corner ===================================\n"
     report_checks -sort_by_slack -path_delay min -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
     puts ""
+    set ws [sta::format_time [sta::worst_slack_corner $corner "min"] 4]
+    puts "worst slack corner [$corner name]: $ws"
 }
+
 puts "min_report_end"
 
 
@@ -74,6 +77,8 @@ foreach corner [sta::corners] {
     puts "======================= [$corner name] Corner ===================================\n"
     report_checks -sort_by_slack -path_delay max -fields {slew cap input nets fanout} -format full_clock_expanded -group_count 1000 -corner [$corner name]
     puts ""
+    set ws [sta::format_time [sta::worst_slack_corner $corner "max"] 4]
+    puts "worst slack corner [$corner name]: $ws"
 }
 puts "max_report_end"
 
@@ -105,6 +110,16 @@ foreach corner [sta::corners] {
     puts "======================= [$corner name] Corner ===================================\n"
     report_check_types -max_slew -max_capacitance -max_fanout -violators -corner [$corner name]
     puts ""
+    set net "NULL"
+    set violators 1
+    set min_max "max"
+    set slew_pins [sta::check_slew_limits $net $violators $corner $min_max]
+    puts "max slew violations count [$corner name]: [llength $slew_pins]"
+    set fanout_pins [sta::check_fanout_limits $net $violators $min_max]
+    puts "max fanout violations count [$corner name]: [llength $fanout_pins]"
+    set cap_pins [sta::check_capacitance_limits $net $violators $corner $min_max]
+    puts "max cap violations count [$corner name]: [llength $cap_pins]"
+
 }
 
 puts "\n==========================================================================="

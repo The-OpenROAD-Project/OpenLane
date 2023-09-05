@@ -46,6 +46,7 @@ pull-build-base:
 	$(PYTHON_BIN) ./utils.py pull-if-doesnt-exist --repository $(TOOL_REPOSITORY) --os $(OS_NAME) --architecture $(BUILD_ARCH) build-base
 	@echo "-----------"
 
+# Used by pull-if-doesnt-exist
 build-run-base: ./run_base/Dockerfile
 	cat ../dependencies/python/run_time.txt > ./run_base/pip_dependencies.txt
 	cat ../dependencies/centos-7/precompile_time.txt > ./run_base/yum_repos.txt
@@ -61,7 +62,7 @@ pull-run-base:
 	@echo "-----------"
 
 # Tool Images
-$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile pull-build-base
+$(TOOL_BUILD_TARGETS): build-% : ./%/Dockerfile pull-build-base  pull-run-base
 	mkdir -p logs
 	cp ./utils.py $*
 	$(BUILD_COMMAND)\

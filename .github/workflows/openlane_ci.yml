@@ -24,6 +24,10 @@ jobs:
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
 
+      - name: Set up GITHUB_TOKEN
+        run: |
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
       - name: Get Volare Build/Push Dependencies
         run: |
           # Magic Build Dependencies

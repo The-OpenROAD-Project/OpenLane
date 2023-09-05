@@ -34,10 +34,11 @@ proc env_var_used {file var} {
     return [string_in_file $file "\$::env($var)"]
 }
 
-proc read_current_sdc {} {
-    if { ![info exists ::env(CURRENT_SDC)]} {
-        puts "\[INFO] CURRENT_SDC not found. Not reading an SDC file."
-        return
+proc read_sdc_wrapper {} {
+    if { [info exists ::env(STA_MULTICORNER)] && $::env(STA_MULTICORNER) == 1 } {
+        set sdc_in $::env(SIGNOFF_SDC_FILE)
+    } else {
+        set sdc_in $::env(PNR_SDC_FILE)
     }
 
     set ::env(SYNTH_MAX_FANOUT) $::env(MAX_FANOUT_CONSTRAINT)
@@ -46,8 +47,8 @@ proc read_current_sdc {} {
         set ::env(SYNTH_MAX_TRAN) $::env(MAX_TRANSITION_CONSTRAINT)
     }
 
-    puts "Reading design constraints file at '$::env(CURRENT_SDC)'…"
-    if {[catch {read_sdc $::env(CURRENT_SDC)} errmsg]} {
+    puts "Reading design constraints file at '$sdc_in'…"
+    if {[catch {read_sdc $sdc_in} errmsg]} {
         puts stderr $errmsg
         exit 1
     }
@@ -90,9 +91,7 @@ proc read_netlist {args} {
 
     link_design $::env(DESIGN_NAME)
 
-    if { [info exists ::env(CURRENT_SDC)] } {
-        read_current_sdc
-    }
+    read_sdc_wrapper
 
 }
 
@@ -115,7 +114,7 @@ proc print_units {args} {
 proc read_libs {args} {
     sta::parse_key_args "read_libs" args \
         keys {-typical -slowest -fastest}\
-        flags {-no_extra}
+        flags {-no_extra -set_operating_conditions}
 
     if { ![info exists keys(-typical)] } {
         puts "read_libs -typical is required"
@@ -135,6 +134,13 @@ proc read_libs {args} {
         foreach lib $corner($corner_name) {
             puts "read_liberty -corner $corner_name $lib"
             read_liberty -corner $corner_name $lib
+            if { [info exists flags(-set_operating_conditions)] } {
+                set lib_info [fetch_library_info $lib]
+                set lib_name [lindex $lib_info 0]
+                set operating_conditions [lindex $lib_info 1]
+                puts "\[INFO] Setting operating conditions to '$operating_conditions'…"
+                set_operating_conditions -library $lib_name $operating_conditions
+            }
         }
         if { ![info exists flags(-no_extra)] } {
             if { [info exists ::env(EXTRA_LIBS) ] } {
@@ -152,7 +158,7 @@ proc read_libs {args} {
 proc read {args} {
     sta::parse_key_args "read" args \
         keys {-lib_fastest -lib_typical -lib_slowest} \
-        flags {-no_spefs}
+        flags {-no_spefs -set_lib_operating_conditions}
 
     if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
         if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
@@ -185,12 +191,13 @@ proc read {args} {
     if { [info exists keys(-lib_slowest)] } {
         lappend read_libs_args -slowest "$keys(-lib_slowest)"
     }
+    if { [info exists flags(-set_lib_operating_conditions)] } {
+        lappend read_libs_args -set_operating_conditions
+    }
 
     read_libs {*}$read_libs_args
 
-    if { [info exists ::env(CURRENT_SDC)] } {
-        read_current_sdc
-    }
+    read_sdc_wrapper
 
     if { ![info exist flags(-no_spefs)] } {
         if { [info exists ::env(CURRENT_SPEF)] } {
@@ -321,4 +328,10 @@ proc read_spefs {} {
             }
         }
     }
+}
+
+proc fetch_library_info {lib} {
+    set extraction [exec python3 $::env(SCRIPTS_DIR)/utils/get_default_operating_conditions.py $lib]
+    set result [split $extraction ":"]
+    return $result
 }
