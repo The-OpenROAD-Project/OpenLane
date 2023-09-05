@@ -202,7 +202,7 @@ veryclean:
 	@git clean -fdX
 
 clean_runs:
-	@rm -rf ./designs/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
+	@rm -rf ./designs/ci/*/runs && rm -rf ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
 	@rm -rf ./tests/*/runs && echo "Test runs cleaned successfully." || echo "Failed to delete test runs."
 
 clean_results:

@@ -20,7 +20,7 @@ RUN_BASE_IMAGE := $(TOOL_REPOSITORY):$(RUN_BASE_TAG)
 export BUILD_COMMAND ?= docker build --no-cache
 
 TOOLS = $(shell $(PYTHON_BIN) ../dependencies/tool.py --containerized --no-pdks .)
-OPENLANE_SKELETON=configuration dependencies designs regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
+OPENLANE_SKELETON=configuration dependencies designs/spm regression_results scripts AUTHORS.md env.py flow.tcl LICENSE run_designs.py
 TOOL_BUILD_TARGETS = $(foreach tool,$(TOOLS),build-$(tool))
 TOOL_EXPORT_TARGETS = $(foreach tool,$(TOOLS),pull-$(tool))
 

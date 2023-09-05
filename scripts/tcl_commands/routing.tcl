@@ -39,7 +39,7 @@ proc global_routing_fastroute {args} {
     set initial_odb [index_file $::env(routing_tmpfiles)/global.odb]
 
     set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/groute-congestion.rpt
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/repair_antennas.tcl\
         -indexed_log $log\
         -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
         -no_update_current
@@ -64,10 +64,9 @@ proc global_routing_fastroute {args} {
                 --new-prefix "INSDIODE$iter"
 
             set log [index_file $::env(routing_logs)/antenna_route_$iter.log]
-            run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
+            run_openroad_script $::env(SCRIPTS_DIR)/openroad/repair_antennas.tcl\
                 -indexed_log $log\
                 -save "to=$::env(routing_tmpfiles),name=global_$iter,def,guide,odb"\
-                -no_update_current
 
             set antennae [groute_antenna_extract -from_log $log]
 

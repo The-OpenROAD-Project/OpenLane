@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Efabless Corporation
+# Copyright 2020-2023 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,11 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
 
+source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/dpl_cell_pad.tcl ; # just in case
+repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
 source $::env(SCRIPTS_DIR)/openroad/common/dpl.tcl
+source $::env(SCRIPTS_DIR)/openroad/common/grt.tcl
 
 write
+
