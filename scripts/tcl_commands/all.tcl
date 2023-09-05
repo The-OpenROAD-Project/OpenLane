@@ -637,6 +637,8 @@ proc prep {args} {
     handle_deprecated_config LIB_RESIZER_OPT RSZ_LIB
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX
 
+    handle_deprecated_config RCX_SDC_FILE SIGNOFF_SDC_FILE
+
     ### Checkers/Quitting
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS
     handle_deprecated_config CHECK_UNMAPPED_CELLS QUIT_ON_UNMAPPED_CELLS
@@ -905,6 +907,13 @@ proc prep {args} {
             puts_err "Please define VSRC_LOC_FILES correctly. i.e. : net1 file1 net2 file2 ..."
             flow_fail
         }
+    }
+
+    if { $::env(PNR_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
+        puts_warn "PNR_SDC_FILE is not set. It is recommended to write a custom SDC file for the design. Defaulting to BASE_SDC_FILE"
+    }
+    if { $::env(SIGNOFF_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
+        puts_warn "SIGNOFF_SDC_FILE is not set. It is recommended to write a custom SDC file for the design. Defaulting to BASE_SDC_FILE"
     }
 
     TIMER::timer_stop
