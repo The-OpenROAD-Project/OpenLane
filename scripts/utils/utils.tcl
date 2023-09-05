@@ -757,15 +757,4 @@ proc run_tcl_script {args} {
     }
 }
 
-proc get_default_liberty_conditions {liberty} {
-    set condition ""
-    if {[catch {
-        set condition [exec python3 $::env(SCRIPTS_DIR)/utils/get_default_operating_condition.py $liberty]
-    } err]} {
-        puts "$err"
-        exit 1
-    } else {
-        return $condition
-    }
-}
 package provide openlane_utils 0.9
