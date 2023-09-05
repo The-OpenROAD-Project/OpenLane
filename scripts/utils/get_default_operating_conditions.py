@@ -34,7 +34,10 @@ def get_default_operating_conditions(liberty):
 
     if default_operating_conditions_id is None:
         if len(operating_conditions_raw) > 1:
-            print("No default operating condition defined, and the liberty file has multiple operating conditions.", file=sys.stderr)
+            print(
+                "No default operating condition defined, and the liberty file has multiple operating conditions.",
+                file=sys.stderr,
+            )
             exit(-1)
         elif len(operating_conditions_raw) < 1:
             print("Liberty file has no operating conditions.", file=sys.stderr)
