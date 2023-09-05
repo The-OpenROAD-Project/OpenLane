@@ -32,4 +32,5 @@ RUN git config --global user.email "openlane.user@localhost"
 ## Wheel Build Dependencies
 RUN python3 -m pip install --no-cache-dir --upgrade pip
 COPY ./pip_dependencies.txt /pip_dependencies.txt
+RUN yum install -y swig3 gcc gcc-c++ python3-devel
 RUN python3 -m pip install --no-cache-dir -r /pip_dependencies.txt

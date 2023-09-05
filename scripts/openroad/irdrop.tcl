@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
-read
+read -set_lib_operating_conditions
 read_spef $::env(CURRENT_SPEF)
 
 source $::env(SCRIPTS_DIR)/openroad/common/set_rc.tcl
