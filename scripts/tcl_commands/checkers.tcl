@@ -49,7 +49,7 @@ proc check_out_of_bound {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in $log"
+        puts_err "Synthesis failed. Range select out of bounds on some signals. Search for '$match' in '[relpath . $log]'"
         throw_error
     }
 }
@@ -60,7 +60,7 @@ proc check_resizing_cell_port {log} {
         $log || true"]
 
     if { $checker ne "" } {
-        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in $log"
+        puts_err "Synthesis failed. Signal not matching port size. Search for '$match' in '[relpath . $log]'"
         throw_error
     }
 }
@@ -111,9 +111,9 @@ proc check_timing_violations {args} {
 
         assert_files_exist "$hold_report $setup_report $misc_report"
 
-        check_misc_violations -report_file $misc_report -corner "typical"
-        check_hold_violations -report_file $hold_report -corner "typical" -quit_on_vios $arg_values(-quit_on_hold_vios)
-        check_setup_violations -report_file $setup_report -corner "typical" -quit_on_vios $arg_values(-quit_on_setup_vios)
+        check_misc_violations -report_file $misc_report -corner "Typical"
+        check_hold_violations -report_file $hold_report -corner "Typical" -quit_on_vios $arg_values(-quit_on_hold_vios)
+        check_setup_violations -report_file $setup_report -corner "Typical" -quit_on_vios $arg_values(-quit_on_setup_vios)
     } else {
         puts_warn "::env(LAST_TIMING_REPORT_TAG) not found."
     }
@@ -131,8 +131,13 @@ proc check_hold_violations {args} {
     set quit_on_vios $arg_values(-quit_on_vios)
     set corner $arg_values(-corner)
 
-    set checker [catch {exec grep "VIOLATED" $report_file }]
-    if { ! $checker } {
+    set worst_slack [exec sed -n "s/worst slack corner $corner: \\(.*\\)/\\1/p" $report_file]
+    if { $worst_slack == "INF" } {
+        set checker 0
+    } else {
+        set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    }
+    if { $checker } {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are hold violations in the design at the $corner corner. Please refer to '$report_file_relative'."
@@ -157,8 +162,13 @@ proc check_setup_violations {args} {
     set quit_on_vios $arg_values(-quit_on_vios)
     set corner $arg_values(-corner)
 
-    set checker [catch {exec grep "VIOLATED" $report_file }]
-    if { ! $checker } {
+    set worst_slack [exec sed -n "s/worst slack corner $corner: \\(.*\\)/\\1/p" $report_file]
+    if { $worst_slack == "INF" } {
+        set checker 0
+    } else {
+        set checker [catch {exec python3 -c "if $worst_slack < 0: exit(1)"}]
+    }
+    if { $checker } {
         set report_file_relative [relpath . $report_file]
         if { $quit_on_vios } {
             puts_err "There are setup violations in the design at the $corner corner. Please refer to '$report_file_relative'."
@@ -188,7 +198,7 @@ proc check_misc_violations {args} {
 
     set violated 0
 
-    set check_slew [catch {exec grep "slew violation count 0" $report_file}]
+    set check_slew [catch {exec grep "max slew violations count $corner: 0" $report_file}]
     if { $check_slew } {
         set violated 1
         if { $quit_on_vios } {
@@ -198,7 +208,7 @@ proc check_misc_violations {args} {
         }
     }
 
-    set check_fanout [catch {exec grep "fanout violation count 0" $report_file}]
+    set check_fanout [catch {exec grep "max fanout violations count $corner: 0" $report_file}]
     if { $check_fanout } {
         set violated 1
         if { $quit_on_vios } {
@@ -208,7 +218,7 @@ proc check_misc_violations {args} {
         }
     }
 
-    set check_capacitance [catch {exec grep "cap violation count 0" $report_file}]
+    set check_capacitance [catch {exec grep "max cap violations count $corner: 0" $report_file}]
     if { $check_capacitance } {
         set violated 1
         if { $quit_on_vios } {
