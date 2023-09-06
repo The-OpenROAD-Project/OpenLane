@@ -192,14 +192,13 @@ proc run_non_interactive_mode {args} {
         "gds_klayout" "run_klayout_step" \
         "lvs" "run_lvs_step $LVS_ENABLED " \
         "drc" "run_drc_step $DRC_ENABLED " \
-        "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED " \
-        "cvc_rv" "run_erc_step"
+        "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED "
     ]
 
     set ::env(CURRENT_STEP) "verilator_lint_check"
 
     set start_step $::env(CURRENT_STEP)
-    set end_step "cvc_rv"
+    set end_step "antenna_check"
 
     set failed 0;
     set exe 0;
