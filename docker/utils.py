@@ -17,6 +17,7 @@ import sys
 import json
 import click
 import shutil
+import fnmatch
 import pathlib
 import tempfile
 import subprocess
@@ -345,16 +346,30 @@ cli.add_command(fetch_submodules_from_tarballs)
 
 
 @click.command()
-@click.option("-i", "--ignoring", type=str, multiple=True)
+@click.option(
+    "-i",
+    "--ignoring",
+    type=str,
+    multiple=True,
+    help="Ignore paths `fnmatch`-ing one or more of these filters.",
+)
 @click.argument("sources", nargs=-1)
 @click.argument("destination", nargs=1)
 def copy_tree(ignoring, sources, destination):
-    patterns = shutil.ignore_patterns(*ignoring)
+    def ignore_runs(src, entries):
+        result = set()
+        for entry in entries:
+            entry_path = os.path.join(src, entry)
+            for ignored in ignoring:
+                if fnmatch.fnmatch(entry_path, ignored):
+                    result.add(entry)
+        return result
+
     for source in list(sources):
         if os.path.isfile(source):
             shutil.copy(source, destination)
         elif os.path.isdir(source):
-            shutil.copytree(source, destination, ignore=patterns)
+            shutil.copytree(source, destination, ignore=ignore_runs)
         else:
             raise FileNotFoundError(source)
 

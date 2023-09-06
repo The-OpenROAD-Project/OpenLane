@@ -355,4 +355,3 @@ Most of the following commands' implementation exists in these files: [deflef][1
 [15]: ../usage/chip_integration.md
 [16]: ../usage/advanced_power_grid_control.md
 [17]: ./../../../scripts/tcl_commands/klayout.tcl
-[18]: ./../../../scripts/tcl_commands/cvc_rv.tcl

@@ -1,12 +1,3 @@
-- name: cvc_rv
-  repo: https://github.com/d-m-bailey/cvc
-  commit: df85a637e83da870129c93c8793cad282bb8ddd1
-  build: |
-    autoreconf -i
-    ./configure --disable-nls --prefix=$PREFIX
-    make clean
-    make -j$(nproc) $READLINE_CXXFLAGS
-    make install
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
   commit: 0afe4d87d4aacfbbb2659129a1858a22d216a920
