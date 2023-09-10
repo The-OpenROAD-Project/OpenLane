@@ -84,5 +84,3 @@ set ::env(WRITE_VIEWS_NO_GLOBAL_CONNECT) 0
 
 set ::env(BASE_SDC_FILE) $::env(SCRIPTS_DIR)/base.sdc
 set ::env(DEFAULT_SDC_FILE) $::env(BASE_SDC_FILE)
-set ::env(PNR_SDC_FILE) $:::env(BASE_SDC_FILE)
-set ::env(SIGNOFF_SDC_FILE) $:::env(BASE_SDC_FILE)
