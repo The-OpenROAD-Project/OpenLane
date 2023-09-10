@@ -910,10 +910,10 @@ proc prep {args} {
     }
 
 
-    if { [info exists ::env(PNR_SDC_FILE) ] } {
+    if { ![info exists ::env(PNR_SDC_FILE) ] } {
         set ::env(PNR_SDC_FILE) $::env(BASE_SDC_FILE)
     }
-    if { [info exists ::env(SIGNOFF_SDC_FILE) ] } {
+    if { ![info exists ::env(SIGNOFF_SDC_FILE) ] } {
         set ::env(SIGNOFF_SDC_FILE) $::env(BASE_SDC_FILE)
     }
 
