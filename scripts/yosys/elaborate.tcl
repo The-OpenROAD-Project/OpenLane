@@ -73,6 +73,7 @@ show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop
+yosys rename -top $vtop
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
 }

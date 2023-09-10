@@ -225,11 +225,13 @@ if { [info exists ::env(SYNTH_PARAMETERS) ] } {
     }
 }
 
+
 select -module $vtop
 show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
 hierarchy -check -top $vtop
+yosys rename -top $vtop
 
 # Infer tri-state buffers.
 set tbuf_map false
