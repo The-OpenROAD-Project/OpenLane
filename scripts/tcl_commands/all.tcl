@@ -910,8 +910,12 @@ proc prep {args} {
     }
 
 
-    set_if_unset ::env(PNR_SDC_FILE) $::env(BASE_SDC_FILE)
-    set_if_unset ::env(SIGNOFF_SDC_FILE) $::env(BASE_SDC_FILE)
+    if { [info exists ::env(PNR_SDC_FILE) ] } {
+        set ::env(PNR_SDC_FILE) $::env(BASE_SDC_FILE)
+    }
+    if { [info exists ::env(SIGNOFF_SDC_FILE) ] } {
+        set ::env(SIGNOFF_SDC_FILE) $::env(BASE_SDC_FILE)
+    }
 
     if { $::env(PNR_SDC_FILE) == $::env(DEFAULT_SDC_FILE) } {
         puts_warn "PNR_SDC_FILE is not set. It is recommended to write a custom SDC file for the design. Defaulting to BASE_SDC_FILE"
