@@ -100,9 +100,9 @@ proc run_sta {args} {
         unset ::env(SAVE_SDF)
     } else {
         run_$arg_values(-tool)_script $::env(SCRIPTS_DIR)/openroad/sta/multi_corner.tcl {*}$arg_list
-        if { [info exists flags_map(-blackbox_check)] } {
-            blackbox_modules_check $log
-        }
+    }
+    if { [info exists flags_map(-blackbox_check)] } {
+        blackbox_modules_check $log
     }
     unset ::env(STA_MULTICORNER)
     unset -nocomplain ::env(ESTIMATE_PARASITICS)
