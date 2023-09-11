@@ -9,7 +9,7 @@
     make install
 - name: netgen
   repo: https://github.com/rtimothyedwards/netgen
-  commit: 87d8759a6980d297edcb9be6f8661867e4726f9a
+  commit: ce097d5d7641ab31196fd663b2720e4e70a82a92
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
