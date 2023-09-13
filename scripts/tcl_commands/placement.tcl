@@ -13,19 +13,34 @@
 # limitations under the License.
 
 proc global_placement_or {args} {
+    set options {
+        {-log optional}
+        {-outdir optional}
+        {-name optional}
+    }
+    set flags {-skip_io}
+    parse_key_args "global_placement_or" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) global
+    set_if_unset arg_values(-log) $::env(placement_logs)/global.log
+    set_if_unset arg_values(-outdir) $::env(placement_tmpfiles)
+
     increment_index
     TIMER::timer_start
-    set log [index_file $::env(placement_logs)/global.log]
+    set log [index_file $arg_values(-log)]
     puts_info "Running Global Placement (log: [relpath . $log])..."
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
         random_global_placement
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
+    if { [info exists flags_map(-skip_io)] } {
+        set ::env(__PL_SKIP_IO) 1
+    }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\
-        -indexed_log [index_file $::env(placement_logs)/global.log]\
-        -save "to=$::env(placement_tmpfiles),name=global,def,odb,netlist,powered_netlist"
+        -indexed_log $log\
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),def,odb,netlist,powered_netlist"
 
     check_replace_divergence
 
@@ -171,7 +186,11 @@ proc run_placement {args} {
         # useful for very tiny designs
         random_global_placement
     } else {
-        global_placement_or
+        if { $::env(FP_IO_MODE) == 0 } {
+            global_placement_or -skip_io -name global_skip_io -log $::env(placement_logs)/global_skip_io.log
+            place_io -outdir $::env(placement_tmpfiles) -log $::env(placement_logs)/io.log
+        }
+        global_placement
     }
 
     run_resizer_design
