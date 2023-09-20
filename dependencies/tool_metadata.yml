@@ -44,7 +44,7 @@
     make install
 - name: yosys
   repo: https://github.com/YosysHQ/yosys
-  commit: 14d50a176d59a5eac95a57a01f9e933297251d5b
+  commit: 8fb807cd242207e40e9040cfa004d02205f12a64
   build: |
     make clean
     make PREFIX=$PREFIX config-gcc
