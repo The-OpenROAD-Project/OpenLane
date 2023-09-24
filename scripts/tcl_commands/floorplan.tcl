@@ -247,8 +247,7 @@ proc place_contextualized_io {args} {
 
 proc tap_decap_or {args} {
     if { ![info exists  ::env(FP_WELLTAP_CELL)] || $::env(FP_WELLTAP_CELL) eq ""} {
-        puts_warn "No tap cells found for this standard cell library. Skipping Tap/Decap insertion."
-        return
+        puts_info "No tap cells found for this standard cell library. Decap insertion only."
     }
 
     increment_index
