@@ -39,15 +39,15 @@ proc global_routing_fastroute {args} {
     set initial_odb [index_file $::env(routing_tmpfiles)/global.odb]
 
     set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/groute-congestion.rpt
-    run_openroad_script $::env(SCRIPTS_DIR)/openroad/repair_antennas.tcl\
-        -indexed_log $log\
-        -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
-        -no_update_current
 
     if { $::env(GRT_REPAIR_ANTENNAS) } {
         puts_info "Starting OpenROAD Antenna Repair Iterations..."
-        set iter 1
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/repair_antennas.tcl\
+            -indexed_log $log\
+            -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
+            -no_update_current
 
+        set iter 1
         set minimum_def $initial_def
         set minimum_guide $initial_guide
         set minimum_odb $initial_odb
@@ -85,6 +85,11 @@ proc global_routing_fastroute {args} {
             }
             incr iter
         }
+    } else {
+        run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
+            -indexed_log $log\
+            -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
+            -no_update_current
     }
 
     set_def $::env(SAVE_DEF)
