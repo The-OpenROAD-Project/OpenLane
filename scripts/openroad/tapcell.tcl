@@ -14,11 +14,22 @@
 source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
 
-tapcell\
-    -distance $::env(FP_TAPCELL_DIST)\
-    -tapcell_master "$::env(FP_WELLTAP_CELL)"\
-    -endcap_master "$::env(FP_ENDCAP_CELL)"\
-    -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\
-    -halo_width_y $::env(FP_TAP_VERTICAL_HALO)
+if { ![info exists  ::env(FP_WELLTAP_CELL)] || $::env(FP_WELLTAP_CELL) eq ""} {
+    place_endcaps\
+        -left_edge "$::env(FP_ENDCAP_CELL)"\
+        -right_edge "$::env(FP_ENDCAP_CELL)"
+
+    cut_rows\
+        -endcap_master "$::env(FP_ENDCAP_CELL)"\
+        -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\
+        -halo_width_y $::env(FP_TAP_VERTICAL_HALO)
+} else {
+    tapcell\
+        -distance $::env(FP_TAPCELL_DIST)\
+        -tapcell_master "$::env(FP_WELLTAP_CELL)"\
+        -endcap_master "$::env(FP_ENDCAP_CELL)"\
+        -halo_width_x $::env(FP_TAP_HORIZONTAL_HALO)\
+        -halo_width_y $::env(FP_TAP_VERTICAL_HALO)
+}
 
 write
