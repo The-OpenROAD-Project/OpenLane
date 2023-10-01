@@ -28,6 +28,3 @@ if { $::env(GRT_ALLOW_CONGESTION) == 1 } {
 puts $arg_list
 global_route {*}$arg_list
 
-if { $::env(GRT_REPAIR_ANTENNAS) } {
-    repair_antennas "$::env(DIODE_CELL)" -iterations $::env(GRT_ANT_ITERS) -ratio_margin $::env(GRT_ANT_MARGIN)
-}
