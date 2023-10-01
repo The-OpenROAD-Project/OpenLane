@@ -190,7 +190,7 @@ proc run_placement {args} {
             global_placement_or -skip_io -name global_skip_io -log $::env(placement_logs)/global_skip_io.log
             place_io -outdir $::env(placement_tmpfiles) -log $::env(placement_logs)/io.log
         }
-        global_placement
+        global_placement_or
     }
 
     run_resizer_design
