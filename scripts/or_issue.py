@@ -249,10 +249,8 @@ def issue(
 
                     value_substituted = full.replace(accessor, value)
 
-                    if (
-                        value_substituted.endswith(".tcl")
-                        or value_substituted.endswith(".sdc")
-                        or value_substituted.endswith(".py")
+                    if value_substituted.endswith(".tcl") or value_substituted.endswith(
+                        ".sdc"
                     ):
                         if value_substituted not in tcls:
                             tcls.add(value_substituted)
