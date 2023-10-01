@@ -119,7 +119,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `FP_SIZING` <a id="FP_SIZING"></a>  | Whether to use relative sizing by making use of `FP_CORE_UTIL` or absolute one using `DIE_AREA`. <br> (Default: `"relative"` - accepts `"absolute"` as well)|
 | `DIE_AREA` <a id="DIE_AREA"></a>  | Specific die area to be used in floorplanning when `FP_SIZING` is set to `absolute`. Specified as a 4-corner rectangle "x0 y0 x1 y1". Units in μm <br> (Default: unset)|
 | `CORE_AREA` <a id="CORE_AREA"></a> | Specific core area (i.e. die area minus margins) to be used in floorplanning when `FP_SIZING` is set to `absolute`. Specified as a 4-corner rectangle "x0 y0 x1 y1". Units in μm <br> (Default: unset)|
-| `FP_IO_MODE` <a id="FP_IO_MODE"></a>  | Decides the mode of the random IO placement option. 0=matching mode, 1=random equidistant mode <br> (Default: `1`)|
+| `FP_IO_MODE` <a id="FP_IO_MODE"></a>  | Decides the mode of the random IO placement option. 0=matching mode, 1=random equidistant mode. Matching mode attempts to optimize pin and cell placement. Random equidistant mode places equidistant pins with a random order <br> (Default: `0`)|
 | `FP_WELLTAP_CELL` <a id="FP_WELLTAP_CELL"></a>  | The name of the welltap cell during welltap insertion. |
 | `FP_ENDCAP_CELL` <a id="FP_ENDCAP_CELL"></a>  | The name of the endcap cell during endcap insertion. |
 | `FP_PDN_CFG` <a id="FP_PDN_CFG"></a> | Points to a PDN configuration file that describes how to construct the PDN in detail. <br> (Default: `scripts/openroad/common/pdn_cfg.tcl`) |
