@@ -181,14 +181,26 @@ proc place_io_ol {args} {
 }
 
 proc place_io {args} {
+    set options {
+        {-log optional}
+        {-outdir optional}
+        {-name optional}
+    }
+    set flags {}
+    parse_key_args "place-io" args arg_values $options flags_map $flags
+
+    set_if_unset arg_values(-name) io
+    set_if_unset arg_values(-log) $::env(floorplan_logs)/io.log
+    set_if_unset arg_values(-outdir) $::env(floorplan_tmpfiles)
+
     increment_index
     TIMER::timer_start
-    set log [index_file $::env(floorplan_logs)/io.log]
-    puts_info "Running IO Placement..."
+    set log [index_file $arg_values(-log)]
+    puts_info "Running IO Placement (log: [relpath . $log])..."
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/ioplacer.tcl\
-        -indexed_log [index_file $::env(floorplan_logs)/io.log]\
-        -save "to=$::env(floorplan_tmpfiles),name=io,def,odb"
+        -indexed_log $log\
+        -save "to=$arg_values(-outdir),name=$arg_values(-name),def,odb"
 
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "ioplace - openroad"

@@ -61,6 +61,10 @@ if { $::env(PL_SKIP_INITIAL_PLACEMENT) && !$::env(PL_BASIC_PLACEMENT) } {
 	lappend arg_list -skip_initial_place
 }
 
+if { [info exists ::env(__PL_SKIP_IO)] } {
+    lappend arg_list -skip_io
+}
+
 set cell_pad_side [expr $::env(GPL_CELL_PADDING) / 2]
 
 lappend arg_list -pad_right $cell_pad_side
