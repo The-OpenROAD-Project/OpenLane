@@ -26,7 +26,9 @@ if { [info exists ::env(DRT_MAX_LAYER)] } {
     set max_layer $::env(DRT_MAX_LAYER)
 }
 
-read_guides $::env(CURRENT_GUIDE)
+if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
+    read_guides $::env(CURRENT_GUIDE)
+}
 
 detailed_route\
     -bottom_routing_layer $min_layer\
