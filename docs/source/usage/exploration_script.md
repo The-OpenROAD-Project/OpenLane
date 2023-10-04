@@ -35,7 +35,7 @@ The script can be used in two ways
 2. An exploration run that generates configuration files of all possible combinations of variables in the passed matrix JSON file and runs them on the provided designs.
    
     ```bash
-    python3 run_designs.py --matrix ./designs/wbqspiflash/matrix.json --threads 4 wbqspiflash
+    python3 run_designs.py --matrix ./designs/ci/wbqspiflash/matrix.json --threads 4 wbqspiflash
     ```
 
     These parameters must be provided in the file passed to `--matrix`. Any file can be used with any combination of designs. The file used above is just an example.
