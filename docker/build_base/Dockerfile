@@ -30,6 +30,14 @@ RUN alternatives --install /usr/bin/python3 python3 /usr/bin/python3.6 60
 RUN git config --global user.name "OpenLane User"
 RUN git config --global user.email "openlane.user@localhost"
 
+ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
+    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
+    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
+    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
+    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
+
+ENV LD_LIBRARY_PATH=/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:/opt/rh/llvm-toolset-7.0/root/usr/lib64/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:$LD_LIBRARY_PATH
+
 # Install Python Dependencies
 ## Wheel Build Dependencies
 RUN python3 -m pip install --no-cache-dir --upgrade pip
@@ -42,10 +50,3 @@ RUN python3 -m pip install --no-cache-dir -r /pip_dependencies.txt
 RUN yum update -y ca-certificates
 
 # Environment Configuration
-ENV CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
-    CPP=/opt/rh/devtoolset-8/root/usr/bin/cpp \
-    CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ \
-    PATH=/opt/rh/devtoolset-8/root/usr/bin:$PATH \
-    LD_LIBRARY_PATH=/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:/opt/rh/devtoolset-8/root/usr/lib64/dyninst:/opt/rh/devtoolset-8/root/usr/lib/dyninst:/opt/rh/devtoolset-8/root/usr/lib64:/opt/rh/devtoolset-8/root/usr/lib:$LD_LIBRARY_PATH
-
-ENV LD_LIBRARY_PATH=/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:/opt/rh/llvm-toolset-7.0/root/usr/lib64/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib/dyninst:/opt/rh/llvm-toolset-7.0/root/usr/lib64:/opt/rh/llvm-toolset-7.0/root/usr/lib:$LD_LIBRARY_PATH
