@@ -86,12 +86,22 @@ export STD_CELL_LIBRARY ?= sky130_fd_sc_hd
 PDK_OPTS += -e STD_CELL_LIBRARY=$(STD_CELL_LIBRARY)
 endif
 
-# ./designs is mounted over ./install so env.tcl is not found inside the Docker
-# container if the user had previously installed it.
-ENV_START = docker run --rm\
+_FAKE_VARIABLE_TO_FORCE_MKDIR := $(shell mkdir -p ./empty)
+
+ENV_MOUNT = \
 	-v $(OPENLANE_DIR):/openlane\
-	-v $(OPENLANE_DIR)/designs:/openlane/install\
+	-v $(PWD)/empty:/openlane/install
+
+ifeq ($(MAKECMDGOALS), m)
+ENV_MOUNT = \
+	-v $(OPENLANE_DIR):$(OPENLANE_DIR)\
+	-v $(PWD)/empty:$(OPENLANE_DIR)/install\
+	-w $(OPENLANE_DIR)
+endif
+
+ENV_START := docker run --rm\
 	-v $(HOME):$(HOME)\
+	$(ENV_MOUNT)\
 	$(PDK_OPTS)\
 	$(STD_CELL_OPTS)\
 	$(DOCKER_OPTIONS)
@@ -116,6 +126,11 @@ pull-openlane:
 
 get-openlane:
 	@$(MAKE) pull-openlane || $(MAKE) openlane
+
+.PHONY: m
+m:
+	cd $(OPENLANE_DIR) && \
+		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: mount
 mount:
@@ -197,10 +212,7 @@ quick_run:
 	cd $(OPENLANE_DIR) && \
 		$(ENV_COMMAND) sh -c "./flow.tcl -design $(QUICK_RUN_DESIGN)"
 
-.PHONY: veryclean clean_runs clean_results
-veryclean:
-	@git clean -fdX
-
+.PHONY: clean_runs clean_results
 clean_runs:
 	@rm -rf ./designs/*/runs ./designs/ci/*/runs ./_build/it_tc_logs && echo "Runs cleaned successfully." || echo "Failed to delete runs."
 	@rm -rf ./tests/*/runs && echo "Test runs cleaned successfully." || echo "Failed to delete test runs."
