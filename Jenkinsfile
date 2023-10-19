@@ -76,6 +76,10 @@ pipeline {
                         agent any;
                         steps {
                             script {
+                                stage("${DESIGN} - Setup Python") {
+                                    sh 'make venv';
+                                    sh "./venv/bin/python3 -m pip install --upgrade --no-cache-dir 'urllib3<2'";
+                                }
                                 stage("${DESIGN} - Install PDK") {
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir pip';
                                     sh 'python3 -m pip install --user --upgrade --no-cache-dir volare';
