@@ -1,6 +1,6 @@
 - name: magic
   repo: https://github.com/rtimothyedwards/magic
-  commit: 0afe4d87d4aacfbbb2659129a1858a22d216a920
+  commit: 98f3b39dc2172443c53a4fd69db97e161b7a1155
   build: |
     ./configure --prefix=$PREFIX $MAGIC_CONFIG_OPTS
     make clean
