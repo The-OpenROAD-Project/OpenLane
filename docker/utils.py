@@ -168,6 +168,7 @@ cli.add_command(pull_if_doesnt_exist)
 
 
 @click.command()
+@click.option("-R", "--registry", default="docker.io")
 @click.option("-r", "--repository", required=True)
 @click.option(
     "-o",
@@ -177,7 +178,7 @@ cli.add_command(pull_if_doesnt_exist)
     type=click.Choice(SUPPORTED_OPERATING_SYSTEMS),
 )
 @click.argument("tools", nargs=-1)
-def process_dockerfile_tpl(repository, operating_system, tools):
+def process_dockerfile_tpl(registry, repository, operating_system, tools):
     image_tags = [
         (
             subprocess.check_output(
@@ -197,7 +198,8 @@ def process_dockerfile_tpl(repository, operating_system, tools):
     image_names = [f"{repository}:{tag}" for tag in image_tags]
 
     from_lines = [
-        f"FROM {name}-${{ARCH}} as container{i}" for i, name in enumerate(image_names)
+        f"FROM {registry}/{name}-${{ARCH}} as container{i}"
+        for i, name in enumerate(image_names)
     ]
 
     copy_lines = [
