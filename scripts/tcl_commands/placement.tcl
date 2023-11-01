@@ -186,7 +186,7 @@ proc run_placement {args} {
         # useful for very tiny designs
         random_global_placement
     } else {
-        if { $::env(FP_IO_MODE) == 0 && ![info exists ::env(FP_PIN_ORDER_CFG)] } {
+        if { $::env(FP_IO_MODE) == 0 && ![info exists ::env(FP_PIN_ORDER_CFG)] && ![info exists ::env(FP_DEF_TEMPLATE)] } {
             global_placement_or -skip_io -name global_skip_io -log $::env(placement_logs)/global_skip_io.log
             place_io -outdir $::env(placement_tmpfiles) -log $::env(placement_logs)/io.log
         }
