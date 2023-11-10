@@ -17,7 +17,7 @@
     "TEST_FLOAT_CALC": "expr::2 * $CLOCK_PERIOD",
     "TEST_MALICIOUS_VAR_0": "\t\\};puts hi;[puts hi];{\"\"\"''''",
     "TEST_MALICIOUS_VAR_1": "\n\nputs hi;\n\n\u0010potato\n",
-    "TEST_INTERNAL_GLOB": "dir::../1506/src/*",
+    "TEST_INTERNAL_GLOB": "dir::../1506-config_preprocessor/src/*",
     "TEST_EXTERNAL_GLOB": "dir::../*",
     "TEST_REGEX": "x\\.y"
 }
