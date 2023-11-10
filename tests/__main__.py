@@ -40,7 +40,7 @@ def rmrf(path):
 def get_test_cases():
     test_dir = os.path.join(openlane_root, "tests")
     test_cases = []
-    for test in os.listdir(test_dir):
+    for test in sorted(os.listdir(test_dir)):
         test_path = os.path.join(test_dir, test)
         if test == "__pycache__" or not os.path.isdir(test_path):
             continue

@@ -14,6 +14,7 @@ macrocell.list
 default.cvcrc
 *.log
 *.tar.gz
+abc.history
 
 # Python cache
 **/__pycache__
