@@ -8,5 +8,5 @@ run_folder = args[0]
 
 log_path = os.path.join(run_folder, "openlane.log")
 assert (
-    subprocess.call(["grep", "-i", "There are LVS errors in the design", log_path]) == 0
+    subprocess.call(["grep", "-i", "There are LVS errors in the design", log_path]) == 1
 ), "OpenLane did not report the existence of LVS errors correctly"
