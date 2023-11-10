@@ -380,7 +380,7 @@ magic.add_command(magic_to_tcl_cmd)
 @click.argument("magic_input")
 def magic_to_tr_cmd(output, magic_input):
     with open(output, "w") as f:
-        magic_to_tr(open(magic_input).read(), f)
+        magic_to_tr(open(magic_input), f)
 
 
 magic.add_command(magic_to_tr_cmd)
