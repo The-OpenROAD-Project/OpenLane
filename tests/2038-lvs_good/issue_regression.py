@@ -19,5 +19,5 @@ assert (
             log_path,
         ]
     )
-    == 1
+    == 0
 ), "Unexpected LVS error count"

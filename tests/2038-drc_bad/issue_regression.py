@@ -12,7 +12,7 @@ assert (
     subprocess.call(
         ["grep", "-i", "There are violations in the design after Magic DRC", log_path]
     )
-    == 1
+    == 0
 ), "OpenLane does not accurately report the existence of violations"
 
 assert (
