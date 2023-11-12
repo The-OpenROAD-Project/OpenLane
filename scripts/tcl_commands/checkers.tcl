@@ -72,8 +72,8 @@ proc run_synthesis_checkers {log report} {
     check_synth_misc $report
 }
 
-proc check_assign_statements {args} {
-    set checker [count_matches assign $::env(synthesis_results).v]
+proc check_assign_statements {netlist} {
+    set checker [count_matches assign $netlist]
 
     if { $checker != 0 } {
         puts_err "There are assign statements in the netlist."

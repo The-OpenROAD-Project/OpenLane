@@ -132,7 +132,7 @@ proc run_synthesis {args} {
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
 
     if { $::env(QUIT_ON_ASSIGN_STATEMENTS) == 1 } {
-        check_assign_statements
+        check_assign_statements $::env(CURRENT_NETLIST)
     }
 
     if { $::env(QUIT_ON_UNMAPPED_CELLS) == 1 } {
