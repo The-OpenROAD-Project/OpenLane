@@ -13,9 +13,9 @@ assert (
         [
             "grep",
             "-i",
-            "Synthesis failed. There are unmapped cells after synthesis",
+            "There are assign statements in the netlist",
             log_path,
         ]
     )
     == 0
-), "OpenLane did not report the existence of unmapped cells correctly"
+), "OpenLane did not report the existence of assign statments correctly"
