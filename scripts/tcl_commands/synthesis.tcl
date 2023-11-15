@@ -308,6 +308,15 @@ proc run_verilator {} {
         lappend arg_list {*}$output_file
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
+    
+    set incdirs ""
+    if { [info exists ::env(VERILOG_INCLUDE_DIRS)] } {
+        foreach incdir $::env(VERILOG_INCLUDE_DIRS) {
+            set incdirs "$incdirs +incdir+$incdir"
+        }
+    }
+    lappend arg_list {*}$incdirs
+
     lappend arg_list -Wno-fatal
     if { $::env(LINTER_RELATIVE_INCLUDES) } {
         lappend arg_list "--relative-includes"
