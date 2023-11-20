@@ -97,10 +97,10 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `IO_PCT` <a id="IO_PCT"></a> | Specifies the percentage of the clock period used in the input/output delays. Ranges from 0 to 1.0. <br> (Default: `0.2`) |
 | `SYNTH_BUFFER_DIRECT_WIRES` <a id="SYNTH_BUFFER_DIRECT_WIRES"></a> | Insert buffer cells into the design for directly connected wires. <br> (Default: `1`) |
 | `SYNTH_SPLITNETS` <a id="SYNTH_SPLITNETS"></a> | Splits multi-bit nets into single-bit nets. <br> (Default: `1`) |
+| `SYNTH_USE_LEGACY_ABC_COMMANDS` <a id="SYNTH_USE_LEGACY_ABC_COMMANDS"></a> | Uses the legacy `rewrite` and `refactor` instead of the newer replacements `drw -l` and `drf -l`, which makes the ABC script set identical to the behavior of previous versions of OpenLane but may cause a crash. |
 | `SYNTH_TOP_LEVEL` <a id="SYNTH_TOP_LEVEL"></a> | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
 | `SYNTH_MAX_FANOUT` <a id="SYNTH_MAX_FANOUT"></a>  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
 | `SYNTH_MAX_TRAN` <a id="SYNTH_MAX_TRAN"></a> |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
-
 ## Static Timing Analysis (STA)
 
 | Variable | Description |
