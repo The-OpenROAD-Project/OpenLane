@@ -40,3 +40,5 @@ detailed_route\
     -verbose 1
 
 write
+
+report_design_area_metrics
