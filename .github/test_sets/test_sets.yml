@@ -14,6 +14,7 @@
     - ./designs/ci/gcd
     - ./designs/ci/caravel_upw
     - ./designs/ci/aes_user_project_wrapper
+    - ./designs/ci/tt05_i2c_bert
 - scl: sky130A/sky130_fd_sc_hd
   name: extended_test_set
   designs:
