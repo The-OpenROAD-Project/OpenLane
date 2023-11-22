@@ -88,6 +88,8 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_READ_BLACKBOX_LIB` <a id="SYNTH_READ_BLACKBOX_LIB"></a> | A flag that enable reading the full(untrimmed) liberty file as a blackbox for synthesis. Please note that this is not used in technology mapping. This should only be used when trying to preserve gate instances in the rtl of the design.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_NO_FLAT` <a id="SYNTH_NO_FLAT"></a> | A flag that disables flattening the hierarchy during synthesis, only flattening it after synthesis, mapping and optimizations. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_SHARE_RESOURCES` <a id="SYNTH_SHARE_RESOURCES"></a> | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
+| `SYNTH_ABC_LEGACY_REFACTOR` <a id="SYNTH_ABC_LEGACY_REFACTOR"></a> | Replaces the ABC command `drf -l` with `refactor` which matches older versions of OpenLane but is more unstable.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`) |
+| `SYNTH_ABC_LEGACY_REWRITE` <a id="SYNTH_ABC_LEGACY_REWRITE"></a> | Replaces the ABC command `drw -l` with `rewrite` which matches older versions of OpenLane but is more unstable.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`) |
 | `SYNTH_ADDER_TYPE` <a id="SYNTH_ADDER_TYPE"></a> | Adder type to which the $add and $sub operators are mapped to. <br> Possible values are `YOSYS/FA/RCA/CSA`; where `YOSYS` refers to using Yosys internal adder definition, `FA` refers to full-adder structure, `RCA` refers to ripple carry adder structure, and `CSA` refers to carry select adder. <br> (Default: `YOSYS`)|
 | `SYNTH_EXTRA_MAPPING_FILE` <a id="SYNTH_EXTRA_MAPPING_FILE"></a> | Points to extra techmap file for yosys that runs right after yosys `synth` before generic techmap. <br> (Default: `""`)|
 | `SYNTH_PARAMETERS` <a id="SYNTH_PARAMETERS"></a> | Whitespace-delimited key value pairs to be `chparam`ed in Yosys. In the format `key1=value1 key2=value2` <br> (Default: None)  |
@@ -100,7 +102,6 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_TOP_LEVEL` <a id="SYNTH_TOP_LEVEL"></a> | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
 | `SYNTH_MAX_FANOUT` <a id="SYNTH_MAX_FANOUT"></a>  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
 | `SYNTH_MAX_TRAN` <a id="SYNTH_MAX_TRAN"></a> |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
-
 ## Static Timing Analysis (STA)
 
 | Variable | Description |

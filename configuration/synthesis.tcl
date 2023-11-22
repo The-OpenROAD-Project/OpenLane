@@ -32,4 +32,5 @@ set ::env(SYNTH_ELABORATE_ONLY) 0
 set ::env(SYNTH_FLAT_TOP) 0
 set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
-
+set ::env(SYNTH_ABC_LEGACY_REFACTOR) 0
+set ::env(SYNTH_ABC_LEGACY_REWRITE) 0
