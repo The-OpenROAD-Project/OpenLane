@@ -35,6 +35,7 @@ from os.path import abspath, dirname
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
 
+
 # Commands
 def tool_list():
     from dependencies.tool import Tool
@@ -168,35 +169,19 @@ def issue_survey():
             % get_tag()
         )
 
-    pip_ok = True
+    venv_ok = True
     try:
-        import pip  # noqa F401
+        import venv  # noqa F401
     except ImportError:
-        pip_ok = False
+        venv_ok = False
 
     alert = (
-        "pip: " + "INSTALLED"
-        if pip_ok
-        else "NOT FOUND: Please install pip using your operating system's package manager."
+        "python-venv: " + "INSTALLED"
+        if venv_ok
+        else "NOT FOUND: Install python3-venv using your operating system's package manager."
     )
-
     final_report += "%s\n" % alert
     print(alert, file=alerts)
-
-    if pip_ok:
-        venv_ok = True
-        try:
-            import venv  # noqa F401
-        except ImportError:
-            venv_ok = False
-
-        alert = (
-            "python-venv: " + "INSTALLED"
-            if venv_ok
-            else "NOT FOUND: Please install python-venv using your operating system's package manager."
-        )
-        final_report += "%s\n" % alert
-        print(alert, file=alerts)
 
     if python_ok:
         from dependencies.verify_versions import verify_versions

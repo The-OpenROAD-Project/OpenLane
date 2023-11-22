@@ -11,13 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from collections import defaultdict
 import os
 import re
 import sys
+import json
 import yaml
 import fnmatch
+from collections import defaultdict
 from typing import Iterable, Optional, Dict
 
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
@@ -415,15 +415,13 @@ class Report(object):
                 hpwl = float(match)
 
         final_utilization = -1
-        # ./reports/signoff/26-rcx_sta.area.rpt
         final_utilization_report = Artifact(
-            rp, "reports", "signoff", "rcx_sta.area.rpt"
+            rp, "reports", "routing", "drt_metrics.json"
         )
         final_utilization_content = final_utilization_report.get_content()
         if final_utilization_content is not None:
-            match = re.search(r"\s+([\d]+\.*[\d]*)%", final_utilization_content)
-            if match is not None:
-                final_utilization = float(match[1])
+            metrics = json.loads(final_utilization_content)
+            final_utilization = metrics["design__instance__utilization"] * 100
 
         # TritonRoute Logged Info Extraction
         tr_log = Artifact(rp, "logs", "routing", "detailed.log")

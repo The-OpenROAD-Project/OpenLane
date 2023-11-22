@@ -5,5 +5,5 @@ Update packages database and upgrade the packages to avoid version mismatches th
 ```bash
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt install -y build-essential python3 python3-venv python3-pip make git
+sudo apt install -y build-essential python3 python3-venv make git
 ```
