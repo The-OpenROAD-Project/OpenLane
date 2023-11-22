@@ -61,9 +61,7 @@ def verify_versions(
     if not no_pdks and pdk is not None:
         try:
             # 2. Check if the PDK is compatible with Flow Scripts
-            pdk_root = os.getenv("PDK_ROOT")
-            if not os.getenv("PDK_ROOT"):
-                pdk_root = join(openlane_dir, "pdks")
+            pdk_root = os.getenv("PDK_ROOT", os.path.expanduser("~/.volare"))
 
             if functools.reduce(
                 lambda x, y: x or y,
