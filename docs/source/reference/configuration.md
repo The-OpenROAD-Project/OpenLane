@@ -355,7 +355,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_KLAYOUT` <a id="RUN_KLAYOUT"></a> | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT_XOR` <a id="RUN_KLAYOUT_XOR"></a> | Enables running KLayout XOR on 2 GDSIIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_KLAYOUT_DRC` <a id="RUN_KLAYOUT_DRC"></a> | Enables running KLayout DRC on GDSII produced by `PRIMARY_GDSII_STREAMOUT_TOOL`. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `RUN_KLAYOUT_DRC` <a id="RUN_KLAYOUT_DRC"></a> | Enables running KLayout DRC on GDSII produced by `PRIMARY_GDSII_STREAMOUT_TOOL`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_DRC_KLAYOUT_GDS` <a id="KLAYOUT_DRC_KLAYOUT_GDS"></a> | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` <a id="KLAYOUT_XOR_THREADS"></a> | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
 | `KLAYOUT_DRC_THREADS` <a id="KLAYOUT_DRC_THREADS"></a> | Specifies number of threads used in klayout drc check <br> (Default: `1`)|
