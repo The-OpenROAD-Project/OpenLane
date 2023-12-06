@@ -358,6 +358,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `RUN_KLAYOUT_DRC` <a id="RUN_KLAYOUT_DRC"></a> | Enables running KLayout DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_DRC_KLAYOUT_GDS` <a id="KLAYOUT_DRC_KLAYOUT_GDS"></a> | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` <a id="KLAYOUT_XOR_THREADS"></a> | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
+| `KLAYOUT_DRC_THREADS` <a id="KLAYOUT_DRC_THREADS"></a> | Specifies number of threads used in klayout drc check <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` <a id="TAKE_LAYOUT_SCROT"></a> | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
 
