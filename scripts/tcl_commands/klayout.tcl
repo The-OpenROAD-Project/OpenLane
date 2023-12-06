@@ -82,7 +82,6 @@ proc run_klayout_drc {args} {
         run_klayout_drc_sky130
     }
 }
-
 proc run_klayout_drc_sky130 {args} {
 	if { [info exists ::env(KLAYOUT_DRC_RUNSET)] && [info exists ::env(KLAYOUT_DRC_OPTIONS)] } {
         set drc_script_path "$::env(KLAYOUT_DRC_RUNSET)"
@@ -131,6 +130,7 @@ proc run_klayout_drc_sky130 {args} {
             --xml-file $xml_report \
             --json-file $json_report
 		TIMER::timer_stop
+        quit_on_klayout_drc $json_report
     }
 }
 

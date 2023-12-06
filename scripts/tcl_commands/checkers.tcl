@@ -387,4 +387,32 @@ proc quit_on_unconnected_pdn_nodes {args} {
     }
 }
 
+proc get_violations_count {report_file} {
+    package require json
+
+    set total_violations_count 0
+
+    set fp [open $report_file r]
+    set violations_json [read $fp]
+    close $fp
+
+    set violations_dict [json::json2dict $violations_json]
+    foreach count [dict values $violations_dict] {
+        set total_violations_count [expr $total_violations_count + $count]
+    }
+    return $total_violations_count
+}
+
+proc quit_on_klayout_drc {report_file} {
+    set violations_count [get_violations_count $report_file]
+    if { $::env(QUIT_ON_KLAYOUT_DRC) && $violations_count != 0} {
+        puts_err "There are violations in the design after KLayout DRC."
+        puts_err "Total Number of violations is $violations_count"
+        throw_error
+    } elseif { $violations_count != 0 } {
+        puts_warn "There are violations in the design after KLayout DRC."
+        puts_warn "Total Number of violations is $violations_count"
+    }
+}
+
 package provide openlane 0.9

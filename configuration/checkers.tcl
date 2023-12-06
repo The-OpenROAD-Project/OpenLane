@@ -41,3 +41,4 @@ set ::env(QUIT_ON_LVS_ERROR) 1
 
 # Klayout
 set ::env(QUIT_ON_XOR_ERROR) 1
+set ::env(QUIT_ON_KLAYOUT_DRC) 1
