@@ -41,7 +41,7 @@ set ::env(RUN_IRDROP_REPORT) 1
 
 ## Signoff
 set ::env(RUN_CVC) 1
-set ::env(PRIMARY_SIGNOFF_TOOL) magic
+set ::env(PRIMARY_GDSII_STREAMOUT_TOOL) magic
 
 ### Netgen
 set ::env(RUN_LVS) 1

@@ -638,6 +638,7 @@ proc prep {args} {
     handle_deprecated_config UNBUFFER_NETS RSZ_DONT_TOUCH_RX
 
     handle_deprecated_config RCX_SDC_FILE SIGNOFF_SDC_FILE
+    handle_deprecated_config PRIMARY_SIGNOFF_TOOL PRIMARY_GDSII_STREAMOUT_TOOL
 
     ### Checkers/Quitting
     handle_deprecated_config CHECK_ASSIGN_STATEMENTS QUIT_ON_ASSIGN_STATEMENTS

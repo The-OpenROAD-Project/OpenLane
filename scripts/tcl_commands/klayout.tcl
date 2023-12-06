@@ -52,7 +52,7 @@ proc run_klayout {args} {
 		}
 
 
-		if { $::env(PRIMARY_SIGNOFF_TOOL) == "klayout" } {
+		if { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) == "klayout" } {
 			set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
 			file copy -force $klayout_out $::env(CURRENT_GDS)
 		}
@@ -60,7 +60,7 @@ proc run_klayout {args} {
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
 		scrot_klayout -layout $::env(signoff_results)/$::env(DESIGN_NAME).gds -log $::env(signoff_logs)/screenshot.klayout.log
-	} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
+	} elseif { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) != "klayout" } {
 		puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDSII streaming out using KLayout will be skipped."
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 	} else {
@@ -154,7 +154,7 @@ proc scrot_klayout {args} {
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"
-		} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
+		} elseif { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) != "klayout" } {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, GDSII streaming out using KLayout will be skipped."
 			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 		} else {
