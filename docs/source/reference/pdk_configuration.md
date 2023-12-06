@@ -58,6 +58,8 @@ you're doing.
 | `KLAYOUT_PROPERTIES` | Points to the klayout properties file (.lyp). |
 | `KLAYOUT_DEF_LAYER_MAP` | Points to klayout deflef layer map file (.map). |
 | `KLAYOUT_XOR_IGNORE_LAYERS` | A space separated layers list to ignore during klayout xor check. |
+| `KLAYOUT_DRC_RUNSET` | A path to KLayout DRC runset. |
+| `KLAYOUT_DRC_OPTIONS` | Options availble to KLayout DRC runset. They vary from one PDK to another. |
 | `MAGIC_MAGICRC` | Points to the magicrc file that is sourced while running magic in the flow. |
 | `GPIO_PADS_LEF` | A list of the pads lef views. For example:`[glob "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_io/lef/sky130_fd_io.lef"]` |
 | `GPIO_PADS_PREFIX` | A list of pad cells name prefixes. |

@@ -126,7 +126,6 @@ proc run_klayout_drc_sky130 {args} {
             -rd seal=$seal \
             -rd thread=$threads \
 			|& tee $::env(TERMINAL_OUTPUT) $drc_log
-        set ::env(PYTHONPATH) /build/lib/python3/dist-packages
         try_exec python3 \
             $::env(SCRIPTS_DIR)/klayout/xml_drc_report_to_json.py \
             --xml-file $xml_report \
