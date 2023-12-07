@@ -324,7 +324,7 @@ proc quit_on_magic_drc {args} {
         puts_err "Total Number of violations is $checker"
         throw_error
     } else {
-        puts_info "No DRC violations after GDS streaming out."
+        puts_info "No Magic DRC violations after GDS streaming out."
     }
 }
 
