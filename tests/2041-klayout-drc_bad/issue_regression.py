@@ -11,7 +11,7 @@ log_path = os.path.join(run_folder, "openlane.log")
 assert exit_code != 0, "OpenLane did not throw non zero exit code"
 assert (
     subprocess.call(
-        ["grep", "-i", "There are violations in the design after Magic DRC", log_path]
+        ["grep", "-i", "There are violations in the design after KLayout DRC", log_path]
     )
     == 0
 ), "OpenLane does not accurately report the existence of violations"

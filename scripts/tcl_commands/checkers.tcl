@@ -307,7 +307,7 @@ proc quit_on_tr_drc {args} {
         puts_err "Total Number of violations is $checker"
         throw_error
     } else {
-        puts_info "No DRC violations after detailed routing."
+        puts_info "No Magic DRC violations after detailed routing."
     }
 }
 
@@ -412,6 +412,8 @@ proc quit_on_klayout_drc {report_file} {
     } elseif { $violations_count != 0 } {
         puts_warn "There are violations in the design after KLayout DRC."
         puts_warn "Total Number of violations is $violations_count"
+    } else {
+        puts_info "No KLayout DRC violations after GDS streaming out."
     }
 }
 
