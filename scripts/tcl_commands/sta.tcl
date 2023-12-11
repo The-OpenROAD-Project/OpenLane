@@ -81,7 +81,7 @@ proc run_sta {args} {
         set file_path [read $fp]
         foreach line [split $file_path "\n"] {
             if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
-                puts_warn "Module $first_group blackboxed during sta"
+                puts_warn "No timing data found was found for module '$first_group', and it was treated as a blackbox for STA."
             }
         }
         close $fp

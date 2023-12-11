@@ -1247,14 +1247,15 @@ proc run_antenna_check {args} {
 }
 
 proc run_irdrop_report {args} {
+    if { ![info exists ::env(VSRC_LOC_FILES)] } {
+        puts_info "Skipping IR-drop analysis-- VSRC_LOC_FILES was not given a value."
+        return
+    }
+
     increment_index
     TIMER::timer_start
     set log [index_file $::env(signoff_logs)/irdrop.log]
     puts_info "Creating IR Drop Report (log: [relpath . $log])..."
-
-    if { ![info exists ::env(VSRC_LOC_FILES)] } {
-        puts_warn "VSRC_LOC_FILES is not defined. The IR drop analysis will run, but the values may be inaccurate."
-    }
 
     set rpt [index_file $::env(signoff_reports)/irdrop]
 
