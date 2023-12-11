@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 import json
 
 from klayout.rdb import ReportDatabase
@@ -26,17 +25,18 @@ def cli(xml_file, json_file):
     database = ReportDatabase("Database")
     json_database = {}
     database.load(xml_file)
+    total = 0
     for category in database.each_category():
         num_items = category.num_items()
         category_name = category.name()
         json_database[category_name] = num_items
+        total += num_items
 
-    with open(json_file, "w") as f:
-        f.write(
-            json.dumps(
-                dict(sorted(json_database.items(), key=lambda item: item[1])), indent=4
-            )
-        )
+    json_database = dict(sorted(json_database.items(), key=lambda item: item[1]))
+    json_database["total"] = total
+
+    with open(json_file, "w", encoding="utf8") as f:
+        json.dump(json_database, f)
 
 
 if __name__ == "__main__":
