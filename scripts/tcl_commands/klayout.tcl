@@ -52,7 +52,7 @@ proc run_klayout {args} {
 		}
 
 
-		if { $::env(PRIMARY_SIGNOFF_TOOL) == "klayout" } {
+		if { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) == "klayout" } {
 			set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
 			file copy -force $klayout_out $::env(CURRENT_GDS)
 		}
@@ -60,7 +60,7 @@ proc run_klayout {args} {
 		TIMER::timer_stop
 		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "gdsii - klayout"
 		scrot_klayout -layout $::env(signoff_results)/$::env(DESIGN_NAME).gds -log $::env(signoff_logs)/screenshot.klayout.log
-	} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
+	} elseif { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) != "klayout" } {
 		puts_warn "::env(KLAYOUT_TECH) is not defined for the current PDK. So, GDSII streaming out using KLayout will be skipped."
 		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT) to 0, or defining a tech file."
 	} else {
@@ -68,6 +68,72 @@ proc run_klayout {args} {
 		throw_error
 	}
 
+}
+
+proc run_klayout_drc {args} {
+	set supported_pdks [list "sky130A" "sky130B"]
+
+	if {[lsearch -exact $supported_pdks $::env(PDK)] < 0} {
+		puts_warn "$::env(PDK) isn't supported by OpenLane during KLayout DRC. Skipping this step."
+		return
+	}
+
+	if { $::env(PDK) == "sky130A" || $::env(PDK) == "sky130B" } {
+		run_klayout_drc_sky130
+	}
+}
+proc run_klayout_drc_sky130 {args} {
+	if { ![info exists ::env(KLAYOUT_DRC_RUNSET)] || ![info exists ::env(KLAYOUT_DRC_OPTIONS)] } {
+		puts_warn "KLAYOUT_DRC_RUNSET and KLAYOUT_DRC_OPTIONS are missing. You may be using an out-of-date PDK version. KLayout DRC will be skipped."
+		return
+	}
+	set drc_script_path "$::env(KLAYOUT_DRC_RUNSET)"
+	set xml_report "$::env(signoff_reports)/violations.xml"
+	set json_report "$::env(signoff_reports)/violations.json"
+	set threads $::env(KLAYOUT_DRC_THREADS)
+	set feol "false"
+	set beol "false"
+	set floating_metal "false"
+	set offgrid "false"
+	set seal "false"
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) feol] } {
+		set feol "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) beol] } {
+		set beol "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) offgrid] } {
+		set offgrid "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) seal] } {
+		set seal "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) floating_metal] } {
+		set floating_metal "true"
+	}
+	increment_index
+	set drc_log [index_file $::env(signoff_logs)/drc-klayout.log]
+	puts_info "Running KLayout DRC (log: [relpath . $drc_log])..."
+	TIMER::timer_start
+	try_exec klayout \
+		-b \
+		-zz \
+		-r $drc_script_path \
+		-rd topcell=$::env(DESIGN_NAME) \
+		-rd input=$::env(CURRENT_GDS) \
+		-rd report=$xml_report \
+		-rd feol=$feol \
+		-rd beol=$beol \
+		-rd floating_metal=$floating_metal \
+		-rd seal=$seal \
+		-rd thread=$threads \
+		|& tee $::env(TERMINAL_OUTPUT) $drc_log
+	try_exec python3 \
+		$::env(SCRIPTS_DIR)/klayout/xml_drc_report_to_json.py \
+		--xml-file $xml_report \
+		--json-file $json_report
+	TIMER::timer_stop
+	quit_on_klayout_drc $json_report
 }
 
 proc scrot_klayout {args} {
@@ -90,44 +156,13 @@ proc scrot_klayout {args} {
 			puts_info "Screenshot taken."
 			TIMER::timer_stop
 			exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "screenshot - klayout"
-		} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
+		} elseif { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) != "klayout" } {
 			puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK. So, GDSII streaming out using KLayout will be skipped."
 			puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
 		} else {
 			puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
 			throw_error
 		}
-	}
-}
-
-proc run_klayout_drc {args} {
-	if {[ info exists ::env(KLAYOUT_DRC_TECH_SCRIPT)] && [file exists $::env(KLAYOUT_DRC_TECH_SCRIPT)]} {
-		set options {
-			{-gds optional}
-			{-stage optional}
-		}
-		parse_key_args "run_klayout_drc" args arg_values $options
-		if {[info exists ::env(CURRENT_GDS)]} {
-			set_if_unset arg_values(-gds) $::env(CURRENT_GDS)
-		}
-		set_if_unset arg_values(-stage) magic
-
-		increment_index
-		TIMER::timer_start
-		set log [index_file $::env(signoff_logs)/$arg_values(-stage).drc.log]
-		puts_info "Running DRC on the layout using KLayout (log: [relpath . $log])..."
-
-		try_exec bash $::env(SCRIPTS_DIR)/klayout/run_drc.sh $::env(KLAYOUT_DRC_TECH_SCRIPT) $arg_values(-gds) $arg_values(-gds).lydrc |& tee $::env(TERMINAL_OUTPUT) $log
-		file copy -force $arg_values(-gds).lydrc [index_file $::env(signoff_reports)/$arg_values(-stage).lydrc]
-		puts_info "KLayout DRC Complete"
-		TIMER::timer_stop
-		exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "drc - klayout"
-	} elseif { $::env(PRIMARY_SIGNOFF_TOOL) != "klayout" } {
-		puts_warn "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined or doesn't exist for the current PDK. So, GDSII streaming out using KLayout will be skipped."
-		puts_warn "This warning can be turned off by setting ::env(RUN_KLAYOUT_DRC) to 0, or designating a tech file."
-	} else {
-		puts_err "::env(KLAYOUT_DRC_TECH_SCRIPT) is not defined or doesn't exist for the current PDK, however KLayout is set as the primary signoff tool. This is a critical error."
-		throw_error
 	}
 }
 
