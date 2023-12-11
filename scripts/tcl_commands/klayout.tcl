@@ -71,67 +71,69 @@ proc run_klayout {args} {
 }
 
 proc run_klayout_drc {args} {
-    set supported_pdks [list "sky130A" "sky130B"]
+	set supported_pdks [list "sky130A" "sky130B"]
 
-    if {[lsearch -exact $supported_pdks $::env(PDK)] < 0} {
+	if {[lsearch -exact $supported_pdks $::env(PDK)] < 0} {
 		puts_warn "$::env(PDK) isn't supported by OpenLane during KLayout DRC. Skipping this step."
-        return
-    }
+		return
+	}
 
-    if { $::env(PDK) == "sky130A" || $::env(PDK) == "sky130B" } {
-        run_klayout_drc_sky130
-    }
+	if { $::env(PDK) == "sky130A" || $::env(PDK) == "sky130B" } {
+		run_klayout_drc_sky130
+	}
 }
 proc run_klayout_drc_sky130 {args} {
-	if { [info exists ::env(KLAYOUT_DRC_RUNSET)] && [info exists ::env(KLAYOUT_DRC_OPTIONS)] } {
-        set drc_script_path "$::env(KLAYOUT_DRC_RUNSET)"
-        set xml_report "$::env(signoff_reports)/violations.xml"
-        set json_report "$::env(signoff_reports)/violations.json"
-        set threads $::env(KLAYOUT_DRC_THREADS)
-        set feol "false"
-        set beol "false"
-        set floating_metal "false"
-        set offgrid "false"
-        set seal "false"
-        if { [dict get $::env(KLAYOUT_DRC_OPTIONS) feol] } {
-            set feol "true"
-        }
-        if { [dict get $::env(KLAYOUT_DRC_OPTIONS) beol] } {
-            set beol "true"
-        }
-        if { [dict get $::env(KLAYOUT_DRC_OPTIONS) offgrid] } {
-            set offgrid "true"
-        }
-        if { [dict get $::env(KLAYOUT_DRC_OPTIONS) seal] } {
-            set seal "true"
-        }
-        if { [dict get $::env(KLAYOUT_DRC_OPTIONS) floating_metal] } {
-            set floating_metal "true"
-        }
-		increment_index
-		set drc_log [index_file $::env(signoff_logs)/drc-klayout.log]
-        puts_info "Running KLayout DRC (log: [relpath . $drc_log])..."
-		TIMER::timer_start
-        try_exec klayout \
-            -b \
-            -zz \
-            -r $drc_script_path \
-            -rd topcell=$::env(DESIGN_NAME) \
-            -rd input=$::env(CURRENT_GDS) \
-            -rd report=$xml_report \
-            -rd feol=$feol \
-            -rd beol=$beol \
-            -rd floating_metal=$floating_metal \
-            -rd seal=$seal \
-            -rd thread=$threads \
-			|& tee $::env(TERMINAL_OUTPUT) $drc_log
-        try_exec python3 \
-            $::env(SCRIPTS_DIR)/klayout/xml_drc_report_to_json.py \
-            --xml-file $xml_report \
-            --json-file $json_report
-		TIMER::timer_stop
-        quit_on_klayout_drc $json_report
-    }
+	if { ![info exists ::env(KLAYOUT_DRC_RUNSET)] || ![info exists ::env(KLAYOUT_DRC_OPTIONS)] } {
+		puts_warn "KLAYOUT_DRC_RUNSET and KLAYOUT_DRC_OPTIONS are missing. You may be using an out-of-date PDK version. KLayout DRC will be skipped."
+		return
+	}
+	set drc_script_path "$::env(KLAYOUT_DRC_RUNSET)"
+	set xml_report "$::env(signoff_reports)/violations.xml"
+	set json_report "$::env(signoff_reports)/violations.json"
+	set threads $::env(KLAYOUT_DRC_THREADS)
+	set feol "false"
+	set beol "false"
+	set floating_metal "false"
+	set offgrid "false"
+	set seal "false"
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) feol] } {
+		set feol "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) beol] } {
+		set beol "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) offgrid] } {
+		set offgrid "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) seal] } {
+		set seal "true"
+	}
+	if { [dict get $::env(KLAYOUT_DRC_OPTIONS) floating_metal] } {
+		set floating_metal "true"
+	}
+	increment_index
+	set drc_log [index_file $::env(signoff_logs)/drc-klayout.log]
+	puts_info "Running KLayout DRC (log: [relpath . $drc_log])..."
+	TIMER::timer_start
+	try_exec klayout \
+		-b \
+		-zz \
+		-r $drc_script_path \
+		-rd topcell=$::env(DESIGN_NAME) \
+		-rd input=$::env(CURRENT_GDS) \
+		-rd report=$xml_report \
+		-rd feol=$feol \
+		-rd beol=$beol \
+		-rd floating_metal=$floating_metal \
+		-rd seal=$seal \
+		-rd thread=$threads \
+		|& tee $::env(TERMINAL_OUTPUT) $drc_log
+	try_exec python3 \
+		$::env(SCRIPTS_DIR)/klayout/xml_drc_report_to_json.py \
+		--xml-file $xml_report \
+		--json-file $json_report
+	TIMER::timer_stop
+	quit_on_klayout_drc $json_report
 }
 
 proc scrot_klayout {args} {
