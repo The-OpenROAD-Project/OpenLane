@@ -1,30 +1,30 @@
 {
+    "//": "Basics",
     "DESIGN_NAME": "spm",
     "VERILOG_FILES": "dir::src/*.v",
     "CLOCK_PERIOD": 10,
     "CLOCK_PORT": "clk",
-    "CLOCK_NET": "ref::$CLOCK_PORT",
-    "FP_PDN_VOFFSET": 7,
-    "FP_PDN_HOFFSET": 7,
-    "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+    "PNR_SDC_FILE": "dir::src/spm.sdc",
+    "SIGNOFF_SDC_FILE": "dir::src/spm.sdc",
+    "//": "PDN",
+    "FP_PDN_VOFFSET": 5,
+    "FP_PDN_HOFFSET": 5,
+    "FP_PDN_VWIDTH": 2,
+    "FP_PDN_HWIDTH": 2,
+    "FP_PDN_VPITCH": 30,
+    "FP_PDN_HPITCH": 30,
     "FP_PDN_SKIPTRIM": true,
+    "//": "Pin Order",
+    "FP_PIN_ORDER_CFG": "dir::pin_order.cfg",
+    "//": "Technology-Specific Configs",
     "pdk::sky130*": {
         "FP_CORE_UTIL": 45,
-        "scl::sky130_fd_sc_hd": {
-            "CLOCK_PERIOD": 10
-        },
-        "scl::sky130_fd_sc_hdll": {
-            "CLOCK_PERIOD": 10
-        },
+        "CLOCK_PERIOD": 10,
         "scl::sky130_fd_sc_hs": {
             "CLOCK_PERIOD": 8
         },
         "scl::sky130_fd_sc_ls": {
-            "CLOCK_PERIOD": 10,
             "MAX_FANOUT_CONSTRAINT": 5
-        },
-        "scl::sky130_fd_sc_ms": {
-            "CLOCK_PERIOD": 10
         }
     },
     "pdk::gf180mcu*": {
