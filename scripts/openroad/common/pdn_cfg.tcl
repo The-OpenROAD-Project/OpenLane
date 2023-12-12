@@ -43,25 +43,35 @@ foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
 set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET) \
     -secondary_power $secondary
 
-# Assesses whether the design is the core of the chip or not based on the
-# value of $::env(DESIGN_IS_CORE) and uses the appropriate stdcell section
-if { $::env(DESIGN_IS_CORE) == 1 } {
-    # Used if the design is the core of the chip
-    define_pdn_grid \
-        -name stdcell_grid \
-        -starts_with POWER \
-        -voltage_domain CORE \
-        -pins "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"
+set pdn_grid_common_args [list]
+lappend pdn_grid_common_args -starts_with POWER
+if { $::env(FP_PDN_CORE_RING) } {
+    lappend pdn_grid_common_args -extend_to_core_ring
+}
 
-    add_pdn_stripe \
-        -grid stdcell_grid \
-        -layer $::env(FP_PDN_VERTICAL_LAYER) \
-        -width $::env(FP_PDN_VWIDTH) \
-        -pitch $::env(FP_PDN_VPITCH) \
-        -offset $::env(FP_PDN_VOFFSET) \
-        -spacing $::env(FP_PDN_VSPACING) \
-        -starts_with POWER -extend_to_core_ring
+set used_layer_list "$::env(FP_PDN_VERTICAL_LAYER)"
 
+if { $::env(FP_PDN_FULL_STACK) == 1 } {
+    set used_layer_list "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"
+}
+
+define_pdn_grid \
+    -name stdcell_grid \
+    -starts_with POWER \
+    -voltage_domain CORE \
+    -pins "$used_layer_list"
+
+
+add_pdn_stripe \
+    -grid stdcell_grid \
+    -layer $::env(FP_PDN_VERTICAL_LAYER) \
+    -width $::env(FP_PDN_VWIDTH) \
+    -pitch $::env(FP_PDN_VPITCH) \
+    -offset $::env(FP_PDN_VOFFSET) \
+    -spacing $::env(FP_PDN_VSPACING) \
+    {*}$pdn_grid_common_args
+
+if { $::env(FP_PDN_FULL_STACK) == 1 } {
     add_pdn_stripe \
         -grid stdcell_grid \
         -layer $::env(FP_PDN_HORIZONTAL_LAYER) \
@@ -69,26 +79,13 @@ if { $::env(DESIGN_IS_CORE) == 1 } {
         -pitch $::env(FP_PDN_HPITCH) \
         -offset $::env(FP_PDN_HOFFSET) \
         -spacing $::env(FP_PDN_HSPACING) \
-        -starts_with POWER -extend_to_core_ring
+        {*}$pdn_grid_common_args
+}
 
+if { [llength $used_layer_list] >= 2 } {
     add_pdn_connect \
         -grid stdcell_grid \
-        -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"
-} else {
-    # Used if the design is a macro in the core
-    define_pdn_grid \
-        -name stdcell_grid \
-        -starts_with POWER \
-        -voltage_domain CORE \
-        -pins $::env(FP_PDN_VERTICAL_LAYER)
-
-    add_pdn_stripe \
-        -grid stdcell_grid \
-        -layer $::env(FP_PDN_VERTICAL_LAYER) \
-        -width $::env(FP_PDN_VWIDTH) \
-        -pitch $::env(FP_PDN_VPITCH) \
-        -offset $::env(FP_PDN_VOFFSET) \
-        -starts_with POWER
+        -layers "$used_layer_list"
 }
 
 # Adds the standard cell rails if enabled.
@@ -125,4 +122,4 @@ define_pdn_grid \
 
 add_pdn_connect \
     -grid macro \
-    -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"
+    -layers "$::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)"
