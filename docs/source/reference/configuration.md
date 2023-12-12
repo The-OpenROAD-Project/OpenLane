@@ -278,7 +278,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GRT_MACRO_EXTENSION` <a id="GRT_MACRO_EXTENSION"></a>‡ | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` <a id="DRT_MIN_LAYER"></a> | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
 | `DRT_MAX_LAYER` <a id="DRT_MAX_LAYER"></a> | An optional override to the highest layer used in detailed routing. <br> (Default: `RT_MAX_LAYER`)|
-| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
+| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. Values allowed are integers from `1` to `64`. <br> (Default: `64`) |
 | `ROUTING_OPT_ITERS` <a id="ROUTING_OPT_ITERS"></a> |**Removed: Use `DRT_OPT_ITERS`**: Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute.|
 | `GLB_RT_MINLAYER` <a id="GLB_RT_MINLAYER"></a> | **Removed: Use `RT_MIN_LAYER`**: The number of lowest layer to be used in routing.|
 | `GLB_RT_MAXLAYER` <a id="GLB_RT_MAXLAYER"></a> | **Removed: Use `RT_MAX_LAYER`**: The number of highest layer to be used in routing.|
