@@ -1230,8 +1230,7 @@ proc run_antenna_check {args} {
 
 proc run_irdrop_report {args} {
     if { ![info exists ::env(VSRC_LOC_FILES)] } {
-        puts_warn "Skipping IR-drop analysis as VSRC_LOC_FILES was not given a value. If you are not integrating a top-level chip for manufacture, you can ignore this warning, otherwise, see the documentation for VSRC_LOC_FILES."
-        return
+        puts_warn "VSRC_LOC_FILES was not given a value, which may make the results of IR drop analysis inaccurate. If you are not integrating a top-level chip for manufacture, you may ignore this warning, otherwise, see the documentation for VSRC_LOC_FILES."
     }
 
     increment_index
