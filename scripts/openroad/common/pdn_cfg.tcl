@@ -45,7 +45,7 @@ set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET) \
 
 set pdn_grid_common_args [list]
 lappend pdn_grid_common_args -starts_with POWER
-if { $::env(FP_PDN_CORE_RING) } {
+if { $::env(FP_PDN_CORE_RING) == 1} {
     lappend pdn_grid_common_args -extend_to_core_ring
 }
 
@@ -122,4 +122,4 @@ define_pdn_grid \
 
 add_pdn_connect \
     -grid macro \
-    -layers "$::env(FP_PDN_HORIZONTAL_HALO) $::env(FP_PDN_VERTICAL_HALO)"
+    -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"

@@ -79,10 +79,14 @@ proc run_sta {args} {
     proc blackbox_modules_check {file_path} {
         set fp [open $file_path r]
         set file_path [read $fp]
+        set modules [list]
         foreach line [split $file_path "\n"] {
             if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
-                puts_warn "No timing data found was found for module '$first_group', and it was treated as a blackbox for STA."
+                lappend modules $first_group
             }
+        }
+        if { [llength $modules] > 0 } {
+            puts_warn "The following modules were black-boxed for STA as there was no timing information found: \[[join $modules ", "]\]"
         }
         close $fp
     }
