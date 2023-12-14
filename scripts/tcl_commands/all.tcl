@@ -433,7 +433,7 @@ proc handle_config_var_deprecation {args} {
     handle_deprecated_config RUN_VERILATOR RUN_LINTER 1
 
     ### PDN
-    handle_deprecated_config DESIGN_IS_CORE FP_PDN_FULL_STACK 1
+    handle_deprecated_config DESIGN_IS_CORE FP_PDN_MULTILAYER 1
 }
 
 proc prep {args} {

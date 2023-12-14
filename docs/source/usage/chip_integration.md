@@ -99,7 +99,7 @@ It should have an `stdcell` section that includes a `core_ring` on met4 and met5
 <td>
     
 ```json
-    "FP_PDN_FULL_STACK": true,
+    "FP_PDN_MULTILAYER": true,
     "FP_PDN_CORE_RING": true
 ```
 
@@ -108,7 +108,7 @@ It should have an `stdcell` section that includes a `core_ring` on met4 and met5
 <td>
 
 ```tcl
-    set ::env(FP_PDN_FULL_STACK) 1
+    set ::env(FP_PDN_MULTILAYER) 1
     set ::env(FP_PDN_CORE_RING) 1
 ```
 </td>

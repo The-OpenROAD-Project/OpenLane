@@ -21,7 +21,7 @@ Click on any variable name listed in this document to get its usage information.
 * [`VERILOG_FILES`](../reference/configuration.md#VERILOG_FILES)
 * [`CLOCK_PORT`](../reference/configuration.md#CLOCK_PORT)
 * [`CLOCK_PERIOD`](../reference/configuration.md#CLOCK_PERIOD)
-* [`FP_PDN_FULL_STACK`](../reference/configuration.md#FP_PDN_FULL_STACK) (You may leave it empty if true)
+* [`FP_PDN_MULTILAYER`](../reference/configuration.md#FP_PDN_MULTILAYER) (You may leave it empty if true)
 
 So, for example:
 
@@ -44,7 +44,7 @@ set ::env(DESIGN_NAME) {spm}
 
 set ::env(VERILOG_FILES) [glob $::env(DESIGN_DIR)/src/*.v]
 set ::env(CLOCK_PORT) {clk}
-set ::env(FP_PDN_FULL_STACK) {0}
+set ::env(FP_PDN_MULTILAYER) {0}
 ```
 
 </td>
