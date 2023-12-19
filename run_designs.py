@@ -398,7 +398,7 @@ def cli(
                         design,
                         f"Failed to compare with benchmark: {error_msg}",
                     )
-                    flow_failure_flag = True
+                    design_failure_flag = True
 
             if delete:
                 try:
