@@ -248,16 +248,16 @@ Each line comprises 4 parameters (separated by *any* amount of whitespace but fo
 
 The `N` orientation is used most often, but sometimes it is necessary to rotate and/or flip macros. The orientation specifier follows the LEF/DEF language reference, and can be one of the following:
 
-| Orientation     | Effect                                        | Result                                                      |  |
-|-----------------|-----------------------------------------------|-------------------------------------------------------------|--|
-| `N`  or `R0`    | No rotation                                   | Macro's "top" faces North.                                  | <img src="../../_static/configuration/N.png"  width="36">  |
-| `S`  or `R180`  | Rotate 180&deg;                               | Macro's "top" faces South, by rotation.                     | <img src="../../_static/configuration/S.png"  width="36">  |
-| `W`  or `R90`   | Rotate 90&deg; anti-clockwise                 | Macro's "top" faces West, by rotation.                      | <img src="../../_static/configuration/W.png"  height="36"> |
-| `E`  or `R270`  | Rotate 90&deg; clockwise                      | Macro's "top" faces East, by rotation.                      | <img src="../../_static/configuration/E.png"  height="36"> |
-| `FN` or `MY`    | Mirror about the Y axis                       | Macro's "top" faces North and is *flipped* left-to-right.   | <img src="../../_static/configuration/FN.png" width="36">  |
-| `FS` or `MX`    | Mirror about the X axis                       | Macro's "top" faces South by being *flipped* top-to-bottom. | <img src="../../_static/configuration/FS.png" width="36">  |
-| `FW` or `MXR90` | Mirror about X, rotate 90&deg; anti-clockwise | Macro's "top" faces **East** by flipping `W` left-to-right. | <img src="../../_static/configuration/FW.png" height="36"> |
-| `FE` or `MYR90` | Mirror about Y, rotate 90&deg; anti-clockwise | Macro's "top" faces **West** by flipping `E` right-to-left. | <img src="../../_static/configuration/FE.png" height="36"> |
+| Orientation     | Effect                                        | Result                                                      |
+|-----------------|-----------------------------------------------|-------------------------------------------------------------|
+| `N`  or `R0`    | No rotation                                   | Macro's "top" faces North.                                  |
+| `S`  or `R180`  | Rotate 180&deg;                               | Macro's "top" faces South, by rotation.                     |
+| `W`  or `R90`   | Rotate 90&deg; anti-clockwise                 | Macro's "top" faces West, by rotation.                      |
+| `E`  or `R270`  | Rotate 90&deg; clockwise                      | Macro's "top" faces East, by rotation.                      |
+| `FN` or `MY`    | Mirror about the Y axis                       | Macro's "top" faces North and is *flipped* left-to-right.   |
+| `FS` or `MX`    | Mirror about the X axis                       | Macro's "top" faces South by being *flipped* top-to-bottom. |
+| `FW` or `MXR90` | Mirror about X, rotate 90&deg; anti-clockwise | Macro's "top" faces **East** by flipping `W` left-to-right. |
+| `FE` or `MYR90` | Mirror about Y, rotate 90&deg; anti-clockwise | Macro's "top" faces **West** by flipping `E` right-to-left. |
 
 :::{note}
 The alternative names (`R0`, `MXR90`, etc.) follow the OpenAccess database format, and specifically these 8 alternatives are also supported by OpenLane.
