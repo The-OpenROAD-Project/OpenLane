@@ -235,6 +235,7 @@ jobs:
             python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design.name }}
 
       - name: Escape Design Name
+        if: ${{ always() }}
         run: |
           design_name=${{ matrix.design.name }}
           escaped_design_name=${design_name//\//_}
