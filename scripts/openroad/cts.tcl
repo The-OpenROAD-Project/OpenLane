@@ -37,7 +37,6 @@ if { [info exists ::env(MAX_TRANSITION_CONSTRAINT)] } {
 configure_cts_characterization {*}$cts_characterization_args
 
 puts "\[INFO]: Performing clock tree synthesis..."
-puts "\[INFO]: Looking for the following net(s): $::env(CLOCK_NET)"
 puts "\[INFO]: Running Clock Tree Synthesis..."
 
 set arg_list [list]

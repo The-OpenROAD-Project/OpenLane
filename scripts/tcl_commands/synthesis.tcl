@@ -75,6 +75,9 @@ proc run_yosys {args} {
         exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
+    set log [index_file $::env(synthesis_logs)/check_clock_port.log]
+    puts_info "Checking clock port (log: [relpath . $log])"
+    run_sta_script $::env(SCRIPTS_DIR)/openroad/sta/check_clock_port.tcl -indexed_log $log
 }
 
 proc run_synth_exploration {args} {
