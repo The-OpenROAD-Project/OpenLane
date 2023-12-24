@@ -16,7 +16,9 @@ source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read_libs -typical $::env(LIB_TYPICAL)
 read_netlist
 
-if { [get_ports $::env(CLOCK_PORT)] == "" && $::env(CLOCK_PORT) != "" } {
+if { [get_ports $::env(CLOCK_PORT)] == "" && \
+    $::env(CLOCK_PORT) != "" && \
+    $::env(CLOCK_PORT) != "__VIRTUAL_CLK__"} {
     puts "\[ERROR]: CLOCK_PORT: '$::env(CLOCK_PORT)' not part of the design"
     exit 1
 } else {
