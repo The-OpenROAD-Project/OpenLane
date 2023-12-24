@@ -78,10 +78,10 @@ proc global_routing_fastroute {args} {
                 break
             } else {
                 puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennae -> $antennae)"
-                set minimum_def $::env(SAVE_DEF)
-                set minimum_guide $::env(SAVE_GUIDE)
-                set minimum_odb $::env(SAVE_ODB)
-                set minimum_antennae [groute_antenna_extract -from_log [groute_antenna_extract -from_log $log]]
+                set minimum_def $::env(CURRENT_DEF)
+                set minimum_guide $::env(CURRENT_GUIDE)
+                set minimum_odb $::env(CURRENT_ODB)
+                set minimum_antennae $antennae
             }
             incr iter
         }
