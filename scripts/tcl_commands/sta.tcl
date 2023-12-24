@@ -79,9 +79,18 @@ proc run_sta {args} {
     proc blackbox_modules_check {file_path} {
         set fp [open $file_path r]
         set file_path [read $fp]
+        set ignore_patterns "$::env(FILL_CELL) $::env(DECAP_CELL) $::env(FP_WELLTAP_CELL)"
         foreach line [split $file_path "\n"] {
             if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
-                puts_warn "Module $first_group blackboxed during sta"
+                set ignored 0
+                foreach pattern $ignore_patterns {
+                    if { [string match $pattern $first_group] != -1 } {
+                        set ignored 1
+                    }
+                }
+                if { $ignored != 1 } {
+                    puts_warn "Module $first_group blackboxed during sta"
+                }
             }
         }
         close $fp
