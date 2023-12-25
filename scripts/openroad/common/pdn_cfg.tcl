@@ -112,12 +112,13 @@ if { $::env(FP_PDN_CORE_RING) == 1 } {
             -spacings "$::env(FP_PDN_CORE_RING_VSPACING) $::env(FP_PDN_CORE_RING_HSPACING)" \
             -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET) $::env(FP_PDN_CORE_RING_HOFFSET)"
     } else {
-        add_pdn_ring \
-            -grid stdcell_grid \
-            -layers "$::env(FP_PDN_VERTICAL_LAYER)" \
-            -widths "$::env(FP_PDN_CORE_RING_VWIDTH)" \
-            -spacings "$::env(FP_PDN_CORE_RING_VSPACING)" \
-            -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET)"
+        throw APPLICATION "FP_PDN_CORE_RING cannot be used when FP_PDN_MULTILAYER is set to false."
+        # add_pdn_ring \
+        #     -grid stdcell_grid \
+        #     -layers "$::env(FP_PDN_VERTICAL_LAYER)" \
+        #     -widths "$::env(FP_PDN_CORE_RING_VWIDTH)" \
+        #     -spacings "$::env(FP_PDN_CORE_RING_VSPACING)" \
+        #     -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET)"
     }
 }
 
