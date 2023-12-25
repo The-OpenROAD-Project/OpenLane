@@ -79,8 +79,14 @@ proc run_yosys {args} {
         set hierarchy [json::json2dict [cat $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json]]
         set module [dict get [dict get $hierarchy "modules"] $::env(DESIGN_NAME)]
         set ports [dict get $module "ports"]
-        if { ![dict exists $ports $::env(CLOCK_PORT)] } {
-            puts_err "The specified port '$::env(CLOCK_PORT)' does not exist in the top-level module."
+        set ports_not_found 0
+        foreach {clock_port} $::env(CLOCK_PORT) {
+            if { ![dict exists $ports $clock_port] } {
+                puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
+                set ports_not_found 1
+            }
+        }
+        if { $ports_not_found } {
             throw_error
         }
     }
