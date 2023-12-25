@@ -34,7 +34,7 @@ module spm #(parameter bits=32) (
         end 
     endgenerate
 
-    DelayedSerialAdder dsa[bits-1:0](
+    delayed_serial_adder dsa[bits-1:0](
         .clk(clk),
         .rst(rst),
         .x(x),
@@ -45,7 +45,7 @@ module spm #(parameter bits=32) (
 
 endmodule
 
-module DelayedSerialAdder(
+module delayed_serial_adder(
     input clk,
     input rst,
     input x,
@@ -53,46 +53,20 @@ module DelayedSerialAdder(
     input y_in,
     output reg y_out
 );
-    reg lastCarry;
-    wire lastCarry_next;
+    reg last_carry;
+    wire last_carry_next;
     wire y_out_next;
 
     wire g = x & a;
-    assign {lastCarry_next, y_out_next} = g + y_in + lastCarry;
+    assign {last_carry_next, y_out_next} = g + y_in + last_carry;
 
     always @ (posedge clk or negedge rst) begin
         if (!rst) begin
-            lastCarry <= 1'b0;
+            last_carry <= 1'b0;
             y_out <= 1'b0;
         end else begin
-            lastCarry <= lastCarry_next;
+            last_carry <= last_carry_next;
             y_out <= y_out_next;
-        end
-    end
-endmodule
-
-// Not part of the SPM but pretty much required when using it in another design
-module ShiftRegister #(parameter width = 32) (
-    input clk,
-    input rst,
-    input direction, // 0 -> load from lsb side; 1 -> load from msb side
-    input serial_msb,
-    input serial_lsb,
-    input load,
-    input[width-1:0] load_value,
-    output[width-1:0] value
-);
-    reg[width-1:0] store;
-
-    assign value = store;
-
-    always @ (posedge clk or negedge rst) begin
-        if (!rst) begin
-            store <= {(width){1'b0}};
-        end else begin
-            store <= load ? load_value  :
-                            direction   ?   {serial_msb, store[width-1:1]}:
-                                            {store[width-2:0], serial_lsb};
         end
     end
 endmodule

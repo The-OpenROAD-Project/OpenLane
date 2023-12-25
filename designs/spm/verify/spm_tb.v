@@ -21,7 +21,7 @@ module spm_tb;
 	reg[bits-1:0] a;
 
 	wire[bits-1:0] srx_value;
-	ShiftRegister #(bits) srx(
+	sreg #(bits) srx(
 		.clk(clk),
 		.rst(rst),
 		.direction(1'b1),
@@ -34,7 +34,7 @@ module spm_tb;
 
 	wire y;
 	wire [bits*2-1:0] y_value;
-	ShiftRegister #(bits * 2) sry(
+	sreg #(bits * 2) sry(
 		.clk(clk),
 		.rst(rst),
 		.direction(1'b1),
@@ -78,4 +78,29 @@ module spm_tb;
 		end
 		$finish;
 	end
+endmodule
+
+module sreg #(parameter width = 32) (
+    input clk,
+    input rst,
+    input direction, // 0 -> load from lsb side; 1 -> load from msb side
+    input serial_msb,
+    input serial_lsb,
+    input load,
+    input[width-1:0] load_value,
+    output[width-1:0] value
+);
+    reg[width-1:0] store;
+
+    assign value = store;
+
+    always @ (posedge clk or negedge rst) begin
+        if (!rst) begin
+            store <= {(width){1'b0}};
+        end else begin
+            store <= load ? load_value  :
+                            direction   ?   {serial_msb, store[width-1:1]}:
+                                            {store[width-2:0], serial_lsb};
+        end
+    end
 endmodule
