@@ -33,29 +33,22 @@ proc global_routing_fastroute {args} {
     TIMER::timer_start
     set log [index_file $::env(routing_logs)/global.log]
     puts_info "Running Global Routing (log: [relpath . $log])..."
-
-    set initial_def [index_file $::env(routing_tmpfiles)/global.def]
-    set initial_guide [index_file $::env(routing_tmpfiles)/global.guide]
-    set initial_odb [index_file $::env(routing_tmpfiles)/global.odb]
-
     set ::env(GRT_CONGESTION_REPORT_FILE) $::env(routing_tmpfiles)/groute-congestion.rpt
 
     if { $::env(GRT_REPAIR_ANTENNAS) } {
-        puts_info "Starting OpenROAD Antenna Repair Iterations..."
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/repair_antennas.tcl\
             -indexed_log $log\
-            -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
-            -no_update_current
+            -save "to=$::env(routing_tmpfiles),name=global,def,guide,odb"
 
         set iter 1
-        set minimum_def $initial_def
-        set minimum_guide $initial_guide
-        set minimum_odb $initial_odb
-        set minimum_antennae [groute_antenna_extract -from_log $log]
+        set minimum_def $::env(CURRENT_DEF)
+        set minimum_guide $::env(CURRENT_GUIDE)
+        set minimum_odb $::env(CURRENT_ODB)
+        set minimum_antennas [groute_antenna_extract -from_log $log]
 
-        while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $minimum_antennae > 0} {
+        while {$iter <= $::env(GRT_MAX_DIODE_INS_ITERS) && $minimum_antennas > 0} {
             set log [index_file $::env(routing_logs)/antenna_diodes_$iter.log]
-            puts_info "Starting antenna repair iteration $iter with $minimum_antennae violations..."
+            puts_info "Starting antenna repair iteration $iter with $minimum_antennas violations..."
 
             manipulate_layout $::env(SCRIPTS_DIR)/odbpy/defutil.py replace_instance_prefixes\
                 -indexed_log $log\
@@ -68,36 +61,28 @@ proc global_routing_fastroute {args} {
                 -indexed_log $log\
                 -save "to=$::env(routing_tmpfiles),name=global_$iter,def,guide,odb"
 
-            set antennae [groute_antenna_extract -from_log $log]
+            set antennas [groute_antenna_extract -from_log $log]
 
-            if { $antennae >= $minimum_antennae } {
-                puts_info "\[Iteration $iter\] Failed to reduce antenna violations ($minimum_antennae -> $antennae), stopping iterations..."
-                set ::env(SAVE_DEF) $minimum_def
-                set ::env(SAVE_GUIDE) $minimum_guide
-                set ::env(SAVE_ODB) $minimum_odb
+            if { $antennas >= $minimum_antennas } {
+                puts_info "\[Iteration $iter\] Failed to reduce antenna violations ($minimum_antennas -> $antennas), stopping iterations..."
+                set_def $minimum_def
+                set_guide $minimum_guide
+                set_odb $minimum_odb
                 break
             } else {
-                puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennae -> $antennae)"
-                set minimum_def $::env(SAVE_DEF)
-                set minimum_guide $::env(SAVE_GUIDE)
-                set minimum_odb $::env(SAVE_ODB)
-                set minimum_antennae [groute_antenna_extract -from_log [groute_antenna_extract -from_log $log]]
+                puts_info "\[Iteration $iter\] Reduced antenna violations ($minimum_antennas -> $antennas)"
+                set minimum_def $::env(CURRENT_DEF)
+                set minimum_guide $::env(CURRENT_GUIDE)
+                set minimum_odb $::env(CURRENT_ODB)
+                set minimum_antennas $antennas
             }
             incr iter
         }
     } else {
         run_openroad_script $::env(SCRIPTS_DIR)/openroad/groute.tcl\
             -indexed_log $log\
-            -save "def=$initial_def,guide=$initial_guide,odb=$initial_odb"\
-            -no_update_current
+            -save "to=$::env(routing_tmpfiles),name=global,def,guide,odb"
     }
-
-    set_def $::env(SAVE_DEF)
-    set_guide $::env(SAVE_GUIDE)
-    set_odb $::env(SAVE_ODB)
-    unset ::env(SAVE_DEF)
-    unset ::env(SAVE_GUIDE)
-    unset ::env(SAVE_ODB)
 
     write_verilog\
         $::env(routing_tmpfiles)/global.nl.v\

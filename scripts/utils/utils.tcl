@@ -21,9 +21,9 @@ proc throw_error {} {
     }
 }
 
-proc handle_deprecated_config {old new} {
+proc handle_deprecated_config {old new {default ""}} {
     if { [info exists ::env($old)] } {
-        puts_warn "$old is now deprecated; use $new instead."
+        puts_warn "The variable name $old was renamed to $new\. Update your configuration file."
 
         if { ! [info exists ::env($new)] } {
             set ::env($new) $::env($old)
@@ -32,6 +32,10 @@ proc handle_deprecated_config {old new} {
             puts_err "Conflicting values of $new and $old; please remove $old from your design configurations"
             throw_error
         }
+    } elseif { [info exists ::env($new)] } {
+        # That's fine
+    } elseif { $default != "" } {
+        set ::env($new) $default
     }
 }
 
@@ -765,6 +769,8 @@ proc run_tcl_script {args} {
                 set_sdc $::env(SAVE_SDC)
             } elseif { $element == "netlist" } {
                 set_netlist -lec $::env(SAVE_NETLIST)
+            } elseif { $element == "guide" } {
+                set_guide $::env(SAVE_GUIDE)
             } else {
                 set ::env(${current_env}) $::env(${save_env})
             }

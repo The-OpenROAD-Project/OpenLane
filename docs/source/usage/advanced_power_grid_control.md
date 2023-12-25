@@ -31,7 +31,7 @@ The first decision to make at the core level is the core ring. So first, you nee
 <td>
     
 ```json
-    "DESIGN_IS_CORE": true,
+    "FP_PDN_MULTILAYER": true,
     "FP_PDN_CORE_RING": true,
     "VDD_NETS": "vccd1 vccd2 vdda1 cdda2",
     "GND_NETS": "vssd1 vssd2 vssa1 vssa2",
@@ -44,7 +44,7 @@ The first decision to make at the core level is the core ring. So first, you nee
 <td>
 
 ```tcl
-set ::env(DESIGN_IS_CORE) 1
+set ::env(FP_PDN_MULTILAYER) 1
 set ::env(FP_PDN_CORE_RING) 1
 set ::env(VDD_NETS) [list {vccd1} {vccd2} {vdda1} {vdda2}]
 set ::env(GND_NETS) [list {vssd1} {vssd2} {vssa1} {vssa2}]
@@ -198,7 +198,7 @@ To begin the configurations for your macro, you want to announce that the design
 <td>
     
 ```json
-    "DESIGN_IS_CORE": false,
+    "FP_PDN_MULTILAYER": false,
     "FP_PDN_CORE_RING": false,
     "RT_MAX_LAYER": "met4"
 ```
@@ -208,7 +208,7 @@ To begin the configurations for your macro, you want to announce that the design
 <td>
 
 ```tcl
-set ::env(DESIGN_IS_CORE) 0
+set ::env(FP_PDN_MULTILAYER) 0
 set ::env(FP_PDN_CORE_RING) 0
 set ::env(RT_MAX_LAYER) "met4"
 ```

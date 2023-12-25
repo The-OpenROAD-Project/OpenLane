@@ -40,10 +40,21 @@ TEST_SETS_FILE = os.path.join(__dir__, "test_sets.yml")
 )
 @click.argument("test_sets", nargs=-1)
 def main(scls, use_json, test_sets):
-
     data_str = open(TEST_SETS_FILE).read()
     data = yaml.safe_load(data_str)
-    test_set_data = filter(lambda e: e["scl"] in scls and e["name"] in test_sets, data)
+
+    all_scls = set([e["scl"] for e in data])
+    selected_scls = set()
+    for pattern in scls:
+        if pattern.endswith("/"):
+            for scl in all_scls:
+                if scl.startswith(pattern):
+                    selected_scls.add(scl)
+        else:
+            selected_scls.add(pattern)
+    test_set_data = filter(
+        lambda e: e["scl"] in selected_scls and e["name"] in test_sets, data
+    )
 
     designs = list()
     for test_set in list(test_set_data):

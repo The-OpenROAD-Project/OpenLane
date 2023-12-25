@@ -88,7 +88,7 @@ proc init_floorplan {args} {
             set ::env(FP_PDN_VPITCH) [lindex $adjusted_values 2]
             set ::env(FP_PDN_HPITCH) [lindex $adjusted_values 3]
 
-            puts_warn "Current core area is too small for the power grid settings chosen. The power grid will be scaled down."
+            puts_warn "Current core area is too small for the power grid settings chosen. The power grid was scaled down to an offset of 1/8 the core width and height and a pitch of 1/4 the core width and height."
         }
     }
 
