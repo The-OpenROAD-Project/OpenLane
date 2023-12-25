@@ -47,7 +47,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 
 |Variable|Description|
 |-|-|
-| `VERILOG_FILES_BLACKBOX` <a id="VERILOG_FILES_BLACKBOX"></a> | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and opensta. `/// sta-blackbox` can be added to a file in order skip that file while doing sta. This will blackbox all the modules definied inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full sta. |
+| `VERILOG_FILES_BLACKBOX` <a id="VERILOG_FILES_BLACKBOX"></a> | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and OpenSTA. `/// sta-blackbox` can be added to a file in order to skip that file while doing STA. This will blackbox all the modules defined inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full STA. |
 | `EXTRA_LEFS` <a id="EXTRA_LEFS"></a> | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` <a id="EXTRA_LIBS"></a> | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` <a id="EXTRA_GDS_FILES"></a> | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
@@ -218,9 +218,62 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MAX_DISPLACEMENT_Y` <a id="PL_MAX_DISPLACEMENT_Y"></a> | Specifies how far an instance can be moved along the Y-axis when finding a site where it can be placed during detailed placement. <br> (Default: `100`μm) |
 | `PL_MACRO_HALO` <a id="PL_MACRO_HALO"></a> | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
 | `PL_MACRO_CHANNEL` <a id="PL_MACRO_CHANNEL"></a> | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
-| `MACRO_PLACEMENT_CFG` <a id="MACRO_PLACEMENT_CFG"></a> | Specifies the path a file specifying how openlane should place certain macros |
+| `MACRO_PLACEMENT_CFG` <a id="MACRO_PLACEMENT_CFG"></a> | Specifies the path to a file that instructs OpenLane how and where to place certain macros. For information about the format of this file, see [Macro placement configuration](#macro-placement-configuration). |
 | `UNBUFFER_NETS` <a id="UNBUFFER_NETS"></a> | **Deprecated: Use `RSZ_DONT_TOUCH_RX`**: A regular expression used to match nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. |
 | `DONT_BUFFER_PORTS` <a id="DONT_BUFFER_PORTS"></a> | **Removed: Use `RSZ_DONT_TOUCH_RX`**: Semicolon;delimited list of nets from which to remove buffers. |
+
+### Macro placement configuration
+
+`MACRO_PLACEMENT_CFG` specifies a file (often called `macro.cfg` or `macro_placement.cfg`) listing macros (i.e. already-hardened design layouts) to be placed as submodules within the layout being hardened. For example, using JSON configuration:
+
+```json
+"MACRO_PLACEMENT_CFG": "dir::macro.cfg",
+```
+
+In that specified `macro.cfg` file each non-blank/non-comment line declares: a single macro to be included; where it is to be placed; and whether it is to be rotated or mirrored. This example places 3 macros:
+
+```bash
+# Some macros:
+my_controller  100  150  N
+your_device   1200 1400  FS  # Face south by flipping upside-down.
+
+# Another macro of some kind:
+our_bridge     200  800  S
+```
+
+Each line comprises 4 parameters (separated by *any* amount of whitespace but formatted as columns in this example for readability), and they are as follows:
+1.  Name of the macro (e.g. `my_controller`).
+2.  Horizontal placement of the macro (e.g. `100`, which is 100&micro;m). This is the horizontal offset from the parent layout's left edge, to the macro's left edge.
+3.  Vertical placement (e.g. `150`, or 150&micro;m). Vertical offset from the parent's bottom edge to the macro's bottom edge.
+4.  Orientation specifier (e.g. `N`, meaning the macro's own North or *top* edge points in the North direction, and hence is not rotated).
+
+The `N` orientation is used most often, but sometimes it is necessary to rotate and/or flip macros. The orientation specifier follows the LEF/DEF language reference, and can be one of the following:
+
+| Orientation     | Effect                                        | Result                                                      |
+|-----------------|-----------------------------------------------|-------------------------------------------------------------|
+| `N`  or `R0`    | No rotation                                   | Macro's "top" faces North.                                  |
+| `S`  or `R180`  | Rotate 180&deg;                               | Macro's "top" faces South, by rotation.                     |
+| `W`  or `R90`   | Rotate 90&deg; anti-clockwise                 | Macro's "top" faces West, by rotation.                      |
+| `E`  or `R270`  | Rotate 90&deg; clockwise                      | Macro's "top" faces East, by rotation.                      |
+| `FN` or `MY`    | Mirror about the Y axis                       | Macro's "top" faces North and is *flipped* left-to-right.   |
+| `FS` or `MX`    | Mirror about the X axis                       | Macro's "top" faces South by being *flipped* top-to-bottom. |
+| `FW` or `MXR90` | Mirror about X, rotate 90&deg; anti-clockwise | Macro's "top" faces **East** by flipping `W` left-to-right. |
+| `FE` or `MYR90` | Mirror about Y, rotate 90&deg; anti-clockwise | Macro's "top" faces **West** by flipping `E` right-to-left. |
+
+:::{note}
+The alternative names (`R0`, `MXR90`, etc.) follow the OpenAccess database format, and specifically these 8 alternatives are also supported by OpenLane.
+:::
+
+:::{note}
+Be careful if using East/West orientations: Ensure the macro's PDN is still able to properly intersect/connect with the parent layout's PDN.
+:::
+
+For more information on integrating macros and other relevant configuration variables, see:
+*   [Macros/Chip Integration](#macroschip-integration)
+*   [`FP_PDN_MACRO_HOOKS`](#FP_PDN_MACRO_HOOKS)
+*   [`EXTRA_SPEFS`](#EXTRA_SPEFS)
+*   [`CLOCK_NET`](#CLOCK_NET) (which can be an array to specify multiple clock nets if needed) and [`CLOCK_PORT`](#CLOCK_PORT)
+
 
 ## Clock Tree Synthesis (CTS)
 
@@ -279,7 +332,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GRT_MACRO_EXTENSION` <a id="GRT_MACRO_EXTENSION"></a>‡ | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` <a id="DRT_MIN_LAYER"></a> | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
 | `DRT_MAX_LAYER` <a id="DRT_MAX_LAYER"></a> | An optional override to the highest layer used in detailed routing. <br> (Default: `RT_MAX_LAYER`)|
-| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
+| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. Values allowed are integers from `1` to `64`. <br> (Default: `64`) |
 | `ROUTING_OPT_ITERS` <a id="ROUTING_OPT_ITERS"></a> |**Removed: Use `DRT_OPT_ITERS`**: Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute.|
 | `GLB_RT_MINLAYER` <a id="GLB_RT_MINLAYER"></a> | **Removed: Use `RT_MIN_LAYER`**: The number of lowest layer to be used in routing.|
 | `GLB_RT_MAXLAYER` <a id="GLB_RT_MAXLAYER"></a> | **Removed: Use `RT_MAX_LAYER`**: The number of highest layer to be used in routing.|
