@@ -58,7 +58,7 @@ Modify the `config.json` to include following:
 :language: json
 ```
 
-`DESIGN_IS_CORE` controls the metal levels used for power routing. Set it to `false` to use only lower levels.
+`FP_PDN_MULTILAYER` controls the metal levels used for power routing. Set it to `false` to use only lower levels.
 
 `FP_PDN_CORE_RING` is set to `false` to disable a power ring around the macroblock.
 
@@ -136,7 +136,7 @@ Then add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS` and `EXTRA_GDS_FILES` to the `co
   "VERILOG_FILES": "dir::src/*.v",
   "CLOCK_PORT": "clk",
   "CLOCK_PERIOD": 10.0,
-  "DESIGN_IS_CORE": true,
+  "FP_PDN_MULTILAYER": true,
 
   "EXTRA_LEFS": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
   "EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
@@ -156,7 +156,7 @@ This is a [known issue documented here](https://github.com/The-OpenROAD-Project/
 
 The PDN straps will be routed in opposite directions.
 In locations where the two routings cross each other,
-VIAs connecting the layers are added. When `DESIGN_IS_CORE` is set to `true` then higher layers (met5 in sky130) are used.
+VIAs connecting the layers are added. When `FP_PDN_MULTILAYER` is set to `true` then higher layers (met5 in sky130) are used.
 If it is set to `false` then VIAs will be missing and you will get LVS issues.
 
 ### Verilog files
@@ -493,7 +493,7 @@ Fanout     Cap    Slew   Delay    Time   Description
 
 ### Demo: Debugging LVS issues due to PDN issues
 
-Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `DESIGN_IS_CORE` to `false`.
+Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `FP_PDN_MULTILAYER` to `false`.
 
 ```
 {
@@ -501,7 +501,7 @@ Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `DESI
     "VERILOG_FILES": "dir::src/*.v",
     "CLOCK_PORT": "clk",
     "CLOCK_PERIOD": 10.0,
-    "DESIGN_IS_CORE": false,
+    "FP_PDN_MULTILAYER": false,
 
     "FP_ASPECT_RATIO": 2,
     "EXTRA_LEFS":      "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
@@ -589,7 +589,7 @@ The submacros are by default logically connected to `VPWR/VGND` power domain.
 As can be seen, the PDN is missing the power straps in layer `met5`.
 Therefore the layout, does not have connections to the submacro, while the net is logically connected.
 
-This is expected as it was disabled by setting `DESIGN_IS_CORE` to `false` above.
+This is expected as it was disabled by setting `FP_PDN_MULTILAYER` to `false` above.
 Of course, reverting the change fixes this issue.
 
 :::{note}

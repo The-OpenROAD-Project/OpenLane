@@ -79,6 +79,7 @@ proc run_sta {args} {
     proc blackbox_modules_check {file_path} {
         set fp [open $file_path r]
         set file_path [read $fp]
+        set modules [list]
         set ignore_patterns "$::env(FILL_CELL) $::env(DECAP_CELL) $::env(FP_WELLTAP_CELL)"
         foreach line [split $file_path "\n"] {
             if { [regexp {module\s+(\S+)\s+not\s+found} $line match first_group] } {
@@ -89,8 +90,14 @@ proc run_sta {args} {
                     }
                 }
                 if { $ignored != 1 } {
-                    puts_warn "Module $first_group blackboxed during sta"
+                    lappend modules $first_group
                 }
+            }
+        }
+        if { [llength $modules] > 0 } {
+            puts_warn "The following modules were black-boxed for STA as there was no timing information found:"
+            foreach {m} $modules {
+                puts_warn "\t* $m"
             }
         }
         close $fp

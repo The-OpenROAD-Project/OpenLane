@@ -43,10 +43,7 @@ foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
 set_voltage_domain -name CORE -power $::env(VDD_NET) -ground $::env(GND_NET) \
     -secondary_power $secondary
 
-# Assesses whether the design is the core of the chip or not based on the
-# value of $::env(DESIGN_IS_CORE) and uses the appropriate stdcell section
-if { $::env(DESIGN_IS_CORE) == 1 } {
-    # Used if the design is the core of the chip
+if { $::env(FP_PDN_MULTILAYER) == 1 } {
     define_pdn_grid \
         -name stdcell_grid \
         -starts_with POWER \
@@ -75,7 +72,6 @@ if { $::env(DESIGN_IS_CORE) == 1 } {
         -grid stdcell_grid \
         -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)"
 } else {
-    # Used if the design is a macro in the core
     define_pdn_grid \
         -name stdcell_grid \
         -starts_with POWER \
@@ -88,7 +84,7 @@ if { $::env(DESIGN_IS_CORE) == 1 } {
         -width $::env(FP_PDN_VWIDTH) \
         -pitch $::env(FP_PDN_VPITCH) \
         -offset $::env(FP_PDN_VOFFSET) \
-        -starts_with POWER
+        -starts_with POWER -extend_to_core_ring
 }
 
 # Adds the standard cell rails if enabled.
@@ -108,12 +104,22 @@ if { $::env(FP_PDN_ENABLE_RAILS) == 1 } {
 
 # Adds the core ring if enabled.
 if { $::env(FP_PDN_CORE_RING) == 1 } {
-    add_pdn_ring \
-        -grid stdcell_grid \
-        -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)" \
-        -widths "$::env(FP_PDN_CORE_RING_VWIDTH) $::env(FP_PDN_CORE_RING_HWIDTH)" \
-        -spacings "$::env(FP_PDN_CORE_RING_VSPACING) $::env(FP_PDN_CORE_RING_HSPACING)" \
-        -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET) $::env(FP_PDN_CORE_RING_HOFFSET)"
+    if { $::env(FP_PDN_MULTILAYER) == 1 } {
+        add_pdn_ring \
+            -grid stdcell_grid \
+            -layers "$::env(FP_PDN_VERTICAL_LAYER) $::env(FP_PDN_HORIZONTAL_LAYER)" \
+            -widths "$::env(FP_PDN_CORE_RING_VWIDTH) $::env(FP_PDN_CORE_RING_HWIDTH)" \
+            -spacings "$::env(FP_PDN_CORE_RING_VSPACING) $::env(FP_PDN_CORE_RING_HSPACING)" \
+            -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET) $::env(FP_PDN_CORE_RING_HOFFSET)"
+    } else {
+        throw APPLICATION "FP_PDN_CORE_RING cannot be used when FP_PDN_MULTILAYER is set to false."
+        # add_pdn_ring \
+        #     -grid stdcell_grid \
+        #     -layers "$::env(FP_PDN_VERTICAL_LAYER)" \
+        #     -widths "$::env(FP_PDN_CORE_RING_VWIDTH)" \
+        #     -spacings "$::env(FP_PDN_CORE_RING_VSPACING)" \
+        #     -core_offset "$::env(FP_PDN_CORE_RING_VOFFSET)"
+    }
 }
 
 define_pdn_grid \

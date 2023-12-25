@@ -48,7 +48,7 @@ include ./dependencies/image_name.mk
 TEST_DESIGN ?= spm
 DESIGN_LIST ?= spm
 QUICK_RUN_DESIGN ?= spm
-BENCHMARK ?= regression_results/benchmark_results/SW_HD.csv
+BENCHMARK ?= regression_results/benchmark_results/sky130A/sky130_fd_sc_hd.csv
 REGRESSION_TAG ?= TEST_SW_HD
 FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
@@ -171,10 +171,10 @@ venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt 
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
-fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) fastest_test_set)
+fastest_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --scl $(PDK)/$(STD_CELL_LIBRARY) fastest_test_set)
 fastest_test_set: DLTAG=$(FASTEST_TEST_SET_TAG)
 fastest_test_set: test_design_list
-extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --pdk $(PDK) extended_test_set)
+extended_test_set: DESIGN_LIST=$(shell python3 ./.github/test_sets/get_test_matrix.py --plain --scl $(PDK)/$(STD_CELL_LIBRARY) extended_test_set)
 extended_test_set: DLTAG=$(EXTENDED_TEST_SET_TAG)
 extended_test_set: test_design_list
 test_design_list:

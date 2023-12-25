@@ -15,7 +15,6 @@
 # General Defaults
 set ::env(CLOCK_PERIOD) "10.0"
 set ::env(USE_GPIO_PADS) 0
-set ::env(RSZ_DONT_TOUCH_RX) "$^"
 set ::env(RSZ_MULTICORNER_LIB) 1
 set ::env(RSZ_DONT_TOUCH) ""
 
@@ -41,7 +40,6 @@ set ::env(RUN_IRDROP_REPORT) 1
 
 ## Signoff
 set ::env(RUN_CVC) 1
-set ::env(PRIMARY_GDSII_STREAMOUT_TOOL) magic
 
 ### Netgen
 set ::env(RUN_LVS) 1
