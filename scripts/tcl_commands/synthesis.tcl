@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 proc convert_pg_pins {lib_in lib_out} {
     try_exec sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
 }
@@ -75,9 +74,16 @@ proc run_yosys {args} {
         exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
-    set log [index_file $::env(synthesis_logs)/check_clock_port.log]
-    puts_info "Checking clock port (log: [relpath . $log])"
-    run_sta_script $::env(SCRIPTS_DIR)/openroad/sta/check_clock_port.tcl -indexed_log $log
+
+    if { [info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != "" } {
+        set hierarchy [json::json2dict [cat $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json]]
+        set module [dict get [dict get $hierarchy "modules"] $::env(DESIGN_NAME)]
+        set ports [dict get $module "ports"]
+        if { ![dict exists $ports $::env(CLOCK_PORT)] } {
+            puts_err "The specified port '$::env(CLOCK_PORT)' does not exist in the top-level module."
+            throw_error
+        }
+    }
 }
 
 proc run_synth_exploration {args} {
@@ -311,7 +317,7 @@ proc run_verilator {} {
         lappend arg_list {*}$output_file
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
-    
+
     set incdirs ""
     if { [info exists ::env(VERILOG_INCLUDE_DIRS)] } {
         foreach incdir $::env(VERILOG_INCLUDE_DIRS) {
