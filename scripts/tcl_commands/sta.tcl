@@ -95,7 +95,10 @@ proc run_sta {args} {
             }
         }
         if { [llength $modules] > 0 } {
-            puts_warn "The following modules were black-boxed for STA as there was no timing information found: \[[join $modules ", "]\]"
+            puts_warn "The following modules were black-boxed for STA as there was no timing information found:"
+            foreach {m} $modules {
+                puts_warn "\t* $m"
+            }
         }
         close $fp
     }
