@@ -76,15 +76,15 @@ proc run_yosys {args} {
     unset ::env(SAVE_NETLIST)
 
     if { [info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != "" } {
-        set hierarchy [json::json2dict [cat $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json]]
-        set module [dict get [dict get $hierarchy "modules"] $::env(DESIGN_NAME)]
-        set ports [dict get $module "ports"]
+        set missing_clock_ports [exec\
+            python3 $::env(SCRIPTS_DIR)/check_clock_ports.py\
+            --top $::env(DESIGN_NAME)\
+            --netlist-in $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json\
+            {*}$::env(CLOCK_PORT)]
         set ports_not_found 0
-        foreach {clock_port} $::env(CLOCK_PORT) {
-            if { ![dict exists $ports $clock_port] } {
-                puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
-                set ports_not_found 1
-            }
+        foreach {clock_port} $missing_clock_ports {
+            puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
+            set ports_not_found 1
         }
         if { $ports_not_found } {
             throw_error
