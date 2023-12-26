@@ -104,10 +104,6 @@ subprocess.check_call(
 )
 print("Created ./reproducible.tar.gz.")
 
-if run_return_code != 0:
-    print("Run failed")
-    raise run_exception
-
 difference_reports = glob.glob(os.path.join(results_folder, f"{test_name}*.rpt"))
 if len(difference_reports):
     print("Verbose differences within the benchmark:")
@@ -124,5 +120,9 @@ if os.path.exists(design_test_report):
     if not dtr[design]["pass"]:
         print("Testing the design has failed.")
         exit(-1)
+
+if run_return_code != 0:
+    print("Run failed")
+    raise run_exception
 
 print("Done.")

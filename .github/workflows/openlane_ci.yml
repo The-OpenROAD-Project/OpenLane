@@ -141,6 +141,8 @@ jobs:
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.issue_regression_matrix) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -233,6 +235,7 @@ jobs:
             python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design.name }}
 
       - name: Escape Design Name
+        if: ${{ always() }}
         run: |
           design_name=${{ matrix.design.name }}
           escaped_design_name=${design_name//\//_}
