@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Efabless Corporation
+# Copyright 2020-2023 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 proc convert_pg_pins {lib_in lib_out} {
     try_exec sed -E {s/^([[:space:]]+)pg_pin(.*)/\1pin\2\n\1    direction : "inout";/g} $lib_in > $lib_out
 }
@@ -75,6 +74,22 @@ proc run_yosys {args} {
         exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
+
+    if { [info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != "" } {
+        set missing_clock_ports [exec\
+            python3 $::env(SCRIPTS_DIR)/check_clock_ports.py\
+            --top $::env(DESIGN_NAME)\
+            --netlist-in $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json\
+            {*}$::env(CLOCK_PORT)]
+        set ports_not_found 0
+        foreach {clock_port} $missing_clock_ports {
+            puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
+            set ports_not_found 1
+        }
+        if { $ports_not_found } {
+            throw_error
+        }
+    }
 }
 
 proc run_synth_exploration {args} {
@@ -308,7 +323,7 @@ proc run_verilator {} {
         lappend arg_list {*}$output_file
     }
     lappend arg_list {*}$::env(VERILOG_FILES)
-    
+
     set incdirs ""
     if { [info exists ::env(VERILOG_INCLUDE_DIRS)] } {
         foreach incdir $::env(VERILOG_INCLUDE_DIRS) {

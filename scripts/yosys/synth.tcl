@@ -413,11 +413,14 @@ proc run_strategy {output script strategy_name {postfix_with_strategy 0}} {
         autoname
     }
 
+    set output_json $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json
     if { $postfix_with_strategy } {
         set output "$output.$strategy_escaped.nl.v"
+        set output_json $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).$strategy_escaped.json
     }
 
     write_verilog -noattr -noexpr -nohex -nodec -defparam $output
+    write_json $output_json
     design -reset
 }
 design -save checkpoint
