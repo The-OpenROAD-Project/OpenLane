@@ -32,7 +32,7 @@ proc run_magic {args} {
         -indexed_log $log\
         $::env(SCRIPTS_DIR)/magic/def/mag_gds.tcl
 
-    if { $::env(PRIMARY_SIGNOFF_TOOL) == "magic" } {
+    if { $::env(PRIMARY_GDSII_STREAMOUT_TOOL) == "magic" } {
         set ::env(CURRENT_GDS) $::env(signoff_results)/$::env(DESIGN_NAME).gds
         file copy -force $::env(MAGIC_GDS) $::env(CURRENT_GDS)
     }

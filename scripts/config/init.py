@@ -72,7 +72,7 @@ def init_config(
                         set ::env(CLOCK_PORT) "clk"
                         set ::env(CLOCK_PERIOD) "10.0"
 
-                        set ::env(DESIGN_IS_CORE) {{1}}
+                        set ::env(FP_PDN_MULTILAYER) {{1}}
 
                         set tech_specific_config "$::env(DESIGN_DIR)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl"
                         if {{ [file exists $tech_specific_config] == 1 }} {{
@@ -93,7 +93,7 @@ def init_config(
                         "VERILOG_FILES": verilog_arg,
                         "CLOCK_PORT": "clk",
                         "CLOCK_PERIOD": 10.0,
-                        "DESIGN_IS_CORE": True,
+                        "FP_PDN_MULTILAYER": True,
                     },
                     indent=4,
                     sort_keys=False,

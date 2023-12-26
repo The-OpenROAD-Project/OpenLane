@@ -251,13 +251,11 @@ Most of the following commands' implementation exists in this [file][17]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_klayout` | | Streams the back-up final GDSII, generates a PNG screenshot, then runs KLayout DRC deck on it. This is controlled by `RUN_KLAYOUT`, `TAKE_LAYOUT_SCROT` ,and `KLAYOUT_DRC_KLAYOUT_GDS`. The resulting file is under `/<run_path>/results/klayout/` . |
+| `run_klayout` | | Streams the back-up final GDSII, generates a PNG screenshot, then runs KLayout DRC deck on it. This is controlled by `RUN_KLAYOUT` and `TAKE_LAYOUT_SCROT`. The resulting file is under `/<run_path>/results/klayout/` . |
 | `scrot_klayout` | | Export a PNG view of a given GDSII or DEF file. This is controlled by `TAKE_LAYOUT_SCROT`. |
 |    | `[-log <log_file>]` | Output log file. |
 |    | `[-layout <layout_file>]` | The input GDS or DEF file, the default is `::env(CURRENT_GDS)`. |
-| `run_klayout_drc` | | Runs KLayout DRC on a given GDSII file. This is controlled by `RUN_KLAYOUT_DRC`. |
-|    | `[-gds <gds_file>]` | The input GDS file, the default is `::env(CURRENT_GDS)`. |
-|    | `[-stage <stage>]` | The output stage using the DRC, the default is `magic`. The `magic` implies that the drc was run on the default GDS which is produced by magic. |
+| `run_klayout_drc` | | Runs KLayout DRC on a`::env(CURRENT_GDS)`. This is controlled by `RUN_KLAYOUT_DRC`. |
 | `run_klayout_gds_xor` | | Runs KLayout XOR on 2 GDSIIs. This is controlled by `RUN_KLAYOUT_XOR` and `KLAYOUT_XOR_GDS` and `KLAYOUT_XOR_XML`. |
 |    | `[-layout1 <gds_file>]` | The input GDS file, the default is the magic generated GDSII under `<run_path>/results/magic/<design_name>.gds`. |
 |    | `[-layout2 <gds_file>]` | The input GDS file, the default is the klayout generated GDSII under `<run_path>/results/klayout/<design_name>.gds`. |

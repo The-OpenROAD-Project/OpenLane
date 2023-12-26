@@ -47,7 +47,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 
 |Variable|Description|
 |-|-|
-| `VERILOG_FILES_BLACKBOX` <a id="VERILOG_FILES_BLACKBOX"></a> | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and opensta. `/// sta-blackbox` can be added to a file in order skip that file while doing sta. This will blackbox all the modules definied inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full sta. |
+| `VERILOG_FILES_BLACKBOX` <a id="VERILOG_FILES_BLACKBOX"></a> | Black-boxed, Verilog files where the implementation is ignored. Useful for pre-hardened macros you incorporate into your design, used during synthesis and OpenSTA. `/// sta-blackbox` can be added to a file in order to skip that file while doing STA. This will blackbox all the modules defined inside that file. It is recommended to provide a gatelevel netlist whenever possible to do full STA. |
 | `EXTRA_LEFS` <a id="EXTRA_LEFS"></a> | Specifies LEF files of pre-hardened macros used in the current design, used in placement and routing. |
 | `EXTRA_LIBS` <a id="EXTRA_LIBS"></a> | Specifies LIB files of pre-hardened macros used in the current design, used during timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` <a id="EXTRA_GDS_FILES"></a> | Specifies GDS files of pre-hardened macros used in the current design, used during tape-out. |
@@ -78,7 +78,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 |-|-|
 | `SYNTH_AUTONAME` <a id="SYNTH_AUTONAME"></a> | Add a synthesis step to generate names for instances. This results in instance names that can be very long, but may be more useful than the internal names that are six digit numbers. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_BIN` <a id="SYNTH_BIN"></a> | The yosys binary used in the flow. <br> (Default: `yosys`) |
-| `SYNTH_DEFINES` <a id="SYNTH_DEFINES"></a> | Specifies verilog defines. Variable should be provided as a json/tcl list. <br> (Default: NONE) |
+| `SYNTH_DEFINES` <a id="SYNTH_DEFINES"></a> | Specifies verilog defines. Variable should be provided as a json/tcl list. <br> (Default: None) |
 | `SYNTH_CLOCK_UNCERTAINTY` <a id="SYNTH_CLOCK_UNCERTAINTY"></a>  | Specifies a value for the clock uncertainty/jitter for timing analysis. <br> (Default: `0.25`) |
 | `SYNTH_CLOCK_TRANSITION` <a id="SYNTH_CLOCK_TRANSITION"></a>  |  Specifies a value for the clock transition /slew for timing analysis. <br> (Default: `0.15`) |
 | `SYNTH_TIMING_DERATE` <a id="SYNTH_TIMING_DERATE"></a>  | Specifies a derating factor to multiply the path delays with. It specifies the upper and lower ranges of timing. <br> (Default: `+5%/-5%`) |
@@ -107,7 +107,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | Variable | Description |
 |-|-|
 | `STA_REPORT_POWER` <a id="STA_REPORT_POWER"></a> | Enables reporting power in sta. <br> (Default: `1`) |
-| `EXTRA_SPEFS` <a id="EXTRA_SPEFS"></a> | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: NONE) |
+| `EXTRA_SPEFS` <a id="EXTRA_SPEFS"></a> | Specifies min, nom, max spef files for modules(s). Variable should be provided as a json/tcl list or a space delimited tcl string. Note that a module name is provided not an instance name. A module may have multiple instances. Each module must have define 3 files, one for each corner. For example: `module1 min1 nom1 max1 module2 min2 nom2 max2`. A file can be used multiple time in case of absence of other corner files. For example: `module nom nom nom`. In this case, the nom file will be used in all corners of sta. At all times a module must specify 3 files.  <br> (Default: None) |
 | `STA_WRITE_LIB` <a id="STA_WRITE_LIB"></a> | Controls whether a timing model is written using OpenROAD OpenSTA after static timing analysis. This is an option as it in its current state, the timing model generation (and the model itself) can be quite buggy. <br> (Default: `1`) |
 
 ## Floorplanning (FP)
@@ -148,19 +148,20 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `FP_TAP_VERTICAL_HALO` <a id="FP_TAP_VERTICAL_HALO"></a> | Specify the vertical halo size around macros during tap insertion. The value provided is in microns. <br> (Default: set to the value of `FP_TAP_HORIZONTAL_HALO`) |
 | `FP_PDN_HORIZONTAL_HALO` <a id="FP_PDN_HORIZONTAL_HALO"></a> | Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns. <br> (Default: `10`) |
 | `FP_PDN_VERTICAL_HALO` <a id="FP_PDN_VERTICAL_HALO"></a> | Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. <br> (Default: set to the value of `FP_PDN_HORIZONTAL_HALO`) |
-| `DESIGN_IS_CORE` <a id="DESIGN_IS_CORE"></a> | Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
-| `FP_PIN_ORDER_CFG` <a id="FP_PIN_ORDER_CFG"></a> | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. `$<number>` i.e. `$1` can be used to place a virtual pin where `<number>` is the count of virtual pins. This can create separation between pins. You can also use `@min_distance=<number>` i.e. `@min_distance=0.8` to set preferred min distance between pins in a specific direction. See spm configuration file as an example.<br> (Default: NONE)|
-| `FP_CONTEXT_DEF` <a id="FP_CONTEXT_DEF"></a> | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
-| `FP_CONTEXT_LEF` <a id="FP_CONTEXT_LEF"></a> | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: NONE)|
+| `FP_PDN_MULTILAYER` <a id="FP_PDN_MULTILAYER"></a> | Controls the layers used in the power grid. If set to `0` (Tcl)/`false` (JSON), only the lower, vertical layer will be used, which is useful when hardening a macro for integrating into a larger top-level design. <br> (Default: `1`)|
+| `FP_PIN_ORDER_CFG` <a id="FP_PIN_ORDER_CFG"></a> | Points to the pin order configuration file to set the pins in specific directions (S, W, E, N). If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. `$<number>` i.e. `$1` can be used to place a virtual pin where `<number>` is the count of virtual pins. This can create separation between pins. You can also use `@min_distance=<number>` i.e. `@min_distance=0.8` to set preferred min distance between pins in a specific direction. See spm configuration file as an example.<br> (Default: None)|
+| `FP_CONTEXT_DEF` <a id="FP_CONTEXT_DEF"></a> | Points to the parent DEF file that includes this macro/design and uses this DEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_LEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: None)|
+| `FP_CONTEXT_LEF` <a id="FP_CONTEXT_LEF"></a> | Points to the parent LEF file that includes this macro/design and uses this LEF file to determine the best locations for the pins. It must be used with `FP_CONTEXT_DEF`, otherwise it's considered non-existing. If not set, then the IO pins will be placed based on one of the other methods depending on the rest of the configurations. <br> (Default: None)|
 | `FP_DEF_TEMPLATE` <a id="FP_DEF_TEMPLATE"></a> | Points to the DEF file to be used as a template when running `apply_def_template`. This will be used to exctract pin names, locations, shapes -excluding power and ground pins- as well as the die area and replicate all this information in the `CURRENT_DEF`. |
 | `VDD_NETS` <a id="VDD_NETS"></a> | Specifies the power nets/pins to be used when creating the power grid for the design. |
 | `GND_NETS` <a id="GND_NETS"></a> | Specifies the ground nets/pins to be used when creating the power grid for the design. |
 | `SYNTH_USE_PG_PINS_DEFINES` <a id="SYNTH_USE_PG_PINS_DEFINES"></a> | Specifies the power guard used in the verilog source code to specify the power and ground pins. This is used to automatically extract `VDD_NETS` and `GND_NET` variables from the verilog, with the assumption that they will be order `inout vdd1, inout gnd1, inout vdd2, inout gnd2, ...`. |
 | `FP_IO_MIN_DISTANCE` <a id="FP_IO_MIN_DISTANCE"></a>  | The minmimum distance between the IOs in microns. <br> (Default: `3`) |
-| `FP_PADFRAME_CFG` <a id="FP_PADFRAME_CFG"></a>  | A configuration file passed to padringer, a padframe generator. <br> (Default: NONE) |
+| `FP_PADFRAME_CFG` <a id="FP_PADFRAME_CFG"></a>  | A configuration file passed to padringer, a padframe generator. <br> (Default: None) |
 | `PDN_CFG` <a id="PDN_CFG"></a> | **Deprecated: Use `FP_PDN_CFG`**: Points to a PDN configuration file that describes how to construct the PDN in detail. |
 | `FP_HORIZONTAL_HALO` <a id="FP_HORIZONTAL_HALO"></a> | **Deprecated: Use `FP_PDN_HORIZONTAL_HALO`**: Sets the horizontal halo around the macros during power grid insertion. The value provided is in microns.|
 | `FP_PDN_VERTICAL_HALO` <a id="FP_PDN_VERTICAL_HALO"></a> | **Deprecated: Use `FP_PDN_VERTICAL_HALO`**: Sets the vertical halo around the macros during power grid insertion. The value provided is in microns. |
+| `DESIGN_IS_CORE` <a id="DESIGN_IS_CORE"></a> | **Deprecated as even macros can have a full-stack PDN if core rings are used: New variable is `FP_PDN_MULTILAYER`** Controls the layers used in the power grid. Depending on whether the design is the core of the chip or a macro inside the core. 1=Is a Core, 0=Is a Macro <br> (Default: `1`)|
 | `FP_PDN_IRDROP` <a id="FP_PDN_IRDROP"></a> | **Removed: No point running it this early in the flow**: Enable calculation of power grid IR drop during PDN generation. |
 
 ### Deprecated I/O Layer variables
@@ -217,9 +218,62 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `PL_MAX_DISPLACEMENT_Y` <a id="PL_MAX_DISPLACEMENT_Y"></a> | Specifies how far an instance can be moved along the Y-axis when finding a site where it can be placed during detailed placement. <br> (Default: `100`μm) |
 | `PL_MACRO_HALO` <a id="PL_MACRO_HALO"></a> | Macro placement halo. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
 | `PL_MACRO_CHANNEL` <a id="PL_MACRO_CHANNEL"></a> | Channel widths between macros. Format: `{Horizontal} {Vertical}` <br> (Default: `0 0`μm). |
-| `MACRO_PLACEMENT_CFG` <a id="MACRO_PLACEMENT_CFG"></a> | Specifies the path a file specifying how openlane should place certain macros |
+| `MACRO_PLACEMENT_CFG` <a id="MACRO_PLACEMENT_CFG"></a> | Specifies the path to a file that instructs OpenLane how and where to place certain macros. For information about the format of this file, see [Macro placement configuration](#macro-placement-configuration). |
 | `UNBUFFER_NETS` <a id="UNBUFFER_NETS"></a> | **Deprecated: Use `RSZ_DONT_TOUCH_RX`**: A regular expression used to match nets from which to remove buffers after every resizer run. Useful for analog ports in mixed-signal designs where OpenROAD may sometimes add a buffer. |
 | `DONT_BUFFER_PORTS` <a id="DONT_BUFFER_PORTS"></a> | **Removed: Use `RSZ_DONT_TOUCH_RX`**: Semicolon;delimited list of nets from which to remove buffers. |
+
+### Macro placement configuration
+
+`MACRO_PLACEMENT_CFG` specifies a file (often called `macro.cfg` or `macro_placement.cfg`) listing macros (i.e. already-hardened design layouts) to be placed as submodules within the layout being hardened. For example, using JSON configuration:
+
+```json
+"MACRO_PLACEMENT_CFG": "dir::macro.cfg",
+```
+
+In that specified `macro.cfg` file each non-blank/non-comment line declares: a single macro to be included; where it is to be placed; and whether it is to be rotated or mirrored. This example places 3 macros:
+
+```bash
+# Some macros:
+my_controller  100  150  N
+your_device   1200 1400  FS  # Face south by flipping upside-down.
+
+# Another macro of some kind:
+our_bridge     200  800  S
+```
+
+Each line comprises 4 parameters (separated by *any* amount of whitespace but formatted as columns in this example for readability), and they are as follows:
+1.  Name of the macro (e.g. `my_controller`).
+2.  Horizontal placement of the macro (e.g. `100`, which is 100&micro;m). This is the horizontal offset from the parent layout's left edge, to the macro's left edge.
+3.  Vertical placement (e.g. `150`, or 150&micro;m). Vertical offset from the parent's bottom edge to the macro's bottom edge.
+4.  Orientation specifier (e.g. `N`, meaning the macro's own North or *top* edge points in the North direction, and hence is not rotated).
+
+The `N` orientation is used most often, but sometimes it is necessary to rotate and/or flip macros. The orientation specifier follows the LEF/DEF language reference, and can be one of the following:
+
+| Orientation     | Effect                                        | Result                                                      |
+|-----------------|-----------------------------------------------|-------------------------------------------------------------|
+| `N`  or `R0`    | No rotation                                   | Macro's "top" faces North.                                  |
+| `S`  or `R180`  | Rotate 180&deg;                               | Macro's "top" faces South, by rotation.                     |
+| `W`  or `R90`   | Rotate 90&deg; anti-clockwise                 | Macro's "top" faces West, by rotation.                      |
+| `E`  or `R270`  | Rotate 90&deg; clockwise                      | Macro's "top" faces East, by rotation.                      |
+| `FN` or `MY`    | Mirror about the Y axis                       | Macro's "top" faces North and is *flipped* left-to-right.   |
+| `FS` or `MX`    | Mirror about the X axis                       | Macro's "top" faces South by being *flipped* top-to-bottom. |
+| `FW` or `MXR90` | Mirror about X, rotate 90&deg; anti-clockwise | Macro's "top" faces **East** by flipping `W` left-to-right. |
+| `FE` or `MYR90` | Mirror about Y, rotate 90&deg; anti-clockwise | Macro's "top" faces **West** by flipping `E` right-to-left. |
+
+:::{note}
+The alternative names (`R0`, `MXR90`, etc.) follow the OpenAccess database format, and specifically these 8 alternatives are also supported by OpenLane.
+:::
+
+:::{note}
+Be careful if using East/West orientations: Ensure the macro's PDN is still able to properly intersect/connect with the parent layout's PDN.
+:::
+
+For more information on integrating macros and other relevant configuration variables, see:
+*   [Macros/Chip Integration](#macroschip-integration)
+*   [`FP_PDN_MACRO_HOOKS`](#FP_PDN_MACRO_HOOKS)
+*   [`EXTRA_SPEFS`](#EXTRA_SPEFS)
+*   [`CLOCK_NET`](#CLOCK_NET) (which can be an array to specify multiple clock nets if needed) and [`CLOCK_PORT`](#CLOCK_PORT)
+
 
 ## Clock Tree Synthesis (CTS)
 
@@ -278,7 +332,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `GRT_MACRO_EXTENSION` <a id="GRT_MACRO_EXTENSION"></a>‡ | Sets the number of GCells added to the blockages boundaries from macros. A GCell is typically defined in terms of Mx routing tracks. The default GCell size is 15 M3 pitches. <br> (Default: `0`) |
 | `DRT_MIN_LAYER` <a id="DRT_MIN_LAYER"></a> | An optional override to the lowest layer used in detailed routing. For example, in sky130, you may want global routing to avoid li1, but let detailed routing use li1 if it has to. <br> (Default: `RT_MIN_LAYER`)|
 | `DRT_MAX_LAYER` <a id="DRT_MAX_LAYER"></a> | An optional override to the highest layer used in detailed routing. <br> (Default: `RT_MAX_LAYER`)|
-| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. <br> (Default: `64`) |
+| `DRT_OPT_ITERS` <a id="DRT_OPT_ITERS"></a> | Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute. Values allowed are integers from `1` to `64`. <br> (Default: `64`) |
 | `ROUTING_OPT_ITERS` <a id="ROUTING_OPT_ITERS"></a> |**Removed: Use `DRT_OPT_ITERS`**: Specifies the maximum number of optimization iterations during Detailed Routing in TritonRoute.|
 | `GLB_RT_MINLAYER` <a id="GLB_RT_MINLAYER"></a> | **Removed: Use `RT_MIN_LAYER`**: The number of lowest layer to be used in routing.|
 | `GLB_RT_MAXLAYER` <a id="GLB_RT_MAXLAYER"></a> | **Removed: Use `RT_MAX_LAYER`**: The number of highest layer to be used in routing.|
@@ -314,14 +368,14 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `RUN_IRDROP_REPORT` <a id="RUN_IRDROP_REPORT"></a> | Creates an IR Drop report using OpenROAD PSM. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
-| `VSRC_LOC_FILES` <a id="VSRC_LOC_FILES"></a> | PSM loc file for power and ground nets. Variable should be provided as a json/tcl list or a space delimited tcl string as follows: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/psm#commands) for more info.<br> (Default: NONE)  |
+| `VSRC_LOC_FILES` <a id="VSRC_LOC_FILES"></a> | Map of voltage source nets to OpenROAD PSM location files. Variable should be provided as a Tcl dict, i.e.: `net1 file1 net2 file2`. See [this](https://github.com/The-OpenROAD-Project/OpenROAD/tree/master/src/psm#commands) for more info. <br> (Default: None)  |
 
 ## Signoff
 
 
 |Variable|Description|
 |-|-|
-| `PRIMARY_SIGNOFF_TOOL` <a id="PRIMARY_SIGNOFF_TOOL"></a> | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
+| `PRIMARY_GDSII_STREAMOUT_TOOL` <a id="PRIMARY_GDSII_STREAMOUT_TOOL"></a> | Determines whether `magic` or `klayout` is the primary signoff tool. <br> (Default: `magic`) |
 | `USE_ARC_ANTENNA_CHECK` <a id="USE_ARC_ANTENNA_CHECK"></a> | Specifies whether to use the openroad ARC antenna checker or magic antenna checker. 0=magic antenna checker, 1=ARC OR antenna checker <br> (Default: `1`)
 | `RUN_CVC` <a id="RUN_CVC"></a> | Runs CVC on the output spice, which is a Circuit Validity Checker. Voltage aware ERC checker for CDL netlists. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `SIGNOFF_SDC_FILE` <a id="SIGNOFF_SDC_FILE"></a> | Specifies SDC file used by multicorner STA during signoff stage, which can be different from the one used for implementation. <br> (Default: `BASE_SDC_FILE`) |
@@ -330,7 +384,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 |Variable|Description|
 |-|-|
 | `RUN_MAGIC` <a id="RUN_MAGIC"></a> | Enables running magic and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_MAGIC_DRC` <a id="RUN_MAGIC_DRC"></a> | Enables running magic DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
+| `RUN_MAGIC_DRC` <a id="RUN_MAGIC_DRC"></a> | Enables running magic DRC on either GDSII produced by `PRIMARY_GDSII_STREAMOUT_TOOL` or final produced DEF file depending on `MAGIC_DRC_USE_GDS`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `MAGIC_PAD` <a id="MAGIC_PAD"></a> |  A flag to pad the views generated by magic (.mag, .lef, .gds) with one site. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `MAGIC_ZEROIZE_ORIGIN` <a id="MAGIC_ZEROIZE_ORIGIN"></a> | A flag to move the layout such that it's origin in the lef generated by magic is 0,0. 1 = Enabled, 0 = Disabled  <br> (Default: `1`)|
 | `MAGIC_GENERATE_GDS` <a id="MAGIC_GENERATE_GDS"></a> | A flag to generate gds view via magic. 1 = Enabled, 0 = Disabled  <br> (Default: `1`)|
@@ -355,9 +409,10 @@ These variables worked initially, but they were too sky130 specific and will be 
 |-|-|
 | `RUN_KLAYOUT` <a id="RUN_KLAYOUT"></a> | Enables running KLayout and GDSII streaming. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `RUN_KLAYOUT_XOR` <a id="RUN_KLAYOUT_XOR"></a> | Enables running KLayout XOR on 2 GDSIIs, the defaults are the one produced by magic vs the one produced by klayout. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
-| `RUN_KLAYOUT_DRC` <a id="RUN_KLAYOUT_DRC"></a> | Enables running KLayout DRC on GDSII produced by magic. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
+| `RUN_KLAYOUT_DRC` <a id="RUN_KLAYOUT_DRC"></a> | Enables running KLayout DRC on GDSII produced by `PRIMARY_GDSII_STREAMOUT_TOOL`. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 | `KLAYOUT_DRC_KLAYOUT_GDS` <a id="KLAYOUT_DRC_KLAYOUT_GDS"></a> | Enables running KLayout DRC on GDSII produced by KLayout. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `KLAYOUT_XOR_THREADS` <a id="KLAYOUT_XOR_THREADS"></a> | Specifies number of threads used in klayout xor check <br> (Default: `1`)|
+| `KLAYOUT_DRC_THREADS` <a id="KLAYOUT_DRC_THREADS"></a> | Specifies number of threads used in klayout drc check <br> (Default: `1`)|
 | `TAKE_LAYOUT_SCROT` <a id="TAKE_LAYOUT_SCROT"></a> | Enables running KLayout to take a PNG screenshot of the produced layout (currently configured to run on the results of each stage).1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 
 
@@ -390,6 +445,7 @@ These variables worked initially, but they were too sky130 specific and will be 
 | `QUIT_ON_LINTER_WARNINGS` <a id="QUIT_ON_LINTER_WARNINGS"></a> | Quit on warnings generated by linter (currently Verilator) <br> (Default: `0`)|
 | `QUIT_ON_LINTER_ERRORS` <a id="QUIT_ON_LINTER_ERRORS"></a> | Quit on errors generated by linter (currently Verilator) <br> (Default: `1`)|
 | `QUIT_ON_XOR_ERROR` <a id="QUIT_ON_XOR_ERROR"></a> | Quit on XOR differences between GDSII generated by Magic and KLayout <br> (Default: `1`)|
+| `QUIT_ON_KLAYOUT_DRC` <a id="QUIT_ON_KLAYOUT_DRC"></a> | Checks for DRC violations after KLayout DRC is executed and exits the flow if any was found. 1 = Enabled, 0 = Disabled <br> (Default: `1`)|
 
 ## Misc.
 

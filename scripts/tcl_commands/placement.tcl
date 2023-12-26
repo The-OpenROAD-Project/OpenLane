@@ -25,17 +25,19 @@ proc global_placement_or {args} {
     set_if_unset arg_values(-log) $::env(placement_logs)/global.log
     set_if_unset arg_values(-outdir) $::env(placement_tmpfiles)
 
-    increment_index
-    TIMER::timer_start
     set log [index_file $arg_values(-log)]
-    puts_info "Running Global Placement (log: [relpath . $log])..."
     # random initial placement
     if { $::env(PL_RANDOM_INITIAL_PLACEMENT) } {
         random_global_placement
         set ::env(PL_SKIP_INITIAL_PLACEMENT) 1
     }
+    increment_index
+    TIMER::timer_start
     if { [info exists flags_map(-skip_io)] } {
         set ::env(__PL_SKIP_IO) 1
+        puts_info "Running Global Placement (skip_io) (log: [relpath . $log])..."
+    } else {
+        puts_info "Running Global Placement (log: [relpath . $log])..."
     }
 
     run_openroad_script $::env(SCRIPTS_DIR)/openroad/gpl.tcl\

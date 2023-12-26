@@ -26,10 +26,17 @@ if { [info exists ::env(VSRC_LOC_FILES)] } {
         analyze_power_grid {*}$arg_list
     }
 } else {
-    foreach net "$::env(VDD_NETS) $::env(GND_NETS)" {
+    foreach net "$::env(VDD_NETS)" {
         set arg_list [list]
         lappend arg_list -net $net
         lappend arg_list -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
+        analyze_power_grid {*}$arg_list
+    }
+    foreach net "$::env(GND_NETS)" {
+        set arg_list [list]
+        lappend arg_list -net $net
+        lappend arg_list -outfile $::env(_tmp_save_rpt_prefix)-$net.rpt
+        set_pdnsim_net_voltage -net $net -voltage 0
         analyze_power_grid {*}$arg_list
     }
 }

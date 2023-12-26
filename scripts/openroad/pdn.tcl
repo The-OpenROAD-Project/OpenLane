@@ -16,6 +16,10 @@ source $::env(SCRIPTS_DIR)/openroad/common/io.tcl
 read
 
 # load the grid definitions
+
+## For backwards compat
+set ::env(DESIGN_IS_CORE) $::env(FP_PDN_MULTILAYER)
+
 if {[catch {source $::env(FP_PDN_CFG)} errmsg]} {
     puts stderr $errmsg
     exit 1
