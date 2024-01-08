@@ -22,7 +22,7 @@ Additionally, we are also going to link to academic publications about OpenLane 
 - [RgGen ✕ OpenMPWでLSIを焼こう！](https://vlsi.jp/RgGenxOpenMPW.html)
 
 #### Español
-- [Tutoriales de OpenLane/OpenROAD](https://erickcb.github.io/)
+- [Tutoriales de OpenLane/OpenROAD](https://lima-ucr.github.io/)
 
 ## Videos
 - [Aboard Caravel, Ahmed Ghazy](https://www.youtube.com/watch?v=9QV8SDelURk)
