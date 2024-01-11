@@ -74,22 +74,6 @@ proc run_yosys {args} {
         exec rm -f $arg_values(-output).bak
     }
     unset ::env(SAVE_NETLIST)
-
-    if { [info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != "" } {
-        set missing_clock_ports [exec\
-            python3 $::env(SCRIPTS_DIR)/check_clock_ports.py\
-            --top $::env(DESIGN_NAME)\
-            --netlist-in $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json\
-            {*}$::env(CLOCK_PORT)]
-        set ports_not_found 0
-        foreach {clock_port} $missing_clock_ports {
-            puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
-            set ports_not_found 1
-        }
-        if { $ports_not_found } {
-            throw_error
-        }
-    }
 }
 
 proc run_synth_exploration {args} {
@@ -145,6 +129,22 @@ proc run_synthesis {args} {
     }
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "synthesis - yosys"
+
+    if { [info exists ::env(CLOCK_PORT)] && $::env(CLOCK_PORT) != "" } {
+        set missing_clock_ports [exec\
+            python3 $::env(SCRIPTS_DIR)/check_clock_ports.py\
+            --top $::env(DESIGN_NAME)\
+            --netlist-in $::env(synthesis_tmpfiles)/$::env(DESIGN_NAME).json\
+            {*}$::env(CLOCK_PORT)]
+        set ports_not_found 0
+        foreach {clock_port} $missing_clock_ports {
+            puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
+            set ports_not_found 1
+        }
+        if { $ports_not_found } {
+            throw_error
+        }
+    }
 
     if { $::env(QUIT_ON_ASSIGN_STATEMENTS) == 1 } {
         check_assign_statements $::env(CURRENT_NETLIST)
