@@ -11,8 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import odb
-
 import os
 import sys
 import inspect
@@ -51,7 +49,7 @@ class OdbReader(object):
             self.instances = self.block.getInsts()
 
     def add_lef(self, new_lef):
-        self.ord_tech.readLef(lef)
+        self.ord_tech.readLef(new_lef)
 
 
 def click_odb(function):
