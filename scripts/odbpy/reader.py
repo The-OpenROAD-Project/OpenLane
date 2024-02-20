@@ -20,22 +20,27 @@ import functools
 
 import click
 
+from openroad import Tech, Design
+
 
 class OdbReader(object):
     def __init__(self, *args):
-        self.db = odb.dbDatabase.create()
+        self.ord_tech = Tech()
+        self.design = Design(self.ord_tech)
+
         if len(args) == 1:
             db_in = args[0]
-            self.db = odb.read_db(self.db, db_in)
+            self.design.readDb(db_in)
         elif len(args) == 2:
             lef_in, def_in = args
             if not (isinstance(lef_in, list) or isinstance(lef_in, tuple)):
                 lef_in = [lef_in]
             for lef in lef_in:
-                odb.read_lef(self.db, lef)
+                self.ord_tech.readLef(lef)
             if def_in is not None:
-                odb.read_def(self.db.getTech(), def_in)
+                self.design.readDef(def_in)
 
+        self.db = self.ord_tech.getDB()
         self.tech = self.db.getTech()
         self.chip = self.db.getChip()
         if self.chip is not None:
@@ -46,7 +51,7 @@ class OdbReader(object):
             self.instances = self.block.getInsts()
 
     def add_lef(self, new_lef):
-        odb.read_lef(self.db, new_lef)
+        self.ord_tech.readLef(lef)
 
 
 def click_odb(function):
@@ -76,8 +81,9 @@ def click_odb(function):
         function(**kwargs)
 
         if output_def is not None:
-            odb.write_def(reader.block, output_def)
-        odb.write_db(reader.db, output)
+            reader.design.writeDef(output_def)
+        sys.stdout.flush()
+        reader.design.writeDb(output)
 
     wrapper = click.option(
         "-O", "--output-def", default="./out.def", help="Output DEF file"
