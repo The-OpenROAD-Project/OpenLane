@@ -11,19 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import odb
-
 import os
 import sys
 import inspect
 import functools
+from typing import Optional
 
 import click
 
+import odb
+from utl import Logger
+from openroad import Tech, Design
+
 
 class OdbReader(object):
+    logger: Optional[Logger] = None
+
     def __init__(self, *args):
-        self.db = odb.dbDatabase.create()
+        if self.__class__.logger is None:
+            ord_tech = Tech()
+            design = Design(ord_tech)
+
+            self.db = ord_tech.getDB()
+            self.__class__.logger = design.getLogger()
+        else:
+            self.db = odb.dbDatabase.create()
+            self.db.setLogger(self.__class__.logger)
+
         if len(args) == 1:
             db_in = args[0]
             self.db = odb.read_db(self.db, db_in)
@@ -77,6 +91,7 @@ def click_odb(function):
 
         if output_def is not None:
             odb.write_def(reader.block, output_def)
+        sys.stdout.flush()
         odb.write_db(reader.db, output)
 
     wrapper = click.option(
