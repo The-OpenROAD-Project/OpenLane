@@ -26,17 +26,18 @@ from openroad import Tech, Design
 
 class OdbReader(object):
     logger: Optional[Logger] = None
+
     def __init__(self, *args):
         if self.__class__.logger is None:
             ord_tech = Tech()
             design = Design(ord_tech)
-            
+
             self.db = ord_tech.getDB()
             self.__class__.logger = design.getLogger()
         else:
             self.db = odb.dbDatabase.create()
             self.db.setLogger(self.__class__.logger)
-            
+
         if len(args) == 1:
             db_in = args[0]
             self.db = odb.read_db(self.db, db_in)
