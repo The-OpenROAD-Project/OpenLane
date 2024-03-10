@@ -36,7 +36,6 @@ You need to set the following environment variables in your configuration file f
 | `EXTRA_LEFS` | LEF files for pre-hardened macros you incorporate into your design. |
 | `EXTRA_LIBS` | Specifies LIB files of pre-hardened macros used in the current design, used to improve timing analysis. (Optional) |
 | `EXTRA_GDS_FILES` | GDS files for pre-hardened macros you incorporate into your design. |
-| `SYNTH_READ_BLACKBOX_LIB` | `1/0` (Tcl), `true/false` (JSON): Should be set to true if you are using any standard cells directly in your design, i.e., your design does not function purely at the register transfer level. |
 | `MACRO_PLACEMENT_CFG` | A path to a file containing a line-break delimited list of instances and positions if you want to manually place the macros in specific locations, in the format `instance_name X_pos Y_pos Orientation`. The [`manual_macro_placement_test` example][9] under designs should be a good example. |
 > \* The ``` `include ``` directive is not supported.
 

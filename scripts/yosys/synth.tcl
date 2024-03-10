@@ -40,11 +40,8 @@ if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
     set vIdirsArgs [join $vIdirsArgs]
 }
 
-if { $::env(SYNTH_READ_BLACKBOX_LIB) } {
-    log "Reading $::env(LIB_SYNTH_COMPLETE_NO_PG) as a blackbox"
-    foreach lib $::env(LIB_SYNTH_COMPLETE_NO_PG) {
-        read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
-    }
+foreach lib $::env(LIB_SYNTH) {
+    read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
 }
 
 if { [info exists ::env(EXTRA_LIBS) ] } {

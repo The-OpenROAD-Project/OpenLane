@@ -27,7 +27,6 @@ set ::env(SYNTH_SIZING) 0
 set ::env(SYNTH_STRATEGY) "AREA 0"
 set ::env(SYNTH_ADDER_TYPE) "YOSYS"
 set ::env(CLOCK_BUFFER_FANOUT) 16
-set ::env(SYNTH_READ_BLACKBOX_LIB) 0
 set ::env(SYNTH_FLAT_TOP) 0
 set ::env(IO_PCT) 0.2
 set ::env(SYNTH_EXTRA_MAPPING_FILE) ""
