@@ -57,7 +57,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-	read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+	read_verilog -defer {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 if { [info exists ::env(SYNTH_PARAMETERS) ] } {

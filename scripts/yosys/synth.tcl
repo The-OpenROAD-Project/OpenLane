@@ -223,7 +223,7 @@ if { !($adder_type in [list "YOSYS" "FA" "RCA" "CSA"]) } {
 
 # Start Synthesis
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-    read_verilog -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+    read_verilog -defer -sv {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 if { [info exists ::env(SYNTH_PARAMETERS) ] } {
@@ -235,11 +235,11 @@ if { [info exists ::env(SYNTH_PARAMETERS) ] } {
 }
 
 
+hierarchy -check -top $vtop
 select -module $vtop
 show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
-hierarchy -check -top $vtop
 yosys rename -top $vtop
 
 # Infer tri-state buffers.
