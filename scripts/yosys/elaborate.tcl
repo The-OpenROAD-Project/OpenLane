@@ -68,11 +68,11 @@ if { [info exists ::env(SYNTH_PARAMETERS) ] } {
 	}
 }
 
+hierarchy -check -top $vtop
 select -module $vtop
 show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
-hierarchy -check -top $vtop
 yosys rename -top $vtop
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
