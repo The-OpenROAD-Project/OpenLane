@@ -40,7 +40,7 @@ if {[info exist ::env(VERILOG_INCLUDE_DIRS)]} {
     set vIdirsArgs [join $vIdirsArgs]
 }
 
-foreach lib $::env(LIB_SYNTH) {
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
     read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
 }
 

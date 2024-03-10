@@ -22,7 +22,7 @@ set gl_ext      ".gl.v"
 set timing_ext  ".timing.txt"
 set abc_ext     ".abc"
 
-foreach lib $::env(LIB_SYNTH) {
+foreach lib $::env(LIB_SYNTH_COMPLETE) {
     read_liberty -lib -ignore_miss_dir -setattr blackbox $lib
 }
 
