@@ -57,7 +57,7 @@ if { [info exists ::env(VERILOG_FILES_BLACKBOX)] } {
 
 
 for { set i 0 } { $i < [llength $::env(VERILOG_FILES)] } { incr i } {
-	read_verilog {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
+	read_verilog -defer {*}$vIdirsArgs [lindex $::env(VERILOG_FILES) $i]
 }
 
 if { [info exists ::env(SYNTH_PARAMETERS) ] } {
@@ -68,11 +68,11 @@ if { [info exists ::env(SYNTH_PARAMETERS) ] } {
 	}
 }
 
+hierarchy -check -top $vtop
 select -module $vtop
 show -format dot -prefix $::env(synthesis_tmpfiles)/hierarchy
 select -clear
 
-hierarchy -check -top $vtop
 yosys rename -top $vtop
 if { $::env(SYNTH_FLAT_TOP) } {
 	flatten
