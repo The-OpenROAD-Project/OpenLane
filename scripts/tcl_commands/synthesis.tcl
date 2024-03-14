@@ -35,10 +35,6 @@ proc run_yosys {args} {
     set_if_unset arg_values(-output) $::env(synthesis_results)/$::env(DESIGN_NAME).v
     set_if_unset arg_values(-indexed_log) /dev/null
 
-    if { [ info exists ::env(SYNTH_ADDER_TYPE)] && ($::env(SYNTH_ADDER_TYPE) in [list "RCA" "CSA"]) } {
-        set ::env(SYNTH_READ_BLACKBOX_LIB) 1
-    }
-
     set ::env(synth_report_prefix) [index_file $::env(synthesis_reports)/synthesis]
 
     set ::env(LIB_SYNTH_COMPLETE_NO_PG) [list]

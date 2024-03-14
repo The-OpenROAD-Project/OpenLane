@@ -85,7 +85,6 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_STRATEGY` <a id="SYNTH_STRATEGY"></a> | Strategies for abc logic synthesis and technology mapping <br> Possible values are `DELAY/AREA 0-4/0-3`; the first part refers to the optimization target of the synthesis strategy (area vs. delay) and the second one is an index. <br> (Default: `AREA 0`)|
 | `SYNTH_BUFFERING` <a id="SYNTH_BUFFERING"></a> | Enables abc cell buffering <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_SIZING` <a id="SYNTH_SIZING"></a> | Enables abc cell sizing (instead of buffering) <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
-| `SYNTH_READ_BLACKBOX_LIB` <a id="SYNTH_READ_BLACKBOX_LIB"></a> | A flag that enable reading the full(untrimmed) liberty file as a blackbox for synthesis. Please note that this is not used in technology mapping. This should only be used when trying to preserve gate instances in the rtl of the design.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_NO_FLAT` <a id="SYNTH_NO_FLAT"></a> | A flag that disables flattening the hierarchy during synthesis, only flattening it after synthesis, mapping and optimizations. <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 | `SYNTH_SHARE_RESOURCES` <a id="SYNTH_SHARE_RESOURCES"></a> | A flag that enables yosys to reduce the number of cells by determining shareable resources and merging them. <br> Enabled = 1, Disabled = 0 <br> (Default: `1`)|
 | `SYNTH_ABC_LEGACY_REFACTOR` <a id="SYNTH_ABC_LEGACY_REFACTOR"></a> | Replaces the ABC command `drf -l` with `refactor` which matches older versions of OpenLane but is more unstable.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`) |
@@ -102,6 +101,7 @@ files you may be depending on, including headers, in `VERILOG_FILES`.
 | `SYNTH_TOP_LEVEL` <a id="SYNTH_TOP_LEVEL"></a> | **Deprecated: Use `SYNTH_ELABORATE_ONLY`**: "Elaborate" the design only without attempting any logic mapping. Useful when dealing with structural Verilog netlists. |
 | `SYNTH_MAX_FANOUT` <a id="SYNTH_MAX_FANOUT"></a>  | **Deprecated: Use the PDK's `MAX_FANOUT_CONSTRAINT` value**: The max load that the output ports can drive. |
 | `SYNTH_MAX_TRAN` <a id="SYNTH_MAX_TRAN"></a> |  **Deprecated: Use the PDK's `MAX_TRANSITION_CONSTRAINT` value**: The max transition time (slew) from high to low or low to high on cell inputs in ns. If unset, the library's default maximum transition time will be used. |
+| `SYNTH_READ_BLACKBOX_LIB` <a id="SYNTH_READ_BLACKBOX_LIB"></a> | **Removed: The liberty file is always read now. A flag that enable reading the full(untrimmed) liberty file as a blackbox for synthesis. Please note that this is not used in technology mapping. This should only be used when trying to preserve gate instances in the rtl of the design.  <br> Enabled = 1, Disabled = 0 <br> (Default: `0`)|
 ## Static Timing Analysis (STA)
 
 | Variable | Description |
