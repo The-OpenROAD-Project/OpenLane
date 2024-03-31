@@ -1,4 +1,3 @@
 -r ./dependencies/python/precompile_time.txt
 click>=8.0.0,<9
 pyyaml>=6,<7
-libparse>=0.3.1,<0.4.0
