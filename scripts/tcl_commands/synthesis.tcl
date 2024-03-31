@@ -134,7 +134,7 @@ proc run_synthesis {args} {
             {*}$::env(CLOCK_PORT)]
         set ports_not_found 0
         foreach {clock_port} $missing_clock_ports {
-            puts_err "The specified clock port '$clock_port' does not exist in the top-level module."
+            puts_err "The specified clock port '$clock_port' is not a valid input or inout port in the top level module."
             set ports_not_found 1
         }
         if { $ports_not_found } {

@@ -21,10 +21,21 @@ import click
 @click.argument("clock_ports", nargs=-1)
 def main(netlist_in, top, clock_ports):
     netlist = json.load(open(netlist_in, encoding="utf8"))
-    top_module = netlist["modules"][top]
-    ports = top_module["ports"]
+    valid_input_ports = set()
+    for name, info in netlist["modules"][top]["ports"].items():
+        if info["direction"] not in ["input", "inout"]:
+            continue
+        width = len(info["bits"])
+        offset = info.get("offset", 0)
+        # See https://github.com/YosysHQ/yosys/blob/91685355a082f1b5fbc539d0ec484f4d484f5baa/passes/cmds/portlist.cc#L65
+        if width == 1:
+            valid_input_ports.add(name)  # Accept just the name if it's a wire
+        msb = offset + width - 1
+        lsb = offset
+        for bit in range(lsb, msb + 1):
+            valid_input_ports.add(f"{name}[{bit}]")  # Also accept bits in a bus
     for clock_port in clock_ports:
-        if clock_port not in ports:
+        if clock_port not in valid_input_ports:
             print(f"{clock_port} ", end="")
 
 
