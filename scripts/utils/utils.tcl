@@ -690,6 +690,7 @@ proc run_tcl_script {args} {
 
         catch_exec {*}$args
         if { $exec_result(exit_code) } {
+            set exit_code $exec_result(exit_code)
             set print_error_msg "during executing $tool script $script"
             set log_relpath [relpath $::env(PWD) $arg_values(-indexed_log)]
 
