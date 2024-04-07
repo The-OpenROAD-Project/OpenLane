@@ -61,8 +61,7 @@
         openlane1 = callPythonPackage ./default.nix {};
         default = openlane1;
       }
-    );
-      #// (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane-docker = callPackage ./docker.nix {};}));
+      // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {};}));
 
     devShells = self.forAllSystems (
       pkgs: let

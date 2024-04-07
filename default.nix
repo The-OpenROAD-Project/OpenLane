@@ -24,7 +24,6 @@ let
 in
   stdenv.mkDerivation rec {
     name = "openlane1";
-    version = "1.0.0";
     
     src = [
       ./flow.tcl
@@ -41,12 +40,13 @@ in
       done
       ls -lah
     '';
+    
+    passthru = {
+      pyenv = pyenv;
+    };
 
     propagatedBuildInputs = openlane.includedTools ++ [
       pyenv
-    ];
-    
-    buildInputs = [
       ncurses
       coreutils-full
       gnugrep
@@ -60,7 +60,7 @@ in
       mkdir -p $out/bin
       cp -r * $out/bin
       wrapProgram $out/bin/flow.tcl\
-        --set PATH ${lib.makeBinPath (propagatedBuildInputs ++ buildInputs)}\
+        --set PATH ${lib.makeBinPath (propagatedBuildInputs)}\
         --set PYTHONPATH ${pyenv-sitepackages} 
     '';
     

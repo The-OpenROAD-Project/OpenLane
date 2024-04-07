@@ -13,6 +13,7 @@
 # limitations under the License.
 import odb
 from openroad import Tech, Design
+from typing import ClassVar, Optional
 
 import os
 import sys
@@ -28,25 +29,29 @@ from openroad import Tech, Design
 
 
 class OdbReader(object):
-    logger: Optional[Logger] = None
+    primary_reader: ClassVar[Optional["OdbReader"]] = None
 
     def __init__(self, *args):
-        self.ord_tech = Tech()
-        self.design = Design(self.ord_tech)
+        if primary := OdbReader.primary_reader:
+            self.db = odb.dbDatabase.create()
+            self.db.setLogger(primary.design.getLogger())
+        else:
+            self.ord_tech = Tech()
+            self.design = Design(self.ord_tech)
+            self.db = self.ord_tech.getDB()
 
         if len(args) == 1:
             db_in = args[0]
-            self.design.readDb(db_in)
+            self.db = odb.read_db(self.db, db_in)
         elif len(args) == 2:
             lef_in, def_in = args
             if not (isinstance(lef_in, list) or isinstance(lef_in, tuple)):
                 lef_in = [lef_in]
             for lef in lef_in:
-                self.ord_tech.readLef(lef)
+                odb.read_lef(self.db, lef)
             if def_in is not None:
-                self.design.readDef(def_in)
+                odb.read_def(self.db.getTech(), def_in)
 
-        self.db = self.ord_tech.getDB()
         self.tech = self.db.getTech()
         self.chip = self.db.getChip()
         if self.chip is not None:
@@ -55,6 +60,9 @@ class OdbReader(object):
             self.rows = self.block.getRows()
             self.dbunits = self.block.getDefUnits()
             self.instances = self.block.getInsts()
+
+        if OdbReader.primary_reader is None:
+            OdbReader.primary_reader = self
 
     def add_lef(self, new_lef):
         odb.read_lef(self.db, new_lef)
