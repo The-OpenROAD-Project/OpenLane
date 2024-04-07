@@ -95,8 +95,8 @@ def gui(viewer, format, run_dir, stage):
             else:
                 layout = matches[0]
 
-        env = env.copy()
-        env["KLAYOUT_ARGV"] = shlex.join(
+        run_env = os.environ.copy()
+        run_env["KLAYOUT_ARGV"] = shlex.join(
             [
                 "--input-lef",
                 run_config["MERGED_LEF"],
@@ -115,7 +115,7 @@ def gui(viewer, format, run_dir, stage):
                 "-rm",
                 "./scripts/klayout/open_design.py",
             ],
-            env=env,
+            env=run_env,
         )
 
 

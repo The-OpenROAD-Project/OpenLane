@@ -19,13 +19,8 @@ import os
 import sys
 import inspect
 import functools
-from typing import Optional
 
 import click
-
-import odb
-from utl import Logger
-from openroad import Tech, Design
 
 
 class OdbReader(object):
