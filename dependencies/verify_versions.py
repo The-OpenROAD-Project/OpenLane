@@ -148,90 +148,12 @@ def verify_versions(
             print(traceback.format_exc(), file=report_file)
             raise Exception("Failed to compare PDKs.")
 
-    if not no_tools:
-        installed = os.getenv("OPENLANE_LOCAL_INSTALL") == "1"
-        environment_manifest = None
-        if installed:
-            # 3a. Compare with installed versions
-            installed_versions_path = join(
-                os.environ["OL_INSTALL_DIR"], "build", "versions"
-            )
-            environment_manifest = []
-            for tool in os.listdir(installed_versions_path):
-                protocol, url, commit = (
-                    open(join(installed_versions_path, tool)).read().split(":")
-                )
-                repo = f"{protocol}:{url}"
-                environment_manifest.append(
-                    {"name": tool, "repo": repo, "commit": commit}
-                )
-        else:
-            # 3b. Compare Container And Installation Manifests
-            try:
-                container_manifest_path = join("/", "tool_metadata.yml")
-                environment_manifest = yaml.safe_load(open(container_manifest_path))
-            except FileNotFoundError:
-                raise Exception(
-                    "Container manifest not found. What this likely means is that the container is severely out of date."
-                )
-
-        tool_set_flow = (
-            set([element["name"] for element in manifest]) - pdk_manifest_names
-        )
-        tool_set_container = (
-            set([element["name"] for element in environment_manifest])
-            - pdk_manifest_names
-        )
-
-        unmatched_tools_flow = tool_set_flow - tool_set_container
-        for tool in unmatched_tools_flow:
-            tool_object = manifest_dict[tool]
-            if (
-                tool_object.get("in_container") is not None
-                and not tool_object["in_container"]
-            ):
-                continue
-            if (
-                installed
-                and tool_object.get("in_install") is not None
-                and not tool_object["in_install"]
-            ):
-                continue
-            print(
-                f"Tool {tool} is required by the flow scripts being used, but appears to not be installed in the environment.",
-                file=report_file,
-            )
-            mismatches = True
-
-        unmatched_tools_container = tool_set_container - tool_set_flow
-        for tool in unmatched_tools_container:
-            print(
-                f"Tool {tool} is installed in the environment, but has no corresponding entry in the flow scripts.",
-                file=report_file,
-            )
-            mismatches = True
-
-        for tool in environment_manifest:
-            if tool["name"] in pdk_manifest_names:
-                continue  # PDK Stuff Already Checked
-            flow_script_counterpart = manifest_dict.get(tool["name"])
-            if flow_script_counterpart is None:
-                continue
-            container_commit = tool["commit"]
-            flow_script_commit = flow_script_counterpart["commit"]
-            if container_commit != flow_script_commit:
-                print(
-                    f"The version of {tool['name']} installed in the environment does not match the one required by the OpenLane flow scripts (installed: {container_commit}, expected: {flow_script_commit})",
-                    file=report_file,
-                )
-                mismatches = True
-
     return mismatches
 
 
 if __name__ == "__main__":
     try:
-        no_tools = False
+        no_tools = True
         no_pdks = False
         mismatches = sys.argv[1]
         if mismatches == "none":

@@ -93,7 +93,7 @@ proc write_powered_verilog {args} {
         set_if_unset arg_values(-powered_netlist) ""
     }
 
-    try_exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
+    run_odbpy_script $::env(SCRIPTS_DIR)/odbpy/power_utils.py write_powered_def\
         --output $arg_values(-output_def) \
         --input-lef $arg_values(-lef) \
         --power-port $arg_values(-power) \

@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import odb
+from openroad import Tech, Design
+
 import os
 import sys
 import inspect
@@ -28,28 +31,22 @@ class OdbReader(object):
     logger: Optional[Logger] = None
 
     def __init__(self, *args):
-        if self.__class__.logger is None:
-            ord_tech = Tech()
-            design = Design(ord_tech)
-
-            self.db = ord_tech.getDB()
-            self.__class__.logger = design.getLogger()
-        else:
-            self.db = odb.dbDatabase.create()
-            self.db.setLogger(self.__class__.logger)
+        self.ord_tech = Tech()
+        self.design = Design(self.ord_tech)
 
         if len(args) == 1:
             db_in = args[0]
-            self.db = odb.read_db(self.db, db_in)
+            self.design.readDb(db_in)
         elif len(args) == 2:
             lef_in, def_in = args
             if not (isinstance(lef_in, list) or isinstance(lef_in, tuple)):
                 lef_in = [lef_in]
             for lef in lef_in:
-                odb.read_lef(self.db, lef)
+                self.ord_tech.readLef(lef)
             if def_in is not None:
-                odb.read_def(self.db.getTech(), def_in)
+                self.design.readDef(def_in)
 
+        self.db = self.ord_tech.getDB()
         self.tech = self.db.getTech()
         self.chip = self.db.getChip()
         if self.chip is not None:

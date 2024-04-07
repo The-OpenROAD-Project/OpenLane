@@ -45,13 +45,6 @@ def tool_list():
         print("%s %s" % (tool.name, tool.version_string))
 
 
-def local_install():
-    from dependencies.installer import Installer
-
-    installer = Installer()
-    installer.run()
-
-
 def docker_config():
     from dependencies.env_info import ContainerInfo
 
@@ -232,7 +225,6 @@ def main():
     args = sys.argv[1:]
     commands = {
         "tool-list": tool_list,
-        "local-install": local_install,
         "docker-config": docker_config,
         "issue-survey": issue_survey,
     }

@@ -1,0 +1,83 @@
+{
+  "nodes": {
+    "flake-compat": {
+      "locked": {
+        "narHash": "sha256-kvjfFW7WAETZlt09AgDn1MrtKzP7t90Vf7vypd3OL1U=",
+        "rev": "0f9255e01c2351cc7d116c072cb317785dd33b33",
+        "revCount": 57,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/edolstra/flake-compat/1.0.1/018afb31-abd1-7bff-a5e4-cff7e18efb7a/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz"
+      }
+    },
+    "libparse": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1712525197,
+        "narHash": "sha256-8XJsuGW2KMh1K4g53QbGsE2o3Q0Rak8g4F1K1gK2EMc=",
+        "owner": "efabless",
+        "repo": "libparse-python",
+        "rev": "20e6b25bc4eedd28fe709156d4509b391e642321",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "ref": "flake",
+        "repo": "libparse-python",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "narHash": "sha256-C36QmoJd5tdQ5R9MC1jM7fBkZW9zBUqbUCsgwS6j4QU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "c1be43e8e837b8dbee2b3665a007e761680f0c3d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-23.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "openlane2": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1712511955,
+        "narHash": "sha256-NW1YyqL8dM3kG0itu9ZIHBRj0FhJJkIZiIAvfTCi700=",
+        "owner": "efabless",
+        "repo": "openlane2",
+        "rev": "c6f05cc5130d79cfc8bed2b7ca3847cb4dacea55",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "openlane2",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "libparse": "libparse",
+        "nixpkgs": "nixpkgs",
+        "openlane2": "openlane2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

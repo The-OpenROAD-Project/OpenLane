@@ -16,6 +16,7 @@
 import click
 
 import os
+import shlex
 import subprocess
 import glob
 
@@ -94,10 +95,9 @@ def gui(viewer, format, run_dir, stage):
             else:
                 layout = matches[0]
 
-        subprocess.check_call(
+        env = env.copy()
+        env["KLAYOUT_ARGV"] = shlex.join(
             [
-                "python3",
-                "./scripts/klayout/open_design.py",
                 "--input-lef",
                 run_config["MERGED_LEF"],
                 "--lyt",
@@ -108,6 +108,14 @@ def gui(viewer, format, run_dir, stage):
                 run_config["KLAYOUT_DEF_LAYER_MAP"],
                 layout,
             ]
+        )
+        subprocess.check_call(
+            [
+                "klayout",
+                "-rm",
+                "./scripts/klayout/open_design.py",
+            ],
+            env=env,
         )
 
 
