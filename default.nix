@@ -9,6 +9,9 @@
   coreutils-full,
   gnugrep,
   gnused,
+  gnutar,
+  gzip,
+  git,
   bash,
   klayout-pymod
 }:
@@ -52,6 +55,9 @@ in
       gnugrep
       gnused
       bash
+      gnutar
+      gzip
+      git
     ];
     
     nativeBuildInputs = [makeWrapper];

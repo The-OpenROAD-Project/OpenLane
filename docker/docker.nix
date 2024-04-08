@@ -17,13 +17,10 @@
   python3,
   openlane1,
   system,
-  coreutils-full,
   findutils,
+  busybox,
   bashInteractive,
-  gnugrep,
-  gnused,
   gnumake,
-  gnutar,
   gdb,
   lldb,
   which,
@@ -56,14 +53,10 @@ in
       name = "image-root";
       paths = [
         # Base OS
-        ## GNU
-        coreutils-full
+        ## POSIX
         findutils
         bashInteractive
-        gnugrep
-        gnused
-        gnutar
-        gnumake
+        busybox
         which
 
         ## Networking

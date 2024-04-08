@@ -63,14 +63,12 @@
       }
       // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {};}));
 
-    devShells = self.forAllSystems (
-      pkgs: let
-        callPackage = pkgs.lib.callPackageWith (pkgs // self.packages.${pkgs.system});
-        callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // self.packages.${pkgs.system});
-      in rec {
-        default = callPackage (self.createOpenLaneShell {
-        }) {};
-      }
-    );
+    # devShells = self.forAllSystems (
+    #   pkgs: let
+    #     callPackage = pkgs.lib.callPackageWith (pkgs // self.packages.${pkgs.system});
+    #     callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // self.packages.${pkgs.system});
+    #   in rec {
+    #   }
+    # );
   };
 }
