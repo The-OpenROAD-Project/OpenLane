@@ -173,7 +173,7 @@ jobs:
 
       - name: Run Issue Regression Test
         run: |
-          OPENLANE_IMAGE_NAME=efabless/openlane:current-amd64\
+          OPENLANE_IMAGE_NAME=efabless/openlane:current\
             make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.test }}
 
       - name: Upload Logs
