@@ -21,6 +21,15 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+      with:
+        tool-cache: false
+        android: true
+        dotnet: true
+        haskell: true
+        large-packages: true
+        docker-images: true
     - uses: docker/setup-buildx-action@v2
     - uses: ./.github/actions/set_env_variables
     - name: Set up QEMU
