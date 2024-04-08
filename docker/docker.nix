@@ -94,11 +94,6 @@ in
       '';
     };
     
-    enableFakechroot = true;
-    fakeRootCommands = ''
-      chmod 1777 /tmp
-    '';
-
     created = "now";
     config = {
       Cmd = ["/bin/env" "zsh"];
