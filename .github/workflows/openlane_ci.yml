@@ -172,7 +172,9 @@ jobs:
         run: python3 -m pip install pyyaml
 
       - name: Run Issue Regression Test
-        run: cd ${GITHUB_WORKSPACE}/ &&  make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.test }}
+        run: |
+          OPENLANE_IMAGE_NAME=efabless/openlane:current-amd64\
+            make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.test }}
 
       - name: Upload Logs
         if: ${{ always() }}
