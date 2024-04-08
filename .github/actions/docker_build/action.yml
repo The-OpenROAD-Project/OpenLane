@@ -38,7 +38,8 @@ runs:
     - name: Export Docker Image
       shell: bash
       run: |
-        cp -L ./docker/result /tmp/image-${{ inputs.arch }}.tar
+        docker save -o /tmp/image-${{ inputs.arch }}.tar efabless/openlane:current-${{ inputs.arch }}
+
     - name: Upload Docker Image
       uses: actions/upload-artifact@v2
       with:
