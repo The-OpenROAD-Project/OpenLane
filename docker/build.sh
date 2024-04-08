@@ -10,4 +10,4 @@ TARBALL=$(nix build\
 	..#packages.$NIX_SYSTEM.openlane1-docker)
 cat $TARBALL | docker load
 nix store delete $TARBALL
-docker build --platform=$BUILD_ARCH -t efabless/openlane:current-$BUILD_ARCH .
+docker build --platform=$BUILD_ARCH --build-arg="PLATFORM=$BUILD_ARCH" -t efabless/openlane:current-$BUILD_ARCH .

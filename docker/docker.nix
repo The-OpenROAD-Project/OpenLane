@@ -47,7 +47,7 @@ let
 in
   dockerTools.buildLayeredImage rec {
     name = "efabless/openlane";
-    tag = "current-${docker-arch-name}";
+    tag = "intermediate-${docker-arch-name}";
     
     maxLayers = 2;
 
