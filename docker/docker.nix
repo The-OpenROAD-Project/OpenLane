@@ -45,11 +45,13 @@ let
     "arm64v8"
   ;
 in
-  dockerTools.buildImage rec {
+  dockerTools.buildLayeredImage rec {
     name = "efabless/openlane";
     tag = "current-${docker-arch-name}";
+    
+    maxLayers = 2;
 
-    copyToRoot = buildEnv {
+    contents = buildEnv {
       name = "image-root";
       paths = [
         # Base OS
@@ -73,15 +75,13 @@ in
         silver-searcher
         gdb
         lldb
-
-        # OpenLane
-        openlane1
       ];
 
       postBuild = ''
         mkdir -p $out/tmp
         mkdir -p $out/etc
         mkdir -p $out/usr/bin
+        cp -r ${openlane1}/bin $out/openlane
         ln -s /bin/env $out/usr/bin/env
         
         cat <<HEREDOC > $out/etc/zshrc
@@ -93,6 +93,11 @@ in
         HEREDOC
       '';
     };
+    
+    enableFakechroot = true;
+    fakeRootCommands = ''
+      chmod 1777 /tmp
+    '';
 
     created = "now";
     config = {
@@ -104,7 +109,7 @@ in
         "LC_CTYPE=C.UTF-8"
         "EDITOR=nvim"
         "PYTHONPATH=${openlane-env-sitepackages}"
-        "PATH=${openlane-env-bin}:${openlane1.computed_PATH}:/bin"
+        "PATH=/openlane:${openlane-env-bin}:${openlane1.computed_PATH}:/bin"
         "TMPDIR=/tmp"
       ];
     };
