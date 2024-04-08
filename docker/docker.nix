@@ -23,6 +23,7 @@
   gnugrep,
   gnused,
   gnumake,
+  gnutar,
   gdb,
   lldb,
   which,
@@ -61,8 +62,9 @@ in
         bashInteractive
         gnugrep
         gnused
-        which
+        gnutar
         gnumake
+        which
 
         ## Networking
         cacert
