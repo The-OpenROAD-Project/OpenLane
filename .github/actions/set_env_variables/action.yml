@@ -14,7 +14,3 @@ runs:
     - name: Export Branch Name
       shell: bash
       run: echo "BRANCH_NAME=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-    - name: Export Temp Image Name
-      shell: bash
-      run: echo "OPENLANE_IMAGE_NAME=openlane:intermediate" >> $GITHUB_ENV

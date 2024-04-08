@@ -1,7 +1,6 @@
 PYTHON_BIN ?= python3
-OPENLANE_IMAGE_NAME ?= efabless/openlane:current
 BUILD_ARCH ?= $(shell $(PYTHON_BIN) ./current_platform.py)
-NIX_SYSTEM ?= $(shell $(PYTHON_BIN) ./current_system.py $(BUILD_ARCH))
+NIX_SYSTEM := $(shell $(PYTHON_BIN) ./current_system.py $(BUILD_ARCH))
 
 HASH = $(shell git rev-parse HEAD)
 HASH_SHORT = $(shell git rev-parse --short=7 HEAD)
@@ -21,5 +20,4 @@ merge: openlane
 .PHONY: openlane
 openlane:
 	$(BUILD_CMD)
-	cat $$($(BUILD_CMD)) | docker load
-	docker tag openlane:tmp-$(NIX_SYSTEM) $(OPENLANE_IMAGE_NAME)-$(BUILD_ARCH)
+	cat ./result | docker load

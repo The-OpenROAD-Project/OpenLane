@@ -53,7 +53,7 @@ docker_command = [
     f"PDK_ROOT={gh.pdk_root}",
     "-e",
     f"PDK={gh.pdk}",
-    gh.image,
+    f"efabless/openlane2:current-amd64",
     "bash",
     "-c",
     shlex.join(

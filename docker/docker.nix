@@ -32,13 +32,22 @@
   neovim,
   zsh,
   silver-searcher,
-}: let
+}:
+
+assert builtins.elem system ["x86_64-linux" "aarch64-linux"];
+ 
+let
   openlane-env-sitepackages = "${openlane1.pyenv}/${openlane1.pyenv.sitePackages}";
   openlane-env-bin = "${openlane1.pyenv}/bin";
+  docker-arch-name = if system == "x86_64-linux" then
+    "amd64"
+  else
+    "arm64v8"
+  ;
 in
   dockerTools.buildImage rec {
-    name = "openlane";
-    tag = "tmp-${system}";
+    name = "efabless/openlane";
+    tag = "current-${docker-arch-name}";
 
     copyToRoot = buildEnv {
       name = "image-root";

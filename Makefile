@@ -113,8 +113,9 @@ ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 all: get-openlane pdk
 
 .PHONY: openlane
-openlane: venv/created
-	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
+openlane:
+	@$(MAKE) -C docker openlane
+	docker tag efabless/openlane:current-$(DOCKER_ARCH) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: openlane-and-push-tools
 openlane-and-push-tools: venv/created

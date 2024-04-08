@@ -231,7 +231,7 @@ jobs:
 
       - name: Run Test
         run: |
-          OPENLANE_IMAGE_NAME=$OPENLANE_IMAGE_NAME-amd64\
+          OPENLANE_IMAGE_NAME=efabless/openlane:current-amd64\
             python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design.name }}
 
       - name: Escape Design Name
@@ -355,7 +355,7 @@ jobs:
         run: |
           for tag in $TAG_LIST; do
             for arch in amd64 arm64v8; do
-              docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ vars.DOCKER_IMAGE }}:$tag-$arch
+              docker image tag efabless/openlane:current-$arch ${{ vars.DOCKER_IMAGE }}:$tag-$arch
               docker push ${{ vars.DOCKER_IMAGE }}:$tag-$arch
             done
             docker manifest create ${{ vars.DOCKER_IMAGE }}:$tag\
