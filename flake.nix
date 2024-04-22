@@ -1,4 +1,4 @@
-# Copyright 2023 Efabless Corporation
+# Copyright 2024 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,21 +22,17 @@
   };
 
   inputs = {
-    nixpkgs.url = github:nixos/nixpkgs/nixos-23.11;
     openlane2.url = github:efabless/openlane2;
-    libparse.url = github:efabless/libparse-python/flake;
   };
-  
-  inputs.libparse.inputs.nixpkgs.follows = "nixpkgs";
-  inputs.openlane2.inputs.nixpkgs.follows = "nixpkgs";
 
   outputs = {
     self,
-    nixpkgs,
     openlane2,
-    libparse,
+    nix,
     ...
-  }: {
+  }: let
+    nixpkgs = openlane2.inputs.nixpkgs;
+  in {
     # Helper functions
     forAllSystems = function:
       nixpkgs.lib.genAttrs [
@@ -54,14 +50,16 @@
 
     # Outputs
     packages = self.forAllSystems (pkgs: let
-      callPackage = pkgs.lib.callPackageWith (pkgs // self.packages.${pkgs.system} // openlane2.packages."${pkgs.system}" );
-      callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // openlane2.packages."${pkgs.system}" // libparse.packages."${pkgs.system}" // self.packages.${pkgs.system});
+      callPackage = pkgs.lib.callPackageWith (pkgs // openlane2.packages."${pkgs.system}" // self.packages.${pkgs.system} );
+      callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // openlane2.packages."${pkgs.system}" // openlane2.inputs.libparse.packages."${pkgs.system}" // self.packages.${pkgs.system});
     in
       rec {
         openlane1 = callPythonPackage ./default.nix {};
         default = openlane1;
       }
-      // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {};}));
+      // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {
+        dockerImage = nix.dockerImage;
+      };}));
 
     # devShells = self.forAllSystems (
     #   pkgs: let

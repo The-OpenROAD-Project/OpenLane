@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Efabless Corporation
+# Copyright 2024 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ let
     "arm64v8"
   ;
 in
-  dockerTools.buildLayeredImage rec {
+  dockerTools.buildLayeredImageWithNixDb rec {
     name = "efabless/openlane";
     tag = "intermediate-${docker-arch-name}";
     
@@ -51,16 +51,20 @@ in
 
     contents = buildEnv {
       name = "image-root";
-      paths = [
+      paths = with dockerTools; [
         # Base OS
+        fakeNss
+        usrBinEnv
+        
         ## POSIX
-        findutils
         bashInteractive
+        binSh
+        findutils
         busybox
         which
-
+        
         ## Networking
-        cacert
+        caCertificates
         iana-etc
 
         # Conveniences
@@ -77,7 +81,6 @@ in
         mkdir -p $out/etc
         mkdir -p $out/usr/bin
         cp -r ${openlane1}/bin $out/openlane
-        ln -s /bin/env $out/usr/bin/env
         
         cat <<HEREDOC > $out/etc/zshrc
         autoload -U compinit && compinit
