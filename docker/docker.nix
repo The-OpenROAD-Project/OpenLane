@@ -1,4 +1,4 @@
-# Copyright 2024 Efabless Corporation
+# Copyright 2023 Efabless Corporation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,97 +13,68 @@
 # limitations under the License.
 {
   dockerTools,
-  buildEnv,
+  createDockerImage,
+  system,
+  pkgs,
+  lib,
   python3,
   openlane1,
-  system,
-  findutils,
-  busybox,
-  bashInteractive,
-  gnumake,
-  gdb,
-  lldb,
-  which,
-  cacert,
-  iana-etc,
   git,
   neovim,
   zsh,
   silver-searcher,
+  coreutils,
 }:
 
 assert builtins.elem system ["x86_64-linux" "aarch64-linux"];
- 
+
 let
-  openlane-env-sitepackages = "${openlane1.pyenv}/${openlane1.pyenv.sitePackages}";
-  openlane-env-bin = "${openlane1.pyenv}/bin";
   docker-arch-name = if system == "x86_64-linux" then
     "amd64"
   else
     "arm64v8"
   ;
-in
-  dockerTools.buildLayeredImageWithNixDb rec {
-    name = "efabless/openlane";
-    tag = "intermediate-${docker-arch-name}";
-    
-    maxLayers = 2;
+  openlane1-env-sitepackages = "${openlane1.pyenv}/${openlane1.pyenv.sitePackages}";
+in (createDockerImage {
+  inherit pkgs;
+  inherit lib;
+  name = "efabless/openlane";
+  tag = "current-${docker-arch-name}";
+  extraPkgs = with dockerTools; [
+    git
+    zsh
+    neovim
+    silver-searcher
 
-    contents = buildEnv {
-      name = "image-root";
-      paths = with dockerTools; [
-        # Base OS
-        fakeNss
-        usrBinEnv
-        
-        ## POSIX
-        bashInteractive
-        binSh
-        findutils
-        busybox
-        which
-        
-        ## Networking
-        caCertificates
-        iana-etc
+    openlane1
+  ];
+  nixConf = {
+    extra-experimental-features = "nix-command flakes repl-flake";
+  };
+  maxLayers = 2;
+  channelURL = "https://nixos.org/channels/nixos-23.11";
+  
+  image-created = "now";
+  image-extraCommands = ''
+    mkdir -p ./etc
+    cp -r ${openlane1}/bin ./openlane1
+    chmod -R 755 ./openlane1
+    cat <<HEREDOC > ./etc/zshrc
+    autoload -U compinit && compinit
+    autoload -U promptinit && promptinit && prompt suse && setopt prompt_sp
+    autoload -U colors && colors
 
-        # Conveniences
-        git
-        neovim
-        zsh
-        silver-searcher
-        gdb
-        lldb
-      ];
-
-      postBuild = ''
-        mkdir -p $out/tmp
-        mkdir -p $out/etc
-        mkdir -p $out/usr/bin
-        cp -r ${openlane1}/bin $out/openlane
-        
-        cat <<HEREDOC > $out/etc/zshrc
-        autoload -U compinit && compinit
-        autoload -U promptinit && promptinit && prompt suse && setopt prompt_sp
-        autoload -U colors && colors
-
-        export PS1=$'%{\033[31m%}OpenLane Container%{\033[0m%}:%{\033[32m%}%~%{\033[0m%}%% ';
-        HEREDOC
-      '';
-    };
-    
-    created = "now";
-    config = {
-      Cmd = ["/bin/env" "zsh"];
-      WorkingDir = "/openlane";
-      Env = [
-        "LANG=C.UTF-8"
-        "LC_ALL=C.UTF-8"
-        "LC_CTYPE=C.UTF-8"
-        "EDITOR=nvim"
-        "PYTHONPATH=${openlane-env-sitepackages}"
-        "PATH=/openlane:${openlane-env-bin}:${openlane1.computed_PATH}:/bin"
-        "TMPDIR=/tmp"
-      ];
-    };
-  }
+    export PATH="/openlane:${openlane1.computed_PATH}:\''$PATH"
+    export PS1=$'%{\033[31m%}OpenLane Container%{\033[0m%}:%{\033[32m%}%~%{\033[0m%}%% ';
+    HEREDOC
+  '';
+  image-config-cmd = ["${zsh}/bin/zsh"];
+  image-config-extra-env = [
+      "LANG=C.UTF-8"
+      "LC_ALL=C.UTF-8"
+      "LC_CTYPE=C.UTF-8"
+      "EDITOR=nvim"
+      "PYTHONPATH=${openlane1-env-sitepackages}"
+      "TMPDIR=/tmp"
+  ];
+})

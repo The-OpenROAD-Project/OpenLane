@@ -10,12 +10,3 @@ TARBALL=$(nix build\
 )
 cat $TARBALL | docker load
 nix store delete $TARBALL
-if [ "$BUILD_ARCH" = "amd64" ]; then
-	PLATFORM_STRING="linux/amd64"	
-fi
-if [ "$BUILD_ARCH" = "arm64v8" ]; then
-	PLATFORM_STRING="linux/arm64/v8"
-fi
-# Impure stuff
-git rev-parse HEAD > ./git_version
-docker build --platform=$PLATFORM_STRING --build-arg="PLATFORM=$BUILD_ARCH" -t efabless/openlane:current-$BUILD_ARCH .

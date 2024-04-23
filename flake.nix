@@ -22,13 +22,12 @@
   };
 
   inputs = {
-    openlane2.url = github:efabless/openlane2;
+    openlane2.url = github:efabless/openlane2/nix_in_docker_image;
   };
 
   outputs = {
     self,
     openlane2,
-    nix,
     ...
   }: let
     nixpkgs = openlane2.inputs.nixpkgs;
@@ -58,7 +57,7 @@
         default = openlane1;
       }
       // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {
-        dockerImage = nix.dockerImage;
+        createDockerImage = openlane2.createDockerImage;
       };}));
 
     # devShells = self.forAllSystems (
