@@ -34,7 +34,6 @@ let
   else
     "arm64v8"
   ;
-  openlane1-env-sitepackages = "${openlane1.pyenv}/${openlane1.pyenv.sitePackages}";
 in (createDockerImage {
   inherit pkgs;
   inherit lib;
@@ -47,6 +46,7 @@ in (createDockerImage {
     silver-searcher
 
     openlane1
+    openlane1.pyenv
   ];
   nixConf = {
     extra-experimental-features = "nix-command flakes repl-flake";
@@ -74,7 +74,6 @@ in (createDockerImage {
       "LC_ALL=C.UTF-8"
       "LC_CTYPE=C.UTF-8"
       "EDITOR=nvim"
-      "PYTHONPATH=${openlane1-env-sitepackages}"
       "TMPDIR=/tmp"
   ];
 })
