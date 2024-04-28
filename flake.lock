@@ -21,7 +21,6 @@
         ]
       },
       "locked": {
-        "lastModified": 1713262631,
         "narHash": "sha256-0Lt3DVImH3TpwUh7sDW/6Cxsrmo5DDG+SCuirBFquXs=",
         "owner": "efabless",
         "repo": "ioplace_parser",
@@ -42,7 +41,6 @@
         ]
       },
       "locked": {
-        "lastModified": 1713178934,
         "narHash": "sha256-1w6HBBE2bWAD0GM98O8WZRmZDW9+EzD0KFvnnH2ho/k=",
         "owner": "efabless",
         "repo": "libparse-python",
@@ -78,11 +76,10 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1713887831,
-        "narHash": "sha256-DNbYE+oON8U+xqaBgmnWzoJjzO8TOxRphGNYi8ZvZEA=",
+        "narHash": "sha256-DB0E0yiE0sTVHilOCLhdAP9vx1BpCH1SaqZhXta2rSU=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "a42ba4f3d1d32623ba390722125d899978b4e23e",
+        "rev": "40a06364e82cd248c30e7958d3a543925c617d7a",
         "type": "github"
       },
       "original": {
