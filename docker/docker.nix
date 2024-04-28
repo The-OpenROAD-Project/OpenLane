@@ -63,12 +63,16 @@ in (createDockerImage {
     autoload -U compinit && compinit
     autoload -U promptinit && promptinit && prompt suse && setopt prompt_sp
     autoload -U colors && colors
-
-    export PATH="/openlane:${openlane1.computed_PATH}:\''$PATH"
+    
     export PS1=$'%{\033[31m%}OpenLane Container%{\033[0m%}:%{\033[32m%}%~%{\033[0m%}%% ';
     HEREDOC
   '';
+  image-config-cwd = "/openlane";
   image-config-cmd = ["${zsh}/bin/zsh"];
+  image-config-extra-path = [
+    "/openlane"
+    openlane1.computed_PATH
+  ];
   image-config-extra-env = [
       "LANG=C.UTF-8"
       "LC_ALL=C.UTF-8"

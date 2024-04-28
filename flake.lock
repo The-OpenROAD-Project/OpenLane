@@ -76,10 +76,10 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "narHash": "sha256-DB0E0yiE0sTVHilOCLhdAP9vx1BpCH1SaqZhXta2rSU=",
+        "narHash": "sha256-bWQBup5+iR6PgXVX7K8JMv9xeXgqpL9Zrpn+5vKHKBw=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "40a06364e82cd248c30e7958d3a543925c617d7a",
+        "rev": "821d3ef36f7db0653b7e0ffb7a4ea00f3ab6b700",
         "type": "github"
       },
       "original": {
