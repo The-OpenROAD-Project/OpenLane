@@ -22,7 +22,7 @@
   };
 
   inputs = {
-    openlane2.url = github:efabless/openlane2/nix_in_docker_image;
+    openlane2.url = github:efabless/openlane2/dev;
   };
 
   outputs = {

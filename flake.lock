@@ -76,15 +76,15 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "narHash": "sha256-bWQBup5+iR6PgXVX7K8JMv9xeXgqpL9Zrpn+5vKHKBw=",
+        "narHash": "sha256-gxTTNE9DvQNfvCZOW6Wf0x4Ad09i6xBe1pcSLSY1tpI=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "821d3ef36f7db0653b7e0ffb7a4ea00f3ab6b700",
+        "rev": "7318ff4dfa1d2d44b47989e632ff2e53b070f155",
         "type": "github"
       },
       "original": {
         "owner": "efabless",
-        "ref": "nix_in_docker_image",
+        "ref": "dev",
         "repo": "openlane2",
         "type": "github"
       }
