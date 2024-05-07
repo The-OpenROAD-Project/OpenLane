@@ -73,13 +73,15 @@
         "flake-compat": "flake-compat",
         "ioplace-parser": "ioplace-parser",
         "libparse": "libparse",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "volare": "volare"
       },
       "locked": {
-        "narHash": "sha256-gxTTNE9DvQNfvCZOW6Wf0x4Ad09i6xBe1pcSLSY1tpI=",
+        "lastModified": 1715082706,
+        "narHash": "sha256-OUaDO8RtK76NN3yuJZIwtel4kuRVmALkXJnTdMIeT8U=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "7318ff4dfa1d2d44b47989e632ff2e53b070f155",
+        "rev": "058a93dfacf5352abd06931c3e45fec08cfa468e",
         "type": "github"
       },
       "original": {
@@ -92,6 +94,27 @@
     "root": {
       "inputs": {
         "openlane2": "openlane2"
+      }
+    },
+    "volare": {
+      "inputs": {
+        "nixpkgs": [
+          "openlane2",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1715078431,
+        "narHash": "sha256-w4NLYQwvE/UFgPZDOnKDpagTjKb8FwKWOp3wV/RvPFM=",
+        "owner": "efabless",
+        "repo": "volare",
+        "rev": "13ccef8de5d8b27311ffd458ac629953784b5224",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "volare",
+        "type": "github"
       }
     }
   },

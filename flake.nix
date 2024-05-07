@@ -50,9 +50,10 @@
     # Outputs
     packages = self.forAllSystems (pkgs: let
       callPackage = pkgs.lib.callPackageWith (pkgs // openlane2.packages."${pkgs.system}" // self.packages.${pkgs.system} );
-      callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // openlane2.packages."${pkgs.system}" // openlane2.inputs.libparse.packages."${pkgs.system}" // self.packages.${pkgs.system});
+      callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // openlane2.packages."${pkgs.system}" // openlane2.inputs.libparse.packages."${pkgs.system}" // openlane2.inputs.volare.packages."${pkgs.system}" // self.packages.${pkgs.system});
     in
       rec {
+        # ADD OVERRIDES HERE
         openlane1 = callPythonPackage ./default.nix {};
         default = openlane1;
       }
