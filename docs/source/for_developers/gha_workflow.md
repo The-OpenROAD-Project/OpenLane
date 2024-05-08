@@ -7,6 +7,7 @@ The deployment flow occurs on a daily basis. The PR flow happens whenever someon
 
 ![A Diagram Of The Flow](../../_static/gha.png)
 * A maintainer cannot review their own code, but they can merge it after a review by another maintainer.
+* The tool updater is no longer in use and has been removed.
 
 ## Required Secrets/Variables
 Repository secrets are used to protect certain credentials, while variables are repository-dependent parameters for the CI.
@@ -31,10 +32,3 @@ Repository secrets are used to protect certain credentials, while variables are 
 |---------------|---------------------------------------------------------------|
 | `DOCKERHUB_USER`  | A username for a user that has push access to the organization that owns `DOCKER_IMAGE` on Docker Hub. In our case, that's an Efabless Employee with push access. |
 | `DOCKERHUB_PASSWORD`  | The password/token for the given username that has push access to the organization that owns `DOCKER_IMAGE` on Docker Hub. |
-
-### Tool Updater
-
-| Variable      | Description                                                   |
-|---------------|---------------------------------------------------------------|
-| `FORK_NAME` | A fork to push branches for tool updates to. Format `bot-account/OpenLane`  |
-| `BOT_AUTHOR_LINE`  | A git author line for the bot account, i.e. `Firstname Lastname <email@example.com>`. |

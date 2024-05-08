@@ -11,32 +11,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import odb
+from openroad import Tech, Design
+from typing import ClassVar, Optional
+
 import os
 import sys
 import inspect
 import functools
-from typing import Optional
 
 import click
 
-import odb
-from utl import Logger
-from openroad import Tech, Design
-
 
 class OdbReader(object):
-    logger: Optional[Logger] = None
+    primary_reader: ClassVar[Optional["OdbReader"]] = None
 
     def __init__(self, *args):
-        if self.__class__.logger is None:
-            ord_tech = Tech()
-            design = Design(ord_tech)
-
-            self.db = ord_tech.getDB()
-            self.__class__.logger = design.getLogger()
-        else:
+        if primary := OdbReader.primary_reader:
             self.db = odb.dbDatabase.create()
-            self.db.setLogger(self.__class__.logger)
+            self.db.setLogger(primary.design.getLogger())
+        else:
+            self.ord_tech = Tech()
+            self.design = Design(self.ord_tech)
+            self.db = self.ord_tech.getDB()
 
         if len(args) == 1:
             db_in = args[0]
@@ -58,6 +55,9 @@ class OdbReader(object):
             self.rows = self.block.getRows()
             self.dbunits = self.block.getDefUnits()
             self.instances = self.block.getInsts()
+
+        if OdbReader.primary_reader is None:
+            OdbReader.primary_reader = self
 
     def add_lef(self, new_lef):
         odb.read_lef(self.db, new_lef)

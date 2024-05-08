@@ -3,3 +3,9 @@ logs/
 */fetch_submodules_from_tarballs.py
 */utils.py
 /base/
+tar/
+/openlane/
+ol2_hash
+/openlane2
+/result
+/git_version

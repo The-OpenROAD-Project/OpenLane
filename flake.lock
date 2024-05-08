@@ -1,0 +1,123 @@
+{
+  "nodes": {
+    "flake-compat": {
+      "locked": {
+        "narHash": "sha256-kvjfFW7WAETZlt09AgDn1MrtKzP7t90Vf7vypd3OL1U=",
+        "rev": "0f9255e01c2351cc7d116c072cb317785dd33b33",
+        "revCount": 57,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/edolstra/flake-compat/1.0.1/018afb31-abd1-7bff-a5e4-cff7e18efb7a/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz"
+      }
+    },
+    "ioplace-parser": {
+      "inputs": {
+        "nixpkgs": [
+          "openlane2",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "narHash": "sha256-0Lt3DVImH3TpwUh7sDW/6Cxsrmo5DDG+SCuirBFquXs=",
+        "owner": "efabless",
+        "repo": "ioplace_parser",
+        "rev": "f1c163e8184fbce2676a19a1d28c3e6c0b5ddaf2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "ioplace_parser",
+        "type": "github"
+      }
+    },
+    "libparse": {
+      "inputs": {
+        "nixpkgs": [
+          "openlane2",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "narHash": "sha256-1w6HBBE2bWAD0GM98O8WZRmZDW9+EzD0KFvnnH2ho/k=",
+        "owner": "efabless",
+        "repo": "libparse-python",
+        "rev": "cec8b6dfd3d1c97bc5ccd1d0a41c44e51bc9c1eb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "libparse-python",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "narHash": "sha256-C36QmoJd5tdQ5R9MC1jM7fBkZW9zBUqbUCsgwS6j4QU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "c1be43e8e837b8dbee2b3665a007e761680f0c3d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-23.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "openlane2": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "ioplace-parser": "ioplace-parser",
+        "libparse": "libparse",
+        "nixpkgs": "nixpkgs",
+        "volare": "volare"
+      },
+      "locked": {
+        "lastModified": 1715082706,
+        "narHash": "sha256-OUaDO8RtK76NN3yuJZIwtel4kuRVmALkXJnTdMIeT8U=",
+        "owner": "efabless",
+        "repo": "openlane2",
+        "rev": "058a93dfacf5352abd06931c3e45fec08cfa468e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "ref": "dev",
+        "repo": "openlane2",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "openlane2": "openlane2"
+      }
+    },
+    "volare": {
+      "inputs": {
+        "nixpkgs": [
+          "openlane2",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1715078431,
+        "narHash": "sha256-w4NLYQwvE/UFgPZDOnKDpagTjKb8FwKWOp3wV/RvPFM=",
+        "owner": "efabless",
+        "repo": "volare",
+        "rev": "13ccef8de5d8b27311ffd458ac629953784b5224",
+        "type": "github"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "volare",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

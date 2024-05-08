@@ -514,7 +514,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-output) $arg_values(-input)
     set_if_unset arg_values(-output_def) /dev/null
 
-    try_exec $::env(OPENROAD_BIN) -exit -no_init -python\
+    run_odbpy_script\
         {*}$args \
         --input-lef $::env(MERGED_LEF) \
         --output-def $arg_values(-output_def) \
@@ -778,6 +778,12 @@ proc run_tcl_script {args} {
             unset ::env(${save_env})
         }
     }
+}
+
+proc run_odbpy_script {args} {
+    set ::env(PYTHONPATH) [exec python3 -c "import sys; import site; print(':'.join(site.getsitepackages() + sys.path), end='')"]
+    try_exec $::env(OPENROAD_BIN) -exit -no_init -python {*}$args
+    unset ::env(PYTHONPATH)
 }
 
 package provide openlane_utils 0.9

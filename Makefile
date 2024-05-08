@@ -54,7 +54,6 @@ FASTEST_TEST_SET_TAG ?= FASTEST_TEST_SET
 EXTENDED_TEST_SET_TAG ?= EXTENDED_TEST_SET
 PRINT_REM_DESIGNS_TIME ?= 0
 
-SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
 export PDK_ROOT ?= $(HOME)/.volare
@@ -114,8 +113,9 @@ ENV_COMMAND = $(ENV_START) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 all: get-openlane pdk
 
 .PHONY: openlane
-openlane: venv/created
-	@PYTHON_BIN=$(PWD)/venv/bin/$(PYTHON_BIN) $(MAKE) -C docker openlane
+openlane:
+	@$(MAKE) -C docker openlane
+	docker tag efabless/openlane:current-$(DOCKER_ARCH) $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: openlane-and-push-tools
 openlane-and-push-tools: venv/created

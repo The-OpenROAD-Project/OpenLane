@@ -8,4 +8,3 @@ Installation
    installation_macos
    installation_win
    installation_linux
-   installation_local

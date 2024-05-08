@@ -10,10 +10,6 @@ This guide covers running the flow on existing desings, adding new designs and q
 
 ## Starting the OpenLane Environment
 
-:::{note}
-If you installed OpenLane following [local installation](installation/installation_local.md) steps, these instructions will not entirely apply. We no longer actively support local installation.
-:::
-
 OpenLane uses Docker to create a reproducible environment for your projects. You don't need any extra steps to run the Docker image, as the Makefile already takes care of it. Just run the following commands to enter the OpenLane environment:
 
 ```sh

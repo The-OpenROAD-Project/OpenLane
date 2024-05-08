@@ -123,10 +123,6 @@ if os.getenv("GITHUB_ACTIONS") != "true":
         print('Environment variables required: "PDK_ROOT"')
         exit(os.EX_CONFIG)
 
-    if os.getenv("OPENLANE_IMAGE_NAME") is None:
-        print('Environment variables required: "OPENLANE_IMAGE_NAME"')
-        exit(os.EX_CONFIG)
-
 origin = os.getenv("REPO_URL")
 repo = Repo("Openlane", origin)
 
@@ -136,7 +132,6 @@ gh = SimpleNamespace(
         "run_id": os.getenv("GITHUB_RUN_ID"),
         "origin": origin,
         "branch": os.getenv("BRANCH_NAME"),
-        "image": os.getenv("OPENLANE_IMAGE_NAME"),
         "root": os.getenv("GITHUB_WORKSPACE"),
         "pdk_root": os.getenv("PDK_ROOT"),
         "pdk": os.getenv("PDK"),

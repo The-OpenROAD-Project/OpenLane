@@ -1,4 +1,3 @@
-import sys
 import platform
 
 
@@ -9,14 +8,8 @@ def current_docker_platform() -> str:
         return "amd64"
     elif arch in ["aarch64", "arm64"]:
         return "arm64v8"
-    elif arch in ["ppc64le"]:
-        return "ppc64le"
     else:
-        print(
-            f"Unsupported architecture '{platform.machine()}' Falling back to x86-64 for Docker.",
-            file=sys.stderr,
-        )
-        return "amd64"
+        raise ValueError(f"Unsupported platform {arch}")
 
 
 if __name__ == "__main__":

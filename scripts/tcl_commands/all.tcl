@@ -130,8 +130,7 @@ proc prep_lefs {args} {
         if { [info exists ::env(METAL_LAYER_NAMES)] } {
             set ::env(TECH_METAL_LAYERS) $::env(METAL_LAYER_NAMES)
         } else {
-            try_exec $::env(OPENROAD_BIN) -exit -no_init -python\
-                $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
+            run_odbpy_script $::env(SCRIPTS_DIR)/odbpy/lefutil.py get_metal_layers\
                 -o $::env(TMP_DIR)/layers.list\
                 $arg_values(-tech_lef)
 
@@ -1313,8 +1312,7 @@ proc save_final_views {args} {
 proc run_post_run_hooks {} {
     if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
         puts_info "Running post run hook..."
-        set result [exec $::env(OPENROAD_BIN) -exit -no_init -python $::env(DESIGN_DIR)/hooks/post_run.py]
-        puts_info "$result"
+        run_odbpy_script $::env(DESIGN_DIR)/hooks/post_run.py
     } else {
         puts_verbose "No post-run hook found, skipping..."
     }

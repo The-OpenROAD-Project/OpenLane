@@ -172,7 +172,9 @@ jobs:
         run: python3 -m pip install pyyaml
 
       - name: Run Issue Regression Test
-        run: cd ${GITHUB_WORKSPACE}/ &&  make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.test }}
+        run: |
+          OPENLANE_IMAGE_NAME=efabless/openlane:current\
+            make run_issue_regression ISSUE_REGRESSION_DESIGN=${{ matrix.test }}
 
       - name: Upload Logs
         if: ${{ always() }}
@@ -231,7 +233,7 @@ jobs:
 
       - name: Run Test
         run: |
-          OPENLANE_IMAGE_NAME=$OPENLANE_IMAGE_NAME-amd64\
+          OPENLANE_IMAGE_NAME=efabless/openlane:current-amd64\
             python3 ${GITHUB_WORKSPACE}/.github/scripts/run_tests.py ${{ matrix.design.name }}
 
       - name: Escape Design Name
@@ -266,6 +268,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Free Disk Space (Ubuntu)
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -355,7 +367,7 @@ jobs:
         run: |
           for tag in $TAG_LIST; do
             for arch in amd64 arm64v8; do
-              docker image tag ${{ env.OPENLANE_IMAGE_NAME }}-$arch ${{ vars.DOCKER_IMAGE }}:$tag-$arch
+              docker image tag efabless/openlane:current-$arch ${{ vars.DOCKER_IMAGE }}:$tag-$arch
               docker push ${{ vars.DOCKER_IMAGE }}:$tag-$arch
             done
             docker manifest create ${{ vars.DOCKER_IMAGE }}:$tag\
