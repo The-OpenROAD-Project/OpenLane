@@ -55,7 +55,7 @@ jobs:
 
           python3 -m pip install --upgrade --no-cache-dir volare>=0.12.3
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
-          volare enable -j$(nproc) --pdk $PDK_FAMILY $OPDKS_VER
+          volare enable --pdk $PDK_FAMILY $OPDKS_VER
 
       - name: Tarball PDK
         run: |
