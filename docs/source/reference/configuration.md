@@ -451,7 +451,6 @@ For more information on integrating macros and other relevant configuration vari
 
 |Variable|Description|
 |-|-|
-| `LEC_ENABLE` <a id="LEC_ENABLE"></a> | Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
 | `GENERATE_FINAL_SUMMARY_REPORT` <a id="GENERATE_FINAL_SUMMARY_REPORT"></a> | Specifies whether or not to generate a final summary report after the run is completed. Check command `generate_final_summary_report`. 1 = Enabled, 0 = Disabled. <br> (Default: `1`) |
 | `USE_GPIO_PADS` <a id="USE_GPIO_PADS"></a> | Decides whether or not to use the gpio pads in routing by merging their LEF file set in `::env(USE_GPIO_ROUTING_LEF)` and blackboxing their verilog modules set in `::env(GPIO_PADS_VERILOG)`. 1 = Enabled, 0 = Disabled. <br> (Default: `0`) |
 | `TAP_DECAP_INSERTION` <a id="TAP_DECAP_INSERTION"></a> | **Deprecated: Use `RUN_TAP_DECAP_INSERTION`**: Enables tap and decap cells insertion after floorplanning. 1 = Enabled, 0 = Disabled. |
@@ -469,3 +468,4 @@ For more information on integrating macros and other relevant configuration vari
 | `QUIT_ON_MISMATCHES` <a id="QUIT_ON_MISMATCHES"></a> | **Removed: See `./flow.tcl -ignore_mismatches`**: Whether to halt the flow execution or not if `TEST_MISMATCHES` is enabled and any mismatches are found. |
 | `KLAYOUT_XOR_GDS` <a id="KLAYOUT_XOR_GDS"></a> | **Removed: GDS always generated**: If `RUN_KLAYOUT_XOR` is enabled, this will enable producing a GDS output from the XOR along with it's PNG export. 1 = Enabled, 0 = Disabled.|
 | `KLAYOUT_XOR_XML` <a id="KLAYOUT_XOR_XML"></a> | **Removed: XML always generated**: If `RUN_KLAYOUT_XOR` is enabled, this will enable producing an XML output from the XOR. 1 = Enabled, 0 = Disabled. |
+| `LEC_ENABLE` <a id="LEC_ENABLE"></a> | **Removed: buggy** Enables logic verification using yosys, for comparing each netlist at each stage of the flow with the previous netlist and verifying that they are logically equivalent. Warning: this will increase the runtime significantly. 1 = Enabled, 0 = Disabled <br> (Default: `0`)|
