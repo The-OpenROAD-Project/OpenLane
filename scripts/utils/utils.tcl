@@ -769,7 +769,7 @@ proc run_tcl_script {args} {
             } elseif { $element == "sdc" } {
                 set_sdc $::env(SAVE_SDC)
             } elseif { $element == "netlist" } {
-                set_netlist -lec $::env(SAVE_NETLIST)
+                set_netlist $::env(SAVE_NETLIST)
             } elseif { $element == "guide" } {
                 set_guide $::env(SAVE_GUIDE)
             } else {

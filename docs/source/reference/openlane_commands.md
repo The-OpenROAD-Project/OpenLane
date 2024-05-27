@@ -13,7 +13,6 @@ Most of the following commands' implementation exists in this [file][0]
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
 | `set_netlist <netlist>`   | | Sets the current netlist used by the flow to `<netlist>` |
-|    | `[-lec]` | Runs logic verification for the new netlist against the previous netlist, if `LEC_ENABLE` is set to 1. <br> Optional flag. |
 | `set_def <def>`   | | Sets the current def file used by the flow to `<def>` |
 | `prep_lefs`   | | prepares the used lef files by the flow. This process includes merging the techlef and cells lef, generating a merged.lef.|
 | `trim_lib`   | | prepares a liberty file (i.e. `LIB_SYNTH`) by trimming the `NO_SYNTH_CELL_LIST` and `DRC_EXCLUDE_CELL_LIST` from another input liberty file (i.e. `$::env(LIB_SYNTH_COMPLETE)`). |
@@ -108,15 +107,12 @@ Most of the following commands' implementation exists in this [file][9]
 
 | Command      | Flags                   | Description                                           |
 |---------------|------------------------|-----------------------------------------|
-| `run_yosys` | | Runs yosys synthesis on the design processed in the flow (the design is set by the `prep` command). if `LEC_ENABLE` is set to 1, a logic verification will be run after generating the new netlist vs the previous netlist if it exists. |
+| `run_yosys` | | Runs yosys synthesis on the design processed in the flow (the design is set by the `prep` command). |
 |    | `[-output <output_file>]` | Sets the outputfile from yosys synthesis. <br> Defaults to `/<run_path>/results/synthesis/<design_name>.synthesis.v`  <br> Optional flag.       |
 | `run_synthesis` | | Runs yosys synthesis on the current design as well as OpenSTA timing analysis on the generated netlist. The logs are produced under `/<run_path>/logs/synthesis/`, the timing reports are under `/<run_path>/reports/synthesis/`, and the synthesized netlist under `/<run_path>/results/synthesis/`. |
 | `run_synth_exploration` | | Runs synthesis exploration, which will try out the available synthesis strategies against the input design. The output will be the four possible gate level netlists under `<run_path>/results/synthesis` and a summary report under `<run_path>/reports` that compares the 4 outputs. |
 | `verilog_elaborate <optional args>` | | Runs on structural verilog (top-level netlists) and elaborates it. The `<optional args>` are used to control what is passed to `run_yosys` |
 | `yosys_rewrite_verilog <filename>` | | Runs yosys to rewrite the verilog given in `<filename>` into the already set environment variable `SAVE_NETLIST`.  Mainly used to generate explicit wire declarations |
-| `logic_equiv_check` | | Runs logic verification using yosys between the two given netlists. |
-|    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
-|    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
 | `get_yosys_bin` | | **Removed: Read $::env(SYNTH_BIN)** Returns the used binary for yosys. |
 | `verilog_to_verilogPower` | | **Removed: Use `write_verilog -powered`** Adds the power pins and connections to a verilog file. |
 |    | `-input <verilog_netlist_file>` | The input verilog that doesn't contain the power pins and connections. |
@@ -132,6 +128,9 @@ Most of the following commands' implementation exists in this [file][9]
 |    | `[-power <power_pin>]` | The name of the power pin. <br> Defaults to `VDD_PIN` |
 |    | `[-ground <ground_pin>]` | The name of the ground pin. <br> Defaults to `GND_PIN` |
 |    | `[-powered_netlist <verilog_netlist_file>]` | The verilog netlist parsed from yosys that contains the internal power connections in case the design has internal macros file. <br> Defaults to `/<run_path>/tmp/synthesis/synthesis.pg_define.v` if `::env(SYNTH_USE_PG_PINS_DEFINES)` is defined, and to empty string otherwise. |
+| `logic_equiv_check` | | **Removed**: Runs logic verification using yosys between the two given netlists. |
+|    | `-lhs <verilog_netlist_file>` | The first netlist (lefthand-side) in the logic verification comparison. |
+|    | `-rhs <verilog_netlist_file>` | The second netlist (righthand-side) in the logic verification comparison. |
 
 ## Floorplan Commands
 

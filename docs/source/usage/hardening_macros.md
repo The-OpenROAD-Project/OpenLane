@@ -208,8 +208,6 @@ You can run Antenna Checks using OpenROAD ARC or magic. This is controlled by `U
 
 You can control whether LVS should be run down to the device level or the cell level based on the type of the extraction. If you perform extraction on GDSII then it is going to be down to the device/transistor level, otherwise using the LEF/DEF views then it is going to be down to the cell/block level. This is controlled by `MAGIC_EXT_USE_GDS`.
 
-You can enable LEC on the different netlists by setting `LEC_ENABLE` to one, which should run logic verification after writing each intermediate netlist.
-
 A final summary report is produced by default as `<run-path>/reports/metrics.csv`, for more details about the contents of the report check [**Datapoint Definitions**](../reference/datapoint_definitions.md).
 
 A final manufacturability report is produced by default as `<run-path>/reports/manufacturability_report.csv`, this report contains the magic DRC, the LVS, and the antenna violations summaries.

@@ -19,7 +19,6 @@ set ::env(RSZ_MULTICORNER_LIB) 1
 set ::env(RSZ_DONT_TOUCH) ""
 
 # Flow Controls
-set ::env(LEC_ENABLE) 0
 set ::env(YOSYS_REWRITE_VERILOG) 0
 set ::env(RUN_FILL_INSERTION) 1
 set ::env(RUN_TAP_DECAP_INSERTION) 1
