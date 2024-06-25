@@ -16,9 +16,6 @@ You can check out the documentation, including in-depth guides and reference man
     </a>
 </p>
 
-## Quick-start Guide
-If you just want to try OpenLane out, try [this Colaboratory](https://colab.research.google.com/github/chipsalliance/silicon-notebooks/blob/main/digital-inverter-openlane.ipynb) by our friends at Google and ChipsAlliance. It's an online Python-based utility, and the best part is, *you don't need to install anything.*
-
 ## Installation, the short version
 The short version is, to install the OpenLane environment...
 
