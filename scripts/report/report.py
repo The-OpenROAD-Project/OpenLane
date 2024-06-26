@@ -17,6 +17,7 @@ import sys
 import json
 import yaml
 import fnmatch
+import glob
 from collections import defaultdict
 from typing import Iterable, Optional, Dict
 
@@ -40,6 +41,7 @@ class Artifact(object):
         step: str,
         filename: str,
         find_by_partial_match: bool = False,
+        wildcard: bool = False,
     ):
         self.run_path = run_path
         self.kind = kind
@@ -47,6 +49,17 @@ class Artifact(object):
 
         self.pathname = os.path.join(self.run_path, self.kind, self.step)
         self.filename = filename
+
+        if wildcard:
+            matches = glob.glob(self.pathname)
+            if len(matches) > 1:
+                print(
+                    f"Too many matches for {self.pathname}",
+                    file=sys.stderr,
+                )
+                exit(1)
+            else:
+                self.pathname = matches[0]
 
         self.index, self.path = get_name(
             self.pathname, self.filename, find_by_partial_match
@@ -149,7 +162,6 @@ class Report(object):
             "pin_antenna_violations",
             "net_antenna_violations",
             "lvs_total_errors",
-            "cvc_total_errors",
             "klayout_violations",
             "wire_length",
             "vias",
@@ -239,7 +251,6 @@ class Report(object):
             ("rsz_design", Artifact(rp, "logs", "routing", "rsz_design_sta.log")),
             ("rsz_timing", Artifact(rp, "logs", "routing", "rsz_timing_sta.log")),
             ("grt", Artifact(rp, "logs", "routing", "grt_sta.log")),
-            ("rcx", Artifact(rp, "logs", "signoff", "rcx_sta.log")),
             (
                 "sta-rcx_nom/multi_corner",
                 Artifact(rp, "logs", "signoff", "rcx_mcsta.nom.log"),
@@ -343,7 +354,13 @@ class Report(object):
 
         # Power after parasitics-extraction, multi-corner STA
         power_multi_corner_sta = defaultdict(lambda: defaultdict(lambda: -1))
-        power_report = Artifact(rp, "reports", "signoff", "rcx_sta.power.rpt")
+        power_report = Artifact(
+            rp,
+            "reports",
+            "signoff/*sta-rcx_nom",
+            "multi_corner_sta.power.rpt",
+            wildcard=True,
+        )
         power_report_content = power_report.get_content()
         if power_report_content is not None:
             current_corner = None
@@ -379,10 +396,16 @@ class Report(object):
             power_multi_corner_sta["fastest"]["switching"],
             power_multi_corner_sta["fastest"]["leakage"],
         ]
-
         # Critical path
         critical_path_ns = -1
-        critical_path_report = Artifact(rp, "reports", "signoff", "rcx_sta.max.rpt")
+        critical_path_report = Artifact(
+            rp,
+            "reports",
+            "signoff/*sta-rcx_nom",
+            "multi_corner_sta.max.rpt",
+            True,
+            wildcard=True,
+        )
         critical_path_report_content = critical_path_report.get_content()
         if critical_path_report_content is not None:
             start = 0
@@ -495,7 +518,7 @@ class Report(object):
                 magic_violations = (magic_violations_raw + 3) // 4
 
         # KLayout DRC Violations
-        klayout_drc = Artifact(rp, "reports", "signoff", "magic.lydrc", True)
+        klayout_drc = Artifact(rp, "reports", "signoff", "drc.klayout.xml", True)
         klayout_drc_content = klayout_drc.get_content()
 
         klayout_violations = -1
@@ -533,10 +556,14 @@ class Report(object):
 
         # STA Report Extractions
         def sta_report_extraction(
-            sta_report_filename: str, filter: str, kind="reports", step="synthesis"
+            sta_report_filename: str,
+            filter: str,
+            kind="reports",
+            step="synthesis",
+            wildcard=False,
         ):
             value = -1
-            report = Artifact(rp, kind, step, sta_report_filename)
+            report = Artifact(rp, kind, step, sta_report_filename, wildcard=wildcard)
             report_content = report.get_content()
             if report_content is not None:
                 match = re.search(rf"{filter}\s+(-?[\d\.]+)", report_content)
@@ -551,20 +578,34 @@ class Report(object):
             return value
 
         wns = sta_report_extraction("syn_sta.summary.rpt", "wns", step="synthesis")
-        spef_wns = sta_report_extraction("rcx_sta.summary.rpt", "wns", step="signoff")
-        opt_wns = sta_report_extraction("rt_rsz_sta.summary.rpt", "wns", step="routing")
-        pl_wns = sta_report_extraction(
-            "global.log", "wns", kind="logs", step="placement"
+        spef_wns = sta_report_extraction(
+            "multi_corner_sta.summary.rpt",
+            "wns",
+            step="signoff/*sta-rcx_nom",
+            wildcard=True,
         )
-        fr_wns = sta_report_extraction("global.log", "wns", kind="logs", step="routing")
+        opt_wns = sta_report_extraction("grt_sta.summary.rpt", "wns", step="routing")
+        pl_wns = sta_report_extraction(
+            "gpl_sta.log", "wns", kind="logs", step="placement"
+        )
+        fr_wns = sta_report_extraction(
+            "grt_sta.log", "wns", kind="logs", step="routing"
+        )
 
         tns = sta_report_extraction("syn_sta.summary.rpt", "tns", step="synthesis")
-        spef_tns = sta_report_extraction("rcx_sta.summary.rpt", "tns", step="signoff")
-        opt_tns = sta_report_extraction("rt_rsz_sta.summary.rpt", "tns", step="routing")
-        pl_tns = sta_report_extraction(
-            "global.log", "tns", kind="logs", step="placement"
+        spef_tns = sta_report_extraction(
+            "multi_corner_sta.summary.rpt",
+            "tns",
+            step="signoff/*-sta-rcx_nom",
+            wildcard=True,
         )
-        fr_tns = sta_report_extraction("global.log", "tns", kind="logs", step="routing")
+        opt_tns = sta_report_extraction("grt_sta.summary.rpt", "tns", step="routing")
+        pl_tns = sta_report_extraction(
+            "gpl_sta.log", "tns", kind="logs", step="placement"
+        )
+        fr_tns = sta_report_extraction(
+            "grt_sta.log", "tns", kind="logs", step="routing"
+        )
 
         # Yosys Metrics
         yosys_metrics = [
@@ -708,16 +749,6 @@ class Report(object):
             if match is not None:
                 lvs_total_errors = int(match[1])
 
-        # CVC Total Errors
-        cvc_log = Artifact(rp, "logs", "signoff", "erc_screen.log")
-        cvc_log_content = cvc_log.get_content()
-
-        cvc_total_errors = -1
-        if cvc_log_content is not None:
-            match = re.search(r"CVC:\s*Total:\s*(\d+)", cvc_log_content)
-            if match is not None:
-                cvc_total_errors = int(match[1])
-
         return [
             flow_status,
             total_runtime,
@@ -738,7 +769,6 @@ class Report(object):
             pin_antenna_violations,
             net_antenna_violations,
             lvs_total_errors,
-            cvc_total_errors,
             klayout_violations,
             wire_length,
             vias,
