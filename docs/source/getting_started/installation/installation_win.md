@@ -10,6 +10,11 @@ The following is the recommended installation method under Windows. Other virtua
 
 1. Follow [official Microsoft documentation for WSL located here](https://docs.microsoft.com/en-us/windows/wsl/install) to install the WSL 2. Make sure your OS version supports WSL 2.
 2. Follow [official steps to Install Docker Desktop on Windows located here](https://docs.docker.com/desktop/install/windows-install/).
+
+   :::{note}
+   Make sure to update Docker if it is already installed.
+   :::
+
 3. Make sure that `WSL 2 Docker engine` is enabled and `Settings` -> `Resource` -> `WSL Integration` is enabled
 4. Make sure that option `Start Docker Desktop when you login` is enabled in `Docker Desktop` -> `Settings`
 

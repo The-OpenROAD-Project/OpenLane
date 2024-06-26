@@ -23,6 +23,10 @@ supported.
 
 First, install Docker following the steps provided [in this link](https://docs.docker.com/engine/install/).
 
+:::{note}
+Make sure Docker is up to date with the latest release provided by your distribution.
+:::
+
 Test if installation was successful:
 
 ```

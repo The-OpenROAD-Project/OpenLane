@@ -12,5 +12,13 @@ brew install python make
 brew install --cask docker
 ```
 
+If brew and the dependencies are already installed, make sure they are up to date:
+
+```sh
+brew update
+brew upgrade python make
+brew upgrade --cask docker
+```
+
 ```{include} installation_common_section.md
 ```
