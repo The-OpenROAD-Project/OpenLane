@@ -439,7 +439,7 @@ proc run_resizer_design_routing {args} {
 
         TIMER::timer_stop
         exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "resizer design optimizations - openroad"
-        run_sta -propagate_all_clocks -propagate_all_clocks -estimate_global -no_save -log $::env(routing_logs)/rsz_design_sta.log
+        run_sta -propagate_all_clocks -estimate_global -no_save -log $::env(routing_logs)/rsz_design_sta.log
     } else {
         puts_info "Skipping Global Routing Resizer Design Optimizations."
     }
