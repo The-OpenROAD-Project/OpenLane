@@ -27,6 +27,7 @@ proc run_sta {args} {
         -netlist_in
         -blackbox_check
         -no_save
+        -propagate_all_clocks
     }
     parse_key_args "run_sta" args arg_values $options flags_map $flags
 
@@ -41,6 +42,12 @@ proc run_sta {args} {
     set corner_prefix "Single-Corner"
     if { $multi_corner } {
         set corner_prefix "Multi-Corner"
+    }
+
+    if { [info exists flags_map(-propagate_all_clocks)] } {
+        set ::env(_PROPAGATE_ALL_CLOCKS) 1
+    } else {
+        set ::env(_PROPAGATE_ALL_CLOCKS) 0
     }
 
     set ::env(PROCESS_CORNER) nom
@@ -121,6 +128,7 @@ proc run_sta {args} {
         blackbox_modules_check $log
     }
     unset ::env(STA_MULTICORNER)
+    set ::env(_PROPAGATE_ALL_CLOCKS) 0
     unset -nocomplain ::env(ESTIMATE_PARASITICS)
     TIMER::timer_stop
     exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "sta - openroad"
@@ -171,6 +179,7 @@ proc run_parasitics_sta {args} {
             lappend sta_flags -log $log_name
             lappend sta_flags -process_corner $process_corner
             lappend sta_flags -multi_corner
+            lappend sta_flags -propagate_all_clocks
             lappend sta_flags -save_to $directory
             lappend sta_flags -tool sta
 

@@ -54,3 +54,8 @@ set_clock_transition $::env(SYNTH_CLOCK_TRANSITION) [get_clocks $::env(CLOCK_POR
 puts "\[INFO\]: Setting timing derate to: [expr {$::env(SYNTH_TIMING_DERATE) * 100}] %"
 set_timing_derate -early [expr {1-$::env(SYNTH_TIMING_DERATE)}]
 set_timing_derate -late [expr {1+$::env(SYNTH_TIMING_DERATE)}]
+
+if { [info exists ::env(_PROPAGATE_ALL_CLOCKS)] && $::env(_PROPAGATE_ALL_CLOCKS) }  {
+    puts "\[INFO\]: Propagating all clocks"
+    set_propagated_clock [all_clocks]
+}

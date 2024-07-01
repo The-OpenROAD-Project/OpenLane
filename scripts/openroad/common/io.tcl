@@ -52,6 +52,14 @@ proc read_sdc_wrapper {} {
         puts stderr $errmsg
         exit 1
     }
+    if { [info exists ::env(_PROPAGATE_ALL_CLOCKS)] && $::env(_PROPAGATE_ALL_CLOCKS) }  {
+        set matches [exec bash -c "{ grep set_propagated_clock $sdc_in  | grep -v '#.*set_propagated_clock'; } || true"]
+        if { $matches == "" } {
+            puts "\[INFO\]: No (un)set_propagated_clock found in $sdc_in"
+            puts "\[INFO\]: Propagating all clocks"
+            set_propagated_clock [all_clocks]
+        }
+    }
 }
 
 
