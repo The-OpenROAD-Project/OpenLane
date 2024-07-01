@@ -194,7 +194,7 @@ if { [file tail [info nameofexecutable]] == "openroad" } {
     puts "area_report_end"
 }
 
-puts "check_unpropagated_clocks"
+puts "check_nonpropagated_clocks"
 
 foreach clock [all_clocks] {
     if { ![get_property $clock propagated] } {
@@ -202,7 +202,7 @@ foreach clock [all_clocks] {
     }
 }
 
-puts "check_unpropagated_clocks_end"
+puts "check_nonpropagated_clocks_end"
 
 puts "\n==========================================================================="
 puts "report_clock"
