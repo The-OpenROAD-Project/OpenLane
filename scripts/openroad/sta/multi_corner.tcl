@@ -194,4 +194,26 @@ if { [file tail [info nameofexecutable]] == "openroad" } {
     puts "area_report_end"
 }
 
+puts "check_unpropagated_clocks"
+
+foreach clock [all_clocks] {
+    if { ![get_property $clock propagated] } {
+        puts "[get_property $clock full_name]"
+    }
+}
+
+puts "check_unpropagated_clocks_end"
+
+puts "\n==========================================================================="
+puts "report_clock"
+puts "============================================================================"
+
+foreach clock [all_clocks] {
+    report_clock_properties $clock
+    report_clock_latency -clock $clock
+    report_clock_min_period -clocks [get_property $clock name]
+}
+
+puts "report_clock_end"
+
 write -no_global_connect
