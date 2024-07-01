@@ -204,10 +204,6 @@ foreach clock [all_clocks] {
 
 puts "check_nonpropagated_clocks_end"
 
-puts "\n==========================================================================="
-puts "report_clock"
-puts "============================================================================"
-
 foreach clock [all_clocks] {
     report_clock_properties $clock
     report_clock_latency -clock $clock
