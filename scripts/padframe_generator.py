@@ -99,7 +99,6 @@ class Dialog(tkinter.Toplevel):
     def __init__(
         self, parent, message=None, title=None, seed=None, border="blue", **kwargs
     ):
-
         tkinter.Toplevel.__init__(self, parent)
         self.transient(parent)
 
@@ -154,7 +153,6 @@ class Dialog(tkinter.Toplevel):
     # Standard button semantics
 
     def ok(self, event=None):
-
         if not self.validate():
             self.initial_focus.focus_set()  # put focus back
             return
@@ -165,7 +163,6 @@ class Dialog(tkinter.Toplevel):
         self.cancel()
 
     def cancel(self, event=None):
-
         # Put focus back to the parent window
         self.parent.focus_set()
         self.destroy()
@@ -378,7 +375,6 @@ class SoCFloorplanner(ttk.Frame):
         pane.paneconfig(self.toppane, stretch="first")
 
     def init_data(self):
-
         self.vlogpads = []
         self.corecells = []
         self.Npads = []
@@ -965,7 +961,6 @@ class SoCFloorplanner(ttk.Frame):
 
         height = self.ury - self.lly
         for pad in allpads:
-
             llx = pad["llx"]
             lly = height - pad["lly"]
             urx = pad["urx"]
@@ -1123,7 +1118,6 @@ class SoCFloorplanner(ttk.Frame):
         coreury = self.ury
 
         for cell in self.coregroup:
-
             if "llx" not in cell:
                 # Error message for this was handled above
                 continue
@@ -2369,7 +2363,6 @@ class SoCFloorplanner(ttk.Frame):
         # height *= 1.4
 
         if self.keep_cfg == False or not os.path.exists(mag_path + "/padframe.cfg"):
-
             if os.path.exists(mag_path + "/padframe.cfg"):
                 # Copy the previous padframe.cfg file to a backup.  In case something
                 # goes badly wrong, this should be the only file overwritten, and can
@@ -2600,7 +2593,6 @@ class SoCFloorplanner(ttk.Frame):
         mag_path = self.projectpath + "/mag"
         if not os.path.isfile(mag_path + "/" + self.project + ".def"):
             if os.path.isfile(mag_path + "/" + self.project + ".mag"):
-
                 # Create a DEF file from the layout
                 with open(mag_path + "/pfg_write_def.tcl", "w") as ofile:
                     print("drc off", file=ofile)
@@ -2623,7 +2615,6 @@ class SoCFloorplanner(ttk.Frame):
                 os.remove(mag_path + "/pfg_write_def.tcl")
 
             elif not os.path.isfile(mag_path + "/core.def"):
-
                 # With no other information available, copy the corecells
                 # (from the verilog file) into the coregroup list.
                 # Position all core cells starting at the padframe top left
@@ -2651,7 +2642,6 @@ class SoCFloorplanner(ttk.Frame):
                 nextlly = corelly
 
                 for cell in self.corecells:
-
                     testllx = locllx + cell["width"]
                     if testllx > coreurx:
                         locllx = corellx

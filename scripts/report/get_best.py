@@ -218,7 +218,6 @@ def save_top_results(results_dictionary, output_file, header):
 
 
 def findIdx(header, column):
-
     for idx in range(len(header)):
         if header[idx] == column:
             return int(idx)

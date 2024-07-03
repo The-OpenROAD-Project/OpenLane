@@ -18,10 +18,11 @@ import sys
 import json
 import os
 
+
 def get_submodule_revs(filter, repository, commit):
     api_result = None
     filter = re.compile(filter)
-    
+
     try:
         api_result = subprocess.check_output(
             [
@@ -41,7 +42,12 @@ def get_submodule_revs(filter, repository, commit):
     api_result_parsed = json.loads(api_result)
     api_result_tree = api_result_parsed["tree"]
     submodules = [element for element in api_result_tree if element["type"] == "commit"]
-    return {submodule["path"]: submodule["sha"] for submodule in submodules if filter.search(submodule["path"])}
+    return {
+        submodule["path"]: submodule["sha"]
+        for submodule in submodules
+        if filter.search(submodule["path"])
+    }
+
 
 def override_openroad_versions(commit):
     info = {
@@ -51,29 +57,43 @@ def override_openroad_versions(commit):
         }
     }
     submodule_revs = get_submodule_revs(r"sta|abc", info["openroad"]["repo"], commit)
-    info["opensta"] = { "rev": submodule_revs["src/sta"], "repo": "The-OpenROAD-Project/OpenSTA", }
-    info["openroad-abc"] = { "rev": submodule_revs["third-party/abc"], "repo": "The-OpenROAD-Project/abc", }
+    info["opensta"] = {
+        "rev": submodule_revs["src/sta"],
+        "repo": "The-OpenROAD-Project/OpenSTA",
+    }
+    info["openroad-abc"] = {
+        "rev": submodule_revs["third-party/abc"],
+        "repo": "The-OpenROAD-Project/abc",
+    }
     for derivation, info in info.items():
-        prefetch_info = subprocess.check_output([
-            "nix",
-            "run",
-            "github:seppeljordan/nix-prefetch-github",
-            "--",
-            "--rev", info["rev"],
-        ]+ info["repo"].split("/"), encoding="utf8")
+        prefetch_info = subprocess.check_output(
+            [
+                "nix",
+                "run",
+                "github:seppeljordan/nix-prefetch-github",
+                "--",
+                "--rev",
+                info["rev"],
+            ]
+            + info["repo"].split("/"),
+            encoding="utf8",
+        )
         prefetch_info_json = json.loads(prefetch_info)
         hash = prefetch_info_json["hash"]
-        subprocess.check_call([
-            "sed",
-            "-i.bak",
-            f"s/# {derivation}-rev-sha/rev = \"{info['rev']}\"; sha256 = \"{hash}\";/",
-            "flake.nix"
-        ])
-        
-    
-    
-if __name__ == '__main__':
-  parser = argparse.ArgumentParser(description="Adds overrides for a given OpenROAD commit hash to flake.nix. Requires Nix with Flakes+Nix-Command enabled as well as curl and GNU sed.")
-  parser.add_argument("commit", help="commit hash")
-  args = parser.parse_args()
-  override_openroad_versions(args.commit)
+        subprocess.check_call(
+            [
+                "sed",
+                "-i.bak",
+                f"s/# {derivation}-rev-sha/rev = \"{info['rev']}\"; sha256 = \"{hash}\";/",
+                "flake.nix",
+            ]
+        )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Adds overrides for a given OpenROAD commit hash to flake.nix. Requires Nix with Flakes+Nix-Command enabled as well as curl and GNU sed."
+    )
+    parser.add_argument("commit", help="commit hash")
+    args = parser.parse_args()
+    override_openroad_versions(args.commit)

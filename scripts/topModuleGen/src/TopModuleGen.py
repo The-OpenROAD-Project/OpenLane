@@ -116,6 +116,8 @@ padFrameModule = ""
 padFrameHeader = "chip_io padframe(\n"
 padFrameHeaderDefinition = "module chip_io(\n"
 padFrameWires = ""
+
+
 # parsePads is responsible for parsing the pads except for power/corner pads
 def parsePads():
     global topModuleHeader

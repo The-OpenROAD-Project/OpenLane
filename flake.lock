@@ -103,12 +103,12 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "dirtyRev": "8fd46e08259a761d5078c6c3b8b19dd58bb69e75-dirty",
-        "dirtyShortRev": "8fd46e0-dirty",
         "lastModified": 1719830786,
-        "narHash": "sha256-lweSOxCKJ6hAS+CtCRnSNnG7jM2ywBDjJCGzABUzl3c=",
-        "type": "git",
-        "url": "file:///Users/donn/efabless/nix-eda"
+        "narHash": "sha256-meVPi2d6TI44FjuqQc57Ve3UV1GP12uDVrRfHcACBdg=",
+        "owner": "efabless",
+        "repo": "nix-eda",
+        "rev": "8fd46e08259a761d5078c6c3b8b19dd58bb69e75",
+        "type": "github"
       },
       "original": {
         "owner": "efabless",
