@@ -30,36 +30,39 @@
     openlane2,
     ...
   }: let
+    nix-eda = openlane2.inputs.nix-eda;
     nixpkgs = openlane2.inputs.nixpkgs;
   in {
-    # Helper functions
-    forAllSystems = function:
-      nixpkgs.lib.genAttrs [
-        "x86_64-linux"
-        "aarch64-linux"
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ] (
-        system:
-          function (import nixpkgs {
-            inherit system;
-            overlays = [];
-          })
-      );
-
     # Outputs
-    packages = self.forAllSystems (pkgs: let
-      callPackage = pkgs.lib.callPackageWith (pkgs // openlane2.packages."${pkgs.system}" // self.packages.${pkgs.system} );
-      callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // openlane2.packages."${pkgs.system}" // openlane2.inputs.libparse.packages."${pkgs.system}" // openlane2.inputs.volare.packages."${pkgs.system}" // self.packages.${pkgs.system});
-    in
-      rec {
-        # ADD OVERRIDES HERE
-        openlane1 = callPythonPackage ./default.nix {};
-        default = openlane1;
-      }
-      // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {openlane1-docker = callPackage ./docker/docker.nix {
-        createDockerImage = openlane2.createDockerImage;
-      };}));
+    packages =
+      nix-eda.forAllSystems {
+        current = self;
+        withInputs = [nix-eda openlane2.inputs.libparse openlane2];
+      } (util:
+        with util; let
+          self =
+            {
+              openroad-abc = pkgs.openroad-abc.override {
+                # openroad-abc-rev-sha
+              };
+              opensta = pkgs.opensta.override {
+                # opensta-rev-sha
+              };
+              openroad = pkgs.openroad.override {
+                # openroad-rev-sha
+                openroad-abc = self.openroad-abc;
+                opensta = self.opensta;
+              };
+              openlane1 = callPythonPackage ./default.nix {};
+              default = self.openlane1;
+            }
+            // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {
+              openlane1-docker = callPackage ./docker/docker.nix {
+                createDockerImage = openlane2.createDockerImage;
+              };
+            });
+        in
+          self);
 
     # devShells = self.forAllSystems (
     #   pkgs: let

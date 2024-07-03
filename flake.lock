@@ -1,5 +1,28 @@
 {
   "nodes": {
+    "devshell": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "openlane2",
+          "nix-eda",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1717408969,
+        "narHash": "sha256-Q0OEFqe35fZbbRPPRdrjTUUChKVhhWXz3T9ZSKmaoVY=",
+        "owner": "numtide",
+        "repo": "devshell",
+        "rev": "1ebbe68d57457c8cae98145410b164b5477761f4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "devshell",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "narHash": "sha256-kvjfFW7WAETZlt09AgDn1MrtKzP7t90Vf7vypd3OL1U=",
@@ -13,18 +36,38 @@
         "url": "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1701680307,
+        "narHash": "sha256-kAuep2h5ajznlPMD9rnQyffWG8EM/C73lejGofXvdM8=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "4022d587cbbfd70fe950c1e2083a02621806a725",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "ioplace-parser": {
       "inputs": {
         "nixpkgs": [
           "openlane2",
+          "nix-eda",
           "nixpkgs"
         ]
       },
       "locked": {
-        "narHash": "sha256-0Lt3DVImH3TpwUh7sDW/6Cxsrmo5DDG+SCuirBFquXs=",
+        "lastModified": 1719837045,
+        "narHash": "sha256-ya2KEXKAIn8oYUi9G9TaUcQAEfGkbENCgXF/V0d/kws=",
         "owner": "efabless",
         "repo": "ioplace_parser",
-        "rev": "f1c163e8184fbce2676a19a1d28c3e6c0b5ddaf2",
+        "rev": "570fd3e352926f57e6eecbb8bd3892a5dec375b7",
         "type": "github"
       },
       "original": {
@@ -37,10 +80,12 @@
       "inputs": {
         "nixpkgs": [
           "openlane2",
+          "nix-eda",
           "nixpkgs"
         ]
       },
       "locked": {
+        "lastModified": 1713178934,
         "narHash": "sha256-1w6HBBE2bWAD0GM98O8WZRmZDW9+EzD0KFvnnH2ho/k=",
         "owner": "efabless",
         "repo": "libparse-python",
@@ -53,35 +98,55 @@
         "type": "github"
       }
     },
+    "nix-eda": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "dirtyRev": "8fd46e08259a761d5078c6c3b8b19dd58bb69e75-dirty",
+        "dirtyShortRev": "8fd46e0-dirty",
+        "lastModified": 1719830786,
+        "narHash": "sha256-lweSOxCKJ6hAS+CtCRnSNnG7jM2ywBDjJCGzABUzl3c=",
+        "type": "git",
+        "url": "file:///Users/donn/efabless/nix-eda"
+      },
+      "original": {
+        "owner": "efabless",
+        "repo": "nix-eda",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "narHash": "sha256-C36QmoJd5tdQ5R9MC1jM7fBkZW9zBUqbUCsgwS6j4QU=",
+        "lastModified": 1717144377,
+        "narHash": "sha256-F/TKWETwB5RaR8owkPPi+SPJh83AQsm6KrQAlJ8v/uA=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "c1be43e8e837b8dbee2b3665a007e761680f0c3d",
+        "rev": "805a384895c696f802a9bf5bf4720f37385df547",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
-        "ref": "nixos-23.11",
+        "ref": "nixos-24.05",
         "repo": "nixpkgs",
         "type": "github"
       }
     },
     "openlane2": {
       "inputs": {
+        "devshell": "devshell",
         "flake-compat": "flake-compat",
         "ioplace-parser": "ioplace-parser",
         "libparse": "libparse",
-        "nixpkgs": "nixpkgs",
+        "nix-eda": "nix-eda",
         "volare": "volare"
       },
       "locked": {
-        "lastModified": 1715082706,
-        "narHash": "sha256-OUaDO8RtK76NN3yuJZIwtel4kuRVmALkXJnTdMIeT8U=",
+        "lastModified": 1719911213,
+        "narHash": "sha256-rd4nqjpwNwqcpKGMx6QN6cX/2MjVt24I5CL9/QE45iM=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "058a93dfacf5352abd06931c3e45fec08cfa468e",
+        "rev": "315e8a220fc7327c4d146b9101b5dc5325862d58",
         "type": "github"
       },
       "original": {
@@ -96,19 +161,35 @@
         "openlane2": "openlane2"
       }
     },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
     "volare": {
       "inputs": {
         "nixpkgs": [
           "openlane2",
+          "nix-eda",
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1715078431,
-        "narHash": "sha256-w4NLYQwvE/UFgPZDOnKDpagTjKb8FwKWOp3wV/RvPFM=",
+        "lastModified": 1715167549,
+        "narHash": "sha256-QzMKToqiDQzMjBM2TW1VGMUxSLj70Uk4IdJVjIdkd5c=",
         "owner": "efabless",
         "repo": "volare",
-        "rev": "13ccef8de5d8b27311ffd458ac629953784b5224",
+        "rev": "b72ce150b80f67278d4c6b025183fb3941cab993",
         "type": "github"
       },
       "original": {
