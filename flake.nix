@@ -58,7 +58,7 @@
             }
             // (pkgs.lib.optionalAttrs (pkgs.stdenv.isLinux) {
               openlane1-docker = callPackage ./docker/docker.nix {
-                createDockerImage = openlane2.createDockerImage;
+                createDockerImage = nix-eda.createDockerImage;
               };
             });
         in
