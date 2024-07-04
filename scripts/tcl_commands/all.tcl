@@ -578,21 +578,26 @@ proc prep {args} {
         load_overrides -process_info_only $arg_values(-override_env)
     }
 
-    if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
-        puts_err "PDK_ROOT is not specified. Please make sure you have it set."
-        exit -1
-    } else {
-        puts_info "PDK Root: $::env(PDK_ROOT)"
-    }
-
     if { ! [info exists ::env(PDK)] } {
-        puts_err "PDK is not specified."
-        exit -1
-    } else {
-        puts_info "Process Design Kit: $::env(PDK)"
-        puts_verbose "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
-        set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
+        set ::env(PDK) "sky130A"
     }
+    puts_info "Process Design Kit: $::env(PDK)"
+
+    if { ! [info exists ::env(PDK_ROOT)] || $::env(PDK_ROOT) == "" } {
+        set pdk_family [string range $::env(PDK) 0 [expr [string length $::env(PDK)]-2]]
+        set opdks_version [exec python3 $::env(OPENLANE_ROOT)/dependencies/tool.py open_pdks -f commit]
+        if { [catch {exec volare path --pdk $pdk_family $opdks_version} volare_pdk_root] } {
+            puts_err "PDK_ROOT is not specified. Please make sure you have it set."
+            exit -1
+        } else {
+            set ::env(PDK_ROOT) $volare_pdk_root
+            puts_info "Set PDK Root using Volare. If you haven't downloaded it yet, try 'volare fetch'."
+        }
+    }
+    puts_info "PDK Root: $::env(PDK_ROOT)"
+
+    puts_verbose "Setting PDKPATH to $::env(PDK_ROOT)/$::env(PDK)"
+    set ::env(PDKPATH) $::env(PDK_ROOT)/$::env(PDK)
 
     ## 3. PDK-Specific Config
     if { [info exists ::env(STD_CELL_LIBRARY)] } {

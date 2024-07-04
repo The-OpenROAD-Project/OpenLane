@@ -37,7 +37,7 @@
     packages =
       nix-eda.forAllSystems {
         current = self;
-        withInputs = [nix-eda openlane2.inputs.libparse openlane2];
+        withInputs = [nix-eda openlane2.inputs.libparse openlane2.inputs.volare openlane2];
       } (util:
         with util; let
           self =

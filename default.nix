@@ -34,6 +34,7 @@
   magic-vlsi,
   verilog,
   verilator,
+  volare,
   tclFull,
 }: let
   pyenv = python3.withPackages (ps:
@@ -43,6 +44,7 @@
       pyyaml
       XlsxWriter
       klayout-pymod
+      volare
     ]);
   pyenv-sitepackages = "${pyenv}/${pyenv.sitePackages}";
 in

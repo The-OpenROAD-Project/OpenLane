@@ -512,7 +512,7 @@ proc manipulate_layout {args} {
     set_if_unset arg_values(-indexed_log) /dev/null
     set_if_unset arg_values(-input) $::env(CURRENT_ODB)
     set_if_unset arg_values(-output) $arg_values(-input)
-    set_if_unset arg_values(-output_def) /dev/null
+    set_if_unset arg_values(-output_def) [file rootname $arg_values(-output)].def
 
     run_odbpy_script\
         {*}$args \
