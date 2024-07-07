@@ -111,7 +111,6 @@ def count_LVS_failures(filename):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description="Parses netgen lvs")
     parser.add_argument("--file", "-f", required=True)
     args = parser.parse_args()

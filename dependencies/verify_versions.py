@@ -128,7 +128,8 @@ def verify_versions(
                     )
 
                 for name, commit in tool_versions:
-                    print(name, commit)
+                    if name not in manifest_dict:
+                        continue
                     manifest_commit = manifest_dict[name]["commit"]
 
                     if commit != manifest_commit:

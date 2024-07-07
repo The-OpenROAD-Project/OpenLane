@@ -31,31 +31,33 @@
   openroad,
   klayout,
   netgen,
-  magic,
+  magic-vlsi,
   verilog,
   verilator,
+  volare,
   tclFull,
-}:
-let
-  pyenv = (python3.withPackages (ps: with ps; [
-    libparse
-    click
-    pyyaml
-    XlsxWriter
-    klayout-pymod
-  ]));
+}: let
+  pyenv = python3.withPackages (ps:
+    with ps; [
+      libparse
+      click
+      pyyaml
+      XlsxWriter
+      klayout-pymod
+      volare
+    ]);
   pyenv-sitepackages = "${pyenv}/${pyenv.sitePackages}";
 in
   stdenv.mkDerivation rec {
     name = "openlane1";
-    
+
     src = [
       ./flow.tcl
       ./scripts
       ./configuration
       ./dependencies
     ];
-    
+
     unpackPhase = ''
       echo $src
       for file in $src; do
@@ -64,49 +66,51 @@ in
       done
       ls -lah
     '';
-    
+
     passthru = {
       pyenv = pyenv;
     };
-    
+
     includedTools = [
       yosys
       opensta
       openroad
       klayout
       netgen
-      magic
+      magic-vlsi
       verilog
       verilator
       tclFull
     ];
-  
-    propagatedBuildInputs = includedTools ++ [
-      pyenv
-      ncurses
-      coreutils-full
-      gnugrep
-      gnused
-      bash
-      gnutar
-      gzip
-      git
-    ];
-    
+
+    propagatedBuildInputs =
+      includedTools
+      ++ [
+        pyenv
+        ncurses
+        coreutils-full
+        gnugrep
+        gnused
+        bash
+        gnutar
+        gzip
+        git
+      ];
+
     nativeBuildInputs = [makeWrapper];
-    
+
     installPhase = ''
       mkdir -p $out/bin
       cp -r * $out/bin
       wrapProgram $out/bin/flow.tcl\
-        --set PATH ${lib.makeBinPath (propagatedBuildInputs)}\
-        --set PYTHONPATH ${pyenv-sitepackages} 
+        --set PATH ${lib.makeBinPath propagatedBuildInputs}\
+        --set PYTHONPATH ${pyenv-sitepackages}
     '';
-    
+
     doCheck = true;
-    
-    computed_PATH = lib.makeBinPath (propagatedBuildInputs);
-    
+
+    computed_PATH = lib.makeBinPath propagatedBuildInputs;
+
     meta = with lib; {
       description = "RTL-to-GDSII flow for application-specific integrated circuits (ASIC)s";
       homepage = "https://efabless.com/openlane";
