@@ -1,6 +1,6 @@
 <p align="center">
     <a href="https://github.com/efabless/openlane2">
-        <img src="./docs/_static/ol2_banner.svg" style="width: 70%;overflow: visible" alt="Banner explaining that OpenLane is currently only for hardening Caravel User Project-based designs targeting chipIgnite"/>
+        <img src="./docs/_static/ol2_banner.png" style="width: 70%;overflow: visible" alt="Banner explaining that OpenLane is currently only for hardening Caravel User Project-based designs targeting chipIgnite"/>
     </a>
 </p>
 
