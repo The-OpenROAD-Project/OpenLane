@@ -834,9 +834,9 @@ class Emitter:
         # Spaces followed by breaks, as well as special character are only
         # allowed for double quoted scalars.
         if space_break or special_characters:
-            allow_flow_plain = (
-                allow_block_plain
-            ) = allow_single_quoted = allow_block = False
+            allow_flow_plain = allow_block_plain = allow_single_quoted = allow_block = (
+                False
+            )
 
         # Although the plain scalar writer supports breaks, we never emit
         # multiline plain scalars.
