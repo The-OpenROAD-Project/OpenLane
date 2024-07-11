@@ -84,12 +84,14 @@ class Tool(object):
                 commit=tool["commit"],
                 build_script=tool.get("build") or "",
                 default_branch=tool.get("default_branch") or None,
-                in_container=tool["in_container"]
-                if tool.get("in_container") is not None
-                else True,
-                in_install=tool["in_install"]
-                if tool.get("in_install") is not None
-                else True,
+                in_container=(
+                    tool["in_container"]
+                    if tool.get("in_container") is not None
+                    else True
+                ),
+                in_install=(
+                    tool["in_install"] if tool.get("in_install") is not None else True
+                ),
                 pdk=tool.get("pdk") or False,
             )
         return final_dict
