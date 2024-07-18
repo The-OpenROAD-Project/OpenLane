@@ -241,6 +241,8 @@ class Report(object):
             ("_sta.skew.rpt", "skew_report"),
             ("_sta.summary.rpt", "summary_report"),
             ("_sta.power.rpt", "power_report"),
+            ("_sta.nonpropagated.rpt", "check_nonpropagated_clocks"),
+            ("_sta.clock.rpt", "report_clock"),
         ]
 
         for name, log in [
