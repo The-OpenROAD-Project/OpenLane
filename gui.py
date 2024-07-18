@@ -109,6 +109,14 @@ def gui(viewer, format, run_dir, stage):
                 layout,
             ]
         )
+        pythonpath = subprocess.check_output(
+            [
+                "python3",
+                "-c",
+                "import click; import os; print(os.path.dirname(click.__path__[0])); print(1)",
+            ]
+        ).decode()
+        run_env["PYTHONPATH"] = pythonpath
         subprocess.check_call(
             [
                 "klayout",

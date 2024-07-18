@@ -167,24 +167,6 @@ proc read {args} {
     sta::parse_key_args "read" args \
         keys {-lib_fastest -lib_typical -lib_slowest} \
         flags {-no_spefs -set_lib_operating_conditions}
-
-    if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
-        if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
-            puts stderr $errmsg
-            exit 1
-        }
-        if { [ catch {read_def $::env(CURRENT_DEF)} errmsg ]} {
-            puts stderr $errmsg
-            exit 1
-        }
-    } else {
-        puts "\[INFO\]: Reading ODB at '$::env(CURRENT_ODB)'…"
-        if { [ catch {read_db $::env(CURRENT_ODB)} errmsg ]} {
-            puts stderr $errmsg
-            exit 1
-        }
-    }
-
     set read_libs_args [list]
 
     if { [info exists keys(-lib_typical)]} {
@@ -204,6 +186,23 @@ proc read {args} {
     }
 
     read_libs {*}$read_libs_args
+
+    if { [info exists ::env(IO_READ_DEF)] && $::env(IO_READ_DEF) } {
+        if { [ catch {read_lef $::env(MERGED_LEF)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
+        if { [ catch {read_def $::env(CURRENT_DEF)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    } else {
+        puts "\[INFO\]: Reading ODB at '$::env(CURRENT_ODB)'…"
+        if { [ catch {read_db $::env(CURRENT_ODB)} errmsg ]} {
+            puts stderr $errmsg
+            exit 1
+        }
+    }
 
     read_sdc_wrapper
 

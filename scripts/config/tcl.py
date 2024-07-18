@@ -313,7 +313,7 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
                 whitespace_found = False
                 comma_found = False
                 processed = []
-                for (i, item) in enumerate(value):
+                for i, item in enumerate(value):
                     current_key = f"{key}[{i}]"
                     result = process_scalar(current_key, item, state)
                     if whitespace_rx.search(result) is not None:
