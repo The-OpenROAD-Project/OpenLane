@@ -57,6 +57,7 @@ def magic_to_rdb(
     1800 2200
     1800 2200
     """
+
     # Developed by @ganeshgore
     class State(IntEnum):
         drc = 0
@@ -81,7 +82,6 @@ def magic_to_rdb(
             output.write(f"{drcRule[1][:-1]}: {drcRule[0]}\n")
             drcNumber = 1
         elif state == State.data:
-
             cord = [
                 int(float(i)) * 100 for i in line.strip().replace("um", "").split(" ")
             ]

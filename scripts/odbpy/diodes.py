@@ -322,7 +322,6 @@ def place(
     port_protect,
     threshold_microns,
 ):
-
     print(f"Design name: {reader.name}")
 
     pp_val = {

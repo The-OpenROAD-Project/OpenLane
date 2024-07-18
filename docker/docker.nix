@@ -25,15 +25,11 @@
   silver-searcher,
   coreutils,
 }:
-
-assert builtins.elem system ["x86_64-linux" "aarch64-linux"];
-
-let
-  docker-arch-name = if system == "x86_64-linux" then
-    "amd64"
-  else
-    "arm64v8"
-  ;
+assert builtins.elem system ["x86_64-linux" "aarch64-linux"]; let
+  docker-arch-name =
+    if system == "x86_64-linux"
+    then "amd64"
+    else "arm64v8";
 in (createDockerImage {
   inherit pkgs;
   inherit lib;
@@ -53,7 +49,7 @@ in (createDockerImage {
   };
   maxLayers = 2;
   channelURL = "https://nixos.org/channels/nixos-23.11";
-  
+
   image-created = "now";
   image-extraCommands = ''
     mkdir -p ./etc
@@ -63,7 +59,7 @@ in (createDockerImage {
     autoload -U compinit && compinit
     autoload -U promptinit && promptinit && prompt suse && setopt prompt_sp
     autoload -U colors && colors
-    
+
     export PS1=$'%{\033[31m%}OpenLane Container%{\033[0m%}:%{\033[32m%}%~%{\033[0m%}%% ';
     HEREDOC
   '';
@@ -74,10 +70,10 @@ in (createDockerImage {
     openlane1.computed_PATH
   ];
   image-config-extra-env = [
-      "LANG=C.UTF-8"
-      "LC_ALL=C.UTF-8"
-      "LC_CTYPE=C.UTF-8"
-      "EDITOR=nvim"
-      "TMPDIR=/tmp"
+    "LANG=C.UTF-8"
+    "LC_ALL=C.UTF-8"
+    "LC_CTYPE=C.UTF-8"
+    "EDITOR=nvim"
+    "TMPDIR=/tmp"
   ];
 })
