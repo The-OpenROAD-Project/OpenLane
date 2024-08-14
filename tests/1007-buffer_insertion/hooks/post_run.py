@@ -14,7 +14,6 @@
 
 import os
 import odb
-import odb
 from openroad import Tech, Design
 
 ord_tech = Tech()
