@@ -124,7 +124,7 @@ def run_test_case(test_case):
 
         result = subprocess.Popen(
             [
-                "flow.tcl",
+                os.path.join(openlane_root, "flow.tcl"),
                 "-design",
                 test_case,
                 "-verbose",

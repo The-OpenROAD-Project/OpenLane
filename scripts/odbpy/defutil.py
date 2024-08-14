@@ -87,10 +87,7 @@ cli.add_command(merge_components)
 
 
 def move_diearea(target_db, input_lef, template_def):
-    source_db = odb.dbDatabase.create()
-
-    odb.read_lef(source_db, input_lef)
-    odb.read_def(source_db.getTech(), template_def)
+    source_db = OdbReader(input_lef, template_def).db
 
     assert (
         source_db.getTech().getManufacturingGrid()
@@ -164,9 +161,7 @@ def relocate_pins(db, input_lef, template_def):
     # --------------------------------
     # 2. Read the donor def
     # --------------------------------
-    template_db = odb.dbDatabase.create()
-    odb.read_lef(template_db, input_lef)
-    odb.read_def(template_db.getTech(), template_def)
+    template_db = OdbReader(input_lef, template_def).db
     template_bterms = template_db.getChip().getBlock().getBTerms()
 
     assert (

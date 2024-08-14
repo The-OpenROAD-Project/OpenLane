@@ -22,7 +22,7 @@
   };
 
   inputs = {
-    openlane2.url = github:efabless/openlane2/dev;
+    openlane2.url = github:efabless/openlane2/2.1.1;
   };
 
   outputs = {
@@ -50,8 +50,14 @@
               };
               openroad = pkgs.openroad.override {
                 # openroad-rev-sha
+                # https://github.com/The-OpenROAD-Project/OpenROAD/discussions/4743
                 openroad-abc = self.openroad-abc;
                 opensta = self.opensta;
+              };
+              magic = pkgs.magic.override {
+                # https://github.com/RTimothyEdwards/magic/issues/317
+                rev = "8.3.478";
+                sha256 = "sha256-aFFKbSqIgpkYjFZfpW3C52N1yQc5+KiLyf5jC16K5UU=";
               };
               openlane1 = callPythonPackage ./default.nix {};
               default = self.openlane1;
@@ -63,13 +69,5 @@
             });
         in
           self);
-
-    # devShells = self.forAllSystems (
-    #   pkgs: let
-    #     callPackage = pkgs.lib.callPackageWith (pkgs // self.packages.${pkgs.system});
-    #     callPythonPackage = pkgs.lib.callPackageWith (pkgs // pkgs.python3.pkgs // self.packages.${pkgs.system});
-    #   in rec {
-    #   }
-    # );
   };
 }
