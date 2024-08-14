@@ -28,8 +28,7 @@ class OdbReader(object):
 
     def __init__(self, *args):
         if primary := OdbReader.primary_reader:
-            self.db = odb.dbDatabase.create()
-            self.db.setLogger(primary.design.getLogger())
+            self.db = primary.design.createDetachedDb()
         else:
             self.ord_tech = Tech()
             self.design = Design(self.ord_tech)

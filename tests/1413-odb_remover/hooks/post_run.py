@@ -14,8 +14,11 @@
 
 import os
 import odb
+from openroad import Tech, Design
 
-db = odb.dbDatabase.create()
+ord_tech = Tech()
+design = Design(ord_tech)
+db = ord_tech.getDB()
 odb.read_db(db, os.getenv("CURRENT_ODB"))
 nets = db.getChip().getBlock().getNets()
 pins = db.getChip().getBlock().getBTerms()
