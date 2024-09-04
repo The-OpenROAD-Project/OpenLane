@@ -50,7 +50,7 @@ runs:
         docker save -o /tmp/image-${{ inputs.arch }}.tar efabless/openlane:current-${{ inputs.arch }}
 
     - name: Upload Docker Image
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: docker-image-${{ inputs.arch }}
         path: /tmp/image-${{ inputs.arch }}.tar
