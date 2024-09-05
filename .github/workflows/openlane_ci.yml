@@ -43,24 +43,10 @@ jobs:
 
           python3 -m pip install --upgrade --no-cache-dir volare
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
-          if [ "${{ vars.VOLARE_REPO }}" != "" ]; then
-            volare enable_or_build\
-              --pdk $PDK_FAMILY\
-              --build-magic\
-              --also-push\
-              --token ${{ secrets.MY_TOKEN }}\
-              --owner ${{ vars.VOLARE_OWNER }}\
-              --repository ${{ vars.VOLARE_REPO }}\
-              -j$(nproc)\
-              $OPDKS_VER
-          else
-            volare enable_or_build\
-              --pdk $PDK_FAMILY\
-              --build-magic\
-              --token ${{ secrets.MY_TOKEN }}\
-              -j$(nproc)\
-              $OPDKS_VER
-          fi
+          volare enable\
+            --pdk $PDK_FAMILY\
+            --token ${{ secrets.MY_TOKEN }}\
+            $OPDKS_VER
 
       - name: Tarball PDK
         run: |
