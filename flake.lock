@@ -142,16 +142,15 @@
         "volare": "volare"
       },
       "locked": {
-        "lastModified": 1722786339,
-        "narHash": "sha256-eU9EXz2QaLegqwp1NUod7eyOLoA8nry+2h69avqd5TU=",
+        "lastModified": 1725533022,
+        "narHash": "sha256-QIvfUGcSOBI3rsjitShX2RZXmmF6ornWmN8tzNEC/NQ=",
         "owner": "efabless",
         "repo": "openlane2",
-        "rev": "129fc2211fd6e51d6a6e899ff010d6ae675739ee",
+        "rev": "e56eac03f89991da64157cd08f4201391f207851",
         "type": "github"
       },
       "original": {
         "owner": "efabless",
-        "ref": "2.1.1",
         "repo": "openlane2",
         "type": "github"
       }
@@ -185,11 +184,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1715167549,
-        "narHash": "sha256-QzMKToqiDQzMjBM2TW1VGMUxSLj70Uk4IdJVjIdkd5c=",
+        "lastModified": 1724178650,
+        "narHash": "sha256-p+Li/z3l7ShRSIKUrxVK+7uGhSvqPE7jOW4FA4k3SIw=",
         "owner": "efabless",
         "repo": "volare",
-        "rev": "b72ce150b80f67278d4c6b025183fb3941cab993",
+        "rev": "0090420799258d29adca54c8951d38bb8b605aeb",
         "type": "github"
       },
       "original": {

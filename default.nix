@@ -27,7 +27,7 @@
   bash,
   klayout-pymod,
   yosys,
-  opensta,
+  opensta-stable,
   openroad,
   klayout,
   netgen,
@@ -73,7 +73,7 @@ in
 
     includedTools = [
       yosys
-      opensta
+      opensta-stable
       openroad
       klayout
       netgen
