@@ -204,12 +204,14 @@ foreach clock [all_clocks] {
 
 puts "check_nonpropagated_clocks_end"
 
-foreach clock [all_clocks] {
-    report_clock_properties $clock
-    report_clock_latency -clock $clock
-    report_clock_min_period -clocks [get_property $clock name]
-}
+# puts "report_clock"
 
-puts "report_clock_end"
+# foreach clock [all_clocks] {
+#     report_clock_properties $clock
+#     report_clock_latency -clock $clock
+#     report_clock_min_period -clocks [get_property $clock name]
+# }
+
+# puts "report_clock_end"
 
 write -no_global_connect
