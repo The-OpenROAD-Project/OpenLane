@@ -55,7 +55,7 @@ def get_tag() -> str:
 
         branch_name = branch_name_data.stdout.decode("utf8").strip()
         if branch_name not in ["", "HEAD"]:
-            if branch_name not in ["main", "master"]:
+            if branch_name not in ["main", "master", "superstable"]:
                 return canon(f"{branch_name}-dev")
 
         process_data: subprocess.CompletedProcess = subprocess.run(

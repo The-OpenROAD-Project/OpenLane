@@ -1,3 +1,4 @@
--r ./dependencies/python/compile_time.txt
 -r ./requirements.txt
--r ./requirements_lint.txt
+black~=22.3.0
+flake8~=4.0.1
+flake8-no-implicit-concat==0.3.3

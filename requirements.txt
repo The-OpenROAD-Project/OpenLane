@@ -1,2 +1,5 @@
--r ./dependencies/python/precompile_time.txt
--r ./dependencies/python/run_time.txt
+pip
+wheel
+volare
+click>=8.0.0,<9
+pyyaml>=6.0.0,<7
