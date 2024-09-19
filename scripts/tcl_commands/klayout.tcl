@@ -194,5 +194,3 @@ proc open_in_klayout {args} {
 		--lym $::env(KLAYOUT_DEF_LAYER_MAP)\
 		$arg_values(-layout)
 }
-
-package provide openlane 0.9

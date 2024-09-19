@@ -74,5 +74,3 @@ proc run_erc {args} {
 proc run_lef_cvc {args} {
     handle_deprecated_command run_erc
 }
-
-package provide openlane 0.9

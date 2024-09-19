@@ -13,43 +13,25 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import datetime
-import subprocess
+import os
+import re
 from gh import gh
 
 new_tag = "NO_NEW_TAG"
 
-print("Getting latest release index…")
+tags = [tag for _, tag in gh.openlane.tags]
 
-print("Getting the latest tag…")
+openlane_tm_rx = re.compile(r"openlane-(.+?)\.tm")
 
-latest_tag = None
-latest_tag_commit = None
-commits_with_tags = gh.openlane.tags
-tags = [tag for _, tag in commits_with_tags]
-for tag in commits_with_tags:
-    commit, name = tag
-    latest_tag = name
-    latest_tag_commit = commit
-
-commit_count = int(
-    subprocess.check_output(
-        ["git", "rev-list", "--count", "%s..%s" % (latest_tag_commit, "HEAD")]
-    )
-)
-
-if commit_count == 0:
-    print("No new commits. A tag will not be created.")
-else:
-    now = datetime.datetime.now()
-
-    time = now.strftime("%Y.%m.%d")
-    new_tag = time
-    release_counter = 0
-    while new_tag in tags:
-        release_counter += 1
-        new_tag = f"{time}r{release_counter}"
-
-    print("Naming new tag %s." % new_tag)
+for file in os.listdir("scripts"):
+    match = openlane_tm_rx.match(file)
+    if match is not None:
+        tag = match[1]
+        if tag not in tags:
+            new_tag = tag
+            print("Naming new tag %s." % new_tag)
+        else:
+            print("No new tag found.")
+        break
 
 gh.export_env("NEW_TAG", new_tag)

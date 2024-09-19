@@ -53,5 +53,3 @@ if { \[file exists \$filename\] == 1} {
 
     puts_info "Finished populating:\n$config_path \nPlease modify CLOCK_PORT, CLOCK_PERIOD and add your advanced settings to $config_path"
 }
-
-package provide openlane 0.9

@@ -296,5 +296,3 @@ proc erase_box {args} {
     unset ::env(_tmp_mag_box_coordinates)
     unset ::env(SAVE_GDS)
 }
-
-package provide openlane 0.9

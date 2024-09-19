@@ -756,5 +756,3 @@ proc run_tcl_script {args} {
         }
     }
 }
-
-package provide openlane_utils 0.9
