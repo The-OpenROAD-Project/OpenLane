@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set scripts_dir [ file dirname [ file normalize [ info script ] ] ]
-foreach file [glob $scripts_dir/tcl_commands/*.tcl] {
+foreach file [glob "$scripts_dir/tcl_commands/*.tcl"] {
     source $file
 }
