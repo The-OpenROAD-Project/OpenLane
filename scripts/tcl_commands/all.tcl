@@ -868,8 +868,8 @@ proc prep {args} {
         file copy -force $::env(PDK_ROOT)/$::env(PDK)/SOURCES $::env(RUN_DIR)/PDK_SOURCES
     }
 
-    if { [info exists ::env(OPENLANE_VERSION) ] } {
-        try_exec echo "OpenLane $::env(OPENLANE_VERSION)" > $::env(RUN_DIR)/OPENLANE_VERSION
+    if { [info exists ::env(OPENLANE_COMMIT) ] } {
+        try_exec echo "OpenLane $::env(OPENLANE_COMMIT)" > $::env(RUN_DIR)/OPENLANE_COMMIT
     }
 
     if { [info exists ::env(EXTRA_GDS_FILES)] } {
@@ -1322,5 +1322,3 @@ proc run_post_run_hooks {} {
         puts_verbose "No post-run hook found, skipping..."
     }
 }
-
-package provide openlane 0.9

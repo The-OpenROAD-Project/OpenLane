@@ -518,5 +518,3 @@ proc run_floorplan {args} {
 
     run_power_grid_generation
 }
-
-package provide openlane 0.9

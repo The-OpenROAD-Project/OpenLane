@@ -81,7 +81,7 @@ This is a typical structure for a design folder:
 │       ├── config.json
 │       ├── logs
 │       ├── openlane.log
-│       ├── OPENLANE_VERSION
+│       ├── OPENLANE_COMMIT
 │       ├── PDK_SOURCES
 │       ├── reports
 │       ├── results

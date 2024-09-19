@@ -294,10 +294,6 @@ jobs:
         with:
           name: pdk-tarball
 
-      - name: Write Main Branch
-        run: |
-          echo "MAIN_BRANCH=${{ vars.MAIN_BRANCH }}" >> $GITHUB_ENV
-
       - name: Write Hash
         run: |
           echo "GIT_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
@@ -310,7 +306,7 @@ jobs:
           done
 
       - name: Create Tag (If scheduled or dispatched)
-        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
+        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (env.BRANCH_NAME == vars.MAIN_BRANCH || env.BRANCH_NAME == 'superstable') }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
       - name: Tag Commit (If scheduled or dispatched)

@@ -17,7 +17,7 @@ set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
 if { ! [info exists ::env(OPENROAD_BIN) ] } {
     set ::env(OPENROAD_BIN) openroad
 }
-lappend ::auto_path "$::env(OPENLANE_ROOT)/scripts/"
+set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts:$::env(TCL8_5_TM_PATH)"
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {
@@ -371,21 +371,21 @@ set flags {-interactive -it -drc -lvs -synth_explore -run_hooks}
 
 parse_key_args "flow.tcl" argv arg_values $options flags_map $flags -no_consume
 
-if {[catch {exec cat /git_version} ::env(OPENLANE_VERSION)]} {
-    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_VERSION)]} {
-        set ::env(OPENLANE_VERSION) ""
+if {[catch {exec cat /git_version} ::env(OPENLANE_COMMIT)]} {
+    if {[catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_COMMIT)]} {
+        set ::env(OPENLANE_COMMIT) ""
     }
 }
 
 if { [file isdirectory $::env(OPENLANE_ROOT)/.git] } {
     if {![catch {exec git --git-dir $::env(OPENLANE_ROOT)/.git rev-parse HEAD} ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)]} {
-        if { $::env(OPENLANE_VERSION) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
+        if { $::env(OPENLANE_COMMIT) == $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)} {
             unset ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)
         }
     }
 }
 
-puts "OpenLane $::env(OPENLANE_VERSION)"
+puts "OpenLane v[package version openlane] ($::env(OPENLANE_COMMIT))"
 if { [info exists ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)] } {
     puts "(with mounted scripts from $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION))"
 }

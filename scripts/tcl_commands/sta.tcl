@@ -202,5 +202,3 @@ proc run_parasitics_sta {args} {
         }
     }
 }
-
-package provide openlane 0.9

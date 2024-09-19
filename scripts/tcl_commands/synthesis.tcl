@@ -338,5 +338,3 @@ proc run_verilator {} {
         puts_info "$warnings_count warnings found by linter"
     }
 }
-
-package provide openlane 0.9
