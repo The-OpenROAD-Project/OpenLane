@@ -18,7 +18,7 @@ if { ! [info exists ::env(OPENROAD_BIN) ] } {
     set ::env(OPENROAD_BIN) openroad
 }
 if { [info exists ::env(TCL8_5_TM_PATH)] } {
-    set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts:$::env(TCL_8_5_TM_PATH)"
+    set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts:$::env(TCL8_5_TM_PATH)"
 } else {
     set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts"
 }
