@@ -203,6 +203,3 @@ proc run_lvs {{layout "$::env(EXT_NETLIST)"}} {
 proc run_netgen {args} {
     handle_deprecated_command run_lvs
 }
-
-package provide openlane 0.9
-

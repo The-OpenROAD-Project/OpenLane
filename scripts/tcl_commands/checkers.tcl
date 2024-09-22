@@ -401,5 +401,3 @@ proc quit_on_klayout_drc {report_file} {
         puts_info "No KLayout DRC violations after GDS streaming out."
     }
 }
-
-package provide openlane 0.9

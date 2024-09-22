@@ -4,7 +4,7 @@ This page describes the list of commands available in OpenLane, their functional
 
 **NOTE:** You must run the `prep` command before running any of the other commands, in order to have the necessary files and configurations loaded.
 
-The following commands are available in the interactive mode: `./flow.tcl -interactive`, or in Tclsh using `% package require openlane 0.9`.
+The following commands are available in the interactive mode: `./flow.tcl -interactive`, or in Tclsh using `% package require openlane`.
 
 ## General Commands
 

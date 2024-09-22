@@ -785,5 +785,3 @@ proc run_odbpy_script {args} {
     try_exec $::env(OPENROAD_BIN) -exit -no_init -python {*}$args
     unset ::env(PYTHONPATH)
 }
-
-package provide openlane_utils 0.9

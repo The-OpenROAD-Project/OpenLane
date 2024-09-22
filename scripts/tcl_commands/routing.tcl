@@ -464,6 +464,3 @@ proc run_resizer_timing_routing {args} {
         puts_info "Skipping Global Routing Resizer Timing Optimizations."
     }
 }
-
-
-package provide openlane 0.9
