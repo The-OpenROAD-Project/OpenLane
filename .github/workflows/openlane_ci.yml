@@ -281,12 +281,12 @@ jobs:
             docker load --input /tmp/image-$arch.tar
           done
 
-      - name: Create Tag (If scheduled or dispatched)
-        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (env.BRANCH_NAME == vars.MAIN_BRANCH || env.BRANCH_NAME == 'superstable') }}
+      - name: Create Tag
+        if: ${{ env.PUSHING == '1' && (env.BRANCH_NAME == vars.MAIN_BRANCH || env.BRANCH_NAME == 'superstable') }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
-      - name: Tag Commit (If scheduled or dispatched)
-        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.NEW_TAG != 'NO_NEW_TAG' }}
+      - name: Tag Commit
+        if: ${{ env.PUSHING == '1' && env.NEW_TAG != 'NO_NEW_TAG' }}
         uses: tvdias/github-tagger@v0.0.1
         with:
           tag: "${{ env.NEW_TAG }}"
