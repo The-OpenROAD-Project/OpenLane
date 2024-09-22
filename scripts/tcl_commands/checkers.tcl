@@ -376,5 +376,3 @@ proc quit_on_unconnected_pdn_nodes {args} {
         throw_error
     }
 }
-
-package provide openlane 0.9

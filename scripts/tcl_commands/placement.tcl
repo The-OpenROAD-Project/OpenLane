@@ -199,5 +199,3 @@ proc run_resizer_design {args} {
         puts_info "Skipping Placement Resizer Design Optimizations."
     }
 }
-
-package provide openlane 0.9

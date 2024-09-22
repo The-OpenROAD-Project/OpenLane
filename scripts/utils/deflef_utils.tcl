@@ -222,6 +222,3 @@ proc insert_buffer {args} {
 
     incr ::env(INSERT_BUFFER_COUNTER)
 }
-
-
-package provide openlane_utils 0.9

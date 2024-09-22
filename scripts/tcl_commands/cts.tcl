@@ -71,6 +71,3 @@ proc run_resizer_timing {args} {
         puts_info "Skipping Placement Resizer Timing Optimizations."
     }
 }
-
-
-package provide openlane 0.9

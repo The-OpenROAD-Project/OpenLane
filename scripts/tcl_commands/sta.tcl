@@ -186,5 +186,3 @@ proc run_parasitics_sta {args} {
 
     set ::env(CURRENT_SDC) $backup_sdc_variable
 }
-
-package provide openlane 0.9

@@ -19,7 +19,7 @@ jobs:
       matrix:
         pdk: [sky130A, gf180mcuC]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
@@ -53,7 +53,7 @@ jobs:
           tar -cf /tmp/${{ matrix.pdk }}.tar -C $PDK_ROOT/${{ matrix.pdk }} .
 
       - name: Upload PDK Tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pdk-tarball-${{ matrix.pdk }}
           path: /tmp/${{ matrix.pdk }}.tar
@@ -64,7 +64,7 @@ jobs:
       design_matrix: ${{ steps.set-matrix.outputs.design_matrix }}
       issue_regression_matrix: ${{ steps.set-matrix.outputs.issue_regression_matrix }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Python Dependencies
@@ -88,7 +88,7 @@ jobs:
     name: Docker Build (amd64)
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/docker_build
         with:
@@ -100,7 +100,7 @@ jobs:
     name: Docker Build (arm64v8)
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/docker_build
         with:
@@ -116,13 +116,13 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.issue_regression_matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image-amd64
           path: /tmp
@@ -131,7 +131,7 @@ jobs:
         run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: pdk-tarball-sky130A
           path: /tmp
@@ -150,7 +150,7 @@ jobs:
 
       - name: Upload Logs
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test_${{ matrix.test }}_logs
           path: ./test_logs
@@ -164,7 +164,7 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.design_matrix) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
@@ -172,7 +172,7 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image-amd64
           path: /tmp
@@ -181,7 +181,7 @@ jobs:
         run: docker load --input /tmp/image-amd64.tar
 
       - name: Download PDK Tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: pdk-tarball-${{ matrix.design.pdk }}
           path: /tmp
@@ -216,7 +216,7 @@ jobs:
 
       - name: Upload Run Tarball
         if: ${{ always() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ESCAPED_DESIGN_NAME }}-${{ matrix.design.pdk }}
           path: ./reproducible.tar.gz
@@ -236,7 +236,7 @@ jobs:
           export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
           echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -244,13 +244,13 @@ jobs:
         uses: ./.github/actions/set_env_variables
 
       - name: Download Docker Image (amd64)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image-amd64
           path: /tmp
 
       - name: Download Docker Image (arm64v8)
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: docker-image-arm64v8
           path: /tmp
@@ -270,10 +270,6 @@ jobs:
         with:
           name: pdk-tarball
 
-      - name: Write Main Branch
-        run: |
-          echo "MAIN_BRANCH=${{ vars.MAIN_BRANCH }}" >> $GITHUB_ENV
-
       - name: Write Hash
         run: |
           echo "GIT_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
@@ -286,7 +282,7 @@ jobs:
           done
 
       - name: Create Tag (If scheduled or dispatched)
-        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && env.BRANCH_NAME == env.MAIN_BRANCH }}
+        if: ${{ env.PUSHING == '1' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && (env.BRANCH_NAME == vars.MAIN_BRANCH || env.BRANCH_NAME == 'superstable') }}
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
       - name: Tag Commit (If scheduled or dispatched)
