@@ -17,7 +17,11 @@ set ::env(OPENLANE_ROOT) [file dirname [file normalize [info script]]]
 if { ! [info exists ::env(OPENROAD_BIN) ] } {
     set ::env(OPENROAD_BIN) openroad
 }
-set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts:$::env(TCL8_5_TM_PATH)"
+if { [info exists ::env(TCL8_5_TM_PATH)] } {
+    set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts:$::env(TCL_8_5_TM_PATH)"
+} else {
+    set ::env(TCL8_5_TM_PATH) "$::env(OPENLANE_ROOT)/scripts"
+}
 package require openlane; # provides the utils as well
 
 proc run_placement_step {args} {

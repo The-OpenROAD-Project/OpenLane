@@ -386,7 +386,6 @@ proc quit_on_unconnected_pdn_nodes {args} {
         throw_error
     }
 }
-<<<<<<< HEAD
 
 proc quit_on_klayout_drc {report_file} {
     set violations_dict [json::json2dict [cat $report_file]]
@@ -402,7 +401,3 @@ proc quit_on_klayout_drc {report_file} {
         puts_info "No KLayout DRC violations after GDS streaming out."
     }
 }
-
-package provide openlane 0.9
-=======
->>>>>>> c043bc27 (Change Versioning Strategy)
