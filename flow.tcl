@@ -393,7 +393,7 @@ puts "OpenLane v[package version openlane] ($::env(OPENLANE_COMMIT))"
 if { [info exists ::env(OPENLANE_MOUNTED_SCRIPTS_VERSION)] } {
     puts "(with mounted scripts from $::env(OPENLANE_MOUNTED_SCRIPTS_VERSION))"
 }
-puts "All rights reserved. (c) 2020-2023 Efabless Corporation and contributors."
+puts "All rights reserved. (c) 2020-2024 Efabless Corporation and contributors."
 puts "Available under the Apache License, version 2.0. See the LICENSE file for more details."
 puts ""
 
