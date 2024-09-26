@@ -1,184 +1,153 @@
-# Hierarchical chip design (with macros)
+# Hierarchical Chip Design (with Macros)
 
-This guide covers the creation of simple hierarchical chip level macro.
+This guide covers the creation of a simple hierarchical chip-level macro. A memory macro is first hardened, and then the hardened design is used to demonstrate the integration flow within chip-level macros. 
 
-Memory macro is hardened and then the hardened design is used to showcase the integration flow in chip-level macros.
+## Hardening the `mem_1r1w` Macroblock
 
-## Hardening the mem_1r1w macroblock
+This section covers the process of hardening the `mem_1r1w` macroblock. As these macroblocks will be used in the top-level hierarchy, some configurations need to be made. 
 
-In this section, the process of hardening the macroblock mem_1r1w is covered.
-As these macroblocks will be used in the top-level hierarchy some configurations need to be made.
+Keep in mind that these designs are not production-ready and are solely used to showcase the capabilities of OpenLane.
 
-Keep in mind that these designs are not ready for production and are just used to showcase the capabilities of OpenLane.
+### Create the Memory Macro Design
 
-### Create the memory macro design
+To begin, create the design. The following command will create a directory named `design/mem_1r1w/` and a file named `config.json` that will be mostly empty.
 
-Let us create the design. The following command will create a directory `design/mem_1r1w/` and one file `config.json` that will be mostly empty.
-
-```
-./flow.tcl -design ./designs/ci/mem_1r1w -init_design_config -add_to_designs
+```console
+$ ./flow.tcl -design ./designs/ci/mem_1r1w -init_design_config -add_to_designs
 ```
 
-One of the common mistakes people make is copying existing designs,
-like `designs/inverter` and then they face issues with their configuration.
-Always create new designs using `-init_design_config`.
-It will ensure that your configuration is the absolute minimum.
+A common mistake is to copy existing designs, such as `designs/inverter`, which can lead to configuration issues. Always create new designs using the `-init_design_config` flag. This ensures your configuration is minimal.
 
-Example of the common issues people face:
-They copy `inverter` design and rename it. Next, run the flow and the router crashes with `error 10`.
-This is caused by enabled "basic placement",
-which works only for designs with a couple of dozen standard cells, not hundreds.
-So when you change the basic inverter with a design containing many cells,
-the router will not be able to route your design, therefore crashing with cryptic messages.
+For example, if you copy the `inverter` design and rename it, running the flow can lead to a router crash with `error 10`. This occurs due to enabled "basic placement," which only works for designs with a few dozen standard cells, not hundreds. When replacing the basic inverter with a design containing many cells, the router cannot route the design, resulting in a crash with cryptic error messages.
 
-### Create the RTL files
+### Create the RTL Files
 
-Then we need to create/copy the RTL files. The recommended location for files is `design/mem_1r1w/src/`. Let us put a simple counter in there.
+Next, create or copy the RTL files. The recommended location for these files is `design/mem_1r1w/src/`. For this example, let's add a simple counter.
 
-Create `design/mem_1r1w/src/mem_1r1w.v` file and put following content:
+Create the file `design/mem_1r1w/src/mem_1r1w.v` and add the following content:
 
 ```{literalinclude} ../../../designs/ci/mem_1r1w/src/mem_1r1w.v
 :language: verilog
 ```
 
-:::{note}
-Originally we used a very small macroblock as an example,
-however, there is a known issue:
-Small macroblocks do not fit the power grid,
-therefore you need to avoid making small macroblocks.
+```{note}
+While originally we used a very small macroblock as an example, there's a known issue: small macroblocks don't fit the power grid. Therefore, avoid creating very small macroblocks.
 
-For this, set the `FP_SIZING` to absolute and configure `DIE_AREA` to be bigger than `200um x 200um` for sky130.
-:::
+For this example, set `FP_SIZING` to absolute and configure `DIE_AREA` to be larger than `200um x 200um` for sky130.
+```
 
-### Configure mem_1r1w
+### Configure `mem_1r1w`
 
-Modify the `config.json` to include following:
+Modify the `config.json` file to include the following:
 
 ```{literalinclude} ../../../designs/ci/mem_1r1w/config.json
 :language: json
 ```
 
-`FP_PDN_MULTILAYER` controls the metal levels used for power routing. Set it to `false` to use only lower levels.
+* `FP_PDN_MULTILAYER` controls the metal levels used for power routing. Set it to `false` to use only lower levels.
+* `FP_PDN_CORE_RING` is set to `false` to disable a power ring around the macroblock.
+* `RT_MAX_LAYER` is set to `met4` to limit the allowed metal layers for routing.
 
-`FP_PDN_CORE_RING` is set to `false` to disable a power ring around the macroblock.
+More information about configuration can be found [here](../reference/configuration.md).
 
-`RT_MAX_LAYER` set to `met4` to limit metal layers allowed for routing.
-
-More information on [configuration can be found here](../reference/configuration.md).
-
-:::{figure} ../../\_static/digital_flow/ring_around_macro.png
-On the left `"FP_PDN_CORE_RING": true`, on the right `"FP_PDN_CORE_RING": false`
-:::
-
-### Run the flow on the macroblock
-
-Finally, run OpenLane. `flow.tcl` is the entry point for OpenLane.
-The command needs to be run from inside the environment of OpenLane as described in quickstart.
-
-```
-./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -overwrite
+```{figure} ../../_static/digital_flow/ring_around_macro.png
+**Left:** `"FP_PDN_CORE_RING": true`. **Right:** `"FP_PDN_CORE_RING": false`
 ```
 
-### Analyzing the flow-generated files
+### Run the Flow on the Macroblock
+
+Finally, run OpenLane. `flow.tcl` is the entry point for OpenLane. Execute the command from within the OpenLane environment, as described in the quickstart guide.
+
+```console
+$ ./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -overwrite
+```
+
+### Analyzing the Flow-Generated Files
 
 You can open the interactive view using the following commands:
 
-```
-./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -interactive
-package require  openlane
-or_gui
-```
-
-:::{figure} ../../\_static/digital_flow/mem_1r1w_def.png
-:::
-
-## Chip level integration
-
-In this section, the integration of previously hardened macroblock is covered.
-Currently, OpenLane does not support cross-hierarchy timing analysis, so users should avoid multiple hierarchies.
-
-### Create chip level
-
-The top-level macroblock is called `regfile_2r1w`. However, to run the flow we need to prepare the design first.
-Create a new design named `regfile_2r1w`. This design will use the `mem_1r1w`.
-
-```
-./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
+```console
+$ ./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -interactive
+$ package require openlane
+$ or_gui
 ```
 
-### Integrate the macros
+```{figure} ../../_static/digital_flow/mem_1r1w_def.png
+```
 
-Verilog blackbox is used by the synthesis tool.
-It tells the synthesis tool the purpose and width of the input and output
-but does not carry information regarding the timings.
+## Chip-Level Integration
 
-In the [OpenRAM macro tutorial](../tutorials/openram.md), the alternative with the Liberty file is described.
+This section covers the integration of the previously hardened macroblock. Currently, OpenLane does not support cross-hierarchy timing analysis, so users should avoid multiple hierarchies.
 
-Liberty flow contains the timings, unfortunately, OpenLane does not generate the Liberty output.
-This means that the only remaining option is the Verilog Blackbox flow.
+### Create Chip Level
 
-:::{warning}
-The users should be careful when making subcomponents or blackboxes that have parameters,
-because this may cause behavior mismatches between RTL and the final GDS.
-:::
+The top-level macroblock is called `regfile_2r1w`. To run the flow, we need to prepare the design first. Create a new design named `regfile_2r1w`, which will use the `mem_1r1w` macro.
 
-Create the verilog blackbox:
+```console
+$ ./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
+```
+
+### Integrate the Macros
+
+Verilog blackboxes are used by the synthesis tool. They tell the synthesis tool the purpose and width of the input and output but do not carry timing information.
+
+The [OpenRAM macro tutorial](../tutorials/openram.md) describes an alternative using Liberty files.
+
+Liberty flow contains the timings; however, OpenLane does not generate Liberty output. This means that the only remaining option is the Verilog blackbox flow.
+
+```{warning}
+Users should be careful when creating subcomponents or blackboxes with parameters, as this can cause behavior mismatches between the RTL and the final GDS.
+```
+
+Create the Verilog blackbox:
 
 ```{literalinclude} ../../../designs/ci/regfile_2r1w/bb/mem_1r1w.bb.v
 :language: verilog
 ```
 
-Then add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS` and `EXTRA_GDS_FILES` to the `config.json` in the `regfile_2r1w`:
+Then, add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS`, and `EXTRA_GDS_FILES` to the `config.json` file within `regfile_2r1w`:
 
 ```json
 {
-  "DESIGN_NAME": "regfile_2r1w",
-  "VERILOG_FILES": "dir::src/*.v",
-  "CLOCK_PORT": "clk",
-  "CLOCK_PERIOD": 10.0,
-  "FP_PDN_MULTILAYER": true,
+"DESIGN_NAME": "regfile_2r1w",
+"VERILOG_FILES": "dir::src/*.v",
+"CLOCK_PORT": "clk",
+"CLOCK_PERIOD": 10.0,
+"FP_PDN_MULTILAYER": true,
 
-  "EXTRA_LEFS": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-  "EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-  "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+"EXTRA_LEFS": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+"EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+"VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
 
-This will add the LEF abstract representation of the macroblock. This abstraction file contains only layers required by tools.
-In contrast, GDS contains all of the layers and is used to generate the final GDS file.
-Mismatches between these files is not allowed. It is the responsibility of the users to ensure that they match.
+This will add the LEF abstract representation of the macroblock. This abstraction file contains only the layers required by the tools. In contrast, GDS contains all the layers and is used to generate the final GDS file. Mismatches between these files are not allowed. It is the user's responsibility to ensure that they match.
 
-:::{warning}
-Check for name collisions between the blackboxed macroblocks that have the same name but different parameters,
-to avoid a behavioral mismatch.
-This is a [known issue documented here](https://github.com/The-OpenROAD-Project/OpenLane/issues/1291).
-:::
+```{warning}
+Check for name collisions between blackboxed macroblocks that have the same name but different parameters to avoid a behavioral mismatch. This is a [known issue documented here](https://github.com/The-OpenROAD-Project/OpenLane/issues/1291).
+```
 
-The PDN straps will be routed in opposite directions.
-In locations where the two routings cross each other,
-VIAs connecting the layers are added. When `FP_PDN_MULTILAYER` is set to `true` then higher layers (met5 in sky130) are used.
-If it is set to `false` then VIAs will be missing and you will get LVS issues.
+The PDN straps will be routed in opposite directions. In locations where the two routings cross, VIAs connecting the layers are added. When `FP_PDN_MULTILAYER` is set to `true`, higher layers (met5 in sky130) are used. If it is set to `false`, VIAs will be missing, and you will get LVS issues.
 
-### Verilog files
+### Verilog Files
 
-Create the RTL files for the macroblock `regfile_2r1w`.
-The file is located in newly created design path `designs/ci/regfile_2r1w/src/regfile_2r1w.v` and has following content:
+Create the RTL files for the `regfile_2r1w` macroblock. The file is located in the newly created design path `designs/ci/regfile_2r1w/src/regfile_2r1w.v` and has the following content:
 
 ```{literalinclude} ../../../designs/ci/regfile_2r1w/src/regfile_2r1w.v
 :language: verilog
 ```
 
-### Run the flow
+### Run the Flow
 
-Run the flow. It is expected for the flow to fail. In the next step, explanation is provided.
+Run the flow. It is expected for the flow to fail. An explanation is provided in the next step.
 
+```console
+$ ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
 ```
-./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
-```
 
-### First issue
+### First Issue
 
-Flow is expected to fail.
+The flow is expected to fail.
 
 ```
 [ERROR]: during executing openroad script /openlane/scripts/openroad/replace.tcl
@@ -199,79 +168,66 @@ child process exited abnormally
 
 To debug this issue, open the OpenROAD GUI:
 
+```console 
+$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide_broken_aspect_ratio
+$ package require openlane
+$ or_gui
 ```
-./flow.tcl -design regfile_2r1w -interactive -tag full_guide_broken_aspect_ratio
-package require  openlane
-or_gui
+
+```{figure}
+../../\_static/digital_flow/broken_aspect_ratio.png
 ```
 
-:::{figure} ../../\_static/digital_flow/broken_aspect_ratio.png
-:::
+As shown in the image, the placement of the `mem_1r1w` instances failed. The tool was unable to place the macroblocks inside the `DIE_AREA`. While the area is sufficient, there is no possible combination of placement for these cells that fits without overlap.
 
-As can be observed in the image, the placement of the mem_1r1w instances failed.
-It was unable to place the macroblocks inside the `DIE_AREA`.
-While the area is enough, there is no combination of placement for these cells that fits.
-All of the possible placements of these cells overlap.
+Change the `FP_ASPECT_RATIO` value to `2`. This will make the floorplan a rectangle instead of a square, with the rectangle being twice as tall as it is wide.
 
-Change the `FP_ASPECT_RATIO` value to `2`.
-This will make the floorplan a rectangle instead of a square and the rectangle will be double in height compared to width.
+More information about floorplanning is available in the [Hardening Macros guide](../usage/hardening_macros.md).
 
-More information regarding floorplanning is available [Hardening Macros guide](../usage/hardening_macros.md).
-
-`config.json` should look like this:
+The `config.json` file should look like this:
 
 ```{literalinclude} ../../../designs/ci/regfile_2r1w/config.json
 :language: json
 ```
 
-There is no need to change the default PDN configuration.
-It is going to create power straps on `met5` and connect the macro
-that has power straps on `met4` using vias.
+There is no need to change the default PDN configuration. It will create power straps on `met5` and connect the macro (which has power straps on `met4`) using vias.
 
-### Run the flow again
+### Run the Flow Again
 
-Run the flow again. This time it should no longer fail.
+Run the flow again. This time, it should no longer fail.
 
-```
-./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
+```console
+$ ./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
 ```
 
-### Analyzing the results
+### Analyzing the Results
+Open the OpenROAD GUI to view the results of the flow.
 
-:::{note}
-`set_def` currently overwrites the DEF file instead of temporarily changing it.
-This guide will be updated with another command that does not overwrite the DEF.
-:::
-
-Open OpenROAD GUI to view the results of the flow.
-
-```
-./flow.tcl -design regfile_2r1w -interactive -tag full_guide
-
-# in interactive session:
-package require openlane
-set_def designs/ci/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
-or_gui
+```console
+$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
+$ package require openlane
+$ set_def designs/ci/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
+$ or_gui
 # Empty newline to force above line to execute
 ```
 
-:::{figure} ../../\_static/digital_flow/final_def.png
+```{figure} ../../_static/digital_flow/final_def.png
 OpenROAD GUI with loaded final DEF file
-:::
-
-If you want to load different DEF file use `set_def` command. For example:
-
-```
-./flow.tcl -design regfile_2r1w -interactive -tag full_guide
-package require openlane
-set_def designs/ci/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
-or_gui
 ```
 
-:::{figure} ../../\_static/digital_flow/floorplan_def_loaded.png
-:::
+If you want to load a different DEF file, use the `set_def` command. For example:
 
-Each run has following structure:
+```console
+$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
+$ package require openlane
+$ set_def designs/ci/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
+$ or_gui
+```
+
+```{figure} ../../_static/digital_flow/floorplan_def_loaded.png
+```
+
+Each run has the following structure:
 
 ```
 ├── logs OR reports OR results OR tmp
@@ -285,10 +241,9 @@ Each run has following structure:
 └── warnings.log
 ```
 
-There are 4 directories `logs` `reports` `results` and `tmp`.
-In each of these directories, there are multiple directories. Directories are named according to the stage they belong to.
+There are four directories: `logs`, `reports`, `results`, and `tmp`. Within each of these directories, there are multiple subdirectories named according to the stage they belong to.
 
-Directory `results` contain the results (outputs) of each step. For example content of the `results/cts`:
+The `results` directory contains the results (outputs) of each step. For example, the content of the `results/cts` directory:
 
 ```
 designs/ci/regfile_2r1w/runs/full_guide/results/cts
@@ -300,7 +255,7 @@ designs/ci/regfile_2r1w/runs/full_guide/results/cts
 
 DEF files can be loaded using the steps provided above.
 
-Finally output of OpenLane can be found in `designs/ci/regfile_2r1w/runs/full_guide/results/final`:
+Finally, the output of OpenLane can be found in `designs/ci/regfile_2r1w/runs/full_guide/results/final`:
 
 ```
 designs/ci/regfile_2r1w/runs/full_guide/results/final
@@ -328,7 +283,7 @@ designs/ci/regfile_2r1w/runs/full_guide/results/final
         └── regfile_2r1w.v
 ```
 
-Directory `logs` contain log files of each step. Steps are enumerated. For example content of the `logs/`:
+The `logs` directory contains log files from each step. Steps are enumerated. For example, the content of the `logs/` directory:
 
 ```
 designs/ci/regfile_2r1w/runs/full_guide/logs
@@ -387,24 +342,22 @@ designs/ci/regfile_2r1w/runs/full_guide/logs
     └── 2-sta.log
 ```
 
-Directory `reports` contains all of the reports from the corresponding stage.
+The `reports` directory contains all the reports from the corresponding stage.
 
-It is recommended to check the reports for power, timings, etc. This allows getting a better understanding of the underlying flow.
+It is recommended to check the reports for power, timings, etc. This provides a better understanding of the underlying flow.
 
 Finally, open the final layout.
 
-```
-klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt \
-   -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp \
-   ./designs/ci/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
+```console
+$ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt         -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp         ./designs/ci/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
 ```
 
-:::{figure} ../../\_static/digital_flow/final_gds.png
-:::
+```{figure} ../../_static/digital_flow/final_gds.png
+```
 
-### Exploring your designs
+### Exploring Your Designs
 
-Take a look at some reports.
+Examine some of the reports.
 
 Here's an excerpt from `designs/ci/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
 
@@ -437,65 +390,65 @@ Corner: Slowest
 
 Fanout     Cap    Slew   Delay    Time   Description
 -----------------------------------------------------------------------------
-                        0.00    0.00   clock clk (rise edge)
-                        0.00    0.00   clock network delay (propagated)
-                        2.00    2.00 v input external delay
-                0.02    0.01    2.01 v write_addr[1] (in)
-1    0.00                           write_addr[1] (net)
-                0.02    0.00    2.01 v input8/A (sky130_fd_sc_hd__dlymetal6s2s_1)
-                0.18    0.37    2.38 v input8/X (sky130_fd_sc_hd__dlymetal6s2s_1)
-4    0.02                           net8 (net)
-                0.18    0.00    2.38 v _2019_/A (sky130_fd_sc_hd__or3b_2)
-                0.23    1.29    3.67 v _2019_/X (sky130_fd_sc_hd__or3b_2)
-2    0.01                           _0833_ (net)
-                0.23    0.00    3.67 v _2020_/A (sky130_fd_sc_hd__inv_2)
-                0.09    0.17    3.84 ^ _2020_/Y (sky130_fd_sc_hd__inv_2)
-3    0.01                           _0834_ (net)
-                0.09    0.00    3.84 ^ _2432_/C (sky130_fd_sc_hd__and3_2)
-                0.24    0.56    4.39 ^ _2432_/X (sky130_fd_sc_hd__and3_2)
-5    0.03                           _1054_ (net)
-                0.24    0.00    4.39 ^ _2433_/A (sky130_fd_sc_hd__buf_4)
-                0.26    0.44    4.84 ^ _2433_/X (sky130_fd_sc_hd__buf_4)
-10    0.06                           _1055_ (net)
-                0.26    0.01    4.85 ^ _2450_/S (sky130_fd_sc_hd__mux2_1)
-                0.11    0.81    5.66 v _2450_/X (sky130_fd_sc_hd__mux2_1)
-1    0.00                           _1064_ (net)
-                0.11    0.00    5.66 v _2451_/A (sky130_fd_sc_hd__clkbuf_1)
-                0.05    0.18    5.84 v _2451_/X (sky130_fd_sc_hd__clkbuf_1)
-1    0.00                           _0424_ (net)
-                0.05    0.00    5.84 v _3436_/D (sky130_fd_sc_hd__dfxtp_1)
-                                5.84   data arrival time
+                                0.00    0.00   clock clk (rise edge)
+                                0.00    0.00   clock network delay (propagated)
+                                2.00    2.00 v input external delay
+                        0.02    0.01    2.01 v write_addr[1] (in)
+        1    0.00                           write_addr[1] (net)
+                        0.02    0.00    2.01 v input8/A (sky130_fd_sc_hd__dlymetal6s2s_1)
+                        0.18    0.37    2.38 v input8/X (sky130_fd_sc_hd__dlymetal6s2s_1)
+        4    0.02                           net8 (net)
+                        0.18    0.00    2.38 v _2019_/A (sky130_fd_sc_hd__or3b_2)
+                        0.23    1.29    3.67 v _2019_/X (sky130_fd_sc_hd__or3b_2)
+        2    0.01                           _0833_ (net)
+                        0.23    0.00    3.67 v _2020_/A (sky130_fd_sc_hd__inv_2)
+                        0.09    0.17    3.84 ^ _2020_/Y (sky130_fd_sc_hd__inv_2)
+        3    0.01                           _0834_ (net)
+                        0.09    0.00    3.84 ^ _2432_/C (sky130_fd_sc_hd__and3_2)
+                        0.24    0.56    4.39 ^ _2432_/X (sky130_fd_sc_hd__and3_2)
+        5    0.03                           _1054_ (net)
+                        0.24    0.00    4.39 ^ _2433_/A (sky130_fd_sc_hd__buf_4)
+                        0.26    0.44    4.84 ^ _2433_/X (sky130_fd_sc_hd__buf_4)
+        10    0.06                           _1055_ (net)
+                        0.26    0.01    4.85 ^ _2450_/S (sky130_fd_sc_hd__mux2_1)
+                        0.11    0.81    5.66 v _2450_/X (sky130_fd_sc_hd__mux2_1)
+        1    0.00                           _1064_ (net)
+                        0.11    0.00    5.66 v _2451_/A (sky130_fd_sc_hd__clkbuf_1)
+                        0.05    0.18    5.84 v _2451_/X (sky130_fd_sc_hd__clkbuf_1)
+        1    0.00                           _0424_ (net)
+                        0.05    0.00    5.84 v _3436_/D (sky130_fd_sc_hd__dfxtp_1)
+                                        5.84   data arrival time
 
-                        10.00   10.00   clock clk (rise edge)
-                        0.00   10.00   clock source latency
-                0.18    0.12   10.12 ^ clk (in)
-1    0.02                           clk (net)
-                0.18    0.00   10.12 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                0.12    0.31   10.43 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
-4    0.06                           clknet_0_clk (net)
-                0.12    0.00   10.43 ^ clkbuf_2_3__f_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                0.18    0.33   10.76 ^ clkbuf_2_3__f_clk/X (sky130_fd_sc_hd__clkbuf_16)
-10    0.11                           clknet_2_3__leaf_clk (net)
-                0.18    0.00   10.76 ^ clkbuf_leaf_17_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                0.08    0.27   11.03 ^ clkbuf_leaf_17_clk/X (sky130_fd_sc_hd__clkbuf_16)
-11    0.03                           clknet_leaf_17_clk (net)
-                0.08    0.00   11.03 ^ _3436_/CLK (sky130_fd_sc_hd__dfxtp_1)
-                        -0.25   10.78   clock uncertainty
-                        0.00   10.78   clock reconvergence pessimism
-                        -0.26   10.52   library setup time
-                                10.52   data required time
------------------------------------------------------------------------------
-                                10.52   data required time
-                                -5.84   data arrival time
------------------------------------------------------------------------------
-                                4.68   slack (MET)
+                                10.00   10.00   clock clk (rise edge)
+                                0.00   10.00   clock source latency
+                        0.18    0.12   10.12 ^ clk (in)
+        1    0.02                           clk (net)
+                        0.18    0.00   10.12 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.12    0.31   10.43 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        4    0.06                           clknet_0_clk (net)
+                        0.12    0.00   10.43 ^ clkbuf_2_3__f_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.18    0.33   10.76 ^ clkbuf_2_3__f_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        10    0.11                           clknet_2_3__leaf_clk (net)
+                        0.18    0.00   10.76 ^ clkbuf_leaf_17_clk/A (sky130_fd_sc_hd__clkbuf_16)
+                        0.08    0.27   11.03 ^ clkbuf_leaf_17_clk/X (sky130_fd_sc_hd__clkbuf_16)
+        11    0.03                           clknet_leaf_17_clk (net)
+                        0.08    0.00   11.03 ^ _3436_/CLK (sky130_fd_sc_hd__dfxtp_1)
+                                -0.25   10.78   clock uncertainty
+                                0.00   10.78   clock reconvergence pessimism
+                                -0.26   10.52   library setup time
+                                        10.52   data required time
+        -----------------------------------------------------------------------------
+                                        10.52   data required time
+                                        -5.84   data arrival time
+        -----------------------------------------------------------------------------
+                                        4.68   slack (MET)
 ```
 
-### Demo: Debugging LVS issues due to PDN issues
+### Demo: Debugging LVS Issues Due to PDN Issues
 
-Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `FP_PDN_MULTILAYER` to `false`.
+Copy the original `regfile_2r1w` design as `regfile_2r1w_design_not_core`. Change `FP_PDN_MULTILAYER` to `false`.
 
-```
+```json
 {
     "DESIGN_NAME": "regfile_2r1w",
     "VERILOG_FILES": "dir::src/*.v",
@@ -512,8 +465,8 @@ Copy the original `regfile_2r1w` as `regfile_2r1w_design_not_core`. Change `FP_P
 
 Then run the flow:
 
-```
-./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
+```console
+$ ./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
 ```
 
 The following error is expected:
@@ -556,7 +509,7 @@ The following error is expected:
     (file "./flow.tcl" line 401)
 ```
 
-Check the log `designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log`.
+Check the log file `designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log`.
 
 ```
 LVS reports:
@@ -570,28 +523,19 @@ LVS reports:
 Total errors = 37
 ```
 
-The router will fail if it is unable to route the signals.
-Therefore the issue is in the PDN stage.
-Use `or_gui` to help debug this issue.
+The router will fail if it cannot route the signals. Therefore, the issue is in the PDN stage. Use `or_gui` to help debug this issue.
 
-```
-./flow.tcl -design regfile_2r1w_design_not_core -interactive -tag full_guide
-package require openlane
-set_def designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
-or_gui
+```console 
+$ ./flow.tcl -design regfile_2r1w_design_not_core -interactive -tag full_guide
+$ package require openlane
+$ set_def designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
+$ or_gui
 ```
 
-:::{figure} ../../\_static/digital_flow/lvs_issue_comparison.png
-Left picture is for working case. Right picture is the case with PDN issues
-:::
+```{figure} ../../_static/digital_flow/lvs_issue_comparison.png
+**Left:** Working case. **Right:** Case with PDN issues.
+```
 
-The submacros are by default logically connected to `VPWR/VGND` power domain.
-As can be seen, the PDN is missing the power straps in layer `met5`.
-Therefore the layout, does not have connections to the submacro, while the net is logically connected.
+The submacros are by default logically connected to the `VPWR/VGND` power domain. As you can see, the PDN is missing power straps in layer `met5`. Therefore, the layout does not have connections to the submacro, while the net is logically connected.
 
-This is expected as it was disabled by setting `FP_PDN_MULTILAYER` to `false` above.
-Of course, reverting the change fixes this issue.
-
-:::{note}
-In the future, OpenDB will be used instead of DEF/LEF flow.
-:::
+This is expected as it was disabled by setting `FP_PDN_MULTILAYER` to `false` earlier. Reversing this change fixes the issue.
