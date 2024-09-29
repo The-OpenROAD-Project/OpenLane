@@ -11,7 +11,6 @@ These designs are not ready for production and are just used to showcase the cap
 ```
 
 ### Create the Memory Macro Design
-=======
 
 To begin, create the design. The following command will create a directory named `designs/mem_1r1w/` and a file named `config.json` that will be mostly empty.
 
@@ -78,7 +77,7 @@ $ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/
 
 ## Chip-Level Integration
 
-This section covers the integration of the previously hardened macroblock. Currently, OpenLane does not support cross-hierarchy timing analysis, so users should avoid multiple hierarchies.
+This section covers the integration of the previously hardened macroblock.
 
 ### Create Chip Level
 
@@ -183,7 +182,7 @@ Run the flow. It is expected for the flow to fail. An explanation is provided in
 $ ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
 ```
 
-### First Issue
+### Issue
 
 The flow is expected to fail.
 
@@ -213,8 +212,7 @@ $ python3 gui.py ./designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/
 ../../\_static/digital_flow/broken_aspect_ratio.png
 ```
 
-As shown in the image, the placement of the `mem_1r1w` instances failed. The instances overlap
-and the Flow was unable to create a PDN properly
+As shown in the image. The instances overlap and the Flow was unable to create a PDN properly
 
 Change the `FP_ASPECT_RATIO` value to `2`. This will make the floorplan a rectangle instead of a square, with the rectangle being twice as tall as it is wide.
 
@@ -239,7 +237,7 @@ The `config.json` file should look like this:
 }
 ```
 
-The macroblock locations have to change as well. Edit `./designs/regfile_2r1w/macro.cfg`:
+The macroblock locations have to change as well to avoid overlap. Edit `./designs/regfile_2r1w/macro.cfg`:
 ```
 lane0 80.24 10.88 N
 lane1 80.24 380.08 N
@@ -267,7 +265,7 @@ OpenROAD GUI with loaded final DEF file
 If you want to load a DEF/ODB file, at a different stage in the flow, run, for example:
 
 ```console
-$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/ --stage cts
+$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/ --stage floorplan
 ```
 
 For more information, run `python3 gui.py --help` or visit <insert link>
@@ -295,7 +293,7 @@ There are four directories: `logs`, `reports`, `results`, and `tmp`. Within each
 The `results` directory contains the results (outputs) of each step. For example, the content of the `results/cts` directory:
 
 ```
-designs/ci/regfile_2r1w/runs/full_guide/results/cts
+designs/regfile_2r1w/runs/full_guide/results/cts
 ├── regfile_2r1w.def
 ├── regfile_2r1w.odb
 └── regfile_2r1w.sdc
@@ -303,10 +301,10 @@ designs/ci/regfile_2r1w/runs/full_guide/results/cts
 
 DEF/ODB files can be loaded using the steps provided above.
 
-Finally, the output of OpenLane can be found in `designs/ci/regfile_2r1w/runs/full_guide/results/final`:
+Finally, the output of OpenLane can be found in `designs/regfile_2r1w/runs/full_guide/results/final`:
 
 ```
-designs/ci/regfile_2r1w/runs/full_guide/results/final
+designs/regfile_2r1w/runs/full_guide/results/final
 ├── def
 │   └── regfile_2r1w.def
 ├── gds
@@ -334,60 +332,63 @@ designs/ci/regfile_2r1w/runs/full_guide/results/final
 The `logs` directory contains log files from each step. Steps are enumerated. For example, the content of the `logs/` directory:
 
 ```
-designs/ci/regfile_2r1w/runs/full_guide/logs
+designs/regfile_2r1w/runs/full_guide/logs
 ├── cts
-│   ├── 14-cts.log
-│   ├── 15-write_verilog.log
-│   ├── 16-resizer.log
-│   └── 17-write_verilog.log
+│   ├── 16-cts.log
+│   ├── 17-cts_sta.log
+│   └── 18-resizer.log
 ├── floorplan
 │   ├── 3-initial_fp.log
 │   ├── 4-io.log
-│   ├── 7-tap.log
-│   └── 8-pdn.log
+│   ├── 6-tap.log
+│   └── 7-pdn.log
 ├── placement
-│   ├── 10-resizer.log
-│   ├── 11-write_verilog.log
-│   ├── 12-remove_buffers_from_ports.log
-│   ├── 13-detailed.log
-│   ├── 5-global.log
-│   ├── 6-basic_mp.log
-│   └── 9-global.log
+│   ├── 10-global.log
+│   ├── 10-io.log
+│   ├── 12-gpl_sta.log
+│   ├── 13-resizer.log
+│   ├── 14-detailed.log
+│   ├── 15-dpl_sta.log
+│   ├── 5-macro_placement.log
+│   ├── 7-global_skip_io.log
+│   └── 9-gpl_sta.log
 ├── routing
-│   ├── 18-resizer.log
-│   ├── 19-write_verilog.log
-│   ├── 20-diode_legalization.log
-│   ├── 21-global.log
-│   ├── 22-fill.log
-│   ├── 23-write_verilog_global.log
-│   ├── 24-detailed.log
-│   └── 25-write_verilog_detailed.log
+│   ├── 19-resizer_design.log
+│   ├── 20-rsz_design_sta.log
+│   ├── 21-resizer_timing.log
+│   ├── 22-rsz_timing_sta.log
+│   ├── 23-global.log
+│   ├── 23-global_write_netlist.log
+│   ├── 25-grt_sta.log
+│   ├── 26-fill.log
+│   ├── 27-detailed.log
+│   └── 28-wire_lengths.log
 ├── signoff
-│   ├── 26-parasitics_extraction.min.log
-│   ├── 27-parasitics_multi_corner_sta.min.log
-│   ├── 28-parasitics_extraction.max.log
-│   ├── 29-parasitics_multi_corner_sta.max.log
-│   ├── 30-parasitics_extraction.nom.log
-│   ├── 31-parasitics_sta.log
-│   ├── 32-parasitics_multi_corner_sta.log
-│   ├── 33-irdrop.log
-│   ├── 34-gdsii.log
-│   ├── 34-gds_ptrs.log
-│   ├── 34-lef.log
-│   ├── 34-maglef.log
-│   ├── 35-gdsii-klayout.log
-│   ├── 36-xor.log
-│   ├── 37-spice.log
-│   ├── 38-write_powered_def.log
-│   ├── 40-lef.log
-│   ├── 40-regfile_2r1w.lef.json
-│   ├── 40-regfile_2r1w.lef.log
-│   ├── 40-regfile_2r1w.lvs.lef.log
-│   ├── 41-drc.log
-│   └── 42-antenna.log
+│   ├── 29-parasitics_extraction.min.log
+│   ├── 30-rcx_mcsta.min.log
+│   ├── 31-parasitics_extraction.max.log
+│   ├── 32-rcx_mcsta.max.log
+│   ├── 33-parasitics_extraction.nom.log
+│   ├── 34-rcx_mcsta.nom.log
+│   ├── 35-irdrop.log
+│   ├── 36-gdsii.log
+│   ├── 36-gds_ptrs.log
+│   ├── 36-lef.log
+│   ├── 36-maglef.log
+│   ├── 37-gdsii-klayout.log
+│   ├── 38-xor.log
+│   ├── 39-spice.log
+│   ├── 40-write_powered_def.log
+│   ├── 40-write_powered_verilog.log
+│   ├── 42-lvs.lef.log
+│   ├── 42-regfile_2r1w.lef.lvs.log
+│   ├── 43-drc.log
+│   ├── 44-drc-klayout.log
+│   └── 45-arc.log
 └── synthesis
     ├── 1-synthesis.log
-    └── 2-sta.log
+    ├── 2-sta.log
+    └── linter.log
 ```
 
 The `reports` directory contains all the reports from the corresponding stage.
@@ -407,88 +408,71 @@ $ python3 gui.py ./designs/regfile_2r1w/runs/full_guide --viewer klayout
 
 Examine some of the reports.
 
-Here's an excerpt from `designs/ci/mem_1r1w_00/runs/full_guide/reports/signoff/##-rcx_sta.summary.rpt`:
+Here's an excerpt from `designs/mem_1r1w/runs/full_guide/reports/signoff/##-sta-rcx_nom/multi_corner_sta.summary.rpt-rcx_sta.summary.rpt`:
 
 ```
 ===========================================================================
 report_worst_slack -max (Setup)
 ============================================================================
-worst slack 4.66
+worst slack 3.77
 
 ===========================================================================
 report_worst_slack -min (Hold)
 ============================================================================
-worst slack 0.03
+worst slack 0.14
 ```
 
-Detailed setup (max) timing path reports. Content of `designs/ci/mem_1r1w/runs/full_guide/reports/signoff/##-rcx_sta.max.rpt`:
+Detailed setup (max) timing path reports. Content of `designs/mem_1r1w/runs/full_guide/reports/signoff/##-sta-rcx_nom/multi_corner_sta.summary.rpt-rcx_sta.max.rpt`:
 
 ```
 ===========================================================================
 report_checks -path_delay max (Setup)
 ============================================================================
+======================= Fastest Corner ===================================
 
-======================= Slowest Corner ===================================
-
-Startpoint: write_addr[1] (input port clocked by clk)
-Endpoint: _3436_ (rising edge-triggered flip-flop clocked by clk)
+Startpoint: _3451_ (rising edge-triggered flip-flop clocked by clk)
+Endpoint: read_data[31] (output port clocked by clk)
 Path Group: clk
 Path Type: max
-Corner: Slowest
+Corner: Fastest
 
 Fanout     Cap    Slew   Delay    Time   Description
 -----------------------------------------------------------------------------
-                                0.00    0.00   clock clk (rise edge)
-                                0.00    0.00   clock network delay (propagated)
-                                2.00    2.00 v input external delay
-                        0.02    0.01    2.01 v write_addr[1] (in)
-        1    0.00                           write_addr[1] (net)
-                        0.02    0.00    2.01 v input8/A (sky130_fd_sc_hd__dlymetal6s2s_1)
-                        0.18    0.37    2.38 v input8/X (sky130_fd_sc_hd__dlymetal6s2s_1)
-        4    0.02                           net8 (net)
-                        0.18    0.00    2.38 v _2019_/A (sky130_fd_sc_hd__or3b_2)
-                        0.23    1.29    3.67 v _2019_/X (sky130_fd_sc_hd__or3b_2)
-        2    0.01                           _0833_ (net)
-                        0.23    0.00    3.67 v _2020_/A (sky130_fd_sc_hd__inv_2)
-                        0.09    0.17    3.84 ^ _2020_/Y (sky130_fd_sc_hd__inv_2)
-        3    0.01                           _0834_ (net)
-                        0.09    0.00    3.84 ^ _2432_/C (sky130_fd_sc_hd__and3_2)
-                        0.24    0.56    4.39 ^ _2432_/X (sky130_fd_sc_hd__and3_2)
-        5    0.03                           _1054_ (net)
-                        0.24    0.00    4.39 ^ _2433_/A (sky130_fd_sc_hd__buf_4)
-                        0.26    0.44    4.84 ^ _2433_/X (sky130_fd_sc_hd__buf_4)
-        10    0.06                           _1055_ (net)
-                        0.26    0.01    4.85 ^ _2450_/S (sky130_fd_sc_hd__mux2_1)
-                        0.11    0.81    5.66 v _2450_/X (sky130_fd_sc_hd__mux2_1)
-        1    0.00                           _1064_ (net)
-                        0.11    0.00    5.66 v _2451_/A (sky130_fd_sc_hd__clkbuf_1)
-                        0.05    0.18    5.84 v _2451_/X (sky130_fd_sc_hd__clkbuf_1)
-        1    0.00                           _0424_ (net)
-                        0.05    0.00    5.84 v _3436_/D (sky130_fd_sc_hd__dfxtp_1)
-                                        5.84   data arrival time
+                          0.00    0.00   clock clk (rise edge)
+                          0.00    0.00   clock source latency
+     1    0.04    0.14    0.10    0.10 ^ clk (in)
+                                         clk (net)
+                  0.14    0.00    0.10 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
+     4    0.08    0.08    0.15    0.26 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                         clknet_0_clk (net)
+                  0.08    0.00    0.26 ^ clkbuf_2_2__f_clk/A (sky130_fd_sc_hd__clkbuf_16)
+    11    0.10    0.09    0.15    0.41 ^ clkbuf_2_2__f_clk/X (sky130_fd_sc_hd__clkbuf_16)
+                                         clknet_2_2__leaf_clk (net)
+                  0.09    0.00    0.41 ^ clkbuf_leaf_34_clk/A (sky130_fd_sc_hd__clkbuf_8)
+    14    0.06    0.08    0.15    0.56 ^ clkbuf_leaf_34_clk/X (sky130_fd_sc_hd__clkbuf_8)
+                                         clknet_leaf_34_clk (net)
+                  0.08    0.00    0.56 ^ _3451_/CLK (sky130_fd_sc_hd__dfxtp_1)
+     2    0.02    0.15    0.30    0.86 ^ _3451_/Q (sky130_fd_sc_hd__dfxtp_1)
+                                         net65 (net)
+                  0.15    0.00    0.86 ^ output65/A (sky130_fd_sc_hd__buf_2)
+     1    0.03    0.13    0.17    1.03 ^ output65/X (sky130_fd_sc_hd__buf_2)
+                                         read_data[31] (net)
+                  0.13    0.00    1.03 ^ read_data[31] (out)
+                                  1.03   data arrival time
 
-                                10.00   10.00   clock clk (rise edge)
-                                0.00   10.00   clock source latency
-                        0.18    0.12   10.12 ^ clk (in)
-        1    0.02                           clk (net)
-                        0.18    0.00   10.12 ^ clkbuf_0_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                        0.12    0.31   10.43 ^ clkbuf_0_clk/X (sky130_fd_sc_hd__clkbuf_16)
-        4    0.06                           clknet_0_clk (net)
-                        0.12    0.00   10.43 ^ clkbuf_2_3__f_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                        0.18    0.33   10.76 ^ clkbuf_2_3__f_clk/X (sky130_fd_sc_hd__clkbuf_16)
-        10    0.11                           clknet_2_3__leaf_clk (net)
-                        0.18    0.00   10.76 ^ clkbuf_leaf_17_clk/A (sky130_fd_sc_hd__clkbuf_16)
-                        0.08    0.27   11.03 ^ clkbuf_leaf_17_clk/X (sky130_fd_sc_hd__clkbuf_16)
-        11    0.03                           clknet_leaf_17_clk (net)
-                        0.08    0.00   11.03 ^ _3436_/CLK (sky130_fd_sc_hd__dfxtp_1)
-                                -0.25   10.78   clock uncertainty
-                                0.00   10.78   clock reconvergence pessimism
-                                -0.26   10.52   library setup time
-                                        10.52   data required time
-        -----------------------------------------------------------------------------
-                                        10.52   data required time
-                                        -5.84   data arrival time
-        -----------------------------------------------------------------------------
-                                        4.68   slack (MET)
+                         10.00   10.00   clock clk (rise edge)
+                          0.00   10.00   clock network delay (propagated)
+                         -0.25    9.75   clock uncertainty
+                          0.00    9.75   clock reconvergence pessimism
+                         -2.00    7.75   output external delay
+                                  7.75   data required time
+-----------------------------------------------------------------------------
+                                  7.75   data required time
+                                 -1.03   data arrival time
+-----------------------------------------------------------------------------
+                                  6.72   slack (MET)
 ```
 
+
+This concludes the tutorial which covers basic aspects of macro integration
+and gives an overview of how to inspect the results of the flow.
