@@ -13,21 +13,21 @@ These designs are not ready for production and are just used to showcase the cap
 ### Create the Memory Macro Design
 =======
 
-To begin, create the design. The following command will create a directory named `design/mem_1r1w/` and a file named `config.json` that will be mostly empty.
+To begin, create the design. The following command will create a directory named `designs/mem_1r1w/` and a file named `config.json` that will be mostly empty.
 
 ```console
-$ ./flow.tcl -design ./designs/ci/mem_1r1w -init_design_config -add_to_designs
+$ ./flow.tcl -design ./designs/mem_1r1w -init_design_config -add_to_designs
 ```
 
-A common mistake is to copy existing designs, such as `designs/inverter`, which can lead to configuration issues. Always create new designs using the `-init_design_config` flag. This ensures your configuration is minimal.
-
-For example, if you copy the `inverter` design and rename it, running the flow can lead to a router crash with `error 10`. This occurs due to enabled "basic placement," which only works for designs with a few dozen standard cells, not hundreds. When replacing the basic inverter with a design containing many cells, the router cannot route the design, resulting in a crash with cryptic error messages.
+```{warning}
+Avoid copying existing design folders to create a new design.
+```
 
 ### Create the RTL Files
 
-Next, create or copy the RTL files. The recommended location for these files is `design/mem_1r1w/src/`. For this example, let's add a simple counter.
+Next, create or copy the RTL files. The recommended location for these files is `designs/mem_1r1w/src/`. For this example, let's add a simple counter.
 
-Create the file `design/mem_1r1w/src/mem_1r1w.v` and add the following content:
+Create the file `designs/mem_1r1w/src/mem_1r1w.v` and add the following content:
 
 ```{literalinclude} ../../../designs/ci/mem_1r1w/src/mem_1r1w.v
 :language: verilog
@@ -62,7 +62,7 @@ More information about configuration can be found [here](../reference/configurat
 Finally, run OpenLane. `flow.tcl` is the entry point for OpenLane. Execute the command from within the OpenLane environment, as described in the quickstart guide.
 
 ```console
-$ ./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -overwrite
+$ ./flow.tcl -design ./designs/mem_1r1w -tag full_guide -overwrite
 ```
 
 ### Analyzing the Flow-Generated Files
@@ -70,9 +70,7 @@ $ ./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -overwrite
 You can open the interactive view using the following commands:
 
 ```console
-$ ./flow.tcl -design ./designs/ci/mem_1r1w -tag full_guide -interactive
-$ package require openlane
-$ or_gui
+$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/
 ```
 
 ```{figure} ../../_static/digital_flow/mem_1r1w_def.png
@@ -87,28 +85,34 @@ This section covers the integration of the previously hardened macroblock. Curre
 The top-level macroblock is called `regfile_2r1w`. To run the flow, we need to prepare the design first. Create a new design named `regfile_2r1w`, which will use the `mem_1r1w` macro.
 
 ```console
-$ ./flow.tcl -design regfile_2r1w -init_design_config -add_to_designs
+$ ./flow.tcl -design ./designs/regfile_2r1w -init_design_config -add_to_designs
 ```
 
 ### Integrate the Macros
 
 Verilog blackboxes are used by the synthesis tool. They tell the synthesis tool the purpose and width of the input and output but do not carry timing information.
 
+<!--
 The [OpenRAM macro tutorial](../tutorials/openram.md) describes an alternative using Liberty files.
-
 Liberty flow contains the timings; however, OpenLane does not generate Liberty output. This means that the only remaining option is the Verilog blackbox flow.
+-->
+
 
 ```{warning}
 Users should be careful when creating subcomponents or blackboxes with parameters, as this can cause behavior mismatches between the RTL and the final GDS.
 ```
 
-Create the Verilog blackbox:
+Create the Verilog blackbox `./designs/regfile_2r1w/bb/mem_1r1w.bb.v`:
 
 ```{literalinclude} ../../../designs/ci/regfile_2r1w/bb/mem_1r1w.bb.v
 :language: verilog
 ```
 
 Then, add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS`, and `EXTRA_GDS_FILES` to the `config.json` file within `regfile_2r1w`:
+
+```{note}
+For the sake of the tutorial, `FP_CORE_UTIL` is set to `60`.
+```
 
 ```json
 {
@@ -117,9 +121,10 @@ Then, add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS`, and `EXTRA_GDS_FILES` to the `
 "CLOCK_PORT": "clk",
 "CLOCK_PERIOD": 10.0,
 "FP_PDN_MULTILAYER": true,
+"FP_CORE_UTIL": 60,
 
-"EXTRA_LEFS": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-"EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+"EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+"EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
 "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
@@ -134,10 +139,40 @@ The PDN straps will be routed in opposite directions. In locations where the two
 
 ### Verilog Files
 
-Create the RTL files for the `regfile_2r1w` macroblock. The file is located in the newly created design path `designs/ci/regfile_2r1w/src/regfile_2r1w.v` and has the following content:
+Create the RTL files for the `regfile_2r1w` macroblock. The file is located in the newly created design path `designs/regfile_2r1w/src/regfile_2r1w.v` and has the following content:
 
 ```{literalinclude} ../../../designs/ci/regfile_2r1w/src/regfile_2r1w.v
 :language: verilog
+```
+
+### Macro Placement Configuration
+
+When integerating macros, it is best to manually place the macros inside the design.
+Create the following file `./designs/regfile_2r1w/macro.cfg`:
+```
+lane0 15 200 N
+lane1 13 14 N
+```
+
+This tells the flow to place `lane0` at location (15, 200) in microns with North orientation
+and `lane1` at location (13, 14) in microns with North orientation
+
+Then change the JSON configuration to point to this file:
+
+```json
+{
+"DESIGN_NAME": "regfile_2r1w",
+"VERILOG_FILES": "dir::src/*.v",
+"CLOCK_PORT": "clk",
+"CLOCK_PERIOD": 10.0,
+"FP_PDN_MULTILAYER": true,
+"FP_CORE_UTIL": 60,
+
+"EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+"EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+"VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+"MACRO_PLACEMENT_CFG": "dir::macro.cfg"
+}
 ```
 
 ### Run the Flow
@@ -153,35 +188,33 @@ $ ./flow.tcl -design regfile_2r1w -tag full_guide_broken_aspect_ratio -overwrite
 The flow is expected to fail.
 
 ```
-[ERROR]: during executing openroad script /openlane/scripts/openroad/replace.tcl
-[ERROR]: Exit code: 1
-[ERROR]: full log: designs/ci/regfile_2r1w/runs/full_guide/logs/placement/9-global.log
+[ERROR]: during executing openroad script /openlane/scripts/openroad/pdn.tcl
+[ERROR]: Log: designs/regfile_2r1w/runs/full_guide/logs/floorplan/7-pdn.log
 [ERROR]: Last 10 lines:
-[INFO GPL-0015] CoreAreaUxUy: 489440 495040
-[INFO GPL-0016] CoreArea: 234294707200
-[INFO GPL-0017] NonPlaceInstsArea: 124707104000
-[INFO GPL-0018] PlaceInstsArea: 117229672450
-[INFO GPL-0019] Util(%): 106.97
-[INFO GPL-0020] StdInstsArea: 454185600
-[INFO GPL-0021] MacroInstsArea: 116775486850
-[ERROR GPL-0301] Utilization exceeds 100%.
-Error: replace.tcl, 91 GPL-0301
+[INFO]: Setting clock transition to: 0.15
+[INFO]: Setting timing derate to: 5.0 %
+[INFO PDN-0001] Inserting grid: stdcell_grid
+[INFO PDN-0001] Inserting grid: macro - lane0
+[INFO PDN-0001] Inserting grid: macro - lane1
+[WARNING PDN-0232] macro - lane0 does not contain any shapes or vias.
+[WARNING PDN-0232] macro - lane1 does not contain any shapes or vias.
+[ERROR PDN-0233] Failed to generate full power grid.
+PDN-0233
 child process exited abnormally
 ```
 
 To debug this issue, open the OpenROAD GUI:
 
 ```console 
-$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide_broken_aspect_ratio
-$ package require openlane
-$ or_gui
+$ python3 gui.py ./designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/
 ```
 
 ```{figure}
 ../../\_static/digital_flow/broken_aspect_ratio.png
 ```
 
-As shown in the image, the placement of the `mem_1r1w` instances failed. The tool was unable to place the macroblocks inside the `DIE_AREA`. While the area is sufficient, there is no possible combination of placement for these cells that fits without overlap.
+As shown in the image, the placement of the `mem_1r1w` instances failed. The instances overlap
+and the Flow was unable to create a PDN properly
 
 Change the `FP_ASPECT_RATIO` value to `2`. This will make the floorplan a rectangle instead of a square, with the rectangle being twice as tall as it is wide.
 
@@ -189,11 +222,28 @@ More information about floorplanning is available in the [Hardening Macros guide
 
 The `config.json` file should look like this:
 
-```{literalinclude} ../../../designs/ci/regfile_2r1w/config.json
-:language: json
+```json
+{
+    "DESIGN_NAME": "regfile_2r1w",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "FP_PDN_MULTILAYER": true,
+    "FP_CORE_UTIL": 60,
+    "FP_ASPECT_RATIO": 2,
+
+    "EXTRA_LEFS": "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+    "EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v",
+    "MACRO_PLACEMENT_CFG": "dir::macro.cfg"
+}
 ```
 
-There is no need to change the default PDN configuration. It will create power straps on `met5` and connect the macro (which has power straps on `met4`) using vias.
+The macroblock locations have to change as well. Edit `./designs/regfile_2r1w/macro.cfg`:
+```
+lane0 80.24 10.88 N
+lane1 80.24 380.08 N
+```
 
 ### Run the Flow Again
 
@@ -207,25 +257,21 @@ $ ./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
 Open the OpenROAD GUI to view the results of the flow.
 
 ```console
-$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
-$ package require openlane
-$ set_def designs/ci/regfile_2r1w/runs/full_guide/results/final/def/regfile_2r1w.def
-$ or_gui
-# Empty newline to force above line to execute
+$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/
 ```
 
 ```{figure} ../../_static/digital_flow/final_def.png
 OpenROAD GUI with loaded final DEF file
 ```
 
-If you want to load a different DEF file, use the `set_def` command. For example:
+If you want to load a DEF/ODB file, at a different stage in the flow, run, for example:
 
 ```console
-$ ./flow.tcl -design regfile_2r1w -interactive -tag full_guide
-$ package require openlane
-$ set_def designs/ci/regfile_2r1w/runs/full_guide/results/floorplan/regfile_2r1w.def
-$ or_gui
+$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/ --stage cts
 ```
+
+For more information, run `python3 gui.py --help` or visit <insert link>
+
 
 ```{figure} ../../_static/digital_flow/floorplan_def_loaded.png
 ```
@@ -251,12 +297,11 @@ The `results` directory contains the results (outputs) of each step. For example
 ```
 designs/ci/regfile_2r1w/runs/full_guide/results/cts
 ├── regfile_2r1w.def
-├── regfile_2r1w.resized.v
-├── regfile_2r1w.sdc
-└── regfile_2r1w.v
+├── regfile_2r1w.odb
+└── regfile_2r1w.sdc
 ```
 
-DEF files can be loaded using the steps provided above.
+DEF/ODB files can be loaded using the steps provided above.
 
 Finally, the output of OpenLane can be found in `designs/ci/regfile_2r1w/runs/full_guide/results/final`:
 
@@ -352,7 +397,7 @@ It is recommended to check the reports for power, timings, etc. This provides a 
 Finally, open the final layout.
 
 ```console
-$ klayout -e -nn $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyt         -l $PDK_ROOT/sky130A/libs.tech/klayout/tech/sky130A.lyp         ./designs/ci/regfile_2r1w/runs/full_guide/results/final/gds/regfile_2r1w.gds
+$ python3 gui.py ./designs/regfile_2r1w/runs/full_guide --viewer klayout
 ```
 
 ```{figure} ../../_static/digital_flow/final_gds.png
@@ -447,98 +492,3 @@ Fanout     Cap    Slew   Delay    Time   Description
                                         4.68   slack (MET)
 ```
 
-### Demo: Debugging LVS Issues Due to PDN Issues
-
-Copy the original `regfile_2r1w` design as `regfile_2r1w_design_not_core`. Change `FP_PDN_MULTILAYER` to `false`.
-
-```json
-{
-    "DESIGN_NAME": "regfile_2r1w",
-    "VERILOG_FILES": "dir::src/*.v",
-    "CLOCK_PORT": "clk",
-    "CLOCK_PERIOD": 10.0,
-    "FP_PDN_MULTILAYER": false,
-
-    "FP_ASPECT_RATIO": 2,
-    "EXTRA_LEFS":      "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-    "EXTRA_GDS_FILES": "/openlane/designs/ci/mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
-}
-```
-
-Then run the flow:
-
-```console
-$ ./flow.tcl -design regfile_2r1w_design_not_core -tag full_guide -overwrite
-```
-
-The following error is expected:
-
-```
-[STEP 39]
-[INFO]: Running Magic Spice Export from LEF (log: designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/39-spice.log)...
-[STEP 40]
-[INFO]: Writing Powered Verilog (log: ../dev/null)...
-[STEP 41]
-[INFO]: Writing Verilog...
-[STEP 42]
-[INFO]: Running LEF LVS...
-[ERROR]: There are LVS errors in the design: See 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log' for details.
-[INFO]: Saving current set of views in 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final'...
-[INFO]: Generating final set of reports...
-[INFO]: Created manufacturability report at 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/reports/manufacturability.rpt'.
-[INFO]: Created metrics report at 'designs/ci/regfile_2r1w_design_not_core/runs/full_guide/reports/metrics.csv'.
-[INFO]: Saving runtime environment...
-[ERROR]: Flow failed.
-
-    while executing
-"flow_fail"
-    (procedure "quit_on_lvs_error" line 12)
-    invoked from within
-"quit_on_lvs_error -log $count_lvs_log"
-    (procedure "run_lvs" line 79)
-    invoked from within
-"run_lvs"
-    (procedure "run_lvs_step" line 10)
-    invoked from within
-"[lindex $step_exe 0] [lindex $step_exe 1] "
-    (procedure "run_non_interactive_mode" line 52)
-    invoked from within
-"run_non_interactive_mode {*}$argv"
-    invoked from within
-"if { [info exists flags_map(-interactive)] || [info exists flags_map(-it)] } {
-    if { [info exists arg_values(-file)] } {
-        run_file [file nor..."
-    (file "./flow.tcl" line 401)
-```
-
-Check the log file `designs/ci/regfile_2r1w_design_not_core/runs/full_guide/logs/signoff/42-regfile_2r1w.lvs.lef.log`.
-
-```
-LVS reports:
-    net count difference = 4
-    device count difference = 0
-    unmatched nets = 11
-    unmatched devices = 22
-    unmatched pins = 0
-    property failures = 0
-
-Total errors = 37
-```
-
-The router will fail if it cannot route the signals. Therefore, the issue is in the PDN stage. Use `or_gui` to help debug this issue.
-
-```console 
-$ ./flow.tcl -design regfile_2r1w_design_not_core -interactive -tag full_guide
-$ package require openlane
-$ set_def designs/ci/regfile_2r1w_design_not_core/runs/full_guide/results/final/def/regfile_2r1w.def
-$ or_gui
-```
-
-```{figure} ../../_static/digital_flow/lvs_issue_comparison.png
-**Left:** Working case. **Right:** Case with PDN issues.
-```
-
-The submacros are by default logically connected to the `VPWR/VGND` power domain. As you can see, the PDN is missing power straps in layer `met5`. Therefore, the layout does not have connections to the submacro, while the net is logically connected.
-
-This is expected as it was disabled by setting `FP_PDN_MULTILAYER` to `false` earlier. Reversing this change fixes the issue.
