@@ -109,22 +109,18 @@ Create the Verilog blackbox `./designs/regfile_2r1w/bb/mem_1r1w.bb.v`:
 
 Then, add `VERILOG_FILES_BLACKBOX`, `EXTRA_LEFS`, and `EXTRA_GDS_FILES` to the `config.json` file within `regfile_2r1w`:
 
-```{note}
-For the sake of the tutorial, `FP_CORE_UTIL` is set to `60`.
-```
-
 ```json
 {
-"DESIGN_NAME": "regfile_2r1w",
-"VERILOG_FILES": "dir::src/*.v",
-"CLOCK_PORT": "clk",
-"CLOCK_PERIOD": 10.0,
-"FP_PDN_MULTILAYER": true,
-"FP_CORE_UTIL": 60,
+    "DESIGN_NAME": "regfile_2r1w",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "FP_PDN_MULTILAYER": true,
+    "FP_CORE_UTIL": 60,
 
-"EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-"EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-"VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+    "EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+    "EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
 }
 ```
 
@@ -154,23 +150,22 @@ lane1 13 14 N
 ```
 
 This tells the flow to place `lane0` at location (15, 200) in microns with North orientation
-and `lane1` at location (13, 14) in microns with North orientation
+and `lane1` at location (13, 14) in microns with North orientation.
 
 Then change the JSON configuration to point to this file:
 
 ```json
 {
-"DESIGN_NAME": "regfile_2r1w",
-"VERILOG_FILES": "dir::src/*.v",
-"CLOCK_PORT": "clk",
-"CLOCK_PERIOD": 10.0,
-"FP_PDN_MULTILAYER": true,
-"FP_CORE_UTIL": 60,
+    "DESIGN_NAME": "regfile_2r1w",
+    "VERILOG_FILES": "dir::src/*.v",
+    "CLOCK_PORT": "clk",
+    "CLOCK_PERIOD": 10.0,
+    "FP_PDN_MULTILAYER": true,
 
-"EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
-"EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
-"VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
-"MACRO_PLACEMENT_CFG": "dir::macro.cfg"
+    "EXTRA_LEFS":      "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
+    "EXTRA_GDS_FILES": "dir::../mem_1r1w/runs/full_guide/results/final/gds/mem_1r1w.gds",
+    "VERILOG_FILES_BLACKBOX": "dir::bb/*.v"
+    "MACRO_PLACEMENT_CFG": "dir::macro.cfg"
 }
 ```
 
@@ -208,8 +203,7 @@ To debug this issue, open the OpenROAD GUI:
 $ python3 gui.py ./designs/regfile_2r1w/runs/full_guide_broken_aspect_ratio/
 ```
 
-```{figure}
-../../\_static/digital_flow/broken_aspect_ratio.png
+```{figure} ../../_static/digital_flow/broken_aspect_ratio.png
 ```
 
 As shown in the image. The instances overlap and the Flow was unable to create a PDN properly
@@ -227,7 +221,6 @@ The `config.json` file should look like this:
     "CLOCK_PORT": "clk",
     "CLOCK_PERIOD": 10.0,
     "FP_PDN_MULTILAYER": true,
-    "FP_CORE_UTIL": 60,
     "FP_ASPECT_RATIO": 2,
 
     "EXTRA_LEFS": "dir::../mem_1r1w/runs/full_guide/results/final/lef/mem_1r1w.lef",
@@ -255,7 +248,7 @@ $ ./flow.tcl -design regfile_2r1w -tag full_guide -overwrite
 Open the OpenROAD GUI to view the results of the flow.
 
 ```console
-$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/
+$ python3 gui.py --viewer openroad ./designs/regfile_2r1w/runs/full_guide/
 ```
 
 ```{figure} ../../_static/digital_flow/final_def.png
