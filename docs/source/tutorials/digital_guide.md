@@ -6,9 +6,12 @@ This guide covers the creation of a simple hierarchical chip-level macro. A memo
 
 This section covers the process of hardening the `mem_1r1w` macroblock. As these macroblocks will be used in the top-level hierarchy, some configurations need to be made. 
 
-Keep in mind that these designs are not production-ready and are solely used to showcase the capabilities of OpenLane.
+```{warning}
+These designs are not ready for production and are just used to showcase the capabilities of OpenLane.
+```
 
 ### Create the Memory Macro Design
+=======
 
 To begin, create the design. The following command will create a directory named `design/mem_1r1w/` and a file named `config.json` that will be mostly empty.
 
