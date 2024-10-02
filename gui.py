@@ -65,7 +65,7 @@ def gui(viewer, format, run_dir, stage):
         extra_config = {}
         if stage is not None:
             matches = glob.glob(os.path.join(run_dir, "results", stage, f"*.{format}"))
-            if matches is []:
+            if matches == []:
                 err(f"No {format} found for stage {stage}")
             else:
                 extra_config[f"CURRENT_{format.upper()}"] = matches[0]
