@@ -15,38 +15,12 @@
 import os
 import sys
 import shlex
+import argparse
 from typing import Tuple
 
 import pya  # Must be run inside KLayout-- the library version of pya does not include "Application"
-import click
 
 
-@click.command()
-@click.option(
-    "-l",
-    "--input-lef",
-    "input_lefs",
-    multiple=True,
-)
-@click.option(
-    "-T",
-    "--lyt",
-    required=True,
-    help="KLayout .lyt file",
-)
-@click.option(
-    "-P",
-    "--lyp",
-    required=True,
-    help="KLayout .lyp file",
-)
-@click.option(
-    "-M",
-    "--lym",
-    required=True,
-    help="KLayout .map (LEF/DEF layer map) file",
-)
-@click.argument("input")
 def open_design(input_lefs: Tuple[str, ...], lyt: str, lyp: str, lym: str, input: str):
     try:
         main_window = pya.Application.instance().main_window()
@@ -70,4 +44,20 @@ def open_design(input_lefs: Tuple[str, ...], lyt: str, lyp: str, lym: str, input
 
 
 if __name__ == "__main__":
-    open_design(shlex.split(os.getenv("KLAYOUT_ARGV")))
+    parser = argparse.ArgumentParser(description="Open design in KLayout")
+    parser.add_argument(
+        "-l",
+        "--input-lef",
+        action="append",
+        dest="input_lefs",
+        help="KLayout .lef files",
+    )
+    parser.add_argument("-T", "--lyt", required=True, help="KLayout .lyt file")
+    parser.add_argument("-P", "--lyp", required=True, help="KLayout .lyp file")
+    parser.add_argument(
+        "-M", "--lym", required=True, help="KLayout .map (LEF/DEF layer map) file"
+    )
+    parser.add_argument("input", help="KLayout cell name")
+
+    args = parser.parse_args(shlex.split(os.environ["KLAYOUT_ARGV"]))
+    open_design(args.input_lefs, args.lyt, args.lyp, args.lym, args.input)

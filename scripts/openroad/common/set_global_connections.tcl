@@ -59,12 +59,14 @@ proc set_global_connections {} {
                 exit 1
             }
 
+            puts "Connecting $instance_name/$power_pin to $power_net..."
             add_global_connection \
                 -net $power_net \
                 -inst_pattern $instance_name \
                 -pin_pattern $power_pin \
                 -power
 
+            puts "Connecting $instance_name/$ground_pin to $ground_net..."
             add_global_connection \
                 -net $ground_net \
                 -inst_pattern $instance_name \

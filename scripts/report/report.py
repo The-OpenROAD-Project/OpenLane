@@ -58,6 +58,11 @@ class Artifact(object):
                     file=sys.stderr,
                 )
                 exit(1)
+            elif len(matches) == 0:
+                print(
+                    f"{self.pathname} not found.",
+                    file=sys.stderr,
+                )
             else:
                 self.pathname = matches[0]
 
