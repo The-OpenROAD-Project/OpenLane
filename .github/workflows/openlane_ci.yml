@@ -329,7 +329,7 @@ jobs:
           echo "TAG_LIST=" >> $GITHUB_ENV
 
       - name: Docker Tag (Main Branch Hashes)
-        if: ${{ env.PUSHING == '1' && github.event_name == 'push' && env.BRANCH_NAME == env.MAIN_BRANCH }}
+        if: ${{ env.PUSHING == '1' && github.event_name == 'push' && env.BRANCH_NAME == vars.MAIN_BRANCH }}
         run: |
           echo "TAG_LIST=$TAG_LIST ${{ env.GIT_COMMIT_HASH }}" >> $GITHUB_ENV
 

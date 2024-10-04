@@ -49,8 +49,9 @@
   pyenv-sitepackages = "${pyenv}/${pyenv.sitePackages}";
 in
   stdenv.mkDerivation rec {
-    name = "openlane1";
-
+    pname = "openlane1";
+    version = "1.1.1";
+    
     src = [
       ./flow.tcl
       ./scripts
