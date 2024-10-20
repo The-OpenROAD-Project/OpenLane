@@ -258,7 +258,7 @@ OpenROAD GUI with loaded final DEF file
 If you want to load a DEF/ODB file, at a different stage in the flow, run, for example:
 
 ```console
-$ python3 gui.py --viewer openroad ./designs/mem_1r1w/runs/full_guide/ --stage floorplan
+$ python3 gui.py --viewer openroad ./designs/regfile_2r1w/runs/full_guide/ --stage floorplan
 ```
 
 For more information, run `python3 gui.py --help` or visit <insert link>
