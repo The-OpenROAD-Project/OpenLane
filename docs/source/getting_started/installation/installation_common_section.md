@@ -111,6 +111,9 @@ Basic test passed
 Open the final layout using KLayout. This will open the window of KLayout in editing mode `-e` with sky130 technology.
 
 ```
+# This might be required in case we get error "Could not load the Qt platform plugin "xcb" in "" even though it was found."
+xhost +SI:localuser:$(id -un)
+
 # Enter a Docker session:
 make mount
 
