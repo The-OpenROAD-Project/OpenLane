@@ -17,7 +17,7 @@ import os
 import re
 from gh import gh
 
-new_tag = "NO_NEW_TAG"
+new_tag = ""
 
 tags = [tag for _, tag in gh.openlane.tags]
 

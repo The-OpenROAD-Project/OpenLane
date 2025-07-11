@@ -9,7 +9,7 @@ runs:
 
     - name: Export PDK ROOT
       shell: bash
-      run: echo "PDK_ROOT=/usr/local/pdk" >> $GITHUB_ENV
+      run: echo "PDK_ROOT=$HOME/.ciel" >> $GITHUB_ENV
 
     - name: Export Branch Name
       shell: bash

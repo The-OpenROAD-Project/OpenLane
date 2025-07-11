@@ -17,39 +17,37 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        pdk: [sky130A, gf180mcuC]
+        pdk: [sky130A]
+    outputs:
+      opdks_rev: ${{ steps.set-rev.outputs.opdks_rev }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
 
+      - name: Get Open PDKs Revision
+        id: set-rev
+        run: |
+          echo "opdks_rev=$(python3 ./dependencies/tool.py open_pdks -f commit)" >> $GITHUB_OUTPUT
+
+      - name: Cache sky130 PDK
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.PDK_ROOT }}
+          key: cache-${{ matrix.pdk }}-pdk-${{ steps.set-rev.outputs.opdks_rev }}
+          enableCrossOsArchive: true
+
       - name: Build (or Get) PDK
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
-          export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           PDK=${{ matrix.pdk }}
-          PDK_FAMILY=${PDK%?}
-
-          sudo mkdir -p ${{ env.PDK_ROOT }}
-          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
 
           python3 -m pip install --upgrade --no-cache-dir 'ciel>=2.0.1,<3'
-          export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           ciel enable\
-            --pdk $PDK_FAMILY\
+            --pdk-family $PDK\
             --github-token ${{ secrets.GITHUB_TOKEN }}\
-            $OPDKS_VER
-
-      - name: Tarball PDK
-        run: |
-          tar -cf /tmp/${{ matrix.pdk }}.tar -C $PDK_ROOT/${{ matrix.pdk }} .
-
-      - name: Upload PDK Tarball
-        uses: actions/upload-artifact@v4
-        with:
-          name: pdk-tarball-${{ matrix.pdk }}
-          path: /tmp/${{ matrix.pdk }}.tar
+            ${{ steps.set-rev.outputs.opdks_rev }}
   prepare_test_matrices:
     name: Prepare Test Matrices
     runs-on: ubuntu-22.04
@@ -71,9 +69,9 @@ jobs:
         id: set-matrix
         run: |
           if [[ "$USE_ETS" = "1" ]]; then
-            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuC/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set extended_test_set)" >> $GITHUB_OUTPUT
+            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuD/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set extended_test_set)" >> $GITHUB_OUTPUT
           else
-            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuC/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set)" >> $GITHUB_OUTPUT
+            echo "design_matrix=$(python3 ./.github/test_sets/get_test_matrix.py --scl sky130A/sky130_fd_sc_hd --scl gf180mcuD/gf180mcu_fd_sc_mcu7t5v0 fastest_test_set)" >> $GITHUB_OUTPUT
           fi
           echo "issue_regression_matrix=$(python3 -m tests get_matrix)" >> $GITHUB_OUTPUT
 
@@ -129,17 +127,18 @@ jobs:
       - name: Import Docker Image
         run: docker load --input /tmp/image-amd64.tar
 
-      - name: Download PDK Tarball
-        uses: actions/download-artifact@v4
+      - name: Cache PDK
+        id: cache-pdk
+        uses: actions/cache@v4
         with:
-          name: pdk-tarball-sky130A
-          path: /tmp
+          path: ${{ env.PDK_ROOT }}
+          key: cache-${{ matrix.design.pdk }}-pdk-${{ needs.pdk_build.outputs.opdks_rev }}
+          enableCrossOsArchive: true
 
-      - name: Unpack PDK Tarball
+      - name: Enable PDKs
+        if: steps.cache-pdk.outputs.cache-hit != 'true'
         run: |
-          sudo mkdir -p ${{ env.PDK_ROOT }}/sky130A
-          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
-          tar -xf /tmp/sky130A.tar -C $PDK_ROOT/sky130A .
+          make pdk
 
       - name: Get Pyyaml
         run: python3 -m pip install pyyaml
@@ -179,17 +178,18 @@ jobs:
       - name: Import Docker Image
         run: docker load --input /tmp/image-amd64.tar
 
-      - name: Download PDK Tarball
-        uses: actions/download-artifact@v4
+      - name: Cache PDK
+        id: cache-pdk
+        uses: actions/cache@v4
         with:
-          name: pdk-tarball-${{ matrix.design.pdk }}
-          path: /tmp
+          path: ${{ env.PDK_ROOT }}
+          key: cache-${{ matrix.design.pdk }}-pdk-${{ needs.pdk_build.outputs.opdks_rev }}
+          enableCrossOsArchive: true
 
-      - name: Unpack PDK Tarball
+      - name: Enable PDKs
+        if: steps.cache-pdk.outputs.cache-hit != 'true'
         run: |
-          sudo mkdir -p ${{ env.PDK_ROOT }}/${{ matrix.design.pdk }}
-          sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
-          tar -xf /tmp/${{ matrix.design.pdk }}.tar -C $PDK_ROOT/${{ matrix.design.pdk }} .
+          PDK=${{ matrix.design.pdk }} make pdk
 
       - name: Set PDK Variant
         run: |
@@ -256,21 +256,6 @@ jobs:
           name: docker-image-arm64v8
           path: /tmp
 
-      - name: Delete Docker Image (amd64)
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: docker-image-amd64
-
-      - name: Delete Docker Image (arm64v8)
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: docker-image-arm64v8
-
-      - name: Delete PDK
-        uses: geekyeggo/delete-artifact@v1
-        with:
-          name: pdk-tarball
-
       - name: Write Hash
         run: |
           echo "GIT_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
@@ -287,7 +272,7 @@ jobs:
         run: cd ${GITHUB_WORKSPACE}/ && python3 ${GITHUB_WORKSPACE}/.github/scripts/generate_tag.py
 
       - name: Tag Commit
-        if: ${{ env.PUSHING == '1' && env.NEW_TAG != 'NO_NEW_TAG' }}
+        if: ${{ env.PUSHING == '1' && env.NEW_TAG != '' }}
         uses: tvdias/github-tagger@v0.0.1
         with:
           tag: "${{ env.NEW_TAG }}"

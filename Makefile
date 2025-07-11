@@ -63,22 +63,6 @@ PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 
 export PDK ?= sky130A
 
-ifeq ($(PDK),sky130A)
-PDK_FAMILY = sky130
-endif
-ifeq ($(PDK),sky130B)
-PDK_FAMILY = sky130
-endif
-ifeq ($(PDK),gf180mcuA)
-PDK_FAMILY = gf180mcu
-endif
-ifeq ($(PDK),gf180mcuB)
-PDK_FAMILY = gf180mcu
-endif
-ifeq ($(PDK),gf180mcuC)
-PDK_FAMILY = gf180mcu
-endif
-
 PDK_OPTS += -e PDK=$(PDK)
 
 ifneq ($(STD_CELL_LIBRARY),)
@@ -123,9 +107,8 @@ mount:
 		$(ENV_START) -ti $(OPENLANE_IMAGE_NAME)-$(DOCKER_ARCH)
 
 .PHONY: pdk
-pdk: venv/created
-	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir ciel
-	./venv/bin/ciel enable --pdk $(PDK_FAMILY)
+pdk: venv/manifest.txt
+	./venv/bin/ciel enable --pdk $(PDK)
 
 .PHONY: survey
 survey:
@@ -133,21 +116,21 @@ survey:
 
 
 .PHONY: lint
-lint: venv/created
+lint:  venv/manifest.txt
 	./venv/bin/black --check .
 	./venv/bin/flake8 .
 
 .PHONY: start-build-env
-start-build-env: venv/created
+start-build-env:  venv/manifest.txt
 	bash -c "bash --rcfile <(cat ~/.bashrc ./venv/bin/activate)"
 
-venv: venv/created
-venv/created: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
+venv: venv/manifest.txt
+venv/manifest.txt: ./requirements.txt ./requirements_dev.txt ./requirements_lint.txt ./dependencies/python/precompile_time.txt ./dependencies/python/run_time.txt 
 	rm -rf ./venv
 	$(PYTHON_BIN) -m venv ./venv
 	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir pip
 	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir -r ./requirements_dev.txt
-	touch $@
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip freeze > $@
 
 DLTAG=custom_design_List
 .PHONY: test_design_list fastest_test_set extended_test_set
