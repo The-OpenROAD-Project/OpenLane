@@ -10,10 +10,10 @@ on:
 jobs:
   check_variables:
     name: Check Variables
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Ripgrep
         run: sudo apt install -y ripgrep
       - name: Check for missing documentation

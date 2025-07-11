@@ -789,7 +789,7 @@ class Scanner:
         # `unwind_indent` before issuing BLOCK-END.
         # Scanners for block, flow, and plain scalars need to be modified.
 
-        if self.index == 0 and self.peek() == "\uFEFF":
+        if self.index == 0 and self.peek() == "\ufeff":
             self.forward()
         found = False
         while not found:
@@ -1233,17 +1233,17 @@ class Scanner:
         "b": "\x08",
         "t": "\x09",
         "\t": "\x09",
-        "n": "\x0A",
-        "v": "\x0B",
-        "f": "\x0C",
-        "r": "\x0D",
-        "e": "\x1B",
+        "n": "\x0a",
+        "v": "\x0b",
+        "f": "\x0c",
+        "r": "\x0d",
+        "e": "\x1b",
         " ": "\x20",
         '"': '"',
         "\\": "\\",
         "/": "/",
         "N": "\x85",
-        "_": "\xA0",
+        "_": "\xa0",
         "L": "\u2028",
         "P": "\u2029",
     }

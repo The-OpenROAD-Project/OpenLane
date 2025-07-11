@@ -10,10 +10,10 @@ on:
 jobs:
   lint_python:
     name: Lint Python Code
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Install Linters
         run: python3 -m pip install -r ./requirements_lint.txt
       - name: Ensure Black Formatting

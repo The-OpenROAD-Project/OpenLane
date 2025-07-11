@@ -1,4 +1,2 @@
 -r ./requirements.txt
-black~=22.3.0
-flake8~=4.0.1
-flake8-no-implicit-concat==0.3.3
+-r ./requirements_lint.txt

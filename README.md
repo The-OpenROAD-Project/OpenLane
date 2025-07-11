@@ -1,19 +1,27 @@
+<h3 align="center"> OpenLane is currently in maintenance mode.</h3>
+
+The versions of OpenLane currently being offered and supported are currently
+versions 1.0.X, as they were used for countless tape outs for the Google MPW and
+Efabless chipIgnite shuttles. Only critical bugfixes will be merged at this
+point. The intent is that tape-outs on older shuttles may be reproduced.
+
+<p align="center">
+    <a href="https://github.com/librelane/librelane"><img src="./docs/_static/librelane_banner.svg" width="50%" alt="LibreLane: Meet the successor to OpenLane — community-driven and rewritten from scratch with a modular architecture. Configure your designs using one file just like OpenLane, or use Python to implement advanced flows."></a>
+</p>
+
+---
+
 <h1 align="center">OpenLane</h1>
 <p align="center">
-    <a href="https://colab.research.google.com/github/chipsalliance/silicon-notebooks/blob/main/digital-inverter-openlane.ipynb"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab"></a>
     <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License: Apache 2.0"/></a>
-    <img src="https://github.com/efabless/volare/actions/workflows/ci.yml/badge.svg?branch=main" alt="GitHub Actions Status Badge" />
+    <img src="https://github.com/The-OpenROAD-Project/OpenLane/actions/workflows/openlane_ci.yml/badge.svg?branch=superstable" alt="GitHub Actions Status Badge" />
     <a href="https://openlane.readthedocs.io/"><img src="https://readthedocs.org/projects/openlane/badge/?version=latest" alt="Documentation Build Status Badge"/></a>
-    <a href="https://invite.skywater.tools"><img src="https://img.shields.io/badge/Community-Open%20Source%20Silicon%20Slack-ff69b4?logo=slack" alt="Invite to the Open Source Silicon Slack"/></a>
-    <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/python%20code%20style-black-000000.svg" alt="Python Code Style: black"/></a>
+    <a href="https://matrix.to/#/#openlane:fossi-chat.org"><img src="https://img.shields.io/badge/Community-FOSSi%20Chat-1bb378?logo=element" alt="Invite to FOSSi Chat"/></a>
 </p>
 
 OpenLane is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, CVC, SPEF-Extractor, KLayout and a number of custom scripts for design exploration and optimization. The flow performs all ASIC implementation steps from RTL all the way down to GDSII.
 
 You can check out the documentation, including in-depth guides and reference manuals at [ReadTheDocs](https://openlane.readthedocs.io/).
-
-## Quick-start Guide
-If you just want to try OpenLane out, try [this Colaboratory](https://colab.research.google.com/github/chipsalliance/silicon-notebooks/blob/main/digital-inverter-openlane.ipynb) by our friends at Google and ChipsAlliance. It's an online Python-based utility, and the best part is, *you don't need to install anything.*
 
 ## Installation, the short version
 The short version is, to install the OpenLane environment...
@@ -43,7 +51,7 @@ make test
 If everything's gone smoothly, that's it. OpenLane is set up on your computer. To enter the OpenLane environment, `cd $HOME/OpenLane` and then `make mount`.
 
 ## Installation, the long version
-See the installation docs at https://openlane.readthedocs.io/en/latest/getting_started/installation/index.html.
+See the installation docs at https://openlane.readthedocs.io/en/superstable/getting_started/installation/index.html.
 
 ## Usage
 After entering the OpenLane environment, you can start hardening chips: the following command, for example, runs the included [spm design](./designs/spm).
@@ -51,9 +59,6 @@ After entering the OpenLane environment, you can start hardening chips: the foll
 ```sh
 ./flow.tcl -design spm
 ```
-
-## Need more help?
-You can join the [Open Source Silicon Slack](https://invite.skywater.tools), where you can ask thousands of other open source hardware enthusiasts for help with setting up or running OpenLane.
 
 ## Publication
 If you use OpenLane in your research, please cite the following paper.
@@ -73,10 +78,16 @@ If you use OpenLane in your research, please cite the following paper.
 ```
 
 
-## License
-[The Apache License, version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt).
+## Legal Stuff
 
-Docker images distributed by Efabless Corporation under the same license.
+OpenLane is ©2020-2024 Efabless Corporation and is available under
+[the Apache License, version 2.0](https://www.apache.org/licenses/LICENSE-2.0.txt).
+
+Newer container images (downloaded from
+`ghcr.io/the-openroad-project/openlane`) are distributed by Somnium Consulting
+LLC under the same license.
+
+Older container images (downloaded from `docker.io/efabless/openlane`) were
+distributed by Efabless Corporation under the same license.
 
 Binaries in OpenLane distributions may fall under stricter open source licenses.
-

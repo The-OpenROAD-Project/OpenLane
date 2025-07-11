@@ -57,7 +57,7 @@ PRINT_REM_DESIGNS_TIME ?= 0
 SKYWATER_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py sky130 -f commit)
 OPEN_PDKS_COMMIT ?= $(shell $(PYTHON_BIN) ./dependencies/tool.py open_pdks -f commit)
 
-export PDK_ROOT ?= $(HOME)/.volare
+export PDK_ROOT ?= $(HOME)/.ciel
 export PDK_ROOT := $(shell $(PYTHON_BIN) -c "import os; print(os.path.realpath('$(PDK_ROOT)'), end='')")
 PDK_OPTS = -v $(PDK_ROOT):$(PDK_ROOT) -e PDK_ROOT=$(PDK_ROOT)
 
@@ -124,8 +124,8 @@ mount:
 
 .PHONY: pdk
 pdk: venv/created
-	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir volare
-	./venv/bin/volare enable --pdk $(PDK_FAMILY)
+	PYTHONPATH= ./venv/bin/$(PYTHON_BIN) -m pip install --upgrade --no-cache-dir ciel
+	./venv/bin/ciel enable --pdk $(PDK_FAMILY)
 
 .PHONY: survey
 survey:

@@ -118,7 +118,7 @@ class Reader(object):
             ):
                 self.line += 1
                 self.column = 0
-            elif ch != "\uFEFF":
+            elif ch != "\ufeff":
                 self.column += 1
             length -= 1
 
@@ -146,7 +146,7 @@ class Reader(object):
         self.update(1)
 
     NON_PRINTABLE = re.compile(
-        "[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\uD7FF\uE000-\uFFFD\U00010000-\U0010ffff]"
+        "[^\x09\x0a\x0d\x20-\x7e\x85\xa0-\ud7ff\ue000-\ufffd\U00010000-\U0010ffff]"
     )
 
     def check_printable(self, data):

@@ -16,11 +16,11 @@ inputs:
   tool_repository:
     description: The Docker repository in which to store tools
     required: false
-    default: "efabless/openlane-tools"
+    default: "ghcr.io/the-openroad-project/openlane-tools"
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - uses: docker/setup-buildx-action@v2
     - uses: ./.github/actions/set_env_variables
 
@@ -36,9 +36,6 @@ runs:
       with:
         username: ${{ inputs.dockerhub_user }}
         password: ${{ inputs.dockerhub_password }}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
 
     - name: Docker Build
       shell: bash

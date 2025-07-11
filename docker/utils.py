@@ -29,16 +29,17 @@ CI_ARCHITECTURES = {"amd64", "arm64v8"}
 SUPPORTED_OPERATING_SYSTEMS = {"centos-7"}
 
 
-def test_manifest_exists(repository, tag) -> str:
-    url = f"https://registry.hub.docker.com/v2/repositories/{repository}/tags/{tag}"
-    req = urllib.request.Request(url, headers={"Accept": "application/json"})
-    status = None
+def test_manifest_exists(repository: str, tag: str) -> bool:
     try:
-        with urllib.request.urlopen(req) as res:
-            status = int(res.status)
-    except urllib.error.HTTPError as e:
-        status = int(e.code)
-    return status is not None and status >= 200 and status < 300
+        result = subprocess.call(
+            ["docker", "manifest", "inspect", f"{repository}:{tag}"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError as e:
+        print(f"docker doesn't appear to be installed: {e}", file=sys.stderr)
+        exit(-1)
+    return result == 0
 
 
 @click.group()
@@ -47,8 +48,9 @@ def cli():
 
 
 @click.command()
-@click.option("-R", "--registry", default="docker.io")
-@click.option("-r", "--repository", default="efabless/openlane-tools")
+@click.option(
+    "-r", "--repository", default="ghcr.io/the-openroad-project/openlane-tools"
+)
 @click.option(
     "-o",
     "--os",
@@ -63,7 +65,7 @@ def cli():
     type=click.Choice(SUPPORTED_ARCHITECTURES),
 )
 @click.argument("tool")
-def pull_if_doesnt_exist(registry, repository, operating_system, architecture, tool):
+def pull_if_doesnt_exist(repository, operating_system, architecture, tool):
     """
     Requires *actual* Docker. Podman won't cut it.
     """
@@ -309,7 +311,7 @@ def fetch_submodules_from_tarballs(filter, repository, commit):
     # 3. Extract Submodules
     temp_dir = tempfile.gettempdir()
     filter_rx = re.compile(filter, flags=re.I)
-    for (name, values) in submodules_by_name.items():
+    for name, values in submodules_by_name.items():
         path = values["path"]
 
         if filter_rx.match(path) is None:

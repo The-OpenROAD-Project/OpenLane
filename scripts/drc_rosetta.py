@@ -57,6 +57,7 @@ def magic_to_rdb(
     1800 2200
     1800 2200
     """
+
     # Developed by @ganeshgore
     class State(IntEnum):
         drc = 0

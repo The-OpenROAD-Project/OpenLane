@@ -1,4 +1,4 @@
-TOOL_REPOSITORY ?= efabless/openlane-tools
+TOOL_REPOSITORY ?= ghcr.io/the-openroad-project/openlane-tools
 
 include ../dependencies/image_name.mk
 

@@ -114,7 +114,7 @@ def verify_versions(
                     try:
                         config = json.loads(config_str)
                         commit_set = config["commit"]
-                        if type(commit_set) == str:
+                        if isinstance(commit_set, str):
                             tool_versions.append(("open_pdks", commit_set))
                         else:
                             for key, value in commit_set.items():

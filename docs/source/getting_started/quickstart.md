@@ -114,7 +114,7 @@ Here is an example for setting both variables:
 
 ```sh
 export PDK_ROOT=$HOME/pdks
-export OPENLANE_IMAGE_NAME=efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
+export OPENLANE_IMAGE_NAME=docker.io/efabless/openlane:ebad315d1def25d9d253eb2ec1c56d7b4e59d7ca
 make mount
 ```
 

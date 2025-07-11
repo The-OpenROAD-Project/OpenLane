@@ -1,5 +1,5 @@
 [flake8]
-ignore = E203,E266,E302,E501,W503
+ignore = E203,E266,E302,E501,W503,F824
 exclude =
     .git,
     __pycache__,
@@ -9,3 +9,6 @@ exclude =
     venv/,
     pdks/,
     dependencies/includedyaml
+per-file-ignores =
+    dependencies/env_info.py:F401,
+    dependencies/version.py:F401

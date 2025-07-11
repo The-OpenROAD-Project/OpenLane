@@ -241,7 +241,7 @@ def process_string(value: str, state: State) -> str:
         reference_variable = match[1]
         try:
             found = state.vars[reference_variable]
-            if type(found) != str:
+            if not isinstance(found, str):
                 if type(found) in [int, float]:
                     raise InvalidConfig(
                         f"Referenced variable {reference_variable} is a number and not a string: use expr::{match[0]} if you want to reference this number."
@@ -308,7 +308,7 @@ def process_config_dict_recursive(config_in: Dict[str, Any], state: State):
             elif isinstance(value, list):
                 valid = True
                 processed = []
-                for (i, item) in enumerate(value):
+                for i, item in enumerate(value):
                     current_key = f"{key}[{i}]"
                     processed.append(f"{process_scalar(current_key, item, state)}")
 

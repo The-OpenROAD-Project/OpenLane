@@ -14,7 +14,7 @@ on:
 jobs:
   pdk_build:
     name: Fetch or Build PDK
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         pdk: [sky130A, gf180mcuC]
@@ -23,13 +23,6 @@ jobs:
 
       - name: Set up environment variables
         uses: ./.github/actions/set_env_variables
-
-      - name: Get Volare Build/Push Dependencies
-        run: |
-          # Magic Build Dependencies
-          sudo apt-get install -y tcsh tcl-dev tk-dev libcairo2-dev m4
-          # GHR (Pushing)
-          go install github.com/tcnksm/ghr@latest
 
       - name: Build (or Get) PDK
         run: |
@@ -41,11 +34,11 @@ jobs:
           sudo mkdir -p ${{ env.PDK_ROOT }}
           sudo chown -R $USER:$USER ${{ env.PDK_ROOT }}
 
-          python3 -m pip install --upgrade --no-cache-dir volare
+          python3 -m pip install --upgrade --no-cache-dir 'ciel>=2.0.1,<3'
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
-          volare enable\
+          ciel enable\
             --pdk $PDK_FAMILY\
-            --token ${{ secrets.MY_TOKEN }}\
+            --token ${{ secrets.GITHUB_TOKEN }}\
             $OPDKS_VER
 
       - name: Tarball PDK
@@ -59,7 +52,7 @@ jobs:
           path: /tmp/${{ matrix.pdk }}.tar
   prepare_test_matrices:
     name: Prepare Test Matrices
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       design_matrix: ${{ steps.set-matrix.outputs.design_matrix }}
       issue_regression_matrix: ${{ steps.set-matrix.outputs.issue_regression_matrix }}
@@ -86,32 +79,32 @@ jobs:
 
   docker_build_amd64:
     name: Docker Build (amd64)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/docker_build
         with:
           arch: amd64
-          dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
-          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
           tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
   docker_build_arm64v8:
     name: Docker Build (arm64v8)
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04-arm
+    permissions:
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - name: Build
         uses: ./.github/actions/docker_build
         with:
           arch: arm64v8
-          dockerhub_user: ${{ secrets.DOCKERHUB_USER }}
-          dockerhub_password: ${{ secrets.DOCKERHUB_PASSWORD }}
           tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
   issue_regression_test:
     name: Regression Test (Test ${{ matrix.test }})
     needs: [docker_build_amd64, pdk_build, prepare_test_matrices]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.issue_regression_matrix) }}
@@ -159,7 +152,7 @@ jobs:
   test:
     name: Test Design ${{ matrix.design.name }} (${{ matrix.design.pdk }}/${{matrix.design.scl}})
     needs: [docker_build_amd64, pdk_build, prepare_test_matrices]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare_test_matrices.outputs.design_matrix) }}
@@ -226,14 +219,16 @@ jobs:
     needs:
       [docker_build_amd64, docker_build_arm64v8, test, issue_regression_test]
     if: always()
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
     steps:
       - name: Check If Going To Push An Image To Docker
         # # Uncomment the next line if you want to only build & push a container if entire test set succeeds
         # if: needs.test.result == 'success'
         # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
         run: |
-          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ secrets.DOCKERHUB_USER }}" != ""); print(1) else print(0) end')
+          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request"); print(1) else print(0) end')
           echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
@@ -290,14 +285,7 @@ jobs:
         uses: tvdias/github-tagger@v0.0.1
         with:
           tag: "${{ env.NEW_TAG }}"
-          repo-token: "${{ secrets.MY_TOKEN }}"
-
-      - name: Login to DockerHub
-        if: ${{ env.PUSHING == '1' }}
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repo-token: "${{ secrets.BOT_TOKEN }}"
 
       - name: Start Tag List
         if: ${{ env.PUSHING == '1' }}

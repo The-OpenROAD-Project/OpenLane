@@ -35,6 +35,7 @@ from os.path import abspath, dirname
 openlane_dir = dirname(abspath(__file__))
 is_root = os.geteuid() == 0
 
+
 # Commands
 def tool_list():
     from dependencies.tool import Tool
@@ -45,10 +46,8 @@ def tool_list():
 
 
 def local_install():
-    from dependencies.installer import Installer
-
-    installer = Installer()
-    installer.run()
+    print("The OpenLane local installer has been removed.", file=sys.stderr)
+    exit(-1)
 
 
 def docker_config():

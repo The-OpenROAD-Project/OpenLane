@@ -33,7 +33,8 @@ def get_metal_layers(output, lefs):
     ]
 
     layer_names = [
-        layer.getName() for layer in sorted(layers, key=lambda l: l.getRoutingLevel())
+        layer.getName()
+        for layer in sorted(layers, key=lambda layer_obj: layer_obj.getRoutingLevel())
     ]
 
     with open(output, "w") as f:

@@ -767,13 +767,13 @@ class Emitter:
             # Check for line breaks, special, and unicode characters.
             if ch in "\n\x85\u2028\u2029":
                 line_breaks = True
-            if not (ch == "\n" or "\x20" <= ch <= "\x7E"):
+            if not (ch == "\n" or "\x20" <= ch <= "\x7e"):
                 if (
                     ch == "\x85"
-                    or "\xA0" <= ch <= "\uD7FF"
-                    or "\uE000" <= ch <= "\uFFFD"
+                    or "\xa0" <= ch <= "\ud7ff"
+                    or "\ue000" <= ch <= "\ufffd"
                     or "\U00010000" <= ch < "\U0010ffff"
-                ) and ch != "\uFEFF":
+                ) and ch != "\ufeff":
                     unicode_characters = True
                     if not self.allow_unicode:
                         special_characters = True
@@ -834,9 +834,9 @@ class Emitter:
         # Spaces followed by breaks, as well as special character are only
         # allowed for double quoted scalars.
         if space_break or special_characters:
-            allow_flow_plain = (
-                allow_block_plain
-            ) = allow_single_quoted = allow_block = False
+            allow_flow_plain = allow_block_plain = allow_single_quoted = allow_block = (
+                False
+            )
 
         # Although the plain scalar writer supports breaks, we never emit
         # multiline plain scalars.
@@ -871,7 +871,7 @@ class Emitter:
     def write_stream_start(self):
         # Write BOM if needed.
         if self.encoding and self.encoding.startswith("utf-16"):
-            self.stream.write("\uFEFF".encode(self.encoding))
+            self.stream.write("\ufeff".encode(self.encoding))
 
     def write_stream_end(self):
         self.flush_stream()
@@ -998,15 +998,15 @@ class Emitter:
         "\x07": "a",
         "\x08": "b",
         "\x09": "t",
-        "\x0A": "n",
-        "\x0B": "v",
-        "\x0C": "f",
-        "\x0D": "r",
-        "\x1B": "e",
+        "\x0a": "n",
+        "\x0b": "v",
+        "\x0c": "f",
+        "\x0d": "r",
+        "\x1b": "e",
         '"': '"',
         "\\": "\\",
         "\x85": "N",
-        "\xA0": "_",
+        "\xa0": "_",
         "\u2028": "L",
         "\u2029": "P",
     }
@@ -1020,12 +1020,12 @@ class Emitter:
                 ch = text[end]
             if (
                 ch is None
-                or ch in '"\\\x85\u2028\u2029\uFEFF'
+                or ch in '"\\\x85\u2028\u2029\ufeff'
                 or not (
-                    "\x20" <= ch <= "\x7E"
+                    "\x20" <= ch <= "\x7e"
                     or (
                         self.allow_unicode
-                        and ("\xA0" <= ch <= "\uD7FF" or "\uE000" <= ch <= "\uFFFD")
+                        and ("\xa0" <= ch <= "\ud7ff" or "\ue000" <= ch <= "\ufffd")
                     )
                 )
             ):
@@ -1039,9 +1039,9 @@ class Emitter:
                 if ch is not None:
                     if ch in self.ESCAPE_REPLACEMENTS:
                         data = "\\" + self.ESCAPE_REPLACEMENTS[ch]
-                    elif ch <= "\xFF":
+                    elif ch <= "\xff":
                         data = "\\x%02X" % ord(ch)
-                    elif ch <= "\uFFFF":
+                    elif ch <= "\uffff":
                         data = "\\u%04X" % ord(ch)
                     else:
                         data = "\\U%08X" % ord(ch)
