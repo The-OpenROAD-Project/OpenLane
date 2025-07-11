@@ -31,10 +31,13 @@ endif
 # Allow using GUIs
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix -v $(HOME)/.Xauthority:/.Xauthority --network host --security-opt seccomp=unconfined
-  ifneq ("$(wildcard $(HOME)/.openroad)","")
-    DOCKER_OPTIONS += -v $(HOME)/.openroad:/.openroad
-  endif
+DOCKER_OPTIONS += -e DISPLAY=$(DISPLAY) -v /tmp/.X11-unix:/tmp/.X11-unix --network host --security-opt seccomp=unconfined
+	ifneq ("$(wildcard $(HOME)/.openroad)","")
+		DOCKER_OPTIONS += -v $(HOME)/.openroad:/.openroad
+	endif
+	ifneq ("$(wildcard $(HOME)/.Xauthority)","")
+		DOCKER_OPTIONS += -v $(HOME)/.Xauthority:/.Xauthority
+	endif
 endif
 
 THREADS ?= 1
