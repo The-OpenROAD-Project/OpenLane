@@ -38,7 +38,7 @@ jobs:
           export OPDKS_VER="$(python3 ./dependencies/tool.py open_pdks -f commit)"
           ciel enable\
             --pdk $PDK_FAMILY\
-            --token ${{ secrets.GITHUB_TOKEN }}\
+            --github-token ${{ secrets.GITHUB_TOKEN }}\
             $OPDKS_VER
 
       - name: Tarball PDK
@@ -89,6 +89,9 @@ jobs:
         with:
           arch: amd64
           tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
+          container_registry: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}
+          container_registry_user: ${{ vars.CR_USERNAME }}
+          container_registry_password: ${{ secrets.CR_PASSWORD }}
   docker_build_arm64v8:
     name: Docker Build (arm64v8)
     runs-on: ubuntu-22.04-arm
@@ -101,6 +104,9 @@ jobs:
         with:
           arch: arm64v8
           tool_repository: ${{ vars.TOOL_DOCKER_IMAGE }}
+          container_registry: ${{ vars.CONTAINER_REGISTRY || 'ghcr.io' }}
+          container_registry_user: ${{ vars.CR_USERNAME }}
+          container_registry_password: ${{ secrets.CR_PASSWORD }}
   issue_regression_test:
     name: Regression Test (Test ${{ matrix.test }})
     needs: [docker_build_amd64, pdk_build, prepare_test_matrices]
@@ -228,7 +234,7 @@ jobs:
         # if: needs.test.result == 'success'
         # Ruby snippet to print 0 if this is a PR or if there is no DOCKERHUB_USER secret set, otherwise, 1
         run: |
-          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request"); print(1) else print(0) end')
+          export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ vars.CR_USERNAME }}" != ""); print(1) else print(0) end')
           echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
       - uses: actions/checkout@v4
@@ -286,6 +292,14 @@ jobs:
         with:
           tag: "${{ env.NEW_TAG }}"
           repo-token: "${{ secrets.BOT_TOKEN }}"
+
+      - name: Login to Container Registry
+        if: ${{ env.PUSHING == '1' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.CONTAINER_REGISTRY }}
+          username: ${{ vars.CR_USERNAME }}
+          password: ${{ secrets.CR_PASSWORD }}
 
       - name: Start Tag List
         if: ${{ env.PUSHING == '1' }}

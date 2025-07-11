@@ -5,12 +5,16 @@ inputs:
     description: "The Docker architecture/platform to build for"
     required: true
     default: "amd64"
-  dockerhub_user:
-    description: The input dockerhub user
+  container_registry:
+    description: Container registry
+    required: true
+    default: "ghcr.io"
+  container_registry_user:
+    description: Container registry user
     required: false
     default: ""
-  dockerhub_password:
-    description: The input dockerhub password
+  container_registry_password:
+    description: Container registry password or token
     required: false
     default: ""
   tool_repository:
@@ -27,15 +31,15 @@ runs:
     - name: Check If Going To Push An Image To Docker
       shell: bash
       run: |
-        export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ inputs.dockerhub_user }}" != ""); print(1) else print(0) end')
+        export PUSHING=$(ruby -e 'if ("${{ github.event_name }}" != "pull_request" && "${{ inputs.container_registry_user }}" != ""); print(1) else print(0) end')
         echo "PUSHING=$PUSHING" >> $GITHUB_ENV
 
-    - name: Login to DockerHub
-      if: ${{ env.PUSHING == '1' }}
-      uses: docker/login-action@v1
+    - name: Login to Container Registry
+      uses: docker/login-action@v3
       with:
-        username: ${{ inputs.dockerhub_user }}
-        password: ${{ inputs.dockerhub_password }}
+        registry: ${{ inputs.container_registry }}
+        username: ${{ inputs.container_registry_user }}
+        password: ${{ inputs.container_registry_password }}
 
     - name: Docker Build
       shell: bash
